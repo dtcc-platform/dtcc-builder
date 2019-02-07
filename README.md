@@ -1,4 +1,4 @@
-# VCCore - VirtualCity@Chalmes Core
+# VCCore - VirtualCity@Chalmers Core
 
 VirtualCity@Chalmers is a multidisciplinary research project at
 Chalmers University of Technology involving researchers from
@@ -27,8 +27,12 @@ Give examples
 In preparation.
 
 ```
-Give the example
+Give examples
 ```
+
+## Deployment
+
+In preparation.
 
 ## Versioning
 
@@ -37,7 +41,7 @@ We use [CalVer](https://calver.org/) for versioning.
 ## Authors (in alphabetical order)
 
 * [Anders Logg](http://anders.logg.org)
-* Vasilis Naserentin(https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
+* [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
 
 ## License
 
