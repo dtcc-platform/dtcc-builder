@@ -1,4 +1,4 @@
-// A simple, efficient and robust 3D mesh generator for VitualCity@Chalmers.
+// A simple, efficient and robust 3D mesh generator for VirtualCity@Chalmers.
 // Copyright (C) 2018 Anders Logg.
 
 #ifndef MESH_GENERATION_H
@@ -93,26 +93,18 @@ public:
         double dz = h;
         const size_t NumberOfLayers = int(std::ceil(H / h));
         dz = H / double(NumberOfLayers);
+        const size_t LayerSize = m2D.Points.size();
+
+        std::cout << "Number of layers: " << NumberOfLayers << std::endl;
+        std::cout << "Layer size: " << LayerSize << std::endl;
 
         // Create marker/index array for used points
         const size_t NumberOfPoints = (NumberOfLayers + 1) * m2D.Points.size();
         std::vector<size_t> PointIndices(NumberOfPoints);
-        std::fill(PointIndices.begin(), PointIndices.end(), 0);
-
-        // Add points for all layers
-        for (size_t Layer = 0; Layer <= NumberOfLayers; Layer++)
-        {
-            const double z = Layer * dz;
-            for (auto const & p2D : m2D.Points)
-            {
-                Point3D p3D(p2D.x, p2D.y, z);
-                m3D.Points.push_back(p3D);
-            }
-        }
+        std::fill(PointIndices.begin(), PointIndices.end(), NumberOfPoints);
 
         // Add tetrahedra for all layers
         size_t Offset = 0;
-        const size_t LayerSize = m2D.Points.size();
         for (size_t Layer = 0; Layer < NumberOfLayers; Layer++)
         {
             // Add tetrahedra for layer
@@ -147,20 +139,49 @@ public:
                 m3D.Cells.push_back(Simplex3D(u0, v0, v1, v2));
 
                 // Indicate which points are used
-                PointIndices[u0] = 1;
-                PointIndices[u1] = 1;
-                PointIndices[u2] = 1;
-                PointIndices[v0] = 1;
-                PointIndices[v1] = 1;
-                PointIndices[v2] = 1;
+                PointIndices[u0] = 0;
+                PointIndices[u1] = 0;
+                PointIndices[u2] = 0;
+                PointIndices[v0] = 0;
+                PointIndices[v1] = 0;
+                PointIndices[v2] = 0;
             }
 
             // Add to offset
             Offset += LayerSize;
         }
 
-        // Renumber and add points
+        // Renumber and count points
+        size_t k = 0;
+        for (size_t i = 0; i < NumberOfPoints; i++)
+        {
+            if (PointIndices[i] != NumberOfPoints)
+                PointIndices[i] = k++;
+        }
 
+        std::cout << "k = " << k << std::endl;
+
+        // Add points
+        m3D.Points.reserve(k);
+        for (size_t i = 0; i < NumberOfPoints; i++)
+        {
+            if (PointIndices[i] != NumberOfPoints)
+            {
+                const Point2D& p2D = m2D.Points[i % LayerSize];
+                const double z = (i / LayerSize) * dz;
+                Point3D p3D(p2D.x, p2D.y, z);
+                m3D.Points.push_back(p3D);
+            }
+        }
+
+        // Assign renumbered indices to cells
+        for (auto & T : m3D.Cells)
+        {
+            T.v0 = PointIndices[T.v0];
+            T.v1 = PointIndices[T.v1];
+            T.v2 = PointIndices[T.v2];
+            T.v3 = PointIndices[T.v3];
+        }
 
         // FIXME: Write test output
         CSV::Write(m3D, "Mesh3D");
