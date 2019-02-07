@@ -4,8 +4,8 @@ VirtualCity@Chalmers is a multidisciplinary research project at
 Chalmers University of Technology involving researchers from
 mathematics, architecture, civil engineering and computer science. The
 aim is to develop an open multimodal data, simulation and
-visualisation platform for interactive planning, design, exploration,
-experimentation and optimisation of cities.
+visualization platform for interactive planning, design, exploration,
+experimentation and optimization of cities.
 
 This repository contains the server side functionality, including
 mesh generation, solvers and data processing.
@@ -33,6 +33,19 @@ Give examples
 ## Deployment
 
 In preparation.
+
+## Components
+
+The code in this repository is organized as a collection of independent but interoperable
+components. Each component may be implemented using different libraries, and languages
+(C++, Python, ...) but follows a common naming scheme and provides a standardized
+command-line interface.
+
+The following list summarizes the currently implemented (and planned components):
+
+* vc-generate-mesh (finite element mesh generation)
+* vc-simulate-foo (simulator in preparation)
+* vc-simulate-bar (simulator in preparation)
 
 ## Versioning
 
