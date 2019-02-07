@@ -8,7 +8,7 @@
 #include <dolfin.h>
 
 #include "MeshGenerator.h"
-#include "STL.h"
+#include "MeshSmoother.h"
 
 using namespace std;
 using namespace VirtualCity;
@@ -25,7 +25,7 @@ using namespace VirtualCity;
 [x] generate 3D mesh
 [x] save to FEniCS format
 [ ] timings
-[ ] handle buildings when generating layers
+[x] handle buildings when generating layers
 [ ] handle height map
 [ ] parsing of building and height-map data
 [ ] mesh smoothing
@@ -62,8 +62,11 @@ int main(int argc, char* argv[])
 
     */
 
-    // Generate 2D mesh
+    // Generate mesh (excluding height map)
     Mesh3D m = MeshGenerator::GenerateMesh3D();
+
+    // Apply mesh smoothing to account for height map
+    MeshSmoother::SmoothMesh();
 
     // FIXME: Write test output
     dolfin::Mesh _m("Mesh3D.xml");

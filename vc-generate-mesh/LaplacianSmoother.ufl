@@ -1,0 +1,9 @@
+# Variational formulation for Laplacian mesh smoothing.
+# Copyright (C) 2018 Anders Logg.
+
+element = FiniteElement('Lagrange', tetrahedron, 1)
+
+v = TestFunction(element)
+u = TrialFunction(element)
+
+a = inner(grad(v), grad(u))*dx

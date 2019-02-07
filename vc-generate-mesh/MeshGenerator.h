@@ -23,6 +23,7 @@ extern "C"
 
 namespace VirtualCity
 {
+
 class MeshGenerator
 {
 public:
@@ -30,6 +31,8 @@ public:
     // Generate 2D mesh
     static Mesh2D GenerateMesh2D()
     {
+        std::cout << "Generating 2D mesh..." << std::endl;
+
         // FIXME: Test data
         //-----------------------------------------------------
         std::vector<Point2D> Boundary;
@@ -77,6 +80,8 @@ public:
     // Generate 3D mesh
     static Mesh3D GenerateMesh3D()
     {
+        std::cout << "Generating 3D mesh..." << std::endl;
+
         // FIXME: Test data
         //-----------------------------------------------------
         double H = 10.0; // Height
@@ -158,8 +163,6 @@ public:
             if (PointIndices[i] != NumberOfPoints)
                 PointIndices[i] = k++;
         }
-
-        std::cout << "k = " << k << std::endl;
 
         // Add points
         m3D.Points.reserve(k);
@@ -327,7 +330,7 @@ private:
         }
 
         // Free memory
-        //trifree(&out);
+        //trifree(&out); // causes segfault
         delete [] in.pointlist;
         delete [] in.segmentlist;
         delete [] in.holelist;
