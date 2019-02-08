@@ -17,10 +17,11 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 vc-generate-mesh depends on FEniCS version 2018.1 and Triangle.
-Use a standard Ubuntu/FEniCS image and run the command
+Use a standard Ubuntu/FEniCS image and run the commands
 
 ```
-sudo apt-get install libtriangle-dev
+sudo apt-get update
+sudo apt-get install libtriangle-dev nlohmann-json-dev
 ```
 
 ### Installing

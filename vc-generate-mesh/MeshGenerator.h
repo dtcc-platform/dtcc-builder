@@ -117,11 +117,11 @@ public:
             {
                 // FIXME: Temporary hack here
                 // Check if cell is inside subdomain
-                if (m2D.DomainMarkers[i] == 1 && Layer >= NumberOfLayers / 2)
+                if (m2D.DomainMarkers[i] == 1 && Layer <= NumberOfLayers / 2)
                 {
                     continue;
                 }
-                else if (m2D.DomainMarkers[i] == 2 && Layer >= 2 * NumberOfLayers / 3)
+                else if (m2D.DomainMarkers[i] == 2 && Layer <= 2 * NumberOfLayers / 3)
                 {
                     continue;
                 }
