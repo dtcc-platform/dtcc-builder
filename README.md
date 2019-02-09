@@ -38,20 +38,31 @@ In preparation.
 
 ## Components
 
-The code in this repository is organized as a collection of independent but interoperable
-components. Each component may be implemented using different libraries, and languages
-(C++, Python, ...) but follows a common naming scheme and provides a standardized
-command-line interface.
+The code in this repository is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.
 
 The following list summarizes the currently implemented (and planned components):
 
-* vc-generate-mesh (finite element mesh generation)
-* vc-simulate-foo (simulator in preparation)
-* vc-simulate-bar (simulator in preparation)
+* vc-generate-heightmap (PNG to JSON conversion of height maps)
+* vc-generate-mesh      (finite element mesh generation)
+* vc-simulate-foo       (simulator in preparation)
+* vc-simulate-bar       (simulator in preparation)
+
+## Coding style
+
+VCCore uses Microsoft C# coding style:
+
+```
+ClassName
+MemberFunction
+PublicMemberVariable
+PrivateMemberVariable
+argumentName
+variableName
+```
 
 ## Versioning
 
-We use [CalVer](https://calver.org/) for versioning.
+VCCore uses [CalVer](https://calver.org/) for versioning.
 
 ## Authors (in alphabetical order)
 
@@ -60,6 +71,6 @@ We use [CalVer](https://calver.org/) for versioning.
 
 ## License
 
-TBD
+VCCore is licensed under TBD.
 
 ## Acknowledgments
