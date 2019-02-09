@@ -19,7 +19,6 @@ using namespace VirtualCity;
 /* TODO
 
 [x] remove using namespace std
-[x] UE coding standard
 [x] plotting utilty
 [x] link to triangle
 [x] parse command-line
@@ -34,6 +33,7 @@ using namespace VirtualCity;
 [ ] mesh smoothing
 [ ] don't append .csv etc in I/O
 [ ] unified interface Read/Write for I/O
+[ ] use C# coding style
 
 */
 

@@ -13,7 +13,7 @@ class CommandLine
 {
 public:
 
-    std::string GetOption(std::string option, int argc, char* argv[])
+    static std::string GetOption(std::string option, int argc, char* argv[])
     {
         auto end = argv + argc;
         auto it = find(argv, end, option);

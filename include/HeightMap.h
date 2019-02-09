@@ -5,6 +5,7 @@
 #define HEIGHT_MAP_H
 
 #include "Point.h"
+#include "GeoReference.h"
 
 namespace VirtualCity
 {
@@ -23,6 +24,12 @@ public:
     double operator() (double x, double y) const
     {
         return 0.0;
+    }
+
+    // Apply geo reference to height map
+    double Apply(const GeoReference& geoReference)
+    {
+        // Not implemented
     }
 
 };
