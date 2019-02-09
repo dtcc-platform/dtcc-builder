@@ -7,6 +7,7 @@
 // FIXME: Should not be used here
 #include <dolfin.h>
 
+#include "CommandLine.h"
 #include "MeshGenerator.h"
 #include "MeshSmoother.h"
 #include "HeightMap.h"
@@ -35,15 +36,6 @@ using namespace VirtualCity;
 [ ] unified interface Read/Write for I/O
 
 */
-
-char* getopt(std::string option, int argc, char* argv[])
-{
-    auto end = argc + argv;
-    auto it = find(argv, end, option);
-    if (it != end && ++it != end)
-        return *it;
-    return 0;
-}
 
 void help()
 {

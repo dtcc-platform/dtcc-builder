@@ -8,26 +8,14 @@
 
 using namespace VirtualCity;
 
-/*
-char* getopt(std::string option, int argc, char* argv[])
-{
-    auto end = argc + argv;
-    auto it = find(argv, end, option);
-    if (it != end && ++it != end)
-        return *it;
-    return 0;
-}
-*/
-
 void help()
 {
-    std::cerr << "Usage: vc-generate-heightmap [options] HeightMap.png" << std::endl;
+    std::cerr << "Usage: vc-generate-heightmap HeightMap.png HeightMap.wld"
+              << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-    /*
-
     // Check command-line arguments
     if (argc != 2)
     {
@@ -38,7 +26,7 @@ int main(int argc, char* argv[])
     // Get filename
     string filename(argv[1]);
 
-    */
+    * /
 
     // FIXME: Test data
 
