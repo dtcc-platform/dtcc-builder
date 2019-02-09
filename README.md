@@ -36,7 +36,7 @@ Give examples
 
 In preparation.
 
-## Components
+## Code organization
 
 The code in this repository is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.
 
@@ -46,6 +46,8 @@ The following list summarizes the currently implemented (and planned components)
 * vc-generate-mesh      (finite element mesh generation)
 * vc-simulate-foo       (simulator in preparation)
 * vc-simulate-bar       (simulator in preparation)
+
+Common C++ code that is used across components is header only and is placed in the common directory `include`. The common code should have no (or minimal) external dependencies.
 
 ## Coding style
 

@@ -9,6 +9,8 @@
 
 #include "MeshGenerator.h"
 #include "MeshSmoother.h"
+#include "HeightMap.h"
+#include "JSON.h"
 
 using namespace std;
 using namespace VirtualCity;
@@ -29,6 +31,8 @@ using namespace VirtualCity;
 [ ] handle height map
 [ ] parsing of building and height-map data
 [ ] mesh smoothing
+[ ] don't append .csv etc in I/O
+[ ] unified interface Read/Write for I/O
 
 */
 
@@ -61,6 +65,13 @@ int main(int argc, char* argv[])
     string filename(argv[1]);
 
     */
+
+    // FIXME: Get filename from command-line arguments
+    std::string fileName = "HeightMap.json";
+
+    // Read height map from file
+    HeightMap heightmap;
+    //JSON::Read(heightmap, fileName);
 
     // Generate mesh (excluding height map)
     Mesh3D m = MeshGenerator::GenerateMesh3D();
