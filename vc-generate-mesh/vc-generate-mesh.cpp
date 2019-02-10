@@ -35,6 +35,8 @@ using namespace VirtualCity;
 [ ] unified interface Read/Write for I/O
 [ ] use C# coding style
 [ ] pass file names not prefixes
+[ ] uniform error handling
+[ ] uniform logging (message handling)
 
 */
 

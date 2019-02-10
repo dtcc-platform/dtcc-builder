@@ -5,6 +5,7 @@
 #define HEIGHT_MAP_H
 
 #include <vector>
+
 #include "Point.h"
 #include "GeoReference.h"
 

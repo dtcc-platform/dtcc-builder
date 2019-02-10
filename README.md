@@ -16,8 +16,16 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-vc-generate-mesh depends on FEniCS version 2018.1 and Triangle.
-Use a standard Ubuntu/FEniCS image and run the commands
+#### vc-generate-heightmap
+
+Use a clean Ubuntu 18.04 image with the following packages:
+
+```
+sudo apt-get update
+sudo apt-get install libmagick++-dev
+```
+
+Use a clean FEniCS 2018.1 image (Ubuntu 18.04) with the following packages:
 
 ```
 sudo apt-get update

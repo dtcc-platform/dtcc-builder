@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <json.hpp>
+
 #include "HeightMap.h"
 
 namespace VirtualCity

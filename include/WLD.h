@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+
 #include "GeoReference.h"
 
 namespace VirtualCity
