@@ -17,6 +17,9 @@ public:
     // Read height map from PNG file
     static void Read(HeightMap& heightMap, std::string fileName)
     {
+        std::cout << "PNG: " << "Reading height map from file "
+                  << fileName << std::endl;
+
         std::cout << "Nothing to see here yet..." << std::endl;
     };
 

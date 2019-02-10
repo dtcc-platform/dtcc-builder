@@ -26,6 +26,9 @@ public:
     static void Write(const std::vector<Point2D>& Points,
                       std::string Prefix)
     {
+        std::cout << "CSV: " << "Writing 2D point set to file "
+                  << Prefix << std::endl;
+
         // Open file
         std::string FileName = Prefix + ".csv";
         std::ofstream f(FileName.c_str());
@@ -49,6 +52,9 @@ public:
     static void Write(const Mesh2D& Mesh,
                       std::string Prefix)
     {
+        std::cout << "CSV: " << "Writing 2D mesh set to file "
+                  << Prefix << std::endl;
+
         // Open files
         std::string FileNamePoints = Prefix + "Points.csv";
         std::string FileNameTriangles = Prefix + "Cells.csv";
@@ -82,6 +88,9 @@ public:
     static void Write(const Mesh3D& Mesh,
                       std::string Prefix)
     {
+        std::cout << "CSV: " << "Writing 3D mesh to file "
+                  << Prefix << std::endl;
+
         // Open files
         std::string FileNamePoints = Prefix + "Points.csv";
         std::string FileNameTriangles = Prefix + "Cells.csv";

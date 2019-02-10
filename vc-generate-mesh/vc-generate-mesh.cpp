@@ -34,6 +34,7 @@ using namespace VirtualCity;
 [ ] don't append .csv etc in I/O
 [ ] unified interface Read/Write for I/O
 [ ] use C# coding style
+[ ] pass file names not prefixes
 
 */
 

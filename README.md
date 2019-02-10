@@ -36,6 +36,10 @@ Give examples
 
 In preparation.
 
+## Data
+
+In preparation.
+
 ## Code organization
 
 The code in this repository is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.

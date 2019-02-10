@@ -4,6 +4,7 @@
 #ifndef HEIGHT_MAP_H
 #define HEIGHT_MAP_H
 
+#include <vector>
 #include "Point.h"
 #include "GeoReference.h"
 
@@ -13,6 +14,12 @@ namespace VirtualCity
 class HeightMap
 {
 public:
+
+    // Grid data (flattened array of (x, y) coordinates)
+    std::vector<double> GridData;
+
+    // Grid map (transform of grid data)
+    GeoReference GridMap;
 
     // Return height (z) at point p
     double operator() (const Point2D& p) const
@@ -29,7 +36,7 @@ public:
     // Apply geo reference to height map
     double Apply(const GeoReference& geoReference)
     {
-        // Not implemented
+        GridMap = geoReference;
     }
 
 };
