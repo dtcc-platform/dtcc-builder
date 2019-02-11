@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
     }
 
     // Get filenames
-    std::string fileNamePNG(argv[1]);
-    std::string fileNameWLD(argv[2]);
-    std::string fileNameJSON(argv[3]);
+    const std::string fileNamePNG(argv[1]);
+    const std::string fileNameWLD(argv[2]);
+    const std::string fileNameJSON(argv[3]);
 
     // Read height map from PNG file
     HeightMap heightMap;

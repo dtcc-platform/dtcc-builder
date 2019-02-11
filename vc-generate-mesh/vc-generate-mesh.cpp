@@ -30,18 +30,20 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // Get filename
-    string filename(argv[1]);
+    // Get filenames
+    const std::string fileNameCityModel(argv[1]);
+    const std::string fileNameHeightMap(argv[2]);
 
-    // FIXME: Get filename from command-line arguments
-    std::string fileName = "HeightMap.json";
+    // Read city model from file
+    CityModel cityModel;
+    JSON::Read(cityModel, fileNameCityModel);
 
     // Read height map from file
-    HeightMap heightmap;
-    JSON::Read(heightmap, fileName);
+    HeightMap heightMap;
+    JSON::Read(heightMap, fileNameHeightMap);
 
     // Generate mesh (excluding height map)
-    Mesh3D m = MeshGenerator::GenerateMesh3D();
+    Mesh3D m = MeshGenerator::GenerateMesh3D(cityModel);
 
     // Apply mesh smoothing to account for height map
     MeshSmoother::SmoothMesh();

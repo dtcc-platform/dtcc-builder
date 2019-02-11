@@ -1,8 +1,8 @@
 // A simple, efficient and robust 3D mesh generator for VirtualCity@Chalmers.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef MESH_GENERATION_H
-#define MESH_GENERATION_H
+#ifndef VC_MESH_GENERATION_H
+#define VC_MESH_GENERATION_H
 
 #include <iostream>
 #include <vector>
@@ -10,6 +10,8 @@
 #include <stack>
 #include <cmath>
 
+#include "CityModel.h"
+#include "HeightMap.h"
 #include "Timer.h"
 #include "Point.h"
 #include "Mesh.h"
@@ -29,44 +31,33 @@ class MeshGenerator
 public:
 
     // Generate 2D mesh
-    static Mesh2D GenerateMesh2D()
+    static Mesh2D GenerateMesh2D(const CityModel& cityModel)
     {
         std::cout << "Generating 2D mesh..." << std::endl;
 
         // FIXME: Test data
         //-----------------------------------------------------
-        std::vector<Point2D> Boundary;
+        std::vector<Point2D> boundary;
         int n = 16;
         double R = 10.0;
         for (int i = 0; i < n; i++)
         {
             double x = R * std::cos(double(i) / n * 2.0 * M_PI);
             double y = R * std::sin(double(i) / n * 2.0 * M_PI);
-            Boundary.push_back(Point2D(x, y));
+            boundary.push_back(Point2D(x, y));
         }
-
-        std::vector<std::vector<Point2D>> SubDomains;
-
-        std::vector<Point2D> b0;
-        b0.push_back(Point2D(-2, -2));
-        b0.push_back(Point2D(-1, -2));
-        b0.push_back(Point2D(-1, -1));
-        b0.push_back(Point2D(-2, -1));
-        SubDomains.push_back(b0);
-
-        std::vector<Point2D> b1;
-        b1.push_back(Point2D(2, 3));
-        b1.push_back(Point2D(3, 3));
-        b1.push_back(Point2D(3, 4));
-        b1.push_back(Point2D(2, 4));
-        SubDomains.push_back(b1);
         //-----------------------------------------------------
 
+        // Extract subdomains (building footprints)
+        std::vector<std::vector<Point2D>> subDomains;
+        for (auto const & building : cityModel.Buildings)
+            subDomains.push_back(building.Footprint);
+
         // Generate 2D mesh
-        Mesh2D m2D = CallTriangle(Boundary, SubDomains);
+        Mesh2D m2D = CallTriangle(boundary, subDomains);
 
         // Mark subdomains
-        m2D.DomainMarkers = ComputeDomainMarkers(m2D, SubDomains);
+        m2D.DomainMarkers = ComputeDomainMarkers(m2D, subDomains);
 
         // FIXME: Write test output
         CSV::Write(m2D, "Mesh2D");
@@ -78,7 +69,7 @@ public:
     }
 
     // Generate 3D mesh
-    static Mesh3D GenerateMesh3D()
+    static Mesh3D GenerateMesh3D(const CityModel& cityModel)
     {
         std::cout << "Generating 3D mesh..." << std::endl;
 
@@ -89,7 +80,7 @@ public:
         //-----------------------------------------------------
 
         // Generate 2D mesh
-        Mesh2D m2D = GenerateMesh2D();
+        Mesh2D m2D = GenerateMesh2D(cityModel);
 
         // Create empty 3D mesh
         Mesh3D m3D;
@@ -199,8 +190,8 @@ private:
 
     // Call Triangle to compute 2D mesh
     static Mesh2D
-    CallTriangle(const std::vector<Point2D>& Boundary,
-                 const std::vector<std::vector<Point2D>>& SubDomains)
+    CallTriangle(const std::vector<Point2D>& boundary,
+                 const std::vector<std::vector<Point2D>>& subDomains)
     {
         // Set input switches for Triangle
         char triswitches[] = "zpq25";
@@ -218,8 +209,8 @@ private:
         struct triangulateio in = CreateTriangleIO();
 
         // Set number of points
-        size_t NumberOfPoints = Boundary.size();
-        for (auto const & InnerPolygon : SubDomains)
+        size_t NumberOfPoints = boundary.size();
+        for (auto const & InnerPolygon : subDomains)
             NumberOfPoints += InnerPolygon.size();
         in.numberofpoints = NumberOfPoints;
 
@@ -227,12 +218,12 @@ private:
         in.pointlist = new double[2 * NumberOfPoints];
         {
             size_t k = 0;
-            for (auto const & p : Boundary)
+            for (auto const & p : boundary)
             {
                 in.pointlist[k++] = p.x;
                 in.pointlist[k++] = p.y;
             }
-            for (auto const & InnerPolygon : SubDomains)
+            for (auto const & InnerPolygon : subDomains)
             {
                 for (auto const & p : InnerPolygon)
                 {
@@ -251,24 +242,24 @@ private:
         {
             size_t k = 0;
             size_t n = 0;
-            for (size_t j = 0; j < Boundary.size(); j++)
+            for (size_t j = 0; j < boundary.size(); j++)
             {
                 const size_t j0 = j;
-                const size_t j1 = (j + 1) % Boundary.size();
+                const size_t j1 = (j + 1) % boundary.size();
                 in.segmentlist[k++] = n + j0;
                 in.segmentlist[k++] = n + j1;
             }
-            n += Boundary.size();
-            for (size_t i = 0; i < SubDomains.size(); i++)
+            n += boundary.size();
+            for (size_t i = 0; i < subDomains.size(); i++)
             {
-                for (size_t j = 0; j < SubDomains[i].size(); j++)
+                for (size_t j = 0; j < subDomains[i].size(); j++)
                 {
                     const size_t j0 = j;
-                    const size_t j1 = (j + 1) % SubDomains[i].size();
+                    const size_t j1 = (j + 1) % subDomains[i].size();
                     in.segmentlist[k++] = n + j0;
                     in.segmentlist[k++] = n + j1;
                 }
-                n += SubDomains[i].size();
+                n += subDomains[i].size();
             }
         }
 
