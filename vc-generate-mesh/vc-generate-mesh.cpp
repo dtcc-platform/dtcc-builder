@@ -26,17 +26,9 @@ using namespace VirtualCity;
 [x] generate 2D mesh
 [x] generate 3D mesh
 [x] save to FEniCS format
-[ ] timings
 [x] handle buildings when generating layers
-[ ] handle height map
-[ ] parsing of building and height-map data
-[ ] mesh smoothing
 [ ] don't append .csv etc in I/O
 [ ] unified interface Read/Write for I/O
-[ ] use C# coding style
-[ ] pass file names not prefixes
-[ ] uniform error handling
-[ ] uniform logging (message handling)
 
 */
 

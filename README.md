@@ -69,7 +69,7 @@ VCCore uses Microsoft C# coding style:
 ClassName
 MemberFunction
 PublicMemberVariable
-PrivateMemberVariable
+privateMemberVariable
 argumentName
 variableName
 ```

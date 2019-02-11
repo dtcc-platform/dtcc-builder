@@ -28,22 +28,38 @@ public:
         Magick::Image image;
         image.read(fileName);
 
+        // Check type (should be grayscale)
+        if (image.type() != Magick::GrayscaleType)
+            throw std::runtime_error("Illegal image type; expecting grayscale.");
+
+        // Check depth (should be 16)
+        if (image.depth() != 16)
+            throw std::runtime_error("Illegal image depth; expecting 16.");
+
+        std::cout << image.type() << std::endl;
+
         // Get image dimensions
         const size_t numRows = image.rows();
         const size_t numCols = image.columns();
+        const size_t numPixels = numRows * numCols;
+        std::cout << std::fixed
+                  << "PNG: " << numCols << " x " << numRows
+                  << " (" << numPixels << " pixels)" << std::endl;
 
-        std::cout << "rows = " << numRows << std::endl;
-        std::cout << "cols = " << numCols << std::endl;
+        // Write pixel data to array
+        std::vector<int16_t> pixels(numPixels);
+        image.write(0, 0, numCols, numRows, "R",
+                    Magick::ShortPixel, pixels.data());
 
-        for (size_t i = 0; i < numRows; i++)
+        // Convert to floating point height map
+        heightMap.GridData.resize(numPixels);
+        for (size_t i = 0; i < numPixels; i++)
         {
-            for (size_t j = 0; j < numCols; j++)
-            {
-                Magick::Color color = image.pixelColor(j, i);
-                std::cout << i << " " << j << " " << color.redQuantum() << std::endl;
-            }
+            double z = pixels[i];
+            z -= 1024; // 1024 is sea level
+            z *= 0.01; // pixel data is cm
+            heightMap.GridData[i] = z;
         }
-
     };
 
 };
