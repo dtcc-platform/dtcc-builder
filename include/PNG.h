@@ -36,8 +36,6 @@ public:
         if (image.depth() != 16)
             throw std::runtime_error("Illegal image depth; expecting 16.");
 
-        std::cout << image.type() << std::endl;
-
         // Get image dimensions
         const size_t numRows = image.rows();
         const size_t numCols = image.columns();
@@ -52,6 +50,8 @@ public:
                     Magick::ShortPixel, pixels.data());
 
         // Convert to floating point height map
+        heightMap.Width = numCols;
+        heightMap.Height = numRows;
         heightMap.GridData.resize(numPixels);
         for (size_t i = 0; i < numPixels; i++)
         {

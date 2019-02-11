@@ -16,11 +16,20 @@ class HeightMap
 {
 public:
 
+    // Grid width
+    size_t Width;
+
+    // Grid height
+    size_t Height;
+
     // Grid data (flattened array of (x, y) coordinates)
     std::vector<double> GridData;
 
     // Grid map (transform of grid data)
     GeoReference GridMap;
+
+    // Create empty height map
+    HeightMap() : Width(0), Height(0) {}
 
     // Return height (z) at point p
     double operator() (const Point2D& p) const
