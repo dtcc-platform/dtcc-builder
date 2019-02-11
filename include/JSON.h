@@ -9,6 +9,7 @@
 #include <json.hpp>
 
 #include "HeightMap.h"
+#include "CityModel.h"
 
 namespace VirtualCity
 {
@@ -29,28 +30,18 @@ public:
         f >> json;
 
         // Extract JSON data
-        const auto GridData = json["GridData"];
-        const auto Width = json["Width"];
-        const auto Height = json["Height"];
-        const auto A = json["GridMap"]["A"];
-        const auto B = json["GridMap"]["B"];
-        const auto D = json["GridMap"]["D"];
-        const auto E = json["GridMap"]["E"];
-        const auto C = json["GridMap"]["C"];
-        const auto F = json["GridMap"]["F"];
-
-        // Set height map data
-        heightMap.GridData.resize(GridData.size());
-        for (size_t i = 0; i < GridData.size(); i++)
-            heightMap.GridData[i] = GridData[i];
-        heightMap.Width = Width;
-        heightMap.Height = Height;
-        heightMap.GridMap.A = A;
-        heightMap.GridMap.B = B;
-        heightMap.GridMap.D = D;
-        heightMap.GridMap.E = E;
-        heightMap.GridMap.C = C;
-        heightMap.GridMap.F = F;
+        const auto jsonGridData = json["GridData"];
+        heightMap.GridData.resize(jsonGridData.size());
+        for (size_t i = 0; i < jsonGridData.size(); i++)
+            heightMap.GridData[i] = jsonGridData[i];
+        heightMap.Width = json["Width"];
+        heightMap.Height = json["Height"];
+        heightMap.GridMap.A = json["GridMap"]["A"];
+        heightMap.GridMap.B = json["GridMap"]["B"];
+        heightMap.GridMap.D = json["GridMap"]["D"];
+        heightMap.GridMap.E = json["GridMap"]["E"];
+        heightMap.GridMap.C = json["GridMap"]["C"];
+        heightMap.GridMap.F = json["GridMap"]["F"];
     };
 
     // Write height map to JSON file
@@ -70,6 +61,64 @@ public:
         json["GridMap"]["E"] = heightMap.GridMap.E;
         json["GridMap"]["C"] = heightMap.GridMap.C;
         json["GridMap"]["F"] = heightMap.GridMap.F;
+
+        // Write to file
+        std::ofstream f(fileName);
+        f << json;
+    }
+
+    // Read city model from JSON file
+    static void Read(CityModel& cityModel, std::string fileName)
+    {
+        std::cout << "JSON: " << "Reading city model from file "
+                  << fileName << std::endl;
+
+        // Read data from file
+        std::ifstream f(fileName);
+        nlohmann::json json;
+        f >> json;
+
+        // Extract JSON data
+        auto jsonBuildings = json;
+        cityModel.Buildings.resize(jsonBuildings.size());
+        for (size_t i = 0; i < jsonBuildings.size(); i++)
+        {
+            auto jsonBuilding = jsonBuildings[i];
+            auto jsonFootprint = jsonBuilding["Footprint"];
+            cityModel.Buildings[i].Footprint.resize(jsonFootprint.size());
+            for (size_t j = 0; j < jsonFootprint.size(); j++)
+            {
+                cityModel.Buildings[i].Footprint[j].x = jsonFootprint[j]["x"];
+                cityModel.Buildings[i].Footprint[j].y = jsonFootprint[j]["y"];
+            }
+            cityModel.Buildings[i].Height = jsonBuilding["Height"];
+        }
+    }
+
+    // Write city model to JSON file
+    static void Write(CityModel& cityModel, std::string fileName)
+    {
+        std::cout << "JSON: " << "Writing city model to file "
+                  << fileName << std::endl;
+
+        // Generate JSON data
+        auto jsonBuildings = nlohmann::json::array();
+        for (auto const building : cityModel.Buildings)
+        {
+            auto jsonBuilding = nlohmann::json::object();
+            jsonBuilding["Footprint"] = nlohmann::json::array();
+            for (auto const point : building.Footprint)
+            {
+                auto jsonPoint = nlohmann::json::object();
+                jsonPoint["x"] = point.x;
+                jsonPoint["y"] = point.y;
+                jsonBuilding["Footprint"].push_back(jsonPoint);
+            }
+            jsonBuilding["Height"] = building.Height;
+            jsonBuildings.push_back(jsonBuilding);
+        }
+        nlohmann::json json;
+        json = jsonBuildings;
 
         // Write to file
         std::ofstream f(fileName);

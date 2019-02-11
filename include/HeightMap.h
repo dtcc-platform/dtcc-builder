@@ -1,8 +1,8 @@
 // Representation of 2D height maps.
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef HEIGHT_MAP_H
-#define HEIGHT_MAP_H
+#ifndef VC_HEIGHT_MAP_H
+#define VC_HEIGHT_MAP_H
 
 #include <vector>
 

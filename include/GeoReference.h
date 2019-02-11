@@ -2,8 +2,8 @@
 // https://en.wikipedia.org/wiki/World_file
 // Anders Logg 2019
 
-#ifndef COMMAND_LINE_H
-#define COMMAND_LINE_H
+#ifndef VC_GEO_REFERENCE_H
+#define VC_GEO_REFERENCE_H
 
 #include <string>
 

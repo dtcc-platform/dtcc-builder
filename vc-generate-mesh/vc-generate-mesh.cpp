@@ -16,33 +16,15 @@
 using namespace std;
 using namespace VirtualCity;
 
-/* TODO
-
-[x] remove using namespace std
-[x] plotting utilty
-[x] link to triangle
-[x] parse command-line
-[x] generate convex hull
-[x] generate 2D mesh
-[x] generate 3D mesh
-[x] save to FEniCS format
-[x] handle buildings when generating layers
-[ ] don't append .csv etc in I/O
-[ ] unified interface Read/Write for I/O
-
-*/
-
 void help()
 {
-    cerr << "Usage: vc-generate-mesh [options] mesh.stl" << endl;
+    cerr << "Usage: vc-generate-mesh CityModel.json HeightMap.json" << endl;
 }
 
 int main(int argc, char* argv[])
 {
-    /*
-
     // Check command-line arguments
-    if (argc != 2)
+    if (argc != 3)
     {
         help();
         return 1;
@@ -51,14 +33,12 @@ int main(int argc, char* argv[])
     // Get filename
     string filename(argv[1]);
 
-    */
-
     // FIXME: Get filename from command-line arguments
     std::string fileName = "HeightMap.json";
 
     // Read height map from file
     HeightMap heightmap;
-    //JSON::Read(heightmap, fileName);
+    JSON::Read(heightmap, fileName);
 
     // Generate mesh (excluding height map)
     Mesh3D m = MeshGenerator::GenerateMesh3D();
