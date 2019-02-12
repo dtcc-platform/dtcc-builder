@@ -12,6 +12,7 @@
 #include <cmath>
 #include <dolfin.h>
 
+#include "HeightMap.h"
 #include "LaplacianSmoother.h"
 
 namespace VirtualCity
@@ -22,13 +23,13 @@ class MeshSmoother
 public:
 
     // Smooth mesh using default method (Laplacian smoothing)
-    static void SmoothMesh()
+    static void SmoothMesh(const HeightMap& heightMap)
     {
-        SmoothMeshLaplacian();
+        SmoothMeshLaplacian(heightMap);
     }
 
     // Smooth mesh using Laplacian smoothing
-    static void SmoothMeshLaplacian()
+    static void SmoothMeshLaplacian(const HeightMap& heightMap)
     {
         std::cout << "Smoothing mesh (Laplacian smoothing)..." << std::endl;
 
@@ -58,7 +59,7 @@ public:
                     std::make_shared<Top>());
         auto bcz = std::make_shared<dolfin::DirichletBC>
                    (V,
-                    std::make_shared<HeightMap>(),
+                    std::make_shared<HeightMapExpression>(heightMap),
                     std::make_shared<Bottom>());
 
         // Apply boundary conditions
@@ -129,14 +130,28 @@ private:
     };
 
     // Boundary value for height map
-    class HeightMap : public dolfin::Expression
+    class HeightMapExpression : public dolfin::Expression
     {
+    public:
+
+        // Reference to actual height map
+        const HeightMap& heightMap;
+
+        // Create height map expression
+        HeightMapExpression(const HeightMap& heightMap)
+            : heightMap(heightMap), Expression()
+        {
+            // Do nothing
+        }
+
+        // Evaluation of height map
         void eval(dolfin::Array<double>& values,
                   const dolfin::Array<double>& x) const
         {
             // FIXME: Test data
-            values[0] = 0.5 * std::sin(x[0]) + 0.25 * std::cos(2.5 * x[1]);
+            values[0] = heightMap(x[0], x[1]);
         }
+
     };
 
 };

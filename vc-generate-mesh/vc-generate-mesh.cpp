@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
                                              parameters.MeshSize);
 
     // Apply mesh smoothing to account for height map
-    MeshSmoother::SmoothMesh();
+    MeshSmoother::SmoothMesh(heightMap);
 
     // FIXME: Write test output
     dolfin::Mesh _m("Mesh3D.xml");
