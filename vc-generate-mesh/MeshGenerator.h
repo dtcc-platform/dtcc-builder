@@ -49,6 +49,9 @@ public:
         }
         //-----------------------------------------------------
 
+        // Extract boundary
+
+
         // Extract subdomains (building footprints)
         std::vector<std::vector<Point2D>> subDomains;
         for (auto const & building : cityModel.Buildings)

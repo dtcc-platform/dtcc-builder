@@ -1,13 +1,14 @@
 // JSON I/O
 // Anders Logg 2019
 
-#ifndef JSON_H
-#define JSON_H
+#ifndef VC_JSON_H
+#define VC_JSON_H
 
 #include <fstream>
 #include <iostream>
 #include <json.hpp>
 
+#include "Parameters.h"
 #include "HeightMap.h"
 #include "CityModel.h"
 
@@ -17,6 +18,39 @@ namespace VirtualCity
 class JSON
 {
 public:
+
+    // Read parameters from JSON file
+    static void Read(Parameters& parameters, std::string fileName)
+    {
+        std::cout << "JSON: " << "Reading parameters from file "
+                  << fileName << std::endl;
+
+        // Read data from file
+        std::ifstream f(fileName);
+        nlohmann::json json;
+        f >> json;
+
+        // Extract JSON data
+        parameters.DomainRadius = json["DomainRadius"];
+        parameters.MeshSize = json["MeshSize"];
+    };
+
+    // Write parameters to JSON file
+    static void Write(const Parameters& parameters, std::string fileName)
+    {
+        std::cout << "JSON: " << "Writing parameters to file "
+                  << fileName << std::endl;
+
+        // Generate JSON data
+        nlohmann::json json;
+        json["DomainRadius"] = parameters.DomainRadius;
+        json["MeshSize"] = parameters.MeshSize;
+
+        // Write to file
+        std::ofstream f(fileName);
+        f << json;
+    }
+
 
     // Read height map from JSON file
     static void Read(HeightMap& heightMap, std::string fileName)
