@@ -14,6 +14,7 @@
 #include "HeightMap.h"
 #include "Timer.h"
 #include "Point.h"
+#include "Geometry.h"
 #include "Mesh.h"
 #include "CSV.h"
 #include "XML.h"
@@ -364,11 +365,11 @@ private:
     // Compute domain markers for subdomains
     static std::vector<size_t>
     ComputeDomainMarkers(const Mesh2D& m,
-                         const std::vector<std::vector<Point2D>>& SubDomains)
+                         const std::vector<std::vector<Point2D>>& subDomains)
     {
         // Initialize markers
-        std::vector<size_t> DomainMarkers;
-        DomainMarkers.reserve(m.Cells.size());
+        std::vector<size_t> domainMarkers;
+        domainMarkers.reserve(m.Cells.size());
 
         // Iterate over cells
         for (auto const & Cell : m.Cells)
@@ -377,72 +378,28 @@ private:
             Point2D c = m.MidPoint(Cell);
 
             // Set default marker
-            size_t Marker = 0;
+            size_t marker = 0;
 
             // Iterate over subdomains
-            for (size_t i = 0; i < SubDomains.size(); i++)
+            for (size_t i = 0; i < subDomains.size(); i++)
             {
                 // Compute total quadrant relative to subdomain. If the point
                 // is inside the subdomain, the angle should be 4 (or -4).
-                const int v = TotalQuadrantAngle2D(c, SubDomains[i]);
+                const int v = Geometry::QuadrantAngle2D(c, subDomains[i]);
 
                 // Check if point is inside the domain
                 if (v != 0)
                 {
-                    Marker = i + 1;
+                    marker = i + 1;
                     break;
                 }
             }
 
             // Set marker for subdomain
-            DomainMarkers.push_back(Marker);
+            domainMarkers.push_back(marker);
         }
 
-        return DomainMarkers;
-    }
-
-    // Compute total quadrant angle of point p relative to polygon (2D)
-    static int TotalQuadrantAngle2D(const Point2D& p,
-                                    const std::vector<Point2D>& Polygon)
-    {
-        // Compute angle to first vertex
-        Point2D q0 = Polygon[0];
-        int v0 = QuadrantAngle2D(q0, p);
-
-        // Sum up total angle
-        int TotalAngle = 0;
-        for (int i = 1; i < Polygon.size() + 1; i++)
-        {
-            // Compute angle increment
-            Point2D q1 = Polygon[i % Polygon.size()];
-            int v1 = QuadrantAngle2D(q1, p);
-            int dv = v1 - v0;
-
-            // Adjust angle increment for wrap-around
-            if (dv == 3)
-                dv = -1;
-            else if (dv == -3)
-                dv = 1;
-            else if (dv == 2 || dv == -2)
-            {
-                double xx = q1.x - ((q1.y - p.y) * ((q0.x - q1.x) / (q0.y - q1.y)));
-                if (xx > p.x)
-                    dv = -dv;
-            }
-
-            // Add to total angle and update
-            TotalAngle += dv;
-            q0 = q1;
-            v0 = v1;
-        }
-
-        return TotalAngle;
-    }
-
-    // Compute quadrant angle of point p relative to point q (2D)
-    static int QuadrantAngle2D(const Point2D& p, const Point2D& q)
-    {
-        return ((p.x > q.x) ? ((p.y > q.y) ? 0 : 3) : ((p.y > q.y) ? 1 : 2));
+        return domainMarkers;
     }
 
 };
