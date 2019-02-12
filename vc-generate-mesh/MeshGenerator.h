@@ -47,11 +47,14 @@ public:
         Point2D C;
         double R = 0.0;
         ComputeDomainSize(C, R, subDomains);
+        std::cout << "MeshGenerator: " << "domain center = " << C << std::endl;
+        std::cout << "MeshGenerator: " << "domain radius = " << R << std::endl;
 
         // Generate boundary
         R *= domainRadius;
-        const double L = 2.0*M_PI*R;
-        const size_t n = int(std::ceil(L / meshSize));
+        const double h = meshSize;
+        const double L = 2.0 * M_PI * R;
+        const size_t n = int(std::ceil(L / h));
         std::vector<Point2D> boundary;
         for (int i = 0; i < n; i++)
         {
@@ -82,59 +85,68 @@ public:
     {
         std::cout << "MeshGenerator: Generating 3D mesh..." << std::endl;
 
-        // FIXME: Test data
-        //-----------------------------------------------------
-        double H = 10.0; // Height
-        double h = 0.5;  // Vertical resolution
-        //-----------------------------------------------------
-
         // Generate 2D mesh
         Mesh2D m2D = GenerateMesh2D(cityModel, domainRadius, meshSize);
 
         // Create empty 3D mesh
         Mesh3D m3D;
 
-        // Compute number of layers
-        double dz = h;
-        const size_t NumberOfLayers = int(std::ceil(H / h));
-        dz = H / double(NumberOfLayers);
-        const size_t LayerSize = m2D.Points.size();
+        // Compute height
+        double hmax = 0.0;
+        for (auto const & building : cityModel.Buildings)
+            hmax = std::max(hmax, building.Height);
+        const double H = domainRadius * hmax;
+        std::cout << "MeshGenerator: " << "domain height = " << H << std::endl;
 
-        std::cout << "MeshGenerator: Number of layers: " << NumberOfLayers << std::endl;
-        std::cout << "MeshGenerator: Layer size: " << LayerSize << std::endl;
+        // Compute number of layers
+        const double h = meshSize;
+        double dz = h;
+        const size_t numLayers = int(std::ceil(H / h));
+        dz = H / double(numLayers);
+        const size_t layerSize = m2D.Points.size();
+
+        std::cout << "MeshGenerator: number of layers = " << numLayers << std::endl;
+        std::cout << "MeshGenerator: layer size = " << layerSize << std::endl;
 
         // Create marker/index array for used points
-        const size_t NumberOfPoints = (NumberOfLayers + 1) * m2D.Points.size();
-        std::vector<size_t> PointIndices(NumberOfPoints);
-        std::fill(PointIndices.begin(), PointIndices.end(), NumberOfPoints);
+        const size_t numPoints = (numLayers + 1) * m2D.Points.size();
+        std::vector<size_t> pointIndices(numPoints);
+        std::fill(pointIndices.begin(), pointIndices.end(), numPoints);
 
         // Add tetrahedra for all layers
-        size_t Offset = 0;
-        for (size_t Layer = 0; Layer < NumberOfLayers; Layer++)
+        size_t offset = 0;
+        for (size_t layer = 0; layer < numLayers; layer++)
         {
+            // Height of base of layer
+            const double z = layer * dz;
+
             // Add tetrahedra for layer
             for (size_t i = 0; i < m2D.Cells.size(); i++)
             {
-                // FIXME: Temporary hack here
-                // Check if cell is inside subdomain
-                if (m2D.DomainMarkers[i] == 1 && Layer <= NumberOfLayers / 2)
+                // Check if we are inside a building
+                bool skip = false;
+                for (size_t j = 0; j < cityModel.Buildings.size(); j++)
                 {
-                    continue;
+                    if (m2D.DomainMarkers[i] == (j + 1) && z < cityModel.Buildings[j].Height)
+                    {
+                        skip = true;
+                        break;
+                    }
                 }
-                else if (m2D.DomainMarkers[i] == 2 && Layer <= 2 * NumberOfLayers / 3)
-                {
+
+                // Skip adding cells inside building
+                if (skip)
                     continue;
-                }
 
                 // // Get sorted vertex indices for bottom layer
-                const size_t u0 = m2D.Cells[i].v0 + Offset;
-                const size_t u1 = m2D.Cells[i].v1 + Offset;
-                const size_t u2 = m2D.Cells[i].v2 + Offset;
+                const size_t u0 = m2D.Cells[i].v0 + offset;
+                const size_t u1 = m2D.Cells[i].v1 + offset;
+                const size_t u2 = m2D.Cells[i].v2 + offset;
 
                 // // Get sorted vertices for top layer
-                const size_t v0 = u0 + LayerSize;
-                const size_t v1 = u1 + LayerSize;
-                const size_t v2 = u2 + LayerSize;
+                const size_t v0 = u0 + layerSize;
+                const size_t v1 = u1 + layerSize;
+                const size_t v2 = u2 + layerSize;
 
                 // Create three tetrahedra by connecting the first vertex
                 // of each edge in the bottom layer with the second
@@ -144,34 +156,34 @@ public:
                 m3D.Cells.push_back(Simplex3D(u0, v0, v1, v2));
 
                 // Indicate which points are used
-                PointIndices[u0] = 0;
-                PointIndices[u1] = 0;
-                PointIndices[u2] = 0;
-                PointIndices[v0] = 0;
-                PointIndices[v1] = 0;
-                PointIndices[v2] = 0;
+                pointIndices[u0] = 0;
+                pointIndices[u1] = 0;
+                pointIndices[u2] = 0;
+                pointIndices[v0] = 0;
+                pointIndices[v1] = 0;
+                pointIndices[v2] = 0;
             }
 
             // Add to offset
-            Offset += LayerSize;
+            offset += layerSize;
         }
 
         // Renumber and count points
         size_t k = 0;
-        for (size_t i = 0; i < NumberOfPoints; i++)
+        for (size_t i = 0; i < numPoints; i++)
         {
-            if (PointIndices[i] != NumberOfPoints)
-                PointIndices[i] = k++;
+            if (pointIndices[i] != numPoints)
+                pointIndices[i] = k++;
         }
 
         // Add points
         m3D.Points.reserve(k);
-        for (size_t i = 0; i < NumberOfPoints; i++)
+        for (size_t i = 0; i < numPoints; i++)
         {
-            if (PointIndices[i] != NumberOfPoints)
+            if (pointIndices[i] != numPoints)
             {
-                const Point2D& p2D = m2D.Points[i % LayerSize];
-                const double z = (i / LayerSize) * dz;
+                const Point2D& p2D = m2D.Points[i % layerSize];
+                const double z = (i / layerSize) * dz;
                 Point3D p3D(p2D.x, p2D.y, z);
                 m3D.Points.push_back(p3D);
             }
@@ -180,10 +192,10 @@ public:
         // Assign renumbered indices to cells
         for (auto & T : m3D.Cells)
         {
-            T.v0 = PointIndices[T.v0];
-            T.v1 = PointIndices[T.v1];
-            T.v2 = PointIndices[T.v2];
-            T.v3 = PointIndices[T.v3];
+            T.v0 = pointIndices[T.v0];
+            T.v1 = pointIndices[T.v1];
+            T.v2 = pointIndices[T.v2];
+            T.v3 = pointIndices[T.v3];
         }
 
         // FIXME: Write test output

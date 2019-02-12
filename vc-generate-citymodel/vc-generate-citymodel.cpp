@@ -30,12 +30,14 @@ int main(int argc, char* argv[])
     b0.Footprint.push_back(Point2D(-1, -2));
     b0.Footprint.push_back(Point2D(-1, -1));
     b0.Footprint.push_back(Point2D(-2, -1));
+    b0.Height = 5.0;
 
     Building b1;
     b1.Footprint.push_back(Point2D(2, 3));
     b1.Footprint.push_back(Point2D(3, 3));
     b1.Footprint.push_back(Point2D(3, 4));
     b1.Footprint.push_back(Point2D(2, 4));
+    b1.Height = 7.0;
 
     CityModel cityModel;
     cityModel.Buildings.push_back(b0);
