@@ -5,6 +5,7 @@
 #define VC_GEOMETRY_H
 
 #include <vector>
+#include <cmath>
 
 #include "Point.h"
 
@@ -14,6 +15,35 @@ namespace VirtualCity
 class Geometry
 {
 public:
+
+    // Compute distance between points (2D)
+    static double Distance2D(const Point2D& p, const Point2D& q)
+    {
+        return std::sqrt(SquaredDistance2D(p, q));
+    }
+
+    // Compute distance between points (3D)
+    static double Distance3D(const Point3D& p, const Point3D& q)
+    {
+        return std::sqrt(SquaredDistance3D(p, q));
+    }
+
+    // Compute squared distance between points (2D)
+    static double SquaredDistance2D(const Point2D& p, const Point2D& q)
+    {
+        const double dx = p.x - q.x;
+        const double dy = p.y - q.y;
+        return dx * dx + dy * dy;
+    }
+
+    // Compute squared distance between points (3D)
+    static double SquaredDistance3D(const Point3D& p, const Point3D& q)
+    {
+        const double dx = p.x - q.x;
+        const double dy = p.y - q.y;
+        const double dz = p.z - q.z;
+        return dx * dx + dy * dy + dz * dz;
+    }
 
     // Compute quadrant angle of point p relative to polygon (2D)
     static int QuadrantAngle2D(const Point2D& p,

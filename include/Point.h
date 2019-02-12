@@ -46,11 +46,23 @@ public:
         return *this;
     }
 
+    Point2D operator* (double a) const
+    {
+        Point2D q(x * a, y * a);
+        return q;
+    }
+
     Point2D operator*= (double a)
     {
         x *= a;
         y *= a;
         return *this;
+    }
+
+    Point2D operator/ (double a) const
+    {
+        Point2D q(x / a, y / a);
+        return q;
     }
 
     Point2D operator/= (double a)
@@ -62,10 +74,10 @@ public:
 
     double Magnitude() const
     {
-        return sqrt(SqrMagnitude());
+        return sqrt(SquaredMagnitude());
     }
 
-    double SqrMagnitude() const
+    double SquaredMagnitude() const
     {
         return x * x + y * y;
     }
@@ -111,12 +123,24 @@ public:
         return *this;
     }
 
+    Point3D operator* (double a) const
+    {
+        Point3D q(x * a, y * a, z * a);
+        return q;
+    }
+
     Point3D operator*= (double a)
     {
         x *= a;
         y *= a;
         z *= a;
         return *this;
+    }
+
+    Point3D operator/ (double a) const
+    {
+        Point3D q(x / a, y / a, z / a);
+        return q;
     }
 
     Point3D operator/= (double a)
@@ -129,10 +153,10 @@ public:
 
     double Magnitude() const
     {
-        return sqrt(SqrMagnitude());
+        return sqrt(SquaredMagnitude());
     }
 
-    double SqrMagnitude() const
+    double SquaredMagnitude() const
     {
         return x * x + y * y + z * z;
     }

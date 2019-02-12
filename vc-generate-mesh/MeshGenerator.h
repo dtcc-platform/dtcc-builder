@@ -32,30 +32,33 @@ class MeshGenerator
 public:
 
     // Generate 2D mesh
-    static Mesh2D GenerateMesh2D(const CityModel& cityModel)
+    static Mesh2D GenerateMesh2D(const CityModel& cityModel,
+                                 double domainRadius,
+                                 double meshSize)
     {
-        std::cout << "Generating 2D mesh..." << std::endl;
-
-        // FIXME: Test data
-        //-----------------------------------------------------
-        std::vector<Point2D> boundary;
-        int n = 16;
-        double R = 10.0;
-        for (int i = 0; i < n; i++)
-        {
-            double x = R * std::cos(double(i) / n * 2.0 * M_PI);
-            double y = R * std::sin(double(i) / n * 2.0 * M_PI);
-            boundary.push_back(Point2D(x, y));
-        }
-        //-----------------------------------------------------
-
-        // Extract boundary
-
+        std::cout << "MeshGenerator: Generating 2D mesh..." << std::endl;
 
         // Extract subdomains (building footprints)
         std::vector<std::vector<Point2D>> subDomains;
         for (auto const & building : cityModel.Buildings)
             subDomains.push_back(building.Footprint);
+
+        // Compute diameter and center of domain (using naive algorithm)
+        Point2D C;
+        double R = 0.0;
+        ComputeDomainSize(C, R, subDomains);
+
+        // Generate boundary
+        R *= domainRadius;
+        const double L = 2.0*M_PI*R;
+        const size_t n = int(std::ceil(L / meshSize));
+        std::vector<Point2D> boundary;
+        for (int i = 0; i < n; i++)
+        {
+            double x = C.x + R * std::cos(double(i) / n * 2.0 * M_PI);
+            double y = C.y + R * std::sin(double(i) / n * 2.0 * M_PI);
+            boundary.push_back(Point2D(x, y));
+        }
 
         // Generate 2D mesh
         Mesh2D m2D = CallTriangle(boundary, subDomains);
@@ -67,15 +70,17 @@ public:
         CSV::Write(m2D, "Mesh2D");
         XML::Write(m2D, "Mesh2D");
 
-        std::cout << "Generated " << m2D << std::endl;
+        std::cout << "MeshGenerator: " << m2D << std::endl;
 
         return m2D;
     }
 
     // Generate 3D mesh
-    static Mesh3D GenerateMesh3D(const CityModel& cityModel)
+    static Mesh3D GenerateMesh3D(const CityModel& cityModel,
+                                 double domainRadius,
+                                 double meshSize)
     {
-        std::cout << "Generating 3D mesh..." << std::endl;
+        std::cout << "MeshGenerator: Generating 3D mesh..." << std::endl;
 
         // FIXME: Test data
         //-----------------------------------------------------
@@ -84,7 +89,7 @@ public:
         //-----------------------------------------------------
 
         // Generate 2D mesh
-        Mesh2D m2D = GenerateMesh2D(cityModel);
+        Mesh2D m2D = GenerateMesh2D(cityModel, domainRadius, meshSize);
 
         // Create empty 3D mesh
         Mesh3D m3D;
@@ -95,8 +100,8 @@ public:
         dz = H / double(NumberOfLayers);
         const size_t LayerSize = m2D.Points.size();
 
-        std::cout << "Number of layers: " << NumberOfLayers << std::endl;
-        std::cout << "Layer size: " << LayerSize << std::endl;
+        std::cout << "MeshGenerator: Number of layers: " << NumberOfLayers << std::endl;
+        std::cout << "MeshGenerator: Layer size: " << LayerSize << std::endl;
 
         // Create marker/index array for used points
         const size_t NumberOfPoints = (NumberOfLayers + 1) * m2D.Points.size();
@@ -185,7 +190,7 @@ public:
         CSV::Write(m3D, "Mesh3D");
         XML::Write(m3D, "Mesh3D");
 
-        std::cout << "Generated " << m3D << std::endl;
+        std::cout << "MeshGenerator: " << m3D << std::endl;
 
         return m3D;
     }
@@ -365,9 +370,45 @@ private:
         return io;
     }
 
+    // Compute domain size (center and radius)
+    static void ComputeDomainSize(Point2D& center, double& radius,
+                                  const std::vector<std::vector<Point2D>>& subDomains)
+    {
+        // The center and radius is computed by brute force and is O(N^2).
+        // It can be more efficiently computed from the convex hull but
+        // this step is likely relatively inexpensive.
+
+        // Compute diameter and keep points at largest distance
+        Point2D q0, q1;
+        double d2max = 0.0;
+        for (auto const & s0 : subDomains)
+        {
+            for (auto const & s1 : subDomains)
+            {
+                for (auto const & p0 : s0)
+                {
+                    for (auto const & p1 : s1)
+                    {
+                        const double d2 = Geometry::SquaredDistance2D(p0, p1);
+                        if (d2 > d2max)
+                        {
+                            q0 = p0;
+                            q1 = p1;
+                            d2max = d2;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Compute center and radius
+        center = (q0 + q1) * 0.5;
+        radius = 0.5 * std::sqrt(d2max);
+    }
+
     // Compute domain markers for subdomains
     static std::vector<size_t>
-    ComputeDomainMarkers(const Mesh2D& m,
+    ComputeDomainMarkers(const Mesh2D & m,
                          const std::vector<std::vector<Point2D>>& subDomains)
     {
         // Initialize markers

@@ -55,7 +55,9 @@ int main(int argc, char* argv[])
               << parameters.MeshSize << std::endl;
 
     // Generate mesh (excluding height map)
-    Mesh3D m = MeshGenerator::GenerateMesh3D(cityModel);
+    Mesh3D m = MeshGenerator::GenerateMesh3D(cityModel,
+                                             parameters.DomainRadius,
+                                             parameters.MeshSize);
 
     // Apply mesh smoothing to account for height map
     MeshSmoother::SmoothMesh();
