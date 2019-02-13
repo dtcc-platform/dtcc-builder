@@ -31,13 +31,13 @@ public:
     // Create empty height map
     HeightMap() : Width(0), Height(0) {}
 
-    // Return height (z) at point p
+    // Return height (z) at world (UTM) point p
     double operator() (const Point2D& p) const
     {
         return (*this)(p.x, p.y);
     }
 
-    // Return height (z) at point (x, y)
+    // Return height (z) at world (UTM) coordinates (x, y)
     double operator() (double x, double y) const
     {
         // Transform world (UTM) coordinates to pixel coordinates
@@ -82,7 +82,52 @@ public:
         GridMap = geoReference;
     }
 
+    // Return world (UTM) coordinate of NW corner
+    Point2D WorldCoordinateNW() const
+    {
+        return WorldCoordinate(0, 0);
+    }
+
+    // Return world (UTM) coordinate of NE corner
+    Point2D WorldCoordinateNE() const
+    {
+        return WorldCoordinate(Width - 1, 0);
+    }
+
+    // Return world (UTM) coordinate of SE corner
+    Point2D WorldCoordinateSE() const
+    {
+        return WorldCoordinate(Width - 1, Height - 1);
+    }
+
+    // Return world (UTM) coordinate of SW corner
+    Point2D WorldCoordinateSW() const
+    {
+        return WorldCoordinate(0, Height - 1);
+    }
+
+    // Return world (UTM) coordinate of pixel (X, Y) = (column, row)
+    Point2D WorldCoordinate(size_t X, size_t Y) const
+    {
+        const double AX = GridMap.A * X;
+        const double BY = GridMap.B * Y;
+        const double DX = GridMap.D * X;
+        const double EY = GridMap.E * Y;
+        const double C = GridMap.C;
+        const double F = GridMap.F;
+        Point2D p(AX + BY + C, DX + EY + F);
+        return p;
+    }
+
 };
+
+std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
+{
+    stream << "NW = " << heightMap.WorldCoordinateNW()
+           << " NE = " << heightMap.WorldCoordinateNE()
+           << " SE = " << heightMap.WorldCoordinateSE()
+           << " SW = " << heightMap.WorldCoordinateSW();
+}
 
 }
 

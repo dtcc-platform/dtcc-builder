@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
     // Read height map from file
     HeightMap heightMap;
     JSON::Read(heightMap, fileNameHeightMap);
+    std::cout << heightMap << std::endl;
 
     // Read parameters from file
     Parameters parameters;
