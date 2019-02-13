@@ -40,10 +40,43 @@ public:
     // Return height (z) at point (x, y)
     double operator() (double x, double y) const
     {
-        return 0.0;
+        // Transform world (UTM) coordinates to pixel coordinates
+        const double Ex = GridMap.E * x;
+        const double By = GridMap.B * y;
+        const double BF = GridMap.B * GridMap.F;
+        const double EC = GridMap.E * GridMap.C;
+        const double Dx = GridMap.D * x;
+        const double Ay = GridMap.A * y;
+        const double DC = GridMap.D * GridMap.C;
+        const double AF = GridMap.A * GridMap.F;
+        const double AE = GridMap.A * GridMap.E;
+        const double DB = GridMap.D * GridMap.B;
+        const double det = AE - DB;
+        double X = (Ex - By + BF - EC) / det;  // column
+        double Y = (-Dx + Ay + DC - AF) / det; // row
+
+        // Find the square containing the coordinate
+        const std::size_t X0 = std::lround(X);
+        const std::size_t Y0 = std::lround(Y);
+
+        // Check that we are inside the domain
+        if (X0 < 0 || X0 + 1 >= Width || Y0 < 0 || Y0 + 1 >= Height)
+            throw std::runtime_error("Point outside of height map domain.");
+
+        // Compute value by bilinear interpolation
+        const double z00 = GridData[Y0 * Width + X0];
+        const double z01 = GridData[(Y0 + 1) * Width + X0];
+        const double z10 = GridData[Y0 * Width + X0 + 1];
+        const double z11 = GridData[(Y0 + 1) * Width + X0 + 1];
+        X -= X0;
+        Y -= Y0;
+        const double z = (1.0 - X) * (1.0 - Y) * z00 + (1.0 - X) * Y * z01 +
+                         X * (1.0 - Y) * z10 + X * Y * z11;
+
+        return z;
     }
 
-    // Apply geo reference to height map
+    // Apply (set) geo reference
     double Apply(const GeoReference& geoReference)
     {
         GridMap = geoReference;
