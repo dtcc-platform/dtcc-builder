@@ -19,6 +19,9 @@ public:
     // Maximum mesh size used for mesh generation [m]
     double MeshSize = 1.0;
 
+    // Stride length used for downsampling height map
+    size_t HeightMapStride = 1;
+
 };
 
 }

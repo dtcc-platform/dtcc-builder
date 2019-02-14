@@ -21,7 +21,9 @@ public:
     static const int PRECISION = 16;
 
     // Read geo reference from WLD file
-    static void Read(GeoReference& geoReference, std::string fileName)
+    static void Read(GeoReference& geoReference,
+                     std::string fileName,
+                     size_t stride)
     {
         std::cout << "WLD: " << "Reading geo reference from file "
                   << fileName << std::endl;
@@ -36,10 +38,10 @@ public:
         f >> C;
         f >> F;
 
-        geoReference.A = std::stod(A);
-        geoReference.D = std::stod(D);
-        geoReference.B = std::stod(B);
-        geoReference.E = std::stod(E);
+        geoReference.A = std::stod(A) / double(stride);
+        geoReference.D = std::stod(D) / double(stride);
+        geoReference.B = std::stod(B) / double(stride);
+        geoReference.E = std::stod(E) / double(stride);
         geoReference.C = std::stod(C);
         geoReference.F = std::stod(F);
     };

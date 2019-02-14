@@ -33,6 +33,7 @@ public:
         // Extract JSON data
         parameters.DomainRadius = json["DomainRadius"];
         parameters.MeshSize = json["MeshSize"];
+        parameters.HeightMapStride = json["HeightMapStride"];
     };
 
     // Write parameters to JSON file
@@ -45,6 +46,7 @@ public:
         nlohmann::json json;
         json["DomainRadius"] = parameters.DomainRadius;
         json["MeshSize"] = parameters.MeshSize;
+        json["HeightMapStride"] = parameters.HeightMapStride;
 
         // Write to file
         std::ofstream f(fileName);

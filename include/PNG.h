@@ -19,7 +19,9 @@ class PNG
 public:
 
     // Read height map from PNG file
-    static void Read(HeightMap& heightMap, std::string fileName)
+    static void Read(HeightMap& heightMap,
+                     std::string fileName,
+                     size_t stride)
     {
         std::cout << "PNG: " << "Reading height map from file "
                   << fileName << std::endl;
@@ -49,18 +51,23 @@ public:
         image.write(0, 0, numCols, numRows, "R",
                     Magick::ShortPixel, pixels.data());
 
-        // Convert to floating point height map
-        heightMap.Width = numCols;
-        heightMap.Height = numRows;
-        heightMap.GridData.resize(numPixels);
-        for (size_t i = 0; i < numPixels; i++)
+        // Convert to floating point height map using stride
+        heightMap.Width = (numCols - 1) / stride + 1;
+        heightMap.Height = (numRows - 1)  / stride + 1;
+        const size_t numScaledPixels = heightMap.Width * heightMap.Height;
+        heightMap.GridData.resize(numScaledPixels);
+        size_t k = 0;
+        for (size_t i = 0; i < numRows; i += stride)
         {
-            double z = pixels[i];
-            z -= 1024; // 1024 is sea level
-            z *= 0.01; // pixel data is cm
-            heightMap.GridData[i] = z;
+            for (size_t j = 0; j < numCols; j += stride)
+            {
+                double z = pixels[i*numCols + j];
+                z -= 1024; // 1024 is sea level
+                z *= 0.01; // pixel data is cm
+                heightMap.GridData[k++] = z;
+            }
         }
-    };
+    }
 
 };
 
