@@ -82,6 +82,32 @@ public:
         GridMap = geoReference;
     }
 
+    // Return world (UTM) coordinate of center
+    Point2D WorldCoordinateCenter() const
+    {
+        const Point2D nw = WorldCoordinateNW();
+        const Point2D ne = WorldCoordinateNE();
+        const Point2D se = WorldCoordinateSE();
+        const Point2D sw = WorldCoordinateSW();
+        return (nw + ne + se + sw) * 0.25;
+    }
+
+    // Return world (UTM) coordinate width
+    double WorldCoordinateWidth() const
+    {
+        const Point2D nw = WorldCoordinateNW();
+        const Point2D ne = WorldCoordinateNE();
+        return ne.x - nw.x;
+    }
+
+    // Return world (UTM) coordinate height
+    double WorldCoordinateHeight() const
+    {
+        const Point2D nw = WorldCoordinateNW();
+        const Point2D sw = WorldCoordinateSW();
+        return nw.y - sw.y;
+    }
+
     // Return world (UTM) coordinate of NW corner
     Point2D WorldCoordinateNW() const
     {
@@ -123,7 +149,10 @@ public:
 
 std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
 {
-    stream << "NW = " << heightMap.WorldCoordinateNW()
+    stream << "C = " << heightMap.WorldCoordinateCenter()
+           << " W = " << heightMap.WorldCoordinateWidth()
+           << " H = " << heightMap.WorldCoordinateHeight()
+           << " NW = " << heightMap.WorldCoordinateNW()
            << " NE = " << heightMap.WorldCoordinateNE()
            << " SE = " << heightMap.WorldCoordinateSE()
            << " SW = " << heightMap.WorldCoordinateSW();
