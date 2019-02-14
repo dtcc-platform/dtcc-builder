@@ -1,8 +1,8 @@
 // WLD I/O
 // Anders Logg 2019
 
-#ifndef WLD_H
-#define WLD_H
+#ifndef VC_WLD_H
+#define VC_WLD_H
 
 #include <fstream>
 #include <iostream>

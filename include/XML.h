@@ -1,8 +1,8 @@
 // FEniCS XML I/O
-// Anders Logg 2010
+// Anders Logg 2019
 
-#ifndef XML_H
-#define XML_H
+#ifndef VC_XML_H
+#define VC_XML_H
 
 #include <iostream>
 #include <vector>

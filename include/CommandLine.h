@@ -1,8 +1,8 @@
 // JSON I/O
 // Anders Logg 2019
 
-#ifndef COMMAND_LINE_H
-#define COMMAND_LINE_H
+#ifndef VC_COMMAND_LINE_H
+#define VC_COMMAND_LINE_H
 
 #include <string>
 

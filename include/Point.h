@@ -1,8 +1,8 @@
 // Point classes for 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef POINT_H
-#define POINT_H
+#ifndef VC_POINT_H
+#define VC_POINT_H
 
 #include <iostream>
 #include <cmath>

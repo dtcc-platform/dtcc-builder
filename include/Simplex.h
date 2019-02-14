@@ -1,8 +1,8 @@
 // Simplex classes for 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef SIMPLEX_H
-#define SIMPLEX_H
+#ifndef VC_SIMPLEX_H
+#define VC_SIMPLEX_H
 
 #include <vector>
 

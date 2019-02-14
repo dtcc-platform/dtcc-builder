@@ -1,8 +1,8 @@
 // CSV I/O
 // Anders Logg 2018
 
-#ifndef CSV_H
-#define CSV_H
+#ifndef VC_CSV_H
+#define VC_CSV_H
 
 #include <iostream>
 #include <vector>

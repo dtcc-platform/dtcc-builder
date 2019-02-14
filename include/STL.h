@@ -1,8 +1,8 @@
 // STL I/O
 // Anders Logg 2018
 
-#ifndef STL_H
-#define STL_H
+#ifndef VC_STL_H
+#define VC_STL_H
 
 #include <stdexcept>
 #include <iostream>

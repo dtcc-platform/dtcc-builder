@@ -1,8 +1,8 @@
 // Mesh classes for 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef MESH_H
-#define MESH_H
+#ifndef VC_MESH_H
+#define VC_MESH_H
 
 #include <vector>
 #include "Point.h"
