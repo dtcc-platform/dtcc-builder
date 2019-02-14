@@ -61,7 +61,13 @@ public:
 
         // Check that we are inside the domain
         if (X0 < 0 || X0 + 1 >= Width || Y0 < 0 || Y0 + 1 >= Height)
+        {
+            Point2D p(x, y);
+            std::cout << "p = " << p << std::endl;
+            std::cout << "X = " << X0 << std::endl;
+            std::cout << "Y = " << Y0 << std::endl;
             throw std::runtime_error("Point outside of height map domain.");
+        }
 
         // Compute value by bilinear interpolation
         const double z00 = GridData[Y0 * Width + X0];

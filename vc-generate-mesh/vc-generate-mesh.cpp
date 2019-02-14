@@ -13,6 +13,7 @@
 #include "MeshSmoother.h"
 #include "HeightMap.h"
 #include "JSON.h"
+#include "FEniCS.h"
 
 using namespace std;
 using namespace VirtualCity;
@@ -56,20 +57,23 @@ int main(int argc, char* argv[])
               << parameters.MeshSize << std::endl;
 
     // Generate mesh (excluding height map)
-    Mesh3D m = MeshGenerator::GenerateMesh3D(cityModel,
-                                             parameters.DomainRadius,
-                                             parameters.MeshSize);
+    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(cityModel,
+                    parameters.DomainRadius,
+                    parameters.MeshSize);
+
+    // Convert to FEniCS mesh
+    dolfin::Mesh mesh;
+    FEniCS::ConvertMesh(mesh3D, mesh);
 
     // Apply mesh smoothing to account for height map
-    MeshSmoother::SmoothMesh(heightMap);
+    MeshSmoother::SmoothMesh(mesh, heightMap);
 
-    // FIXME: Write test output
-    dolfin::Mesh _m("Mesh3D.xml");
-    dolfin::BoundaryMesh _b(_m, "exterior");
-    dolfin::File _f("Mesh3D.pvd");
-    dolfin::File _g("Mesh3DBoundary.pvd");
-    _f << _m;
-    _g << _b;
+    // Write to file
+    dolfin::BoundaryMesh boundary(mesh, "exterior");
+    dolfin::File f("mesh.xml");
+    dolfin::File g("MeshBoundary.pvd");
+    f << mesh;
+    g << boundary;
 
     return 0;
 }

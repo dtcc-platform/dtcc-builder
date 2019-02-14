@@ -71,7 +71,6 @@ public:
 
         // FIXME: Write test output
         CSV::Write(m2D, "Mesh2D");
-        XML::Write(m2D, "Mesh2D");
 
         std::cout << "MeshGenerator: " << m2D << std::endl;
 
@@ -95,7 +94,7 @@ public:
         double hmax = 0.0;
         for (auto const & building : cityModel.Buildings)
             hmax = std::max(hmax, building.Height);
-        const double H = domainRadius * hmax;
+        const double H = 0.5 * domainRadius * hmax;
         std::cout << "MeshGenerator: " << "domain height = " << H << std::endl;
 
         // Compute number of layers
@@ -106,7 +105,7 @@ public:
         const size_t layerSize = m2D.Points.size();
 
         std::cout << "MeshGenerator: number of layers = " << numLayers << std::endl;
-        std::cout << "MeshGenerator: layer size = " << layerSize << std::endl;
+        std::cout << "MeshGenerator: layer size =  " << layerSize << std::endl;
 
         // Create marker/index array for used points
         const size_t numPoints = (numLayers + 1) * m2D.Points.size();
@@ -197,10 +196,6 @@ public:
             T.v2 = pointIndices[T.v2];
             T.v3 = pointIndices[T.v3];
         }
-
-        // FIXME: Write test output
-        CSV::Write(m3D, "Mesh3D");
-        XML::Write(m3D, "Mesh3D");
 
         std::cout << "MeshGenerator: " << m3D << std::endl;
 
