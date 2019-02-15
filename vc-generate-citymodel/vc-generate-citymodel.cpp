@@ -40,7 +40,7 @@ void GenerateMaximalCityModel(CityModel& cityModel)
     const double margin = 0.9;
 
     // Displacement of buildings relative to center
-    const double d = margin*(0.5 * std::min(W, H) - a);
+    const double d = margin * (0.5 * std::min(W, H) - a);
     //const double d = 1000;
 
     // Add a building in each corner
@@ -58,8 +58,8 @@ void GenerateMaximalCityModel(CityModel& cityModel)
 // Generate random city model
 void GenerateRandomCityModel(CityModel& cityModel, size_t numBuildings)
 {
-    // City center
-    const Point2D C(-1081.75, -1418.75);
+    // City center (approximate location of Johanneberg)
+    const Point2D C(-3000.0, -4000.0);
 
     // Parameters for building sizes and locations
     const double R = 100.0; // city radius
@@ -93,12 +93,13 @@ void GenerateRandomCityModel(CityModel& cityModel, size_t numBuildings)
             // Add building
             if (ok)
             {
-                // Randomize height
-                double height = a + (rand() / double(RAND_MAX)) * h;
+                // Randomize dimension
+                double width = (0.5 + 0.5 * (rand() / double(RAND_MAX))) * a;
+                double height =(0.2 + 0.8 * (rand() / double(RAND_MAX))) * h;
 
                 // Generate building
                 Building building;
-                GenerateBuilding(building, p, a, h);
+                GenerateBuilding(building, p, width, height);
 
                 // Add building
                 cityModel.Buildings.push_back(building);
@@ -122,12 +123,12 @@ int main(int argc, char* argv[])
     }
 
     // Generate maximal city cityModel
-    CityModel cityModel;
-    GenerateMaximalCityModel(cityModel);
+    //CityModel cityModel;
+    //GenerateMaximalCityModel(cityModel);
 
     // Generate random city model
-    // CityModel cityModel;
-    //GenerateRandomCityModel(cityModel, 16);
+    CityModel cityModel;
+    GenerateRandomCityModel(cityModel, 64);
 
     // Write to file
     JSON::Write(cityModel, "CityModel.json");

@@ -92,7 +92,7 @@ public:
         double hmax = 0.0;
         for (auto const & building : cityModel.Buildings)
             hmax = std::max(hmax, building.Height);
-        const double H = 0.75 * domainRadius * hmax;
+        const double H = domainRadius * hmax;
         std::cout << "MeshGenerator: " << "domain height = " << H << std::endl;
 
         // Compute number of layers
