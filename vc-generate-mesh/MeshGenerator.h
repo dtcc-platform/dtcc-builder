@@ -70,7 +70,7 @@ public:
         m2D.DomainMarkers = ComputeDomainMarkers(m2D, subDomains);
 
         // FIXME: Write test output
-        CSV::Write(m2D, "Mesh2D");
+        //CSV::Write(m2D, "Mesh2D");
 
         std::cout << "MeshGenerator: " << m2D << std::endl;
 
@@ -94,7 +94,7 @@ public:
         double hmax = 0.0;
         for (auto const & building : cityModel.Buildings)
             hmax = std::max(hmax, building.Height);
-        const double H = 0.5 * domainRadius * hmax;
+        const double H = 0.75 * domainRadius * hmax;
         std::cout << "MeshGenerator: " << "domain height = " << H << std::endl;
 
         // Compute number of layers
@@ -215,7 +215,9 @@ private:
 
         // Set input switches for Triangle
         char triswitches[64];
-        sprintf(triswitches, "zpq25a%.3g", maxArea);
+        sprintf(triswitches, "zpq25a%.16f", maxArea);
+        std::cout << "MeshGenerator: triangle parameters = "
+                  << triswitches << std::endl;
 
         // z = use zero-based numbering
         // p = use polygon input (segments)
