@@ -53,7 +53,6 @@ public:
         f << json;
     }
 
-
     // Read height map from JSON file
     static void Read(HeightMap& heightMap, std::string fileName)
     {

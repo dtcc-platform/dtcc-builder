@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
 
     // Apply geo reference to height map
     heightMap.Apply(geoReference);
+    std::cout << heightMap << std::endl;
 
     // Write height map to JSON file
     JSON::Write(heightMap, fileNameJSON);

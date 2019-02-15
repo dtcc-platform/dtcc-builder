@@ -161,7 +161,8 @@ std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
            << " NW = " << heightMap.WorldCoordinateNW()
            << " NE = " << heightMap.WorldCoordinateNE()
            << " SE = " << heightMap.WorldCoordinateSE()
-           << " SW = " << heightMap.WorldCoordinateSW();
+           << " SW = " << heightMap.WorldCoordinateSW()
+           << " DX = " << heightMap.GridMap.A;
 }
 
 }
