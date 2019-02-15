@@ -1,0 +1,4 @@
+# Linear finite element space in 2D.
+# Copyright (C) 2019 Anders Logg.
+
+element = FiniteElement('Lagrange', triangle, 1)

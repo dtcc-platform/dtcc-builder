@@ -15,6 +15,7 @@
 #include "Mesh.h"
 #include "HeightMap.h"
 #include "LaplacianSmoother.h"
+#include "LinearSpace2D.h"
 
 namespace VirtualCity
 {
@@ -86,20 +87,51 @@ public:
         }
     }
 
+    // Smooth mesh using elastic smoothing
     static void SmoothMeshElastic(dolfin::Mesh& mesh,
                                   const HeightMap& heightMap)
     {
         std::cout << "Elastic smoothing not (yet) implemented." << std::endl;
     }
 
+    // Generate height map function (used only for testing/visualization)
+    static std::shared_ptr<dolfin::Function>
+    GenerateHeightMapFunction(const dolfin::Mesh& mesh,
+                              const HeightMap& heightMap)
+    {
+        // Create function space
+        auto m = std::make_shared<dolfin::Mesh>(mesh);
+        auto V = std::make_shared<LinearSpace2D::FunctionSpace>(m);
+
+        // Create boundary condition
+        auto bcz = std::make_shared<dolfin::DirichletBC>
+                   (V,
+                    std::make_shared<HeightMapExpression>(heightMap),
+                    std::make_shared<EntireDomain>());
+
+        // Create function and apply boundary condition
+        auto z = std::make_shared<dolfin::Function>(V);
+        bcz->apply(*z->vector());
+
+        return z;
+    }
+
 private:
+
+    // Boundary definition for entire domain
+    class EntireDomain : public dolfin::SubDomain
+    {
+        bool inside(const dolfin::Array<double>& x, bool on_boundary) const
+        {
+            return true;
+        }
+    };
 
     // Boundary definition for bottom
     class Bottom : public dolfin::SubDomain
     {
         bool inside(const dolfin::Array<double>& x, bool on_boundary) const
         {
-            // FIXME: Test data
             return std::abs(x[2] - 0.0) < DOLFIN_EPS;
         }
     };
@@ -124,9 +156,6 @@ private:
                   const dolfin::Array<double>& x) const
         {
             values[0] = heightMap(x[0], x[1]);
-
-            // FIXME: Temporary scaling until we get sensible data
-            values[0] *= 0.05;
         }
 
     };

@@ -47,9 +47,9 @@ public:
                   << " (" << numPixels << " pixels)" << std::endl;
 
         // Write pixel data to array
-        std::vector<int16_t> pixels(numPixels);
-        image.write(0, 0, numCols, numRows, "R",
-                    Magick::ShortPixel, pixels.data());
+        std::vector<double> pixels(numPixels);
+        image.write(0, 0, numCols, numRows, "I",
+                    Magick::DoublePixel, pixels.data());
 
         // Convert to floating point height map using stride
         heightMap.Width = (numCols - 1) / stride + 1;
@@ -62,8 +62,10 @@ public:
             for (size_t j = 0; j < numCols; j += stride)
             {
                 double z = pixels[i*numCols + j];
-                z -= 1024; // 1024 is sea level
-                z *= 0.01; // pixel data is cm
+                z *= 65535; // 16 bit depth
+                z -= 1024;  // 1024 is sea level
+                z *= 0.01;  // pixel data is cm
+                std::cout << "z = " << z << std::endl;
                 heightMap.GridData[k++] = z;
             }
         }

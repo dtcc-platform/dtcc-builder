@@ -56,24 +56,38 @@ int main(int argc, char* argv[])
     std::cout << "vc-generate-mesh: MeshSize = "
               << parameters.MeshSize << std::endl;
 
-    // Generate mesh (excluding height map)
-    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(cityModel,
+    // Generate 2D mesh
+    Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
                     parameters.DomainRadius,
                     parameters.MeshSize);
 
-    // Convert to FEniCS mesh
-    dolfin::Mesh mesh;
-    FEniCS::ConvertMesh(mesh3D, mesh);
+    // Generate mesh (excluding height map)
+    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
+                    cityModel,
+                    parameters.DomainRadius,
+                    parameters.MeshSize);
+
+    // Convert to FEniCS meshes
+    dolfin::Mesh _mesh2D, _mesh3D;
+    FEniCS::ConvertMesh(mesh2D, _mesh2D);
+    FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
     // Apply mesh smoothing to account for height map
-    MeshSmoother::SmoothMesh(mesh, heightMap);
+    MeshSmoother::SmoothMesh(_mesh3D, heightMap);
 
-    // Write to file
-    dolfin::BoundaryMesh boundary(mesh, "exterior");
+    // Generate height map function (used only for testing/visualization)
+    auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
+
+    // Generate mesh boundary (used only for testing/visualization)
+    dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
+
+    // Write to files
     dolfin::File f("mesh.xml");
     dolfin::File g("MeshBoundary.pvd");
-    f << mesh;
-    g << boundary;
+    dolfin::File h("HeightMap.pvd");
+    f << _mesh3D;
+    g << _boundary3D;
+    h << *z;
 
     return 0;
 }

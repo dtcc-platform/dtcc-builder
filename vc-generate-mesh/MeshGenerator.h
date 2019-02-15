@@ -64,31 +64,29 @@ public:
         }
 
         // Generate 2D mesh
-        Mesh2D m2D = CallTriangle(boundary, subDomains, meshSize);
+        Mesh2D mesh2D = CallTriangle(boundary, subDomains, meshSize);
 
         // Mark subdomains
-        m2D.DomainMarkers = ComputeDomainMarkers(m2D, subDomains);
+        mesh2D.DomainMarkers = ComputeDomainMarkers(mesh2D, subDomains);
 
         // FIXME: Write test output
-        //CSV::Write(m2D, "Mesh2D");
+        //CSV::Write(mesh2D, "Mesh2D");
 
-        std::cout << "MeshGenerator: " << m2D << std::endl;
+        std::cout << "MeshGenerator: " << mesh2D << std::endl;
 
-        return m2D;
+        return mesh2D;
     }
 
     // Generate 3D mesh
-    static Mesh3D GenerateMesh3D(const CityModel& cityModel,
+    static Mesh3D GenerateMesh3D(const Mesh2D& mesh2D,
+                                 const CityModel& cityModel,
                                  double domainRadius,
                                  double meshSize)
     {
         std::cout << "MeshGenerator: Generating 3D mesh..." << std::endl;
 
-        // Generate 2D mesh
-        Mesh2D m2D = GenerateMesh2D(cityModel, domainRadius, meshSize);
-
         // Create empty 3D mesh
-        Mesh3D m3D;
+        Mesh3D mesh3D;
 
         // Compute height
         double hmax = 0.0;
@@ -102,13 +100,13 @@ public:
         double dz = h;
         const size_t numLayers = int(std::ceil(H / h));
         dz = H / double(numLayers);
-        const size_t layerSize = m2D.Points.size();
+        const size_t layerSize = mesh2D.Points.size();
 
         std::cout << "MeshGenerator: number of layers = " << numLayers << std::endl;
         std::cout << "MeshGenerator: layer size =  " << layerSize << std::endl;
 
         // Create marker/index array for used points
-        const size_t numPoints = (numLayers + 1) * m2D.Points.size();
+        const size_t numPoints = (numLayers + 1) * mesh2D.Points.size();
         std::vector<size_t> pointIndices(numPoints);
         std::fill(pointIndices.begin(), pointIndices.end(), numPoints);
 
@@ -120,13 +118,13 @@ public:
             const double z = layer * dz;
 
             // Add tetrahedra for layer
-            for (size_t i = 0; i < m2D.Cells.size(); i++)
+            for (size_t i = 0; i < mesh2D.Cells.size(); i++)
             {
                 // Check if we are inside a building
                 bool skip = false;
                 for (size_t j = 0; j < cityModel.Buildings.size(); j++)
                 {
-                    if (m2D.DomainMarkers[i] == (j + 1) && z < cityModel.Buildings[j].Height)
+                    if (mesh2D.DomainMarkers[i] == (j + 1) && z < cityModel.Buildings[j].Height)
                     {
                         skip = true;
                         break;
@@ -138,9 +136,9 @@ public:
                     continue;
 
                 // // Get sorted vertex indices for bottom layer
-                const size_t u0 = m2D.Cells[i].v0 + offset;
-                const size_t u1 = m2D.Cells[i].v1 + offset;
-                const size_t u2 = m2D.Cells[i].v2 + offset;
+                const size_t u0 = mesh2D.Cells[i].v0 + offset;
+                const size_t u1 = mesh2D.Cells[i].v1 + offset;
+                const size_t u2 = mesh2D.Cells[i].v2 + offset;
 
                 // // Get sorted vertices for top layer
                 const size_t v0 = u0 + layerSize;
@@ -150,9 +148,9 @@ public:
                 // Create three tetrahedra by connecting the first vertex
                 // of each edge in the bottom layer with the second
                 // vertex of the corresponding edge in the top layer.
-                m3D.Cells.push_back(Simplex3D(u0, u1, u2, v2));
-                m3D.Cells.push_back(Simplex3D(u0, u1, v1, v2));
-                m3D.Cells.push_back(Simplex3D(u0, v0, v1, v2));
+                mesh3D.Cells.push_back(Simplex3D(u0, u1, u2, v2));
+                mesh3D.Cells.push_back(Simplex3D(u0, u1, v1, v2));
+                mesh3D.Cells.push_back(Simplex3D(u0, v0, v1, v2));
 
                 // Indicate which points are used
                 pointIndices[u0] = 0;
@@ -176,20 +174,20 @@ public:
         }
 
         // Add points
-        m3D.Points.reserve(k);
+        mesh3D.Points.reserve(k);
         for (size_t i = 0; i < numPoints; i++)
         {
             if (pointIndices[i] != numPoints)
             {
-                const Point2D& p2D = m2D.Points[i % layerSize];
+                const Point2D& p2D = mesh2D.Points[i % layerSize];
                 const double z = (i / layerSize) * dz;
                 Point3D p3D(p2D.x, p2D.y, z);
-                m3D.Points.push_back(p3D);
+                mesh3D.Points.push_back(p3D);
             }
         }
 
         // Assign renumbered indices to cells
-        for (auto & T : m3D.Cells)
+        for (auto & T : mesh3D.Cells)
         {
             T.v0 = pointIndices[T.v0];
             T.v1 = pointIndices[T.v1];
@@ -197,9 +195,9 @@ public:
             T.v3 = pointIndices[T.v3];
         }
 
-        std::cout << "MeshGenerator: " << m3D << std::endl;
+        std::cout << "MeshGenerator: " << mesh3D << std::endl;
 
-        return m3D;
+        return mesh3D;
     }
 
 private:
@@ -322,25 +320,25 @@ private:
         triangulate(triswitches, &in, &out, &vorout);
 
         // Create empty mesh
-        Mesh2D m2D;
+        Mesh2D mesh2D;
 
         // Extract points
-        m2D.Points.reserve(out.numberofpoints);
+        mesh2D.Points.reserve(out.numberofpoints);
         for (size_t i = 0; i < out.numberofpoints; i++)
         {
             Point2D p(out.pointlist[2 * i],
                       out.pointlist[2 * i + 1]);
-            m2D.Points.push_back(p);
+            mesh2D.Points.push_back(p);
         }
 
         // Extract triangles
-        m2D.Cells.reserve(out.numberoftriangles);
+        mesh2D.Cells.reserve(out.numberoftriangles);
         for (size_t i = 0; i < out.numberoftriangles; i++)
         {
             Simplex2D t(out.trianglelist[3 * i],
                         out.trianglelist[3 * i + 1],
                         out.trianglelist[3 * i + 2]);
-            m2D.Cells.push_back(t);
+            mesh2D.Cells.push_back(t);
         }
 
         // Free memory
@@ -349,7 +347,7 @@ private:
         delete [] in.segmentlist;
         delete [] in.holelist;
 
-        return m2D;
+        return mesh2D;
     }
 
     // Create and reset Triangle I/O data structure
