@@ -64,7 +64,7 @@ public:
         }
 
         // Generate 2D mesh
-        Mesh2D m2D = CallTriangle(boundary, subDomains);
+        Mesh2D m2D = CallTriangle(boundary, subDomains, meshSize);
 
         // Mark subdomains
         m2D.DomainMarkers = ComputeDomainMarkers(m2D, subDomains);
@@ -207,10 +207,15 @@ private:
     // Call Triangle to compute 2D mesh
     static Mesh2D
     CallTriangle(const std::vector<Point2D>& boundary,
-                 const std::vector<std::vector<Point2D>>& subDomains)
+                 const std::vector<std::vector<Point2D>>& subDomains,
+                 double meshSize)
     {
+        // Set area constraint to control mesh size (rough estimate)
+        const double maxArea = meshSize * meshSize;
+
         // Set input switches for Triangle
-        char triswitches[] = "zpq25";
+        char triswitches[64];
+        sprintf(triswitches, "zpq25a%.3g", maxArea);
 
         // z = use zero-based numbering
         // p = use polygon input (segments)
