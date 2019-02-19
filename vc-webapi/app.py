@@ -1,5 +1,6 @@
 #!flask/bin/python
-from flask import Flask, request, jsonify, abort
+#VirtualCity@Chalmers: app.py // Vasilis Naserentin 2019
+from flask import Flask, request, jsonify, abort 
 import json
 
 app = Flask(__name__)
