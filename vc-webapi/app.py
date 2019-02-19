@@ -5,68 +5,27 @@ import json
 
 app = Flask(__name__)
 
-# Hardcoded ids for now, placeholders
-buildings = [
-    {
-    "id": 1,
-    "Footprint": [
-      {
-        "x": -14755.1412069717,
-        "y": 12292.9767350682
-      },
-      {
-        "x": -14754.0622069717,
-        "y": 12292.9767350682
-      },
-      {
-        "x": -14754.0622069717,
-        "y": 12294.0557350682
-      },
-      {
-        "x": -14755.1412069717,
-        "y": 12294.0557350682
-      }
-    ],
-    "Height": 9.52864062435536
-    },
-  {
-    "id": 2,
-    "Footprint": [
-      {
-        "x": -14755.1412069717,
-        "y": 12292.9767350682
-      },
-      {
-        "x": -14754.0622069717,
-        "y": 12292.9767350682
-      },
-      {
-        "x": -14754.0622069717,
-        "y": 12294.0557350682
-      },
-      {
-        "x": -14755.1412069717,
-        "y": 12294.0557350682
-      }
-    ],
-    "Height": 9.52864062435536
-    },
-{
-"id":3,
-"data":[
-{
-"bool1":"true",
-"int1":1,
-"float1":15.6,
-"string1":"hello",
-}
-]
-}
+base='/api/v1.0/';
+
+# Will loop over all data folders
+
+with open('data/1.json') as jsonfile:
+    input1 = json.load(jsonfile)
+    print(input1)
+
+with open('data/2.json') as jsonfile:
+    input2 = json.load(jsonfile)
+    print(input2)
+
+with open('data/generic.json') as jsonfile:
+    generic = json.load(jsonfile)
+    print(generic)
 
 
-]
+buildings=[input1,input2,generic]
 
-@app.route('/api/v1.0/bids', methods=['GET'])
+
+@app.route(base+'all', methods=['GET'])
 def get_buildings():
     return jsonify({'buildings': buildings})
 
@@ -74,7 +33,7 @@ def get_buildings():
 def index():
     return "Welcome to VCCore Back-end! Password auth coming soon."
 
-@app.route('/api/v1.0/<int:b_id>', methods=['GET'])
+@app.route(base+'<int:b_id>', methods=['GET'])
 def get_task(b_id):
     task = [task for task in buildings if task['id'] == b_id]
     if len(task) == 0:
@@ -83,12 +42,12 @@ def get_task(b_id):
     return jsonify(task[0])
 
 #posttest does not support GET
-@app.route('/api/v1.0/posttest', methods=['GET'])
+@app.route(base+'posttest', methods=['GET'])
 def foo2():
 	print("Error: User submitted a GET")
 	abort(400)
 
-@app.route('/api/v1.0/posttest', methods=['POST'])
+@app.route(base+'posttest', methods=['POST'])
 def foo():
     if not request.json:
         print("Error: User submitted a non-json")
