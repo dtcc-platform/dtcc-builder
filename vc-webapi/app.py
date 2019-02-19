@@ -54,6 +54,8 @@ def foo():
         abort(400)
     print("Fine! User submitted a json")
     print request.json
+    with open('usersubmitted-data.json', 'w') as outfile:
+    	json.dump(request.json, outfile)
     return json.dumps(request.json)
 
 if __name__ == '__main__':
