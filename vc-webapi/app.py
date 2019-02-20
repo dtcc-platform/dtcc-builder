@@ -1,5 +1,14 @@
 #!flask/bin/python
 #VirtualCity@Chalmers: app.py // Vasilis Naserentin 2019
+#Heavily based on tutorials, biggest influence https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
+
+#todo
+
+#[] add auth
+#[] decide on form of storage (file system for now in ./data)
+#[] migrate file system storage to decided system (propably db)
+#[] integrate external binary calls (e.g. IBOFlow)
+
 from flask import Flask, request, jsonify, abort 
 import json
 
