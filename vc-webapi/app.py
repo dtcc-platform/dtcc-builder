@@ -4,7 +4,7 @@
 
 #todo
 
-#[] add auth
+#[] add auth (propably based on https://github.com/miguelgrinberg/flask-httpauth)
 #[] decide on form of storage (file system for now in ./data)
 #[] migrate file system storage to decided system (propably db)
 #[] integrate external binary calls (e.g. IBOFlow)
