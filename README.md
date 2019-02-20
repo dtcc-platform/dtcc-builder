@@ -78,7 +78,7 @@ Common C++ code that is used across components is header only and is placed in t
 
 ## Coding style
 
-VCCore uses Microsoft C# coding style:
+VCCore uses Microsoft C# coding style (for both C++ and Python code):
 
 ```
 ClassName
