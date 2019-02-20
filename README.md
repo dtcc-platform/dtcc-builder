@@ -42,6 +42,9 @@ Use a clean FEniCS 2018.1 image (Ubuntu 18.04) with the following packages:
 sudo apt-get update
 sudo apt-get install libtriangle-dev nlohmann-json-dev
 ```
+#### vc-web-api
+
+Requires latest flask, but should only be used on cloud.virtualcity.chalmers.se.
 
 ### Installing
 
