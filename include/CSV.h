@@ -22,20 +22,19 @@ public:
 
     static const int PRECISION = 16;
 
-    // Write 2D point set to CSV file (.csv will be appended)
+    // Write 2D point set to CSV file
     static void Write(const std::vector<Point2D>& Points,
-                      std::string Prefix)
+                      std::string fileName)
     {
         std::cout << "CSV: " << "Writing 2D point set to file "
-                  << Prefix << std::endl;
+                  << fileName << std::endl;
 
         // Open file
-        std::string FileName = Prefix + ".csv";
-        std::ofstream f(FileName.c_str());
+        std::ofstream f(fileName.c_str());
 
         // Check file
         if (!f)
-            throw std::runtime_error("Unable to write to file: " + FileName);
+            throw std::runtime_error("Unable to write to file: " + fileName);
 
         // Set precision
         f << std::setprecision(PRECISION);
@@ -49,34 +48,34 @@ public:
     }
 
     // Write 2D mesh to CSV files (.csv will be appended)
-    static void Write(const Mesh2D& Mesh,
-                      std::string Prefix)
+    static void Write(const Mesh2D& mesh,
+                      std::string prefix)
     {
-        std::cout << "CSV: " << "Writing 2D mesh set to file "
-                  << Prefix << std::endl;
+        std::cout << "CSV: " << "Writing 2D mesh to file "
+                  << prefix << std::endl;
 
         // Open files
-        std::string FileNamePoints = Prefix + "Points.csv";
-        std::string FileNameTriangles = Prefix + "Cells.csv";
-        std::ofstream fp(FileNamePoints.c_str());
-        std::ofstream ft(FileNameTriangles.c_str());
+        std::string fileNamePoints = prefix + "Points.csv";
+        std::string fileNameTriangles = prefix + "Cells.csv";
+        std::ofstream fp(fileNamePoints.c_str());
+        std::ofstream ft(fileNameTriangles.c_str());
 
         // Check files
         if (!fp)
-            throw std::runtime_error("Unable to write to file: " + FileNamePoints);
+            throw std::runtime_error("Unable to write to file: " + fileNamePoints);
         if (!ft)
-            throw std::runtime_error("Unable to write to file: " + FileNameTriangles);
+            throw std::runtime_error("Unable to write to file: " + fileNameTriangles);
 
         // Set precision
         fp << std::setprecision(PRECISION);
         ft << std::setprecision(PRECISION);
 
         // Write points
-        for (auto const & p : Mesh.Points)
+        for (auto const & p : mesh.Points)
             Write(p, fp);
 
         // Write triangles
-        for (auto const & t : Mesh.Cells)
+        for (auto const & t : mesh.Cells)
             Write(t, ft);
 
         // Close files
@@ -84,31 +83,30 @@ public:
         ft.close();
     }
 
-    // Write 3D mesh to CSV files (.csv will be appended)
-    static void Write(const Mesh3D& Mesh,
-                      std::string Prefix)
+    // Write 3D mesh to CSV files
+    static void Write(const Mesh3D& mesh, std::string prefix)
     {
         std::cout << "CSV: " << "Writing 3D mesh to file "
-                  << Prefix << std::endl;
+                  << prefix << std::endl;
 
         // Open files
-        std::string FileNamePoints = Prefix + "Points.csv";
-        std::string FileNameTriangles = Prefix + "Cells.csv";
-        std::ofstream fp(FileNamePoints.c_str());
-        std::ofstream ft(FileNameTriangles.c_str());
+        std::string fileNamePoints = prefix + "Points.csv";
+        std::string fileNameTriangles = prefix + "Cells.csv";
+        std::ofstream fp(fileNamePoints.c_str());
+        std::ofstream ft(fileNameTriangles.c_str());
 
         // Check files
         if (!fp)
-            throw std::runtime_error("Unable to write to file: " + FileNamePoints);
+            throw std::runtime_error("Unable to write to file: " + fileNamePoints);
         if (!ft)
-            throw std::runtime_error("Unable to write to file: " + FileNameTriangles);
+            throw std::runtime_error("Unable to write to file: " + fileNameTriangles);
 
         // Write points
-        for (auto const & p : Mesh.Points)
+        for (auto const & p : mesh.Points)
             Write(p, fp);
 
         // Write triangles
-        for (auto const & t : Mesh.Cells)
+        for (auto const & t : mesh.Cells)
             Write(t, ft);
 
         // Close files
