@@ -227,9 +227,6 @@ std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
                 p += v[i];
         }
         cityModels.push_back(cityModel);
-
-        std::cout << x[0] << std::endl;
-
     }
 
     return cityModels;
@@ -252,7 +249,7 @@ int main(int argc, char* argv[])
     // Generate city model
     //cityModels = GenerateMaximalCityModel();
     //cityModels = GenerateRandomCityModel(64);
-    cityModels = GenerateEvolvingCityModel(4, 10);
+    cityModels = GenerateEvolvingCityModel(4, 100);
 
     // Write to file
     if (cityModels.size() == 1)
@@ -267,7 +264,7 @@ int main(int argc, char* argv[])
             s << "CityModel";
             s << std::setw(5) << std::setfill('0') << i;
             s << ".json";
-            JSON::Write(cityModels[0], s.str());
+            JSON::Write(cityModels[i], s.str());
         }
     }
 

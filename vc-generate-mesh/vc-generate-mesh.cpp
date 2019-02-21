@@ -15,6 +15,8 @@
 #include "JSON.h"
 #include "FEniCS.h"
 
+#include "CSV.h"
+
 using namespace std;
 using namespace VirtualCity;
 
@@ -36,6 +38,11 @@ int main(int argc, char* argv[])
     const std::string fileNameCityModel(argv[1]);
     const std::string fileNameHeightMap(argv[2]);
     const std::string fileNameParameters(argv[3]);
+
+    // Set filename for output
+    size_t idx = fileNameCityModel.rfind('.');
+    const std::string fileNamePrefix = fileNameCityModel.substr(0, idx);
+    std::cout << "Prefix: " << fileNamePrefix << std::endl;
 
     // Read city model from file
     CityModel cityModel;
@@ -80,14 +87,16 @@ int main(int argc, char* argv[])
 
     // Generate mesh boundary (used only for testing/visualization)
     dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
-
+\
     // Write to files
-    dolfin::File f("mesh.xml");
-    dolfin::File g("MeshBoundary.pvd");
-    dolfin::File h("HeightMap.pvd");
-    f << _mesh3D;
-    g << _boundary3D;
-    h << *z;
+    dolfin::File f0(fileNamePrefix + "Mesh.xml");
+    dolfin::File f1(fileNamePrefix + "Mesh.pvd");
+    dolfin::File f2(fileNamePrefix + "Boundary.pvd");
+    dolfin::File f3(fileNamePrefix + "HeightMap.pvd");
+    f0 << _mesh3D;
+    f1 << _mesh3D;
+    f2 << _boundary3D;
+    f3 << *z;
 
     return 0;
 }
