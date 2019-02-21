@@ -12,16 +12,14 @@
 using namespace VirtualCity;
 
 // FIXME: Consider moving to Parameters.json
-
-// Get parameters for building sizes and locations
-const double CITY_RADIUS = 100.0;     // city radius
 const double BUILDING_SIZE = 10.0;    // building side length
 const double BUILDING_HEIGHT = 100.0; // maximum building height
-const double VELOCITY = 1.0;          // velocity including time step
+const double VELOCITY = 2.0;          // velocity including time step
+const double BOUNDARY_MARGIN = 0.75;  // margin to domain boundary
 
 void Help()
 {
-    std::cerr << "Usage: vc-generate-citymodel"
+    std::cerr << "Usage: vc-generate-citymodel Parameters.json"
               << std::endl;
 }
 
@@ -81,15 +79,14 @@ std::vector<CityModel> GenerateMaximalCityModel()
 }
 
 // Generate random city model
-std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings)
+std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings,
+        const Point2D& C,
+        double R)
 {
-    // City center (approximate location of Johanneberg)
-    const Point2D C(-3000.0, -4000.0);
-
-    // Get parameters for building sizes and locations
-    const double R = CITY_RADIUS;
+    // Get parameters for building dimensions
     const double a = BUILDING_SIZE;
-    const double h = BUILDING_HEIGHT;
+    const double H = BUILDING_HEIGHT;
+    const double m = BOUNDARY_MARGIN;
 
     // Create empty city model
     CityModel cityModel;
@@ -103,7 +100,7 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings)
             // Randomize point [-1, 1]
             double x = 2.0 * (Random() - 0.5);
             double y = 2.0 * (Random() - 0.5);
-            Point2D p(C.x + R * x, C.y + R * y);
+            Point2D p(C.x + m * R * x, C.y + m * R * y);
             std::cout << "Trying to add building at p = " << p << std::endl;
 
             // Check that we are not too close to other buildings
@@ -123,7 +120,7 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings)
             {
                 // Randomize dimension
                 double width = (0.5 + 0.5 * Random()) * a;
-                double height = (0.2 + 0.8 * Random()) * h;
+                double height = (0.2 + 0.7 * Random()) * H;
 
                 // Generate building
                 Building building = GenerateBuilding(p, width, height);
@@ -148,11 +145,11 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings)
 
 // Generate random city model
 std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
-        size_t numFrames)
+        size_t numFrames, const Point2D& C, double R)
 {
     // Generate a random city model
     std::vector<CityModel> cityModels;
-    cityModels = GenerateRandomCityModel(numBuildings);
+    cityModels = GenerateRandomCityModel(numBuildings, C, R);
 
     // Initialize building positions
     std::vector<Point2D> x(numBuildings);
@@ -170,16 +167,16 @@ std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
         c += x[i];
     c /= numBuildings;
 
-    // Compute radius for perimeter and minimal building distance
-    const double R = 2.0 * CITY_RADIUS;
+    // Set radius for perimeter and minimal building distance
     const double D = BUILDING_SIZE;
+    const double m = BOUNDARY_MARGIN;
 
     // Initialize building velocities
     std::vector<Point2D> v(numBuildings);
     for (size_t i = 0; i < numBuildings; i++)
     {
-        v[i].x = Random() - 0.5;
-        v[i].y = Random() - 0.5;
+        v[i].x = VELOCITY * (Random() - 0.5);
+        v[i].y = VELOCITY * (Random() - 0.5);
     }
 
     // Bounce buildings around
@@ -235,11 +232,24 @@ std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
 int main(int argc, char* argv[])
 {
     // Check command-line arguments
-    if (argc != 1)
+    if (argc != 2)
     {
         Help();
         return 1;
     }
+
+    // Get filenames
+    const std::string fileNameParameters(argv[1]);
+
+    // Read parameters from file
+    Parameters parameters;
+    JSON::Read(parameters, fileNameParameters);
+
+    // Report used parameters
+    const Point2D C(parameters.DomainCenterX, parameters.DomainCenterY);
+    const double R(parameters.DomainRadius);
+    std::cout << "vc-generate-citymodel: DomainCenter = " << C << std::endl;
+    std::cout << "vc-generate-citymodel: DomainRadius = " << R << std::endl;
 
     // FIXME: Handle command-line and selection of city model
 
@@ -248,8 +258,8 @@ int main(int argc, char* argv[])
 
     // Generate city model
     //cityModels = GenerateMaximalCityModel();
-    //cityModels = GenerateRandomCityModel(64);
-    cityModels = GenerateEvolvingCityModel(4, 100);
+    //cityModels = GenerateRandomCityModel(64, C, R);
+    cityModels = GenerateEvolvingCityModel(16, 1000, C, R);
 
     // Write to file
     if (cityModels.size() == 1)

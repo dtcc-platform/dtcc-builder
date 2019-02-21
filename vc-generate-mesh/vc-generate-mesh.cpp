@@ -58,21 +58,20 @@ int main(int argc, char* argv[])
     JSON::Read(parameters, fileNameParameters);
 
     // Report used parameters
-    std::cout << "vc-generate-mesh: DomainRadius = "
-              << parameters.DomainRadius << std::endl;
-    std::cout << "vc-generate-mesh: MeshSize = "
-              << parameters.MeshSize << std::endl;
+    const Point2D C(parameters.DomainCenterX, parameters.DomainCenterY);
+    const double R = parameters.DomainRadius;
+    const double H = parameters.DomainHeight;
+    const double h = parameters.MeshSize;
+    std::cout << "vc-generate-mesh: DomainCenter = " << C << std::endl;
+    std::cout << "vc-generate-mesh: DomainRadius = " << R << std::endl;
+    std::cout << "vc-generate-mesh: DomainHeight = " << H << std::endl;
+    std::cout << "vc-generate-mesh: MeshSize = " << h << std::endl;
 
     // Generate 2D mesh
-    Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
-                    parameters.DomainRadius,
-                    parameters.MeshSize);
+    Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel, C, R, h);
 
     // Generate mesh (excluding height map)
-    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
-                    cityModel,
-                    parameters.DomainRadius,
-                    parameters.MeshSize);
+    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D, cityModel, H, h);
 
     // Convert to FEniCS meshes
     dolfin::Mesh _mesh2D, _mesh3D;

@@ -33,8 +33,7 @@ public:
 
     // Generate 2D mesh
     static Mesh2D GenerateMesh2D(const CityModel& cityModel,
-                                 double domainRadius,
-                                 double meshSize)
+                                 const Point2D& C, double R, double h)
     {
         std::cout << "MeshGenerator: Generating 2D mesh..." << std::endl;
 
@@ -43,16 +42,7 @@ public:
         for (auto const & building : cityModel.Buildings)
             subDomains.push_back(building.Footprint);
 
-        // Compute diameter and center of domain (using naive algorithm)
-        Point2D C;
-        double R = 0.0;
-        ComputeDomainSize(C, R, subDomains);
-        std::cout << "MeshGenerator: " << "domain center = " << C << std::endl;
-        std::cout << "MeshGenerator: " << "domain radius = " << R << std::endl;
-
         // Generate boundary
-        R *= domainRadius;
-        const double h = meshSize;
         const double L = 2.0 * M_PI * R;
         const size_t n = int(std::ceil(L / h));
         std::vector<Point2D> boundary;
@@ -64,7 +54,7 @@ public:
         }
 
         // Generate 2D mesh
-        Mesh2D mesh2D = CallTriangle(boundary, subDomains, meshSize);
+        Mesh2D mesh2D = CallTriangle(boundary, subDomains, h);
 
         // Mark subdomains
         mesh2D.DomainMarkers = ComputeDomainMarkers(mesh2D, subDomains);
@@ -80,26 +70,16 @@ public:
     // Generate 3D mesh
     static Mesh3D GenerateMesh3D(const Mesh2D& mesh2D,
                                  const CityModel& cityModel,
-                                 double domainRadius,
-                                 double meshSize)
+                                 double H, double h)
     {
         std::cout << "MeshGenerator: Generating 3D mesh..." << std::endl;
 
         // Create empty 3D mesh
         Mesh3D mesh3D;
 
-        // Compute height
-        double hmax = 0.0;
-        for (auto const & building : cityModel.Buildings)
-            hmax = std::max(hmax, building.Height);
-        const double H = domainRadius * hmax;
-        std::cout << "MeshGenerator: " << "domain height = " << H << std::endl;
-
         // Compute number of layers
-        const double h = meshSize;
-        double dz = h;
         const size_t numLayers = int(std::ceil(H / h));
-        dz = H / double(numLayers);
+        const double dz = H / double(numLayers);
         const size_t layerSize = mesh2D.Points.size();
 
         std::cout << "MeshGenerator: number of layers = " << numLayers << std::endl;
@@ -206,10 +186,10 @@ private:
     static Mesh2D
     CallTriangle(const std::vector<Point2D>& boundary,
                  const std::vector<std::vector<Point2D>>& subDomains,
-                 double meshSize)
+                 double h)
     {
         // Set area constraint to control mesh size (rough estimate)
-        const double maxArea = meshSize * meshSize;
+        const double maxArea = h * h;
 
         // Set input switches for Triangle
         char triswitches[64];

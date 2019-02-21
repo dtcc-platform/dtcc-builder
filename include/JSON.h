@@ -31,7 +31,10 @@ public:
         f >> json;
 
         // Extract JSON data
+        parameters.DomainCenterX = json["DomainCenterX"];
+        parameters.DomainCenterY = json["DomainCenterY"];
         parameters.DomainRadius = json["DomainRadius"];
+        parameters.DomainHeight = json["DomainHeight"];
         parameters.MeshSize = json["MeshSize"];
         parameters.HeightMapStride = json["HeightMapStride"];
     };
@@ -44,7 +47,10 @@ public:
 
         // Generate JSON data
         nlohmann::json json;
+        json["DomainCenterX"] = parameters.DomainCenterX;
+        json["DomainCenterY"] = parameters.DomainCenterY;
         json["DomainRadius"] = parameters.DomainRadius;
+        json["DomainHeight"] = parameters.DomainHeight;
         json["MeshSize"] = parameters.MeshSize;
         json["HeightMapStride"] = parameters.HeightMapStride;
 
