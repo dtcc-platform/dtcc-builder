@@ -57,7 +57,7 @@ public:
         Mesh2D mesh2D = CallTriangle(boundary, subDomains, h);
 
         // Mark subdomains
-        mesh2D.DomainMarkers = ComputeDomainMarkers(mesh2D, subDomains);
+        ComputeDomainMarkers(mesh2D, subDomains);
 
         // FIXME: Write test output
         //CSV::Write(mesh2D, "Mesh2D");
@@ -85,10 +85,14 @@ public:
         std::cout << "MeshGenerator: number of layers = " << numLayers << std::endl;
         std::cout << "MeshGenerator: layer size =  " << layerSize << std::endl;
 
-        // Create marker/index array for used points
+        // Create markers for used points
         const size_t numPoints = (numLayers + 1) * mesh2D.Points.size();
         std::vector<size_t> pointIndices(numPoints);
         std::fill(pointIndices.begin(), pointIndices.end(), numPoints);
+
+        // Create markers for which buildings have added first layer
+        std::vector<bool> firstLayerAdded(cityModel.Buildings.size());
+        std::fill(firstLayerAdded.begin(), firstLayerAdded.end(), false);
 
         // Add tetrahedra for all layers
         size_t offset = 0;
@@ -100,20 +104,37 @@ public:
             // Add tetrahedra for layer
             for (size_t i = 0; i < mesh2D.Cells.size(); i++)
             {
-                // Check if we are inside a building
-                bool skip = false;
-                for (size_t j = 0; j < cityModel.Buildings.size(); j++)
+                // // Check if we are inside a building
+                const int marker2D = mesh2D.DomainMarkers[i];
+                const bool inside = marker2D >= 0;
+
+                // // Set default marker for 3D cell
+                int marker3D = -1;
+
+                // If inside a building, check height relative to grid
+                if (inside)
                 {
-                    if (mesh2D.DomainMarkers[i] == (j + 1) && z < cityModel.Buildings[j].Height)
+                    // Get building height
+                    const Building& building = cityModel.Buildings[marker2D];
+                    const double height = building.Height;
+
+                    // Case 0: below building height, don't add cells
+                    if (z + 0.5*dz < height)
+                        continue;
+
+                    // Case 1: close to building, add cells and set marker
+                    else if (!firstLayerAdded[marker2D])
                     {
-                        skip = true;
-                        break;
+                        marker3D = marker2D;
+                        firstLayerAdded[marker2D] = true;
+                    }
+
+                    // Case 2: above building height, add cells
+                    else
+                    {
+                        // Do nothing (add cells with default marker)
                     }
                 }
-
-                // Skip adding cells inside building
-                if (skip)
-                    continue;
 
                 // // Get sorted vertex indices for bottom layer
                 const size_t u0 = mesh2D.Cells[i].v0 + offset;
@@ -131,6 +152,11 @@ public:
                 mesh3D.Cells.push_back(Simplex3D(u0, u1, u2, v2));
                 mesh3D.Cells.push_back(Simplex3D(u0, u1, v1, v2));
                 mesh3D.Cells.push_back(Simplex3D(u0, v0, v1, v2));
+
+                // Set domain markers
+                mesh3D.DomainMarkers.push_back(marker3D);
+                mesh3D.DomainMarkers.push_back(marker3D);
+                mesh3D.DomainMarkers.push_back(marker3D);
 
                 // Indicate which points are used
                 pointIndices[u0] = 0;
@@ -399,22 +425,20 @@ private:
     }
 
     // Compute domain markers for subdomains
-    static std::vector<size_t>
-    ComputeDomainMarkers(const Mesh2D & m,
-                         const std::vector<std::vector<Point2D>>& subDomains)
+    static void ComputeDomainMarkers(Mesh2D& mesh,
+                                     const std::vector<std::vector<Point2D>>& subDomains)
     {
         // Initialize markers
-        std::vector<size_t> domainMarkers;
-        domainMarkers.reserve(m.Cells.size());
+        mesh.DomainMarkers.reserve(mesh.Cells.size());
 
         // Iterate over cells
-        for (auto const & Cell : m.Cells)
+        for (auto const & Cell : mesh.Cells)
         {
             // Compute midpoint of cell
-            Point2D c = m.MidPoint(Cell);
+            Point2D c = mesh.MidPoint(Cell);
 
             // Set default marker
-            size_t marker = 0;
+            int marker = -1;
 
             // Iterate over subdomains
             for (size_t i = 0; i < subDomains.size(); i++)
@@ -426,16 +450,14 @@ private:
                 // Check if point is inside the domain
                 if (v != 0)
                 {
-                    marker = i + 1;
+                    marker = i;
                     break;
                 }
             }
 
             // Set marker for subdomain
-            domainMarkers.push_back(marker);
+            mesh.DomainMarkers.push_back(marker);
         }
-
-        return domainMarkers;
     }
 
 };

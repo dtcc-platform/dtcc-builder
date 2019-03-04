@@ -22,7 +22,7 @@ public:
     std::vector<Simplex2D> Cells;
 
     // List of domain markers
-    std::vector<size_t> DomainMarkers;
+    std::vector<int> DomainMarkers;
 
     // Compute cell midpoint
     Point2D MidPoint(const Simplex2D& Cell) const
@@ -48,7 +48,7 @@ public:
     std::vector<Simplex3D> Cells;
 
     // List of domain markers
-    std::vector<size_t> DomainMarkers;
+    std::vector<int> DomainMarkers;
 
     // Compute cell midpoint
     Point3D MidPoint(const Simplex3D& Cell) const
