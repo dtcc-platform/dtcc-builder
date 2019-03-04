@@ -29,11 +29,16 @@ template = """\
 """
 line = '    <DataSet timestep="%d" part="0" file="%s"/>'
 
-# Write a top-level PVD file for viewing animation in Paraview
+# Get prefixes
 ps = [f.split('.')[0] for f in jsonFiles]
+
+# Write a top-level PVD files for viewing animation in Paraview
 lines = [line % (i, p + 'Mesh000000.vtu') for (i, p) in enumerate(ps)]
 with open('CityModels/Mesh.pvd', 'w') as f:
     f.write(template % '\n'.join(lines))
 lines = [line % (i, p + 'Boundary000000.vtu') for (i, p) in enumerate(ps)]
 with open('CityModels/Boundary.pvd', 'w') as f:
+    f.write(template % '\n'.join(lines))
+lines = [line % (i, p + 'HeightMap000000.vtu') for (i, p) in enumerate(ps)]
+with open('CityModels/HeightMap.pvd', 'w') as f:
     f.write(template % '\n'.join(lines))

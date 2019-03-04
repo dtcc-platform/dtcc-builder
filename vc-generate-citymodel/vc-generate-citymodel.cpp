@@ -119,7 +119,7 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings,
             if (ok)
             {
                 // Randomize dimension
-                double width = (0.5 + 0.5 * Random()) * a;
+                double width = (0.4 + 0.6 * Random()) * a;
                 double height = (0.2 + 0.7 * Random()) * H;
 
                 // Generate building
@@ -169,7 +169,7 @@ std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
 
     // Set radius for perimeter and minimal building distance
     const double D = BUILDING_SIZE;
-    const double m = BOUNDARY_MARGIN;
+    R -= BUILDING_SIZE;
 
     // Initialize building velocities
     std::vector<Point2D> v(numBuildings);
@@ -200,7 +200,8 @@ std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
 
             // Check collision with perimeter
             const double r = Geometry::Distance2D(x[i], c);
-            if (r >= R)
+            const double dot = Geometry::Dot2D(x[i] - c, v[i]);
+            if (r >= R && dot > 0.0)
                 flip = true;
 
             // Flip velocity
@@ -259,7 +260,7 @@ int main(int argc, char* argv[])
     // Generate city model
     //cityModels = GenerateMaximalCityModel();
     //cityModels = GenerateRandomCityModel(64, C, R);
-    cityModels = GenerateEvolvingCityModel(16, 1000, C, R);
+    cityModels = GenerateEvolvingCityModel(32, 1000, C, R);
 
     // Write to file
     if (cityModels.size() == 1)

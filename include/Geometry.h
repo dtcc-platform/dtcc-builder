@@ -16,6 +16,18 @@ class Geometry
 {
 public:
 
+    // Compute dot product
+    static double Dot2D(const Point2D& u, const Point2D& v)
+    {
+        return u.x * v.x + u.y * v.y;
+    }
+
+    // Compute dot product
+    static double Dot3D(const Point3D& u, const Point3D& v)
+    {
+        return u.x * v.x + u.y * v.y + u.z * v.z;
+    }
+
     // Compute distance between points (2D)
     static double Distance2D(const Point2D& p, const Point2D& q)
     {
