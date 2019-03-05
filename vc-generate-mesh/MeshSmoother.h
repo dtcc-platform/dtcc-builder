@@ -26,14 +26,16 @@ public:
 
     // Smooth mesh using default method (Laplacian smoothing)
     static void SmoothMesh(dolfin::Mesh& mesh,
-                           const HeightMap& heightMap)
+                           const HeightMap& heightMap,
+                           const std::vector<int>& domainMarkers)
     {
-        SmoothMeshLaplacian(mesh, heightMap);
+        SmoothMeshLaplacian(mesh, heightMap, domainMarkers);
     }
 
     // Smooth mesh using Laplacian smoothing
     static void SmoothMeshLaplacian(dolfin::Mesh& mesh,
-                                    const HeightMap& heightMap)
+                                    const HeightMap& heightMap,
+                                    const std::vector<int>& domainMarkers)
     {
         std::cout << "Smoothing mesh (Laplacian smoothing)..." << std::endl;
 
@@ -89,7 +91,8 @@ public:
 
     // Smooth mesh using elastic smoothing
     static void SmoothMeshElastic(dolfin::Mesh& mesh,
-                                  const HeightMap& heightMap)
+                                  const HeightMap& heightMap,
+                                  const std::vector<int>& domainMarkers)
     {
         std::cout << "Elastic smoothing not (yet) implemented." << std::endl;
     }

@@ -15,7 +15,7 @@ using namespace VirtualCity;
 const double BUILDING_SIZE = 10.0;    // building side length
 const double BUILDING_HEIGHT = 100.0; // maximum building height
 const double VELOCITY = 2.0;          // velocity including time step
-const double BOUNDARY_MARGIN = 0.75;  // margin to domain boundary
+const double BOUNDARY_MARGIN = 0.9;   // margin to domain boundary
 
 void Help()
 {
@@ -98,10 +98,11 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings,
         while (true)
         {
             // Randomize point [-1, 1]
-            double x = 2.0 * (Random() - 0.5);
-            double y = 2.0 * (Random() - 0.5);
-            Point2D p(C.x + m * R * x, C.y + m * R * y);
-            std::cout << "Trying to add building at p = " << p << std::endl;
+            const double v = Random() * 2.0 * M_PI;
+            const double x = C.x + m * R * std::cos(v);
+            const double y = C.y + m * R * std::sin(v);
+            Point2D p(x, y);
+            //std::cout << "Trying to add building at p = " << p << std::endl;
 
             // Check that we are not too close to other buildings
             bool ok = true;
@@ -129,7 +130,7 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings,
                 cityModel.Buildings.push_back(building);
                 centers.push_back(p);
 
-                std::cout << "Building added" << std::endl;
+                std::cout << "Creating building at p = " << p << std::endl;
 
                 break;
             }
@@ -259,8 +260,8 @@ int main(int argc, char* argv[])
 
     // Generate city model
     //cityModels = GenerateMaximalCityModel();
-    //cityModels = GenerateRandomCityModel(64, C, R);
-    cityModels = GenerateEvolvingCityModel(32, 1000, C, R);
+    cityModels = GenerateRandomCityModel(32, C, R);
+    //cityModels = GenerateEvolvingCityModel(32, 1000, C, R);
 
     // Write to file
     if (cityModels.size() == 1)

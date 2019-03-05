@@ -79,14 +79,14 @@ int main(int argc, char* argv[])
     FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
     // Apply mesh smoothing to account for height map
-    MeshSmoother::SmoothMesh(_mesh3D, heightMap);
+    MeshSmoother::SmoothMesh(_mesh3D, heightMap, mesh3D.DomainMarkers);
 
     // Generate height map function (used only for testing/visualization)
     auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
 
     // Generate mesh boundary (used only for testing/visualization)
     dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
-\
+
     // Write to files
     dolfin::File f0(fileNamePrefix + "Mesh.xml");
     dolfin::File f1(fileNamePrefix + "Mesh.pvd");
