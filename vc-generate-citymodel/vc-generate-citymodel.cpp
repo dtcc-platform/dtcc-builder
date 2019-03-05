@@ -99,8 +99,9 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings,
         {
             // Randomize point [-1, 1]
             const double v = Random() * 2.0 * M_PI;
-            const double x = C.x + m * R * std::cos(v);
-            const double y = C.y + m * R * std::sin(v);
+            const double r = Random() * m * R;
+            const double x = C.x + r * std::cos(v);
+            const double y = C.y + r * std::sin(v);
             Point2D p(x, y);
             //std::cout << "Trying to add building at p = " << p << std::endl;
 
