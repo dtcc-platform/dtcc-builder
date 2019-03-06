@@ -18,11 +18,21 @@ public:
     // Building footprint (polygon)
     std::vector<Point2D> Footprint;
 
-    // Building height (above sea level)
+    // Building height (above ground)
     double Height;
 
     // Create empty building
     Building() : Height(0) {}
+
+    // Compute center of footprint
+    Point2D Center() const
+    {
+        Point2D c;
+        for (auto const & p : Footprint)
+            c += p;
+        c /= Footprint.size();
+        return c;
+    }
 
 };
 

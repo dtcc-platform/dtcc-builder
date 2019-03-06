@@ -27,17 +27,25 @@ public:
     // Smooth mesh using default method (Laplacian smoothing)
     static void SmoothMesh(dolfin::Mesh& mesh,
                            const HeightMap& heightMap,
-                           const std::vector<int>& domainMarkers)
+                           const CityModel& cityModel,
+                           const std::vector<int>& domainMarkers,
+                           double H, double h)
     {
-        SmoothMeshLaplacian(mesh, heightMap, domainMarkers);
+        SmoothMeshLaplacian(mesh, heightMap, cityModel, domainMarkers, H, h);
     }
 
     // Smooth mesh using Laplacian smoothing
     static void SmoothMeshLaplacian(dolfin::Mesh& mesh,
                                     const HeightMap& heightMap,
-                                    const std::vector<int>& domainMarkers)
+                                    const CityModel& cityModel,
+                                    const std::vector<int>& domainMarkers,
+                                    double H, double h)
     {
         std::cout << "Smoothing mesh (Laplacian smoothing)..." << std::endl;
+
+        // Get mesh sizes
+        const size_t num_cells = mesh.num_cells();
+        const size_t num_vertices = mesh.num_vertices();
 
         // Create function space and bilinear form
         auto m = std::make_shared<dolfin::Mesh>(mesh);
@@ -54,14 +62,23 @@ public:
         A->init_vector(*x, 0);
         A->init_vector(*b, 0);
 
-        // Create boundary condition
-        auto bcz = std::make_shared<dolfin::DirichletBC>
+        std::make_shared<BuildingsDomain>(H, h);
+
+        // Create boundary conditions
+        auto bcg = std::make_shared<dolfin::DirichletBC>
                    (V,
-                    std::make_shared<HeightMapExpression>(heightMap),
-                    std::make_shared<Bottom>());
+                    std::make_shared<GroundExpression>(heightMap),
+                    std::make_shared<GroundDomain>());
+        auto bcb = std::make_shared<dolfin::DirichletBC>
+                   (V,
+                    std::make_shared<BuildingsExpression>(heightMap,
+                            cityModel,
+                            domainMarkers),
+                    std::make_shared<BuildingsDomain>(H, h));
 
         // Apply boundary conditions
-        bcz->apply(*A, *b);
+        bcg->apply(*A, *b);
+        bcb->apply(*A, *b);
 
         // Create linear solver
         dolfin::KrylovSolver solver(mesh.mpi_comm(), "bicgstab", "amg");
@@ -72,11 +89,10 @@ public:
         *x = *b;
         solver.solve(*x, *b);
 
-        // Get coordinate displacements
+        // Get new z-coordinates
         const std::vector<dolfin::la_index> v2d = vertex_to_dof_map(*V);
-        const size_t num_vertices = mesh.num_vertices();
-        std::vector<double> displacements(num_vertices);
-        x->get_local(displacements.data(), num_vertices, v2d.data());
+        std::vector<double> z(num_vertices);
+        x->get_local(z.data(), num_vertices, v2d.data());
 
         // Update mesh coordinates
         double coordinates[3];
@@ -84,7 +100,7 @@ public:
         {
             coordinates[0] = mesh.geometry().x(i, 0);
             coordinates[1] = mesh.geometry().x(i, 1);
-            coordinates[2] = mesh.geometry().x(i, 2) + displacements[i];
+            coordinates[2] = z[i];
             mesh.geometry().set(i, coordinates);
         }
     }
@@ -92,7 +108,9 @@ public:
     // Smooth mesh using elastic smoothing
     static void SmoothMeshElastic(dolfin::Mesh& mesh,
                                   const HeightMap& heightMap,
-                                  const std::vector<int>& domainMarkers)
+                                  const CityModel& cityModel,
+                                  const std::vector<int>& domainMarkers,
+                                  double H, double h)
     {
         std::cout << "Elastic smoothing not (yet) implemented." << std::endl;
     }
@@ -109,7 +127,7 @@ public:
         // Create boundary condition
         auto bcz = std::make_shared<dolfin::DirichletBC>
                    (V,
-                    std::make_shared<HeightMapExpression>(heightMap),
+                    std::make_shared<GroundExpression>(heightMap),
                     std::make_shared<EntireDomain>());
 
         // Create function and apply boundary condition
@@ -121,6 +139,9 @@ public:
 
 private:
 
+    // Tolerance for geometric tests
+    static constexpr double tol = 1e-3;
+
     // Boundary definition for entire domain
     class EntireDomain : public dolfin::SubDomain
     {
@@ -130,35 +151,103 @@ private:
         }
     };
 
-    // Boundary definition for bottom
-    class Bottom : public dolfin::SubDomain
+    // Boundary definition for ground (height map)
+    class GroundDomain : public dolfin::SubDomain
     {
         bool inside(const dolfin::Array<double>& x, bool on_boundary) const
         {
-            return std::abs(x[2] - 0.0) < DOLFIN_EPS;
+            return on_boundary && x[2] < tol;
         }
     };
 
-    // Boundary value for height map
-    class HeightMapExpression : public dolfin::Expression
+    // Boundary definition for buildings
+    class BuildingsDomain : public dolfin::SubDomain
     {
     public:
 
-        // Reference to actual height map
-        const HeightMap& heightMap;
+        // Domain height and mesh size
+        double H, h;
 
-        // Create height map expression
-        HeightMapExpression(const HeightMap& heightMap)
-            : heightMap(heightMap), Expression()
+        // Constructor
+        BuildingsDomain(double H, double h) : H(H), h(h) {}
+
+        // We use a "clever" trick to specify building roofs geometrically
+        bool inside(const dolfin::Array<double>& x, bool on_boundary) const
         {
-            // Do nothing
+            const bool onGrid = std::fmod(x[2], h) < tol;
+            const bool onBottom = x[2] < tol;
+            const bool onTop = x[2] > H - tol;
+            return on_boundary && onGrid && !onBottom && !onTop;
         }
 
-        // Evaluation of height map
+    };
+
+    // Boundary value for ground (height map)
+    class GroundExpression : public dolfin::Expression
+    {
+    public:
+
+        // Reference to height map
+        const HeightMap& heightMap;
+
+        // Constructor
+        GroundExpression(const HeightMap& heightMap)
+            : heightMap(heightMap), Expression() {}
+
+        // Evaluation
         void eval(dolfin::Array<double>& values,
                   const dolfin::Array<double>& x) const
         {
             values[0] = heightMap(x[0], x[1]);
+        }
+
+    };
+
+    // Boundary value for buildings
+    class BuildingsExpression : public dolfin::Expression
+    {
+    public:
+
+        // Reference to domain markers
+        const std::vector<int>& domainMarkers;
+
+        // Building heights (absolute z-coordinates of roofs)
+        std::vector<double> buildingHeights;
+
+        // Constructor
+        BuildingsExpression(const HeightMap& heightMap,
+                            const CityModel& cityModel,
+                            const std::vector<int>& domainMarkers)
+            : domainMarkers(domainMarkers),
+              buildingHeights(cityModel.Buildings.size()),
+              Expression()
+        {
+            // Compute height of each building
+            for (size_t i = 0; i < cityModel.Buildings.size(); i++)
+            {
+                // Sample height map at center
+                const Point2D c = cityModel.Buildings[i].Center();
+                const double z0 = heightMap(c.x, c.y);
+
+                // Add relative building height
+                buildingHeights[i] = z0 + 30.0; //cityModel.Buildings.Height;
+            }
+        }
+
+        // Evaluation
+        void eval(dolfin::Array<double>& values,
+                  const dolfin::Array<double>& x,
+                  const ufc::cell& cell) const
+        {
+            // Get number of building
+            const int i = domainMarkers[cell.index];
+
+            // FIXME: Why do we get -2?
+
+            const double z = (i >= 0 ? buildingHeights[i] : 0.0);
+
+            // Set height of building
+            values[0] = z;
         }
 
     };

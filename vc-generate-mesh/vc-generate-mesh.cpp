@@ -79,7 +79,11 @@ int main(int argc, char* argv[])
     FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
     // Apply mesh smoothing to account for height map
-    MeshSmoother::SmoothMesh(_mesh3D, heightMap, mesh3D.DomainMarkers);
+    MeshSmoother::SmoothMesh(_mesh3D,
+                             heightMap,
+                             cityModel,
+                             mesh3D.DomainMarkers,
+                             H, h);
 
     // Generate height map function (used only for testing/visualization)
     auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);

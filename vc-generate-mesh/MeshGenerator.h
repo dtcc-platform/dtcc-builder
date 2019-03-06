@@ -61,7 +61,7 @@ public:
         Mesh2D mesh2D = CallTriangle(boundary, subDomains, h);
 
         // Mark subdomains
-        ComputeDomainMarkers(mesh2D, subDomains);
+        ComputeDomainMarkers(mesh2D, cityModel);
 
         // FIXME: Write test output
         //CSV::Write(mesh2D, "Mesh2D");
@@ -435,8 +435,7 @@ private:
     }
 
     // Compute domain markers for subdomains
-    static void ComputeDomainMarkers(Mesh2D& mesh,
-                                     const std::vector<std::vector<Point2D>>& subDomains)
+    static void ComputeDomainMarkers(Mesh2D& mesh, const CityModel& cityModel)
     {
         // Initialize markers
         mesh.DomainMarkers.reserve(mesh.Cells.size());
@@ -444,26 +443,9 @@ private:
         // Iterate over cells
         for (auto const & Cell : mesh.Cells)
         {
-            // Compute midpoint of cell
-            Point2D c = mesh.MidPoint(Cell);
-
-            // Set default marker
-            int marker = -1;
-
-            // Iterate over subdomains
-            for (size_t i = 0; i < subDomains.size(); i++)
-            {
-                // Compute total quadrant relative to subdomain. If the point
-                // is inside the subdomain, the angle should be 4 (or -4).
-                const int v = Geometry::QuadrantAngle2D(c, subDomains[i]);
-
-                // Check if point is inside the domain
-                if (v != 0)
-                {
-                    marker = i;
-                    break;
-                }
-            }
+            // Find building containg midpoint of cell (if any)
+            const Point2D c = mesh.MidPoint(Cell);
+            const int marker = cityModel.FindBuilding(c);
 
             // Set marker for subdomain
             mesh.DomainMarkers.push_back(marker);
