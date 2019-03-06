@@ -62,19 +62,21 @@ public:
         A->init_vector(*x, 0);
         A->init_vector(*b, 0);
 
-        std::make_shared<BuildingsDomain>(H, h);
+        // Create boundary markers from domain markers
+        auto subDomains = std::make_shared<dolfin::MeshFunction<size_t>>(m, 2);
+        ComputeBoundaryMarkers(*subDomains, domainMarkers);
+
+        // Create expressions for ground and building heights
+        auto hg = std::make_shared<GroundExpression>(heightMap);
+        auto hb = std::make_shared<BuildingsExpression>(heightMap,
+                  cityModel,
+                  domainMarkers);
 
         // Create boundary conditions
         auto bcg = std::make_shared<dolfin::DirichletBC>
-                   (V,
-                    std::make_shared<GroundExpression>(heightMap),
-                    std::make_shared<GroundDomain>());
+                   (V, hg, subDomains, 1);
         auto bcb = std::make_shared<dolfin::DirichletBC>
-                   (V,
-                    std::make_shared<BuildingsExpression>(heightMap,
-                            cityModel,
-                            domainMarkers),
-                    std::make_shared<BuildingsDomain>(H, h));
+                   (V, hb, subDomains, 0);
 
         // Apply boundary conditions
         bcg->apply(*A, *b);
@@ -89,10 +91,10 @@ public:
         *x = *b;
         solver.solve(*x, *b);
 
-        // Get new z-coordinates
+        // Get displacement
         const std::vector<dolfin::la_index> v2d = vertex_to_dof_map(*V);
-        std::vector<double> z(num_vertices);
-        x->get_local(z.data(), num_vertices, v2d.data());
+        std::vector<double> dz(num_vertices);
+        x->get_local(dz.data(), num_vertices, v2d.data());
 
         // Update mesh coordinates
         double coordinates[3];
@@ -100,7 +102,7 @@ public:
         {
             coordinates[0] = mesh.geometry().x(i, 0);
             coordinates[1] = mesh.geometry().x(i, 1);
-            coordinates[2] = z[i];
+            coordinates[2] = mesh.geometry().x(i, 2) + dz[i];
             mesh.geometry().set(i, coordinates);
         }
     }
@@ -151,37 +153,6 @@ private:
         }
     };
 
-    // Boundary definition for ground (height map)
-    class GroundDomain : public dolfin::SubDomain
-    {
-        bool inside(const dolfin::Array<double>& x, bool on_boundary) const
-        {
-            return on_boundary && x[2] < tol;
-        }
-    };
-
-    // Boundary definition for buildings
-    class BuildingsDomain : public dolfin::SubDomain
-    {
-    public:
-
-        // Domain height and mesh size
-        double H, h;
-
-        // Constructor
-        BuildingsDomain(double H, double h) : H(H), h(h) {}
-
-        // We use a "clever" trick to specify building roofs geometrically
-        bool inside(const dolfin::Array<double>& x, bool on_boundary) const
-        {
-            const bool onGrid = std::fmod(x[2], h) < tol;
-            const bool onBottom = x[2] < tol;
-            const bool onTop = x[2] > H - tol;
-            return on_boundary && onGrid && !onBottom && !onTop;
-        }
-
-    };
-
     // Boundary value for ground (height map)
     class GroundExpression : public dolfin::Expression
     {
@@ -194,11 +165,12 @@ private:
         GroundExpression(const HeightMap& heightMap)
             : heightMap(heightMap), Expression() {}
 
-        // Evaluation
+        // Evaluation of z-displacement
         void eval(dolfin::Array<double>& values,
                   const dolfin::Array<double>& x) const
         {
-            values[0] = heightMap(x[0], x[1]);
+            values[0] = heightMap(x[0], x[1]) - x[2];
+            // Note that x[2] is actually zero  ^^^^
         }
 
     };
@@ -222,35 +194,76 @@ private:
               buildingHeights(cityModel.Buildings.size()),
               Expression()
         {
-            // Compute height of each building
+            // Compute absolute position of the roof of each
             for (size_t i = 0; i < cityModel.Buildings.size(); i++)
             {
                 // Sample height map at center
                 const Point2D c = cityModel.Buildings[i].Center();
                 const double z0 = heightMap(c.x, c.y);
 
-                // Add relative building height
-                buildingHeights[i] = z0 + 30.0; //cityModel.Buildings.Height;
+                // Set absolute position of roof of building
+                buildingHeights[i] = z0 + cityModel.Buildings[i].Height;
             }
         }
 
-        // Evaluation
+        // Evaluation of z-displacement
         void eval(dolfin::Array<double>& values,
                   const dolfin::Array<double>& x,
                   const ufc::cell& cell) const
         {
-            // Get number of building
-            const int i = domainMarkers[cell.index];
-
-            // FIXME: Why do we get -2?
-
-            const double z = (i >= 0 ? buildingHeights[i] : 0.0);
+            // Get building height
+            const size_t i = domainMarkers[cell.index];
+            const double z = buildingHeights[i];
 
             // Set height of building
-            values[0] = z;
+            values[0] = z - x[2];
         }
 
     };
+
+    // Compute boundary markers from domain markers
+    static void
+    ComputeBoundaryMarkers(dolfin::MeshFunction<size_t>& subDomains,
+                           std::vector<int> domainMarkers)
+    {
+        // The domain markers indicate a nonnegative building number for cells
+        // that touch the roofs of buildings, -1 for cells that touch the
+        // ground, and -2 for other cells. We now need to convert these *cell*
+        // markers to *facet* markers.
+        //
+        // Facets that touch the roofs of buildings are marked as 0, facets
+        // touching the ground are marked as 1 and the rest are marked as 2.
+
+        // Iterate over the facets of the mesh
+        for (dolfin::FacetIterator f(*subDomains.mesh()); !f.end(); ++f)
+        {
+            // Set default facet marker
+            size_t facetMarker = 2;
+
+            // Check if we are on the boundary
+            if (f->exterior())
+            {
+                // Get index of neighboring cell (should only be one)
+                const size_t cellIndex = f->entities(3)[0];
+
+                // Check cell normal
+                const double nx = f->normal(2);
+                const bool downwardFacet = nx <= -1.0 + tol;
+
+                // Get cell marker
+                const int cellMarker = domainMarkers[cellIndex];
+
+                // Set facet marker (default to 2 in the else case)
+                if (downwardFacet && cellMarker >= 0)
+                    facetMarker = 0;
+                else if (downwardFacet && cellMarker == -1)
+                    facetMarker = 1;
+            }
+
+            // Set marker value
+            subDomains.set_value(f->index(), facetMarker);
+        }
+    }
 
 };
 

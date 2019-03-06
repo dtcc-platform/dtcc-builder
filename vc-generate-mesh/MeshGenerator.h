@@ -100,8 +100,8 @@ public:
         std::vector<size_t> pointIndices(numPoints);
         std::fill(pointIndices.begin(), pointIndices.end(), numPoints);
 
-        // Create markers for which buildings have added first layer
-        std::vector<bool> firstLayerAdded(cityModel.Buildings.size());
+        // Create markers for which triangles the first layer has been added
+        std::vector<bool> firstLayerAdded(mesh2D.Cells.size());
         std::fill(firstLayerAdded.begin(), firstLayerAdded.end(), false);
 
         // Add tetrahedra for all layers
@@ -114,12 +114,12 @@ public:
             // Add tetrahedra for layer
             for (size_t i = 0; i < mesh2D.Cells.size(); i++)
             {
-                // // Check if we are inside a building
+                // Set default marker for 3D cells
+                int marker3D = (layer == 0 ? -1 : -2);
+
+                // Check if we are inside a building
                 const int marker2D = mesh2D.DomainMarkers[i];
                 const bool inside = marker2D >= 0;
-
-                // // Set default marker for 3D cell
-                int marker3D = (i == 0 ? -1 : -2);
 
                 // If inside a building, check height relative to grid
                 if (inside)
@@ -129,14 +129,14 @@ public:
                     const double height = building.Height;
 
                     // Case 0: below building height, don't add cells
-                    if (z + 0.5*dz < height)
+                    if (z + 0.5 * dz < height)
                         continue;
 
                     // Case 1: close to building, add cells and set marker
-                    else if (!firstLayerAdded[marker2D])
+                    else if (!firstLayerAdded[i])
                     {
                         marker3D = marker2D;
-                        firstLayerAdded[marker2D] = true;
+                        firstLayerAdded[i] = true;
                     }
 
                     // Case 2: above building height, add cells
@@ -160,13 +160,13 @@ public:
                 // of each edge in the bottom layer with the second
                 // vertex of the corresponding edge in the top layer.
                 mesh3D.Cells.push_back(Simplex3D(u0, u1, u2, v2));
-                mesh3D.Cells.push_back(Simplex3D(u0, u1, v1, v2));
+                mesh3D.Cells.push_back(Simplex3D(u0, v1, u1, v2));
                 mesh3D.Cells.push_back(Simplex3D(u0, v0, v1, v2));
 
                 // Set domain markers
                 mesh3D.DomainMarkers.push_back(marker3D);
-                mesh3D.DomainMarkers.push_back(marker3D);
-                mesh3D.DomainMarkers.push_back(marker3D);
+                mesh3D.DomainMarkers.push_back(-2); // not touching bottom
+                mesh3D.DomainMarkers.push_back(-2); // not touching bottom
 
                 // Indicate which points are used
                 pointIndices[u0] = 0;
