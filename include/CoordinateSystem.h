@@ -16,6 +16,8 @@ class CoordinateSystem
 {
 public:
 
+    // Example usage: Transform(p, "EPSG:4326", "EPSG:3006")
+
     // Transform point from between coordinate systems U and V
     static Point2D Transform(const Point2D& p, std::string U, std::string V)
     {
