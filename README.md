@@ -31,7 +31,7 @@ Use a clean Ubuntu 18.04 image with the following packages:
 
 ```
 sudo apt-get update
-sudo apt-get install nlohmann-json-dev
+sudo apt-get install nlohmann-json-dev libpugixml-dev
 ```
 
 #### vc-randomize-citymodel
