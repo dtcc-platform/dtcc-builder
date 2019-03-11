@@ -31,7 +31,7 @@ Use a clean Ubuntu 18.04 image with the following packages:
 
 ```
 sudo apt-get update
-sudo apt-get install nlohmann-json-dev libpugixml-dev
+sudo apt-get install nlohmann-json-dev libpugixml-dev libproj-dev
 ```
 
 #### vc-randomize-citymodel
@@ -67,23 +67,27 @@ Give examples
 
 In preparation.
 
-## Data
+## Data sources
 
-VCCore uses
+VCCore makes use of the following data sources:
 
-### Coordinate systems
+* Building footprints from [OpenStreetMap](https://www.openstreetmap.org)
+* Height maps from [Lantmäteriet](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/Laserdata/laserdata-nh/)
 
-RT90
+## Coordinate systems
 
-WGS-84
+### OpenStreetMap (EPSG:4326)
 
-SWEREF99 12 00 (EPSG:3007) used in VC
-https://epsg.io/3007
-more accurate for Gothenburg
+OpenStreetMap uses the [WGS-84](https://en.wikipedia.org/wiki/World_Geodetic_System#WGS84) coordinate system which is also known as EPSG:4326.
 
-SWEREF99 TM (EPSG:3006)
+### Lantmäteriet (EPSG:3006)
 
+Lantmäteriet uses the SWEREF99 TM coordinate system which is also known as EPSG:3006.
 
+### VCCore
+
+FIXME: Need to decide on coordinate system. So far we have used
+SWEREF99 12 00 (EPSG:3007) which is more accurate for Gothenburg.
 
 ## Code organization
 
