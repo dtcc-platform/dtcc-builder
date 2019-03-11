@@ -69,7 +69,21 @@ In preparation.
 
 ## Data
 
-In preparation.
+VCCore uses
+
+### Coordinate systems
+
+RT90
+
+WGS-84
+
+SWEREF99 12 00 (EPSG:3007) used in VC
+https://epsg.io/3007
+more accurate for Gothenburg
+
+SWEREF99 TM (EPSG:3006)
+
+
 
 ## Code organization
 

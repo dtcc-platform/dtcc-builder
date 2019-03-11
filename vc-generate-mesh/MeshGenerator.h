@@ -398,42 +398,6 @@ private:
         return io;
     }
 
-    // Compute domain size (center and radius)
-    static void ComputeDomainSize(Point2D& center, double& radius,
-                                  const std::vector<std::vector<Point2D>>& subDomains)
-    {
-        // The center and radius is computed by brute force and is O(N^2).
-        // It can be more efficiently computed from the convex hull but
-        // this step is likely relatively inexpensive.
-
-        // Compute diameter and keep points at largest distance
-        Point2D q0, q1;
-        double d2max = 0.0;
-        for (auto const & s0 : subDomains)
-        {
-            for (auto const & s1 : subDomains)
-            {
-                for (auto const & p0 : s0)
-                {
-                    for (auto const & p1 : s1)
-                    {
-                        const double d2 = Geometry::SquaredDistance2D(p0, p1);
-                        if (d2 > d2max)
-                        {
-                            q0 = p0;
-                            q1 = p1;
-                            d2max = d2;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Compute center and radius
-        center = (q0 + q1) * 0.5;
-        radius = 0.5 * std::sqrt(d2max);
-    }
-
     // Compute domain markers for subdomains
     static void ComputeDomainMarkers(Mesh2D& mesh, const CityModel& cityModel)
     {

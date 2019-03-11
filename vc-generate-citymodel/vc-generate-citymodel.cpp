@@ -25,6 +25,9 @@ CityModel GenerateCityModel(std::string fileNameOpenStreetMap)
     // Read OSM data from file
     OSM::Read(cityModel, fileNameOpenStreetMap);
 
+    // FIXME: Temporary until we have the building heights
+    for (size_t i = 0; i < cityModel.Buildings.size(); i++)
+        cityModel.Buildings[i].Height = 30.0;
 
     return cityModel;
 }
@@ -51,6 +54,7 @@ int main(int argc, char* argv[])
 
     // Generate city model
     CityModel cityModel = GenerateCityModel(fileNameOpenStreetMap);
+    std::cout << cityModel << std::endl;
 
     // Write to file
     JSON::Write(cityModel, "CityModel.json");//
