@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-generate-citymodel
+// VirtualCity@Chalmers: vc-randomize-citymodel
 // Anders Logg 2019
 
 #include <iostream>
@@ -19,7 +19,7 @@ const double BOUNDARY_MARGIN = 0.9;   // margin to domain boundary
 
 void Help()
 {
-    std::cerr << "Usage: vc-generate-citymodel Parameters.json"
+    std::cerr << "Usage: vc-randomize-citymodel Parameters.json"
               << std::endl;
 }
 
@@ -39,43 +39,6 @@ Building GenerateBuilding(const Point2D& p, double a, double h)
     building.Footprint.push_back(Point2D(p.x - 0.5 * a, p.y + 0.5 * a));
     building.Height = h;
     return building;
-}
-
-// Generate maximal city model (fill out the height map)
-std::vector<CityModel> GenerateMaximalCityModel()
-{
-    // Geometry of height map (hard coded)
-    const Point2D C(-1081.75, -1418.75);
-    const double W = 29504.0;
-    const double H = 29584.0;
-
-    // Parameters for building size
-    const double a = 100.0;
-    const double h = 1.0;
-    const double margin = 0.9;
-
-    // Displacement of buildings relative to center
-    const double d = margin * (0.5 * std::min(W, H) - a);
-    //const double d = 1000;
-
-    // Create empty city model
-    CityModel cityModel;
-
-    // Add a building in each corner
-    Building b0 = GenerateBuilding(C + Point2D(-d, 0), a, h);
-    Building b1 = GenerateBuilding(C + Point2D(+d, 0), a, h);
-    Building b2 = GenerateBuilding(C + Point2D(0, -d), a, h);
-    Building b3 = GenerateBuilding(C + Point2D(0, +d), a, h);
-    cityModel.Buildings.push_back(b0);
-    cityModel.Buildings.push_back(b1);
-    cityModel.Buildings.push_back(b2);
-    cityModel.Buildings.push_back(b3);
-
-    // Pack single model in list
-    std::vector<CityModel> cityModels;
-    cityModels.push_back(cityModel);
-
-    return cityModels;
 }
 
 // Generate random city model
@@ -145,7 +108,7 @@ std::vector<CityModel> GenerateRandomCityModel(size_t numBuildings,
     return cityModels;
 }
 
-// Generate random city model
+// Generate evolviing city model
 std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
         size_t numFrames, const Point2D& C, double R)
 {
@@ -251,8 +214,8 @@ int main(int argc, char* argv[])
     // Report used parameters
     const Point2D C(parameters.DomainCenterX, parameters.DomainCenterY);
     const double R(parameters.DomainRadius);
-    std::cout << "vc-generate-citymodel: DomainCenter = " << C << std::endl;
-    std::cout << "vc-generate-citymodel: DomainRadius = " << R << std::endl;
+    std::cout << "vc-randomize-citymodel: DomainCenter = " << C << std::endl;
+    std::cout << "vc-randomize-citymodel: DomainRadius = " << R << std::endl;
 
     // FIXME: Handle command-line and selection of city model
 
@@ -260,7 +223,6 @@ int main(int argc, char* argv[])
     std::vector<CityModel> cityModels;
 
     // Generate city model
-    //cityModels = GenerateMaximalCityModel();
     cityModels = GenerateRandomCityModel(32, C, R);
     //cityModels = GenerateEvolvingCityModel(32, 1000, C, R);
 

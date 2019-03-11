@@ -34,6 +34,15 @@ sudo apt-get update
 sudo apt-get install nlohmann-json-dev
 ```
 
+#### vc-randomize-citymodel
+
+Use a clean Ubuntu 18.04 image with the following packages:
+
+```
+sudo apt-get update
+sudo apt-get install nlohmann-json-dev
+```
+
 #### vc-generate-mesh
 
 Use a clean FEniCS 2018.1 image (Ubuntu 18.04) with the following packages:
@@ -69,9 +78,10 @@ The code in this repository is organized as a collection of independent but inte
 The following list summarizes the currently implemented (and planned components):
 
 * vc-generate-heightmap  (generate JSON height map data)
-* vc-generate-citymodel  (generate JSON city model data)
+* vc-generate-citymodel  (generate JSON city model data from OSM data)
 * vc-generate-mesh       (generate FEM mesh from city model and height map)
 * vc-generate-mesh-batch (generate FEM meshes from a batch of city models)
+* vc-randomize-citymodel (randmize JSON city model)
 * vc-simulate-foo        (simulator in preparation)
 * vc-simulate-bar        (simulator in preparation)
 

@@ -9,5 +9,5 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 # Build executable
-add_executable(vc-generate-citymodel vc-generate-citymodel.cpp)
-target_link_libraries(vc-generate-citymodel)
+add_executable(vc-randomize-citymodel vc-randomize-citymodel.cpp)
+target_link_libraries(vc-randomize-citymodel)
