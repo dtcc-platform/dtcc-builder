@@ -11,6 +11,7 @@
 
 #include "Point.h"
 #include "Building.h"
+#include "CoordinateSystem.h"
 
 namespace VirtualCity
 {
