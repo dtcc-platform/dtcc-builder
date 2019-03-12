@@ -9,6 +9,9 @@
 #include "OSM.h"
 #include "JSON.h"
 
+// FIXME: Testing
+#include "CoordinateSystem.h"
+
 using namespace VirtualCity;
 
 void Help()
@@ -57,7 +60,13 @@ int main(int argc, char* argv[])
     std::cout << cityModel << std::endl;
 
     // Write to file
-    JSON::Write(cityModel, "CityModel.json");//
+    JSON::Write(cityModel, "CityModel.json");
+
+    // FIXME: Testing
+    Point2D p(10, 10);
+    Point2D q = CoordinateSystem::Transform(p, "EPSG:4326", "EPSG:3006");
+    Point2D r = CoordinateSystem::Transform(p, "epsg:4326", "epsg:3006");
+    std::cout << q
 
     return 0;
 }

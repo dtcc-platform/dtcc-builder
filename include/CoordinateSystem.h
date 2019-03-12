@@ -27,10 +27,10 @@ public:
         s << "cs2cs +init=" << U << " +to +init=" << V;
 
         // Create projection
-        PJ* P = proj_create (PJ_DEFAULT_CTX, s.str());
+        PJ* P = proj_create(PJ_DEFAULT_CTX, s.str());
 
         // Transform coordinate
-        PJ_COORD a = proj_coord (proj_torad(p.x), proj_torad(p.y), 0, 0);
+        PJ_COORD a = proj_coord(proj_torad(p.x), proj_torad(p.y), 0, 0);
         PJ_COORD b = proj_trans(P, PJ_FWD, a);
 
         // Clean up
