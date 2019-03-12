@@ -4,7 +4,7 @@
 #ifndef VC_COORDINATE_SYSTEM_H
 #define VC_COORDINATE_SYSTEM_H
 
-#include <proj.h>
+#include <proj_api.h>
 #include <sstream>
 
 #include "Point.h"
@@ -18,6 +18,12 @@ public:
 
     // Example usage: Transform(p, "EPSG:4326", "EPSG:3006")
     // User can use use https://mygeodata.cloud/cs2cs/ for validation
+
+    // Developer note: We are currently using PROJ version 4 instead
+    // of the newer version 5 since only version 4 is available in
+    // Ubuntu 18.04 (LTS). The version 4 API is deprecated and we will
+    // need to migrate in the future. See notes on migration:
+    // https://proj4.org/development/migration.html
 
     // Transform point from between coordinate systems U and V
     static Point2D Transform(const Point2D& p, std::string U, std::string V)
@@ -40,3 +46,5 @@ public:
 };
 
 }
+
+#endif
