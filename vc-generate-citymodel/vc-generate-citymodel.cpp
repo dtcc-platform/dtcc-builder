@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     Point2D p(10, 10);
     Point2D q = CoordinateSystem::Transform(p, "EPSG:4326", "EPSG:3006");
     Point2D r = CoordinateSystem::Transform(p, "epsg:4326", "epsg:3006");
-    std::cout << q
+    std::cout << q;
 
     return 0;
 }

@@ -28,19 +28,37 @@ public:
     // Transform point from between coordinate systems U and V
     static Point2D Transform(const Point2D& p, std::string U, std::string V)
     {
-        // Create projection string
-        std::stringstream s;
-        s << "cs2cs +init=" << U << " +to +init=" << V;
 
-        // Create projection
-        PJ* P = proj_create(PJ_DEFAULT_CTX, s.str());
+        projPJ pj_merc = pj_init_plus("+proj=merc +ellps=clrk66 +lat_ts=33");
+        if (!pj_merc)
+            throw std::runtime_error("Error 1");
+        projPJ pj_latlong = pj_init_plus("+proj=latlong +ellps=clrk66");
+        if (!pj_latlong)
+            throw std::runtime_error("Error 2");
 
-        // Transform coordinate
-        PJ_COORD a = proj_coord(proj_torad(p.x), proj_torad(p.y), 0, 0);
-        PJ_COORD b = proj_trans(P, PJ_FWD, a);
 
-        // Clean up
-        proj_destroy(P);
+        double x = p.x;
+        double y = p.y;
+        x *= DEG_TO_RAD;
+        y *= DEG_TO_RAD;
+        pj_transform(pj_latlong, pj_merc, 1, 1, &x, &y, NULL );
+        printf("%.2f\t%.2f\n", x, y);
+
+        return Point2D();
+
+        // // Create projection string
+        // std::stringstream s;
+        // s << "cs2cs +init=" << U << " +to +init=" << V;
+
+        // // Create projection
+        // PJ* P = proj_create(PJ_DEFAULT_CTX, s.str());
+
+        // // Transform coordinate
+        // PJ_COORD a = proj_coord(proj_torad(p.x), proj_torad(p.y), 0, 0);
+        // PJ_COORD b = proj_trans(P, PJ_FWD, a);
+
+        // // Clean up
+        // proj_destroy(P);
     }
 
 };

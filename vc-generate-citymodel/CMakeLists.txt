@@ -11,6 +11,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 # Find PugiXML
 find_package(PugiXML REQUIRED)
 
+# Find PROJ.4
+find_package(PROJ4 REQUIRED)
+
 # Build executable
 add_executable(vc-generate-citymodel vc-generate-citymodel.cpp)
-target_link_libraries(vc-generate-citymodel pugixml)
+target_link_libraries(vc-generate-citymodel pugixml proj)
