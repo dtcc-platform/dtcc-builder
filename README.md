@@ -76,6 +76,13 @@ VCCore makes use of the following data sources:
 
 ## Coordinate systems
 
+RH 2000
+SWEREF99 12 00 (EPSG:3007)
+
+https://zeus.slu.se
+Lantmäteriet:Fastighetskartan bebyggelse vektor EPSG:3006
+Lantmäteriet:Laserdata vektor EPSG:3006
+
 ### OpenStreetMap (EPSG:4326)
 
 OpenStreetMap uses the [WGS-84](https://en.wikipedia.org/wiki/World_Geodetic_System#WGS84) coordinate system which is also known as EPSG:4326.
@@ -100,6 +107,8 @@ The following list summarizes the currently implemented (and planned components)
 * vc-generate-mesh       (generate FEM mesh from city model and height map)
 * vc-generate-mesh-batch (generate FEM meshes from a batch of city models)
 * vc-randomize-citymodel (randmize JSON city model)
+* vc-plot-mesh           (plot JSON mesh, for testing/debugging)
+* vc-plot-citymodel      (plot JSON city model, for testing/debugging)
 * vc-simulate-foo        (simulator in preparation)
 * vc-simulate-bar        (simulator in preparation)
 

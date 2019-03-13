@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-# Plot mesh and intermediate mesh data for debugging.
+# Simple script for plotting JSON meshes.
 # Copyright (C) 2018 Anders Logg.
+#
+# FIXME: This script should be changed from CSV to JSON
 
 import numpy
 import pylab
