@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+
+# Simple script for plotting JSON city models.
+# Copyright (C) 2019 Anders Logg.
+
+import sys, numpy, json, pylab
+
+def PlotCityModel(fileName):
+
+    # Read JSON file
+    with open(fileName) as f:
+        cityModel = json.load(f)
+
+    # Iterate over buildings
+    for i, building in enumerate(cityModel):
+
+        # Get footprint
+        footprint = building['Footprint']
+        x = numpy.array([float(xy['x']) for xy in footprint])
+        y = numpy.array([float(xy['y']) for xy in footprint])
+
+        # Compute center
+        xm = numpy.mean(x)
+        ym = numpy.mean(y)
+
+        # Plot
+        pylab.plot(x, y, '-o')
+        pylab.text(xm, ym, str(i), fontsize=10, ha='center', va='center')
+
+    pylab.grid(True)
+
+def Help():
+    print("Usage: vc-plot-mesh CityModel.json")
+
+if __name__ == "__main__":
+
+    # Check command-line arguments
+    if len(sys.argv) != 2:
+        Help()
+        sys.exit(1)
+
+    # Get filename
+    fileName = sys.argv[1]
+
+    # Plot city model
+    PlotCityModel(fileName)
+    pylab.show()
