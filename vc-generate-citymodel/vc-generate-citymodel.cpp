@@ -62,11 +62,13 @@ int main(int argc, char* argv[])
     // Write to file
     JSON::Write(cityModel, "CityModel.json");
 
-    // FIXME: Testing
-    Point2D p(10, 10);
-    Point2D q = CoordinateSystem::Transform(p, "EPSG:4326", "EPSG:3006");
-    Point2D r = CoordinateSystem::Transform(p, "epsg:4326", "epsg:3006");
-    std::cout << q;
+    // FIXME: Testing 4326
+    Point2D p(0, 0);
+    Point2D q = CoordinateSystem::Transform(p, "epsg:4326", "epsg:3007");
+    Point2D r = CoordinateSystem::Transform(p, "epsg:3006", "epsg:3007");
+    std::cout << p << std::endl;
+    std::cout << q << std::endl;
+    std::cout << r << std::endl;
 
     return 0;
 }
