@@ -8,12 +8,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 # Add path to common includes
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
-# Find PugiXML
+# Find packages
 find_package(PugiXML REQUIRED)
-
-# Find PROJ.4
 find_package(PROJ4 REQUIRED)
+find_package(ShapeLib REQUIRED)
 
 # Build executable
 add_executable(vc-generate-citymodel vc-generate-citymodel.cpp)
-target_link_libraries(vc-generate-citymodel pugixml proj)
+target_link_libraries(vc-generate-citymodel pugixml proj shp)

@@ -5,8 +5,10 @@
 #include <iomanip>
 #include <random>
 
+#include "CommandLine.h"
 #include "CityModel.h"
 #include "OSM.h"
+#include "SHP.h"
 #include "JSON.h"
 
 // FIXME: Testing
@@ -16,23 +18,8 @@ using namespace VirtualCity;
 
 void Help()
 {
-    std::cerr << "Usage: vc-generate-citymodel OpenStreetMap.osm Parameters.json"
+    std::cerr << "Usage: vc-generate-citymodel OpenStreetMap.[osm/shp] Parameters.json"
               << std::endl;
-}
-
-CityModel GenerateCityModel(std::string fileNameOpenStreetMap)
-{
-    // Create empty city model
-    CityModel cityModel;
-
-    // Read OSM data from file
-    OSM::Read(cityModel, fileNameOpenStreetMap);
-
-    // FIXME: Temporary until we have the building heights
-    for (size_t i = 0; i < cityModel.Buildings.size(); i++)
-        cityModel.Buildings[i].Height = 30.0;
-
-    return cityModel;
 }
 
 int main(int argc, char* argv[])
@@ -45,7 +32,7 @@ int main(int argc, char* argv[])
     }
 
     // Get filenames
-    const std::string fileNameOpenStreetMap(argv[1]);
+    const std::string fileNameFootprints(argv[1]);
     const std::string fileNameParameters(argv[2]);
 
     // Read parameters from file
@@ -53,11 +40,19 @@ int main(int argc, char* argv[])
     JSON::Read(parameters, fileNameParameters);
 
     // Report used parameters
-    // FIXME:
+    // FIXME: Not implemented
 
-    // Generate city model
-    CityModel cityModel = GenerateCityModel(fileNameOpenStreetMap);
+    // Extract footprints
+    CityModel cityModel;
+    if (CommandLine::EndsWith(fileNameFootprints, ".osm"))
+        OSM::Read(cityModel, fileNameFootprints);
+    else if (CommandLine::EndsWith(fileNameFootprints, ".shp"))
+        SHP::Read(cityModel, fileNameFootprints);
+
     std::cout << cityModel << std::endl;
+
+    // Extract heights
+    // FIXME: Not implemented
 
     // Write to file
     JSON::Write(cityModel, "CityModel.json");

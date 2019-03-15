@@ -21,6 +21,13 @@ public:
         return false;
     }
 
+    static bool EndsWith(const std::string string, std::string const & ending)
+    {
+        if (ending.size() > string.size())
+            return false;
+        return std::equal(ending.rbegin(), ending.rend(), string.rbegin());
+    }
+
     static std::string GetOption(std::string option, int argc, char* argv[])
     {
         for (size_t i = 1; i < argc; i++)

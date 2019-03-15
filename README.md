@@ -16,6 +16,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
+libshp-dev
+
 #### vc-generate-heightmap
 
 Use a clean Ubuntu 18.04 image with the following packages:
@@ -82,6 +84,7 @@ SWEREF99 12 00 (EPSG:3007)
 https://zeus.slu.se
 Lantmäteriet:Fastighetskartan bebyggelse vektor EPSG:3006
 Lantmäteriet:Laserdata vektor EPSG:3006
+by_get
 
 ### OpenStreetMap (EPSG:4326)
 
