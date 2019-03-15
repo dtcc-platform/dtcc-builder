@@ -114,16 +114,8 @@ public:
             // Diagnostic printing
             std::cout << "OSM: Added building " << buildingName << " ("
                       << building.Footprint.size() << " nodes)" << std::endl;
-
         }
-
-
-
-
-
-
-
-    };
+    }
 
 };
 
