@@ -9,7 +9,7 @@
 #include <string>
 #include <liblas/liblas.hpp>
 
-#include "SurfaceModel.h"
+#include "PointCloud.h"
 #include "Point.h"
 
 namespace VirtualCity
@@ -19,11 +19,11 @@ class LAS
 {
 public:
 
-    // Read height map from LAS file
-    static void Read(SurfaceModel& surfaceModel,
+    // Generate surface model from
+    static void Read(PointCloud& pointCloud,
                      std::string fileName)
     {
-        std::cout << "LAS: " << "Reading surface model from file "
+        std::cout << "LAS: " << "Reading point cloud from file "
                   << fileName << std::endl;
 
         // Open file
@@ -53,8 +53,8 @@ public:
             liblas::Point const& _p = reader.GetPoint();
             const Point3D p(_p.GetX(), _p.GetY(), _p.GetZ());
 
-            std::cout << p << std::endl;
-
+            // Add point to point cloud
+            pointCloud.Points.push_back(p);
         }
 
     }

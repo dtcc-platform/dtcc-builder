@@ -13,8 +13,8 @@ using namespace VirtualCity;
 
 void help()
 {
-    std::cerr << "Usage: vc-generate-heightmap "
-              << "HeightMap.las Parameters.json"
+    std::cerr << "Usage: vc-generate-surfacemodel "
+              << "PointCloud.las Parameters.json"
               << std::endl;
 }
 
@@ -39,9 +39,9 @@ int main(int argc, char* argv[])
     std::cout << "vc-generate-mesh: HeightMapStride = "
               << parameters.HeightMapStride << std::endl;
 
-    // Read surface model from LAS file
-    SurfaceModel surfaceModel(0, 0, 1000, 1000, 1);
-    LAS::Read(surfaceModel, fileNameLAS);
+    // Read point cloud from LAS file
+    PointCloud pointCloud;
+    LAS::Read(pointCloud, fileNameLAS);
 
     // // Read geo reference from WLD file
     // GeoReference geoReference;
