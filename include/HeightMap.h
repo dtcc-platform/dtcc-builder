@@ -1,4 +1,4 @@
-// Representation of 2D height maps.
+// Representation of 2D height maps from pixel data.
 // Copyright (C) 2019 Anders Logg.
 
 #ifndef VC_HEIGHT_MAP_H

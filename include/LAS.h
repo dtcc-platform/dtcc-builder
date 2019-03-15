@@ -9,7 +9,7 @@
 #include <string>
 #include <liblas/liblas.hpp>
 
-#include "HeightMap.h"
+#include "SurfaceModel.h"
 #include "Point.h"
 
 namespace VirtualCity
@@ -20,13 +20,11 @@ class LAS
 public:
 
     // Read height map from LAS file
-    static void Read(HeightMap& heightMap,
-                     std::string fileName,
-                     size_t stride)
+    static void Read(SurfaceModel& surfaceModel,
+                     std::string fileName)
     {
-        std::cout << "LAS: " << "Reading height map from file "
+        std::cout << "LAS: " << "Reading surface model from file "
                   << fileName << std::endl;
-
 
         // Open file
         std::ifstream f;
