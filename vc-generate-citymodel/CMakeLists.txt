@@ -12,7 +12,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 find_package(PugiXML REQUIRED)
 find_package(PROJ4 REQUIRED)
 find_package(ShapeLib REQUIRED)
+find_package(LibLAS REQUIRED)
 
 # Build executable
 add_executable(vc-generate-citymodel vc-generate-citymodel.cpp)
-target_link_libraries(vc-generate-citymodel pugixml proj shp)
+target_link_libraries(vc-generate-citymodel pugixml proj shp las)

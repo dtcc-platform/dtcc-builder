@@ -16,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-libshp-dev
+libshp-dev liblas-dev
 
 #### vc-generate-heightmap
 
@@ -85,6 +85,8 @@ https://zeus.slu.se
 Lantmäteriet:Fastighetskartan bebyggelse vektor EPSG:3006
 Lantmäteriet:Laserdata vektor EPSG:3006
 by_get
+
+Geodata Extraction Tool” eller GET,
 
 ### OpenStreetMap (EPSG:4326)
 
