@@ -4,6 +4,8 @@
 # SHAPELIB_LIBRARIES    - library to link against
 # SHAPELIB_FOUND        - true if library was found
 
+include(FindPackageHandleStandardArgs)
+
 find_path(SHAPELIB_INCLUDE_DIRS
           NAMES shapefil.h
           PATHS /usr/local/include)

@@ -4,6 +4,8 @@
 # PROJ4_LIBRARIES    - library to link against
 # PROJ4_FOUND        - true if library was found
 
+include(FindPackageHandleStandardArgs)
+
 find_path(PROJ4_INCLUDE_DIRS
           NAMES proj_api.h
           PATHS /usr/local/include)

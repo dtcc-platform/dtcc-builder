@@ -16,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-libshp-dev liblas-dev
+libshp-dev liblas-dev liblas-c-dev
 
 #### vc-generate-heightmap
 

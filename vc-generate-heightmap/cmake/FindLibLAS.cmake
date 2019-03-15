@@ -4,6 +4,8 @@
 # LIBLAS_LIBRARIES    - library to link against
 # LIBLAS_FOUND        - true if library was found
 
+include(FindPackageHandleStandardArgs)
+
 find_path(LIBLAS_INCLUDE_DIRS
           NAMES liblas/liblas.hpp
           PATHS /usr/local/include)
