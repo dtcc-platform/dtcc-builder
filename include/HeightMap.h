@@ -1,4 +1,4 @@
-// Representation of 2D height maps from pixel data.
+// Height map (Digital Surface Model, DSM)
 // Copyright (C) 2019 Anders Logg.
 
 #ifndef VC_HEIGHT_MAP_H
@@ -7,8 +7,6 @@
 #include <vector>
 
 #include "Point.h"
-#include "GeoReference.h"
-
 namespace VirtualCity
 {
 
@@ -16,154 +14,70 @@ class HeightMap
 {
 public:
 
-    // Grid width
-    size_t Width;
+    // Grid dimensions
+    double XMin, YMin, XMax, YMax;
 
-    // Grid height
-    size_t Height;
+    // Number of grid points
+    size_t SizeX, SizeY;
 
     // Grid data (flattened array of (x, y) coordinates)
     std::vector<double> GridData;
 
-    // Grid map (transform of grid data)
-    GeoReference GridMap;
-
     // Create empty height map
-    HeightMap() : Width(0), Height(0) {}
+    HeightMap(double xMin, double yMin,
+              double xMax, double yMax,
+              double resolution)
+        : XMin(xMin), YMin(yMin), XMax(xMax), YMax(yMax)
+    {
+        // Initialize grid data
+        SizeX = (XMax - XMin) / resolution + 1;
+        SizeY = (YMax - YMin) / resolution + 1;
+        GridData.resize(SizeX * SizeY);
+        std::fill(GridData.begin(), GridData.end(), 0.0);
 
-    // Return height (z) at world (UTM) point p
+        // Compute grid size
+        hx = (XMax - XMin) / (SizeX - 1);
+        hy = (YMax - YMin) / (SizeY - 1);
+    }
+
+    // Return height (z) at 2D point p
     double operator() (const Point2D& p) const
     {
         return (*this)(p.x, p.y);
     }
 
-    // Return height (z) at world (UTM) coordinates (x, y)
+    // Return height (z) at 2D point (x, y)
     double operator() (double x, double y) const
     {
-        // Transform world (UTM) coordinates to pixel coordinates
-        const double Ex = GridMap.E * x;
-        const double By = GridMap.B * y;
-        const double BF = GridMap.B * GridMap.F;
-        const double EC = GridMap.E * GridMap.C;
-        const double Dx = GridMap.D * x;
-        const double Ay = GridMap.A * y;
-        const double DC = GridMap.D * GridMap.C;
-        const double AF = GridMap.A * GridMap.F;
-        const double AE = GridMap.A * GridMap.E;
-        const double DB = GridMap.D * GridMap.B;
-        const double det = AE - DB;
-        double X = (Ex - By + BF - EC) / det;  // column
-        double Y = (-Dx + Ay + DC - AF) / det; // row
-
-        // Find the square containing the coordinate
-        const std::size_t X0 = std::lround(X);
-        const std::size_t Y0 = std::lround(Y);
-
-        // Check that we are inside the domain
-        if (X0 < 0 || X0 + 1 >= Width || Y0 < 0 || Y0 + 1 >= Height)
-        {
-            Point2D p(x, y);
-            std::cout << "p = " << p << std::endl;
-            std::cout << "X = " << X0 << std::endl;
-            std::cout << "Y = " << Y0 << std::endl;
-            throw std::runtime_error("Point outside of height map domain.");
-        }
-
-        // Compute value by bilinear interpolation
-        const double z00 = GridData[Y0 * Width + X0];
-        const double z01 = GridData[(Y0 + 1) * Width + X0];
-        const double z10 = GridData[Y0 * Width + X0 + 1];
-        const double z11 = GridData[(Y0 + 1) * Width + X0 + 1];
-        X -= X0;
-        Y -= Y0;
-        const double z = (1.0 - X) * (1.0 - Y) * z00 + (1.0 - X) * Y * z01 +
-                         X * (1.0 - Y) * z10 + X * Y * z11;
-
-        return z;
+        return 0.0;
     }
 
-    // Apply (set) geo reference
-    double Apply(const GeoReference& geoReference)
+    // Map index to coordinate
+    Point2D Index2Coordinate(size_t i) const
     {
-        GridMap = geoReference;
+        const size_t ix = i % SizeX;
+        const size_t iy = i / SizeX;
+        return Point2D(XMin + ix * hx, YMin + iy * hy);
     }
 
-    // Return world (UTM) coordinate of center
-    Point2D WorldCoordinateCenter() const
+    // Map coordinate to index (closest point)
+    size_t Coordinate2Index(const Point2D& p) const
     {
-        const Point2D nw = WorldCoordinateNW();
-        const Point2D ne = WorldCoordinateNE();
-        const Point2D se = WorldCoordinateSE();
-        const Point2D sw = WorldCoordinateSW();
-        return (nw + ne + se + sw) * 0.25;
+        long int ix = std::lround((p.x - XMin) / hx);
+        long int iy = std::lround((p.y - YMin) / hy);
+        if (ix < 0) ix = 0;
+        if (iy < 0) iy = 0;
+        if (ix >= SizeX) ix = SizeX - 1;
+        if (iy >= SizeY) iy = SizeY - 1;
+        return iy * SizeX + ix;
     }
 
-    // Return world (UTM) coordinate width
-    double WorldCoordinateWidth() const
-    {
-        const Point2D nw = WorldCoordinateNW();
-        const Point2D ne = WorldCoordinateNE();
-        return ne.x - nw.x;
-    }
+private:
 
-    // Return world (UTM) coordinate height
-    double WorldCoordinateHeight() const
-    {
-        const Point2D nw = WorldCoordinateNW();
-        const Point2D sw = WorldCoordinateSW();
-        return nw.y - sw.y;
-    }
-
-    // Return world (UTM) coordinate of NW corner
-    Point2D WorldCoordinateNW() const
-    {
-        return WorldCoordinate(0, 0);
-    }
-
-    // Return world (UTM) coordinate of NE corner
-    Point2D WorldCoordinateNE() const
-    {
-        return WorldCoordinate(Width - 1, 0);
-    }
-
-    // Return world (UTM) coordinate of SE corner
-    Point2D WorldCoordinateSE() const
-    {
-        return WorldCoordinate(Width - 1, Height - 1);
-    }
-
-    // Return world (UTM) coordinate of SW corner
-    Point2D WorldCoordinateSW() const
-    {
-        return WorldCoordinate(0, Height - 1);
-    }
-
-    // Return world (UTM) coordinate of pixel (X, Y) = (column, row)
-    Point2D WorldCoordinate(size_t X, size_t Y) const
-    {
-        const double AX = GridMap.A * X;
-        const double BY = GridMap.B * Y;
-        const double DX = GridMap.D * X;
-        const double EY = GridMap.E * Y;
-        const double C = GridMap.C;
-        const double F = GridMap.F;
-        Point2D p(AX + BY + C, DX + EY + F);
-        return p;
-    }
+    // Grid size
+    double hx, hy;
 
 };
-
-std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
-{
-    stream << "C = " << heightMap.WorldCoordinateCenter()
-           << " W = " << heightMap.WorldCoordinateWidth()
-           << " H = " << heightMap.WorldCoordinateHeight()
-           << " NW = " << heightMap.WorldCoordinateNW()
-           << " NE = " << heightMap.WorldCoordinateNE()
-           << " SE = " << heightMap.WorldCoordinateSE()
-           << " SW = " << heightMap.WorldCoordinateSW()
-           << " DX = " << heightMap.GridMap.A;
-}
 
 }
 

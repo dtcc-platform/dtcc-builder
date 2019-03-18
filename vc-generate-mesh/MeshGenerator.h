@@ -1,8 +1,8 @@
 // A simple, efficient and robust 3D mesh generator for VirtualCity@Chalmers.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef VC_MESH_GENERATION_H
-#define VC_MESH_GENERATION_H
+#ifndef VC_MESH_GENERATOR_H
+#define VC_MESH_GENERATOR_H
 
 #include <iostream>
 #include <vector>

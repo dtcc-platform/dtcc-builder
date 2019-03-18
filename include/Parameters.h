@@ -13,21 +13,20 @@ class Parameters
 {
 public:
 
-    // Center of computational domain
-    double DomainCenterX = -3000.0;
-    double DomainCenterY = -4000.0;
-
-    // Radius of computational domain
-    double DomainRadius = 100.0;
+    // Domain dimensions
+    double XMin = 0.0;
+    double YMin = 0.0;
+    double XMax = 100.0;
+    double YMax = 100.0;
 
     // Height of computational domain
     double DomainHeight = 100.0;
 
-    // Maximum mesh size used for mesh generation [m]
-    double MeshSize = 10.0;
+    // Height map resolution
+    double HeightMapResolution = 1.0;
 
-    // Stride length used for downsampling height map
-    size_t HeightMapStride = 1;
+    // Maximum mesh size used for mesh generation [m]
+    double MeshResolution = 10.0;
 
 };
 

@@ -23,7 +23,7 @@ public:
     // Read geo reference from WLD file
     static void Read(GeoReference& geoReference,
                      std::string fileName,
-                     size_t stride)
+                     size_t stride=1)
     {
         std::cout << "WLD: " << "Reading geo reference from file "
                   << fileName << std::endl;

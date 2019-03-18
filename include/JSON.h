@@ -31,12 +31,13 @@ public:
         f >> json;
 
         // Extract JSON data
-        parameters.DomainCenterX = json["DomainCenterX"];
-        parameters.DomainCenterY = json["DomainCenterY"];
-        parameters.DomainRadius = json["DomainRadius"];
+        parameters.XMin = json["XMin"];
+        parameters.YMin = json["YMin"];
+        parameters.XMax = json["XMax"];
+        parameters.YMax = json["YMax"];
         parameters.DomainHeight = json["DomainHeight"];
-        parameters.MeshSize = json["MeshSize"];
-        parameters.HeightMapStride = json["HeightMapStride"];
+        parameters.HeightMapResolution = json["HeightMapResolution"];
+        parameters.MeshResolution = json["MeshResolution"];
     };
 
     // Write parameters to JSON file
@@ -47,12 +48,13 @@ public:
 
         // Generate JSON data
         nlohmann::json json;
-        json["DomainCenterX"] = parameters.DomainCenterX;
-        json["DomainCenterY"] = parameters.DomainCenterY;
-        json["DomainRadius"] = parameters.DomainRadius;
+        json["XMin"] = parameters.XMin;
+        json["YMin"] = parameters.YMin;
+        json["XMax"] = parameters.XMax;
+        json["YMax"] = parameters.YMax;
         json["DomainHeight"] = parameters.DomainHeight;
-        json["MeshSize"] = parameters.MeshSize;
-        json["HeightMapStride"] = parameters.HeightMapStride;
+        json["HeightMapResolution"] = parameters.HeightMapResolution;
+        json["MeshResolution"] = parameters.MeshResolution;
 
         // Write to file
         std::ofstream f(fileName);
@@ -71,18 +73,16 @@ public:
         f >> json;
 
         // Extract JSON data
+        heightMap.XMin = json["XMin"];
+        heightMap.YMin = json["YMin"];
+        heightMap.XMax = json["XMax"];
+        heightMap.YMax = json["YMax"];
+        heightMap.SizeX = json["SizeX"];
+        heightMap.SizeY = json["SizeY"];
         const auto jsonGridData = json["GridData"];
         heightMap.GridData.resize(jsonGridData.size());
         for (size_t i = 0; i < jsonGridData.size(); i++)
             heightMap.GridData[i] = jsonGridData[i];
-        heightMap.Width = json["Width"];
-        heightMap.Height = json["Height"];
-        heightMap.GridMap.A = json["GridMap"]["A"];
-        heightMap.GridMap.B = json["GridMap"]["B"];
-        heightMap.GridMap.D = json["GridMap"]["D"];
-        heightMap.GridMap.E = json["GridMap"]["E"];
-        heightMap.GridMap.C = json["GridMap"]["C"];
-        heightMap.GridMap.F = json["GridMap"]["F"];
     };
 
     // Write height map to JSON file
@@ -93,15 +93,13 @@ public:
 
         // Generate JSON data
         nlohmann::json json;
-        json["Width"] = heightMap.Width;
-        json["Height"] = heightMap.Height;
+        json["XMin"] = heightMap.XMin;
+        json["XMax"] = heightMap.YMin;
+        json["YMin"] = heightMap.XMax;
+        json["YMax"] = heightMap.YMax;
+        json["SizeX"] = heightMap.SizeX;
+        json["SizeY"] = heightMap.SizeY;
         json["GridData"] = heightMap.GridData;
-        json["GridMap"]["A"] = heightMap.GridMap.A;
-        json["GridMap"]["B"] = heightMap.GridMap.B;
-        json["GridMap"]["D"] = heightMap.GridMap.D;
-        json["GridMap"]["E"] = heightMap.GridMap.E;
-        json["GridMap"]["C"] = heightMap.GridMap.C;
-        json["GridMap"]["F"] = heightMap.GridMap.F;
 
         // Write to file
         std::ofstream f(fileName);
