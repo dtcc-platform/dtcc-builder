@@ -84,10 +84,8 @@ public:
             }
         }
 
-
+        // FIXME: Testing
         std::cout << xmin << " " << ymin << " " << xmax << " " << ymax << std::endl;
-
-
 
         // Compute some stats
         size_t numAssigned = 0;

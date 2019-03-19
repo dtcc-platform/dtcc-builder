@@ -18,9 +18,9 @@ public:
     double XMin, YMin, XMax, YMax;
 
     // Number of grid points
-    size_t SizeX, SizeY;
+    size_t XSize, YSize;
 
-    // Grid data (flattened array of (x, y) coordinates)
+    // Grid data (flattened row-major starting at (XMin, YMin))
     std::vector<double> GridData;
 
     // Create empty height map
@@ -30,14 +30,14 @@ public:
         : XMin(xMin), YMin(yMin), XMax(xMax), YMax(yMax)
     {
         // Initialize grid data
-        SizeX = (XMax - XMin) / resolution + 1;
-        SizeY = (YMax - YMin) / resolution + 1;
-        GridData.resize(SizeX * SizeY);
+        XSize = (XMax - XMin) / resolution + 1;
+        YSize = (YMax - YMin) / resolution + 1;
+        GridData.resize(XSize * YSize);
         std::fill(GridData.begin(), GridData.end(), 0.0);
 
         // Compute grid size
-        hx = (XMax - XMin) / (SizeX - 1);
-        hy = (YMax - YMin) / (SizeY - 1);
+        hx = (XMax - XMin) / (XSize - 1);
+        hy = (YMax - YMin) / (YSize - 1);
     }
 
     // Return height (z) at 2D point p
@@ -55,8 +55,8 @@ public:
     // Map index to coordinate
     Point2D Index2Coordinate(size_t i) const
     {
-        const size_t ix = i % SizeX;
-        const size_t iy = i / SizeX;
+        const size_t ix = i % XSize;
+        const size_t iy = i / YSize;
         return Point2D(XMin + ix * hx, YMin + iy * hy);
     }
 
@@ -67,9 +67,9 @@ public:
         long int iy = std::lround((p.y - YMin) / hy);
         if (ix < 0) ix = 0;
         if (iy < 0) iy = 0;
-        if (ix >= SizeX) ix = SizeX - 1;
-        if (iy >= SizeY) iy = SizeY - 1;
-        return iy * SizeX + ix;
+        if (ix >= XSize) ix = XSize - 1;
+        if (iy >= YSize) iy = YSize - 1;
+        return iy * XSize + ix;
     }
 
 private:

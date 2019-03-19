@@ -77,8 +77,8 @@ public:
         heightMap.YMin = json["YMin"];
         heightMap.XMax = json["XMax"];
         heightMap.YMax = json["YMax"];
-        heightMap.SizeX = json["SizeX"];
-        heightMap.SizeY = json["SizeY"];
+        heightMap.XSize = json["XSize"];
+        heightMap.YSize = json["YSize"];
         const auto jsonGridData = json["GridData"];
         heightMap.GridData.resize(jsonGridData.size());
         for (size_t i = 0; i < jsonGridData.size(); i++)
@@ -97,8 +97,8 @@ public:
         json["XMax"] = heightMap.YMin;
         json["YMin"] = heightMap.XMax;
         json["YMax"] = heightMap.YMax;
-        json["SizeX"] = heightMap.SizeX;
-        json["SizeY"] = heightMap.SizeY;
+        json["XSize"] = heightMap.XSize;
+        json["YSize"] = heightMap.YSize;
         json["GridData"] = heightMap.GridData;
 
         // Write to file
