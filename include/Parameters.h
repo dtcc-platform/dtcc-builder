@@ -13,6 +13,8 @@ class Parameters
 {
 public:
 
+    //--- Public (run-time) parameters ---
+
     // Domain dimensions
     double XMin = 0.0;
     double YMin = 0.0;
@@ -27,6 +29,16 @@ public:
 
     // Maximum mesh size used for mesh generation [m]
     double MeshResolution = 10.0;
+
+protected:
+
+    //--- Protected (compile-time) parameters ---
+
+    // Threshold for filtering outliers (clouds?) from point cloud
+    static constexpr double PointCloudOutlierThreshold = 150.0;
+
+    // Classes with access to protected parameters
+    friend class HeightMapGenerator;
 
 };
 

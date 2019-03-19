@@ -20,11 +20,13 @@ def PlotHeightMap(fileName):
     xSize = heightMap['XSize']
     ySize = heightMap['YSize']
 
-    # Test data for verifying orientation
+    # Test data for verifying orientation, bump in lower left corner
     # for i in range(len(gridData)):
     #     x = i % xSize
     #     y = i // ySize;
-    #     gridData[i] = x*y
+    #     x = float(x) / (xSize - 1)
+    #     y = float(y) / (ySize - 1)
+    #     gridData[i] = x*(1 - x)**2*y*(1 - y)**2
 
     # Reshape to 2D grid
     z = numpy.reshape(gridData, (xSize, ySize))

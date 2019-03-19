@@ -23,6 +23,9 @@ public:
     // Grid data (flattened row-major starting at (XMin, YMin))
     std::vector<double> GridData;
 
+    // Grid size
+    double hx, hy;
+
     // Create empty height map
     HeightMap(double xMin, double yMin,
               double xMax, double yMax,
@@ -72,10 +75,62 @@ public:
         return iy * XSize + ix;
     }
 
-private:
+    // Map coordinate to neighbors (stencil centered at closest point)
+    std::vector<size_t> Coordinate2Indices(const Point2D& p) const
+    {
+        std::vector<size_t> indices;
+        const size_t i = Coordinate2Index(p);
+        const size_t ix = i % XSize;
+        const size_t iy = i / YSize;
+        indices.push_back(i);
+        if (ix > 0)
+            indices.push_back(i - 1);
+        if (ix < XSize - 1)
+            indices.push_back(i + 1);
+        if (iy > 0)
+            indices.push_back(i - XSize);
+        if (iy < YSize - 1)
+            indices.push_back(i + XSize);
+        return indices;
+    }
 
-    // Grid size
-    double hx, hy;
+    // Map index to boundary at distance step in grid
+    std::vector<size_t> Index2Boundary(size_t i, size_t step) const
+    {
+        // Compute center (assume it is inside domain)
+        const long int _ix = i % XSize;
+        const long int _iy = i / YSize;
+        const long int d = step;
+
+        // Initialize empty list of indices
+        std::vector<size_t> indices;
+
+        // Iterate for x in (-step, step)
+        for (long int dx = -d; dx <= d; dx++)
+        {
+            // Skip if outside grid
+            const long int ix = _ix + dx;
+            if (ix < 0 || ix >= XSize) continue;
+
+            // Iterate for y in (-step, step)
+            for (long int dy = -d; dy <= d; dy++)
+            {
+                // Skip if outside grid
+                const long int iy = _iy + dy;
+                if (iy < 0 || iy >= YSize) continue;
+
+                // Skip if not on boundary
+                const bool bx = dx == -d || dx == d;
+                const bool by = dy == -d || dy == d;
+                if (!bx && !by) continue;
+
+                // Add point
+                indices.push_back(iy * XSize + ix);
+            }
+        }
+
+        return indices;
+    }
 
 };
 
