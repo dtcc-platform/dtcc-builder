@@ -4,7 +4,10 @@
 #ifndef VC_HEIGHT_MAP_GENERATOR_H
 #define VC_HEIGHT_MAP_GENERATOR_H
 
+#include <iostream>
+#include <iomanip>
 #include <vector>
+
 
 #include "Point.h"
 #include "Geometry.h"
@@ -87,14 +90,13 @@ public:
 
 
         // Compute some stats
-        size_t numUnassigned = 0;
+        size_t numAssigned = 0;
         double largestDistance = 0.0;
         for (size_t i = 0; i < numGridPoints; i++)
         {
-            if (!pointAdded[i])
-                numUnassigned++;
-            else
+            if (pointAdded[i])
             {
+                numAssigned += 1;
                 const Point2D& p2D = heightMap.Index2Coordinate(i);
                 const Point2D& q2D = closestPoints[i];
                 const double d2 = Geometry::SquaredDistance2D(p2D, q2D);
@@ -103,9 +105,14 @@ public:
             }
         }
         largestDistance = std::sqrt(largestDistance);
-        std::cout << "HeightMapGenerator: " << numUnassigned
-                  << " unassigned points (out of "
-                  << numGridPoints << ")" << std::endl;
+        const double percentAssigned
+            = 100.0 * static_cast<double>(numAssigned) / numGridPoints;
+        std::cout << "HeightMapGenerator: "
+                  << numGridPoints << " grid points" << std::endl;
+        std::cout << "HeightMapGenerator: "
+                  << numAssigned << " assigned points ("
+                  << std::setprecision(3) <<percentAssigned
+                  << "%)" << std::endl;
         std::cout << "HeightMapGenerator: largest distance = "
                   << largestDistance << std::endl;
     }
