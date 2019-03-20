@@ -1,8 +1,8 @@
-// Point cloud (array of 3D points).
+// Polygon (array of 2D points).
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_POINT_CLOUD_H
-#define VC_POINT_CLOUD_H
+#ifndef VC_POLYGON_H
+#define VC_POLYGON_H
 
 #include <vector>
 
@@ -11,12 +11,12 @@
 namespace VirtualCity
 {
 
-class PointCloud
+class Polygon
 {
 public:
 
     // Array of points
-    std::vector<Point3D> Points;
+    std::vector<Point2D> Points;
 
 };
 

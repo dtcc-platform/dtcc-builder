@@ -10,9 +10,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 # Find packages
 find_package(PugiXML REQUIRED)
-find_package(PROJ4 REQUIRED)
 find_package(ShapeLib REQUIRED)
-find_package(LibLAS REQUIRED)
+find_package(PROJ4 REQUIRED)
 
 # Build executable
 add_executable(vc-generate-citymodel vc-generate-citymodel.cpp)

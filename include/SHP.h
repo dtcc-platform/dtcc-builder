@@ -5,10 +5,10 @@
 #define VC_SHP_H
 
 #include <iostream>
+#include <vector>
 #include <shapefil.h>
 
-#include "Building.h"
-#include "CityModel.h"
+#include "Polygon.h"
 
 namespace VirtualCity
 {
@@ -17,11 +17,11 @@ class SHP
 {
 public:
 
-    // Read city model from SHP file. Note that the corresponding
+    // Read polygons from SHP file. Note that the corresponding
     // .shx and .dbf files must also be present in the same directory.
-    static void Read(CityModel& cityModel, std::string fileName)
+    static void Read(std::vector<Polygon>& polygons, std::string fileName)
     {
-        std::cout << "SHP: " << "Reading city model from file "
+        std::cout << "SHP: " << "Reading polygons from file "
                   << fileName << std::endl;
 
         // Open file(s)
@@ -56,8 +56,8 @@ public:
         // Read footprints
         for (int i = 0; i < numEntities; i++)
         {
-            // Create empty building
-            Building building;
+            // Create empty polygon
+            Polygon polygon;
 
             // Get object
             SHPObject* object = SHPReadObject(handle, i);
@@ -68,11 +68,11 @@ public:
                 const double x = object->padfX[j];
                 const double y = object->padfY[j];
                 Point2D p(x, y);
-                building.Footprint.push_back(p);
+                polygon.Points.push_back(p);
             }
 
-            // Add building
-            cityModel.Buildings.push_back(building);
+            // Add polygon
+            polygons.push_back(polygon);
         }
     }
 

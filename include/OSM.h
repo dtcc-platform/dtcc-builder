@@ -10,8 +10,7 @@
 #include <pugixml.hpp>
 
 #include "Point.h"
-#include "Building.h"
-#include "CoordinateSystem.h"
+#include "Polygon.h"
 
 namespace VirtualCity
 {
@@ -20,10 +19,10 @@ class OSM
 {
 public:
 
-    // Read city model from OSM file
-    static void Read(CityModel& cityModel, std::string fileName)
+    // Read polygons from OSM file
+    static void Read(std::vector<Polygon> polygons, std::string fileName)
     {
-        std::cout << "OSM: " << "Reading city model from file "
+        std::cout << "OSM: " << "Reading polygons from file "
                   << fileName << std::endl;
 
         // Read XML data from file
@@ -87,10 +86,10 @@ public:
             if (!isBuilding)
                 continue;
 
-            // Create empty building
-            Building building;
+            // Create empty polygon
+            Polygon polygon;
 
-            // Read footprint
+            // Get vertices
             for (pugi::xml_node_iterator jt = it->begin(); jt != it->end(); ++jt)
             {
                 // Skip if not a node
@@ -104,16 +103,12 @@ public:
                     throw std::runtime_error("Missing node reference for building.");
                 Point2D p = n->second;
 
-                // Add to building footprint
-                building.Footprint.push_back(p);
+                // Add to polygon
+                polygon.Points.push_back(p);
             }
 
-            // Add building to city model
-            cityModel.Buildings.push_back(building);
-
-            // Diagnostic printing
-            std::cout << "OSM: Added building " << buildingName << " ("
-                      << building.Footprint.size() << " nodes)" << std::endl;
+            // Add polygon
+            polygons.push_back(polygon);
         }
     }
 

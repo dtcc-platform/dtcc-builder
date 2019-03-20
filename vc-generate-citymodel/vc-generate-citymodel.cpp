@@ -18,8 +18,8 @@ using namespace VirtualCity;
 
 void Help()
 {
-    std::cerr << "Usage: vc-generate-citymodel OpenStreetMap.[osm/shp] Parameters.json"
-              << std::endl;
+    std::cerr << "Usage: vc-generate-citymodel PropertyMap.[osm/shp]"
+              << " Parameters.json" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -42,13 +42,14 @@ int main(int argc, char* argv[])
     // Report used parameters
     // FIXME: Not implemented
 
-    // Extract footprints
-    CityModel cityModel;
+    // Extract footprints from property map
+    std::vector<Polygon> polygons;
     if (CommandLine::EndsWith(fileNameFootprints, ".osm"))
-        OSM::Read(cityModel, fileNameFootprints);
+        OSM::Read(polygons, fileNameFootprints);
     else if (CommandLine::EndsWith(fileNameFootprints, ".shp"))
-        SHP::Read(cityModel, fileNameFootprints);
+        SHP::Read(polygons, fileNameFootprints);
 
+    CityModel cityModel;
     std::cout << cityModel << std::endl;
 
     // Extract heights
