@@ -35,11 +35,16 @@ public:
             meanElevationRaw += q3D.z;
         meanElevationRaw /= pointCloud.Points.size();
 
-        // Initialize grid point elevations
-        size_t numGridPoints = heightMap.GridData.size();
-        std::vector<std::vector<double>> elevations(numGridPoints);
+        // Initialize counters for number of points for local mean
+        std::vector<double>& gridData = heightMap.GridData;
+        size_t numGridPoints = gridData.size();
+        std::vector<size_t> numLocalPoints(numGridPoints);
+        std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
-        std::cout << "HeightMapGenerator: Assigning points to grid"
+        // Reset grid data
+        std::fill(gridData.begin(), gridData.end(), 0.0);
+
+        std::cout << "HeightMapGenerator: Extracting point cloud data"
                   << std::endl;
 
         // Iterate over point cloud
@@ -74,32 +79,27 @@ public:
 
                 // Add if closer than threshold
                 if (dx < heightMap.hx && dy < heightMap.hy)
-                    elevations[i].push_back(q3D.z);
+                {
+                    gridData[i] += q3D.z;
+                    numLocalPoints[i] += 1;
+                }
             }
         }
 
         // Compute mean elevation
         meanElevation /= pointCloud.Points.size() - numOutliers;
 
-        std::cout << "HeightMapGenerator: Computing grid point elevations"
+        std::cout << "HeightMapGenerator: Computing local mean elevation"
                   << std::endl;
 
         // Compute mean of elevations for each grid point
         std::vector<size_t> missingIndices;
         for (size_t i = 0; i < numGridPoints; i++)
         {
-            if (elevations[i].size() > 0)
-            {
-                double zMean = 0.0;
-                for (auto const z : elevations[i])
-                    zMean += z;
-                zMean /= elevations[i].size();
-                heightMap.GridData[i] = zMean;
-            }
+            if (numLocalPoints[i] > 0)
+                gridData[i] /= numLocalPoints[i];
             else
-            {
                 missingIndices.push_back(i);
-            }
         }
 
         // Check that we have at least one point (very loose check)
@@ -132,9 +132,9 @@ public:
                 bool found = false;
                 for (size_t j : heightMap.Index2Boundary(i, step))
                 {
-                    if (elevations[j].size() > 0)
+                    if (numLocalPoints[j] > 0)
                     {
-                        heightMap.GridData[i] = heightMap.GridData[j];
+                        gridData[i] = gridData[j];
                         numFound += 1;
                         found = true;
                         break;
