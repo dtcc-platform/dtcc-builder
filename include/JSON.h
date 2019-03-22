@@ -79,6 +79,8 @@ public:
         heightMap.YMax = json["YMax"];
         heightMap.XSize = json["XSize"];
         heightMap.YSize = json["YSize"];
+        heightMap.XStep = json["XStep"];
+        heightMap.YStep = json["YStep"];
         const auto jsonGridData = json["GridData"];
         heightMap.GridData.resize(jsonGridData.size());
         for (size_t i = 0; i < jsonGridData.size(); i++)
@@ -99,6 +101,8 @@ public:
         json["YMax"] = heightMap.YMax;
         json["XSize"] = heightMap.XSize;
         json["YSize"] = heightMap.YSize;
+        json["XStep"] = heightMap.XStep;
+        json["YStep"] = heightMap.YStep;
         json["GridData"] = heightMap.GridData;
 
         // Write to file
@@ -124,11 +128,11 @@ public:
         {
             auto jsonBuilding = jsonBuildings[i];
             auto jsonFootprint = jsonBuilding["Footprint"];
-            cityModel.Buildings[i].Footprint.resize(jsonFootprint.size());
+            cityModel.Buildings[i].Footprint.Points.resize(jsonFootprint.size());
             for (size_t j = 0; j < jsonFootprint.size(); j++)
             {
-                cityModel.Buildings[i].Footprint[j].x = jsonFootprint[j]["x"];
-                cityModel.Buildings[i].Footprint[j].y = jsonFootprint[j]["y"];
+                cityModel.Buildings[i].Footprint.Points[j].x = jsonFootprint[j]["x"];
+                cityModel.Buildings[i].Footprint.Points[j].y = jsonFootprint[j]["y"];
             }
             cityModel.Buildings[i].Height = jsonBuilding["Height"];
         }
@@ -146,7 +150,7 @@ public:
         {
             auto jsonBuilding = nlohmann::json::object();
             jsonBuilding["Footprint"] = nlohmann::json::array();
-            for (auto const point : building.Footprint)
+            for (auto const point : building.Footprint.Points)
             {
                 auto jsonPoint = nlohmann::json::object();
                 jsonPoint["x"] = point.x;

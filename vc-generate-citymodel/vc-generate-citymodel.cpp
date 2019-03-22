@@ -6,34 +6,33 @@
 #include <random>
 
 #include "CommandLine.h"
-#include "CityModel.h"
 #include "OSM.h"
 #include "SHP.h"
 #include "JSON.h"
-
-// FIXME: Testing
-#include "CoordinateSystem.h"
+#include "CityModel.h"
+#include "CityModelGenerator.h"
 
 using namespace VirtualCity;
 
 void Help()
 {
     std::cerr << "Usage: vc-generate-citymodel PropertyMap.[osm/shp]"
-              << " Parameters.json" << std::endl;
+              << " HeightMap.json Parameters.json" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
     // Check command-line arguments
-    if (argc != 3)
+    if (argc != 4)
     {
         Help();
         return 1;
     }
 
     // Get filenames
-    const std::string fileNameFootprints(argv[1]);
-    const std::string fileNameParameters(argv[2]);
+    const std::string fileNamePropertyMap(argv[1]);
+    const std::string fileNameHeightMap(argv[2]);
+    const std::string fileNameParameters(argv[3]);
 
     // Read parameters from file
     Parameters parameters;
@@ -42,29 +41,26 @@ int main(int argc, char* argv[])
     // Report used parameters
     // FIXME: Not implemented
 
-    // Extract footprints from property map
+    // Read polygons
     std::vector<Polygon> polygons;
-    if (CommandLine::EndsWith(fileNameFootprints, ".osm"))
-        OSM::Read(polygons, fileNameFootprints);
-    else if (CommandLine::EndsWith(fileNameFootprints, ".shp"))
-        SHP::Read(polygons, fileNameFootprints);
+    if (CommandLine::EndsWith(fileNamePropertyMap, ".osm"))
+        OSM::Read(polygons, fileNamePropertyMap);
+    else if (CommandLine::EndsWith(fileNamePropertyMap, ".shp"))
+        SHP::Read(polygons, fileNamePropertyMap);
 
+    // Read height map
+    HeightMap heightMap;
+    JSON::Read(heightMap, fileNameHeightMap);
+
+    // Generate city model
     CityModel cityModel;
-    std::cout << cityModel << std::endl;
+    CityModelGenerator::GenerateCityModel(cityModel, polygons, heightMap);
 
-    // Extract heights
-    // FIXME: Not implemented
+    // Pretty-print
+    std::cout << cityModel << std::endl;
 
     // Write to file
     JSON::Write(cityModel, "CityModel.json");
-
-    // FIXME: Testing 4326
-    Point2D p(0, 0);
-    Point2D q = CoordinateSystem::Transform(p, "epsg:4326", "epsg:3007");
-    Point2D r = CoordinateSystem::Transform(p, "epsg:3006", "epsg:3007");
-    std::cout << p << std::endl;
-    std::cout << q << std::endl;
-    std::cout << r << std::endl;
 
     return 0;
 }

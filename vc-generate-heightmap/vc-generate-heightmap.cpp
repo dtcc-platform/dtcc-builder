@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "CommandLine.h"
 #include "HeightMap.h"
@@ -15,7 +16,7 @@ using namespace VirtualCity;
 void help()
 {
     std::cerr << "Usage: vc-generate-heightmap "
-              << "PointCloud.las Parameters.json"
+              << "PointCloud0.las PointCloud1.las ... Parameters.json"
               << std::endl;
 }
 
@@ -29,8 +30,10 @@ int main(int argc, char* argv[])
     }
 
     // Get filenames
-    const std::string fileNameLAS(argv[1]);
-    const std::string fileNameParameters(argv[2]);
+    std::vector<std::string> fileNamesLAS;
+    for (size_t i = 1; i < argc - 1; i++)
+        fileNamesLAS.push_back(std::string(argv[i]));
+    const std::string fileNameParameters(argv[argc - 1]);
 
     // Read parameters from file
     Parameters parameters;
@@ -48,9 +51,10 @@ int main(int argc, char* argv[])
     std::cout << "vc-generate-heightmap: HeightMapResolution = "
               << parameters.HeightMapResolution << std::endl;
 
-    // Read point cloud from LAS file
+    // Read point cloud from LAS files
     PointCloud pointCloud;
-    LAS::Read(pointCloud, fileNameLAS);
+    for (const std::string fileNameLAS : fileNamesLAS)
+        LAS::Read(pointCloud, fileNameLAS);
 
     // Generate height map
     HeightMap heightMap(parameters.XMin, parameters.YMin,

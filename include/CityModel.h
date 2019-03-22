@@ -27,12 +27,8 @@ public:
         // Iterate over buildings
         for (size_t i = 0; i < Buildings.size(); i++)
         {
-            // Compute total quadrant relative to polygon. If the point
-            // is inside the polygon, the angle should be 4 (or -4).
-            const int v = Geometry::QuadrantAngle2D(p, Buildings[i].Footprint);
-
-            // Check if point is inside the domain
-            if (v != 0)
+            // Check whether point is inside building
+            if (Buildings[i].Footprint.Contains(p))
                 return i;
         }
 
@@ -40,69 +36,48 @@ public:
         return -1;
     }
 
-    // Compute domain center
-    Point2D DomainCenter() const
+    // Compute center of city model
+    Point2D Center() const
     {
         Point2D c;
-        double r;
-        ComputeDomainSize(c, r);
+        size_t numPoints = 0;
+        for (auto const & building : Buildings)
+        {
+            for (auto const & p : building.Footprint.Points)
+            {
+                c += p;
+                numPoints += 1;
+            }
+        }
+        c /= numPoints;
         return c;
     }
 
-    // Compute domain radius
-    double DomainRadius() const
+    // Compute radius of city model (relative to center)
+    double Radius(const Point2D& center) const
     {
-        Point2D c;
-        double r;
-        ComputeDomainSize(c, r);
-        return r;
-    }
-
-    // Compute domain size (center and radius)
-    void ComputeDomainSize(Point2D& c, double& r) const
-    {
-        // The center and radius is computed by brute force and is O(N^2).
-        // It can be more efficiently computed from the convex hull but
-        // this step is likely relatively inexpensive.
-
-        // Compute diameter and keep points at largest distance
-        Point2D q0, q1;
-        double d2max = 0.0;
-        for (auto const & b0 : Buildings)
+        double r2max = 0.0;
+        for (auto const & building : Buildings)
         {
-            for (auto const & b1 : Buildings)
+            for (auto const & p : building.Footprint.Points)
             {
-                for (auto const & p0 : b0.Footprint)
-                {
-                    for (auto const & p1 : b1.Footprint)
-                    {
-                        const double d2 = Geometry::SquaredDistance2D(p0, p1);
-                        if (d2 > d2max)
-                        {
-                            q0 = p0;
-                            q1 = p1;
-                            d2max = d2;
-                        }
-                    }
-                }
+                const double r2 = Geometry::SquaredDistance2D(p, center);
+                if (r2 > r2max)
+                    r2max = r2;
             }
         }
-
-        // Compute center and radius
-        c = (q0 + q1) * 0.5;
-        r = 0.5 * std::sqrt(d2max);
+        return std::sqrt(r2max);
     }
 
 };
 
 std::ostream& operator<<(std::ostream& stream, const CityModel& cityModel)
 {
-    Point2D c;
-    double r;
-    cityModel.ComputeDomainSize(c, r);
+    const Point2D c = cityModel.Center();
+    const double r = cityModel.Radius(c);
     stream << "CityModel with " << cityModel.Buildings.size()
            << " buildings, radius R = " << r
-           << " and center C = " << c << std::endl;
+           << " and center C = " << c;
 }
 
 }

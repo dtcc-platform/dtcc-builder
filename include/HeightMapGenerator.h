@@ -78,7 +78,7 @@ public:
                 // tighter threshold.
 
                 // Add if closer than threshold
-                if (dx < heightMap.hx && dy < heightMap.hy)
+                if (dx < heightMap.XStep && dy < heightMap.YStep)
                 {
                     gridData[i] += q3D.z;
                     numLocalPoints[i] += 1;

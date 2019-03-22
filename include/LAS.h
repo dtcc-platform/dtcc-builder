@@ -19,7 +19,9 @@ class LAS
 {
 public:
 
-    // Generate surface model from
+    // Read point cloud from LAS file. Note that points will be added
+    // to the given point cloud, enabling reading data from several
+    // LAS files into the same point cloud.
     static void Read(PointCloud& pointCloud,
                      std::string fileName)
     {

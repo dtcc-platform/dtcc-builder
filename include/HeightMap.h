@@ -5,8 +5,10 @@
 #define VC_HEIGHT_MAP_H
 
 #include <vector>
+#include <assert.h>
 
 #include "Point.h"
+
 namespace VirtualCity
 {
 
@@ -20,13 +22,21 @@ public:
     // Number of grid points
     size_t XSize, YSize;
 
+    // Grid resolution
+    double XStep, YStep;
+
     // Grid data (flattened row-major starting at (XMin, YMin))
     std::vector<double> GridData;
 
-    // Grid size
-    double hx, hy;
-
     // Create empty height map
+    HeightMap()
+        : XMin(0), YMin(0), XMax(0), YMax(0),
+          XSize(0), YSize(0), XStep(0), YStep(0)
+    {
+        // Do nothing
+    }
+
+    // Create for given domain size and resolution
     HeightMap(double xMin, double yMin,
               double xMax, double yMax,
               double resolution)
@@ -39,20 +49,56 @@ public:
         std::fill(GridData.begin(), GridData.end(), 0.0);
 
         // Compute grid size
-        hx = (XMax - XMin) / (XSize - 1);
-        hy = (YMax - YMin) / (YSize - 1);
+        XStep = (XMax - XMin) / (XSize - 1);
+        YStep = (YMax - YMin) / (YSize - 1);
     }
 
     // Return height (z) at 2D point p
     double operator() (const Point2D& p) const
     {
-        return (*this)(p.x, p.y);
-    }
+        // Check that point is inside domain
+        if (p.x < XMin || p.x > XMax || p.y < YMin || p.y > YMax)
+        {
+            std::cout << "p = " << p << std::endl;
+            throw std::runtime_error("Point outside of height map domain.");
+        }
 
-    // Return height (z) at 2D point (x, y)
-    double operator() (double x, double y) const
-    {
-        return 0.0;
+        std::cout << YMin << " " << p.y << " " << YMax << std::endl;
+        std::cout << YStep << " " << YSize << std::endl;
+        std::cout << (p.y - YMin) / YStep << std::endl;
+
+        // Compute grid cell containing point (lower left corner)
+        const size_t ix = std::floor((p.x - XMin) / XStep);
+        const size_t iy = std::floor((p.y - YMin) / YStep);
+        const size_t i = iy * XSize + ix;
+        std::cout << iy << " " << YSize << std::endl;
+        assert(ix < XSize);
+        assert(iy < YSize);
+        assert(i < GridData.size());
+
+        std::cout << ix << std::endl;
+        std::cout << iy << std::endl;
+        std::cout << i << std::endl;
+        std::cout << XStep << std::endl;
+        std::cout << YStep << std::endl;
+
+        // Map coordinates to [0, 1] x [0, 1]
+        const double X = (p.x - ix * XStep) / XStep;
+        const double Y = (p.y - iy * YStep) / YStep;
+
+        std::cout << X << " " << Y << std::endl;
+
+        // Extract grid data
+        const double z00 = GridData[i];
+        const double z01 = GridData[i + 1];
+        const double z10 = GridData[i + XSize];
+        const double z11 = GridData[i + XSize + 1];
+
+        // Compute value by bilinear interpolation
+        const double z = (1.0 - X) * (1.0 - Y) * z00 + (1.0 - X) * Y * z01 +
+                         X * (1.0 - Y) * z10 + X * Y * z11;
+
+        return z;
     }
 
     // Map index to coordinate
@@ -60,14 +106,14 @@ public:
     {
         const size_t ix = i % XSize;
         const size_t iy = i / YSize;
-        return Point2D(XMin + ix * hx, YMin + iy * hy);
+        return Point2D(XMin + ix * XStep, YMin + iy * YStep);
     }
 
     // Map coordinate to index (closest point)
     size_t Coordinate2Index(const Point2D& p) const
     {
-        long int ix = std::lround((p.x - XMin) / hx);
-        long int iy = std::lround((p.y - YMin) / hy);
+        long int ix = std::lround((p.x - XMin) / XStep);
+        long int iy = std::lround((p.y - YMin) / YStep);
         if (ix < 0) ix = 0;
         if (iy < 0) iy = 0;
         if (ix >= XSize) ix = XSize - 1;
