@@ -1,0 +1,14 @@
+# Helper makefile to simplity the call to make -f Makefile
+# This Makefile automatically sets the target to be compiled: x86, shared
+#
+# usage: make -f Makefile-x86 [-e VARIANT=debug]
+
+SHELL       = /bin/sh
+
+# rule called by default
+all:
+	@$(MAKE) --no-print-directory -f Makefile
+
+# called when a specific rule is defined on the command line
+%:
+	@$(MAKE) --no-print-directory -f Makefile $@
