@@ -19,6 +19,21 @@ class JSON
 {
 public:
 
+    // Get type of JSON file
+    static std::string ReadType(std::string fileName)
+    {
+        // Read data from file
+        std::ifstream f(fileName);
+        nlohmann::json json;
+        f >> json;
+
+        // Check file type
+        if (json.find("Type") == json.end())
+            throw std::runtime_error("Not a VirtualCity JSON file.");
+
+        return json["Type"];
+    }
+
     // Read parameters from JSON file
     static void Read(Parameters& parameters, std::string fileName)
     {

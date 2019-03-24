@@ -42,6 +42,18 @@ protected:
 
 };
 
+std::ostream& operator<<(std::ostream& stream, const Parameters& parameters)
+{
+    stream << "Parameters:"
+           << " XMin = "                << parameters.XMin
+           << " YMin = "                << parameters.YMin
+           << " XMax = "                << parameters.XMax
+           << " YMax = "                << parameters.YMax
+           << " DomainHeight = "        << parameters.DomainHeight
+           << " HeightMapResolution = " << parameters.HeightMapResolution
+           << " MeshResolution = "      << parameters.MeshResolution;
+}
+
 }
 
 #endif

@@ -180,6 +180,17 @@ public:
 
 };
 
+std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
+{
+    stream << "Height map with grid size "
+           << heightMap.XSize << " x " << heightMap.YSize
+           << " on domain "
+           << heightMap.XMin << ", " << heightMap.XMax
+           << " x ["
+           << heightMap.YMin << ", " << heightMap.YMax
+           << "]";
+}
+
 }
 
 #endif

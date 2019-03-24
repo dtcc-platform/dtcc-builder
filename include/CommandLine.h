@@ -21,7 +21,7 @@ public:
         return false;
     }
 
-    static bool EndsWith(const std::string string, std::string const & ending)
+    static bool EndsWith(const std::string string, const std::string& ending)
     {
         if (ending.size() > string.size())
             return false;
