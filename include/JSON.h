@@ -30,6 +30,10 @@ public:
         nlohmann::json json;
         f >> json;
 
+        // Check file type
+        if (json.find("Type") == json.end() || json["Type"] != "Parameters")
+            throw std::runtime_error("Not a VirtualCity Parameters JSON file.");
+
         // Extract JSON data
         parameters.XMin = json["XMin"];
         parameters.YMin = json["YMin"];
@@ -46,8 +50,9 @@ public:
         std::cout << "JSON: " << "Writing parameters to file "
                   << fileName << std::endl;
 
-        // Generate JSON data
+        // Set JSON data
         nlohmann::json json;
+        json["Type"] = "Parameters";
         json["XMin"] = parameters.XMin;
         json["YMin"] = parameters.YMin;
         json["XMax"] = parameters.XMax;
@@ -72,6 +77,10 @@ public:
         nlohmann::json json;
         f >> json;
 
+        // Check file type
+        if (json.find("Type") == json.end() || json["Type"] != "Parameters")
+            throw std::runtime_error("Not a VirtualCity Parameters JSON file.");
+
         // Extract JSON data
         heightMap.XMin = json["XMin"];
         heightMap.YMin = json["YMin"];
@@ -93,8 +102,9 @@ public:
         std::cout << "JSON: " << "Writing height map to file "
                   << fileName << std::endl;
 
-        // Generate JSON data
+        // Set JSON data
         nlohmann::json json;
+        json["Type"] = "HeightMap";
         json["XMin"] = heightMap.XMin;
         json["XMax"] = heightMap.YMin;
         json["YMin"] = heightMap.XMax;
@@ -120,6 +130,10 @@ public:
         std::ifstream f(fileName);
         nlohmann::json json;
         f >> json;
+
+        // Check file type
+        if (json.find("Type") == json.end() || json["Type"] != "CityModel")
+            throw std::runtime_error("Not a VirtualCity CityModel JSON file.");
 
         // Extract JSON data
         auto jsonBuildings = json;
@@ -160,7 +174,10 @@ public:
             jsonBuilding["Height"] = building.Height;
             jsonBuildings.push_back(jsonBuilding);
         }
+
+        // Set JSON data
         nlohmann::json json;
+        json["Type"] = "CityModel";
         json = jsonBuildings;
 
         // Write to file

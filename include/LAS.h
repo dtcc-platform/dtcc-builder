@@ -55,6 +55,22 @@ public:
             liblas::Point const& _p = reader.GetPoint();
             const Point3D p(_p.GetX(), _p.GetY(), _p.GetZ());
 
+            // Update bounding box dimensions
+            if (pointCloud.Points.size() == 0)
+            {
+                pointCloud.XMin = p.x;
+                pointCloud.YMin = p.y;
+                pointCloud.XMax = p.x;
+                pointCloud.YMax = p.y;
+            }
+            else
+            {
+                pointCloud.XMin = std::min(p.x, pointCloud.XMin);
+                pointCloud.YMin = std::min(p.y, pointCloud.YMin);
+                pointCloud.XMax = std::max(p.x, pointCloud.XMax);
+                pointCloud.YMax = std::max(p.y, pointCloud.YMax);
+            }
+
             // Add point to point cloud
             pointCloud.Points.push_back(p);
         }

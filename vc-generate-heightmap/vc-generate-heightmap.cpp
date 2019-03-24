@@ -54,7 +54,10 @@ int main(int argc, char* argv[])
     // Read point cloud from LAS files
     PointCloud pointCloud;
     for (const std::string fileNameLAS : fileNamesLAS)
+    {
         LAS::Read(pointCloud, fileNameLAS);
+        std::cout << pointCloud << std::endl;
+    }
 
     // Generate height map
     HeightMap heightMap(parameters.XMin, parameters.YMin,
