@@ -66,8 +66,7 @@ public:
             for (auto const & p : polygon.Points)
                 building.Footprint.Points.push_back(p);
             building.Height = z / numInside;
-
-            std::cout << building.Height << std::endl;
+            //std::cout << "Height = " << building.Height << std::endl;
 
             // Add building
             cityModel.Buildings.push_back(building);

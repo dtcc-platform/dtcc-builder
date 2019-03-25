@@ -43,40 +43,35 @@ public:
             throw std::runtime_error("Point outside of height map domain.");
         }
 
-        std::cout << YMin << " " << p.y << " " << YMax << std::endl;
-        std::cout << YStep << " " << YSize << std::endl;
-        std::cout << (p.y - YMin) / YStep << std::endl;
-
         // Compute grid cell containing point (lower left corner)
-        const size_t ix = std::floor((p.x - XMin) / XStep);
-        const size_t iy = std::floor((p.y - YMin) / YStep);
+        const double x = p.x - XMin;
+        const double y = p.y - YMin;
+        const size_t ix = std::floor(x / XStep);
+        const size_t iy = std::floor(y / YStep);
         const size_t i = iy * XSize + ix;
-        std::cout << iy << " " << YSize << std::endl;
         assert(ix < XSize);
         assert(iy < YSize);
         assert(i < GridData.size());
 
-        std::cout << ix << std::endl;
-        std::cout << iy << std::endl;
-        std::cout << i << std::endl;
-        std::cout << XStep << std::endl;
-        std::cout << YStep << std::endl;
-
-        // Map coordinates to [0, 1] x [0, 1]
-        const double X = (p.x - ix * XStep) / XStep;
-        const double Y = (p.y - iy * YStep) / YStep;
-
-        std::cout << X << " " << Y << std::endl;
+        // Map coordinates to [0, 1] x [0, 1] within grid square
+        const double X = (x - ix * XStep) / XStep;
+        const double Y = (y - iy * YStep) / YStep;
+        assert(X >= 0.0);
+        assert(Y >= 0.0);
+        assert(X <= 1.0);
+        assert(Y <= 1.0);
 
         // Extract grid data
         const double z00 = GridData[i];
-        const double z01 = GridData[i + 1];
-        const double z10 = GridData[i + XSize];
+        const double z10 = GridData[i + 1];
+        const double z01 = GridData[i + XSize];
         const double z11 = GridData[i + XSize + 1];
 
         // Compute value by bilinear interpolation
-        const double z = (1.0 - X) * (1.0 - Y) * z00 + (1.0 - X) * Y * z01 +
-                         X * (1.0 - Y) * z10 + X * Y * z11;
+        const double z = (1.0 - X) * (1.0 - Y) * z00 + \
+                         (1.0 - X) * Y * z01 + \
+                         X * (1.0 - Y) * z10 + \
+                         X * Y * z11;
 
         return z;
     }
@@ -164,7 +159,7 @@ std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
 {
     stream << "Height map with grid size "
            << heightMap.XSize << " x " << heightMap.YSize
-           << " on domain "
+           << " on domain ["
            << heightMap.XMin << ", " << heightMap.XMax
            << "] x ["
            << heightMap.YMin << ", " << heightMap.YMax

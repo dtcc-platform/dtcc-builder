@@ -93,8 +93,8 @@ public:
         f >> json;
 
         // Check file type
-        if (json.find("Type") == json.end() || json["Type"] != "Parameters")
-            throw std::runtime_error("Not a VirtualCity Parameters JSON file.");
+        if (json.find("Type") == json.end() || json["Type"] != "HeightMap")
+            throw std::runtime_error("Not a VirtualCity HeightMap JSON file.");
 
         // Extract JSON data
         heightMap.XMin = json["XMin"];
