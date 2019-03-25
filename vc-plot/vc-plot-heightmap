@@ -5,7 +5,7 @@
 
 import sys, numpy, json, pylab
 
-def PlotHeightMap(fileName):
+def PlotHeightMap(fileName, plotCountour=False):
 
     # Read JSON file
     with open(fileName) as f:
@@ -31,31 +31,33 @@ def PlotHeightMap(fileName):
     # Reshape to 2D grid
     z = numpy.reshape(gridData, (xSize, ySize))
 
-    # Plot heightmap
-    pylab.subplot(1, 2, 1)
-    pylab.imshow(z, extent=[xMin, xMax, yMin, yMax], origin='lower')
-    pylab.title('Height map')
+    # Select plot
+    if plotContour:
+        pylab.contour(z, extent=[xMin, xMax, yMin, yMax])
+        pylab.axis('scaled')
+        pylab.axis('off')
+    else:
+        pylab.imshow(z, extent=[xMin, xMax, yMin, yMax], origin='lower')
+        pylab.axis('off')
 
-    # Plot contour
-    pylab.subplot(1, 2, 2)
-    pylab.contour(z, extent=[xMin, xMax, yMin, yMax])
-    pylab.axis('scaled')
-    pylab.grid(True)
-    pylab.title('Contour')
+    # Set title
+    pylab.title('[%g, %g] x [%g, %g]' % \
+                (xMin, xMax, yMin, yMax))
 
 def Help():
-    print("Usage: vc-plot-mesh HeightMap.json")
+    print("Usage: vc-plot-heightmap HeightMap.json contour=1")
 
 if __name__ == "__main__":
 
     # Check command-line arguments
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         Help()
         sys.exit(1)
 
-    # Get filename
+    # Get arguments
     fileName = sys.argv[1]
+    plotContour = len(sys.argv) == 3 and sys.argv[2] == 'contour=1'
 
     # Plot height map
-    PlotHeightMap(fileName)
+    PlotHeightMap(fileName, plotContour)
     pylab.show()

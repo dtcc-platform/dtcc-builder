@@ -121,8 +121,8 @@ public:
         nlohmann::json json;
         json["Type"] = "HeightMap";
         json["XMin"] = heightMap.XMin;
-        json["XMax"] = heightMap.YMin;
-        json["YMin"] = heightMap.XMax;
+        json["YMin"] = heightMap.YMin;
+        json["XMax"] = heightMap.XMax;
         json["YMax"] = heightMap.YMax;
         json["XSize"] = heightMap.XSize;
         json["YSize"] = heightMap.YSize;
