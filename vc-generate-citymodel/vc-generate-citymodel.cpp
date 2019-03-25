@@ -17,7 +17,7 @@ using namespace VirtualCity;
 void Help()
 {
     std::cerr << "Usage: vc-generate-citymodel PropertyMap.[osm/shp]"
-              << " HeightMap.json Parameters.json" << std::endl;
+              << " HeightMap.json" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -32,14 +32,6 @@ int main(int argc, char* argv[])
     // Get filenames
     const std::string fileNamePropertyMap(argv[1]);
     const std::string fileNameHeightMap(argv[2]);
-    const std::string fileNameParameters(argv[3]);
-
-    // Read parameters from file
-    Parameters parameters;
-    JSON::Read(parameters, fileNameParameters);
-
-    // Report used parameters
-    // FIXME: Not implemented
 
     // Read polygons
     std::vector<Polygon> polygons;

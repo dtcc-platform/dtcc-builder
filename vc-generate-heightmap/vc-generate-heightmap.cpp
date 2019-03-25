@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
     HeightMap heightMap;
     HeightMapGenerator::GenerateHeightMap(heightMap, pointCloud,
                                           parameters.HeightMapResolution);
+    std::cout << heightMap << std::endl;
 
     // Write height map to JSON file
     JSON::Write(heightMap, "HeightMap.json");
