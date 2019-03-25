@@ -40,14 +40,6 @@ int main(int argc, char* argv[])
     JSON::Read(parameters, fileNameParameters);
 
     // Report used parameters
-    std::cout << "vc-generate-heightmap: XMin = "
-              << parameters.XMin << std::endl;
-    std::cout << "vc-generate-heightmap: YMin = "
-              << parameters.YMin << std::endl;
-    std::cout << "vc-generate-heightmap: XMax = "
-              << parameters.XMax << std::endl;
-    std::cout << "vc-generate-heightmap: YMin = "
-              << parameters.YMax << std::endl;
     std::cout << "vc-generate-heightmap: HeightMapResolution = "
               << parameters.HeightMapResolution << std::endl;
 
@@ -60,10 +52,9 @@ int main(int argc, char* argv[])
     }
 
     // Generate height map
-    HeightMap heightMap(parameters.XMin, parameters.YMin,
-                        parameters.XMax, parameters.YMax,
-                        parameters.HeightMapResolution);
-    HeightMapGenerator::GenerateHeightMap(heightMap, pointCloud);
+    HeightMap heightMap;
+    HeightMapGenerator::GenerateHeightMap(heightMap, pointCloud,
+                                          parameters.HeightMapResolution);
 
     // Write height map to JSON file
     JSON::Write(heightMap, "HeightMap.json");

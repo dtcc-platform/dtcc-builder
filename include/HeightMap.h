@@ -31,27 +31,7 @@ public:
     // Create empty height map
     HeightMap()
         : XMin(0), YMin(0), XMax(0), YMax(0),
-          XSize(0), YSize(0), XStep(0), YStep(0)
-    {
-        // Do nothing
-    }
-
-    // Create for given domain size and resolution
-    HeightMap(double xMin, double yMin,
-              double xMax, double yMax,
-              double resolution)
-        : XMin(xMin), YMin(yMin), XMax(xMax), YMax(yMax)
-    {
-        // Initialize grid data
-        XSize = (XMax - XMin) / resolution + 1;
-        YSize = (YMax - YMin) / resolution + 1;
-        GridData.resize(XSize * YSize);
-        std::fill(GridData.begin(), GridData.end(), 0.0);
-
-        // Compute grid size
-        XStep = (XMax - XMin) / (XSize - 1);
-        YStep = (YMax - YMin) / (YSize - 1);
-    }
+          XSize(0), YSize(0), XStep(0), YStep(0) {}
 
     // Return height (z) at 2D point p
     double operator() (const Point2D& p) const
@@ -186,7 +166,7 @@ std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
            << heightMap.XSize << " x " << heightMap.YSize
            << " on domain "
            << heightMap.XMin << ", " << heightMap.XMax
-           << " x ["
+           << "] x ["
            << heightMap.YMin << ", " << heightMap.YMax
            << "]";
 }

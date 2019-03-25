@@ -24,9 +24,27 @@ public:
 
     // Generate height map from point cloud
     static void GenerateHeightMap(HeightMap& heightMap,
-                                  const PointCloud& pointCloud)
+                                  const PointCloud& pointCloud,
+                                  size_t resolution)
     {
-        std::cout << "HeightMapGenerator: Generating heightmap from point cloud..." << std::endl;
+        std::cout << "HeightMapGenerator: Generating height map from point cloud..." << std::endl;
+
+        // Shortcut
+        HeightMap& hm = heightMap;
+
+        // Initialize grid dimensions
+        hm.XMin = pointCloud.XMin;
+        hm.XMax = pointCloud.XMax;
+        hm.YMin = pointCloud.YMin;
+        hm.YMax = pointCloud.YMax;
+
+        // Initialize grid data
+        hm.XSize = (hm.XMax - hm.XMin) / resolution + 1;
+        hm.YSize = (hm.YMax - hm.YMin) / resolution + 1;
+        hm.GridData.resize(hm.XSize * hm.YSize);
+        std::fill(hm.GridData.begin(), hm.GridData.end(), 0.0);
+        hm.XStep = (hm.XMax - hm.XMin) / (hm.XSize - 1);
+        hm.YStep = (hm.YMax - hm.YMin) / (hm.YSize - 1);
 
         // Compute mean height
         std::cout << "HeightMapGenerator: Computing mean elevation" << std::endl;
@@ -36,13 +54,9 @@ public:
         meanElevationRaw /= pointCloud.Points.size();
 
         // Initialize counters for number of points for local mean
-        std::vector<double>& gridData = heightMap.GridData;
-        size_t numGridPoints = gridData.size();
+        size_t numGridPoints = hm.GridData.size();
         std::vector<size_t> numLocalPoints(numGridPoints);
         std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
-
-        // Reset grid data
-        std::fill(gridData.begin(), gridData.end(), 0.0);
 
         std::cout << "HeightMapGenerator: Extracting point cloud data"
                   << std::endl;
@@ -66,10 +80,10 @@ public:
             meanElevation += q3D.z;
 
             // Iterate over neighbors in grid
-            for (size_t i : heightMap.Coordinate2Indices(q2D))
+            for (size_t i : hm.Coordinate2Indices(q2D))
             {
                 // Compute distance to grid point
-                const Point2D p2D = heightMap.Index2Coordinate(i);
+                const Point2D p2D = hm.Index2Coordinate(i);
                 const double dx = std::abs(p2D.x - q2D.x);
                 const double dy = std::abs(p2D.y - q2D.y);
 
@@ -78,9 +92,9 @@ public:
                 // tighter threshold.
 
                 // Add if closer than threshold
-                if (dx < heightMap.XStep && dy < heightMap.YStep)
+                if (dx < hm.XStep && dy < hm.YStep)
                 {
-                    gridData[i] += q3D.z;
+                    hm.GridData[i] += q3D.z;
                     numLocalPoints[i] += 1;
                 }
             }
@@ -97,7 +111,7 @@ public:
         for (size_t i = 0; i < numGridPoints; i++)
         {
             if (numLocalPoints[i] > 0)
-                gridData[i] /= numLocalPoints[i];
+                hm.GridData[i] /= numLocalPoints[i];
             else
                 missingIndices.push_back(i);
         }
@@ -115,8 +129,7 @@ public:
                   << std::endl;
 
         // Fill in data for missing grid points
-        const size_t maxDiameter = std::max(heightMap.XSize,
-                                            heightMap.YSize);
+        const size_t maxDiameter = std::max(hm.XSize, hm.YSize);
         size_t numFound = 0;
         size_t maxStep = 0;
         for (size_t i : missingIndices)
@@ -130,11 +143,11 @@ public:
 
                 // Search grid points at distance step
                 bool found = false;
-                for (size_t j : heightMap.Index2Boundary(i, step))
+                for (size_t j : hm.Index2Boundary(i, step))
                 {
                     if (numLocalPoints[j] > 0)
                     {
-                        gridData[i] = gridData[j];
+                        hm.GridData[i] = hm.GridData[j];
                         numFound += 1;
                         found = true;
                         break;
@@ -170,14 +183,14 @@ public:
                   << maxStep << std::endl;
 
         // Test data for verifying orientation, bump in lower left corner
-        // for (size_t i = 0; i < heightMap.GridData.size(); i++)
+        // for (size_t i = 0; i < hm.GridData.size(); i++)
         // {
-        //     Point2D p = heightMap.Index2Coordinate(i);
-        //     const double dx = heightMap.XMax - heightMap.XMin;
-        //     const double dy = heightMap.YMax - heightMap.YMin;
-        //     const double x = (p.x - heightMap.XMin) / dx;
-        //     const double y = (p.y - heightMap.YMin) / dy;
-        //     heightMap.GridData[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 - y);
+        //     Point2D p = hm.Index2Coordinate(i);
+        //     const double dx = hm.XMax - hm.XMin;
+        //     const double dy = hm.YMax - hm.YMin;
+        //     const double x = (p.x - hm.XMin) / dx;
+        //     const double y = (p.y - hm.YMin) / dy;
+        //     hm.GridData[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 - y);
         // }
 
     }

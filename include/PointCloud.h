@@ -31,7 +31,7 @@ std::ostream& operator<<(std::ostream& stream, const PointCloud& pointCloud)
     stream << "Point cloud with " << pointCloud.Points.size()
            << " points on domain ["
            << pointCloud.XMin << ", " << pointCloud.XMax
-           << " x ["
+           << "] x ["
            << pointCloud.YMin << ", " << pointCloud.YMax
            << "]";
 }
