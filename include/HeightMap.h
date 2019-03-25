@@ -36,26 +36,32 @@ public:
     // Return height (z) at 2D point p
     double operator() (const Point2D& p) const
     {
+        return (*this)(p.x, p.y);
+    }
+
+    // Return height (z) at 2D point p
+    double operator() (double x, double y) const
+    {
         // Check that point is inside domain
-        if (p.x < XMin || p.x > XMax || p.y < YMin || p.y > YMax)
+        if (x < XMin || x > XMax || y < YMin || y > YMax)
         {
-            std::cout << "p = " << p << std::endl;
+            std::cout << "(x, y) = (" << x << ", " << y << ")" << std::endl;
             throw std::runtime_error("Point outside of height map domain.");
         }
 
         // Compute grid cell containing point (lower left corner)
-        const double x = p.x - XMin;
-        const double y = p.y - YMin;
-        const size_t ix = std::floor(x / XStep);
-        const size_t iy = std::floor(y / YStep);
+        const double _x = x - XMin;
+        const double _y = y - YMin;
+        const size_t ix = std::floor(_x / XStep);
+        const size_t iy = std::floor(_y / YStep);
         const size_t i = iy * XSize + ix;
         assert(ix < XSize);
         assert(iy < YSize);
         assert(i < GridData.size());
 
         // Map coordinates to [0, 1] x [0, 1] within grid square
-        const double X = (x - ix * XStep) / XStep;
-        const double Y = (y - iy * YStep) / YStep;
+        const double X = (_x - ix * XStep) / XStep;
+        const double Y = (_y - iy * YStep) / YStep;
         assert(X >= 0.0);
         assert(Y >= 0.0);
         assert(X <= 1.0);

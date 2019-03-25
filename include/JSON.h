@@ -151,7 +151,7 @@ public:
             throw std::runtime_error("Not a VirtualCity CityModel JSON file.");
 
         // Extract JSON data
-        auto jsonBuildings = json;
+        auto jsonBuildings = json["Buildings"];
         cityModel.Buildings.resize(jsonBuildings.size());
         for (size_t i = 0; i < jsonBuildings.size(); i++)
         {
@@ -193,7 +193,7 @@ public:
         // Set JSON data
         nlohmann::json json;
         json["Type"] = "CityModel";
-        json = jsonBuildings;
+        json["Buildings"] = jsonBuildings;
 
         // Write to file
         std::ofstream f(fileName);

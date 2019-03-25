@@ -42,11 +42,11 @@ int main(int argc, char* argv[])
     // Set filename for output
     size_t idx = fileNameCityModel.rfind('.');
     const std::string fileNamePrefix = fileNameCityModel.substr(0, idx);
-    std::cout << "Prefix: " << fileNamePrefix << std::endl;
 
     // Read city model from file
     CityModel cityModel;
     JSON::Read(cityModel, fileNameCityModel);
+    std::cout << cityModel << std::endl;
 
     // Read height map from file
     HeightMap heightMap;
@@ -58,20 +58,24 @@ int main(int argc, char* argv[])
     JSON::Read(parameters, fileNameParameters);
 
     // Report used parameters
-    const Point2D C(parameters.DomainCenterX, parameters.DomainCenterY);
-    const double R = parameters.DomainRadius;
-    const double H = parameters.DomainHeight;
-    const double h = parameters.MeshSize;
-    std::cout << "vc-generate-mesh: DomainCenter = " << C << std::endl;
-    std::cout << "vc-generate-mesh: DomainRadius = " << R << std::endl;
-    std::cout << "vc-generate-mesh: DomainHeight = " << H << std::endl;
-    std::cout << "vc-generate-mesh: MeshSize = " << h << std::endl;
+    std::cout << "vc-generate-mesh: MeshResolution = "
+              << parameters.MeshResolution << std::endl;
+    std::cout << "vc-generate-mesh: DomainHeight = "
+              << parameters.DomainHeight << std::endl;
 
     // Generate 2D mesh
-    Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel, C, R, h);
+    Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
+                                                  heightMap.XMin,
+                                                  heightMap.YMin,
+                                                  heightMap.XMax,
+                                                  heightMap.YMax,
+                                                  parameters.MeshResolution);
 
     // Generate mesh (excluding height map)
-    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D, cityModel, H, h);
+    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
+                                                  cityModel,
+                                                  parameters.MeshResolution,
+                                                  parameters.DomainHeight);
 
     // Convert to FEniCS meshes
     dolfin::Mesh _mesh2D, _mesh3D;
@@ -83,7 +87,7 @@ int main(int argc, char* argv[])
                              heightMap,
                              cityModel,
                              mesh3D.DomainMarkers,
-                             H, h);
+                             parameters.MeshResolution);
 
     // Generate height map function (used only for testing/visualization)
     auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);

@@ -29,9 +29,9 @@ public:
                            const HeightMap& heightMap,
                            const CityModel& cityModel,
                            const std::vector<int>& domainMarkers,
-                           double H, double h)
+                           double h)
     {
-        SmoothMeshLaplacian(mesh, heightMap, cityModel, domainMarkers, H, h);
+        SmoothMeshLaplacian(mesh, heightMap, cityModel, domainMarkers, h);
     }
 
     // Smooth mesh using Laplacian smoothing
@@ -39,7 +39,7 @@ public:
                                     const HeightMap& heightMap,
                                     const CityModel& cityModel,
                                     const std::vector<int>& domainMarkers,
-                                    double H, double h)
+                                    double h)
     {
         std::cout << "Smoothing mesh (Laplacian smoothing)..." << std::endl;
 
@@ -68,9 +68,8 @@ public:
 
         // Create expressions for ground and building heights
         auto hg = std::make_shared<GroundExpression>(heightMap);
-        auto hb = std::make_shared<BuildingsExpression>(heightMap,
-                  cityModel,
-                  domainMarkers);
+        auto hb = std::make_shared<BuildingsExpression>
+                  (cityModel, domainMarkers);
 
         // Create boundary conditions
         auto bcg = std::make_shared<dolfin::DirichletBC>
@@ -112,7 +111,7 @@ public:
                                   const HeightMap& heightMap,
                                   const CityModel& cityModel,
                                   const std::vector<int>& domainMarkers,
-                                  double H, double h)
+                                  double h)
     {
         std::cout << "Elastic smoothing not (yet) implemented." << std::endl;
     }
@@ -180,6 +179,9 @@ private:
     {
     public:
 
+        // Reference to city model
+        const CityModel& cityModel;
+
         // Reference to domain markers
         const std::vector<int>& domainMarkers;
 
@@ -187,24 +189,9 @@ private:
         std::vector<double> buildingHeights;
 
         // Constructor
-        BuildingsExpression(const HeightMap& heightMap,
-                            const CityModel& cityModel,
+        BuildingsExpression(const CityModel& cityModel,
                             const std::vector<int>& domainMarkers)
-            : domainMarkers(domainMarkers),
-              buildingHeights(cityModel.Buildings.size()),
-              Expression()
-        {
-            // Compute absolute position of the roof of each
-            for (size_t i = 0; i < cityModel.Buildings.size(); i++)
-            {
-                // Sample height map at center
-                const Point2D c = cityModel.Buildings[i].Center();
-                const double z0 = heightMap(c.x, c.y);
-
-                // Set absolute position of roof of building
-                buildingHeights[i] = z0 + cityModel.Buildings[i].Height;
-            }
-        }
+            : cityModel(cityModel), domainMarkers(domainMarkers) {}
 
         // Evaluation of z-displacement
         void eval(dolfin::Array<double>& values,
@@ -213,7 +200,7 @@ private:
         {
             // Get building height
             const size_t i = domainMarkers[cell.index];
-            const double z = buildingHeights[i];
+            const double z = cityModel.Buildings[i].Height;
 
             // Set height of building
             values[0] = z - x[2];

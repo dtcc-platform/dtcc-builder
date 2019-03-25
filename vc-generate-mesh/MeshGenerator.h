@@ -36,28 +36,26 @@ public:
     // label the triangles inside building footprints as 0, 1, 2, etc
     // with outside triangles (ground) being labeled -1.
     static Mesh2D GenerateMesh2D(const CityModel& cityModel,
-                                 const Point2D& C, double R, double h)
+                                 double xMin, double yMin,
+                                 double xMax, double yMax,
+                                 double resolution)
     {
         std::cout << "MeshGenerator: Generating 2D mesh..." << std::endl;
 
         // Extract subdomains (building footprints)
         std::vector<std::vector<Point2D>> subDomains;
         for (auto const & building : cityModel.Buildings)
-            subDomains.push_back(building.Footprint);
+            subDomains.push_back(building.Footprint.Points);
 
         // Generate boundary
-        const double L = 2.0 * M_PI * R;
-        const size_t n = int(std::ceil(L / h));
         std::vector<Point2D> boundary;
-        for (int i = 0; i < n; i++)
-        {
-            double x = C.x + R * std::cos(double(i) / n * 2.0 * M_PI);
-            double y = C.y + R * std::sin(double(i) / n * 2.0 * M_PI);
-            boundary.push_back(Point2D(x, y));
-        }
+        boundary.push_back(Point2D(xMin, yMin));
+        boundary.push_back(Point2D(xMax, yMin));
+        boundary.push_back(Point2D(xMax, yMax));
+        boundary.push_back(Point2D(xMin, yMax));
 
         // Generate 2D mesh
-        Mesh2D mesh2D = CallTriangle(boundary, subDomains, h);
+        Mesh2D mesh2D = CallTriangle(boundary, subDomains, resolution);
 
         // Mark subdomains
         ComputeDomainMarkers(mesh2D, cityModel);
