@@ -34,11 +34,15 @@ protected:
 
     //--- Protected (compile-time) parameters ---
 
+    // Tolerance for geometric tests
+    static constexpr double Epsilon = 1e-6;
+
     // Threshold for filtering outliers (clouds?) from point cloud
     static constexpr double PointCloudOutlierThreshold = 150.0;
 
     // Classes with access to protected parameters
     friend class HeightMapGenerator;
+    friend class CityModelGenerator;
 
 };
 

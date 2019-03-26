@@ -12,7 +12,7 @@ def PlotCityModel(fileName):
         cityModel = json.load(f)
 
     # Iterate over buildings
-    for i, building in enumerate(cityModel):
+    for i, building in enumerate(cityModel['Buildings']):
 
         # Get footprint
         footprint = building['Footprint']
@@ -24,7 +24,9 @@ def PlotCityModel(fileName):
         ym = numpy.mean(y)
 
         # Plot
-        pylab.plot(x, y, '-o')
+        pylab.plot(x, y, '.-')
+        pylab.plot(x[0], y[0], 'kx')
+        pylab.plot([x[0], x[-1]], [y[0], y[-1]], 'k--')
         pylab.text(xm, ym, str(i), fontsize=10, ha='center', va='center')
 
     pylab.grid(True)

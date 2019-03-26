@@ -35,7 +35,7 @@ public:
 
             // Add points for sampling height
             std::vector<Point2D> samplePoints;
-            const double a = 0.5*radius;
+            const double a = 0.5 * radius;
             samplePoints.push_back(center);
             samplePoints.push_back(Point2D(center.x + a, center.y));
             samplePoints.push_back(Point2D(center.x - a, center.y));
@@ -57,16 +57,28 @@ public:
             // Check if we got at least one point
             if (numInside == 0)
             {
-                std::cout << "CityModelGenerator: Skipping building, no sample points inside building footprint" << std::endl;
+                std::cout << "CityModelGenerator: Skipping building, no sample points inside building footprint." << std::endl;
                 continue;
             }
 
-            // Create building
+            // Check that the polygon is closed
+            const size_t numPoints = polygon.Points.size();
+            const double d = Geometry::Distance2D(polygon.Points[0],
+                                                  polygon.Points[numPoints - 1]);
+            if (d > Parameters::Epsilon)
+            {
+                std::cout << "CityModelGenerator: Skipping building, expecting polygon to be closed." << std::endl;
+                continue;
+            }
+
+            // Set building height
             Building building;
-            for (auto const & p : polygon.Points)
-                building.Footprint.Points.push_back(p);
             building.Height = z / numInside;
             //std::cout << "Height = " << building.Height << std::endl;
+
+            // Set building footprint (skip last duplicate point)
+            for (size_t i = 0; i < numPoints - 1; i++)
+                building.Footprint.Points.push_back(polygon.Points[i]);
 
             // Add building
             cityModel.Buildings.push_back(building);
