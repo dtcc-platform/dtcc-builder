@@ -28,6 +28,8 @@ def PlotCityModel(fileName):
         pylab.plot(x[0], y[0], 'kx')
         pylab.plot([x[0], x[-1]], [y[0], y[-1]], 'k--')
         pylab.text(xm, ym, str(i), fontsize=10, ha='center', va='center')
+        for j, (xx, yy) in enumerate(zip(x, y)):
+            pylab.text(xx, yy, str(j), fontsize=8, ha='left', va='bottom')
 
     pylab.grid(True)
 
@@ -46,4 +48,5 @@ if __name__ == "__main__":
 
     # Plot city model
     PlotCityModel(fileName)
+    pylab.axis('equal')
     pylab.show()

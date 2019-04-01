@@ -20,8 +20,6 @@ class XML
 {
 public:
 
-    static const int PRECISION = 16;
-
     // Write 2D mesh to FEniCS XML file (.xml will be appended)
     static void Write(const Mesh2D& Mesh,
                       std::string Prefix)
@@ -72,7 +70,7 @@ public:
             throw std::runtime_error("Unable to write to file: " + FileName);
 
         // Set precision
-        f << std::setprecision(PRECISION);
+        f << std::setprecision(Parameters::Precision);
 
         // Write header
         f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";

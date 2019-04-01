@@ -26,9 +26,34 @@ public:
         std::cout << "CityModelGenerator: Generating city model..."
                   << std::endl;
 
+        // Array of unique points
+        std::vector<Point2D> uniquePoints;
+
         // Iterate over footprints
         for (auto const & polygon : polygons)
         {
+            // Check that the polygon is closed
+            const size_t numPoints = polygon.Points.size();
+            const double d = Geometry::Distance2D(polygon.Points[0],
+                                                  polygon.Points[numPoints - 1]);
+            if (d > Parameters::Epsilon)
+            {
+                std::cout << "CityModelGenerator: Skipping building, expecting polygon to be closed." << std::endl;
+                continue;
+            }
+
+            // Check for intersecting polygons
+            if (Intersects(polygon.Points, uniquePoints))
+            {
+                std::cout << "CityModelGenerator: Skipping building, too close to existing building." << std::endl;
+                continue;
+            }
+            else
+            {
+                for (auto const & p : polygon.Points)
+                    uniquePoints.push_back(p);
+            }
+
             // Compute center and radius of footprint
             const Point2D center = polygon.Center();
             const double radius = polygon.Radius(center);
@@ -42,7 +67,7 @@ public:
             samplePoints.push_back(Point2D(center.x, center.y + a));
             samplePoints.push_back(Point2D(center.x, center.y - a));
 
-            // Compute mean height at points inside footprints
+            // Compute mean height at points inside footprint
             double z = 0.0;
             size_t numInside = 0;
             for (auto const & p : samplePoints)
@@ -61,28 +86,49 @@ public:
                 continue;
             }
 
-            // Check that the polygon is closed
-            const size_t numPoints = polygon.Points.size();
-            const double d = Geometry::Distance2D(polygon.Points[0],
-                                                  polygon.Points[numPoints - 1]);
-            if (d > Parameters::Epsilon)
-            {
-                std::cout << "CityModelGenerator: Skipping building, expecting polygon to be closed." << std::endl;
-                continue;
-            }
-
             // Set building height
             Building building;
             building.Height = z / numInside;
             //std::cout << "Height = " << building.Height << std::endl;
 
-            // Set building footprint (skip last duplicate point)
+            // Set building footprint (skip last point and any duplicates)
             for (size_t i = 0; i < numPoints - 1; i++)
+            {
+                // Check distance to previous point
+                if (i > 0 && Geometry::Distance2D(polygon.Points[i],
+                                                  polygon.Points[i - 1])
+                        < Parameters::FootprintDuplicateThreshold)
+                {
+                    std::cout << "CityModelGenerator: Skipping duplicate point in footprint." << std::endl;
+                    continue;
+                }
+
+                // Add point
                 building.Footprint.Points.push_back(polygon.Points[i]);
+            }
 
             // Add building
             cityModel.Buildings.push_back(building);
         }
+    }
+
+private:
+
+    // Check if polygon intersects (or is very close to an existing point)
+    static bool Intersects(const std::vector<Point2D>& polygon,
+                           const std::vector<Point2D>& uniquePoints)
+    {
+        double eps2 = Parameters::FootprintDuplicateThreshold;
+        eps2 = eps2 * eps2;
+        for (auto const & p : polygon)
+        {
+            for (auto const & q : uniquePoints)
+            {
+                if (Geometry::SquaredDistance2D(p, q) < eps2)
+                    return true;
+            }
+        }
+        return false;
     }
 
 };

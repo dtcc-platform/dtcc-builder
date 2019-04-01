@@ -10,6 +10,7 @@
 #include <string>
 
 #include "GeoReference.h"
+#include "Parameters.h"
 
 namespace VirtualCity
 {
@@ -53,7 +54,7 @@ public:
                   << fileName << std::endl;
 
         std::ofstream f(fileName);
-        f << std::setprecision(PRECISION);
+        f << std::setprecision(Parameters::Precision);
 
         f << geoReference.A << std::endl;
         f << geoReference.D << std::endl;

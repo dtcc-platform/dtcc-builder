@@ -12,6 +12,7 @@
 #include "Point.h"
 #include "Simplex.h"
 #include "Mesh.h"
+#include "Parameters.h"
 
 namespace VirtualCity
 {
@@ -19,8 +20,6 @@ namespace VirtualCity
 class CSV
 {
 public:
-
-    static const int PRECISION = 16;
 
     // Write 2D point set to CSV file
     static void Write(const std::vector<Point2D>& Points,
@@ -37,7 +36,7 @@ public:
             throw std::runtime_error("Unable to write to file: " + fileName);
 
         // Set precision
-        f << std::setprecision(PRECISION);
+        f << std::setprecision(Parameters::Precision);
 
         // Write points
         for (auto const & p : Points)
@@ -67,8 +66,8 @@ public:
             throw std::runtime_error("Unable to write to file: " + fileNameTriangles);
 
         // Set precision
-        fp << std::setprecision(PRECISION);
-        ft << std::setprecision(PRECISION);
+        fp << std::setprecision(Parameters::Precision);
+        ft << std::setprecision(Parameters::Precision);
 
         // Write points
         for (auto const & p : mesh.Points)

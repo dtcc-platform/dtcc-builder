@@ -5,7 +5,10 @@
 #define VC_POINT_H
 
 #include <iostream>
+#include <iomanip>
 #include <cmath>
+
+#include "Parameters.h"
 
 namespace VirtualCity
 {
@@ -165,12 +168,14 @@ public:
 
 std::ostream& operator<<(std::ostream& stream, const Point2D& p)
 {
-    stream << "(" << p.x << ", " << p.y << ")";
+    stream << std::setprecision(Parameters::Precision)
+           << "(" << p.x << ", " << p.y << ")";
 }
 
 std::ostream& operator<<(std::ostream& stream, const Point3D& p)
 {
-    stream << "(" << p.x << ", " << p.y << ", " << p.z << ")";
+    stream << std::setprecision(Parameters::Precision)
+           << "(" << p.x << ", " << p.y << ", " << p.z << ")";
 }
 
 }

@@ -13,7 +13,7 @@ class Parameters
 {
 public:
 
-    //--- Public (run-time) parameters ---
+    //--- Run-time parameters (parsed from file) ---
 
     // Domain dimensions
     double XMin = 0.0;
@@ -30,19 +30,19 @@ public:
     // Maximum mesh size used for mesh generation [m]
     double MeshResolution = 10.0;
 
-protected:
-
-    //--- Protected (compile-time) parameters ---
+    //--- Compile-time parameters ---
 
     // Tolerance for geometric tests
     static constexpr double Epsilon = 1e-6;
 
+    // Precision for output and printing
+    static constexpr double Precision = 16;
+
+    // Threshold for filtering duplicate points in building footprints
+    static constexpr double FootprintDuplicateThreshold = 1.0;
+
     // Threshold for filtering outliers (clouds?) from point cloud
     static constexpr double PointCloudOutlierThreshold = 150.0;
-
-    // Classes with access to protected parameters
-    friend class HeightMapGenerator;
-    friend class CityModelGenerator;
 
 };
 

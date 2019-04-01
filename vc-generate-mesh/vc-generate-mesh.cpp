@@ -65,17 +65,19 @@ int main(int argc, char* argv[])
 
     // Generate 2D mesh
     Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
-                                                  heightMap.XMin,
-                                                  heightMap.YMin,
-                                                  heightMap.XMax,
-                                                  heightMap.YMax,
-                                                  parameters.MeshResolution);
+                    heightMap.XMin,
+                    heightMap.YMin,
+                    heightMap.XMax,
+                    heightMap.YMax,
+                    parameters.MeshResolution);
+    std::cout << mesh2D << std::endl;
 
     // Generate mesh (excluding height map)
     Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
-                                                  cityModel,
-                                                  parameters.MeshResolution,
-                                                  parameters.DomainHeight);
+                    cityModel,
+                    parameters.DomainHeight,
+                    parameters.MeshResolution);
+    std::cout << mesh3D << std::endl;
 
     // Convert to FEniCS meshes
     dolfin::Mesh _mesh2D, _mesh3D;
@@ -95,15 +97,12 @@ int main(int argc, char* argv[])
     // Generate mesh boundary (used only for testing/visualization)
     dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
 
-    // Write to files
-    dolfin::File f0(fileNamePrefix + "Mesh.xml");
-    dolfin::File f1(fileNamePrefix + "Mesh.pvd");
-    dolfin::File f2(fileNamePrefix + "Boundary.pvd");
-    dolfin::File f3(fileNamePrefix + "HeightMap.pvd");
-    f0 << _mesh3D;
-    f1 << _mesh3D;
-    f2 << _boundary3D;
-    f3 << *z;
+    // Write to files¨
+    std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
+    dolfin::File(fileNamePrefix + "Mesh2D.pvd") << _mesh2D;
+    dolfin::File(fileNamePrefix + "Mesh3D.pvd") << _mesh3D;
+    dolfin::File(fileNamePrefix + "Boundary.pvd") << _boundary3D;
+    dolfin::File(fileNamePrefix + "HeightMap.pvd") << *z;
 
     return 0;
 }

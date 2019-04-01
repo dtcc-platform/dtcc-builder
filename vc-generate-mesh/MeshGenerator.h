@@ -42,10 +42,18 @@ public:
     {
         std::cout << "MeshGenerator: Generating 2D mesh..." << std::endl;
 
+        // FIXME: Testing
+        int k = 0;
+
         // Extract subdomains (building footprints)
         std::vector<std::vector<Point2D>> subDomains;
         for (auto const & building : cityModel.Buildings)
+        {
             subDomains.push_back(building.Footprint.Points);
+
+            if (++k == 10)
+                break;
+        }
 
         // Generate boundary
         std::vector<Point2D> boundary;
@@ -60,11 +68,6 @@ public:
         // Mark subdomains
         ComputeDomainMarkers(mesh2D, cityModel);
 
-        // FIXME: Write test output
-        //CSV::Write(mesh2D, "Mesh2D");
-
-        std::cout << "MeshGenerator: " << mesh2D << std::endl;
-
         return mesh2D;
     }
 
@@ -77,20 +80,19 @@ public:
     // tetrahedra are labeld -2.
     static Mesh3D GenerateMesh3D(const Mesh2D& mesh2D,
                                  const CityModel& cityModel,
-                                 double H, double h)
+                                 double domainHeight,
+                                 double meshResolution)
     {
-        std::cout << "MeshGenerator: Generating 3D mesh..." << std::endl;
-
         // Create empty 3D mesh
         Mesh3D mesh3D;
 
         // Compute number of layers
-        const size_t numLayers = int(std::ceil(H / h));
-        const double dz = H / double(numLayers);
+        const size_t numLayers = int(std::ceil(domainHeight / meshResolution));
+        const double dz = domainHeight / double(numLayers);
         const size_t layerSize = mesh2D.Points.size();
 
-        std::cout << "MeshGenerator: number of layers = " << numLayers << std::endl;
-        std::cout << "MeshGenerator: layer size =  " << layerSize << std::endl;
+        std::cout << "MeshGenerator: Generating 3D mesh with "
+                  << numLayers << " layers..." << std::endl;
 
         // Create markers for used points
         const size_t numPoints = (numLayers + 1) * mesh2D.Points.size();
@@ -207,8 +209,6 @@ public:
             T.v2 = pointIndices[T.v2];
             T.v3 = pointIndices[T.v3];
         }
-
-        std::cout << "MeshGenerator: " << mesh3D << std::endl;
 
         return mesh3D;
     }
