@@ -28,7 +28,7 @@ public:
         for (size_t i = 0; i < Buildings.size(); i++)
         {
             // Check whether point is inside building
-            if (Buildings[i].Footprint.Contains(p))
+            if (Geometry::PolygonContains2D(Buildings[i].Footprint, p))
                 return i;
         }
 

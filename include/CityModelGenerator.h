@@ -26,93 +26,144 @@ public:
         std::cout << "CityModelGenerator: Generating city model..."
                   << std::endl;
 
-        // Array of unique points
-        std::vector<Point2D> uniquePoints;
+        // Copy polygon data
+        std::vector<Polygon> _polygons = polygons;
 
-        // Iterate over footprints
-        for (auto const & polygon : polygons)
+        // Extract closed polygons
+        _polygons = ExtractClosedPolygons(_polygons);
+
+        // Extract counter-clockwise oriented polygons
+        _polygons = ExtractOrientedPolygons(_polygons);
+
+        // Add buildings
+        for (auto const & polygon : _polygons)
         {
-            // Check that the polygon is closed
-            const size_t numPoints = polygon.Points.size();
-            const double d = Geometry::Distance2D(polygon.Points[0],
-                                                  polygon.Points[numPoints - 1]);
-            if (d > Parameters::Epsilon)
-            {
-                std::cout << "CityModelGenerator: Skipping building, expecting polygon to be closed." << std::endl;
-                continue;
-            }
-
-            // Check for intersecting polygons
-            if (Intersects(polygon.Points, uniquePoints))
-            {
-                std::cout << "CityModelGenerator: Skipping building, too close to existing building." << std::endl;
-                continue;
-            }
-            else
-            {
-                for (auto const & p : polygon.Points)
-                    uniquePoints.push_back(p);
-            }
-
-            // Compute center and radius of footprint
-            const Point2D center = polygon.Center();
-            const double radius = polygon.Radius(center);
-
-            // Add points for sampling height
-            std::vector<Point2D> samplePoints;
-            const double a = 0.5 * radius;
-            samplePoints.push_back(center);
-            samplePoints.push_back(Point2D(center.x + a, center.y));
-            samplePoints.push_back(Point2D(center.x - a, center.y));
-            samplePoints.push_back(Point2D(center.x, center.y + a));
-            samplePoints.push_back(Point2D(center.x, center.y - a));
-
-            // Compute mean height at points inside footprint
-            double z = 0.0;
-            size_t numInside = 0;
-            for (auto const & p : samplePoints)
-            {
-                if (polygon.Contains(p))
-                {
-                    z += heightMap(p);
-                    numInside += 1;
-                }
-            }
-
-            // Check if we got at least one point
-            if (numInside == 0)
-            {
-                std::cout << "CityModelGenerator: Skipping building, no sample points inside building footprint." << std::endl;
-                continue;
-            }
-
-            // Set building height
             Building building;
-            building.Height = z / numInside;
-            //std::cout << "Height = " << building.Height << std::endl;
+            building.Footprint = polygon;
+            cityModel.Buildings.push_back(building);
+        }
 
-            // Set building footprint (skip last point and any duplicates)
-            for (size_t i = 0; i < numPoints - 1; i++)
+    }
+
+
+    /*
+            // Array of unique points
+            std::vector<Point2D> uniquePoints;
+
+            // Iterate over polygons
+            for (auto const & polygon : polygons)
             {
-                // Check distance to previous point
-                if (i > 0 && Geometry::Distance2D(polygon.Points[i],
-                                                  polygon.Points[i - 1])
-                        < Parameters::FootprintDuplicateThreshold)
+
+
+                // Compute center and radius of footprint
+                const Point2D center = polygon.Center();
+                const double radius = polygon.Radius(center);
+
+                // Add points for sampling height
+                std::vector<Point2D> samplePoints;
+                const double a = 0.5 * radius;
+                samplePoints.push_back(center);
+                samplePoints.push_back(Point2D(center.x + a, center.y));
+                samplePoints.push_back(Point2D(center.x - a, center.y));
+                samplePoints.push_back(Point2D(center.x, center.y + a));
+                samplePoints.push_back(Point2D(center.x, center.y - a));
+
+                // Compute mean height at points inside footprint
+                double z = 0.0;
+                size_t numInside = 0;
+                for (auto const & p : samplePoints)
                 {
-                    std::cout << "CityModelGenerator: Skipping duplicate point in footprint." << std::endl;
+                    if (polygon.Contains(p))
+                    {
+                        z += heightMap(p);
+                        numInside += 1;
+                    }
+                }
+
+                // Check if we got at least one point
+                if (numInside == 0)
+                {
+                    std::cout << "CityModelGenerator: Skipping building, no sample points inside building footprint." << std::endl;
                     continue;
                 }
 
-                // Add point
-                building.Footprint.Points.push_back(polygon.Points[i]);
-            }
+                // Set building height
+                Building building;
+                building.Height = z / numInside;
+                //std::cout << "Height = " << building.Height << std::endl;
 
-            // Add building
-            cityModel.Buildings.push_back(building);
-        }
-    }
+
+    */
 
 private:
+
+    // Extract closed polygons
+    static std::vector<Polygon>
+    ExtractClosedPolygons(const std::vector<Polygon>& polygons)
+    {
+        std::vector<Polygon> closedPolygons;
+        size_t numSkipped = 0;
+
+        // Iterate over polygons
+        for (auto const & polygon : polygons)
+        {
+            // Compute distance between first and last point
+            const size_t numPoints = polygon.Points.size();
+            const double d = Geometry::Distance2D(polygon.Points[0],
+                                                  polygon.Points[numPoints - 1]);
+
+            // Skip if not closed
+            if (d > Parameters::Epsilon)
+            {
+                numSkipped++;
+                continue;
+            }
+
+            // Add polygon but include last (duplicate) point
+            Polygon closedPolygon;
+            for (size_t i = 0; i < polygon.Points.size() - 1; i++)
+                closedPolygon.Points.push_back(polygon.Points[i]);
+            closedPolygons.push_back(closedPolygon);
+        }
+
+        std::cout << "CityModelGenerator: Skipped " << numSkipped
+                  << " building(s); expecting polygons to be closed."
+                  << std::endl;
+
+        return closedPolygons;
+    }
+
+    // Extract counter-clockwise oriented polygons
+    static std::vector<Polygon>
+    ExtractOrientedPolygons(const std::vector<Polygon> polygons)
+    {
+        std::vector<Polygon> orientedPolygons;
+        size_t numReversed = 0;
+
+        // Iterate over polygons
+        for (auto const & polygon : polygons)
+        {
+            // Copy polygon
+            Polygon orientedPolygon = polygon;
+
+            // Reverse polygon if not counter-clockwise
+            if (Geometry::PolygonOrientation2D(orientedPolygon) != 0)
+            {
+                numReversed++;
+                std::reverse(orientedPolygon.Points.begin(),
+                             orientedPolygon.Points.end());
+            }
+
+            // Add polygon
+            orientedPolygons.push_back(orientedPolygon);
+        }
+
+        std::cout << "CityModelGenerator: Reversed " << numReversed
+                  << " polygon(s) out of " << polygons.size() << "."
+                  << std::endl;
+
+        return orientedPolygons;
+    }
 
     // Check if polygon intersects (or is very close to an existing point)
     static bool Intersects(const std::vector<Point2D>& polygon,

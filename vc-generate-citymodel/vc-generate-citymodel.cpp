@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
     // Read height map
     HeightMap heightMap;
-    JSON::Read(heightMap, fileNameHeightMap);
+    //JSON::Read(heightMap, fileNameHeightMap);
     std::cout << heightMap << std::endl;
 
     // Generate city model

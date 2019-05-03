@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "Point.h"
+#include "Polygon.h"
 
 namespace VirtualCity
 {
@@ -16,13 +17,13 @@ class Geometry
 {
 public:
 
-    // Compute dot product
+    // Compute dot product (2D)
     static double Dot2D(const Point2D& u, const Point2D& v)
     {
         return u.x * v.x + u.y * v.y;
     }
 
-    // Compute dot product
+    // Compute dot product (3D)
     static double Dot3D(const Point3D& u, const Point3D& v)
     {
         return u.x * v.x + u.y * v.y + u.z * v.z;
@@ -99,6 +100,62 @@ public:
     static int QuadrantAngle2D(const Point2D& p, const Point2D& q)
     {
         return ((p.x > q.x) ? ((p.y > q.y) ? 0 : 3) : ((p.y > q.y) ? 1 : 2));
+    }
+
+    // Compute signed determinant of polygon (2D)
+    static double PolygonDeterminant2D(const Polygon& polygon)
+    {
+        double sum = 0.0;
+        for (size_t i = 0; i < polygon.Points.size(); i++)
+        {
+            Point2D p0 = polygon.Points[i];
+            Point2D p1 = polygon.Points[(i + 1) % polygon.Points.size()];
+            sum += (p1.x - p0.x) * (p1.y + p0.y);
+        }
+        return sum;
+    }
+
+    // Compute orientation of polygon (0 = counter-clockwise, 1 = clockwise)
+    static size_t PolygonOrientation2D(const Polygon& polygon)
+    {
+        return PolygonDeterminant2D(polygon) < 0 ? 0 : 1;
+    }
+
+    // Compute area of polygon (2D)
+    static double PolygonArea(const Polygon& polygon)
+    {
+        return 0.5 * std::abs(PolygonDeterminant2D(polygon));
+    }
+
+    // Compute center of polygon (2D)
+    static Point2D PolygonCenter2D(const Polygon& polygon)
+    {
+        Point2D c;
+        for (auto const & p : polygon.Points)
+            c += p;
+        c /= polygon.Points.size();
+        return c;
+    }
+
+    // Compute radius of polygon relative to center
+    static double PolygonRadius2D(const Polygon& polygon, const Point2D& center)
+    {
+        double r2max = 0.0;
+        for (auto const & p : polygon.Points)
+        {
+            const double r2 = SquaredDistance2D(p, center);
+            if (r2 > r2max)
+                r2max = r2;
+        }
+        return std::sqrt(r2max);
+    }
+
+    // Check whether polygon contains point
+    static bool PolygonContains2D(const Polygon& polygon, const Point2D& p)
+    {
+        // Compute total quadrant relative to polygon. If the point
+        // is inside the polygon, the angle should be 4 (or -4).
+        return Geometry::QuadrantAngle2D(p, polygon.Points) != 0;
     }
 
 };
