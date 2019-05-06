@@ -240,7 +240,40 @@ public:
         return Geometry::QuadrantAngle2D(p, polygon.Points) != 0;
     }
 
-};
+    // Compute intersection between segments (p0, p1) and (q0, q1)
+    static Point2D SegmentIntersection2D(const Point2D& p0, const Point2D& p1,
+                                         const Point2D& q0, const Point2D& q1)
+    {
+        // Solve for intersection: p0 + k*(p1 - p0) = q0 + l*(q1 - q0)
+
+        // Compute vectors
+        const Point2D u = q0 - p0;
+        const Point2D v = p1 - p0;
+        const Point2D w = q1 - q0;
+
+        // Create linear system
+        const double a = v.x; const double b = -w.x;
+        const double c = v.y; const double d = -w.y;
+        const double e = u.x;
+        const double f = u.y;
+
+        // Compute determinant
+        const double det = a * d - b * c;
+
+        // Check if close to parallel
+        // if (std::(det) < parallelTolerance)
+        // {
+        //     throw std::runtime_error("Segments are parallel.");
+        // }
+
+        // Solve linear system
+        const double k = (d * e - b * f) / det;
+        const Point2D p = p0 + v * k;
+
+        return p;
+    }
+
+    };
 
 }
 

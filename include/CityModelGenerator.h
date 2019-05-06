@@ -22,7 +22,8 @@ public:
     // Generate city model from building footprints and height map
     static void GenerateCityModel(CityModel& cityModel,
                                   const std::vector<Polygon>& polygons,
-                                  const HeightMap& heightMap)
+                                  const HeightMap& heightMap,
+                                  double minimalBuildingDistance)
     {
         std::cout << "CityModelGenerator: Generating city model..."
                   << std::endl;
@@ -37,7 +38,7 @@ public:
         _polygons = ComputeOrientedPolygons(_polygons);
 
         // Compute merged polygons
-        _polygons = ComputeMergedPolygons(_polygons);
+        _polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
 
         // Add buildings
         for (auto const & polygon : _polygons)
@@ -173,7 +174,8 @@ private:
     // Compute merged polygons. It is assumed that the input polygons
     // are closed without duplicate vertices and oriented.
     static std::vector<Polygon>
-    ComputeMergedPolygons(const std::vector<Polygon>& polygons)
+    ComputeMergedPolygons(const std::vector<Polygon>& polygons,
+                          double minimalBuildingDistance)
     {
         // We merge the polygons by starting with the first vertex of each
         // polygon and walking counter-clockwise, adding either the next
@@ -214,81 +216,36 @@ private:
                 // Compute squared distance between polygons
                 const Polygon& Pi = mergedPolygons[i];
                 const Polygon& Pj = mergedPolygons[j];
-                const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+                const double d = Geometry::Distance2D(Pi, Pj);
 
-                std::cout << "d2 = " << d2 << std::endl;
+                // Check if distance is smaller than the tolerance
+                if (d < minimalBuildingDistance)
+                {
+                    std::cout << "CityModelGenerator: Buildings "
+                              << i << " and " << j
+                              << " are too close, merging." << std::endl;
 
+                    // Compute merged polygon
+                    Polygon mergedPolygon = MergedPolygons(Pi, Pj, d);
 
+                    // Replace Pi, erase Pj and add Pi to queue
+                    mergedPolygons[i] = mergedPolygon;
+                    mergedPolygons[j].Points.clear();
+                    polygonIndices.push(i);
+                }
             }
-
-            // Pop polygon from queue
-
         }
-
 
         return mergedPolygons;
-
-        // // Iterate over polygons
-        // for (size_t m = 0; m < polygons.size(); m++)
-        // {
-        //     // Get current polygon
-        //     const Polygon& Pm = polygons[m];
-
-        //     // Create empty polygon
-        //     Polygon mergedPolygon;
-
-        //     // Add first vertex
-        //     mergedPolygon.Points.push_back(Pm.Points[0]);
-
-        //     // Iterate over remaining vertices
-        //     for (size_t i = 0; i < Pm.Points.size(); i++)
-        //     {
-        //         // Get points and segment vector
-        //         const Point2D& p0 = Pm.Points[i];
-        //         const Point2D& p1 = Pm.Points[(i + 1) % Pm.Points.size()];
-        //         const Point2D u = p1 - p0;
-
-        //         // Iterate over all other polygons
-        //         for (size_t n = 0; n < polygons.size(); n++)
-        //         {
-        //             // Skip the polygon itself
-        //             if (m == n)
-        //                 continue;
-
-        //             // Get other polygon
-        //             const Polygon& Pn = polygons[n];
-
-        //             // Iterate over other polygon vertices
-        //             for (size_t j = 0; j < Pn.Points.size(); j++)
-        //             {
-        //                 // Compute distance to segment
-
-        //             }
-
-
-        //         }
-
-
-        //     }
-
-
     }
 
-    // Check if polygon intersects (or is very close to an existing point)
-    static bool Intersects(const std::vector<Point2D>& polygon,
-                           const std::vector<Point2D>& uniquePoints)
+    static Polygon MergedPolygons(const Polygon& polygon0, const Polygon& p1,
+                                  double distance)
     {
-        double eps2 = Parameters::FootprintDuplicateThreshold;
-        eps2 = eps2 * eps2;
-        for (auto const & p : polygon)
-        {
-            for (auto const & q : uniquePoints)
-            {
-                if (Geometry::SquaredDistance2D(p, q) < eps2)
-                    return true;
-            }
-        }
-        return false;
+        // Compute intersection points for
+
+
+
     }
 
 };
