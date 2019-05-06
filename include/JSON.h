@@ -50,13 +50,14 @@ public:
             throw std::runtime_error("Not a VirtualCity Parameters JSON file.");
 
         // Extract JSON data
-        parameters.XMin = json["XMin"];
-        parameters.YMin = json["YMin"];
-        parameters.XMax = json["XMax"];
-        parameters.YMax = json["YMax"];
-        parameters.DomainHeight = json["DomainHeight"];
-        parameters.HeightMapResolution = json["HeightMapResolution"];
-        parameters.MeshResolution = json["MeshResolution"];
+        parameters.XMin = TryReadDouble("XMin", json);
+        parameters.YMin = TryReadDouble("YMin", json);
+        parameters.XMax = TryReadDouble("XMax", json);
+        parameters.YMax = TryReadDouble("YMax", json);
+        parameters.DomainHeight = TryReadDouble("DomainHeight", json);
+        parameters.HeightMapResolution = TryReadDouble("HeightMapResolution", json);
+        parameters.MeshResolution = TryReadDouble("MeshResolution", json);
+        parameters.MinimalBuildingDistance = TryReadDouble("MinimalBuildingDistance", json);
     };
 
     // Write parameters to JSON file
@@ -75,6 +76,7 @@ public:
         json["DomainHeight"] = parameters.DomainHeight;
         json["HeightMapResolution"] = parameters.HeightMapResolution;
         json["MeshResolution"] = parameters.MeshResolution;
+        json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
 
         // Write to file
         std::ofstream f(fileName);
@@ -198,6 +200,16 @@ public:
         // Write to file
         std::ofstream f(fileName);
         f << json;
+    }
+
+private:
+
+    // Try reading double value
+    static double TryReadDouble(std::string key, const nlohmann::json& json)
+    {
+        if (json.find(key) == json.end())
+            throw std::runtime_error("Missing field '" + key + "' in JSON file.");
+        return json[key];
     }
 
 };

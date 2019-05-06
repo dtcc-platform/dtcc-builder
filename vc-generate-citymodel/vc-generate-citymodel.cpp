@@ -17,13 +17,13 @@ using namespace VirtualCity;
 void Help()
 {
     std::cerr << "Usage: vc-generate-citymodel PropertyMap.[shp/osm]"
-              << " HeightMap.json" << std::endl;
+              << " HeightMap.json Parameters.json" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
     // Check command-line arguments
-    if (argc != 3)
+    if (argc != 4)
     {
         Help();
         return 1;
@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
     // Get filenames
     const std::string fileNamePropertyMap(argv[1]);
     const std::string fileNameHeightMap(argv[2]);
+    const std::string fileNameParameters(argv[3]);
 
     // Read polygons
     std::vector<Polygon> polygons;
@@ -44,6 +45,14 @@ int main(int argc, char* argv[])
     HeightMap heightMap;
     //JSON::Read(heightMap, fileNameHeightMap);
     std::cout << heightMap << std::endl;
+
+    // Read parameters from file
+    Parameters parameters;
+    JSON::Read(parameters, fileNameParameters);
+
+    // Report used parameters
+    std::cout << "vc-generate-mesh: MinimalBuildingDistance = "
+              << parameters.MinimalBuildingDistance << std::endl;
 
     // Generate city model
     CityModel cityModel;

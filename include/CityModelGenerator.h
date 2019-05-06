@@ -195,7 +195,7 @@ private:
         while (polygonIndices.size() > 0)
         {
             // Pop polygon from front of queue
-            size_t i = polygonIndices.front();
+            const size_t i = polygonIndices.front();
             polygonIndices.pop();
 
             std::cout << "Checking polygon " << i << std::endl;
@@ -212,7 +212,11 @@ private:
                     continue;
 
                 // Compute squared distance between polygons
+                const Polygon& Pi = mergedPolygons[i];
+                const Polygon& Pj = mergedPolygons[j];
+                const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
 
+                std::cout << "d2 = " << d2 << std::endl;
 
 
             }

@@ -30,6 +30,9 @@ public:
     // Maximum mesh size used for mesh generation [m]
     double MeshResolution = 10.0;
 
+    // Minimal building distance (merged if closer)
+    double MinimalBuildingDistance = 1.0;
+
     //--- Compile-time parameters ---
 
     // Tolerance for geometric tests
