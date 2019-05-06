@@ -85,6 +85,11 @@ public:
         return x * x + y * y;
     }
 
+    void Normalize()
+    {
+        (*this) /= Magnitude();
+    }
+
 };
 
 class Point3D

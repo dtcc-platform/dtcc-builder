@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <cmath>
+#include <limits>
 
 #include "Point.h"
 #include "Polygon.h"
@@ -35,6 +36,25 @@ public:
         return std::sqrt(SquaredDistance2D(p, q));
     }
 
+    // Compute distance between segment (p0, p1) and point q (2D)
+    static double Distance2D(const Point2D& p0, const Point2D& p1,
+                             const Point2D& q)
+    {
+        return std::sqrt(SquaredDistance2D(p0, p1, q));
+    }
+
+    // Compute distance between polygon and point (2D)
+    static double Distance2D(const Polygon& polygon, const Point2D& p)
+    {
+        return std::sqrt(SquaredDistance2D(polygon, p));
+    }
+
+    // Compute distance between polygons (2D)
+    static double Distance2D(const Polygon& polygon0, const Polygon& polygon1)
+    {
+        return std::sqrt(SquaredDistance2D(polygon0, polygon1));
+    }
+
     // Compute distance between points (3D)
     static double Distance3D(const Point3D& p, const Point3D& q)
     {
@@ -47,6 +67,68 @@ public:
         const double dx = p.x - q.x;
         const double dy = p.y - q.y;
         return dx * dx + dy * dy;
+    }
+
+    // Compute squared distance between segment (p0, p1) and point q (2D)
+    static double SquaredDistance2D(const Point2D& p0, const Point2D& p1,
+                                    const Point2D& q)
+    {
+        // Project point to line
+        const Point2D u = q - p0;
+        const Point2D v = p1 - p0;
+        const Point2D p = p0 + v * (Dot2D(u, v) / v.SquaredMagnitude());
+
+        // Check whether projected point is inside segment. Check either
+        // x or y coordinates depending on which is largest (most stable)
+        const bool inside =
+            std::abs(v.x) > std::abs(v.y) ?
+            std::min(p0.x, p1.x) <= p.x && p.x <= std::max(p0.x, p1.x) :
+            std::min(p0.y, p1.y) <= p.y && p.y <= std::max(p0.y, p1.y);
+
+        // Use distance to projection if inside
+        if (inside)
+            return (q - p).SquaredMagnitude();
+
+        // Otherwise use distance to closest end point
+        const double d0 = (q - p0).SquaredMagnitude();
+        const double d1 = (q - p1).SquaredMagnitude();
+        return std::min(d0, d1);
+    }
+
+    // Compute squared distance between polygon and point(2D)
+    static double SquaredDistance2D(const Polygon& polygon, const Point2D& p)
+    {
+        // Check if point is contained in polygon
+        if (PolygonContains2D(polygon, p))
+            return 0.0;
+
+        // If not, compute minimal squared distance to all segments
+        double d2Min = std::numeric_limits<double>::max();
+        for (size_t i = 0; i < polygon.Points.size(); i++)
+        {
+            Point2D p0 = polygon.Points[i];
+            Point2D p1 = polygon.Points[(i + 1) % polygon.Points.size()];
+            d2Min = std::min(d2Min, SquaredDistance2D(p0, p1, p));
+        }
+
+        return d2Min;
+    }
+
+    // Compute squared distance between polygons (2D)
+    static double SquaredDistance2D(const Polygon& polygon0,
+                                    const Polygon& polygon1)
+    {
+        double d2Min = std::numeric_limits<double>::max();
+
+        // Check all vertices in first polygon
+        for (auto const & p : polygon0.Points)
+            d2Min = std::min(d2Min, SquaredDistance2D(polygon1, p));
+
+        // Check all vertices in second polygon
+        for (auto const & p : polygon1.Points)
+            d2Min = std::min(d2Min, SquaredDistance2D(polygon0, p));
+
+        return d2Min;
     }
 
     // Compute squared distance between points (3D)
