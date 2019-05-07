@@ -50,56 +50,6 @@ public:
 
     }
 
-
-    /*
-            // Array of unique points
-            std::vector<Point2D> uniquePoints;
-
-            // Iterate over polygons
-            for (auto const & polygon : polygons)
-            {
-
-
-                // Compute center and radius of footprint
-                const Point2D center = polygon.Center();
-                const double radius = polygon.Radius(center);
-
-                // Add points for sampling height
-                std::vector<Point2D> samplePoints;
-                const double a = 0.5 * radius;
-                samplePoints.push_back(center);
-                samplePoints.push_back(Point2D(center.x + a, center.y));
-                samplePoints.push_back(Point2D(center.x - a, center.y));
-                samplePoints.push_back(Point2D(center.x, center.y + a));
-                samplePoints.push_back(Point2D(center.x, center.y - a));
-
-                // Compute mean height at points inside footprint
-                double z = 0.0;
-                size_t numInside = 0;
-                for (auto const & p : samplePoints)
-                {
-                    if (polygon.Contains(p))
-                    {
-                        z += heightMap(p);
-                        numInside += 1;
-                    }
-                }
-
-                // Check if we got at least one point
-                if (numInside == 0)
-                {
-                    std::cout << "CityModelGenerator: Skipping building, no sample points inside building footprint." << std::endl;
-                    continue;
-                }
-
-                // Set building height
-                Building building;
-                building.Height = z / numInside;
-                //std::cout << "Height = " << building.Height << std::endl;
-
-
-    */
-
 private:
 
     // Compute closed polygons (removing any duplicate vertices)
@@ -236,16 +186,83 @@ private:
             }
         }
 
-        return mergedPolygons;
+        // Extract non-empty polygons
+        std::vector<Polygon> _mergedPolygons;
+        for (auto const & polygon : mergedPolygons)
+        {
+            if (polygon.Points.size() > 0)
+                _mergedPolygons.push_back(polygon);
+        }
+
+        return _mergedPolygons;
     }
 
-    static Polygon MergedPolygons(const Polygon& polygon0, const Polygon& p1,
+    static Polygon MergedPolygons(const Polygon& polygon0,
+                                  const Polygon& polygon1,
                                   double distance)
     {
-        // Compute intersection points for
+        // Create empty merged polygon
+        Polygon mergedPolygon;
 
+        // Compute squared tolerance
+        const double TOL = (1.0 + Parameters::Epsilon) * distance;
+        const double TOL2 = TOL * TOL;
 
+        // Pointers to the two polygons and their vertex indices
+        Polygon const * P0 = &polygon0;
+        Polygon const * P1 = &polygon1;
+        size_t i0 = 0;
+        size_t i1 = 0;
 
+        // Current and other polygon
+        Polygon const * P = P0;
+        Polygon const * Q = P1;
+        size_t* i = &i0;
+        size_t* j = &i1;
+
+        // Iterate over polygon vertices
+        while (*i < P->Points.size())
+        {
+            // Add current vertex
+            mergedPolygon.Points.push_back(P->Points[*i]);
+
+            // Get current segment
+            const Point2D& p0 = P->Points[*i];
+            const Point2D& p1 = P->Points[(*i + 1) % P->Points.size()];
+            const Point2D u = p1 - p0;
+
+            // Get current vertex of other polygon
+            const Point2D& q = Q->Points[*j];
+
+            // Move to next vertex
+            (*i)++;
+
+            // Compute squared distance
+            const double d2 = Geometry::SquaredDistance2D(p0, p1, q);
+
+            // Check if we are close enough
+            if (d2 < TOL2)
+            {
+                std::cout << "Jumping to other polygon" << std::endl;
+
+                if (P == P0)
+                {
+                    P = P1;
+                    Q = P0;
+                    i = &i1;
+                    j = &i0;
+                }
+                else
+                {
+                    P = P0;
+                    Q = P1;
+                    i = &i0;
+                    j = &i1;
+                }
+            }
+        }
+
+        return mergedPolygon;
     }
 
 };
