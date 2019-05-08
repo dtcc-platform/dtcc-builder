@@ -38,7 +38,7 @@ public:
         _polygons = ComputeOrientedPolygons(_polygons);
 
         // Compute merged polygons
-        _polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
+        //_polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
 
         // Add buildings
         for (auto const & polygon : _polygons)
@@ -137,22 +137,6 @@ private:
 
         // Make a copy of all polygons (so we can edit them in-place)
         std::vector<Polygon> mergedPolygons = polygons;
-
-        // Testing
-        Polygon P0;
-        P0.Points.push_back(Point2D(0, 0));
-        P0.Points.push_back(Point2D(1, 0));
-        P0.Points.push_back(Point2D(1, 1));
-        P0.Points.push_back(Point2D(0, 1));
-        Polygon P1;
-        P1.Points.push_back(Point2D(2.9, 0.5));
-        P1.Points.push_back(Point2D(2.0, 1.0));
-        P1.Points.push_back(Point2D(1.1, 0.5));
-        P1.Points.push_back(Point2D(2.0, 0.0));
-        mergedPolygons.clear();
-        mergedPolygons.push_back(P0);
-        mergedPolygons.push_back(P1);
-        //return mergedPolygons;
 
         // Create queue of polygons to check
         std::queue<size_t> polygonIndices;

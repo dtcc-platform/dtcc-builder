@@ -404,7 +404,6 @@ public:
         return polygon;
     }
 
-
 };
 
 }
