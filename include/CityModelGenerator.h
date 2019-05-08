@@ -37,8 +37,14 @@ public:
         // Compute counter-clockwise oriented polygons
         _polygons = ComputeOrientedPolygons(_polygons);
 
+        // Compute simplified polygons
+        //_polygons = ComputeSimplifiedPolygons(_polygons);
+
         // Compute merged polygons
         //_polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
+
+        // Compute simplified polygons (again)
+        //_polygons = ComputeSimplifiedPolygons(_polygons);
 
         // Add buildings
         for (auto const & polygon : _polygons)
@@ -121,6 +127,57 @@ private:
         return orientedPolygons;
     }
 
+    // Compute simplified polygons
+    static std::vector<Polygon>
+    ComputeSimplifiedPolygons(const std::vector<Polygon>& polygons)
+    {
+        // Create empty list of polygons
+        std::vector<Polygon> simplifiedPolygons;
+
+        // Iterate over polygons
+        for (auto const & polygon : polygons)
+        {
+            // Previous vertex index
+            const size_t numPoints = polygon.Points.size();
+            size_t previousIndex = numPoints - 1;
+
+            // Array of vertices to be included
+            std::vector<bool> keepIndices(numPoints);
+            std::fill(keepIndices.begin(), keepIndices.end(), true);
+
+            // Create empty polygon
+            Polygon simplifiedPolygon;
+
+            // Iterate over vertices
+            for (size_t i = 0; i < numPoints; i++)
+            {
+                // Get previous, current and next points
+                const Point2D& p0 = polygon.Points[previousIndex];
+                const Point2D& p1 = polygon.Points[i];
+                const Point2D& p2 = polygon.Points[(i + 1) % numPoints];
+
+                // Compute angle (cosine)
+                Point2D u = p1 - p0;
+                Point2D v = p2 - p1;
+                u /= u.Magnitude();
+                v /= v.Magnitude();
+                const double cos = Geometry::Dot2D(u, v);
+
+                // Add vertex if angle is large enough
+                if (cos < 1.0 - 0.1)
+                {
+                    simplifiedPolygon.Points.push_back(p1);
+                    previousIndex = i;
+                }
+            }
+
+            // Add simplified polygon
+            simplifiedPolygons.push_back(simplifiedPolygon);
+        }
+
+        return simplifiedPolygons;
+    }
+
     // Compute merged polygons. It is assumed that the input polygons
     // are closed without duplicate vertices and oriented.
     static std::vector<Polygon>
@@ -197,7 +254,7 @@ private:
         return _mergedPolygons;
     }
 
-    // Merge the two polygons
+// Merge the two polygons
     static Polygon MergePolygons(const Polygon& polygon0,
                                  const Polygon& polygon1,
                                  double distance)

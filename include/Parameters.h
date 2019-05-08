@@ -31,7 +31,7 @@ public:
     double MeshResolution = 10.0;
 
     // Minimal building distance (merged if closer)
-    double MinimalBuildingDistance = 1.0;
+    double MinimalBuildingDistance = 0.5;
 
     //--- Compile-time parameters ---
 
