@@ -38,13 +38,13 @@ public:
         _polygons = ComputeOrientedPolygons(_polygons);
 
         // Compute simplified polygons
-        //_polygons = ComputeSimplifiedPolygons(_polygons);
+        _polygons = ComputeSimplifiedPolygons(_polygons);
 
         // Compute merged polygons
-        //_polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
+        _polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
 
         // Compute simplified polygons (again)
-        //_polygons = ComputeSimplifiedPolygons(_polygons);
+        _polygons = ComputeSimplifiedPolygons(_polygons);
 
         // Add buildings
         for (auto const & polygon : _polygons)
