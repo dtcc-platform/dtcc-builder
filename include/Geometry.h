@@ -7,6 +7,8 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <tuple>
+#include <stack>
 
 #include "Point.h"
 #include "Polygon.h"
@@ -140,6 +142,15 @@ public:
         return dx * dx + dy * dy + dz * dz;
     }
 
+    // Compute orientation of point q relative to segment p0 - p1 (2D)
+    static double Orient2D(const Point2D& p0, const Point2D& p1,
+                           const Point2D& q)
+    {
+        const Point2D u = p1 - p0;
+        const Point2D v = q - p0;
+        return u.x * v.y - u.y * v.x;
+    }
+
     // Compute quadrant angle of point p relative to polygon (2D)
     static int QuadrantAngle2D(const Point2D& p,
                                const std::vector<Point2D>& polygon)
@@ -219,7 +230,7 @@ public:
         return c;
     }
 
-    // Compute radius of polygon relative to center
+    // Compute radius of polygon relative to center (2D)
     static double PolygonRadius2D(const Polygon& polygon, const Point2D& center)
     {
         double r2max = 0.0;
@@ -232,7 +243,7 @@ public:
         return std::sqrt(r2max);
     }
 
-    // Check whether polygon contains point
+    // Check whether polygon contains point (2D)
     static bool PolygonContains2D(const Polygon& polygon, const Point2D& p)
     {
         // Compute total quadrant relative to polygon. If the point
@@ -240,7 +251,7 @@ public:
         return Geometry::QuadrantAngle2D(p, polygon.Points) != 0;
     }
 
-    // Compute intersection between segments (p0, p1) and (q0, q1)
+    // Compute intersection between segments p0 - p1 and q0 - q1 (2D)
     static Point2D SegmentIntersection2D(const Point2D& p0, const Point2D& p1,
                                          const Point2D& q0, const Point2D& q1)
     {
@@ -273,7 +284,128 @@ public:
         return p;
     }
 
-    };
+    // Compute convex hull of point set (2D)
+    static Polygon ConvexHull2D(const std::vector<Point2D>& points)
+    {
+        // The convex hull is computed by doing a Graham scan: select an
+        // extreme base point, sort remaining points by angle and then
+        // add points that create a left turn around the perimeter.
+
+        // Find point with smallest y-coordinate. If y-coordinate is
+        // the same, sort by smallest x-coordinate.
+        double xMin = points[0].x;
+        double yMin = points[0].y;
+        size_t iMin = 0;
+        const size_t numPoints = points.size();
+        for (size_t i = 1; i < numPoints; i++)
+        {
+            const double x = points[i].x;
+            const double y = points[i].y;
+            if (y < yMin || (y == yMin && x < xMin))
+            {
+                xMin = x;
+                yMin = y;
+                iMin = i;
+            }
+        }
+
+        // Set base point
+        const size_t baseIndex = iMin;
+        Point2D basePoint = points[baseIndex];
+
+        // Compute angles and distances relative to base point
+        std::vector<std::tuple<double, double, size_t>> angles(numPoints - 1);
+        size_t k = 0;
+        for (size_t i = 0; i < numPoints; i++)
+        {
+            // Skip base point
+            if (i == baseIndex)
+                continue;
+
+            // Compute angle (negative cosine) and distance
+            const Point2D& p = points[i];
+            const Point2D v = p - basePoint;
+            const double distance = v.Magnitude();
+            const double angle = -v.x / distance;
+
+            // Store angle and distance along with index (for sorting)
+            angles[k++] = std::make_tuple(angle, distance, i);
+        }
+
+        // Sort by angles (primary) and distance (secondary) to base point
+        std::sort(angles.begin(), angles.end());
+
+        // Filter out points with unique angles, keeping only furthest point
+        std::vector<size_t> filteredIndices;
+        double lastAngle = 2.0; // no angle has this value
+        for (int i = 0; i < numPoints - 1; i++)
+        {
+            // Get data for current point
+            const double currentAngle = std::get<0>(angles[i]);
+            const size_t currentIndex = std::get<2>(angles[i]);
+
+            // Add point or replace last point
+            if (std::abs(currentAngle - lastAngle) > Parameters::Epsilon)
+                filteredIndices.push_back(currentIndex);
+            else
+                filteredIndices[filteredIndices.size() - 1] = currentIndex;
+
+            // Update last index
+            lastAngle = currentAngle;
+        }
+
+        // Create stack of points and add first three candidates
+        std::stack<size_t> convexHull;
+        convexHull.push(baseIndex);
+        convexHull.push(filteredIndices[0]);
+        convexHull.push(filteredIndices[1]);
+
+        // Graham-Scan: Push candidates to stack and pop until
+        // we have a left turn
+        for (size_t i = 2; i < filteredIndices.size(); i++)
+        {
+            // Get next point
+            const size_t i2 = filteredIndices[i];
+            const Point2D& p2 = points[i2];
+
+            // Keep popping from stack until we see a left turn
+            while (true)
+            {
+                // Get last two points from stack
+                const size_t i1 = convexHull.top();
+                convexHull.pop();
+                const size_t i0 = convexHull.top();
+                const Point2D& p0 = points[i0];
+                const Point2D& p1 = points[i1];
+
+                // Check orientation, keep p1 if orientation is positive
+                if (Orient2D(p0, p1, p2) > Parameters::Epsilon)
+                {
+                    convexHull.push(i1);
+                    break;
+                }
+            }
+
+            // Push next candidate to stack
+            convexHull.push(i2);
+        }
+
+        // Extract polygon points from stack
+        Polygon polygon;
+        while (!convexHull.empty())
+        {
+            polygon.Points.push_back(points[convexHull.top()]);
+            convexHull.pop();
+        }
+
+        // Reverse polygon to make it counter-clockwise
+        std::reverse(polygon.Points.begin(), polygon.Points.end());
+
+        return polygon;
+    }
+
+
+};
 
 }
 

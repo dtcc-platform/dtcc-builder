@@ -138,9 +138,25 @@ private:
         // Make a copy of all polygons (so we can edit them in-place)
         std::vector<Polygon> mergedPolygons = polygons;
 
+        // Testing
+        Polygon P0;
+        P0.Points.push_back(Point2D(0, 0));
+        P0.Points.push_back(Point2D(1, 0));
+        P0.Points.push_back(Point2D(1, 1));
+        P0.Points.push_back(Point2D(0, 1));
+        Polygon P1;
+        P1.Points.push_back(Point2D(2.9, 0.5));
+        P1.Points.push_back(Point2D(2.0, 1.0));
+        P1.Points.push_back(Point2D(1.1, 0.5));
+        P1.Points.push_back(Point2D(2.0, 0.0));
+        mergedPolygons.clear();
+        mergedPolygons.push_back(P0);
+        mergedPolygons.push_back(P1);
+        //return mergedPolygons;
+
         // Create queue of polygons to check
         std::queue<size_t> polygonIndices;
-        for (size_t i = 0; i < polygons.size(); i++)
+        for (size_t i = 0; i < mergedPolygons.size(); i++)
             polygonIndices.push(i);
 
         // Check polygons until the queue is empty
@@ -153,7 +169,7 @@ private:
             std::cout << "Checking polygon " << i << std::endl;
 
             // Iterate over all other polygons
-            for (size_t j = 0; j < polygons.size(); j++)
+            for (size_t j = 0; j < mergedPolygons.size(); j++)
             {
                 // Skip polygon itself
                 if (i == j)
@@ -176,7 +192,7 @@ private:
                               << " are too close, merging." << std::endl;
 
                     // Compute merged polygon
-                    Polygon mergedPolygon = MergedPolygons(Pi, Pj, d);
+                    Polygon mergedPolygon = MergePolygons(Pi, Pj, d);
 
                     // Replace Pi, erase Pj and add Pi to queue
                     mergedPolygons[i] = mergedPolygon;
@@ -197,72 +213,23 @@ private:
         return _mergedPolygons;
     }
 
-    static Polygon MergedPolygons(const Polygon& polygon0,
-                                  const Polygon& polygon1,
-                                  double distance)
+    // Merge the two polygons
+    static Polygon MergePolygons(const Polygon& polygon0,
+                                 const Polygon& polygon1,
+                                 double distance)
     {
-        // Create empty merged polygon
-        Polygon mergedPolygon;
+        // For now, we just compute the convex hull, consider
+        // a more advanced merging later
 
-        // Compute squared tolerance
-        const double TOL = (1.0 + Parameters::Epsilon) * distance;
-        const double TOL2 = TOL * TOL;
+        // Collect points
+        std::vector<Point2D> points;
+        for (auto const & p : polygon0.Points)
+            points.push_back(p);
+        for (auto const & p : polygon1.Points)
+            points.push_back(p);
 
-        // Pointers to the two polygons and their vertex indices
-        Polygon const * P0 = &polygon0;
-        Polygon const * P1 = &polygon1;
-        size_t i0 = 0;
-        size_t i1 = 0;
-
-        // Current and other polygon
-        Polygon const * P = P0;
-        Polygon const * Q = P1;
-        size_t* i = &i0;
-        size_t* j = &i1;
-
-        // Iterate over polygon vertices
-        while (*i < P->Points.size())
-        {
-            // Add current vertex
-            mergedPolygon.Points.push_back(P->Points[*i]);
-
-            // Get current segment
-            const Point2D& p0 = P->Points[*i];
-            const Point2D& p1 = P->Points[(*i + 1) % P->Points.size()];
-            const Point2D u = p1 - p0;
-
-            // Get current vertex of other polygon
-            const Point2D& q = Q->Points[*j];
-
-            // Move to next vertex
-            (*i)++;
-
-            // Compute squared distance
-            const double d2 = Geometry::SquaredDistance2D(p0, p1, q);
-
-            // Check if we are close enough
-            if (d2 < TOL2)
-            {
-                std::cout << "Jumping to other polygon" << std::endl;
-
-                if (P == P0)
-                {
-                    P = P1;
-                    Q = P0;
-                    i = &i1;
-                    j = &i0;
-                }
-                else
-                {
-                    P = P0;
-                    Q = P1;
-                    i = &i0;
-                    j = &i1;
-                }
-            }
-        }
-
-        return mergedPolygon;
+        // Compute convex hull
+        return Geometry::ConvexHull2D(points);
     }
 
 };
