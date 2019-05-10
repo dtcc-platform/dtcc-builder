@@ -9,6 +9,7 @@
 #include <limits>
 #include <tuple>
 #include <stack>
+#include <algorithm>
 
 #include "Point.h"
 #include "Polygon.h"
