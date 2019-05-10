@@ -15,6 +15,10 @@ public:
 
     //--- Run-time parameters (parsed from file) ---
 
+    // Origin
+    double X0 = 0.0;
+    double Y0 = 0.0;
+
     // Domain dimensions
     double XMin = 0.0;
     double YMin = 0.0;

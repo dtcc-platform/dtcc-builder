@@ -61,26 +61,31 @@ int main(int argc, char* argv[])
     std::cout << "vc-generate-mesh: DomainHeight = "
               << parameters.DomainHeight << std::endl;
 
+    // FIXME: Figure out how to handle domain dimensions
+
     // Generate 2D mesh
+    // Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
+    //                 heightMap.XMin,
+    //                 heightMap.YMin,
+    //                 heightMap.XMax,
+    //                 heightMap.YMax,
+    //                 parameters.MeshResolution);
     Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
-                    heightMap.XMin,
-                    heightMap.YMin,
-                    heightMap.XMax,
-                    heightMap.YMax,
+                    0, 0, 600, 600,
                     parameters.MeshResolution);
     std::cout << mesh2D << std::endl;
 
     // Generate mesh (excluding height map)
-    // Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
-    //                 cityModel,
-    //                 parameters.DomainHeight,
-    //                 parameters.MeshResolution);
-    // std::cout << mesh3D << std::endl;
+    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
+                    cityModel,
+                    parameters.DomainHeight,
+                    parameters.MeshResolution);
+    std::cout << mesh3D << std::endl;
 
     // Convert to FEniCS meshes
     dolfin::Mesh _mesh2D, _mesh3D;
     FEniCS::ConvertMesh(mesh2D, _mesh2D);
-    //FEniCS::ConvertMesh(mesh3D, _mesh3D);
+    FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
     // FIXME: Testing
     // Apply mesh smoothing to account for height map
@@ -94,14 +99,13 @@ int main(int argc, char* argv[])
     //auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
 
     // Generate mesh boundary (used only for testing/visualization)
-    //dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
+    dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
 
     // Write to files¨
     std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
     dolfin::File(fileNamePrefix + "Mesh2D.pvd") << _mesh2D;
-    // FIXME: Testing
     //dolfin::File(fileNamePrefix + "Mesh3D.pvd") << _mesh3D;
-    //dolfin::File(fileNamePrefix + "Boundary.pvd") << _boundary3D;
+    dolfin::File(fileNamePrefix + "Boundary.pvd") << _boundary3D;
     //dolfin::File(fileNamePrefix + "HeightMap.pvd") << *z;
 
     return 0;

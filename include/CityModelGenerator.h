@@ -23,6 +23,7 @@ public:
     static void GenerateCityModel(CityModel& cityModel,
                                   const std::vector<Polygon>& polygons,
                                   const HeightMap& heightMap,
+                                  double x0, double y0,
                                   double xMin, double yMin,
                                   double xMax, double yMax,
                                   double minimalBuildingDistance)
@@ -38,7 +39,7 @@ public:
 
         // Compute transformed polygons
         _polygons = ComputeTransformedPolygons(_polygons,
-                                               xMin, yMin, xMax, yMax);
+                                               x0, y0, xMin, yMin, xMax, yMax);
 
         // Compute closed polygons
         _polygons = ComputeClosedPolygons(_polygons);
@@ -71,6 +72,7 @@ private:
     // within the domain and setting the origin to (xMin, yMin)
     static std::vector<Polygon>
     ComputeTransformedPolygons(const std::vector<Polygon>& polygons,
+                               double x0, double y0,
                                double xMin, double yMin,
                                double xMax, double yMax)
     {
@@ -97,7 +99,7 @@ private:
                 Polygon transformedPolygon;
                 for (auto const & p : polygon.Points)
                 {
-                    Point2D q(p.x - xMin, p.y - yMin);
+                    Point2D q(p.x - x0, p.y - y0);
                     transformedPolygon.Points.push_back(q);
                 }
                 transformedPolygons.push_back(transformedPolygon);

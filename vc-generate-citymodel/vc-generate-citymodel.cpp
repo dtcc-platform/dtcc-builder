@@ -54,6 +54,10 @@ int main(int argc, char* argv[])
     // Report used parameters
     std::cout << "vc-generate-citymodel: MinimalBuildingDistance = "
               << parameters.MinimalBuildingDistance << std::endl;
+    std::cout << "vc-generate-citymodel: X0 = "
+              << parameters.X0 << std::endl;
+    std::cout << "vc-generate-citymodel: Y0 = "
+              << parameters.Y0 << std::endl;
     std::cout << "vc-generate-citymodel: XMin = "
               << parameters.XMin << std::endl;
     std::cout << "vc-generate-citymodel: YMin = "
@@ -68,6 +72,8 @@ int main(int argc, char* argv[])
     CityModelGenerator::GenerateCityModel(cityModel,
                                           polygons,
                                           heightMap,
+                                          parameters.X0,
+                                          parameters.Y0,
                                           parameters.XMin,
                                           parameters.YMin,
                                           parameters.XMax,

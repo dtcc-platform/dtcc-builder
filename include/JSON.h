@@ -50,6 +50,8 @@ public:
             throw std::runtime_error("Not a VirtualCity Parameters JSON file.");
 
         // Extract JSON data
+        parameters.X0 = TryReadDouble("X0", json);
+        parameters.Y0 = TryReadDouble("Y0", json);
         parameters.XMin = TryReadDouble("XMin", json);
         parameters.YMin = TryReadDouble("YMin", json);
         parameters.XMax = TryReadDouble("XMax", json);
@@ -69,6 +71,9 @@ public:
         // Set JSON data
         nlohmann::json json;
         json["Type"] = "Parameters";
+        json["X0"] = parameters.X0;
+        json["Y0"] = parameters.Y0;
+        json["YMin"] = parameters.YMin;
         json["XMin"] = parameters.XMin;
         json["YMin"] = parameters.YMin;
         json["XMax"] = parameters.XMax;
