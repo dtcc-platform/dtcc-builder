@@ -72,12 +72,9 @@ int main(int argc, char* argv[])
     CityModelGenerator::GenerateCityModel(cityModel,
                                           polygons,
                                           heightMap,
-                                          parameters.X0,
-                                          parameters.Y0,
-                                          parameters.XMin,
-                                          parameters.YMin,
-                                          parameters.XMax,
-                                          parameters.YMax,
+                                          parameters.X0, parameters.Y0,
+                                          parameters.XMin, parameters.YMin,
+                                          parameters.XMax, parameters.YMax,
                                           parameters.MinimalBuildingDistance);
     std::cout << cityModel << std::endl;
 

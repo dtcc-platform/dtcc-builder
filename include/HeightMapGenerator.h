@@ -24,9 +24,30 @@ public:
 
     // Generate height map from point cloud
     static void GenerateHeightMap(HeightMap& heightMap,
-                                  const PointCloud& pointCloud)
+                                  const PointCloud& pointCloud,
+                                  double x0, double y0,
+                                  double xMin, double yMin,
+                                  double xMax, double yMax,
+                                  double heightMapResolution)
     {
         std::cout << "HeightMapGenerator: Generating heightmap from point cloud..." << std::endl;
+
+        // Shortcut
+        HeightMap& hm = heightMap;
+
+        // Initialize grid dimensions
+        hm.XMin = xMin;
+        hm.YMin = yMin;
+        hm.XMax = xMax;
+        hm.YMax = yMax;
+
+        // Initialize grid data
+        hm.XSize = (hm.XMax - hm.XMin) / heightMapResolution + 1;
+        hm.YSize = (hm.YMax - hm.YMin) / heightMapResolution + 1;
+        hm.GridData.resize(hm.XSize * hm.YSize);
+        std::fill(hm.GridData.begin(), hm.GridData.end(), 0.0);
+        hm.XStep = (hm.XMax - hm.XMin) / (hm.XSize - 1);
+        hm.YStep = (hm.YMax - hm.YMin) / (hm.YSize - 1);
 
         // Compute mean height
         std::cout << "HeightMapGenerator: Computing mean elevation" << std::endl;
