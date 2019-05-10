@@ -15,8 +15,6 @@
 #include "JSON.h"
 #include "FEniCS.h"
 
-#include "CSV.h"
-
 using namespace std;
 using namespace VirtualCity;
 
@@ -73,36 +71,38 @@ int main(int argc, char* argv[])
     std::cout << mesh2D << std::endl;
 
     // Generate mesh (excluding height map)
-    Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
-                    cityModel,
-                    parameters.DomainHeight,
-                    parameters.MeshResolution);
-    std::cout << mesh3D << std::endl;
+    // Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
+    //                 cityModel,
+    //                 parameters.DomainHeight,
+    //                 parameters.MeshResolution);
+    // std::cout << mesh3D << std::endl;
 
     // Convert to FEniCS meshes
     dolfin::Mesh _mesh2D, _mesh3D;
     FEniCS::ConvertMesh(mesh2D, _mesh2D);
-    FEniCS::ConvertMesh(mesh3D, _mesh3D);
+    //FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
+    // FIXME: Testing
     // Apply mesh smoothing to account for height map
-    MeshSmoother::SmoothMesh(_mesh3D,
-                             heightMap,
-                             cityModel,
-                             mesh3D.DomainMarkers,
-                             parameters.MeshResolution);
+    // MeshSmoother::SmoothMesh(_mesh3D,
+    //                          heightMap,
+    //                          cityModel,
+    //                          mesh3D.DomainMarkers,
+    //                          parameters.MeshResolution);
 
     // Generate height map function (used only for testing/visualization)
-    auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
+    //auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
 
     // Generate mesh boundary (used only for testing/visualization)
-    dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
+    //dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
 
     // Write to files¨
     std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
     dolfin::File(fileNamePrefix + "Mesh2D.pvd") << _mesh2D;
-    dolfin::File(fileNamePrefix + "Mesh3D.pvd") << _mesh3D;
-    dolfin::File(fileNamePrefix + "Boundary.pvd") << _boundary3D;
-    dolfin::File(fileNamePrefix + "HeightMap.pvd") << *z;
+    // FIXME: Testing
+    //dolfin::File(fileNamePrefix + "Mesh3D.pvd") << _mesh3D;
+    //dolfin::File(fileNamePrefix + "Boundary.pvd") << _boundary3D;
+    //dolfin::File(fileNamePrefix + "HeightMap.pvd") << *z;
 
     return 0;
 }

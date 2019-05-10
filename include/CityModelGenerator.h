@@ -23,13 +23,22 @@ public:
     static void GenerateCityModel(CityModel& cityModel,
                                   const std::vector<Polygon>& polygons,
                                   const HeightMap& heightMap,
+                                  double xMin, double yMin,
+                                  double xMax, double yMax,
                                   double minimalBuildingDistance)
     {
         std::cout << "CityModelGenerator: Generating city model..."
                   << std::endl;
 
+        // FIXME: Consider making all polygon processing in-place to
+        // avoid copying the polygon data in each step.
+
         // Copy polygon data
         std::vector<Polygon> _polygons = polygons;
+
+        // Compute transformed polygons
+        _polygons = ComputeTransformedPolygons(_polygons,
+                                               xMin, yMin, xMax, yMax);
 
         // Compute closed polygons
         _polygons = ComputeClosedPolygons(_polygons);
@@ -58,10 +67,51 @@ public:
 
 private:
 
+    // Compute transformed polygons, keeping only polygons completely
+    // within the domain and setting the origin to (xMin, yMin)
+    static std::vector<Polygon>
+    ComputeTransformedPolygons(const std::vector<Polygon>& polygons,
+                               double xMin, double yMin,
+                               double xMax, double yMax)
+    {
+        // Create empty list of polygons
+        std::vector<Polygon> transformedPolygons;
+
+        // Iterate over polygons
+        for (auto const & polygon : polygons)
+        {
+            // Check if all points are inside
+            bool inside = true;
+            for (auto const & p : polygon.Points)
+            {
+                if (p.x < xMin || p.y < yMin || p.x > xMax || p.y > yMax)
+                {
+                    inside = false;
+                    break;
+                }
+            }
+
+            // Add if inside and transform coordinates
+            if (inside)
+            {
+                Polygon transformedPolygon;
+                for (auto const & p : polygon.Points)
+                {
+                    Point2D q(p.x - xMin, p.y - yMin);
+                    transformedPolygon.Points.push_back(q);
+                }
+                transformedPolygons.push_back(transformedPolygon);
+            }
+        }
+
+        return transformedPolygons;
+    }
+
     // Compute closed polygons (removing any duplicate vertices)
     static std::vector<Polygon>
     ComputeClosedPolygons(const std::vector<Polygon>& polygons)
     {
+        // Create empty list of polygons
         std::vector<Polygon> closedPolygons;
         size_t numSkipped = 0;
 
@@ -99,6 +149,7 @@ private:
     static std::vector<Polygon>
     ComputeOrientedPolygons(const std::vector<Polygon>& polygons)
     {
+        // Create empty list of polygons
         std::vector<Polygon> orientedPolygons;
         size_t numReversed = 0;
 
@@ -206,8 +257,6 @@ private:
             // Pop polygon from front of queue
             const size_t i = polygonIndices.front();
             polygonIndices.pop();
-
-            std::cout << "Checking polygon " << i << std::endl;
 
             // Iterate over all other polygons
             for (size_t j = 0; j < mergedPolygons.size(); j++)

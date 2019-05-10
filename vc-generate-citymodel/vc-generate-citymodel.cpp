@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
 
     // Read height map
     HeightMap heightMap;
+    // FIXME: Testing
     //JSON::Read(heightMap, fileNameHeightMap);
     std::cout << heightMap << std::endl;
 
@@ -51,14 +52,26 @@ int main(int argc, char* argv[])
     JSON::Read(parameters, fileNameParameters);
 
     // Report used parameters
-    std::cout << "vc-generate-mesh: MinimalBuildingDistance = "
+    std::cout << "vc-generate-citymodel: MinimalBuildingDistance = "
               << parameters.MinimalBuildingDistance << std::endl;
+    std::cout << "vc-generate-citymodel: XMin = "
+              << parameters.XMin << std::endl;
+    std::cout << "vc-generate-citymodel: YMin = "
+              << parameters.YMin << std::endl;
+    std::cout << "vc-generate-citymodel: XMax = "
+              << parameters.XMax << std::endl;
+    std::cout << "vc-generate-citymodel: YMax = "
+              << parameters.YMax << std::endl;
 
     // Generate city model
     CityModel cityModel;
     CityModelGenerator::GenerateCityModel(cityModel,
                                           polygons,
                                           heightMap,
+                                          parameters.XMin,
+                                          parameters.YMin,
+                                          parameters.XMax,
+                                          parameters.YMax,
                                           parameters.MinimalBuildingDistance);
     std::cout << cityModel << std::endl;
 

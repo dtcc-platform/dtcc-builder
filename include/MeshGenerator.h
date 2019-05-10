@@ -51,7 +51,7 @@ public:
         {
             subDomains.push_back(building.Footprint.Points);
 
-            if (++k == 10)
+            if (++k == 100)
                 break;
         }
 
