@@ -38,22 +38,7 @@ int main(int argc, char* argv[])
     // Read parameters from file
     Parameters parameters;
     JSON::Read(parameters, fileNameParameters);
-
-    // Report used parameters
-    std::cout << "vc-generate-heightmap: HeightMapResolution = "
-              << parameters.HeightMapResolution << std::endl;
-    std::cout << "vc-generate-heightmap: X0 = "
-              << parameters.X0 << std::endl;
-    std::cout << "vc-generate-heightmap: Y0 = "
-              << parameters.Y0 << std::endl;
-    std::cout << "vc-generate-heightmap: XMin = "
-              << parameters.XMin << std::endl;
-    std::cout << "vc-generate-heightmap: YMin = "
-              << parameters.YMin << std::endl;
-    std::cout << "vc-generate-heightmap: XMax = "
-              << parameters.XMax << std::endl;
-    std::cout << "vc-generate-heightmap: YMax = "
-              << parameters.YMax << std::endl;
+    std::cout << parameters << std::endl;
 
     // Read point cloud from LAS files
     PointCloud pointCloud;

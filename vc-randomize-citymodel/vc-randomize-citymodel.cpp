@@ -210,6 +210,7 @@ int main(int argc, char* argv[])
     // Read parameters from file
     Parameters parameters;
     JSON::Read(parameters, fileNameParameters);
+    std::cout << parameters << std::endl;
 
     // Report used parameters
     const Point2D C(parameters.DomainCenterX, parameters.DomainCenterY);

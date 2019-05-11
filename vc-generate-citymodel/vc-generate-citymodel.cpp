@@ -50,22 +50,7 @@ int main(int argc, char* argv[])
     // Read parameters from file
     Parameters parameters;
     JSON::Read(parameters, fileNameParameters);
-
-    // Report used parameters
-    std::cout << "vc-generate-citymodel: MinimalBuildingDistance = "
-              << parameters.MinimalBuildingDistance << std::endl;
-    std::cout << "vc-generate-citymodel: X0 = "
-              << parameters.X0 << std::endl;
-    std::cout << "vc-generate-citymodel: Y0 = "
-              << parameters.Y0 << std::endl;
-    std::cout << "vc-generate-citymodel: XMin = "
-              << parameters.XMin << std::endl;
-    std::cout << "vc-generate-citymodel: YMin = "
-              << parameters.YMin << std::endl;
-    std::cout << "vc-generate-citymodel: XMax = "
-              << parameters.XMax << std::endl;
-    std::cout << "vc-generate-citymodel: YMax = "
-              << parameters.YMax << std::endl;
+    std::cout << parameters << std::endl;
 
     // Generate city model
     CityModel cityModel;

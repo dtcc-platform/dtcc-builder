@@ -54,12 +54,7 @@ int main(int argc, char* argv[])
     // Read parameters from file
     Parameters parameters;
     JSON::Read(parameters, fileNameParameters);
-
-    // Report used parameters
-    std::cout << "vc-generate-mesh: MeshResolution = "
-              << parameters.MeshResolution << std::endl;
-    std::cout << "vc-generate-mesh: DomainHeight = "
-              << parameters.DomainHeight << std::endl;
+    std::cout << parameters << std::endl;
 
     // FIXME: Figure out how to handle domain dimensions
 
