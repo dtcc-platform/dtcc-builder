@@ -2,9 +2,6 @@
 // Anders Logg 2018
 
 #include <iostream>
-#include <algorithm>
-
-// FIXME: Should not be used here
 #include <dolfin.h>
 
 #include "CommandLine.h"
@@ -38,7 +35,7 @@ int main(int argc, char* argv[])
     const std::string fileNameParameters(argv[3]);
 
     // Set filename for output
-    size_t idx = fileNameCityModel.rfind('.');
+    const size_t idx = fileNameCityModel.rfind('.');
     const std::string fileNamePrefix = fileNameCityModel.substr(0, idx);
 
     // Read city model from file
@@ -56,21 +53,14 @@ int main(int argc, char* argv[])
     JSON::Read(parameters, fileNameParameters);
     std::cout << parameters << std::endl;
 
-    // FIXME: Figure out how to handle domain dimensions
-
     // Generate 2D mesh
-    // Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
-    //                 heightMap.XMin,
-    //                 heightMap.YMin,
-    //                 heightMap.XMax,
-    //                 heightMap.YMax,
-    //                 parameters.MeshResolution);
     Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
-                    0, 0, 600, 600,
+                    parameters.XMin, parameters.YMin,
+                    parameters.XMax, parameters.YMax,
                     parameters.MeshResolution);
     std::cout << mesh2D << std::endl;
 
-    // Generate mesh (excluding height map)
+    // Generate 3D mesh (excluding height map)
     Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
                     cityModel,
                     parameters.DomainHeight,

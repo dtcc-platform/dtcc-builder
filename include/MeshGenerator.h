@@ -42,18 +42,10 @@ public:
     {
         std::cout << "MeshGenerator: Generating 2D mesh..." << std::endl;
 
-        // FIXME: Testing
-        int k = 0;
-
         // Extract subdomains (building footprints)
         std::vector<std::vector<Point2D>> subDomains;
         for (auto const & building : cityModel.Buildings)
-        {
             subDomains.push_back(building.Footprint.Points);
-
-            if (++k == 100)
-                break;
-        }
 
         // Generate boundary
         std::vector<Point2D> boundary;

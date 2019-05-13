@@ -2,7 +2,7 @@
   "Type": "Parameters",
   "DomainHeight": 100.0,
   "HeightMapResolution": 5.0,
-  "MeshResolution": 25.0,
+  "MeshResolution": 10.0,
   "X0": 317400,
   "Y0": 6399800,
   "XMin": 0,

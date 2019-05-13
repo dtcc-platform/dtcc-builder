@@ -64,6 +64,8 @@ public:
             cityModel.Buildings.push_back(building);
         }
 
+        // Compute building heights
+        ComputeBuildingHeights(cityModel, heightMap);
     }
 
 private:
@@ -312,7 +314,7 @@ private:
         return _mergedPolygons;
     }
 
-// Merge the two polygons
+    // Merge the two polygons
     static Polygon MergePolygons(const Polygon& polygon0,
                                  const Polygon& polygon1,
                                  double distance)
@@ -329,6 +331,52 @@ private:
 
         // Compute convex hull
         return Geometry::ConvexHull2D(points);
+    }
+
+    // Compute building heights
+    static void ComputeBuildingHeights(CityModel& cityModel,
+                                       const HeightMap& heightMap)
+    {
+        // Iterate over buildings
+        for (auto & building : cityModel.Buildings)
+        {
+            // Get building footprint
+            Polygon& polygon = building.Footprint;
+
+            // Compute center and radius of footprint
+            const Point2D center = Geometry::PolygonCenter2D(polygon);
+            const double radius = Geometry::PolygonRadius2D(polygon, center);
+
+            // Add points for sampling height
+            std::vector<Point2D> samplePoints;
+            const double a = 0.5 * radius;
+            samplePoints.push_back(center);
+            samplePoints.push_back(Point2D(center.x + a, center.y));
+            samplePoints.push_back(Point2D(center.x - a, center.y));
+            samplePoints.push_back(Point2D(center.x, center.y + a));
+            samplePoints.push_back(Point2D(center.x, center.y - a));
+
+            // Compute mean height at points inside footprint
+            double z = 0.0;
+            size_t numInside = 0;
+            for (auto const & p : samplePoints)
+            {
+                if (Geometry::PolygonContains2D(polygon, p))
+                {
+                    z += heightMap(p);
+                    numInside += 1;
+                }
+            }
+
+            // Check if we got at least one point
+            if (numInside == 0)
+            {
+                std::cout << "CityModelGenerator: No sample points inside building, setting height to 0" << std::endl;
+            }
+
+            // Set building height
+            building.Height = z / numInside;
+        }
     }
 
 };
