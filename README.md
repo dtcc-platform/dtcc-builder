@@ -78,28 +78,44 @@ VCCore makes use of the following data sources:
 
 ## Coordinate systems
 
-RH 2000
-SWEREF99 12 00 (EPSG:3007)
+VCCore users meters as a unit of length, relative to the SWEREF99 TM (EPSG:3006) coordinate system.
+
+FIXME: Should we use SWEREF99 12 00 (EPSG:3007)?
+
+FIXME: What about RH 2000?
 
 https://zeus.slu.se
 Lantmäteriet:Fastighetskartan bebyggelse vektor EPSG:3006
 Lantmäteriet:Laserdata vektor EPSG:3006
-by_get
 
-Geodata Extraction Tool” eller GET,
+## Parameters
 
-### OpenStreetMap (EPSG:4326)
+VCCore uses the following global parameters, controlled via a JSON file Parameters.json.
 
-OpenStreetMap uses the [WGS-84](https://en.wikipedia.org/wiki/World_Geodetic_System#WGS84) coordinate system which is also known as EPSG:4326.
+When parsing data from original data files (LAS point clouds and SHP files), a nonzero origin may be specified to offset the coordinate system relative to the origin. This has the advantage that very large values for the coordinates may be avoided (which is good for numerical stability).
 
-### Lantmäteriet (EPSG:3006)
+    X0 - x coordinate of new origin
+    Y0 - y coordinate of new origin
 
-Lantmäteriet uses the SWEREF99 TM coordinate system which is also known as EPSG:3006.
+Height maps, city models and mesh are generated for a square domain with coordinates relative to the new origin specified by `X0` and `Y0`.
 
-### VCCore
+    XMin - x coordinate for lower left corner
+    YMin = y coordinate for lower left corner
+    XMax = x coordinate for upper right corner
+    YMax = y coordinate for upper right corner
 
-FIXME: Need to decide on coordinate system. So far we have used
-SWEREF99 12 00 (EPSG:3007) which is more accurate for Gothenburg.
+When generating the height map from LAS point cloud data, the `HeighMapResolution` parameter determines the resolution of the grid on to which the height map is sampled.
+
+    HeightMapResolution - resolution of height map grid
+
+When generating the city model from SHP file data, the `MinimalBuildingDistance` parameter determines a minimal distance between buildings. Buildings that are closer than the specified distance are automatically merged to avoid overlapping buildings or buildings that are very close (which may otherwise upset the mesh generation).
+
+    MinimalBuildingDistance - minimal distance between buildings
+
+When generating the volume mesh, the `DomainHeight` parameter determines the height of the domain relative to the average ground level. The `MeshResolution` parameter determines the maximum size (diameter) of the mesh cells.
+
+    DomainHeight   - height of computational domain (volume mesh)
+    MeshResolution - resolution of computational mesh (mesh size)
 
 ## Code organization
 
