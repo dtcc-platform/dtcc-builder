@@ -25,17 +25,17 @@ public:
   double XMax = 100.0;
   double YMax = 100.0;
 
-  // Height of computational domain
-  double DomainHeight = 100.0;
-
   // Height map resolution
   double HeightMapResolution = 1.0;
 
-  // Maximum mesh size used for mesh generation [m]
-  double MeshResolution = 10.0;
-
   // Minimal building distance (merged if closer)
   double MinimalBuildingDistance = 0.5;
+
+  // Height of computational domain
+  double DomainHeight = 100.0;
+
+  // Maximum mesh size used for mesh generation [m]
+  double MeshResolution = 10.0;
 
   //--- Compile-time parameters ---
 
@@ -68,13 +68,13 @@ std::ostream& operator<<(std::ostream& s, const Parameters& parameters)
     << std::endl
     << "  YMax                    = " << parameters.YMax
     << std::endl
-    << "  DomainHeight            = " << parameters.DomainHeight
-    << std::endl
     << "  HeightMapResolution     = " << parameters.HeightMapResolution
     << std::endl
-    << "  MeshResolution          = " << parameters.MeshResolution
+    << "  MinimalBuildingDistance = " << parameters.MeshResolution
     << std::endl
-    << "  MinimalBuildingDistance = " << parameters.MeshResolution;
+    << "  DomainHeight            = " << parameters.DomainHeight
+    << std::endl
+    << "  MeshResolution          = " << parameters.MeshResolution;
 }
 
 }

@@ -94,28 +94,28 @@ VCCore uses the following global parameters, controlled via a JSON file Paramete
 
 When parsing data from original data files (LAS point clouds and SHP files), a nonzero origin may be specified to offset the coordinate system relative to the origin. This has the advantage that very large values for the coordinates may be avoided (which is good for numerical stability).
 
-    X0 - x coordinate of new origin
-    Y0 - y coordinate of new origin
+    X0 = x-coordinate of new origin
+    Y0 = y-coordinate of new origin
 
-Height maps, city models and mesh are generated for a square domain with coordinates relative to the new origin specified by `X0` and `Y0`.
+Height maps, city models and meshes are generated for a square domain with coordinates relative to the new origin specified by `X0` and `Y0`.
 
-    XMin - x coordinate for lower left corner
-    YMin = y coordinate for lower left corner
-    XMax = x coordinate for upper right corner
-    YMax = y coordinate for upper right corner
+    XMin = x-coordinate for lower left corner
+    YMin = y-coordinate for lower left corner
+    XMax = x-coordinate for upper right corner
+    YMax = y-coordinate for upper right corner
 
 When generating the height map from LAS point cloud data, the `HeighMapResolution` parameter determines the resolution of the grid on to which the height map is sampled.
 
-    HeightMapResolution - resolution of height map grid
+    HeightMapResolution = resolution of height map grid
 
 When generating the city model from SHP file data, the `MinimalBuildingDistance` parameter determines a minimal distance between buildings. Buildings that are closer than the specified distance are automatically merged to avoid overlapping buildings or buildings that are very close (which may otherwise upset the mesh generation).
 
-    MinimalBuildingDistance - minimal distance between buildings
+    MinimalBuildingDistance = minimal distance between buildings
 
 When generating the volume mesh, the `DomainHeight` parameter determines the height of the domain relative to the average ground level. The `MeshResolution` parameter determines the maximum size (diameter) of the mesh cells.
 
-    DomainHeight   - height of computational domain (volume mesh)
-    MeshResolution - resolution of computational mesh (mesh size)
+    DomainHeight   = height of computational domain (volume mesh)
+    MeshResolution = resolution of computational mesh (mesh size)
 
 ## Code organization
 
