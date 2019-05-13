@@ -76,6 +76,9 @@ private:
                                double xMin, double yMin,
                                double xMax, double yMax)
     {
+        // Note that (x0, y0) are subtracted from the polygon coordinates.
+        // The coordinates are then checked vs the domain dimensions.
+
         // Create empty list of polygons
         std::vector<Polygon> transformedPolygons;
 
@@ -86,14 +89,15 @@ private:
             bool inside = true;
             for (auto const & p : polygon.Points)
             {
-                if (p.x < xMin || p.y < yMin || p.x > xMax || p.y > yMax)
+                Point2D q(p.x - x0, p.y - y0);
+                if (q.x < xMin || q.y < yMin || q.x > xMax || q.y > yMax)
                 {
                     inside = false;
                     break;
                 }
             }
 
-            // Add if inside and transform coordinates
+            // Add if inside
             if (inside)
             {
                 Polygon transformedPolygon;
@@ -105,6 +109,10 @@ private:
                 transformedPolygons.push_back(transformedPolygon);
             }
         }
+
+        std::cout << "CityModelGenerator: Found " << transformedPolygons.size()
+                  << " building(s) out of " << polygons.size()
+                  << " inside domain" << std::endl;
 
         return transformedPolygons;
     }
@@ -140,7 +148,7 @@ private:
         }
 
         std::cout << "CityModelGenerator: Skipped " << numSkipped
-                  << " building(s); expecting polygons to be closed."
+                  << " building(s); expecting polygons to be closed"
                   << std::endl;
 
         return closedPolygons;
@@ -174,8 +182,7 @@ private:
         }
 
         std::cout << "CityModelGenerator: Reversed " << numReversed
-                  << " polygon(s) out of " << polygons.size() << "."
-                  << std::endl;
+                  << " polygon(s) out of " << polygons.size() << std::endl;
 
         return orientedPolygons;
     }
@@ -281,7 +288,7 @@ private:
                 {
                     std::cout << "CityModelGenerator: Buildings "
                               << i << " and " << j
-                              << " are too close, merging." << std::endl;
+                              << " are too close, merging" << std::endl;
 
                     // Compute merged polygon
                     Polygon mergedPolygon = MergePolygons(Pi, Pj, d);

@@ -4,6 +4,8 @@
 #ifndef VC_CITY_MODEL_H
 #define VC_CITY_MODEL_H
 
+#include <string>
+#include <iomanip>
 #include <vector>
 
 #include "Point.h"
@@ -76,8 +78,8 @@ std::ostream& operator<<(std::ostream& stream, const CityModel& cityModel)
     const Point2D c = cityModel.Center();
     const double r = cityModel.Radius(c);
     stream << "CityModel with " << cityModel.Buildings.size()
-           << " buildings, radius R = " << r
-           << " and center C = " << c;
+           << " buildings and radius R = "
+           << std::fixed << std::setprecision(2) << r;
 }
 
 }

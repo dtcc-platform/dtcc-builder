@@ -2,8 +2,6 @@
 // Anders Logg 2019
 
 #include <iostream>
-#include <iomanip>
-#include <random>
 
 #include "CommandLine.h"
 #include "OSM.h"
@@ -16,55 +14,61 @@ using namespace VirtualCity;
 
 void Help()
 {
-    std::cerr << "Usage: vc-generate-citymodel PropertyMap.[shp/osm]"
-              << " HeightMap.json Parameters.json" << std::endl;
+  std::cerr << "Usage: vc-generate-citymodel PropertyMap.[shp/osm]"
+            << " HeightMap.json Parameters.json" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-    // Check command-line arguments
-    if (argc != 4)
-    {
-        Help();
-        return 1;
-    }
+  // Check command-line arguments
+  if (argc != 4)
+  {
+    Help();
+    return 1;
+  }
 
-    // Get filenames
-    const std::string fileNamePropertyMap(argv[1]);
-    const std::string fileNameHeightMap(argv[2]);
-    const std::string fileNameParameters(argv[3]);
+  // Get filenames
+  const std::string fileNamePropertyMap(argv[1]);
+  const std::string fileNameHeightMap(argv[2]);
+  const std::string fileNameParameters(argv[3]);
 
-    // Read polygons
-    std::vector<Polygon> polygons;
-    if (CommandLine::EndsWith(fileNamePropertyMap, ".shp"))
-        SHP::Read(polygons, fileNamePropertyMap);
-    else if (CommandLine::EndsWith(fileNamePropertyMap, ".osm"))
-        OSM::Read(polygons, fileNamePropertyMap);
+  // FIXME: OSM untested and needs some further work
+  if (CommandLine::EndsWith(fileNamePropertyMap, ".osm"))
+  {
+    std::cout << "Warning: OSM data untested and likely not working atm."
+              << std::endl;
+  }
 
-    // Read height map
-    HeightMap heightMap;
-    // FIXME: Testing
-    //JSON::Read(heightMap, fileNameHeightMap);
-    std::cout << heightMap << std::endl;
+  // Read polygons
+  std::vector<Polygon> polygons;
+  if (CommandLine::EndsWith(fileNamePropertyMap, ".shp"))
+    SHP::Read(polygons, fileNamePropertyMap);
+  else
+    OSM::Read(polygons, fileNamePropertyMap);
 
-    // Read parameters from file
-    Parameters parameters;
-    JSON::Read(parameters, fileNameParameters);
-    std::cout << parameters << std::endl;
+  // Read height map
+  HeightMap heightMap;
+  JSON::Read(heightMap, fileNameHeightMap);
+  std::cout << heightMap << std::endl;
 
-    // Generate city model
-    CityModel cityModel;
-    CityModelGenerator::GenerateCityModel(cityModel,
-                                          polygons,
-                                          heightMap,
-                                          parameters.X0, parameters.Y0,
-                                          parameters.XMin, parameters.YMin,
-                                          parameters.XMax, parameters.YMax,
-                                          parameters.MinimalBuildingDistance);
-    std::cout << cityModel << std::endl;
+  // Read parameters from file
+  Parameters parameters;
+  JSON::Read(parameters, fileNameParameters);
+  std::cout << parameters << std::endl;
 
-    // Write to file
-    JSON::Write(cityModel, "CityModel.json");
+  // Generate city model
+  CityModel cityModel;
+  CityModelGenerator::GenerateCityModel(cityModel,
+                                        polygons,
+                                        heightMap,
+                                        parameters.X0, parameters.Y0,
+                                        parameters.XMin, parameters.YMin,
+                                        parameters.XMax, parameters.YMax,
+                                        parameters.MinimalBuildingDistance);
+  std::cout << cityModel << std::endl;
 
-    return 0;
+  // Write to file
+  JSON::Write(cityModel, "CityModel.json");
+
+  return 0;
 }
