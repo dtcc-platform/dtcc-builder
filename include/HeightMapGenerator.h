@@ -49,8 +49,10 @@ public:
         hm.XStep = (hm.XMax - hm.XMin) / (hm.XSize - 1);
         hm.YStep = (hm.YMax - hm.YMin) / (hm.YSize - 1);
 
+        std::cout << "HeightMapGenerator: Computing mean elevation"
+                  << std::endl;
+
         // Compute mean height
-        std::cout << "HeightMapGenerator: Computing mean elevation" << std::endl;
         double meanElevationRaw = 0.0;
         for (auto const & q3D : pointCloud.Points)
             meanElevationRaw += q3D.z;
@@ -61,9 +63,6 @@ public:
         size_t numGridPoints = gridData.size();
         std::vector<size_t> numLocalPoints(numGridPoints);
         std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
-
-        // Reset grid data
-        std::fill(gridData.begin(), gridData.end(), 0.0);
 
         std::cout << "HeightMapGenerator: Extracting point cloud data"
                   << std::endl;
@@ -80,8 +79,8 @@ public:
                 continue;
             }
 
-            // Get 2D point
-            const Point2D q2D(q3D.x, q3D.y);
+            // Get 2D point and subtract origin
+            const Point2D q2D(q3D.x - x0, q3D.y - y0);
 
             // Recompute mean elevation (excluding outliers)
             meanElevation += q3D.z;
