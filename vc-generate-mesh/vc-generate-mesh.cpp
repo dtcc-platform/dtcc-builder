@@ -72,16 +72,15 @@ int main(int argc, char* argv[])
     FEniCS::ConvertMesh(mesh2D, _mesh2D);
     FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
-    // FIXME: Testing
     // Apply mesh smoothing to account for height map
-    // MeshSmoother::SmoothMesh(_mesh3D,
-    //                          heightMap,
-    //                          cityModel,
-    //                          mesh3D.DomainMarkers,
-    //                          parameters.MeshResolution);
+    MeshSmoother::SmoothMesh(_mesh3D,
+                              heightMap,
+                              cityModel,
+                              mesh3D.DomainMarkers,
+                              parameters.MeshResolution);
 
     // Generate height map function (used only for testing/visualization)
-    //auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
+    auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
 
     // Generate mesh boundary (used only for testing/visualization)
     dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
@@ -89,9 +88,9 @@ int main(int argc, char* argv[])
     // Write to files¨
     std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
     dolfin::File(fileNamePrefix + "Mesh2D.pvd") << _mesh2D;
-    //dolfin::File(fileNamePrefix + "Mesh3D.pvd") << _mesh3D;
+    dolfin::File(fileNamePrefix + "Mesh3D.pvd") << _mesh3D;
     dolfin::File(fileNamePrefix + "Boundary.pvd") << _boundary3D;
-    //dolfin::File(fileNamePrefix + "HeightMap.pvd") << *z;
+    dolfin::File(fileNamePrefix + "HeightMap.pvd") << *z;
 
     return 0;
 }

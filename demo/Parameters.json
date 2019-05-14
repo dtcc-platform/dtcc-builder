@@ -1,13 +1,13 @@
 {
   "Type": "Parameters",
   "DomainHeight": 50.0,
-  "HeightMapResolution": 5.0,
-  "MeshResolution": 5.0,
+  "HeightMapResolution": 1.5,
+  "MeshResolution": 2.5,
   "X0": 317200,
   "Y0": 6399800,
   "XMin": 0,
   "YMin": 0,
   "XMax": 800,
-  "YMax": 600,
+  "YMax": 800,
   "MinimalBuildingDistance": 0.5
 }
