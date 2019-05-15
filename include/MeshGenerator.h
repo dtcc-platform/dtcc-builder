@@ -120,13 +120,20 @@ public:
                     const Building& building = cityModel.Buildings[marker2D];
                     const double height = building.Height;
 
+                    // Note: || layer == 0 ensures that we skip at least one
+                    // layer for each building
+
                     // Case 0: below building height, don't add cells
-                    if (z + 0.5 * dz < height)
+                    if (z + 0.5 * dz < height || layer == 0)
                         continue;
 
                     // Case 1: just above building, add cells and set marker
                     else if (!firstLayerAdded[i])
                     {
+                        // std::cout << "Building " << marker2D << ":"
+                        //           << " layer = " << layer
+                        //           << " z = " << z
+                        //           << " h = " << height << std::endl;
                         marker3D = marker2D;
                         firstLayerAdded[i] = true;
                     }
@@ -219,7 +226,7 @@ private:
 
         // Set input switches for Triangle
         char triswitches[64];
-        sprintf(triswitches, "zpq25a%.16f", maxArea);
+        sprintf(triswitches, "zpq25a % .16f", maxArea);
         std::cout << "MeshGenerator: triangle parameters = "
                   << triswitches << std::endl;
 
@@ -303,18 +310,18 @@ private:
         // its center of mass.
         in.holelist = new double[2 * NumberOfHoles];
         {
-            size_t k = 0;
-            Point2D c;
-            for (auto const & InnerPolygon : SubDomains)
-            {
-                for (auto const & p : InnerPolygon)
-                {
-                    c += p;
-                }
-                c /= InnerPolygon.size();
-                in.holelist[k++] = c.x;
-                in.holelist[k++] = c.y;
-            }
+        size_t k = 0;
+        Point2D c;
+        for (auto const & InnerPolygon : SubDomains)
+        {
+        for (auto const & p : InnerPolygon)
+        {
+        c += p;
+        }
+        c /= InnerPolygon.size();
+        in.holelist[k++] = c.x;
+        in.holelist[k++] = c.y;
+        }
         }
         */
 
