@@ -169,7 +169,6 @@ private:
                   const dolfin::Array<double>& x) const
         {
             values[0] = heightMap(x[0], x[1]) - x[2];
-            // Note that x[2] is actually zero  ^^^^
         }
 
     };
@@ -233,9 +232,9 @@ private:
                 // Get index of neighboring cell (should only be one)
                 const size_t cellIndex = f->entities(3)[0];
 
-                // Check cell normal
-                const double nx = f->normal(2);
-                const bool downwardFacet = nx <= -1.0 + tol;
+                // Check z-component of cell normal
+                const double nz = f->normal(2);
+                const bool downwardFacet = nz <= -1.0 + tol;
 
                 // Get cell marker
                 const int cellMarker = domainMarkers[cellIndex];
