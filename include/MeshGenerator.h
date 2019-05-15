@@ -69,9 +69,10 @@ public:
     // with building heights snapped to the closest layer. The domain
     // markers label tetrahedra just above buildings as 0, 1, 2, etc.
     // Tetrahedra just above ground level are labeled -1 and remaining
-    // tetrahedra are labeld -2.
+    // tetrahedra are labeled -2.
     static Mesh3D GenerateMesh3D(const Mesh2D& mesh2D,
                                  const CityModel& cityModel,
+                                 double groundElevation,
                                  double domainHeight,
                                  double meshResolution)
     {
@@ -100,7 +101,7 @@ public:
         for (size_t layer = 0; layer < numLayers; layer++)
         {
             // Height of base of layer
-            const double z = layer * dz;
+            const double z = layer * dz + groundElevation;
 
             // Add tetrahedra for layer
             for (size_t i = 0; i < mesh2D.Cells.size(); i++)
@@ -123,7 +124,7 @@ public:
                     if (z + 0.5 * dz < height)
                         continue;
 
-                    // Case 1: close to building, add cells and set marker
+                    // Case 1: just above building, add cells and set marker
                     else if (!firstLayerAdded[i])
                     {
                         marker3D = marker2D;
@@ -137,12 +138,12 @@ public:
                     }
                 }
 
-                // // Get sorted vertex indices for bottom layer
+                // Get sorted vertex indices for bottom layer
                 const size_t u0 = mesh2D.Cells[i].v0 + offset;
                 const size_t u1 = mesh2D.Cells[i].v1 + offset;
                 const size_t u2 = mesh2D.Cells[i].v2 + offset;
 
-                // // Get sorted vertices for top layer
+                // Get sorted vertices for top layer
                 const size_t v0 = u0 + layerSize;
                 const size_t v1 = u1 + layerSize;
                 const size_t v2 = u2 + layerSize;
@@ -187,7 +188,7 @@ public:
             if (pointIndices[i] != numPoints)
             {
                 const Point2D& p2D = mesh2D.Points[i % layerSize];
-                const double z = (i / layerSize) * dz;
+                const double z = (i / layerSize) * dz + groundElevation;
                 Point3D p3D(p2D.x, p2D.y, z);
                 mesh3D.Points.push_back(p3D);
             }

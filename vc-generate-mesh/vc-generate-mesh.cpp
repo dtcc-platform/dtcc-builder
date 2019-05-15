@@ -60,9 +60,13 @@ int main(int argc, char* argv[])
                     parameters.MeshResolution);
     std::cout << mesh2D << std::endl;
 
+    // Compute ground elevation
+    const double groundElevation = heightMap.Min();
+
     // Generate 3D mesh (excluding height map)
     Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(mesh2D,
                     cityModel,
+                    groundElevation,
                     parameters.DomainHeight,
                     parameters.MeshResolution);
     std::cout << mesh3D << std::endl;

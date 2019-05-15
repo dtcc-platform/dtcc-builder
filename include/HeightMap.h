@@ -5,6 +5,7 @@
 #define VC_HEIGHT_MAP_H
 
 #include <vector>
+#include <algorithm>
 #include <assert.h>
 
 #include "Point.h"
@@ -80,6 +81,18 @@ public:
                          X * Y * z11;
 
         return z;
+    }
+
+    // Compute minimal height
+    double Min()
+    {
+        std::min_element(GridData.begin(), GridData.end());
+    }
+
+    // Compute maximal height
+    double Max()
+    {
+        std::max_element(GridData.begin(), GridData.end());
     }
 
     // Map index to coordinate

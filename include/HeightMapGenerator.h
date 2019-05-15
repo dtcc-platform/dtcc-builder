@@ -52,22 +52,21 @@ public:
         std::cout << "HeightMapGenerator: Computing mean elevation"
                   << std::endl;
 
-        // Compute mean height
+        // Compute mean raw elevation (used for skipping outliers)
         double meanElevationRaw = 0.0;
         for (auto const & q3D : pointCloud.Points)
             meanElevationRaw += q3D.z;
         meanElevationRaw /= pointCloud.Points.size();
 
         // Initialize counters for number of points for local mean
-        std::vector<double>& gridData = heightMap.GridData;
-        size_t numGridPoints = gridData.size();
+        size_t numGridPoints = hm.GridData.size();
         std::vector<size_t> numLocalPoints(numGridPoints);
         std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
         std::cout << "HeightMapGenerator: Extracting point cloud data"
                   << std::endl;
 
-        // Iterate over point cloud
+        // Iterate over point cloud and sum up heights
         size_t numOutliers = 0;
         double meanElevation = 0.0;
         for (auto const & q3D : pointCloud.Points)
@@ -86,10 +85,10 @@ public:
             meanElevation += q3D.z;
 
             // Iterate over neighbors in grid
-            for (size_t i : heightMap.Coordinate2Indices(q2D))
+            for (size_t i : hm.Coordinate2Indices(q2D))
             {
                 // Compute distance to grid point
-                const Point2D p2D = heightMap.Index2Coordinate(i);
+                const Point2D p2D = hm.Index2Coordinate(i);
                 const double dx = std::abs(p2D.x - q2D.x);
                 const double dy = std::abs(p2D.y - q2D.y);
 
@@ -98,9 +97,9 @@ public:
                 // tighter threshold.
 
                 // Add if closer than threshold
-                if (dx < heightMap.XStep && dy < heightMap.YStep)
+                if (dx < hm.XStep && dy < hm.YStep)
                 {
-                    gridData[i] += q3D.z;
+                    hm.GridData[i] += q3D.z;
                     numLocalPoints[i] += 1;
                 }
             }
@@ -117,7 +116,7 @@ public:
         for (size_t i = 0; i < numGridPoints; i++)
         {
             if (numLocalPoints[i] > 0)
-                gridData[i] /= numLocalPoints[i];
+                hm.GridData[i] /= numLocalPoints[i];
             else
                 missingIndices.push_back(i);
         }
@@ -135,8 +134,7 @@ public:
                   << std::endl;
 
         // Fill in data for missing grid points
-        const size_t maxDiameter = std::max(heightMap.XSize,
-                                            heightMap.YSize);
+        const size_t maxDiameter = std::max(hm.XSize, hm.YSize);
         size_t numFound = 0;
         size_t maxStep = 0;
         for (size_t i : missingIndices)
@@ -150,11 +148,11 @@ public:
 
                 // Search grid points at distance step
                 bool found = false;
-                for (size_t j : heightMap.Index2Boundary(i, step))
+                for (size_t j : hm.Index2Boundary(i, step))
                 {
                     if (numLocalPoints[j] > 0)
                     {
-                        gridData[i] = gridData[j];
+                        hm.GridData[i] = hm.GridData[j];
                         numFound += 1;
                         found = true;
                         break;
