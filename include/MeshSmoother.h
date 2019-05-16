@@ -67,13 +67,13 @@ public:
         ComputeBoundaryMarkers(*subDomains, domainMarkers);
 
         // Create expressions for ground and building heights
-        auto hg = std::make_shared<GroundExpression3D>(heightMap);
+        auto hg = std::make_shared<GroundExpression>(heightMap);
         auto hb = std::make_shared<BuildingsExpression>
                   (cityModel, domainMarkers);
 
         // Create boundary conditions
         auto bcg = std::make_shared<dolfin::DirichletBC>
-                   (V, hg, subDomains, 1);
+                   (V, hg, subDomains, 2);
         auto bcb = std::make_shared<dolfin::DirichletBC>
                    (V, hb, subDomains, 0);
 
@@ -128,7 +128,7 @@ public:
         // Create boundary condition
         auto bcz = std::make_shared<dolfin::DirichletBC>
                    (V,
-                    std::make_shared<GroundExpression2D>(heightMap),
+                    std::make_shared<GroundExpression>(heightMap),
                     std::make_shared<EntireDomain>());
 
         // Create function and apply boundary condition
@@ -152,47 +152,11 @@ private:
         }
     };
 
-    // Boundary value for ground (2D)
-    class GroundExpression2D : public dolfin::Expression
-    {
-    public:
-
-        // Reference to height map
-        const HeightMap& heightMap;
-
-        // Constructor
-        GroundExpression2D(const HeightMap& heightMap)
-            : heightMap(heightMap), Expression() {}
-
-        // Evaluation of z-displacement
-        void eval(dolfin::Array<double>& values,
-                  const dolfin::Array<double>& x) const
-        {
-            values[0] = heightMap(x[0], x[1]);
-        }
-
-    };
-
-    // Boundary value for ground (3D)
-    class GroundExpression3D : public dolfin::Expression
-    {
-    public:
-
-        // Reference to height map
-        const HeightMap& heightMap;
-
-        // Constructor
-        GroundExpression3D(const HeightMap& heightMap)
-            : heightMap(heightMap), Expression() {}
-
-        // Evaluation of z-displacement
-        void eval(dolfin::Array<double>& values,
-                  const dolfin::Array<double>& x) const
-        {
-            values[0] = heightMap(x[0], x[1]) - x[2];
-        }
-
-    };
+    // A note on subtracting z-coordinate in Expressions below: Since
+    // we solve for the z-displacement, we need to subtract the z-coordinate
+    // but since the expressions are also used by GenerateHeightMapFunction()
+    // to generate a 2D height map with absolute height values, the
+    // subtraction should only be done in the 3D case.
 
     // Boundary value for buildings
     class BuildingsExpression : public dolfin::Expression
@@ -216,14 +180,86 @@ private:
         // Evaluation of z-displacement
         void eval(dolfin::Array<double>& values,
                   const dolfin::Array<double>& x,
-                  const ufc::cell& cell) const
+                  const ufc::cell& ufc_cell) const
         {
             // Get building height
-            const size_t i = domainMarkers[cell.index];
+            const size_t i = domainMarkers[ufc_cell.index];
             const double z = cityModel.Buildings[i].Height;
 
             // Set height of building
-            values[0] = z - x[2];
+            values[0] = z;
+
+            // See note above on subtracting z-coordinate
+            if (x.size() == 3)
+                values[0] -= x[2];
+        }
+
+    };
+
+    // Boundary value for building halos (2D)
+    class HaloExpression : public dolfin::Expression
+    {
+    public:
+
+        // Reference to height map
+        const HeightMap& heightMap;
+
+        // Reference to mesh
+        const dolfin::Mesh& mesh;
+
+        // Constructor
+        HaloExpression(const HeightMap& heightMap, const dolfin::Mesh& mesh)
+            : heightMap(heightMap), mesh(mesh), Expression() {}
+
+        // Evaluation of z-displacement
+        void eval(dolfin::Array<double>& values,
+                  const dolfin::Array<double>& x,
+                  const ufc::cell& ufc_cell) const
+        {
+            // Get DOLFIN cell
+            dolfin::Cell cell(mesh, ufc_cell.index);
+
+            // Check each cell vertex and take the minimum
+            double zmin = std::numeric_limits<double>::max();
+            for (dolfin::VertexIterator vertex(cell); !vertex.end(); ++vertex)
+            {
+                const dolfin::Point p = vertex->point();
+                const double z = heightMap(p.x(), p.y());
+                zmin = std::min(zmin, z);
+            }
+
+            // Set value
+            values[0] = zmin;
+
+            // See note above on subtracting z-coordinate
+            if (x.size() == 3)
+                values[0] -= x[2];
+        }
+
+    };
+
+    // Boundary value for ground
+    class GroundExpression : public dolfin::Expression
+    {
+    public:
+
+        // Reference to height map
+        const HeightMap& heightMap;
+
+        // Constructor
+        GroundExpression(const HeightMap& heightMap)
+            : heightMap(heightMap), Expression() {}
+
+        // Evaluation of z-displacement
+        void eval(dolfin::Array<double>& values,
+                  const dolfin::Array<double>& x) const
+        {
+            // Evaluate height map
+            values[0] = heightMap(x[0], x[1]);
+
+            // See note above on subtracting z-coordinate
+            if (x.size() == 3)
+                values[0] -= x[2];
         }
 
     };
@@ -235,17 +271,20 @@ private:
     {
         // The domain markers indicate a nonnegative building number for cells
         // that touch the roofs of buildings, -1 for cells that touch the
-        // ground, and -2 for other cells. We now need to convert these *cell*
-        // markers to *facet* markers.
+        // ground close to buildings, -2 for other cells that touch the ground
+        // and -3 for remaining cells. We now need to convert these *cell*
+        // markers to *facet* markers. The facet markers are set as follows:
         //
-        // Facets that touch the roofs of buildings are marked as 0, facets
-        // touching the ground are marked as 1 and the rest are marked as 2.
+        // 0: roofs of buildings
+        // 1: ground close to buildings (converted from -1 cell markers)
+        // 2: ground away from buildings (converted from -2 cell markers)
+        // 3: everything else
 
         // Iterate over the facets of the mesh
         for (dolfin::FacetIterator f(*subDomains.mesh()); !f.end(); ++f)
         {
             // Set default facet marker
-            size_t facetMarker = 2;
+            size_t facetMarker = 3;
 
             // Check if we are on the boundary
             if (f->exterior())
@@ -260,11 +299,13 @@ private:
                 // Get cell marker
                 const int cellMarker = domainMarkers[cellIndex];
 
-                // Set facet marker (default to 2 in the else case)
+                // Set facet marker (default to 3 in the else case)
                 if (downwardFacet && cellMarker >= 0)
                     facetMarker = 0;
                 else if (downwardFacet && cellMarker == -1)
                     facetMarker = 1;
+                else if (downwardFacet && cellMarker == -2)
+                    facetMarker = 2;
             }
 
             // Set marker value

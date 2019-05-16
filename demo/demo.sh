@@ -11,8 +11,8 @@
 #  ../data/*.las Parameters.json
 
 # Generate city model
-../vc-generate-citymodel/build/vc-generate-citymodel \
-  ../data/PropertyMap.shp HeightMap.json Parameters.json
+#../vc-generate-citymodel/build/vc-generate-citymodel \
+#  ../data/PropertyMap.shp HeightMap.json Parameters.json
 
 # Generate mesh
 ../vc-generate-mesh/build/vc-generate-mesh \

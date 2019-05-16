@@ -40,6 +40,12 @@ public:
         return (*this)(p.x, p.y);
     }
 
+    // Return height (z) at 3D point p (z-coordinate ignored)
+    double operator() (const Point3D& p) const
+    {
+        return (*this)(p.x, p.y);
+    }
+
     // Return height (z) at 2D point p
     double operator() (double x, double y) const
     {
