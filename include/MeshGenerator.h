@@ -391,9 +391,13 @@ private:
     // Compute domain markers for subdomains
     static void ComputeDomainMarkers(Mesh2D& mesh, const CityModel& cityModel)
     {
-        // Initialize markers and set all markers to -2 (ground)
+        // Initialize domain markers and set all markers to -2 (ground)
         mesh.DomainMarkers.resize(mesh.Cells.size());
         std::fill(mesh.DomainMarkers.begin(), mesh.DomainMarkers.end(), -2);
+
+        // Initialize markers for vertices belonging to a building
+        std::vector<bool> isBuildingVertex(mesh.Points.size());
+        std::fill(isBuildingVertex.begin(), isBuildingVertex.end(), false);
 
         // Iterate over cells to mark buildings
         for (size_t i = 0; i < mesh.Cells.size(); i++)
@@ -402,9 +406,33 @@ private:
             const Point2D c = mesh.MidPoint(mesh.Cells[i]);
             const int marker = cityModel.FindBuilding(c);
 
-            // Set marker for subdomain
+            // Check if we are inside a building
             if (marker >= 0)
+            {
+                // Set domain marker to building number
                 mesh.DomainMarkers[i] = marker;
+
+                // Mark all cell vertices as belonging to a building
+                const Simplex2D& simplex = mesh.Cells[i];
+                isBuildingVertex[simplex.v0] = true;
+                isBuildingVertex[simplex.v1] = true;
+                isBuildingVertex[simplex.v2] = true;
+            }
+        }
+
+        // Iterate over cells to mark building halos
+        for (size_t i = 0; i < mesh.Cells.size(); i++)
+        {
+            // Check if any of the cell vertices belongs to a building
+            const Simplex2D& simplex = mesh.Cells[i];
+            const bool touchesBuilding = (isBuildingVertex[simplex.v0] ||
+                                          isBuildingVertex[simplex.v1] ||
+                                          isBuildingVertex[simplex.v2]);
+
+            // Mark as halo (-1) if the cell touches a building but is not
+            // itself inside footprint (not marked in the previous step)
+            if (touchesBuilding && mesh.DomainMarkers[i] == -2)
+                mesh.DomainMarkers[i] = -1;
         }
     }
 
