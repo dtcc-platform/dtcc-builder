@@ -66,20 +66,24 @@ public:
         auto subDomains = std::make_shared<dolfin::MeshFunction<size_t>>(m, 2);
         ComputeBoundaryMarkers(*subDomains, domainMarkers);
 
-        // Create expressions for ground and building heights
-        auto hg = std::make_shared<GroundExpression>(heightMap);
-        auto hb = std::make_shared<BuildingsExpression>
+        // Create expressions for boundary values (heights)
+        auto h0 = std::make_shared<GroundExpression>(heightMap);
+        auto h1 = std::make_shared<HaloExpression>(heightMap, mesh);
+        auto h2 = std::make_shared<BuildingsExpression>
                   (cityModel, domainMarkers);
 
         // Create boundary conditions
-        auto bcg = std::make_shared<dolfin::DirichletBC>
-                   (V, hg, subDomains, 2);
-        auto bcb = std::make_shared<dolfin::DirichletBC>
-                   (V, hb, subDomains, 0);
+        auto bc0 = std::make_shared<dolfin::DirichletBC>
+                   (V, h0, subDomains, 2);
+        auto bc1 = std::make_shared<dolfin::DirichletBC>
+                   (V, h1, subDomains, 0);
+        auto bc2 = std::make_shared<dolfin::DirichletBC>
+                   (V, h2, subDomains, 0);
 
         // Apply boundary conditions
-        bcg->apply(*A, *b);
-        bcb->apply(*A, *b);
+        bc2->apply(*A, *b);
+        bc1->apply(*A, *b);
+        bc0->apply(*A, *b);
 
         // Create linear solver
         dolfin::KrylovSolver solver(mesh.mpi_comm(), "bicgstab", "amg");
