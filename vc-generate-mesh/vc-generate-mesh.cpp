@@ -78,10 +78,10 @@ int main(int argc, char* argv[])
 
     // Apply mesh smoothing to account for height map
     MeshSmoother::SmoothMesh(_mesh3D,
-                              heightMap,
-                              cityModel,
-                              mesh3D.DomainMarkers,
-                              parameters.MeshResolution);
+                             heightMap,
+                             cityModel,
+                             mesh3D.DomainMarkers,
+                             parameters.MeshResolution);
 
     // Generate height map function (used only for testing/visualization)
     auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);

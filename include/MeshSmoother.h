@@ -67,7 +67,7 @@ public:
         ComputeBoundaryMarkers(*subDomains, domainMarkers);
 
         // Create expressions for ground and building heights
-        auto hg = std::make_shared<GroundExpression>(heightMap);
+        auto hg = std::make_shared<GroundExpression3D>(heightMap);
         auto hb = std::make_shared<BuildingsExpression>
                   (cityModel, domainMarkers);
 
@@ -128,7 +128,7 @@ public:
         // Create boundary condition
         auto bcz = std::make_shared<dolfin::DirichletBC>
                    (V,
-                    std::make_shared<GroundExpression>(heightMap),
+                    std::make_shared<GroundExpression2D>(heightMap),
                     std::make_shared<EntireDomain>());
 
         // Create function and apply boundary condition
@@ -152,8 +152,8 @@ private:
         }
     };
 
-    // Boundary value for ground (height map)
-    class GroundExpression : public dolfin::Expression
+    // Boundary value for ground (2D)
+    class GroundExpression2D : public dolfin::Expression
     {
     public:
 
@@ -161,7 +161,28 @@ private:
         const HeightMap& heightMap;
 
         // Constructor
-        GroundExpression(const HeightMap& heightMap)
+        GroundExpression2D(const HeightMap& heightMap)
+            : heightMap(heightMap), Expression() {}
+
+        // Evaluation of z-displacement
+        void eval(dolfin::Array<double>& values,
+                  const dolfin::Array<double>& x) const
+        {
+            values[0] = heightMap(x[0], x[1]);
+        }
+
+    };
+
+    // Boundary value for ground (3D)
+    class GroundExpression3D : public dolfin::Expression
+    {
+    public:
+
+        // Reference to height map
+        const HeightMap& heightMap;
+
+        // Constructor
+        GroundExpression3D(const HeightMap& heightMap)
             : heightMap(heightMap), Expression() {}
 
         // Evaluation of z-displacement
