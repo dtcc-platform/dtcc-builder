@@ -5,6 +5,8 @@
 #define VC_COMMAND_LINE_H
 
 #include <string>
+#include <sys/types.h>
+#include <dirent.h>
 
 namespace VirtualCity
 {
@@ -39,6 +41,28 @@ public:
     static int GetIntOption(std::string option, int argc, char* argv[])
     {
         return atoi(GetOption(option, argc, argv).c_str());
+    }
+
+    static std::vector<std::string> ListDirectory(std::string directory)
+    {
+        std::vector<std::string> fileNames;
+
+        std::cout << "dir = " << directory << std::endl;
+
+        // Open directory
+        DIR* dirp = opendir(directory.c_str());
+        if (dirp == NULL)
+            return fileNames;
+
+        // Read directory
+        struct dirent * dp;
+        while ((dp = readdir(dirp)) != NULL)
+            fileNames.push_back(std::string(dp->d_name));
+
+        // Close directorys
+        closedir(dirp);
+
+        return fileNames;
     }
 
 };

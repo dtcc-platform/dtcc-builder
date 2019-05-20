@@ -50,6 +50,7 @@ public:
             throw std::runtime_error("Not a VirtualCity Parameters JSON file.");
 
         // Extract JSON data
+        parameters.DataDirectory = TryReadString("DataDirectory", json);
         parameters.X0 = TryReadDouble("X0", json);
         parameters.Y0 = TryReadDouble("Y0", json);
         parameters.XMin = TryReadDouble("XMin", json);
@@ -71,6 +72,7 @@ public:
         // Set JSON data
         nlohmann::json json;
         json["Type"] = "Parameters";
+        json["DataDirectory"] = parameters.DataDirectory;
         json["X0"] = parameters.X0;
         json["Y0"] = parameters.Y0;
         json["YMin"] = parameters.YMin;
@@ -209,8 +211,18 @@ public:
 
 private:
 
+    // Try reading string value
+    static std::string TryReadString(std::string key,
+                                     const nlohmann::json& json)
+    {
+        if (json.find(key) == json.end())
+            throw std::runtime_error("Missing field '" + key + "' in JSON file.");
+        return json[key];
+    }
+
     // Try reading double value
-    static double TryReadDouble(std::string key, const nlohmann::json& json)
+    static double TryReadDouble(std::string key,
+                                const nlohmann::json& json)
     {
         if (json.find(key) == json.end())
             throw std::runtime_error("Missing field '" + key + "' in JSON file.");

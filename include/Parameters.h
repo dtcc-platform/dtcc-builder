@@ -15,6 +15,9 @@ public:
 
   //--- Run-time parameters (parsed from file) ---
 
+  // Directory for input/output
+  std::string DataDirectory;
+
   // Origin
   double X0 = 0.0;
   double Y0 = 0.0;
@@ -56,6 +59,8 @@ public:
 std::ostream& operator<<(std::ostream& s, const Parameters& parameters)
 {
   s << "Parameters:" << std::endl
+    << "  DataDirectory           = " << parameters.DataDirectory
+    << std::endl
     << "  X0                      = " << parameters.X0
     << std::endl
     << "  Y0                      = " << parameters.Y0

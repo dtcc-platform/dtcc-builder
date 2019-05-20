@@ -92,6 +92,12 @@ Lantmäteriet:Laserdata vektor EPSG:3006
 
 VCCore uses the following global parameters, controlled via a JSON file Parameters.json.
 
+All data files are assumed to be located in a directory determined by the
+parameter `DataDirectory`. Any generated data files will be stored in the
+same location.
+
+    DataDirectory = directory for input/output
+
 When parsing data from original data files (LAS point clouds and SHP files), a nonzero origin may be specified to offset the coordinate system relative to the origin. This has the advantage that very large values for the coordinates may be avoided (which is good for numerical stability).
 
     X0 = x-coordinate of new origin
