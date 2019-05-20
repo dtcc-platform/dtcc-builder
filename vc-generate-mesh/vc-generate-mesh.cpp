@@ -2,56 +2,54 @@
 // Anders Logg 2018
 
 #include <iostream>
+#include <string>
+#include <vector>
 #include <dolfin.h>
 
 #include "CommandLine.h"
 #include "Parameters.h"
+#include "HeightMap.h"
+#include "CityModel.h"
+#include "Mesh.h"
 #include "MeshGenerator.h"
 #include "MeshSmoother.h"
-#include "HeightMap.h"
 #include "JSON.h"
 #include "FEniCS.h"
 
 using namespace std;
 using namespace VirtualCity;
 
-void help()
+void Help()
 {
-    cerr << "Usage: vc-generate-mesh CityModel.json HeightMap.json Parameters.json" << endl;
+    cerr << "Usage: vc-generate-mesh Parameters.json" << endl;
 }
 
 int main(int argc, char* argv[])
 {
     // Check command-line arguments
-    if (argc != 4)
+    if (argc != 2)
     {
-        help();
+        Help();
         return 1;
     }
 
-    // Get filenames
-    const std::string fileNameCityModel(argv[1]);
-    const std::string fileNameHeightMap(argv[2]);
-    const std::string fileNameParameters(argv[3]);
+    // Read parameters
+    Parameters parameters;
+    JSON::Read(parameters, argv[1]);
+    std::cout << parameters << std::endl;
 
-    // Set filename for output
-    const size_t idx = fileNameCityModel.rfind('.');
-    const std::string fileNamePrefix = fileNameCityModel.substr(0, idx);
+    // Get data directory (add trailing slash just in case)
+    const std::string dataDirectory = parameters.DataDirectory + "/";
 
-    // Read city model from file
+    // Read city model data
     CityModel cityModel;
-    JSON::Read(cityModel, fileNameCityModel);
+    JSON::Read(cityModel, dataDirectory + "CityModel.json");
     std::cout << cityModel << std::endl;
 
-    // Read height map from file
+    // Read height map data
     HeightMap heightMap;
-    JSON::Read(heightMap, fileNameHeightMap);
+    JSON::Read(heightMap, dataDirectory + "HeightMap.json");
     std::cout << heightMap << std::endl;
-
-    // Read parameters from file
-    Parameters parameters;
-    JSON::Read(parameters, fileNameParameters);
-    std::cout << parameters << std::endl;
 
     // Generate 2D mesh
     Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
@@ -89,12 +87,12 @@ int main(int argc, char* argv[])
     // Generate mesh boundary (used only for testing/visualization)
     dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
 
-    // Write to files¨
+    // Write mesh to files¨
     std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
-    dolfin::File(fileNamePrefix + "Mesh2D.pvd") << _mesh2D;
-    dolfin::File(fileNamePrefix + "Mesh3D.pvd") << _mesh3D;
-    dolfin::File(fileNamePrefix + "Boundary.pvd") << _boundary3D;
-    dolfin::File(fileNamePrefix + "HeightMap.pvd") << *z;
+    dolfin::File(dataDirectory + "Mesh2D.pvd") << _mesh2D;
+    dolfin::File(dataDirectory + "Mesh3D.pvd") << _mesh3D;
+    dolfin::File(dataDirectory + "MeshBoundary.pvd") << _boundary3D;
+    dolfin::File(dataDirectory + "HeightMap.pvd") << *z;
 
     return 0;
 }

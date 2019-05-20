@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "CommandLine.h"
+#include "Parameters.h"
 #include "Polygon.h"
 #include "HeightMap.h"
 #include "CityModel.h"

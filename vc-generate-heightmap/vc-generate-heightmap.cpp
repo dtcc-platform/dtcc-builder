@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "CommandLine.h"
+#include "Parameters.h"
 #include "HeightMap.h"
 #include "HeightMapGenerator.h"
 #include "LAS.h"
