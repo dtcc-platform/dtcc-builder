@@ -2,73 +2,63 @@
 // Anders Logg 2019
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "CommandLine.h"
-#include "OSM.h"
-#include "SHP.h"
-#include "JSON.h"
+#include "Polygon.h"
+#include "HeightMap.h"
 #include "CityModel.h"
 #include "CityModelGenerator.h"
+#include "SHP.h"
+#include "JSON.h"
 
 using namespace VirtualCity;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-citymodel PropertyMap.[shp/osm]"
-            << " HeightMap.json Parameters.json" << std::endl;
+    std::cerr << "Usage: vc-generate-citymodel Parameters.json" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-  // Check command-line arguments
-  if (argc != 4)
-  {
-    Help();
-    return 1;
-  }
+    // Check command-line arguments
+    if (argc != 2)
+    {
+      Help();
+      return 1;
+    }
 
-  // Get filenames
-  const std::string fileNamePropertyMap(argv[1]);
-  const std::string fileNameHeightMap(argv[2]);
-  const std::string fileNameParameters(argv[3]);
+    // Read parameters
+    Parameters parameters;
+    JSON::Read(parameters, argv[1]);
+    std::cout << parameters << std::endl;
 
-  // FIXME: OSM untested and needs some further work
-  if (CommandLine::EndsWith(fileNamePropertyMap, ".osm"))
-  {
-    std::cout << "Warning: OSM data untested and likely not working atm."
-              << std::endl;
-  }
+    // Get data directory (add trailing slash just in case)
+    const std::string dataDirectory = parameters.DataDirectory + "/";
 
-  // Read polygons
-  std::vector<Polygon> polygons;
-  if (CommandLine::EndsWith(fileNamePropertyMap, ".shp"))
-    SHP::Read(polygons, fileNamePropertyMap);
-  else
-    OSM::Read(polygons, fileNamePropertyMap);
+    // Read property map data
+    std::vector<Polygon> polygons;
+    SHP::Read(polygons, dataDirectory + "PropertyMap.shp");
 
-  // Read height map
-  HeightMap heightMap;
-  JSON::Read(heightMap, fileNameHeightMap);
-  std::cout << heightMap << std::endl;
+    // Read height map data
+    HeightMap heightMap;
+    JSON::Read(heightMap, dataDirectory + "HeightMap.json");
+    std::cout << heightMap << std::endl;
 
-  // Read parameters from file
-  Parameters parameters;
-  JSON::Read(parameters, fileNameParameters);
-  std::cout << parameters << std::endl;
+    // Generate city model
+    CityModel cityModel;
+    CityModelGenerator::GenerateCityModel(cityModel,
+                                          polygons,
+                                          heightMap,
+                                          parameters.X0, parameters.Y0,
+                                          parameters.XMin, parameters.YMin,
+                                          parameters.XMax, parameters.YMax,
+                                          parameters.MinimalBuildingDistance);
+    std::cout << cityModel << std::endl;
 
-  // Generate city model
-  CityModel cityModel;
-  CityModelGenerator::GenerateCityModel(cityModel,
-                                        polygons,
-                                        heightMap,
-                                        parameters.X0, parameters.Y0,
-                                        parameters.XMin, parameters.YMin,
-                                        parameters.XMax, parameters.YMax,
-                                        parameters.MinimalBuildingDistance);
-  std::cout << cityModel << std::endl;
+    // Write city model to file
+    JSON::Write(cityModel, dataDirectory + "CityModel.json");
 
-  // Write to file
-  JSON::Write(cityModel, "CityModel.json");
-
-  return 0;
+    return 0;
 }

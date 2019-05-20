@@ -13,7 +13,7 @@
 
 using namespace VirtualCity;
 
-void help()
+void Help()
 {
     std::cerr << "Usage: vc-generate-heightmap Parameters.json" << std::endl;
 }
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     // Check command-line arguments
     if (argc != 2)
     {
-        help();
+        Help();
         return 1;
     }
 
