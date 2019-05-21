@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-docker start vcsession
-docker attach vcsession
+docker start -a vcsession

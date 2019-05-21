@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker create -ti --name vcsession vcimage /bin/bash
+docker create -ti --name vcsession vcimage
