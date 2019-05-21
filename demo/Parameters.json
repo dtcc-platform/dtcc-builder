@@ -1,6 +1,6 @@
 {
   "Type": "Parameters",
-  "DataDirectory": "/home/vcuser/vccore/data",
+  "DataDirectory": "/home/vcuser/vccore/data/Lindholmen",
   "DomainHeight": 75.0,
   "HeightMapResolution": 0.5,
   "MeshResolution": 10.0,
