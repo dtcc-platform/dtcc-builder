@@ -15,18 +15,18 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get -y install locales sudo
 
 # Install libraries used by VCCore
-#RUN apt-get update && apt-get install -y \
-#    nlohmann-json-dev \
-#    libshp-dev \
-#    liblas-dev \
-#    liblas-c-dev \
-#    libpugixml-dev \
-#    libproj-dev \
-#    libtriangle-dev
+RUN apt-get update && apt-get install -y \
+    nlohmann-json-dev \
+    libshp-dev \
+    liblas-dev \
+    liblas-c-dev \
+    libpugixml-dev \
+    libproj-dev \
+    libtriangle-dev
 
 # Install FEniCS
-#RUN add-apt-repository ppa:fenics-packages/fenics
-#RUN apt-get update && apt-get install -y fenics
+RUN add-apt-repository ppa:fenics-packages/fenics
+RUN apt-get update && apt-get install -y fenics
 
 # Add user and change to user
 RUN useradd -m $USER -G sudo && \
