@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+docker create -ti --name vccontainer -v$(pwd)/..:/home/vcuser/vccore vcimage
