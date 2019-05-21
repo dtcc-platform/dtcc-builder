@@ -8,18 +8,18 @@ ENV USER vcuser
 ENV HOME /home/$USER
 
 # Install basic dependencies
-#RUN apt-get update && apt-get install -y \
-#    nlohmann-json-dev \
-#    libshp-dev \
-#    liblas-dev \
-#    liblas-c-dev \
-#    libpugixml-dev \
-#    libproj-dev \
-#    libtriangle-dev
+RUN apt-get update && apt-get install -y \
+    nlohmann-json-dev \
+    libshp-dev \
+    liblas-dev \
+    liblas-c-dev \
+    libpugixml-dev \
+    libproj-dev \
+    libtriangle-dev
 
 # Install FEniCS
-#RUN add-apt-repository ppa:fenics-packages/fenics
-#RUN apt-get update && apt-get install -y fenics
+RUN add-apt-repository ppa:fenics-packages/fenics
+RUN apt-get update && apt-get install -y fenics
 
 # Add user and change to user
 RUN useradd -m -s /bin/bash -G sudo $USER
@@ -30,4 +30,5 @@ WORKDIR $HOME
 COPY Welcome $HOME/.welcome
 RUN echo "cat $HOME/.welcome" >> $HOME/.bashrc
 
+# Start bash login shell
 ENTRYPOINT ["bash", "-l"]
