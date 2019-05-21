@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+git clone git@gitlab.com:virtualcity.chalmers/vcdata.git
+mv vcdata/* .
+rm -rf vcdata README.md
