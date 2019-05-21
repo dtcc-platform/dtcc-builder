@@ -1,6 +1,6 @@
 {
   "Type": "Parameters",
-  "DataDirectory": "/home/fenics/shared/data",
+  "DataDirectory": "/home/vcuser/vccore/data",
   "DomainHeight": 75.0,
   "HeightMapResolution": 0.5,
   "MeshResolution": 10.0,

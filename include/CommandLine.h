@@ -47,8 +47,6 @@ public:
     {
         std::vector<std::string> fileNames;
 
-        std::cout << "dir = " << directory << std::endl;
-
         // Open directory
         DIR* dirp = opendir(directory.c_str());
         if (dirp == NULL)
