@@ -3,90 +3,75 @@
 VirtualCity@Chalmers is a multidisciplinary research project at
 Chalmers University of Technology involving researchers from
 mathematics, architecture, civil engineering and computer science. The
-aim is to develop an open multimodal data, simulation and
+aim is to develop an open multimodal data, modeling, simulation and
 visualization platform for interactive planning, design, exploration,
 experimentation and optimization of cities.
 
-This repository contains the server side functionality, including
-mesh generation, solvers and data processing.
+This repository contains the server side functionality, including data processing, mesh generation and simulation.
 
-## Getting Started
+## Getting started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+VCCore is organized as a collection of C++ command-line programs and scripts that may be built using [CMake](https://cmake.org/). The most convenient way to develop and run VCCore is to use the VCCore [Docker](https://www.docker.com/) image, which contains all the dependencies needed for developing, building and running VCCore.
 
-### Prerequisites
+### Building the VCCore Docker container
 
-libshp-dev liblas-dev liblas-c-dev
+The first step is to download and install [Docker](https://www.docker.com/). After Docker has been installed, continue with the following steps.
 
-#### vc-generate-heightmap
+To build the Docker image for VCCore, enter the `docker` directory and issue the following command:
 
-Use a clean Ubuntu 18.04 image with the following packages:
+    ./vc-build-image
 
-```
-sudo apt-get update
-sudo apt-get install nlohmann-json-dev libmagick++-dev
-```
+This creates a Docker image named `vcimage`.
 
-#### vc-generate-citymodel
+Then issue the following command to create and start a persistent container (virtual machine) in which to run VCCore:
 
-Use a clean Ubuntu 18.04 image with the following packages:
+    ./vc-create-container
+    ./vc-start-container
 
-```
-sudo apt-get update
-sudo apt-get install nlohmann-json-dev libpugixml-dev libproj-dev
-```
+This creates a Docker container named `vccontainer` that is used for developing, building and running VCCore.
 
-#### vc-randomize-citymodel
+Note that the VCCore source tree is shared into the Docker container.
 
-Use a clean Ubuntu 18.04 image with the following packages:
+### Downloading data
 
-```
-sudo apt-get update
-sudo apt-get install nlohmann-json-dev
-```
+To download data for VCCore, enter the `data` directory and issue the following command:
 
-#### vc-generate-mesh
+    ./vc-download-data
 
-Use a clean FEniCS 2018.1 image (Ubuntu 18.04) with the following packages:
+Note that this step should be done outside of the Docker container (to ensure that you have the proper access to the data repository).
 
-```
-sudo apt-get update
-sudo apt-get install libtriangle-dev nlohmann-json-dev
-```
-#### vc-web-api
+### Building and installation
 
-Requires latest flask, but should only be used on cloud.virtualcity.chalmers.se.
+To build VCCore, use a standard out-of-source CMake build by issuing the following commands from the top level directory:
 
-### Installing
+    mkdir build
+    cd build
+    cmake ..
+    make
+    make install
 
-In preparation.
+This will build and install all programs and scripts into the top level `bin` directory.
 
-```
-Give examples
-```
+### Running the demo
 
-## Deployment
+To run a simple demo, enter the `demo` directory and issue the following command:
 
-In preparation.
+    ./vc-demo
+
+This will generate a height map from point cloud data, generate a city model from a property map, and finally create a 3D volume mesh for finite element simulation. Both the input and output data can be found in the `data` directory. The parameters for the demo are controlled by the file `Parameters.json`.
 
 ## Data sources
 
 VCCore makes use of the following data sources:
 
-* Building footprints from [OpenStreetMap](https://www.openstreetmap.org)
-* Height maps from [Lantmäteriet](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/Laserdata/laserdata-nh/)
+* Point clouds (Lantmäteriet:Laserdata vektor EPSG:3006)
+* Property maps (Fastighetskartan bebyggelse vektor EPSG:3006)
+
+Chalmers has a license for downloading data from `https://zeus.slu.se`.
 
 ## Coordinate systems
 
 VCCore users meters as a unit of length, relative to the SWEREF99 TM (EPSG:3006) coordinate system.
-
-FIXME: Should we use SWEREF99 12 00 (EPSG:3007)?
-
-FIXME: What about RH 2000?
-
-https://zeus.slu.se
-Lantmäteriet:Fastighetskartan bebyggelse vektor EPSG:3006
-Lantmäteriet:Laserdata vektor EPSG:3006
 
 ## Parameters
 
@@ -126,18 +111,6 @@ When generating the volume mesh, the `DomainHeight` parameter determines the hei
 ## Code organization
 
 The code in this repository is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.
-
-The following list summarizes the currently implemented (and planned components):
-
-* vc-generate-heightmap  (generate JSON height map data)
-* vc-generate-citymodel  (generate JSON city model data from OSM data)
-* vc-generate-mesh       (generate FEM mesh from city model and height map)
-* vc-generate-mesh-batch (generate FEM meshes from a batch of city models)
-* vc-randomize-citymodel (randmize JSON city model)
-* vc-plot-mesh           (plot JSON mesh, for testing/debugging)
-* vc-plot-citymodel      (plot JSON city model, for testing/debugging)
-* vc-simulate-foo        (simulator in preparation)
-* vc-simulate-bar        (simulator in preparation)
 
 Common C++ code that is used across components is header only and is placed in the common directory `include`. The common code should have no (or minimal) external dependencies.
 
