@@ -11,7 +11,7 @@ This repository contains the server side functionality, including data processin
 
 ## Getting started
 
-VCCore is organized as a collection of C++ command-line programs and scripts that may be built using [CMake](https://cmake.org/). The most convenient way to develop and run VCCore is to use the VCCore [Docker](https://www.docker.com/) image, which contains all the dependencies needed for developing, building and running VCCore.
+VCCore is organized as a collection of C++ command-line programs and scripts that may be built using [CMake](https://cmake.org/). The most convenient way to use VCCore is via the VCCore [Docker](https://www.docker.com/) image, which contains all the dependencies needed for developing, building and running VCCore.
 
 ### Building the VCCore Docker container
 
@@ -58,7 +58,7 @@ To run a simple demo, enter the `demo` directory and issue the following command
 
     ./vc-demo
 
-This will generate a height map from point cloud data, generate a city model from a property map, and finally create a 3D volume mesh for finite element simulation. Both the input and output data can be found in the `data` directory. The parameters for the demo are controlled by the file `Parameters.json`.
+This will generate a height map from point cloud data, generate a city model from a property map, and finally create a 3D volume mesh for finite element simulation. Both the input and output data can be found in the `data` directory. The parameters for the demo are controlled by the file `Parameters.json` (see below).
 
 ## Data sources
 
@@ -69,13 +69,13 @@ VCCore makes use of the following data sources:
 
 Chalmers has a license for downloading data from `https://zeus.slu.se`.
 
-## Coordinate systems
+## Coordinate system
 
 VCCore users meters as a unit of length, relative to the SWEREF99 TM (EPSG:3006) coordinate system.
 
 ## Parameters
 
-VCCore uses the following global parameters, controlled via a JSON file Parameters.json.
+VCCore uses the following global parameters, controlled via a JSON file `Parameters.json`.
 
 All data files are assumed to be located in a directory determined by the
 parameter `DataDirectory`. Any generated data files will be stored in the
@@ -88,7 +88,7 @@ When parsing data from original data files (LAS point clouds and SHP files), a n
     X0 = x-coordinate of new origin
     Y0 = y-coordinate of new origin
 
-Height maps, city models and meshes are generated for a square domain with coordinates relative to the new origin specified by `X0` and `Y0`.
+Height maps, city models and meshes are generated for a rectangular domain with coordinates relative to the new origin specified by `X0` and `Y0`.
 
     XMin = x-coordinate for lower left corner
     YMin = y-coordinate for lower left corner
@@ -110,7 +110,7 @@ When generating the volume mesh, the `DomainHeight` parameter determines the hei
 
 ## Code organization
 
-The code in this repository is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.
+VCCore is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.
 
 Common C++ code that is used across components is header only and is placed in the common directory `include`. The common code should have no (or minimal) external dependencies.
 
@@ -131,7 +131,7 @@ variableName
 
 VCCore uses [CalVer](https://calver.org/) for versioning.
 
-## Authors (in alphabetical order)
+## Authors
 
 * [Anders Logg](http://anders.logg.org)
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
