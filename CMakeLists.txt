@@ -24,7 +24,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 # Add subdirectories
+add_subdirectory(vc-info)
+add_subdirectory(vc-plot)
 add_subdirectory(vc-generate-heightmap)
 add_subdirectory(vc-generate-citymodel)
 add_subdirectory(vc-generate-mesh)
-add_subdirectory(vc-info)
