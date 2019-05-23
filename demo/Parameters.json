@@ -1,14 +1,14 @@
 {
   "Type": "Parameters",
-  "DataDirectory": "/home/vcuser/vccore/data/Lindholmen",
+  "DataDirectory": "/home/vcuser/vccore/data/Hammarkullen",
   "DomainHeight": 75.0,
   "HeightMapResolution": 0.5,
   "MeshResolution": 10.0,
-  "X0": 317200,
-  "Y0": 6399800,
+  "X0": 323100,
+  "Y0": 6407500,
   "XMin": 0,
   "YMin": 0,
-  "XMax": 800,
-  "YMax": 800,
+  "XMax": 200,
+  "YMax": 250,
   "MinimalBuildingDistance": 0.01
 }
