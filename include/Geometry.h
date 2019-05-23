@@ -327,7 +327,7 @@ public:
             const Point2D& p = points[i];
             const Point2D v = p - basePoint;
             const double distance = v.Magnitude();
-            const double angle = -v.x / distance;
+            const double angle = (distance > Parameters::Epsilon ? -v.x / distance : 0.0);
 
             // Store angle and distance along with index (for sorting)
             angles[k++] = std::make_tuple(angle, distance, i);
