@@ -129,22 +129,27 @@ private:
         // Iterate over polygons
         for (auto const & polygon : polygons)
         {
-            // Compute distance between first and last point
-            const size_t numPoints = polygon.Points.size();
-            const double d = Geometry::Distance2D(polygon.Points[0],
-                                                  polygon.Points[numPoints - 1]);
-
-            // Create closed polygon without duplicate vertex
+            // Create empty polygon
             Polygon closedPolygon;
-            if (d < Parameters::Epsilon)
+
+            // Iterate over points and add only unique points
+            for (auto const & p : polygon.Points)
             {
-                for (size_t i = 0; i < numPoints - 1; i++)
-                    closedPolygon.Points.push_back(polygon.Points[i]);
-            }
-            else
-            {
-                for (size_t i = 0; i < numPoints; i++)
-                    closedPolygon.Points.push_back(polygon.Points[i]);
+                // Check if point is unique
+                bool unique = true;
+                for (auto const & q : closedPolygon.Points)
+                {
+                    const double d = Geometry::Distance2D(p, q);
+                    if (d < Parameters::Epsilon)
+                    {
+                        unique = false;
+                        break;
+                    }
+                }
+
+                // Add point if unique
+                if (unique)
+                    closedPolygon.Points.push_back(p);
             }
 
             // Add polygon

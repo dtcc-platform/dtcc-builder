@@ -8,7 +8,7 @@
   "Y0": 6407500,
   "XMin": 0,
   "YMin": 0,
-  "XMax": 300,
-  "YMax": 300,
+  "XMax": 1000,
+  "YMax": 1000,
   "MinimalBuildingDistance": 0.01
 }
