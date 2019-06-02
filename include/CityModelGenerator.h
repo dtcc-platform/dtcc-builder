@@ -125,33 +125,38 @@ private:
     {
         // Create empty list of polygons
         std::vector<Polygon> closedPolygons;
-        size_t numSkipped = 0;
 
         // Iterate over polygons
         for (auto const & polygon : polygons)
         {
-            // Compute distance between first and last point
-            const size_t numPoints = polygon.Points.size();
-            const double d = Geometry::Distance2D(polygon.Points[0],
-                                                  polygon.Points[numPoints - 1]);
+            // Create empty polygon
+            Polygon closedPolygon;
 
-            // Skip if not closed
-            if (d > Parameters::Epsilon)
+            // Iterate over points and add only unique points
+            for (auto const & p : polygon.Points)
             {
-                numSkipped++;
-                continue;
+                // Check if point is unique
+                bool unique = true;
+                for (auto const & q : closedPolygon.Points)
+                {
+                    const double d = Geometry::Distance2D(p, q);
+                    if (d < Parameters::Epsilon)
+                    {
+                        unique = false;
+                        break;
+                    }
+                }
+
+                // Add point if unique
+                if (unique)
+                    closedPolygon.Points.push_back(p);
             }
 
-            // Add polygon but include last (duplicate) point
-            Polygon closedPolygon;
-            for (size_t i = 0; i < polygon.Points.size() - 1; i++)
-                closedPolygon.Points.push_back(polygon.Points[i]);
+            // Add polygon
             closedPolygons.push_back(closedPolygon);
         }
 
-        std::cout << "CityModelGenerator: Skipped " << numSkipped
-                  << " building(s); expecting polygons to be closed"
-                  << std::endl;
+        std::cout << "CityModelGenerator: Polygons closed" << std::endl;
 
         return closedPolygons;
     }
@@ -323,14 +328,35 @@ private:
         // a more advanced merging later
 
         // Collect points
-        std::vector<Point2D> points;
+        std::vector<Point2D> allPoints;
         for (auto const & p : polygon0.Points)
-            points.push_back(p);
+            allPoints.push_back(p);
         for (auto const & p : polygon1.Points)
-            points.push_back(p);
+            allPoints.push_back(p);
+
+        // Remove duplicate points
+        std::vector<Point2D> uniquePoints;
+        for (auto const & p : allPoints)
+        {
+            // Check if point is unique
+            bool unique = true;
+            for (auto const & q : uniquePoints)
+            {
+                const double d = Geometry::Distance2D(p, q);
+                if (d < Parameters::Epsilon)
+                {
+                    unique = false;
+                    break;
+                }
+            }
+
+            // Add if unique
+            if (unique)
+                uniquePoints.push_back(p);
+        }
 
         // Compute convex hull
-        return Geometry::ConvexHull2D(points);
+        return Geometry::ConvexHull2D(uniquePoints);
     }
 
     // Compute building heights

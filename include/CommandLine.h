@@ -5,6 +5,7 @@
 #define VC_COMMAND_LINE_H
 
 #include <string>
+#include <vector>
 #include <sys/types.h>
 #include <dirent.h>
 

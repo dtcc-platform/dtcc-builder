@@ -184,11 +184,11 @@ public:
 
         // Generate JSON data
         auto jsonBuildings = nlohmann::json::array();
-        for (auto const building : cityModel.Buildings)
+        for (auto const & building : cityModel.Buildings)
         {
             auto jsonBuilding = nlohmann::json::object();
             jsonBuilding["Footprint"] = nlohmann::json::array();
-            for (auto const point : building.Footprint.Points)
+            for (auto const & point : building.Footprint.Points)
             {
                 auto jsonPoint = nlohmann::json::object();
                 jsonPoint["x"] = point.x;

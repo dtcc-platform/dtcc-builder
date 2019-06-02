@@ -7,7 +7,7 @@
 # 3. Volume mesh generation: vc-generate-mesh
 
 # Generate height map
-../bin/vc-generate-heightmap Parameters.json
+#../bin/vc-generate-heightmap Parameters.json
 
 # Generate city model
 ../bin/vc-generate-citymodel Parameters.json
