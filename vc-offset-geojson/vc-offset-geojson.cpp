@@ -1,7 +1,7 @@
 // VirtualCity@Chalmers: vc-offset-geojson
 // Anders Logg 2019
 // Vasilis Naserentin 2019
-// Offset in EPSG:3006 and in meters used in UE -148000 -6398600
+// Offset in EPSG:3006 used in UE -148000 -6398600 (meters)
 #include <string>
 #include <iostream>
 #include "JSON.h"
