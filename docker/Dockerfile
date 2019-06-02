@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y \
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
 RUN apt-get update && apt-get install -y fenics
+# Install GDAL
+RUN add-apt-repository ppa:ubuntugis/ppa 
+RUN apt-get update && apt-get install -y gdal-bin
 
 # Add user and change to user
 RUN useradd -m $USER -G sudo && \
