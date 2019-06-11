@@ -22,11 +22,13 @@ RUN apt-get update && apt-get install -y \
     liblas-c-dev \
     libpugixml-dev \
     libproj-dev \
-    libtriangle-dev
-
+    libtriangle-dev \
+    libnetcdf-c++4-dev
+	
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
 RUN apt-get update && apt-get install -y fenics
+
 # Install GDAL
 RUN add-apt-repository ppa:ubuntugis/ppa 
 RUN apt-get update && apt-get install -y gdal-bin
