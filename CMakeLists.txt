@@ -5,6 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 # Add path to local CMake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+set (CMAKE_CXX_FLAGS "-Wall -Wno-sign-compare")
 
 # Find packages
 find_package(ShapeLib REQUIRED)
@@ -12,7 +13,7 @@ find_package(LibLAS)
 find_package(PugiXML REQUIRED)
 find_package(PROJ4 REQUIRED)
 find_package(Triangle REQUIRED)
-
+find_package(CDF REQUIRED)
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
 include(${DOLFIN_USE_FILE})
@@ -32,3 +33,4 @@ add_subdirectory(vc-generate-mesh)
 add_subdirectory(vc-convert-shp2geojson)
 add_subdirectory(vc-convert-geojson2shp)
 add_subdirectory(vc-offset-geojson)
+add_subdirectory(vc-netcdf)
