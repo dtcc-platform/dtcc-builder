@@ -23,14 +23,15 @@ RUN apt-get update && apt-get install -y \
     libpugixml-dev \
     libproj-dev \
     libtriangle-dev \
-    libnetcdf-c++4-dev
-	
+    libnetcdf-c++4-dev \
+    clang-format
+
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
 RUN apt-get update && apt-get install -y fenics
 
 # Install GDAL
-RUN add-apt-repository ppa:ubuntugis/ppa 
+RUN add-apt-repository ppa:ubuntugis/ppa
 RUN apt-get update && apt-get install -y gdal-bin
 
 # Add user and change to user
