@@ -1,0 +1,6 @@
+﻿---
+BasedOnStyle: LLVM
+BinPackParameters: false
+BreakBeforeBraces: Allman
+ColumnLimit: '80'
+...
