@@ -135,6 +135,8 @@ argumentName
 variableName
 ```
 
+Code formatting is enforced using [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) as defined in the top-level `.clang-format` file. The style is based on the default LLVM style with minimal modifications.
+
 ## Versioning
 
 VCCore uses [CalVer](https://calver.org/) for versioning.
