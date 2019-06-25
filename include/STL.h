@@ -4,9 +4,9 @@
 #ifndef VC_STL_H
 #define VC_STL_H
 
-#include <stdexcept>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
 #include <vector>
 
 namespace VirtualCity
@@ -15,7 +15,6 @@ namespace VirtualCity
 class STL
 {
 public:
-
   // Read (binary) STL file and return triangles as a flattened
   // list of vertex coordinates (3 x 3 = 9 numbers per triangle).
   static std::vector<float> Read(std::string filename)
@@ -59,8 +58,7 @@ public:
   }
 
 private:
-
-  static std::string ParseHeader(std::ifstream& f)
+  static std::string ParseHeader(std::ifstream &f)
   {
     char InfoHeader[80] = "";
     f.read(InfoHeader, 80);
@@ -70,22 +68,21 @@ private:
     return std::string(InfoHeader);
   }
 
-  static unsigned long ParseUnsignedLong(std::ifstream& f)
+  static unsigned long ParseUnsignedLong(std::ifstream &f)
   {
     char buf[4];
     f.read(buf, 4);
-    return *((unsigned long*) buf);
+    return *((unsigned long *)buf);
   }
 
-  static float ParseFloat(std::ifstream& f)
+  static float ParseFloat(std::ifstream &f)
   {
     char buf[sizeof(float)];
     f.read(buf, 4);
-    return *((float*) buf);
+    return *((float *)buf);
   }
-
 };
 
-}
+} // namespace VirtualCity
 
 #endif

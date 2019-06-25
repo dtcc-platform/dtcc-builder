@@ -12,7 +12,6 @@ namespace VirtualCity
 class Parameters
 {
 public:
-
   //--- Run-time parameters (parsed from file) ---
 
   // Directory for input/output
@@ -53,36 +52,26 @@ public:
 
   // Threshold for filtering outliers (clouds?) from point cloud
   static constexpr double PointCloudOutlierThreshold = 150.0;
-
 };
 
-std::ostream& operator<<(std::ostream& s, const Parameters& parameters)
+std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
 {
   s << "Parameters:" << std::endl
-    << "  DataDirectory           = " << parameters.DataDirectory
-    << std::endl
-    << "  X0                      = " << parameters.X0
-    << std::endl
-    << "  Y0                      = " << parameters.Y0
-    << std::endl
-    << "  XMin                    = " << parameters.XMin
-    << std::endl
-    << "  YMin                    = " << parameters.YMin
-    << std::endl
-    << "  XMax                    = " << parameters.XMax
-    << std::endl
-    << "  YMax                    = " << parameters.YMax
-    << std::endl
+    << "  DataDirectory           = " << parameters.DataDirectory << std::endl
+    << "  X0                      = " << parameters.X0 << std::endl
+    << "  Y0                      = " << parameters.Y0 << std::endl
+    << "  XMin                    = " << parameters.XMin << std::endl
+    << "  YMin                    = " << parameters.YMin << std::endl
+    << "  XMax                    = " << parameters.XMax << std::endl
+    << "  YMax                    = " << parameters.YMax << std::endl
     << "  HeightMapResolution     = " << parameters.HeightMapResolution
     << std::endl
-    << "  MinimalBuildingDistance = " << parameters.MeshResolution
-    << std::endl
-    << "  DomainHeight            = " << parameters.DomainHeight
-    << std::endl
+    << "  MinimalBuildingDistance = " << parameters.MeshResolution << std::endl
+    << "  DomainHeight            = " << parameters.DomainHeight << std::endl
     << "  MeshResolution          = " << parameters.MeshResolution;
   return s;
 }
 
-}
+} // namespace VirtualCity
 
 #endif

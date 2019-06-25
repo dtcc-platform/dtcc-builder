@@ -4,7 +4,7 @@
 # Get all project files
 file(GLOB_RECURSE
      ALL_CXX_SOURCE_FILES
-     *.[chi]pp *.[chi]xx *.cc *.hh *.ii *.[CHI]
+     *.[chi]pp *.[chi]xx *.cc *.h *.hh *.ii *.[CHI]
      )
 
 # Adding clang-format target if executable is found

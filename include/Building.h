@@ -15,18 +15,16 @@ namespace VirtualCity
 class Building
 {
 public:
+  // Building footprint (polygon)
+  Polygon Footprint;
 
-    // Building footprint (polygon)
-    Polygon Footprint;
+  // Building height (above ground)
+  double Height;
 
-    // Building height (above ground)
-    double Height;
-
-    // Create empty building
-    Building() : Height(0) {}
-
+  // Create empty building
+  Building() : Height(0) {}
 };
 
-}
+} // namespace VirtualCity
 
 #endif

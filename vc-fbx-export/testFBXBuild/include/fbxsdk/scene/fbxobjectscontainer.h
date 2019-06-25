@@ -1,12 +1,12 @@
 /****************************************************************************************
- 
+
    Copyright (C) 2015 Autodesk, Inc.
    All rights reserved.
- 
-   Use of this software is subject to the terms of the Autodesk license agreement
-   provided at the time of installation or download, or which otherwise accompanies
-   this software in either electronic or hard copy form.
- 
+
+   Use of this software is subject to the terms of the Autodesk license
+agreement provided at the time of installation or download, or which otherwise
+accompanies this software in either electronic or hard copy form.
+
 ****************************************************************************************/
 
 //! \file fbxobjectscontainer.h
@@ -22,43 +22,57 @@
 
 typedef FbxArray<FbxNodeAttribute::EType> FbxAttributeFilters;
 
-/* Internal helper class used to traverse scene in the FbxAxisSystem and FbxSystemUnit
+/* Internal helper class used to traverse scene in the FbxAxisSystem and
+ * FbxSystemUnit
  */
 class FbxObjectsContainer
 {
 public:
-    enum EDepth
-	{
-        eChildOnly,
-        eChildAndSubChild,
-		eSubChildWithNoScaleInherit
-    };
+  enum EDepth
+  {
+    eChildOnly,
+    eChildAndSubChild,
+    eSubChildWithNoScaleInherit
+  };
 
-	FbxObjectsContainer() : mStartNode(NULL) {}
-    virtual ~FbxObjectsContainer(){ Clear(); }
+  FbxObjectsContainer() : mStartNode(NULL) {}
+  virtual ~FbxObjectsContainer() { Clear(); }
 
-    // Store all anim curve nodes pointers that need to be converted
-    FbxArray<FbxAnimCurveNode*> mFCurvesT;
-    FbxArray<FbxAnimCurveNode*> mFCurvesR;
-	FbxArray<FbxAnimCurveNode*> mFCurvesS;
+  // Store all anim curve nodes pointers that need to be converted
+  FbxArray<FbxAnimCurveNode *> mFCurvesT;
+  FbxArray<FbxAnimCurveNode *> mFCurvesR;
+  FbxArray<FbxAnimCurveNode *> mFCurvesS;
 
-    // Store all node that need to be converted
-    FbxArray<FbxNode*> mNodes;
-   
+  // Store all node that need to be converted
+  FbxArray<FbxNode *> mNodes;
+
 public:
-    void ExtractSceneObjects(FbxScene* pScene, EDepth pDepth, const FbxAttributeFilters& pFilters);
+  void ExtractSceneObjects(FbxScene *pScene,
+                           EDepth pDepth,
+                           const FbxAttributeFilters &pFilters);
 
-	void ExtractSceneObjects(FbxNode* pRootNode, EDepth pDepth, const FbxAttributeFilters& pFilters);
+  void ExtractSceneObjects(FbxNode *pRootNode,
+                           EDepth pDepth,
+                           const FbxAttributeFilters &pFilters);
 
-    void Clear() { mFCurvesT.Clear(); mFCurvesR.Clear(); mFCurvesS.Clear(); mNodes.Clear(); mStartNode = NULL; }
+  void Clear()
+  {
+    mFCurvesT.Clear();
+    mFCurvesR.Clear();
+    mFCurvesS.Clear();
+    mNodes.Clear();
+    mStartNode = NULL;
+  }
 
 protected:
-    // Extract all node and fcurve from all take for this node.
-    void ExtractNodesAnimCurveNodes(FbxNode* pNode, EDepth pDepth, const FbxAttributeFilters& pFilters);
-    void ExtractAnimCurveNodes(FbxNode* pNode);
-	bool InheritsScale( FbxNode* pNode ) const;
+  // Extract all node and fcurve from all take for this node.
+  void ExtractNodesAnimCurveNodes(FbxNode *pNode,
+                                  EDepth pDepth,
+                                  const FbxAttributeFilters &pFilters);
+  void ExtractAnimCurveNodes(FbxNode *pNode);
+  bool InheritsScale(FbxNode *pNode) const;
 
-	FbxNode* mStartNode;
+  FbxNode *mStartNode;
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

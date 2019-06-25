@@ -6,8 +6,8 @@
 
 #include <vector>
 
-#include "Point.h"
 #include "GeoReference.h"
+#include "Point.h"
 
 namespace VirtualCity
 {
@@ -15,55 +15,44 @@ namespace VirtualCity
 class SurfaceModel
 {
 public:
+  // Grid dimensions
+  double XMin, XMax, YMin, YMax;
 
-    // Grid dimensions
-    double XMin, XMax, YMin, YMax;
+  // Resolution
+  double Resolution;
 
-    // Resolution
-    double Resolution;
+  // Number of grid points
+  size_t SizeX, SizeY;
 
-    // Number of grid points
-    size_t SizeX, SizeY;
+  // Grid data (flattened array of (x, y) coordinates)
+  std::vector<double> GridData;
 
-    // Grid data (flattened array of (x, y) coordinates)
-    std::vector<double> GridData;
+  // Create empty height map
+  SurfaceModel(
+      double xMin, double xMax, double yMin, double yMax, double resolution)
+      : XMin(xMin), XMax(xMax), YMin(yMin), YMax(yMax), Resolution(resolution)
+  {
+    // Initialize grid data
+    SizeX = (XMax - XMin) / resolution + 1;
+    SizeY = (YMax - YMin) / resolution + 1;
+    GridData.resize(SizeX * SizeY);
+  }
 
-    // Create empty height map
-    SurfaceModel(double xMin, double xMax,
-                 double yMin, double yMax,
-                 double resolution)
-        : XMin(xMin), XMax(xMax),
-          YMin(yMin), YMax(yMax),
-          Resolution(resolution)
-    {
-        // Initialize grid data
-        SizeX = (XMax - XMin) / resolution + 1;
-        SizeY = (YMax - YMin) / resolution + 1;
-        GridData.resize(SizeX * SizeY);
-    }
+  // Return height (z) at 2D point p
+  double operator()(const Point2D &p) const { return (*this)(p.x, p.y); }
 
-    // Return height (z) at 2D point p
-    double operator() (const Point2D& p) const
-    {
-        return (*this)(p.x, p.y);
-    }
+  // Return height (z) at 2D point (x, y)
+  double operator()(double x, double y) const { return 0.0; }
 
-    // Return height (z) at 2D point (x, y)
-    double operator() (double x, double y) const
-    {
-        return 0.0;
-    }
-
-    // Return coordinate number i (of flattened grid data)
-    Point2D Coordinate(size_t i) const
-    {
-        const size_t ix = i % SizeX;
-        const size_t iy = i / SizeX;
-        return Point2D(ix*Resolution, iy*Resolution);
-    }
-
+  // Return coordinate number i (of flattened grid data)
+  Point2D Coordinate(size_t i) const
+  {
+    const size_t ix = i % SizeX;
+    const size_t iy = i / SizeX;
+    return Point2D(ix * Resolution, iy * Resolution);
+  }
 };
 
-}
+} // namespace VirtualCity
 
 #endif

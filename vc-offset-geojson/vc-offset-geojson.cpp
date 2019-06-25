@@ -2,21 +2,22 @@
 // Anders Logg 2019
 // Vasilis Naserentin 2019
 // Offset in EPSG:3006 used in UE -148000 -6398600 (meters)
+#include "GeoJSON.h"
 #include "JSON.h"
 #include <iostream>
-#include <string>
-#include "GeoJSON.h"
 #include <netcdf>
+#include <string>
 using namespace VirtualCity;
 
-void Help() {
+void Help()
+{
   std::cerr << "Usage: vc-offset-geojson filein.geojson fileout.geojson x y "
             << std::endl;
 }
 
 /*
 int detectmaxlevel(const nlohmann::json &ijson) {
-  int maxlevel = 1; 
+  int maxlevel = 1;
   int curlevel = 0;
   while (maxlevel >= curlevel) {
     std::cout << "Trying for curlevel " << curlevel << std::endl;
@@ -41,24 +42,30 @@ int detectmaxlevel(const nlohmann::json &ijson) {
   return maxlevel;
 }
 */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   // Check command-line arguments
-  if (argc != 5) {
+  if (argc != 5)
+  {
     Help();
     return 1;
   }
   int x, y;
-  try {
+  try
+  {
     x = std::stod(argv[3]);
     y = std::stod(argv[4]);
-  } catch (...) {
+  }
+  catch (...)
+  {
     std::cout << "Error; x and y must be integers." << std::endl;
     return 1;
   }
   std::string fileout = argv[2];
   std::string filein = argv[1];
   std::ifstream in(filein);
-  if (in.fail()) {
+  if (in.fail())
+  {
     std::cout << "Input file issue; check input file exists." << std::endl;
     return 1;
   }
@@ -72,10 +79,13 @@ int main(int argc, char *argv[]) {
   std::cout << "Max level found is " << maxlevel << std::endl;
   std::cout << "Offsetting" << std::endl;
 
-  for (int i = 0; i < maxlevel; i++) {
-    for (int k = 0; k < json["features"].size(); k++) {
+  for (int i = 0; i < maxlevel; i++)
+  {
+    for (int k = 0; k < json["features"].size(); k++)
+    {
       for (int j = 0;
-           j < json["features"][k]["geometry"]["coordinates"][i].size(); j++) {
+           j < json["features"][k]["geometry"]["coordinates"][i].size(); j++)
+      {
         std::cout << i << " "
                   << json["features"][k]["geometry"]["coordinates"][i][j][0]
                   << std::endl;
@@ -87,7 +97,7 @@ int main(int argc, char *argv[]) {
         jsoni["features"][k]["geometry"]["coordinates"][i][j][1] = newy;
       }
     }
-  } 
+  }
   std::ofstream o(fileout);
   o << jsoni << std::endl;
   return 0;
