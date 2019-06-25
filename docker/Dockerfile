@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y \
     libproj-dev \
     libtriangle-dev \
     libnetcdf-c++4-dev \
-    clang-format
+    clang-format \
+    clang-tidy
 
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
