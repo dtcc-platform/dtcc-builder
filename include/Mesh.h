@@ -68,12 +68,14 @@ std::ostream& operator<<(std::ostream& stream, const Mesh2D& m)
 {
     stream << "2D mesh with " << m.Points.size() << " points and "
            << m.Cells.size() << " cells (triangles)";
+    return stream;
 }
 
 std::ostream& operator<<(std::ostream& stream, const Mesh3D& m)
 {
     stream << "3D mesh with " << m.Points.size() << " points and "
            << m.Cells.size() << " cells (tetrahedra)";
+    return stream;
 }
 
 }

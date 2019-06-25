@@ -162,7 +162,7 @@ public:
 
         // Sum up total angle
         int totalAngle = 0;
-        for (int i = 1; i < polygon.size() + 1; i++)
+        for (size_t i = 1; i < polygon.size() + 1; i++)
         {
             // Compute angle increment
             Point2D q1 = polygon[i % polygon.size()];
@@ -339,7 +339,7 @@ public:
         // Filter out points with unique angles, keeping only furthest point
         std::vector<size_t> filteredIndices;
         double lastAngle = 2.0; // no angle has this value
-        for (int i = 0; i < numPoints - 1; i++)
+        for (size_t i = 0; i < numPoints - 1; i++)
         {
             // Get data for current point
             const double currentAngle = std::get<0>(angles[i]);

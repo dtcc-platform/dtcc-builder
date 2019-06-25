@@ -80,6 +80,7 @@ std::ostream& operator<<(std::ostream& s, const Parameters& parameters)
     << "  DomainHeight            = " << parameters.DomainHeight
     << std::endl
     << "  MeshResolution          = " << parameters.MeshResolution;
+  return s;
 }
 
 }

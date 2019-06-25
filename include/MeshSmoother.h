@@ -43,8 +43,7 @@ public:
     {
         std::cout << "Smoothing mesh (Laplacian smoothing)..." << std::endl;
 
-        // Get mesh sizes
-        const size_t num_cells = mesh.num_cells();
+        // Get number of vertices
         const size_t num_vertices = mesh.num_vertices();
 
         // Create function space and bilinear form
@@ -213,7 +212,7 @@ private:
 
         // Constructor
         HaloExpression(const HeightMap& heightMap, const dolfin::Mesh& mesh)
-            : heightMap(heightMap), mesh(mesh), Expression() {}
+            : Expression(), heightMap(heightMap), mesh(mesh) {}
 
         // Evaluation of z-displacement
         void eval(dolfin::Array<double>& values,
@@ -252,7 +251,7 @@ private:
 
         // Constructor
         GroundExpression(const HeightMap& heightMap)
-            : heightMap(heightMap), Expression() {}
+            : Expression(), heightMap(heightMap) {}
 
         // Evaluation of z-displacement
         void eval(dolfin::Array<double>& values,

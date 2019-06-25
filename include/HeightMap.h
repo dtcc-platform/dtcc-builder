@@ -92,13 +92,13 @@ public:
     // Compute minimal height
     double Min()
     {
-        std::min_element(GridData.begin(), GridData.end());
+        return *std::min_element(GridData.begin(), GridData.end());
     }
 
     // Compute maximal height
     double Max()
     {
-        std::max_element(GridData.begin(), GridData.end());
+        return *std::max_element(GridData.begin(), GridData.end());
     }
 
     // Map index to coordinate
@@ -112,10 +112,10 @@ public:
     // Map coordinate to index (closest point)
     size_t Coordinate2Index(const Point2D& p) const
     {
-        long int ix = std::lround((p.x - XMin) / XStep);
-        long int iy = std::lround((p.y - YMin) / YStep);
-        if (ix < 0) ix = 0;
-        if (iy < 0) iy = 0;
+        long int _ix = std::lround((p.x - XMin) / XStep);
+        long int _iy = std::lround((p.y - YMin) / YStep);
+        size_t ix = (_ix < 0 ? 0 : _ix);
+        size_t iy = (_iy < 0 ? 0 : _iy);
         if (ix >= XSize) ix = XSize - 1;
         if (iy >= YSize) iy = YSize - 1;
         return iy * XSize + ix;
@@ -148,6 +148,10 @@ public:
         const long int _iy = i / YSize;
         const long int d = step;
 
+        // Needed for signed comparison below
+        const long int xsize = XSize;
+        const long int ysize = YSize;
+
         // Initialize empty list of indices
         std::vector<size_t> indices;
 
@@ -156,14 +160,14 @@ public:
         {
             // Skip if outside grid
             const long int ix = _ix + dx;
-            if (ix < 0 || ix >= XSize) continue;
+            if (ix < 0 || ix >= xsize) continue;
 
             // Iterate for y in (-step, step)
             for (long int dy = -d; dy <= d; dy++)
             {
                 // Skip if outside grid
                 const long int iy = _iy + dy;
-                if (iy < 0 || iy >= YSize) continue;
+                if (iy < 0 || iy >= ysize) continue;
 
                 // Skip if not on boundary
                 const bool bx = dx == -d || dx == d;
@@ -189,6 +193,7 @@ std::ostream& operator<<(std::ostream& stream, const HeightMap& heightMap)
            << "] x ["
            << heightMap.YMin << ", " << heightMap.YMax
            << "]";
+    return stream;
 }
 
 }

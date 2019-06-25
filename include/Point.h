@@ -175,12 +175,14 @@ std::ostream& operator<<(std::ostream& stream, const Point2D& p)
 {
     stream << std::setprecision(Parameters::Precision)
            << "(" << p.x << ", " << p.y << ")";
+    return stream;
 }
 
 std::ostream& operator<<(std::ostream& stream, const Point3D& p)
 {
     stream << std::setprecision(Parameters::Precision)
            << "(" << p.x << ", " << p.y << ", " << p.z << ")";
+    return stream;
 }
 
 }

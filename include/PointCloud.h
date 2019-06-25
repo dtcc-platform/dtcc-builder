@@ -15,25 +15,26 @@ class PointCloud
 {
 public:
 
-    // Array of points
-    std::vector<Point3D> Points;
+  // Array of points
+  std::vector<Point3D> Points;
 
-    // Bounding box dimensions
-    double XMin, YMin, XMax, YMax;
+  // Bounding box dimensions
+  double XMin, YMin, XMax, YMax;
 
-    // Create empty point cloud
-    PointCloud() : XMin(0), YMin(0), XMax(0), YMax(0) {}
+  // Create empty point cloud
+  PointCloud() : XMin(0), YMin(0), XMax(0), YMax(0) {}
 
 };
 
 std::ostream& operator<<(std::ostream& stream, const PointCloud& pointCloud)
 {
-    stream << "Point cloud with " << pointCloud.Points.size()
-           << " points on domain ["
-           << pointCloud.XMin << ", " << pointCloud.XMax
-           << "] x ["
-           << pointCloud.YMin << ", " << pointCloud.YMax
-           << "]";
+  stream << "Point cloud with " << pointCloud.Points.size()
+         << " points on domain ["
+         << pointCloud.XMin << ", " << pointCloud.XMax
+         << "] x ["
+         << pointCloud.YMin << ", " << pointCloud.YMax
+         << "]";
+  return stream;
 }
 
 }

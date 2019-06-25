@@ -18,7 +18,7 @@ public:
 
     static bool HasOption(std::string option, int argc, char* argv[])
     {
-        for (size_t i = 1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
             if (option == argv[i])
                 return true;
         return false;
@@ -33,7 +33,7 @@ public:
 
     static std::string GetOption(std::string option, int argc, char* argv[])
     {
-        for (size_t i = 1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
             if (option == argv[i])
                 return argv[i + 1];
         return "";

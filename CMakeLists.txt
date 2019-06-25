@@ -3,9 +3,12 @@ cmake_minimum_required(VERSION 3.5)
 project(VCCore)
 set(CMAKE_BUILD_TYPE Debug)
 
+# Set build flags
+set (CMAKE_CXX_FLAGS "-Wall -Werror")
+#-Wno-sign-compare")
+
 # Add path to local CMake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-set (CMAKE_CXX_FLAGS "-Wall -Wno-sign-compare")
 
 # Add clang tools
 include(cmake/clang-cxx-dev-tools.cmake)

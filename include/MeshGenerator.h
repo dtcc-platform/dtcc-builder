@@ -330,7 +330,7 @@ private:
 
         // Extract points
         mesh2D.Points.reserve(out.numberofpoints);
-        for (size_t i = 0; i < out.numberofpoints; i++)
+        for (int i = 0; i < out.numberofpoints; i++)
         {
             Point2D p(out.pointlist[2 * i],
                       out.pointlist[2 * i + 1]);
@@ -339,7 +339,7 @@ private:
 
         // Extract triangles
         mesh2D.Cells.reserve(out.numberoftriangles);
-        for (size_t i = 0; i < out.numberoftriangles; i++)
+        for (int i = 0; i < out.numberoftriangles; i++)
         {
             Simplex2D t(out.trianglelist[3 * i],
                         out.trianglelist[3 * i + 1],

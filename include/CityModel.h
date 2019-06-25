@@ -80,6 +80,7 @@ std::ostream& operator<<(std::ostream& stream, const CityModel& cityModel)
     stream << "CityModel with " << cityModel.Buildings.size()
            << " buildings and radius R = "
            << std::fixed << std::setprecision(2) << r;
+    return stream;
 }
 
 }
