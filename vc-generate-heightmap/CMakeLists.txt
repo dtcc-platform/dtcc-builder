@@ -1,3 +1,4 @@
-add_executable(vc-generate-heightmap vc-generate-heightmap.cpp)
-target_link_libraries(vc-generate-heightmap ${LIBLAS_LIBRARIES})
-install(TARGETS vc-generate-heightmap DESTINATION bin)
+set(PROGRAM vc-generate-heightmap)
+add_executable(${PROGRAM} ${PROGRAM}.cpp)
+target_link_libraries(${PROGRAM} ${LIBLAS_LIBRARIES})
+install(TARGETS ${PROGRAM} DESTINATION bin)

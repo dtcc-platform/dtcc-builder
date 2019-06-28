@@ -1,3 +1,4 @@
-add_executable(vc-offset-geojson vc-offset-geojson.cpp)
-target_link_libraries(vc-offset-geojson pugixml proj shp las)
-install(TARGETS vc-offset-geojson DESTINATION bin)
+set(PROGRAM vc-offset-geojson)
+add_executable(${PROGRAM} ${PROGRAM}.cpp)
+target_link_libraries(${PROGRAM} pugixml proj shp las)
+install(TARGETS ${PROGRAM} DESTINATION bin)
