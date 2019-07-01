@@ -247,6 +247,69 @@ public:
     surface3D.Cells = mesh2D.Cells;
     surfaces.push_back(surface3D);
 
+    // Iterate over buildings to generate surfaces
+    for (auto const &building : cityModel.Buildings)
+    {
+      // Generate 2D mesh of building footprint
+      Mesh2D mesh2D =
+          CallTriangle(building.Footprint.Points, subDomains, resolution);
+
+      // Create empty 3D surface
+      Surface3D surface3D;
+
+      // Note: The generated 2D mesh contains all the input boundary
+      // points with the same numbers as in the footprint polygon, but
+      // may also contain new points (Steiner points) added during
+      // mesh generation. We add the top points (including any Steiner
+      // points) first, then the points at the bottom (the footprint).
+
+      // Set height of ground and building
+      const double groundHeight = 0.0;
+      const double buildingHeight = 50.0;
+
+      // Add points at top
+      const size_t numMeshPoints = mesh2D.Points.size();
+      const size_t numBoundaryPoints = building.Footprint.Points.size();
+      surface3D.Points.resize(numMeshPoints + numBoundaryPoints);
+      for (size_t i = 0; i < numMeshPoints; i++)
+      {
+        const Point2D &p2D = mesh2D.Points[i];
+        const Point3D p3D(p2D.x, p2D.y, buildingHeight);
+        surface3D.Points[i] = p3D;
+      }
+
+      // Add points at bottom
+      for (size_t i = 0; i < numBoundaryPoints; i++)
+      {
+        const Point2D &p2D = mesh2D.Points[i];
+        const Point3D p3D(p2D.x, p2D.y, groundHeight);
+        surface3D.Points[numMeshPoints + i] = p3D;
+      }
+
+      // Add triangles on top
+      const size_t numMeshTriangles = mesh2D.Cells.size();
+      const size_t numBoundaryTriangles = 2*numBoundaryPoints;
+      surface3D.Cells.resize(numMeshTriangles + numBoundaryTriangles);
+      for (size_t i = 0; i < numMeshTriangles; i++)
+        surface3D.Cells[i] = mesh2D.Cells[i];
+
+      // Add triangles on boundary
+      for (size_t i = 0; i < numBoundaryPoints; i++)
+      {
+        const size_t v0 = i;
+        const size_t v1 = (i + 1) % numBoundaryPoints;
+        const size_t v2 = v0 + numMeshPoints;
+        const size_t v3 = v1 + numMeshPoints;
+        Simplex2D t0(v0, v2, v1);
+        Simplex2D t1(v1, v2, v3);
+        surface3D.Cells[numMeshTriangles + 2*i] = t0;
+        surface3D.Cells[numMeshTriangles + 2*i + 1] = t1;
+      }
+
+      // Add surface
+      surfaces.push_back(surface3D);
+    }
+
     return surfaces;
   }
 

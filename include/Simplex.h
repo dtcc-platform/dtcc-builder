@@ -12,11 +12,14 @@ namespace VirtualCity
 class Simplex1D
 {
 public:
-  // vertex indices
-  std::size_t v0;
-  std::size_t v1;
+  // Vertex indices
+  std::size_t v0 {};
+  std::size_t v1 {};
 
-  // Constructor
+  // Create default simplex
+  Simplex1D() {};
+
+  // Create simplex with sorted vertices
   Simplex1D(std::size_t v0, std::size_t v1)
   {
     /// Sort vertices
@@ -30,12 +33,15 @@ public:
 class Simplex2D
 {
 public:
-  // vertex indices
-  std::size_t v0;
-  std::size_t v1;
-  std::size_t v2;
+  // Vertex indices
+  std::size_t v0 {};
+  std::size_t v1 {};
+  std::size_t v2 {};
 
-  // Constructor
+  // Create default simplex
+  Simplex2D() {};
+
+  // Create simplex with sorted vertices
   Simplex2D(std::size_t v0, std::size_t v1, std::size_t v2)
   {
     // Sort vertices
@@ -50,13 +56,16 @@ public:
 class Simplex3D
 {
 public:
-  // vertex indices
-  std::size_t v0;
-  std::size_t v1;
-  std::size_t v2;
-  std::size_t v3;
+  // Vertex indices
+  std::size_t v0 {};
+  std::size_t v1 {};
+  std::size_t v2 {};
+  std::size_t v3 {};
 
-  // Constructor
+  // Create default simplex
+  Simplex3D() {};
+
+  // Create simplex with sorted vertices
   Simplex3D(std::size_t v0, std::size_t v1, std::size_t v2, std::size_t v3)
   {
     // Sort vertices
