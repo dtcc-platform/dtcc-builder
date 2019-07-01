@@ -158,7 +158,7 @@ protected:
   virtual void ConstructProperties(bool pForceSet);
   virtual void Destruct(bool pRecursive);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

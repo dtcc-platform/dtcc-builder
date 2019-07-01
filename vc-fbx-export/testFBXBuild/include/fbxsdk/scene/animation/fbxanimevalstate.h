@@ -102,7 +102,7 @@ private:
   FbxPropertyEvalStateMap mPropertyMap;
   FbxPropertyCurveNodeMap mPropertyCurveNodeMap;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! This class serves as the base class for an evaluation state element.

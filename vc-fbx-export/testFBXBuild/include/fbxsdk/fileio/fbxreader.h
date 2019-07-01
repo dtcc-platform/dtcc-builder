@@ -125,16 +125,16 @@ public:
 
   /** Opens the file with default flag
    *	\param pFileName     Name of the File to open
-   * \return				 If the file opens successfully return \c true,
-   *otherwise return \c false.
+   * \return				 If the file opens successfully return
+   *\c true, otherwise return \c false.
    */
   virtual bool FileOpen(char *pFileName) = 0;
 
   /** Opens the stream with default flag
    *	\param pStream       stream to open
    * \param pStreamData   user-defined stream data
-   * \return				 If the stream opens successfully return \c true,
-   *otherwise return \c false.
+   * \return				 If the stream opens successfully return
+   *\c true, otherwise return \c false.
    */
   virtual bool FileOpen(FbxStream *pStream, void *pStreamData);
 
@@ -298,7 +298,7 @@ private:
 
   friend struct FbxReaderFbx7_Impl;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! Helper to access the IOSetting object pointer as a ref ex:

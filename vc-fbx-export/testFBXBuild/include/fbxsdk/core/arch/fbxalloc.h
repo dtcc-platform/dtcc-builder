@@ -141,7 +141,7 @@ FBXSDK_DLL void FbxFreeDebug(void *pData, int pBlock);
 #define FbxFree(p) FbxFreeDebug(p, _NORMAL_BLOCK)
 #endif
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 
 //! Deletion policy for pointer template classes that uses the delete operator.
 template <class Type> class FbxDeletionPolicyDefault
@@ -275,7 +275,7 @@ private:
 
   Type *mPtr;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! Scoped pointer for FbxMalloc allocations, which call FbxFree() to
@@ -429,7 +429,7 @@ private:
   Type *mPtr;
   RefCount *mRef;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! Scoped pointer for FbxMalloc allocations, which call FbxFree() to

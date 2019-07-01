@@ -105,8 +105,8 @@ public:
 
   /** Return the node this attribute is set to.
    * \param pIndex	The index of the node to retrieve
-   * \return			Pointer to the node, or \c NULL if the current attribute is
-   * not set to a node.
+   * \return			Pointer to the node, or \c NULL if the current
+   * attribute is not set to a node.
    */
   FbxNode *GetNode(int pIndex = 0) const;
 
@@ -118,7 +118,7 @@ public:
 protected:
   virtual void ConstructProperties(bool pForceSet);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

@@ -346,7 +346,7 @@ public:
   void GetQuaternionFromPositionToPosition(const FbxVector4 &pP0,
                                            const FbxVector4 &pP1);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

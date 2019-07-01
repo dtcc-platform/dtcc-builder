@@ -320,16 +320,16 @@ public:
   /** Compute the angle of view based on the given focal length, the aperture
    * width, and aperture height. \param pFocalLength     The focal length in
    * millimeters. \return                 The computed angle of view in degrees.
-   * \remark					If aperture mode is not vertical, horizontal is
-   * assumed.
+   * \remark					If aperture mode is not
+   * vertical, horizontal is assumed.
    */
   double ComputeFieldOfView(double pFocalLength) const;
 
   /** Compute the focal length based on the given angle of view, the aperture
    * width, and aperture height. \param pAngleOfView     The angle of view in
    * degrees. \return                 The computed focal length in millimeters.
-   * \remark					If aperture mode is not vertical, horizontal is
-   * assumed.
+   * \remark					If aperture mode is not
+   * vertical, horizontal is assumed.
    */
   double ComputeFocalLength(double pAngleOfView) const;
 
@@ -623,8 +623,9 @@ public:
   /** Set the front plane distance from the camera. The the absolute position of
    * the plane must be calculated by taking into consideration of the
    * FrontPlaneDistanceMode. \param pDistance    The front plane distance value.
-   * \remarks			It is the responsibility of the client application to
-   * ensure that this plane position is within the frustum boundaries.
+   * \remarks			It is the responsibility of the client
+   * application to ensure that this plane position is within the frustum
+   * boundaries.
    */
   void SetFrontPlaneDistance(double pDistance);
 
@@ -771,7 +772,7 @@ public:
                                 camera interest, models become increasingly
                                 blurred. */
     eFocusSpecificDistance //!<	Base the depth of field on a point defined by a
-                           //!<specific distance from the camera interest.
+                           //!< specific distance from the camera interest.
   };
 
   //@}
@@ -2001,7 +2002,7 @@ private:
 
   FbxVector4 mLastUp;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxCamera::EAntialiasingMethod &)

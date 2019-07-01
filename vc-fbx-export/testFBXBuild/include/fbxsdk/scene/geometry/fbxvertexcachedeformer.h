@@ -76,7 +76,7 @@ protected:
   virtual void ConstructProperties(bool pForceSet);
   virtual FbxStringList GetTypeFlags() const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxVertexCacheDeformer::ECacheChannelType &)

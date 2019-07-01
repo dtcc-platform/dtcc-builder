@@ -54,23 +54,24 @@ public:
    * - \e eOver,               Equivalent to eTranslucent. Blends the new
    * texture over top of the old texture, according to the new texture's alpha
    * channel.
-   * - \e eNormal,		      The colors of the two layers will not interact in
-   * any way, and it will display the full value of the colors in layer 1.
+   * - \e eNormal,		      The colors of the two layers will not
+   * interact in any way, and it will display the full value of the colors in
+   * layer 1.
    * - \e eDissolve,           Dissolve makes the lower layer take on the colors
    * of the top layer, and how much depends on the opacity of the upper layer.
-   * - \e eDarken,		      Darken compares each pixel value of the upper
-   * layer to its counterpart's pixel value of the lower layer and chooses the
-   * darker of the two to display.
+   * - \e eDarken,		      Darken compares each pixel value of the
+   * upper layer to its counterpart's pixel value of the lower layer and chooses
+   * the darker of the two to display.
    * - \e eColorBurn,          Color Burn burns in the color of the upper layer
    * with the lower layer. No part of the image will get lighter.
    * - \e eLinearBurn, 	      Linear Burn works like multiply but the results
    * are more intense.
    * - \e eDarkerColor,        This blend mode simply divides pixel values of
    * one layer with the other.
-   * - \e eLighten,		      Lighten compares the two layers pixel for pixel
-   * and uses the lightest pixel value. No part of the image gets darker.
-   * - \e eScreen,		      Screen brightens by lightning the lower layer
-   * based on the lightness of the upper layer
+   * - \e eLighten,		      Lighten compares the two layers pixel for
+   * pixel and uses the lightest pixel value. No part of the image gets darker.
+   * - \e eScreen,		      Screen brightens by lightning the lower
+   * layer based on the lightness of the upper layer
    * - \e eColorDodge,         Color Dodge dodges the lower layer with the upper
    * layer, resulting in a lighter image. No part of the image will be darkened.
    * - \e eLinearDodge,        Linear Dodge works like screen but with more
@@ -89,8 +90,8 @@ public:
    * works on the brightness of the lower layer.
    * - \e ePinLight,           Pin Light changes the lower layer pixels
    * depending on how bright the pixels are in the upper layer.
-   * - \e eHardMix,		      Produces either white or black, depending on
-   * similarities between A and B.
+   * - \e eHardMix,		      Produces either white or black, depending
+   * on similarities between A and B.
    * - \e eDifference, 	      Difference reacts to the differences between the
    * upper and lower layer pixels.
    * - \e eExclusion, 	      Exclusion uses the darkness of the lower layer to
@@ -101,8 +102,9 @@ public:
    * the result.
    * - \e eDivide,             This blend mode simply divides pixel values of
    * one layer with the other.
-   * - \e eHue, 			      Hue changes the hue of the lower layer to the hue
-   * of the upper layer but leaves brightness and saturation alone.
+   * - \e eHue, 			      Hue changes the hue of the lower
+   * layer to the hue of the upper layer but leaves brightness and saturation
+   * alone.
    * - \e eSaturation,	      Saturation changes the saturation of the lower
    * layer to the hue of the upper layer but leaves brightness and hue alone.
    * - \e eColor,              Color changes the hue and saturation of the lower
@@ -213,7 +215,7 @@ protected:
 
   bool RemoveInputData(int pIndex);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxLayeredTexture::EBlendMode &)

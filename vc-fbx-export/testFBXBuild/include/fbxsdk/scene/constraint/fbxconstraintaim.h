@@ -153,7 +153,7 @@ protected:
 
   virtual EType GetConstraintType() const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxConstraintAim::EWorldUp &)

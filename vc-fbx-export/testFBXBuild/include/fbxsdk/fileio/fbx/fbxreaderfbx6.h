@@ -758,7 +758,7 @@ private:
   //*	\param pObjectName                        Object Name
   //*	\param pReferencedObject                  pointer of reference object
   //* \return if reading subdiv object is successful return \c true, otherwise
-  //return \c false.
+  // return \c false.
   //*/
   // bool ReadSubdiv( FbxSubDiv& pSubdiv, FbxString& pObjectName, FbxObject*
   // pReferencedObject);

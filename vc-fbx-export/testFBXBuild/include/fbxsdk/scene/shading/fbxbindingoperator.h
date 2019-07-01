@@ -340,7 +340,7 @@ protected:
 
   Function *mFunction;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /**  An evaluation operator to get the position of the node that is bound with
@@ -384,7 +384,7 @@ public:
   FbxNodePositionBOF();
   virtual ~FbxNodePositionBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /**  An evaluation operator to get the direction of the node that is bound with
@@ -429,7 +429,7 @@ public:
   FbxNodeDirectionBOF();
   virtual ~FbxNodeDirectionBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** A pass through operator used to assign constants to parameters.
@@ -469,7 +469,7 @@ public:
   FbxAssignBOF();
   virtual ~FbxAssignBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** A conditional operator that outputs one out of two properties, based on
@@ -514,7 +514,7 @@ public:
   FbxConditionalBOF();
   virtual ~FbxConditionalBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** A switch operator that outputs one out of n properties, based on
@@ -559,7 +559,7 @@ public:
   FbxSwitchBOF();
   virtual ~FbxSwitchBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxTRSToMatrixBOF : public FbxBindingOperator::Function
@@ -597,7 +597,7 @@ public:
   FbxTRSToMatrixBOF();
   virtual ~FbxTRSToMatrixBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxAddBOF : public FbxBindingOperator::Function
@@ -635,7 +635,7 @@ public:
   FbxAddBOF();
   virtual ~FbxAddBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxSubstractBOF : public FbxBindingOperator::Function
@@ -673,7 +673,7 @@ public:
   FbxSubstractBOF();
   virtual ~FbxSubstractBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxMultiplyBOF : public FbxBindingOperator::Function
@@ -712,7 +712,7 @@ public:
   FbxMultiplyBOF();
   virtual ~FbxMultiplyBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxMultiplyDistBOF : public FbxBindingOperator::Function
@@ -750,7 +750,7 @@ public:
   FbxMultiplyDistBOF();
   virtual ~FbxMultiplyDistBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxOneOverXBOF : public FbxBindingOperator::Function
@@ -788,7 +788,7 @@ public:
   FbxOneOverXBOF();
   virtual ~FbxOneOverXBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxPowerBOF : public FbxBindingOperator::Function
@@ -826,7 +826,7 @@ public:
   FbxPowerBOF();
   virtual ~FbxPowerBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxDegreeToRadianBOF : public FbxBindingOperator::Function
@@ -864,7 +864,7 @@ public:
   FbxDegreeToRadianBOF();
   virtual ~FbxDegreeToRadianBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxVectorDegreeToVectorRadianBOF : public FbxBindingOperator::Function
@@ -902,7 +902,7 @@ public:
   FbxVectorDegreeToVectorRadianBOF();
   virtual ~FbxVectorDegreeToVectorRadianBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxSphericalToCartesianBOF : public FbxBindingOperator::Function
@@ -940,7 +940,7 @@ public:
   FbxSphericalToCartesianBOF();
   virtual ~FbxSphericalToCartesianBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FbxIsYupBOF : public FbxBindingOperator::Function
@@ -978,7 +978,7 @@ public:
   FbxIsYupBOF();
   virtual ~FbxIsYupBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** A symbol(string) operator that search the string table and return its
@@ -1019,7 +1019,7 @@ public:
   FbxSymbolIDBOF();
   virtual ~FbxSymbolIDBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /**  A chooser operator that check spot distribution and returns the correct
@@ -1062,7 +1062,7 @@ public:
   FbxSpotDistributionChooserBOF();
   virtual ~FbxSpotDistributionChooserBOF();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

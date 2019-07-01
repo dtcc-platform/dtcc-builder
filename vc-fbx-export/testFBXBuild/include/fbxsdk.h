@@ -91,8 +91,8 @@ accompanies this software in either electronic or hard copy form.
 #include <fbxsdk/core/fbxconnectionpoint.h>
 #include <fbxsdk/core/fbxdatatypes.h>
 #ifndef FBXSDK_ENV_WINSTORE
-#include <fbxsdk/core/fbxmodule.h>
 #include <fbxsdk/core/fbxloadingstrategy.h>
+#include <fbxsdk/core/fbxmodule.h>
 #endif /* !FBXSDK_ENV_WINSTORE */
 #include <fbxsdk/core/fbxmanager.h>
 #include <fbxsdk/core/fbxobject.h>

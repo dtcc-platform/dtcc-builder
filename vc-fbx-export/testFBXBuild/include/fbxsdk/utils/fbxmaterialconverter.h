@@ -114,7 +114,7 @@ private:
 
   void ConvertToPerFaceMapping(FbxMesh *pGeom) const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

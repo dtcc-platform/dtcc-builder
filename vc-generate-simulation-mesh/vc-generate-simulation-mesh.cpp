@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-generate-mesh
+// VirtualCity@Chalmers: vc-generate-simulation-mesh
 // Anders Logg 2018
 
 #include <dolfin.h>
@@ -16,10 +16,13 @@
 #include "MeshSmoother.h"
 #include "Parameters.h"
 
-using namespace std;
 using namespace VirtualCity;
 
-void Help() { cerr << "Usage: vc-generate-mesh Parameters.json" << endl; }
+void Help()
+{
+  std::cerr << "Usage: vc-generate-simulation-mesh Parameters.json"
+            << std::endl;
+}
 
 int main(int argc, char *argv[])
 {

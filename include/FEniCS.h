@@ -4,8 +4,8 @@
 #ifndef VC_FENICS_H
 #define VC_FENICS_H
 
-#include <dolfin.h>
 #include "Mesh.h"
+#include <dolfin.h>
 
 namespace VirtualCity
 {

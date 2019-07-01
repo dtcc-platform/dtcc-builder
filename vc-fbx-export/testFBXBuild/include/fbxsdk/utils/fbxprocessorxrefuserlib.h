@@ -59,7 +59,7 @@ protected:
   virtual bool ValidPropertyForXRefCopy(FbxObject *pObject,
                                         FbxProperty &lProperty) const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

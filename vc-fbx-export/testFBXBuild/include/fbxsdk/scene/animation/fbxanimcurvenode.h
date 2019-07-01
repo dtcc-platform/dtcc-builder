@@ -396,7 +396,7 @@ private:
   template <class T>
   FbxAnimCurve *CreateCurveGeneral(const char *pCurveNodeName, T pChannel);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 FBXSDK_DLL void GetAllAnimCurves(FbxAnimStack *pAnimStack,

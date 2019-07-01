@@ -354,7 +354,7 @@ public:
   int Compare(const FbxAMatrix pM,
               const double pThreshold = FBXSDK_TOLERANCE) const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

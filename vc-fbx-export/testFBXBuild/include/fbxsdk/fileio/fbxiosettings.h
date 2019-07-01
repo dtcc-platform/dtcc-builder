@@ -85,7 +85,7 @@ private:
   FbxIOSettings *ios;
 };
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 
 /** FbxIOSettings is a collection of properties, arranged as a tree, that
   * can be used by FBX file readers and writers to represent import and export
@@ -629,7 +629,7 @@ private:
   void DeletePropInfo(FbxProperty &pProp);
   void DeleteAllPropInfo(FbxProperty &pProp);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

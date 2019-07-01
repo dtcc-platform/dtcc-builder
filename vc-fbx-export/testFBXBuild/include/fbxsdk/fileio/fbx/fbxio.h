@@ -325,15 +325,15 @@ public:
  *section opened for(int i=0; i < nbSec; i++) // read all fields
  *	{
  *		// check if the field is a block
- *		if(FieldReadIsBlock()){ } ... Read sub fields recursively ... may
- *contain other blocks and fields else
+ *		if(FieldReadIsBlock()){ } ... Read sub fields recursively ...
+ *may contain other blocks and fields else
  *		{
  *			FieldReadBegin();	// navigate on the field
  *			char fieldType = FieldReadGetType(); // get the data
  *type
  *
- *			// According to the Field data type, call the appropriate
- *read functions
+ *			// According to the Field data type, call the
+ *appropriate read functions
  *
  *			     if(fieldType == 'S') FieldReadS(...) to read a
  *string else if(fieldType == 'B') FieldReadB(...) to read a bool else
@@ -384,9 +384,9 @@ public:
   enum BinaryType
   {
     BinaryNormal, //<! Standard FBX file field alignment using 32bit values,
-                  //used by all file format version 7.4.0 or lower
+                  // used by all file format version 7.4.0 or lower
     BinaryLarge   //<! New FBX file field alignment using 64bit values, used by
-                  //all file format version 7.5.0 or higher
+                  // all file format version 7.5.0 or higher
   };
 
   /** Creation function for this FbxIO class
@@ -1899,7 +1899,7 @@ private:
   //! Get project media directory name
   FbxString GetDirectory(bool pAutoCreate, const char *pExtension);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

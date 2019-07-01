@@ -97,9 +97,10 @@ public:
    */
   //@{
   /** Class registration.
-   * \param pName				The class name. For example, "FbxMesh" for FbxMesh
-   * class.
-   * \param T1					FBX type of the specified class.
+   * \param pName				The class name. For example,
+   * "FbxMesh"
+   * for FbxMesh class. \param T1					FBX type
+   * of the specified class.
    * \param T2					FBX type of parent class.
    * \param pFbxFileTypeName     The type name of the class in FBX file.
    * \param pFbxFileSubTypeName  The sub type name of the class in FBX file.
@@ -175,10 +176,10 @@ public:
    *"contain" the new object. By contain, we mean the new object will become a
    *source to the container, connection-wise. \param pCloneFrom	A valid object
    *pointer to use as the reference for cloning the object upon construction.
-   * \return				If not null, a new instance of the specified
-   *class.
-   * \remark				This function will return NULL if the ClassId used
-   *is invalid. New ClassId can be registered using the function
+   * \return				If not null, a new instance of the
+   *specified class.
+   * \remark				This function will return NULL if the
+   *ClassId used is invalid. New ClassId can be registered using the function
    *RegisterFbxClass().
    */
   FbxObject *CreateNewObjectFromClassId(FbxClassId pClassId,
@@ -588,7 +589,7 @@ private:
   friend class FbxScene;         // For GetDefaultAnimationEvaluator()
   friend class FbxAnimEvaluator; // For GetDefaultAnimationEvaluator()
 #endif                           /* !DOXYGEN_SHOULD_SKIP_THIS                  \
-                                    *****************************************************************************************/
+                                  *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

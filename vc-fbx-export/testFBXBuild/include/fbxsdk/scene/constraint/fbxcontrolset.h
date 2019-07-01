@@ -168,7 +168,7 @@ public:
   bool mCandidateTActive;
   bool mCandidateRActive;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** \class FbxControlSet
@@ -362,7 +362,7 @@ private:
   friend class FbxCharacter;
   friend class FbxNode;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** Plug class for control set.

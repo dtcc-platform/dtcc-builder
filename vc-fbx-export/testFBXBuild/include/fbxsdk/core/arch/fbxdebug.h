@@ -163,7 +163,7 @@ template <typename T> struct FbxIncompatibleWithArray
   ((bool)FbxIncompatibleWithArray<T>::value)
 
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 
 #include <fbxsdk/fbxsdk_nsend.h>
 

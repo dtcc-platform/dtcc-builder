@@ -46,12 +46,12 @@ public:
    * \param pDataType			The data type of this property.
    * \param pName				The property name.
    * \param pLabel				The label of this property.
-   * \param pCheckForDup			If \c true, parent property checks if it has a
-   * child property already with pName, if \c false, the new property is
-   * created.
-   * \param pWasFound			If pCheckForDup is \c true, this flag is set to
-   * indicate whether the pCompoundProperty already has a child property with
-   * pName.
+   * \param pCheckForDup			If \c true, parent property
+   * checks if it has a child property already with pName, if \c false, the new
+   * property
+   * is created. \param pWasFound			If pCheckForDup is \c
+   * true, this flag is set to indicate whether the pCompoundProperty already
+   * has a child property with pName.
    */
   static FbxProperty Create(const FbxProperty &pCompoundProperty,
                             const FbxDataType &pDataType,
@@ -64,8 +64,8 @@ public:
    * \param pObject		The object on which the property will be
    * created. \param pDataType	The data type of this property. \param pName
    * The property name. \param pLabel		The label of this property.
-   * \param pCheckForDup	If \c true, pObject checks whether it already has a
-   * property with pName, if \c false, a new property is created. \param
+   * \param pCheckForDup	If \c true, pObject checks whether it already
+   * has a property with pName, if \c false, a new property is created. \param
    * pWasFound	If pCheckForDup is \c true, this flag is set to indicate whether
    * the pObject already has a child property with pName.
    */
@@ -79,11 +79,10 @@ public:
   /** Creates a dynamic property from another property on the specified
    * property. \param pCompoundProperty	The parent property of this property.
    * \param pFromProperty		The property copied by this property.
-   * \param pCheckForDup			If \c true, parent property checks if it
-   * already has a child property that has the name of pFromProperty, if \c
-   * false, a new property is created.
-   * \remark						Only the property name, label, min/max, enums and
-   * flags are copied.
+   * \param pCheckForDup			If \c true, parent property
+   * checks if it already has a child property that has the name of
+   * pFromProperty, if \c false, a new property is created. \remark Only the
+   * property name, label, min/max, enums and flags are copied.
    */
   static FbxProperty CreateFrom(const FbxProperty &pCompoundProperty,
                                 FbxProperty &pFromProperty,
@@ -92,11 +91,11 @@ public:
   /** Creates a dynamic property from another property on the specified object.
    * \param pObject			The object that contains this property.
    * \param pFromProperty	The property copied by this property.
-   * \param pCheckForDup		If \c true, pObject checks if it already has a
-   * property that has the name of pFromProperty, if \c false, a new property is
-   * created.
-   * \remark					Only the property name, label, min/max, enums and
-   * flags are copied.
+   * \param pCheckForDup		If \c true, pObject checks if it already
+   * has a property that has the name of pFromProperty, if \c false, a new
+   * property is created.
+   * \remark					Only the property name, label,
+   * min/max, enums and flags are copied.
    */
   static FbxProperty CreateFrom(FbxObject *pObject,
                                 FbxProperty &pFromProperty,
@@ -1339,7 +1338,7 @@ private:
   friend void FbxCleanUpConnectionsAtDestructionBoundary(
       FbxScene *pObject, FbxArray<FbxObject *> &pObjectToDeletedInSequence);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** \brief This template class is used to contain user properties of specific
@@ -1482,7 +1481,7 @@ public:
   FbxPropertyT(const FbxProperty &pProperty) : FbxProperty(pProperty) {}
   ~FbxPropertyT() {}
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /*****************************************************************************************************************************
@@ -1553,7 +1552,7 @@ public:
   FbxPropertyT &operator=(const FbxReference &pValue) { return Set(pValue); }
 };
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 
 #include <fbxsdk/fbxsdk_nsend.h>
 

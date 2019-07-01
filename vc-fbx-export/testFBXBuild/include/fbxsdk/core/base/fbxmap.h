@@ -94,7 +94,7 @@ protected:
     ConstValueType &GetValue() const { return this->mSecond; }
     ValueType &GetValue() { return this->mSecond; }
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
   };
 
   //! Declaration of the storage type used by the map.
@@ -218,7 +218,7 @@ public:
 private:
   StorageType mTree;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** A simple map class representing a dictionary-like data structure.
@@ -302,7 +302,7 @@ public:
 private:
   FbxMap<Key, Type, Compare> mMap;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** This class template declare a simple FbxObject map.

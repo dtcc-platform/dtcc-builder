@@ -321,8 +321,8 @@ public:
   /** Get key constant mode.
    *	\return Key constant mode.
    *	\remarks This method is meaningful for constant interpolation only.
-   *			 Using this method for non constant interpolated key will return
-   *unpredicted value.
+   *			 Using this method for non constant interpolated key
+   *will return unpredicted value.
    */
   virtual FbxAnimCurveDef::EConstantMode GetConstantMode() const = 0;
 
@@ -655,8 +655,8 @@ public:
   /** Get key constant mode.
    *	\return Key constant mode.
    *	\remarks This method is meaningful for constant interpolation only.
-   *			 Using this method for non constant interpolated key will return
-   *unpredicted value.
+   *			 Using this method for non constant interpolated key
+   *will return unpredicted value.
    */
   FbxAnimCurveDef::EConstantMode GetConstantMode() const
   {
@@ -1014,16 +1014,16 @@ public:
    *with cubic interpolation and TCB tangent mode. \param pKeyIndex        Index
    *of the key. \param pTime			Key time. \param pValue
    *Key value. \param pInterpolation	Key interpolation type. \param
-   *pTangentMode		Key tangent mode (meaningful for cubic interpolation
-   *only). \param pData0			Value of right slope. \param
-   *pData1			Value of next left slope. \param
+   *pTangentMode		Key tangent mode (meaningful for cubic
+   *interpolation only). \param pData0			Value of right slope.
+   *\param pData1			Value of next left slope. \param
    *pTangentWeightMode	Weight mode, if used.
-   *	\param pWeight0				Weight for right slope, if tangent weight
-   *mode is eWeightedRight or eWeightedAll. \param pWeight1
+   *	\param pWeight0				Weight for right slope, if
+   *tangent weight mode is eWeightedRight or eWeightedAll. \param pWeight1
    *Weight for next left slope, if tangent weight mode is eWeightedNextLeft or
    *eWeightedAll.
-   *	\param pVelocity0			Velocity for right slope, if tangent
-   *velocity mode is eVelocityRight or eVelocityAll. \param pVelocity1
+   *	\param pVelocity0			Velocity for right slope, if
+   *tangent velocity mode is eVelocityRight or eVelocityAll. \param pVelocity1
    *Velocity for next left slope, if tangent velocity mode is eVelocityNextLeft
    *or eVelocityAll.
    */
@@ -1090,8 +1090,8 @@ public:
    *   \param pKeyIndex  Index of the key.
    *   \param pIncludeOverrides Include override flags: Break, Clamp,
    *Time-Independent. This method is meaningful for cubic interpolation only.
-   *			 Using this method for non cubic interpolated key will return
-   *unpredictable value. \return Key tangent mode.
+   *			 Using this method for non cubic interpolated key will
+   *return unpredictable value. \return Key tangent mode.
    */
   virtual FbxAnimCurveDef::ETangentMode
   KeyGetTangentMode(int pKeyIndex, bool pIncludeOverrides = false) const = 0;
@@ -1474,7 +1474,7 @@ public:
   virtual bool Retrieve(FbxIO *pFileObject) = 0;
   virtual void ExtrapolationSyncCallback() = 0;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

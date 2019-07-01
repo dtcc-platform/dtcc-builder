@@ -49,8 +49,8 @@ public:
    *	\param pPluginPath          The plug-in path.
    * \param pFirstPluginID       Contains the ID of the first plug-in found.
    * \param pRegisteredCount     Contains the number of registered Readers.
-   * \param pOverride			Override any existing writer that is using the
-   *same extension.
+   * \param pOverride			Override any existing writer that is
+   *using the same extension.
    */
   void RegisterReader(const char *pPluginPath,
                       int &pFirstPluginID,
@@ -66,8 +66,8 @@ public:
    *plug-in found. \param pRegisteredCount     Contains the number of registered
    *Readers. \param pIOSettingsFillerF   The function that fills the IO settings
    *for the Reader.
-   * \param pOverride			Override any existing writer that is using the
-   *same extension.
+   * \param pOverride			Override any existing writer that is
+   *using the same extension.
    */
   void
   RegisterReader(FbxReader::CreateFuncType pCreateF,
@@ -82,8 +82,8 @@ public:
    *	\param pPluginPath          The plug-in path.
    * \param pFirstPluginID       Contains the ID of the first plug-in found.
    * \param pRegisteredCount     Contains the number of registered Writers.
-   * \param pOverride			Override any existing writer that is using the
-   *same extension.
+   * \param pOverride			Override any existing writer that is
+   *using the same extension.
    */
   void RegisterWriter(const char *pPluginPath,
                       int &pFirstPluginID,
@@ -328,7 +328,7 @@ private:
   int mNativeWriterFormat;
   bool mInternalPluginMode;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

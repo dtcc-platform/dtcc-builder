@@ -304,7 +304,7 @@ protected:
 
   FbxPropertyT<FbxReference> SrcModelReference;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

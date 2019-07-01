@@ -115,7 +115,7 @@ private:
   virtual bool internal_ProcessObject(FbxObject *pObject);
   FbxSet<FbxString> mPropertyFilter;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

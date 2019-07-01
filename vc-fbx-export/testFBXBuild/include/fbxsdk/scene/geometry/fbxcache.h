@@ -592,7 +592,7 @@ private:
   unsigned int mReadLength;
   void *mConvertBuffer;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxCache::EFileFormat &) { return eFbxEnum; }

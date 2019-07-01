@@ -300,7 +300,7 @@ private:
 
   friend void ExportThread(void *);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! Event that is emitted to plugins before a file is exported to the FBX

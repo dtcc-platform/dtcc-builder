@@ -342,7 +342,7 @@ private:
   FbxPeripheral *mPeripheral;
   FbxDocumentInfo *mDocumentInfo;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

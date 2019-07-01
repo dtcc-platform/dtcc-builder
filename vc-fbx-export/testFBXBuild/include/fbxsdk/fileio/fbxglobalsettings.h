@@ -326,7 +326,7 @@ private:
                         bool pAdd);
 
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxTime::EMode &) { return eFbxEnum; }

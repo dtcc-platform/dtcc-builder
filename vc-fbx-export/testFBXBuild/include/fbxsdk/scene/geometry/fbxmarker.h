@@ -285,7 +285,7 @@ protected:
 
   EType mType;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxMarker::ELook &) { return eFbxEnum; }

@@ -1,4 +1,4 @@
-// Simplex classes for 2D and 3D.
+// Simplex classes for 1D, 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
 
 #ifndef VC_SIMPLEX_H

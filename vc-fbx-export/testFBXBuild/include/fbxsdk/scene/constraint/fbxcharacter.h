@@ -84,7 +84,7 @@ public:
   FbxProperty mPropertyParentOffsetR;
   FbxProperty mPropertyTemplateName;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** A Character is a person or animal with pre-defined skeleton system. The
@@ -1002,7 +1002,7 @@ private:
 
   friend class FbxNode;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxCharacter::EOffAutoUser &)

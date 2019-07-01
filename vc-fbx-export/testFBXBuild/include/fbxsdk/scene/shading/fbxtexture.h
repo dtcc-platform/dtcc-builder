@@ -603,7 +603,7 @@ protected:
   FbxVector2 mUVScaling;     // not a prop
   FbxVector2 mUVTranslation; // not a prop
 #endif                       /* !DOXYGEN_SHOULD_SKIP_THIS                      \
-                                *****************************************************************************************/
+                              *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxTexture::EUnifiedMappingType &)

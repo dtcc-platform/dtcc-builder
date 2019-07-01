@@ -97,7 +97,7 @@ protected:
   virtual void Construct(const FbxObject *pFrom);
   bool ConnectNotify(FbxConnectEvent const &pEvent);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

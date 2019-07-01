@@ -98,7 +98,7 @@ public:
   virtual FbxObject &Copy(const FbxObject &pObject);
 
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

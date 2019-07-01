@@ -16,6 +16,7 @@
 #include "HeightMap.h"
 #include "Mesh.h"
 #include "Point.h"
+#include "Surface.h"
 #include "Timer.h"
 
 extern "C"
@@ -29,9 +30,9 @@ namespace VirtualCity
 class MeshGenerator
 {
 public:
-  // Generate 2D mesh. The mesh is a triangular mesh of a disc with
-  // radius R centered at C with mesh size h. The edges of the mesh
-  // respect the boundaries of the buildings.
+  // Generate 2D mesh. The mesh is a triangular mesh of the rectangular region
+  // defined by (xMin, xMax) x (yMin, yMax). The edges of the mesh respect the
+  // boundaries of the buildings.
   //
   // The domain markers label the triangles inside building footprints
   // with the number of the building (0, 1, 2, ...). Triangles that are
@@ -205,6 +206,21 @@ public:
     }
 
     return mesh3D;
+  }
+
+  // Generate 3D surface meshes for visualization. The first surface is
+  // the ground (height map) and the remaining surfaces are the extruded
+  // building footprints.
+  static std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
+                                                   const HeightMap &heightMap,
+                                                   double xMin,
+                                                   double yMin,
+                                                   double xMax,
+                                                   double yMax,
+                                                   double resolution)
+  {
+    std::vector<Surface3D> surfaces;
+    return surfaces;
   }
 
 private:

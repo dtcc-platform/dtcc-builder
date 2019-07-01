@@ -83,7 +83,7 @@ private:
   FBXSDK_FRIEND_NEW();
   friend class FbxProperty;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** Defines a filtering criteria for a query of objects, connections and
@@ -155,7 +155,7 @@ private:
   FBXSDK_FRIEND_NEW();
   friend class FbxManager;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! Functor to compare FbxCriteria
@@ -266,7 +266,7 @@ protected:
   FbxQueryIsProperty();
 };
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 
 #include <fbxsdk/fbxsdk_nsend.h>
 

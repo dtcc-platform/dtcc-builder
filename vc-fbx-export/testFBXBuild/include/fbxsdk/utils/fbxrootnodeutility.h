@@ -75,7 +75,7 @@ protected:
   FbxRootNodeUtility(const FbxRootNodeUtility &pOther);
   ~FbxRootNodeUtility();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

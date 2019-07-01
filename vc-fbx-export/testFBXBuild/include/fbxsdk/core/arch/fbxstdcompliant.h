@@ -126,12 +126,12 @@ FBXSDK_vsnprintf(char *dst, size_t dstsize, const char *format, va_list vl)
 #define FBXSDK_strdup FbxStrDup
 
 // The scanf family functions cannot easily be used in both secure and
-// non-secure versions because Microsoft's secure version expects the size of the
-// string/char* arguments following their address. On Unix machines the scanf
-// family functions do not have this behavior and trying to use the same calls
-// would result in compiler errors because the arguments would not match the
-// format string. Using the following macros in the code will simply desable the
-// warning at compile time.
+// non-secure versions because Microsoft's secure version expects the size of
+// the string/char* arguments following their address. On Unix machines the
+// scanf family functions do not have this behavior and trying to use the same
+// calls would result in compiler errors because the arguments would not match
+// the format string. Using the following macros in the code will simply desable
+// the warning at compile time.
 #if defined(FBXSDK_COMPILER_MSC) && (_MSC_VER >= 1300)
 #define FBXSDK_CRT_SECURE_NO_WARNING_BEGIN                                     \
   {                                                                            \

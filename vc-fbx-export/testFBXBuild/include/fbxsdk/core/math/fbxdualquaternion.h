@@ -282,8 +282,8 @@ public:
 
   /** Return dual quaternion product.
    * \param pDualQuaternion	Product dual quaternion.
-   * \return					The dual quaternion that is the product of this and
-   * pDualQuaternion.
+   * \return					The dual quaternion that is the
+   * product of this and pDualQuaternion.
    */
   FbxDualQuaternion Product(const FbxDualQuaternion &pDualQuaternion) const;
 
@@ -348,7 +348,7 @@ private:
   FbxQuaternion mQ1;
   FbxQuaternion mQ2;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

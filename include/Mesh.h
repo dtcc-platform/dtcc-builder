@@ -41,7 +41,7 @@ public:
   // List of points (vertices)
   std::vector<Point3D> Points;
 
-  // List of tetrahedra
+  // List of cells (tetrahedra)
   std::vector<Simplex3D> Cells;
 
   // List of domain markers

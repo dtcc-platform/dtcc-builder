@@ -133,7 +133,7 @@ public:
   int Read(char *pData, int pSize) const { return Read((void *)pData, pSize); }
   int Read(int *pData, int pSize) const { return Read((void *)pData, pSize); }
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

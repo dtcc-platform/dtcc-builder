@@ -179,7 +179,7 @@ accompanies this software in either electronic or hard copy form.
 #if defined(FBXSDK_COMPILER_MSC)
 #pragma warning(                                                               \
     disable : 4251) //'identifier' : class 'type' needs to have dll-interface to
-                    //be used by clients of class 'type2'
+                    // be used by clients of class 'type2'
 #if _MSC_VER >= 1300 // 7.1
 #define FBX_DEPRECATED __declspec(deprecated)
 #else

@@ -103,7 +103,7 @@ private:
 
   FbxArray<NameCell *> mNameArray;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** The FbxRenamingStrategy object can be set to rename all the objects in a
@@ -287,7 +287,7 @@ protected:
   FbxString mInNameSpaceSymbol; // symbol identifying a name space
   FbxString mOutNameSpaceSymbol;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** The FbxSceneRenamer provides a way to easily rename objects in a scene
@@ -380,7 +380,7 @@ private:
   FbxRenamingStrategyInterface *mNodeRenamingStrategy;
   FbxScene *mScene;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

@@ -198,7 +198,7 @@ protected:
   bool mUseMipMap;
 
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxVideo::EInterlaceMode &) { return eFbxEnum; }

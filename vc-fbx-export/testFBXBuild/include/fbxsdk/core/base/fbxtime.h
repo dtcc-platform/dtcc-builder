@@ -75,8 +75,8 @@ public:
    * - \e eFrames50          50 frames/s
    * - \e eFrames48          48 frame/s
    * - \e eFrames30          30 frames/s (black and white NTSC)
-   * - \e eFrames30Drop		30 frames/s (use when display in frame is selected,
-   * equivalent to NTSC drop)
+   * - \e eFrames30Drop		30 frames/s (use when display in frame is
+   * selected, equivalent to NTSC drop)
    * - \e eNTSCDropFrame		~29.97 frames/s drop color NTSC
    * - \e eNTSCFullFrame		~29.97 frames/s color NTSC
    * - \e ePAL				25 frames/s	PAL/SECAM
@@ -548,8 +548,8 @@ public:
   // Keep compatibility with old fbx format
   enum EOldMode
   {
-    eOLD_DEFAULT_MODE, // Default mode set using
-                       // FbxTime::SetGlobalTimeMode(EMode pTimeMode)
+    eOLD_DEFAULT_MODE,    // Default mode set using
+                          // FbxTime::SetGlobalTimeMode(EMode pTimeMode)
     eOLD_CINEMA,          // 24 frameOLD_s/s
     eOLD_PAL,             // 25 frameOLD_s/s	 PAL/SECAM
     eOLD_FRAMES30,        // 30 frameOLD_s/s	 BLACK & WHITE NTSC
@@ -584,7 +584,7 @@ private:
                                               double pFrameRate);
   friend FBXSDK_DLL void FbxSetGlobalTimeFormat(FbxTime::EProtocol pTimeFormat);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** FbxTime in seconds constructor.
@@ -718,7 +718,7 @@ private:
   FbxTime mStart;
   FbxTime mStop;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 class FBXSDK_DLL FbxLocalTime

@@ -94,7 +94,7 @@ private:
   void ClearCacheConnections();
   FbxPropertyT<ECategory> Category;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxCachedEffect::ECategory &)

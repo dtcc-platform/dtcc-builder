@@ -103,7 +103,7 @@ protected:
                             const FbxVector4 &pStart2,
                             const FbxVector4 &pEnd2) const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** FbxTrimNurbsSurface describes a NURBS surface with regions
@@ -246,7 +246,7 @@ private:
   FbxArray<int> mRegionIndices;
   bool mNewRegion;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

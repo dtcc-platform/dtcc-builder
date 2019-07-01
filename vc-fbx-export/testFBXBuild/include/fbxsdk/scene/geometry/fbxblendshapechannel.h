@@ -152,7 +152,7 @@ protected:
   // The full weights array of each shapes on this blend shape channel
   FbxArray<double> mShapeFullWeightArray;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

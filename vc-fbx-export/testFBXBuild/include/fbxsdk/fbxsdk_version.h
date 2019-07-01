@@ -29,7 +29,7 @@ accompanies this software in either electronic or hard copy form.
 #ifndef FBXSDK_VERSION_REVISION
 #define FBXSDK_VERSION_REVISION                                                \
   0 //<! Integer, version revision number, set by build environment. Do not edit
-    //here!
+    // here!
 #endif
 
 // FBX SDK version string macros

@@ -109,7 +109,7 @@ protected:
 public:
   virtual FbxStringList GetTypeFlags() const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxNull::ELook &) { return eFbxEnum; }

@@ -967,8 +967,8 @@ protected:
     bool mValid;
 
     // Used for fast search in GetMeshEdgeIndexForPolygon this array does not
-    // follow the same allocation as the above ones because it is not used in the
-    // normal BeginAddMeshEdgeIndex(). It is filled only by the call to
+    // follow the same allocation as the above ones because it is not used in
+    // the normal BeginAddMeshEdgeIndex(). It is filled only by the call to
     // BeginGetMeshEdgeIndexForPolygon().
     FbxArray<int> mV2Edge;
   } mV2PVMap;
@@ -1018,7 +1018,7 @@ private:
   void GenerateNormalsByCtrlPoint(bool pCW);
 
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

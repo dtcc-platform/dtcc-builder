@@ -281,8 +281,9 @@ public:
    * \param pMeshNodes FBX nodes that hold multiple meshes. These meshes will be
    *merged. \param pNodeName	 Name of new mesh node. \param pScene     The
    *scene that will contain the new mesh node.
-   * \return			 The new mesh node if merge successfully, otherwise NULL
-   *is returned. \remarks			 This method creates a new mesh,
+   * \return			 The new mesh node if merge successfully,
+   *otherwise
+   *NULL is returned. \remarks			 This method creates a new mesh,
    *leaving the source mesh unchanged. The transform of new mesh node is:
    *translate (0, 0, 0), rotation (0, 0, 0), scale (1, 1, 1). For layer element
    *material, normal, smoothing, UV set, vertex color, binormal, tangent and
@@ -442,7 +443,7 @@ private:
 
   friend class FbxWriter3ds;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

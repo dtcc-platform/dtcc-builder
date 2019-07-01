@@ -416,7 +416,7 @@ private:
   FbxArray<FbxConnectionPoint *> mSubConnectCreatedList;
   FbxConnectionPointFilter *mFilter;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** Class to manage Connect Filter */

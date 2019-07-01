@@ -128,7 +128,7 @@ protected:
   FbxString mRelativeFileName;
   FbxString mMediaName; // not a prop
 #endif                  /* !DOXYGEN_SHOULD_SKIP_THIS                           \
-                           *****************************************************************************************/
+                         *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

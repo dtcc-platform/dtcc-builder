@@ -399,7 +399,7 @@ private:
 
   friend void ImportThread(void *);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! Event that is emitted to plugins before a FBX file has been imported.

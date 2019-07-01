@@ -753,7 +753,7 @@ public:
   }
 
   //#define PROPERTY_PAGE_SANITY_CHECK  // Debug purpose only. Never enable it
-  //in a production release.
+  // in a production release.
 
   /** Retrieves the first child property id of a specified property id.
    * \param pParentId The specified property id

@@ -348,7 +348,7 @@ public:
 
   friend class FbxLayerContainer;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** \internal
@@ -1513,7 +1513,7 @@ public:
   FbxLayerElementArrayTemplate<Type> *mDirectArray;
   FbxLayerElementArrayTemplate<int> *mIndexArray;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #define FBXSDK_LAYER_ELEMENT_CREATE_DECLARE(classDesc)                         \
@@ -1675,7 +1675,7 @@ private:
 
   friend class FbxLayerContainer;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** \brief Layer element for grouping related polygons together.
@@ -2277,7 +2277,7 @@ private:
   FbxArray<FbxDataType> mDataTypes;
   FbxArray<FbxString *> mDataNames;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** Returns the direct array with the given attribute index. The template type
@@ -2387,7 +2387,7 @@ public:
 protected:
   FbxLayerElementSmoothing() { mReferenceMode = FbxLayerElement::eDirect; }
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** Layer element for indicating crease of components of a geometry.
@@ -2428,7 +2428,7 @@ public:
 protected:
   FbxLayerElementCrease() { mReferenceMode = FbxLayerElement::eDirect; }
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** Layer element for indicating hole of polygon of a geometry.
@@ -2469,7 +2469,7 @@ public:
 protected:
   FbxLayerElementHole() { mReferenceMode = FbxLayerElement::eDirect; }
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** Layer element for indicating if specified components are shown/hidden
@@ -2493,7 +2493,7 @@ protected:
   FbxLayerElementVisibility();
   ~FbxLayerElementVisibility();
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** \brief Layer element for mapping Textures to a geometry. This class is
@@ -2540,19 +2540,19 @@ public:
    * way, and it will display the full value of the colors in layer 1.
    * - \e eDissolve,       Dissolve makes the lower layer take on the colors of
    * the top layer, and how much depends on the opacity of the upper layer.
-   * - \e eDarken,		  Darken compares each pixel value of the upper layer to
-   * its counterpart's pixel value of the lower layer and chooses the darker of
-   * the two to display.
+   * - \e eDarken,		  Darken compares each pixel value of the upper
+   * layer to its counterpart's pixel value of the lower layer and chooses the
+   * darker of the two to display.
    * - \e eColorBurn,      Color Burn burns in the color of the upper layer with
    * the lower layer. No part of the image will get lighter.
    * - \e eLinearBurn, 	  Linear Burn works like multiply but the results are
    * more intense.
    * - \e eDarkerColor,    This blend mode simply divides pixel values of one
    * layer with the other.
-   * - \e eLighten,		  Lighten compares the two layers pixel for pixel and
-   * uses the lightest pixel value. No part of the image gets darker.
-   * - \e eScreen,		  Screen brightens by lightning the lower layer based on
-   * the lightness of the upper layer
+   * - \e eLighten,		  Lighten compares the two layers pixel for
+   * pixel and uses the lightest pixel value. No part of the image gets darker.
+   * - \e eScreen,		  Screen brightens by lightning the lower layer
+   * based on the lightness of the upper layer
    * - \e eColorDodge,	  Color Dodge dodges the lower layer with the upper
    * layer, resulting in a lighter image. No part of the image will be darkened.
    * - \e eLinearDodge,    Linear Dodge works like screen but with more intense
@@ -2583,8 +2583,8 @@ public:
    * result.
    * - \e eDivide,         This blend mode simply divides pixel values of one
    * layer with the other.
-   * - \e eHue, 			  Hue changes the hue of the lower layer to the hue of
-   * the upper layer but leaves brightness and saturation alone.
+   * - \e eHue, 			  Hue changes the hue of the lower layer
+   * to the hue of the upper layer but leaves brightness and saturation alone.
    * - \e eSaturation,	  Saturation changes the saturation of the lower layer
    * to the hue of the upper layer but leaves brightness and hue alone.
    * - \e eColor,          Color changes the hue and saturation of the lower
@@ -2694,7 +2694,7 @@ private:
   EBlendMode mBlendMode;
   double mAlpha;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** FbxLayer class provides a base for the layering mechanism.
@@ -3230,7 +3230,7 @@ public:
   //@}
   virtual int MemoryUsage() const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /**

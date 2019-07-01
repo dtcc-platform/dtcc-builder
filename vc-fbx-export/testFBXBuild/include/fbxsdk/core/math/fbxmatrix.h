@@ -310,7 +310,7 @@ public:
   FbxMatrix LUMult(FbxMatrix pM, const FbxVector4 &pVector) const;
   double Determinant() const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

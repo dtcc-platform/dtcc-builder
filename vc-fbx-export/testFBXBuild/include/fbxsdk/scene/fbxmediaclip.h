@@ -210,7 +210,7 @@ protected:
   FbxString mOriginalFilename;
 
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxMediaClip::EAccessMode &)

@@ -152,8 +152,8 @@ public:
 
   /** Finds the selected root node in the specified scene.
    * \param pScene	The scene in which the selected root node is found.
-   *	\return			The located root node.\c NULL if the selected root
-   *node cannot be found.
+   *	\return			The located root node.\c NULL if the selected
+   *root node cannot be found.
    */
   virtual FbxNode *FindRootNode(FbxScene &pScene);
 
@@ -254,7 +254,7 @@ private:
 
   friend struct FbxWriterFbx7_Impl;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 //! Helper to access the IOSetting object pointer as a ref ex:

@@ -1285,7 +1285,8 @@ public:
 
   /** Find out start and end time of the animation curves for this node (and its
    *children). \param pInterval	This node's animation interval. \param
-   *pAnimStack	Animation stack where to retrieve animation curves. \param pAnimLayerId	Specific animation layer on the animStack to use.
+   *pAnimStack	Animation stack where to retrieve animation curves. \param
+   *pAnimLayerId	Specific animation layer on the animStack to use.
    * \return \c true if the node (or its children) is animated, \c false
    *otherwise. \remarks If pAnimStack is left NULL, the function will try to get
    *the first AnimStack that is connected to the scene. \e pAnimLayerId
@@ -2642,7 +2643,7 @@ private:
   FbxNode::EShadingMode mShadingMode;
   FbxArray<LinkToCharacter> mLinkToCharacter;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const EFbxRotationOrder &) { return eFbxEnum; }

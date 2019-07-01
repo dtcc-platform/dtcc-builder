@@ -57,7 +57,7 @@ protected:
   virtual bool internal_ProcessObject(FbxObject *pObject);
   virtual bool internal_ProcessCollection(FbxCollection *pCollection);
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

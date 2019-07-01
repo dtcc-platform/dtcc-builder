@@ -200,7 +200,7 @@ protected:
   FbxArray<int> mControlPointIndices;
   FbxArray<double> mControlPointBlendWeights;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

@@ -70,8 +70,8 @@ public:
   };
 
   /** \enum EAreaLightShape	Supported area light types.
-   * - \e eRectangle			Rectangle (or often called a plane) area light
-   * type.
+   * - \e eRectangle			Rectangle (or often called a plane) area
+   * light type.
    * - \e eSphere			Area light that illuminate all
    * directions.
    */
@@ -273,7 +273,7 @@ protected:
   virtual void ConstructProperties(bool pForceSet);
   virtual FbxStringList GetTypeFlags() const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 inline EFbxType FbxTypeOf(const FbxLight::EType &) { return eFbxEnum; }

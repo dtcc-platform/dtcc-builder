@@ -159,10 +159,10 @@ private: /* end of object declaration, put back private */
  * Before the new class can be used, it needs to be registered to the manager
  * with the following method: \code
  * MyFbxManager->RegisterFbxClass("MyClassName", FBX_TYPE(MyClass),
- * FBX_TYPE(FbxObject));	//Be careful! The 3rd parameter must be the parent
- * class! If the parent class change, it must be updated here too! \endcode Then
- * to create or delete instances of your new class, the following methods must
- * be used: \code
+ * FBX_TYPE(FbxObject));	//Be careful! The 3rd parameter must be the
+ * parent class! If the parent class change, it must be updated here too!
+ * \endcode Then to create or delete instances of your new class, the following
+ * methods must be used: \code
  * //Creating a new instance
  * MyClass* MyObject = MyClass::Create(MyFbxManager, "Object Name");
  *
@@ -273,10 +273,10 @@ public:
   //@{
   /** Copy an object content into this object.
    * \param pObject	The source object to copy data from.
-   * \return			Returns the destination object being modified by the
-   * source.
-   * \remark			This function replace the assignment operator (operator=).
-   * It will copy all property values and the name. Connections are NOT copied.
+   * \return			Returns the destination object being modified by
+   * the source. \remark			This function replace the
+   * assignment operator (operator=). It will copy all property values and the
+   * name. Connections are NOT copied.
    */
   virtual FbxObject &Copy(const FbxObject &pObject);
 
@@ -300,13 +300,13 @@ public:
    *specify which object will "contain" the new object. By contain, we mean the
    *new object will become a source to the container, connection-wise. \param
    *pSet           See remark section.
-   * \return			    The new clone, or NULL (if the specified clone type
-   *is not supported).
-   * \remark			    When doing either a "deep" or "reference" clone
-   *type, the clone will always get its properties values set from the source
-   *object properties values. \remark               Since this is a virtual
-   *function, some classes might do additional tasks. \remark               The
-   *\e pSet argument is not used in the default implementation of this method.
+   * \return			    The new clone, or NULL (if the specified
+   *clone type is not supported).
+   * \remark			    When doing either a "deep" or "reference"
+   *clone type, the clone will always get its properties values set from the
+   *source object properties values. \remark               Since this is a
+   *virtual function, some classes might do additional tasks. \remark The \e
+   *pSet argument is not used in the default implementation of this method.
    *Specialized implementations should cast this pointer to
    *FbxCloneManager::CloneSet to have access to the cloned objects so far.
    *Typically, this pointer is set by the clone manager.
@@ -338,7 +338,8 @@ public:
   /** Returns a reference clone of this object at the specified index.
    * \param pIndex	The specified index, valid values are [0,
    * GetReferencedByCount())
-   * \return		The reference clone, or NULL (if pIndex is out of range).
+   * \return		The reference clone, or NULL (if pIndex is out of
+   * range).
    */
   FbxObject *GetReferencedBy(int pIndex) const;
   //@}
@@ -1265,8 +1266,9 @@ public:
    * This test will be performed on the run-time class registered with the FBX
    * SDK Manager rather than the static ClassId generated at compile time.
    * \param pClassId	The class type to test against self.
-   * \return			True if the object is a hierarchical children of the type
-   * specified. \remarks			This function will perform a
+   * \return			True if the object is a hierarchical children of
+   * the
+   * type specified. \remarks			This function will perform a
    * complete search until it reaches the top level class, but it will stop as
    * soon as one ClassId matches the test. */
   bool IsRuntime(const FbxClassId &pClassId) const;
@@ -1290,21 +1292,21 @@ protected:
   /** Optional constructor override, automatically called by default
    * constructor. \param pFrom	If not null, the function must take it into
    * account like a copy constructor.
-   * \remark		In case it is decided to override this function, do not forget
-   * to call ParentClass::Construct(pFrom) at the beginning. */
+   * \remark		In case it is decided to override this function, do not
+   * forget to call ParentClass::Construct(pFrom) at the beginning. */
   virtual void Construct(const FbxObject *pFrom);
 
   /** Optional property constructor override, automatically called by default
    * constructor. \param pForceSet	If the property value must be set
    * regardless of default value.
-   * \remark			If your object have properties, they must be initialized in
-   * this function. */
+   * \remark			If your object have properties, they must be
+   * initialized in this function. */
   virtual void ConstructProperties(bool pForceSet);
 
   /** Optional destructor override, automatically called by default destructor.
    * \param pRecursive	If true, children objects should be destroyed as well.
-   * \remark			In case it is decided to override this function, do not
-   * forget to call ParentClass::Destruct(pResursive) at the end. */
+   * \remark			In case it is decided to override this function,
+   * do not forget to call ParentClass::Destruct(pResursive) at the end. */
   virtual void Destruct(bool pRecursive);
 
   /** Clears this object's content from memory. This method must be overridden
@@ -1328,10 +1330,10 @@ public:
   virtual bool Compare(FbxObject *pOtherObject);
 
   // Basic comparison operator implementation. It simply compare property values
-  // between source and target. NOTE: If a property cannot be found on one of the
-  // object, the comparison fails (return false). Different classid will fail
-  // comparison as well as different property count. Reference properties are not
-  // compared.
+  // between source and target. NOTE: If a property cannot be found on one of
+  // the object, the comparison fails (return false). Different classid will
+  // fail comparison as well as different property count. Reference properties
+  // are not compared.
   bool operator==(const FbxObject &pObject);
   bool operator!=(const FbxObject &pObject);
 
@@ -1344,8 +1346,8 @@ public:
 
   // Important note: If this function is not implemented, the pFileSubTypeName
   // string used when registering your class via FbxManager::RegisterFbxClass
-  // will be used instead. This makes it useless to re-implement this function if
-  // you do not intend to return a different string for the same class.
+  // will be used instead. This makes it useless to re-implement this function
+  // if you do not intend to return a different string for the same class.
   virtual const char *GetTypeName() const;
   virtual FbxStringList GetTypeFlags() const;
 
@@ -1393,7 +1395,7 @@ private:
 
   friend class FbxProperty;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 /** A utility class for iterating over the properties (FbxProperty) of any
@@ -1450,7 +1452,8 @@ public:
 
   /**
    * Constructor.
-   * \param pObject	FBX object. The iterator will iterate source objects that
+   * \param pObject	FBX object. The iterator will iterate source objects
+   * that
    * connect to it. \param pClassId	The class ID specifies the type of the
    * source objects.
    */
@@ -1523,8 +1526,8 @@ public:
    * Get previous source object that connects to the property or object.
    * \return The previous source object. If there are no more objects, return
    *NULL. \remark This method makes sure the iterate index is not out of bounds.
-   *		   If the iterate index is out of bounds, the last source object is
-   *returned.
+   *		   If the iterate index is out of bounds, the last source object
+   *is returned.
    */
   inline FbxObject *GetSafePrevious()
   {
@@ -1572,8 +1575,8 @@ template <class Type> class FbxIteratorSrc : protected FbxIteratorSrcBase
 public:
   /**
    * Constructor.
-   * \param pObject	FBX object. The iterator will iterate source objects that
-   * connect to it.
+   * \param pObject	FBX object. The iterator will iterate source objects
+   * that connect to it.
    */
   inline FbxIteratorSrc(FbxObject *pObject)
       : FbxIteratorSrcBase(pObject, Type::ClassId)
@@ -1632,8 +1635,8 @@ public:
    * Get previous source object that connects to the property or object.
    * \return The previous source object. If there are no more objects, return
    *NULL. \remark This method makes sure the iterate index is not out of bounds.
-   *		   If the iterate index is out of bounds, the last source object is
-   *returned.
+   *		   If the iterate index is out of bounds, the last source object
+   *is returned.
    */
   inline Type *GetSafePrevious()
   {
@@ -1673,7 +1676,8 @@ public:
 
   /**
    * Constructor.
-   * \param pObject	FBX object. The iterator will iterate source objects that
+   * \param pObject	FBX object. The iterator will iterate source objects
+   * that
    * connect to it. \param pClassId	The class ID specifies the type of the
    * source objects.
    */
@@ -1789,8 +1793,8 @@ template <class Type> class FbxIteratorDst : protected FbxIteratorDstBase
 public:
   /**
    * Constructor.
-   * \param pObject	FBX object. The iterator will iterate destination objects
-   * that connect to it.
+   * \param pObject	FBX object. The iterator will iterate destination
+   * objects that connect to it.
    */
   inline FbxIteratorDst(FbxObject *pObject)
       : FbxIteratorDstBase(pObject, Type::ClassId)
@@ -1962,7 +1966,7 @@ public:
   FbxProperty mProp;
 };
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 
 #include <fbxsdk/fbxsdk_nsend.h>
 

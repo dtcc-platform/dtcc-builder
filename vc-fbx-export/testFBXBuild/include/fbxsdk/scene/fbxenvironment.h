@@ -35,7 +35,7 @@ public:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
   bool ProvidesLighting() const;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS                                            \
-          *****************************************************************************************/
+        *****************************************************************************************/
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>
