@@ -219,7 +219,34 @@ public:
                                                    double yMax,
                                                    double resolution)
   {
+    // Create empty list of surfaces
     std::vector<Surface3D> surfaces;
+
+    // Generate empty subdomains for Triangle mesh generation
+    std::vector<std::vector<Point2D>> subDomains;
+
+    // Generate boundary for Triangle mesh generation
+    std::vector<Point2D> boundary;
+    boundary.push_back(Point2D(xMin, yMin));
+    boundary.push_back(Point2D(xMax, yMin));
+    boundary.push_back(Point2D(xMax, yMax));
+    boundary.push_back(Point2D(xMin, yMax));
+
+    // Generate 2D mesh of domain
+    Mesh2D mesh2D = CallTriangle(boundary, subDomains, resolution);
+
+    // Create 3D surface by elevating 2D mesh
+    Surface3D surface3D;
+    surface3D.Points.resize(mesh2D.Points.size());
+    for (size_t i = 0; i < mesh2D.Points.size(); i++)
+    {
+      const Point2D &p2D = mesh2D.Points[i];
+      Point3D p3D(p2D.x, p2D.y, heightMap(p2D));
+      surface3D.Points[i] = p3D;
+    }
+    surface3D.Cells = mesh2D.Cells;
+    surfaces.push_back(surface3D);
+
     return surfaces;
   }
 
@@ -235,7 +262,7 @@ private:
 
     // Set input switches for Triangle
     char triswitches[64];
-    sprintf(triswitches, "zpq25a % .16f", maxArea);
+    sprintf(triswitches, "zpq25a%.16f", maxArea);
     std::cout << "MeshGenerator: triangle parameters = " << triswitches
               << std::endl;
 
