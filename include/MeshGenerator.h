@@ -288,7 +288,7 @@ public:
 
       // Add triangles on top
       const size_t numMeshTriangles = mesh2D.Cells.size();
-      const size_t numBoundaryTriangles = 2*numBoundaryPoints;
+      const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
       surface3D.Cells.resize(numMeshTriangles + numBoundaryTriangles);
       for (size_t i = 0; i < numMeshTriangles; i++)
         surface3D.Cells[i] = mesh2D.Cells[i];
@@ -302,8 +302,8 @@ public:
         const size_t v3 = v1 + numMeshPoints;
         Simplex2D t0(v0, v2, v1);
         Simplex2D t1(v1, v2, v3);
-        surface3D.Cells[numMeshTriangles + 2*i] = t0;
-        surface3D.Cells[numMeshTriangles + 2*i + 1] = t1;
+        surface3D.Cells[numMeshTriangles + 2 * i] = t0;
+        surface3D.Cells[numMeshTriangles + 2 * i + 1] = t1;
       }
 
       // Add surface

@@ -5,6 +5,7 @@
 #define VC_FENICS_H
 
 #include "Mesh.h"
+#include "Surface.h"
 #include <dolfin.h>
 
 namespace VirtualCity
@@ -61,6 +62,57 @@ public:
     {
       const Simplex3D &c = mesh3D.Cells[i];
       meshEditor.add_cell(i, c.v0, c.v1, c.v2, c.v3);
+    }
+
+    // Finalize mesh editor
+    meshEditor.close();
+  }
+
+  // Create FEniCS mesh from VirtualCity surfaces (3D)
+  static void ConvertMesh(const std::vector<Surface3D> &surfaces,
+                          dolfin::Mesh &mesh)
+  {
+    // Inialize mesh editor
+    dolfin::MeshEditor meshEditor;
+    meshEditor.open(mesh, "triangle", 2, 3);
+
+    // Count the number of vertices and triangles
+    size_t numVertices = 0;
+    size_t numTriangles = 0;
+    for (auto const &surface : surfaces)
+    {
+      numVertices += surface.Points.size();
+      numTriangles += surface.Cells.size();
+    }
+
+    // Add vertices
+    meshEditor.init_vertices(numVertices);
+    {
+      size_t k = 0;
+      for (auto const &surface : surfaces)
+      {
+        for (size_t i = 0; i < surface.Points.size(); i++)
+        {
+          const Point3D &p = surface.Points[i];
+          meshEditor.add_vertex(k++, p.x, p.y, p.z);
+        }
+      }
+    }
+
+    // Add cells
+    meshEditor.init_cells(numTriangles);
+    {
+      size_t k = 0;
+      size_t offset = 0;
+      for (auto const &surface : surfaces)
+      {
+        for (size_t i = 0; i < surface.Cells.size(); i++)
+        {
+          const Simplex2D &c = surface.Cells[i];
+          meshEditor.add_cell(k++, c.v0 + offset, c.v1 + offset, c.v2 + offset);
+        }
+        offset += surface.Points.size();
+      }
     }
 
     // Finalize mesh editor

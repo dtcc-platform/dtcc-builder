@@ -13,11 +13,11 @@ class Simplex1D
 {
 public:
   // Vertex indices
-  std::size_t v0 {};
-  std::size_t v1 {};
+  std::size_t v0{};
+  std::size_t v1{};
 
   // Create default simplex
-  Simplex1D() {};
+  Simplex1D(){};
 
   // Create simplex with sorted vertices
   Simplex1D(std::size_t v0, std::size_t v1)
@@ -34,12 +34,12 @@ class Simplex2D
 {
 public:
   // Vertex indices
-  std::size_t v0 {};
-  std::size_t v1 {};
-  std::size_t v2 {};
+  std::size_t v0{};
+  std::size_t v1{};
+  std::size_t v2{};
 
   // Create default simplex
-  Simplex2D() {};
+  Simplex2D(){};
 
   // Create simplex with sorted vertices
   Simplex2D(std::size_t v0, std::size_t v1, std::size_t v2)
@@ -57,13 +57,13 @@ class Simplex3D
 {
 public:
   // Vertex indices
-  std::size_t v0 {};
-  std::size_t v1 {};
-  std::size_t v2 {};
-  std::size_t v3 {};
+  std::size_t v0{};
+  std::size_t v1{};
+  std::size_t v2{};
+  std::size_t v3{};
 
   // Create default simplex
-  Simplex3D() {};
+  Simplex3D(){};
 
   // Create simplex with sorted vertices
   Simplex3D(std::size_t v0, std::size_t v1, std::size_t v2, std::size_t v3)

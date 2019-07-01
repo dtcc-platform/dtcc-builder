@@ -56,37 +56,12 @@ int main(int argc, char *argv[])
       cityModel, heightMap, parameters.XMin, parameters.YMin, parameters.XMax,
       parameters.YMax, parameters.MeshResolution);
 
-  // // Compute ground elevation
-  // const double groundElevation = heightMap.Min();
+  // Convert to FEniCS surface mesh
+  dolfin::Mesh surfaceMesh;
+  FEniCS::ConvertMesh(surfaces, surfaceMesh);
 
-  // // Generate 3D mesh (excluding height map)
-  // Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(
-  //     mesh2D, cityModel, groundElevation, parameters.DomainHeight,
-  //     parameters.MeshResolution);
-  // std::cout << mesh3D << std::endl;
-
-  // // Convert to FEniCS meshes
-  // dolfin::Mesh _mesh2D, _mesh3D;
-  // FEniCS::ConvertMesh(mesh2D, _mesh2D);
-  // FEniCS::ConvertMesh(mesh3D, _mesh3D);
-
-  // // Apply mesh smoothing to account for height map
-  // MeshSmoother::SmoothMesh(_mesh3D, heightMap, cityModel,
-  // mesh3D.DomainMarkers,
-  //                          parameters.MeshResolution);
-
-  // // Generate height map function (used only for testing/visualization)
-  // auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
-
-  // // Generate mesh boundary (used only for testing/visualization)
-  // dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
-
-  // // Write mesh to files¨
-  // std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
-  // dolfin::File(dataDirectory + "Mesh2D.pvd") << _mesh2D;
-  // dolfin::File(dataDirectory + "Mesh3D.pvd") << _mesh3D;
-  // dolfin::File(dataDirectory + "MeshBoundary.pvd") << _boundary3D;
-  // dolfin::File(dataDirectory + "HeightMap.pvd") << *z;
+  // Write to files
+  dolfin::File(dataDirectory + "SurfaceMesh.pvd") << surfaceMesh;
 
   return 0;
 }
