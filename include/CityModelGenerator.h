@@ -29,7 +29,8 @@ public:
                                 double yMin,
                                 double xMax,
                                 double yMax,
-                                double minimalBuildingDistance)
+                                double minimalBuildingDistance,
+                                bool simplifyBuildings)
   {
     std::cout << "CityModelGenerator: Generating city model..." << std::endl;
 
@@ -49,14 +50,18 @@ public:
     // Compute counter-clockwise oriented polygons
     _polygons = ComputeOrientedPolygons(_polygons);
 
-    // Compute simplified polygons
-    _polygons = ComputeSimplifiedPolygons(_polygons);
+    // Simplify and merge if requested
+    if (simplifyBuildings)
+    {
+      // Compute simplified polygons
+      _polygons = ComputeSimplifiedPolygons(_polygons);
 
-    // Compute merged polygons
-    _polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
+      // Compute merged polygons
+      _polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
 
-    // Compute simplified polygons (again)
-    _polygons = ComputeSimplifiedPolygons(_polygons);
+      // Compute simplified polygons (again)
+      _polygons = ComputeSimplifiedPolygons(_polygons);
+    }
 
     // Add buildings
     for (auto const &polygon : _polygons)
@@ -403,6 +408,7 @@ private:
         std::cout << "CityModelGenerator: No sample points inside building, "
                      "setting height to 0"
                   << std::endl;
+        numInside = 1;
       }
 
       // Set building height

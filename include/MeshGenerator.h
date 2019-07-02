@@ -264,8 +264,8 @@ public:
       // points) first, then the points at the bottom (the footprint).
 
       // Set height of ground and building
-      const double groundHeight = 0.0;
-      const double buildingHeight = 50.0;
+      const double groundHeight = heightMap.Min();
+      const double buildingHeight = building.Height;
 
       // Add points at top
       const size_t numMeshPoints = mesh2D.Points.size();

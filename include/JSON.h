@@ -61,6 +61,7 @@ public:
     parameters.MeshResolution = TryReadDouble("MeshResolution", json);
     parameters.MinimalBuildingDistance =
         TryReadDouble("MinimalBuildingDistance", json);
+    parameters.SimplifyBuildings = TryReadBool("SimplifyBuildings", json);
   };
 
   // Write parameters to JSON file
@@ -84,6 +85,7 @@ public:
     json["HeightMapResolution"] = parameters.HeightMapResolution;
     json["MeshResolution"] = parameters.MeshResolution;
     json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
+    json["SimplifyBuildings"] = parameters.SimplifyBuildings;
 
     // Write to file
     std::ofstream f(fileName);
@@ -225,6 +227,15 @@ private:
       throw std::runtime_error("Missing field '" + key + "' in JSON file.");
     return json[key];
   }
+
+  // Try reading double value
+  static bool TryReadBool(std::string key, const nlohmann::json &json)
+  {
+    if (json.find(key) == json.end())
+      throw std::runtime_error("Missing field '" + key + "' in JSON file.");
+    return json[key];
+  }
+
 };
 
 } // namespace VirtualCity

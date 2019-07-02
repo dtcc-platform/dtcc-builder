@@ -39,6 +39,9 @@ public:
   // Maximum mesh size used for mesh generation [m]
   double MeshResolution = 10.0;
 
+  // Simplify and merge buildings if true
+  bool SimplifyBuildings = false;
+
   //--- Compile-time parameters ---
 
   // Tolerance for geometric tests
@@ -52,6 +55,7 @@ public:
 
   // Threshold for filtering outliers (clouds?) from point cloud
   static constexpr double PointCloudOutlierThreshold = 150.0;
+
 };
 
 std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
@@ -68,7 +72,9 @@ std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
     << std::endl
     << "  MinimalBuildingDistance = " << parameters.MeshResolution << std::endl
     << "  DomainHeight            = " << parameters.DomainHeight << std::endl
-    << "  MeshResolution          = " << parameters.MeshResolution;
+    << "  MeshResolution          = " << parameters.MeshResolution << std::endl
+    << "  SimplifyBuildings       = " << parameters.SimplifyBuildings << std::endl;
+
   return s;
 }
 

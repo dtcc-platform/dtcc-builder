@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   CityModelGenerator::GenerateCityModel(
       cityModel, polygons, heightMap, parameters.X0, parameters.Y0,
       parameters.XMin, parameters.YMin, parameters.XMax, parameters.YMax,
-      parameters.MinimalBuildingDistance);
+      parameters.MinimalBuildingDistance, parameters.SimplifyBuildings);
   std::cout << cityModel << std::endl;
 
   // Write city model to file

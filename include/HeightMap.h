@@ -83,10 +83,16 @@ public:
   }
 
   // Compute minimal height
-  double Min() { return *std::min_element(GridData.begin(), GridData.end()); }
+  double Min() const
+  {
+    return *std::min_element(GridData.begin(), GridData.end());
+  }
 
   // Compute maximal height
-  double Max() { return *std::max_element(GridData.begin(), GridData.end()); }
+  double Max() const
+  {
+    return *std::max_element(GridData.begin(), GridData.end());
+  }
 
   // Map index to coordinate
   Point2D Index2Coordinate(size_t i) const
