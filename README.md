@@ -141,7 +141,7 @@ Code formatting is enforced using [ClangFormat](https://clang.llvm.org/docs/Clan
 
 VCCore uses [CalVer](https://calver.org/) for versioning.
 
-## Authors
+## Authors (in order of appearance)
 
 * [Anders Logg](http://anders.logg.org)
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)

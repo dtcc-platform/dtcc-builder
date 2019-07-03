@@ -39,9 +39,6 @@ public:
   // Maximum mesh size used for mesh generation [m]
   double MeshResolution = 10.0;
 
-  // Simplify and merge buildings if true
-  bool SimplifyBuildings = false;
-
   //--- Compile-time parameters ---
 
   // Tolerance for geometric tests
@@ -72,8 +69,7 @@ std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
     << std::endl
     << "  MinimalBuildingDistance = " << parameters.MeshResolution << std::endl
     << "  DomainHeight            = " << parameters.DomainHeight << std::endl
-    << "  MeshResolution          = " << parameters.MeshResolution << std::endl
-    << "  SimplifyBuildings       = " << parameters.SimplifyBuildings << std::endl;
+    << "  MeshResolution          = " << parameters.MeshResolution << std::endl;
 
   return s;
 }

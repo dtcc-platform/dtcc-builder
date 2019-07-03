@@ -28,9 +28,7 @@ public:
                                 double xMin,
                                 double yMin,
                                 double xMax,
-                                double yMax,
-                                double minimalBuildingDistance,
-                                bool simplifyBuildings)
+                                double yMax)
   {
     std::cout << "CityModelGenerator: Generating city model..." << std::endl;
 
@@ -50,19 +48,6 @@ public:
     // Compute counter-clockwise oriented polygons
     _polygons = ComputeOrientedPolygons(_polygons);
 
-    // Simplify and merge if requested
-    if (simplifyBuildings)
-    {
-      // Compute simplified polygons
-      _polygons = ComputeSimplifiedPolygons(_polygons);
-
-      // Compute merged polygons
-      _polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
-
-      // Compute simplified polygons (again)
-      _polygons = ComputeSimplifiedPolygons(_polygons);
-    }
-
     // Add buildings
     for (auto const &polygon : _polygons)
     {
@@ -72,6 +57,43 @@ public:
     }
 
     // Compute building heights
+    ComputeBuildingHeights(cityModel, heightMap);
+  }
+
+  // Simplify city model (simplify and merge polygons)
+  static void SimplifyCityModel(CityModel &cityModel,
+                                const HeightMap &heightMap,
+                                double minimalBuildingDistance)
+  {
+    std::cout << "CityModelGenerator: Simplifying city model..." << std::endl;
+
+    // FIXME: Consider making all polygon processing in-place to
+    // avoid copying the polygon data in each step.
+
+    // Copy polygon data
+    std::vector<Polygon> _polygons;
+    for (auto const &building : cityModel.Buildings)
+      _polygons.push_back(building.Footprint);
+
+    // Compute simplified polygons
+    _polygons = ComputeSimplifiedPolygons(_polygons);
+
+    // Compute merged polygons
+    _polygons = ComputeMergedPolygons(_polygons, minimalBuildingDistance);
+
+    // Compute simplified polygons (again)
+    _polygons = ComputeSimplifiedPolygons(_polygons);
+
+    // Add buildings
+    cityModel.Buildings.clear();
+    for (auto const &polygon : _polygons)
+    {
+      Building building;
+      building.Footprint = polygon;
+      cityModel.Buildings.push_back(building);
+    }
+
+    // Compute building heights (need to be recomputed for merged polygons)
     ComputeBuildingHeights(cityModel, heightMap);
   }
 

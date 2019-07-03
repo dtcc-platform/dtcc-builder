@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
   // Read city model data
   CityModel cityModel;
-  JSON::Read(cityModel, dataDirectory + "CityModel.json");
+  JSON::Read(cityModel, dataDirectory + "SimplifiedCityModel.json");
   std::cout << cityModel << std::endl;
 
   // Read height map data

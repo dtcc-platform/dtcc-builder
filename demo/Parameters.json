@@ -10,6 +10,5 @@
   "YMin": 0,
   "XMax": 1000,
   "YMax": 1000,
-  "MinimalBuildingDistance": 0.01,
-  "SimplifyBuildings": false
+  "MinimalBuildingDistance": 0.5
 }

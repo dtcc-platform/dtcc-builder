@@ -61,7 +61,6 @@ public:
     parameters.MeshResolution = TryReadDouble("MeshResolution", json);
     parameters.MinimalBuildingDistance =
         TryReadDouble("MinimalBuildingDistance", json);
-    parameters.SimplifyBuildings = TryReadBool("SimplifyBuildings", json);
   };
 
   // Write parameters to JSON file
@@ -85,7 +84,6 @@ public:
     json["HeightMapResolution"] = parameters.HeightMapResolution;
     json["MeshResolution"] = parameters.MeshResolution;
     json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
-    json["SimplifyBuildings"] = parameters.SimplifyBuildings;
 
     // Write to file
     std::ofstream f(fileName);
