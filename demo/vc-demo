@@ -3,16 +3,16 @@
 # Demo of the mesh generation pipeline
 
 # Generate height map
-../bin/vc-generate-heightmap Parameters.json
+#../bin/vc-generate-heightmap Parameters.json
 
 # Generate city model
-../bin/vc-generate-citymodel Parameters.json
+#../bin/vc-generate-citymodel Parameters.json
 
 # Simplify city model (used for simulation mesh generation)
 ../bin/vc-simplify-citymodel Parameters.json
 
 # Generate visualization mesh
-../bin/vc-generate-visualization-mesh Parameters.json
+#../bin/vc-generate-visualization-mesh Parameters.json
 
 # Generate simulation mesh
 ../bin/vc-generate-simulation-mesh Parameters.json

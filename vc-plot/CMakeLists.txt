@@ -1,2 +1,2 @@
 set(PROGRAM vc-plot)
-install(FILES ${PROGRAM} DESTINATION bin)
+install(PROGRAMS ${PROGRAM} DESTINATION bin)
