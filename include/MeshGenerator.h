@@ -242,7 +242,7 @@ public:
     {
       const Point2D &p2D = mesh2D.Points[i];
       Point3D p3D(p2D.x, p2D.y, heightMap(p2D));
-      //Point3D p3D(p2D.x, p2D.y, heightMap(p2D) - 25.0);
+      // Point3D p3D(p2D.x, p2D.y, heightMap(p2D) - 25.0);
       surface3D.Points[i] = p3D;
     }
     surface3D.Cells = mesh2D.Cells;

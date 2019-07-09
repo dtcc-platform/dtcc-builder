@@ -52,7 +52,6 @@ public:
 
   // Threshold for filtering outliers (clouds?) from point cloud
   static constexpr double PointCloudOutlierThreshold = 150.0;
-
 };
 
 std::ostream &operator<<(std::ostream &s, const Parameters &parameters)

@@ -233,7 +233,6 @@ private:
       throw std::runtime_error("Missing field '" + key + "' in JSON file.");
     return json[key];
   }
-
 };
 
 } // namespace VirtualCity
