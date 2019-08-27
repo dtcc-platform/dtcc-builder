@@ -120,6 +120,7 @@ public:
   std::vector<size_t> Coordinate2Indices(const Point2D &p) const
   {
     std::vector<size_t> indices;
+    indices.reserve(4);
     const size_t i = Coordinate2Index(p);
     const size_t ix = i % XSize;
     const size_t iy = i / YSize;
