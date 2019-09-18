@@ -21,12 +21,25 @@ To build the Docker image for VCCore, enter the `docker` directory and issue the
 
     ./vc-build-image
 
+if your host operating system is Linux, or
+
+    ./vc-build-image.bat
+
+if your host operating system is Windows.
+
 This creates a Docker image named `vcimage`.
 
 Then issue the following command to create and start a persistent container (virtual machine) in which to run VCCore:
 
     ./vc-create-container
     ./vc-start-container
+
+if your host operating system is Linux, or
+
+    ./vc-create-container.bat
+    ./vc-start-container.bat
+
+if your host operating system is Windows.
 
 This creates a Docker container named `vccontainer` that is used for developing, building and running VCCore.
 
