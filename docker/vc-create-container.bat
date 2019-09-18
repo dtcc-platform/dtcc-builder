@@ -1,2 +1,5 @@
 SET CURRENTDIR="%cd%"
-docker create -ti --name vccontainer -v %CURRENTDIR%:/home/vcuser/vccore vcimage
+cd ..
+SET UPDIR="%cd%"
+cd %CURRENTDIR%
+docker create -ti --name vccontainer -v %UPDIR%:/home/vcuser/vccore vcimage
