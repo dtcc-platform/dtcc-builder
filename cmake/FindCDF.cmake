@@ -11,9 +11,8 @@ find_path(CDF_INCLUDE_DIRS
           PATHS /usr/local/include)
 
 find_library(CDF_LIBRARIES
-             NAMES netcdf_c++4
-             PATHS /usr/local/lib)
-
+             NAMES netcdf_c++4 netcdf
+             PATHS /usr/lib/x86_64-linux-gnu)
 find_package_handle_standard_args(CDF
                                   DEFAULT_MSG
                                   CDF_INCLUDE_DIRS
