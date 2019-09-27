@@ -7,7 +7,10 @@ FROM phusion/baseimage:0.11
 ENV USER vcuser
 ENV DIR vccore
 ENV HOME /home/$USER
-ENV DEBIAN_FRONTEND=noninteractive
+
+# Avoid stall during installation of tzdata
+#ENV TZ=Europe/Stockholm
+#RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Update and upgrade
 RUN apt-get update && apt-get upgrade -y
