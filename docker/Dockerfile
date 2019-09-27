@@ -7,6 +7,7 @@ FROM phusion/baseimage:0.11
 ENV USER vcuser
 ENV DIR vccore
 ENV HOME /home/$USER
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Update and upgrade
 RUN apt-get update && apt-get upgrade -y
