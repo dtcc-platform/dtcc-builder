@@ -28,7 +28,6 @@ RUN apt-get update && apt-get install -y \
     libproj-dev \
     libtriangle-dev \
     libnetcdf-c++4-dev \
-    libfccp-dev \
     clang-format \
     clang-tidy
 

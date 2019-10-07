@@ -12,6 +12,7 @@
 #include "Parameters.h"
 #include "Point.h"
 #include "Simplex.h"
+#include </usr/include/libfccp/csv.h>
 
 namespace VirtualCity
 {
@@ -127,6 +128,12 @@ private:
   {
     f << t.v0 << "," << t.v1 << "," << t.v2 << std::endl;
   }
+  static void read(std::string iFilename, int iNum)
+{
+  const unsigned int number=iNum;
+  io::CSVReader<number> in(iFilename);
+
+}
 
   // Write 3D simplex to file
   static void Write(const Simplex3D &t, std::ofstream &f)
