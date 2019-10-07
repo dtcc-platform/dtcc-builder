@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
   std::cout << heightMap << std::endl;
 
-  // Generate city model
+  // Simplify city model
   CityModelGenerator::SimplifyCityModel(cityModel, heightMap,
                                         parameters.MinimalBuildingDistance);
   std::cout << cityModel << std::endl;

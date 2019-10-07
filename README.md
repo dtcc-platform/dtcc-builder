@@ -11,9 +11,15 @@ This repository contains the server side functionality, including data processin
 
 ## Getting started
 
-VCCore is organized as a collection of C++ command-line programs and scripts that may be built using [CMake](https://cmake.org/). The most convenient way to use VCCore is via the VCCore [Docker](https://www.docker.com/) image, which contains all the dependencies needed for developing, building and running VCCore.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+
+### Pipeline overview
+
+WIP: Describe pipeline overview.
 
 ### Building the VCCore Docker container
+
+The most convenient way to use VCCore is via the custom [Docker](https://www.docker.com/) image, which contains all the dependencies needed for developing, building and running VCCore.
 
 The first step is to download and install [Docker](https://www.docker.com/). After Docker has been installed, continue with the following steps.
 
@@ -73,6 +79,10 @@ To run a simple demo, enter the `demo` directory and issue the following command
 
 This will generate a height map from point cloud data, generate a city model from a property map, and finally create a 3D volume mesh for finite element simulation. Both the input and output data can be found in the `data` directory. The parameters for the demo are controlled by the file `Parameters.json` (see below).
 
+## Deployment
+
+WIP: Describe how to deploy on cloud server.
+
 ## Data sources
 
 VCCore makes use of the following data sources:
@@ -89,6 +99,12 @@ Point cloud data comes in the form of a number square grids big enough to cover 
 This will create the file 09B008_64050_3225_25.las. The lower left corner will in this example be at EPSG:3006 coordinates (6405000, 322500).
 
 Property map data comes in the form of SHP files (with corresponding SHX, DBF and PRJ files). The files of interest are the ones named `by_get.*`.
+
+## Data formats
+
+WIP: Describe internal JSON format.
+
+WIP: Describe CityJSON format.
 
 ## Coordinate system
 
@@ -149,6 +165,8 @@ variableName
 ```
 
 Code formatting is enforced using [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) as defined in the top-level `.clang-format` file. The style is based on the default LLVM style with minimal modifications.
+
+Algorithms should be implemented as static functions in separate classes (for example in the class `MeshGenerator` rather than in the class `Mesh`). This means that pure data classes (like `Mesh`) can be kept clean with only class data and functions for data access and initialization.
 
 ## Versioning
 
