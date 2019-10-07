@@ -25,7 +25,7 @@ EXAMPLE     = Normals
 BINDIR      = ../bin/$(ARCH)/$(VARIANT)/$(EXAMPLE)
 OBJDIR      = ../obj/$(ARCH)/$(VARIANT)/$(EXAMPLE)
 LIBDIR      = ../lib/gcc4/$(ARCH)/$(VARIANT)
-INCDIR      = ../include
+INCDIR      = ../include /usr/include/x86_64-linux-gnu/sys/
 COMMONDIR   = ../Common
 
 TARGET      = $(BINDIR)/$(EXAMPLE)

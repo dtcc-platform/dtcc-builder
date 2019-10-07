@@ -133,6 +133,7 @@ private:
   {
     f << t.v0 << "," << t.v1 << "," << t.v2 << "," << t.v3 << std::endl;
   }
+
 };
 
 } // namespace VirtualCity
