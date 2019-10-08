@@ -1,1 +1,0 @@
-/usr/bin/c++  -Wall -Werror -g   CMakeFiles/vc-sandbox.dir/vc-sandbox.cpp.o  -o vc-sandbox 
