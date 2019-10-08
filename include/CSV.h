@@ -12,7 +12,6 @@
 #include "Parameters.h"
 #include "Point.h"
 #include "Simplex.h"
-#include </usr/include/libfccp/csv.h>
 
 namespace VirtualCity
 {
@@ -130,8 +129,8 @@ private:
   }
   static void read(std::string iFilename, int iNum)
 {
-  const unsigned int number=iNum;
-  io::CSVReader<number> in(iFilename);
+//  const unsigned int number=iNum;
+//  io::CSVReader<number> in(iFilename);
 
 }
 
