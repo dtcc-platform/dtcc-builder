@@ -5,10 +5,6 @@ before_script:
      add-apt-repository ppa:fenics-packages/fenics &&
       apt-get update && apt-get install -y fenics && add-apt-repository ppa:ubuntugis/ppa && apt-get update && apt-get install -y gdal-bin
 
-rspec:
+build:
   script:
     - pwd && mkdir build && cd build && cmake .. && make all && make install
-
-rubocop:
-  script:
-    - date
