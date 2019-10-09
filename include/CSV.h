@@ -1,5 +1,5 @@
 // CSV I/O
-// Anders Logg 2018
+// Anders Logg 2018, Vasilis Naserentin 2019
 
 #ifndef VC_CSV_H
 #define VC_CSV_H
@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../external/include/rapidcsv.h"
 #include "Mesh.h"
 #include "Parameters.h"
 #include "Point.h"
@@ -19,6 +20,8 @@ namespace VirtualCity
 class CSV
 {
 public:
+  // Wrap for rapidcsv CSV container
+  rapidcsv::Document Document;
   // Write 2D point set to CSV file
   static void Write(const std::vector<Point2D> &Points, std::string fileName)
   {
@@ -108,6 +111,28 @@ public:
     fp.close();
     ft.close();
   }
+  // Read CSV file and store it in rapidcsv
+  void Read(std::string iFilename, bool verbose = false)
+  {
+    // Open file and check
+    try
+    {
+      Document.Load(iFilename);
+    }
+    catch (...)
+    {
+      throw std::runtime_error("Unable to read to file: " + iFilename);
+    }
+
+    if (verbose)
+    {
+      std::cout << "Read " << Document.GetColumnCount() + 1
+                << " columns" // seems to be 0-indexed counts
+                << std::endl;
+      std::cout << "Read " << Document.GetRowCount() + 1 << " rows"
+                << std::endl;
+    }
+  }
 
 private:
   // Write 2D point to file
@@ -127,19 +152,11 @@ private:
   {
     f << t.v0 << "," << t.v1 << "," << t.v2 << std::endl;
   }
-  static void read(std::string iFilename, int iNum)
-{
-//  const unsigned int number=iNum;
-//  io::CSVReader<number> in(iFilename);
-
-}
-
   // Write 3D simplex to file
   static void Write(const Simplex3D &t, std::ofstream &f)
   {
     f << t.v0 << "," << t.v1 << "," << t.v2 << "," << t.v3 << std::endl;
   }
-
 };
 
 } // namespace VirtualCity
