@@ -1,8 +1,7 @@
 image: "phusion/baseimage:0.11"
 
 before_script:
-  apt-get update
-
+  - apt-get update
 rspec:
   script:
     - date
