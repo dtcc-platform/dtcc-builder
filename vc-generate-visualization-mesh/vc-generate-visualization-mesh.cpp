@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   // Generate 3D surfaces
   std::vector<Surface3D> surfaces = MeshGenerator::GenerateSurfaces3D(
       cityModel, heightMap, parameters.XMin, parameters.YMin, parameters.XMax,
-      parameters.YMax, parameters.MeshResolution);
+      parameters.YMax, parameters.MeshResolution, parameters.FlatGround);
 
   // Convert to FEniCS surface mesh
   dolfin::Mesh surfaceMesh;

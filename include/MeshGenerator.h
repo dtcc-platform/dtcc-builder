@@ -217,7 +217,8 @@ public:
                                                    double yMin,
                                                    double xMax,
                                                    double yMax,
-                                                   double resolution)
+                                                   double resolution,
+                                                   bool flatGround)
   {
     // Create empty list of surfaces
     std::vector<Surface3D> surfaces;
@@ -241,8 +242,12 @@ public:
     for (size_t i = 0; i < mesh2D.Points.size(); i++)
     {
       const Point2D &p2D = mesh2D.Points[i];
-      Point3D p3D(p2D.x, p2D.y, heightMap(p2D));
-      // Point3D p3D(p2D.x, p2D.y, heightMap(p2D) - 25.0);
+      double z = 0.0;
+      if (flatGround)
+        z = heightMap.Min();
+      else
+        z = heightMap(p2D);
+      Point3D p3D(p2D.x, p2D.y, z);
       surface3D.Points[i] = p3D;
     }
     surface3D.Cells = mesh2D.Cells;

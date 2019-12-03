@@ -39,6 +39,9 @@ public:
   // Maximum mesh size used for mesh generation [m]
   double MeshResolution = 10.0;
 
+  // Keep ground flat (ignore height map)
+  bool FlatGround = false;
+
   //--- Compile-time parameters ---
 
   // Tolerance for geometric tests

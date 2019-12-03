@@ -140,10 +140,17 @@ When generating the city model from SHP file data, the `MinimalBuildingDistance`
 
     MinimalBuildingDistance = minimal distance between buildings
 
-When generating the volume mesh, the `DomainHeight` parameter determines the height of the domain relative to the average ground level. The `MeshResolution` parameter determines the maximum size (diameter) of the mesh cells.
+When generating the volume mesh, the `DomainHeight` parameter determines the height of the domain relative to the average ground level.
 
-    DomainHeight   = height of computational domain (volume mesh)
+    DomainHeight = height of computational domain (volume mesh)
+
+When generating both volume and visualization meshes, the `MeshResolution` parameter determines the maximum size (diameter) of the mesh cells.
+
     MeshResolution = resolution of computational mesh (mesh size)
+
+Both volume and visualization meshes may be generated with our without displacing the ground level outside of buildings. If the `FlatGround` parameter is set to `true`, then the ground is kept flat.
+
+    FlatGround = true / false
 
 ## Code organization
 
