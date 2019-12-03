@@ -68,6 +68,15 @@ public:
     meshEditor.close();
   }
 
+  // Create FEniCS mesh from VirtualCity surface (3D)
+  static void ConvertMesh(const Surface3D &surface,
+                          dolfin::Mesh &mesh)
+  {
+    std::vector<Surface3D> surfaces;
+    surfaces.push_back(surface);
+    ConvertMesh(surfaces, mesh);
+  }
+
   // Create FEniCS mesh from VirtualCity surfaces (3D)
   static void ConvertMesh(const std::vector<Surface3D> &surfaces,
                           dolfin::Mesh &mesh)

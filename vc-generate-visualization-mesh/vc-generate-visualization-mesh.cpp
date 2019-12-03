@@ -51,19 +51,32 @@ int main(int argc, char *argv[])
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
   std::cout << heightMap << std::endl;
 
-  std::cout << "CHECK: 000" << std::endl;
-
   // Generate 3D surfaces
   std::vector<Surface3D> surfaces = MeshGenerator::GenerateSurfaces3D(
       cityModel, heightMap, parameters.XMin, parameters.YMin, parameters.XMax,
       parameters.YMax, parameters.MeshResolution, parameters.FlatGround);
 
-  // Convert to FEniCS surface mesh
-  dolfin::Mesh surfaceMesh;
-  FEniCS::ConvertMesh(surfaces, surfaceMesh);
+  // Extract ground surface
+  Surface3D groundSurface = surfaces[0];
+
+  // Extract building surfaces
+  std::vector<Surface3D> buildingSurfaces;
+  for (size_t i = 1; i < surfaces.size(); i++)
+    buildingSurfaces.push_back(surfaces[i]);
+
+  // Temporary hack to displace ground mesh
+  //for (size_t i = 0; i < groundSurface.Points.size(); i++)
+  //  groundSurface.Points[i].z -= 5.0;
+
+  // Convert to FEniCS meshs
+  dolfin::Mesh groundMesh;
+  dolfin::Mesh buildingMesh;
+  FEniCS::ConvertMesh(groundSurface, groundMesh);
+  FEniCS::ConvertMesh(buildingSurfaces, buildingMesh);
 
   // Write to files
-  dolfin::File(dataDirectory + "SurfaceMesh.pvd") << surfaceMesh;
+  dolfin::File(dataDirectory + "GroundMesh.pvd") << groundMesh;
+  dolfin::File(dataDirectory + "BuildingMesh.pvd") << buildingMesh;
 
   return 0;
 }

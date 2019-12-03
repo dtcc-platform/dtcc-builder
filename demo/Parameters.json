@@ -3,7 +3,7 @@
   "DataDirectory": "/home/vcuser/vccore/data/Hammarkullen",
   "DomainHeight": 75.0,
   "HeightMapResolution": 1.0,
-  "MeshResolution": 12.5,
+  "MeshResolution": 2.0,
   "X0": 323100,
   "Y0": 6407500,
   "XMin": 0,

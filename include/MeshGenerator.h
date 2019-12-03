@@ -260,6 +260,13 @@ public:
     }
     else
     {
+      // Fill all points with maximum height. This is used to
+      // always choose the smallest height for each point since
+      // each point may be visited multiple times.
+      const double zMax = heightMap.Max();
+      for (size_t i = 0; i < mesh2D.Points.size(); i++)
+        surface3D.Points[i].z = zMax;
+
       // If ground is not float, iterate over the triangles
       for (size_t i = 0; i < mesh2D.Cells.size(); i++)
       {
@@ -279,16 +286,16 @@ public:
           zMin = std::min(zMin, heightMap(mesh2D.Points[T.v2]));
 
           // Set minimum height for all vertices
-          surface3D.Points[T.v0].z = zMin;
-          surface3D.Points[T.v1].z = zMin;
-          surface3D.Points[T.v2].z = zMin;
+          setMin(surface3D.Points[T.v0].z, zMin);
+          setMin(surface3D.Points[T.v1].z, zMin);
+          setMin(surface3D.Points[T.v2].z, zMin);
         }
         else
         {
           // Sample height map at vertex position for all vertices
-          surface3D.Points[T.v0].z = heightMap(mesh2D.Points[T.v0]);
-          surface3D.Points[T.v1].z = heightMap(mesh2D.Points[T.v1]);
-          surface3D.Points[T.v2].z = heightMap(mesh2D.Points[T.v2]);
+          setMin(surface3D.Points[T.v0].z, heightMap(mesh2D.Points[T.v0]));
+          setMin(surface3D.Points[T.v1].z, heightMap(mesh2D.Points[T.v1]));
+          setMin(surface3D.Points[T.v2].z, heightMap(mesh2D.Points[T.v2]));
         }
       }
     }
@@ -543,7 +550,7 @@ private:
     return io;
   }
 
-// Compute domain markers for subdomains
+  // Compute domain markers for subdomains
   static void ComputeDomainMarkers(Mesh2D & mesh, const CityModel & cityModel)
   {
     // Initialize domain markers and set all markers to -2 (ground)
@@ -601,6 +608,13 @@ private:
       if (touchesBuilding && mesh.DomainMarkers[i] == -2)
         mesh.DomainMarkers[i] = -1;
     }
+  }
+
+  // Set x = min(x, y)
+  static void setMin(double& x, double y)
+  {
+    if (y < x)
+      x = y;
   }
 };
 
