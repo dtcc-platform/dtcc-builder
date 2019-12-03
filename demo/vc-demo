@@ -15,4 +15,4 @@
 ../bin/vc-generate-visualization-mesh Parameters.json
 
 # Generate simulation mesh
-../bin/vc-generate-simulation-mesh Parameters.json
+#../bin/vc-generate-simulation-mesh Parameters.json

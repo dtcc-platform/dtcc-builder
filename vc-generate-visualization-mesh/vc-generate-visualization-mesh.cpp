@@ -51,6 +51,8 @@ int main(int argc, char *argv[])
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
   std::cout << heightMap << std::endl;
 
+  std::cout << "CHECK: 000" << std::endl;
+
   // Generate 3D surfaces
   std::vector<Surface3D> surfaces = MeshGenerator::GenerateSurfaces3D(
       cityModel, heightMap, parameters.XMin, parameters.YMin, parameters.XMax,

@@ -212,13 +212,13 @@ public:
   // the ground (height map) and the remaining surfaces are the extruded
   // building footprints.
   static std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
-                                                   const HeightMap &heightMap,
-                                                   double xMin,
-                                                   double yMin,
-                                                   double xMax,
-                                                   double yMax,
-                                                   double resolution,
-                                                   bool flatGround)
+      const HeightMap &heightMap,
+      double xMin,
+      double yMin,
+      double xMax,
+      double yMax,
+      double resolution,
+      bool flatGround)
   {
     // Create empty list of surfaces
     std::vector<Surface3D> surfaces;
@@ -236,29 +236,75 @@ public:
     // Generate 2D mesh of domain
     Mesh2D mesh2D = CallTriangle(boundary, subDomains, resolution);
 
-    // Create 3D surface by elevating 2D mesh
+    // Compute domain markers
+    ComputeDomainMarkers(mesh2D, cityModel);
+
+    // Create ground surface with zero height
     Surface3D surface3D;
+    surface3D.Cells = mesh2D.Cells;
     surface3D.Points.resize(mesh2D.Points.size());
     for (size_t i = 0; i < mesh2D.Points.size(); i++)
     {
       const Point2D &p2D = mesh2D.Points[i];
-      double z = 0.0;
-      if (flatGround)
-        z = heightMap.Min();
-      else
-        z = heightMap(p2D);
-      Point3D p3D(p2D.x, p2D.y, z);
+      Point3D p3D(p2D.x, p2D.y, 0.0);
       surface3D.Points[i] = p3D;
     }
-    surface3D.Cells = mesh2D.Cells;
+
+    // Displace ground surface
+    if (flatGround)
+    {
+      // If ground is flat, just iterate over vertices and set height
+      const double z = heightMap.Min();
+      for (size_t i = 0; i < mesh2D.Points.size(); i++)
+        surface3D.Points[i].z = z;
+    }
+    else
+    {
+      // If ground is not float, iterate over the triangles
+      for (size_t i = 0; i < mesh2D.Cells.size(); i++)
+      {
+        // Get cell marker
+        const int cellMarker = mesh2D.DomainMarkers[i];
+
+        // Get triangle
+        const Simplex2D& T = mesh2D.Cells[i];
+
+        // Check cell marker
+        if (cellMarker != -2) // not ground
+        {
+          // Compute minimum height of vertices
+          double zMin = std::numeric_limits<double>::max();
+          zMin = std::min(zMin, heightMap(mesh2D.Points[T.v0]));
+          zMin = std::min(zMin, heightMap(mesh2D.Points[T.v1]));
+          zMin = std::min(zMin, heightMap(mesh2D.Points[T.v2]));
+
+          // Set minimum height for all vertices
+          surface3D.Points[T.v0].z = zMin;
+          surface3D.Points[T.v1].z = zMin;
+          surface3D.Points[T.v2].z = zMin;
+        }
+        else
+        {
+          // Sample height map at vertex position for all vertices
+          surface3D.Points[T.v0].z = heightMap(mesh2D.Points[T.v0]);
+          surface3D.Points[T.v1].z = heightMap(mesh2D.Points[T.v1]);
+          surface3D.Points[T.v2].z = heightMap(mesh2D.Points[T.v2]);
+        }
+      }
+    }
+
+    // Add ground surface to array of surfaces
     surfaces.push_back(surface3D);
+
+    // Get ground height (minimum)
+    const double groundHeight = heightMap.Min();
 
     // Iterate over buildings to generate surfaces
     for (auto const &building : cityModel.Buildings)
     {
       // Generate 2D mesh of building footprint
       Mesh2D mesh2D =
-          CallTriangle(building.Footprint.Points, subDomains, resolution);
+        CallTriangle(building.Footprint.Points, subDomains, resolution);
 
       // Create empty 3D surface
       Surface3D surface3D;
@@ -269,8 +315,7 @@ public:
       // mesh generation. We add the top points (including any Steiner
       // points) first, then the points at the bottom (the footprint).
 
-      // Set height of ground and building
-      const double groundHeight = heightMap.Min();
+      // Set height of building
       const double buildingHeight = building.Height;
 
       // Add points at top
@@ -320,7 +365,7 @@ public:
   }
 
 private:
-  // Call Triangle to compute 2D mesh
+// Call Triangle to compute 2D mesh
   static Mesh2D
   CallTriangle(const std::vector<Point2D> &boundary,
                const std::vector<std::vector<Point2D>> &subDomains,
@@ -466,7 +511,7 @@ private:
     return mesh2D;
   }
 
-  // Create and reset Triangle I/O data structure
+// Create and reset Triangle I/O data structure
   static struct triangulateio CreateTriangleIO()
   {
     struct triangulateio io;
@@ -498,8 +543,8 @@ private:
     return io;
   }
 
-  // Compute domain markers for subdomains
-  static void ComputeDomainMarkers(Mesh2D &mesh, const CityModel &cityModel)
+// Compute domain markers for subdomains
+  static void ComputeDomainMarkers(Mesh2D & mesh, const CityModel & cityModel)
   {
     // Initialize domain markers and set all markers to -2 (ground)
     mesh.DomainMarkers.resize(mesh.Cells.size());
@@ -516,6 +561,9 @@ private:
       const Point2D c = mesh.MidPoint(mesh.Cells[i]);
       const int marker = cityModel.FindBuilding(c);
 
+      // Get triangle
+      const Simplex2D &T = mesh.Cells[i];
+
       // Check if we are inside a building
       if (marker >= 0)
       {
@@ -523,21 +571,30 @@ private:
         mesh.DomainMarkers[i] = marker;
 
         // Mark all cell vertices as belonging to a building
-        const Simplex2D &simplex = mesh.Cells[i];
-        isBuildingVertex[simplex.v0] = true;
-        isBuildingVertex[simplex.v1] = true;
-        isBuildingVertex[simplex.v2] = true;
+        isBuildingVertex[T.v0] = true;
+        isBuildingVertex[T.v1] = true;
+        isBuildingVertex[T.v2] = true;
       }
+
+      // Check if individual vertices are inside a building
+      // (not only midpoint). Necessary for when generating
+      // visualization meshes that are not boundary-fitted.
+      if (cityModel.FindBuilding(mesh.Points[T.v0]))
+        isBuildingVertex[T.v0] = true;
+      if (cityModel.FindBuilding(mesh.Points[T.v1]))
+        isBuildingVertex[T.v1] = true;
+      if (cityModel.FindBuilding(mesh.Points[T.v2]))
+        isBuildingVertex[T.v2] = true;
     }
 
     // Iterate over cells to mark building halos
     for (size_t i = 0; i < mesh.Cells.size(); i++)
     {
       // Check if any of the cell vertices belongs to a building
-      const Simplex2D &simplex = mesh.Cells[i];
+      const Simplex2D &T = mesh.Cells[i];
       const bool touchesBuilding =
-          (isBuildingVertex[simplex.v0] || isBuildingVertex[simplex.v1] ||
-           isBuildingVertex[simplex.v2]);
+        (isBuildingVertex[T.v0] || isBuildingVertex[T.v1] ||
+         isBuildingVertex[T.v2]);
 
       // Mark as halo (-1) if the cell touches a building but is not
       // itself inside footprint (not marked in the previous step)

@@ -94,6 +94,12 @@ public:
     return *std::max_element(GridData.begin(), GridData.end());
   }
 
+  // Compute mean height
+  double Mean() const
+  {
+    return 0.5*(Min() + Max());
+  }
+
   // Map index to coordinate
   Point2D Index2Coordinate(size_t i) const
   {

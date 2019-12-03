@@ -11,5 +11,5 @@
   "XMax": 1000,
   "YMax": 1000,
   "MinimalBuildingDistance": 1.0,
-  "FlatGround": true
+  "FlatGround": false
 }

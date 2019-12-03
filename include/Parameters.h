@@ -69,9 +69,10 @@ std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
     << "  YMax                    = " << parameters.YMax << std::endl
     << "  HeightMapResolution     = " << parameters.HeightMapResolution
     << std::endl
-    << "  MinimalBuildingDistance = " << parameters.MeshResolution << std::endl
+    << "  MinimalBuildingDistance = " << parameters.MinimalBuildingDistance << std::endl
     << "  DomainHeight            = " << parameters.DomainHeight << std::endl
-    << "  MeshResolution          = " << parameters.MeshResolution << std::endl;
+    << "  MeshResolution          = " << parameters.MeshResolution << std::endl
+    << "  FlatGround.             = " << parameters.FlatGround << std::endl;
 
   return s;
 }
