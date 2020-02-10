@@ -14,16 +14,16 @@ namespace VirtualCity
 class Mesh2D
 {
 public:
-  // List of points (vertices)
+  /// Array of points (vertices)
   std::vector<Point2D> Points;
 
-  // List of cells (triangles)
+  /// Array of cells (triangles)
   std::vector<Simplex2D> Cells;
 
-  // List of domain markers
+  /// Array of domain markers
   std::vector<int> DomainMarkers;
 
-  // Compute cell midpoint
+  /// Compute cell midpoint
   Point2D MidPoint(const Simplex2D &Cell) const
   {
     Point2D c;
@@ -38,16 +38,16 @@ public:
 class Mesh3D
 {
 public:
-  // List of points (vertices)
+  /// Array of points (vertices)
   std::vector<Point3D> Points;
 
-  // List of cells (tetrahedra)
+  /// Array of cells (tetrahedra)
   std::vector<Simplex3D> Cells;
 
-  // List of domain markers
+  /// Array of domain markers
   std::vector<int> DomainMarkers;
 
-  // Compute cell midpoint
+  /// Compute cell midpoint
   Point3D MidPoint(const Simplex3D &Cell) const
   {
     Point3D c;
