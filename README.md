@@ -55,7 +55,7 @@ Note that the VCCore source tree is shared into the Docker container.
 
 To download data for VCCore, enter the `data` directory and issue the following command:
 
-    ./vc-download-data
+    ./vc-download-demo-data
 
 Note that this step should be done outside of the Docker container (to ensure that you have the proper access to the data repository).
 

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#This line only usable with SSH
+#git clone git@gitlab.com:virtualcity.chalmers/vcdata.git
+#This line is for HTTPS
+git clone https://gitlab.com/virtualcity.chalmers/vcdata.git
+#cd vcdata
+git -C vcdata/ lfs pull  
+mv vcdata/* . &&
+rm -rf vcdata/ README.md
