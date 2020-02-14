@@ -40,8 +40,8 @@ RUN apt-get update && apt-get install -y fenics
 RUN add-apt-repository ppa:ubuntugis/ppa
 RUN apt-get update && apt-get install -y gdal-bin
 
-# Install git and dos2unix
-RUN apt-get install -y git dos2unix
+# Install git with lfs support and dos2unix
+RUN apt-get install -y git git-lfs dos2unix
 
 # Add user and change to user
 RUN useradd -m $USER -G sudo && \
