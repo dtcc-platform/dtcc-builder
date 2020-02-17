@@ -21,7 +21,7 @@ public:
   ~Timer()
   {
     const clock_t clockStop = std::clock();
-    const double elapsedTime = (clockStop - clockStart) / CLOCKS_PER_SEC;
+    const double elapsedTime = (clockStop - clockStart) / (double) CLOCKS_PER_SEC;
     std::cout << std::fixed << std::setprecision(2)
               << "Elapsed time (CPU): " << elapsedTime << " (" << task << ")"
               << std::endl;
