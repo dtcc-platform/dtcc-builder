@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+docker start dtcc
+docker exec -it dtcc bash

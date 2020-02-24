@@ -1,12 +1,12 @@
-# This file builds the Docker image for VCCore
+# This file builds the Docker image for the Digital Twin Cities Platform
 
 # Use Phusion base image (minimal Docker-friendly Ubuntu)
 FROM phusion/baseimage:0.11
 
 # Set some variables
-ENV USER vcuser
-ENV DIR vccore
+ENV USER dtcc
 ENV HOME /home/$USER
+ENV DIR core
 
 # Avoid stall during installation of tzdata
 #ENV TZ=Europe/Stockholm

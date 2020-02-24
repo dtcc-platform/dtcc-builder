@@ -19,19 +19,22 @@ These instructions will get you a copy of the project up and running on your loc
 
 WIP: Describe pipeline overview.
 
-### Building the VCCore Docker container
+### Building the Docker container
 
-The most convenient way to use VCCore is via the custom [Docker](https://www.docker.com/) image, which contains all the dependencies needed for developing, building and running VCCore.
+The most convenient way to work with the Digital Twin Cities Platform
+is via the custom [Docker](https://www.docker.com/) image, which
+contains all the dependencies needed for developing, building and
+running the software.
 
 The first step is to download and install [Docker](https://www.docker.com/). After Docker has been installed, continue with the following steps.
 
 To build the Docker image for VCCore, enter the `docker` directory and issue the following command:
 
-    ./vc-build-image
+    ./dtcc-build-image
 
 if your host operating system is Linux, or
 
-    ./vc-build-image.bat
+    ./dtcc-build-image.bat
 
 if your host operating system is Windows.
 
@@ -39,13 +42,13 @@ This creates a Docker image named `vcimage`.
 
 Then issue the following command to create and start a persistent container (virtual machine) in which to run VCCore:
 
-    ./vc-create-container
-    ./vc-start-container
+    ./dtcc-create-container
+    ./dtcc-start-container
 
 if your host operating system is Linux, or
 
-    ./vc-create-container.bat
-    ./vc-start-container.bat
+    ./dtcc-create-container.bat
+    ./dtcc-start-container.bat
 
 if your host operating system is Windows.
 
