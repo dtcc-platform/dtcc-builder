@@ -1,13 +1,15 @@
-# VCCore - VirtualCity@Chalmers Core
+# Digital Twin Cities Platform - Core
 
-VirtualCity@Chalmers is a multidisciplinary research project at
-Chalmers University of Technology involving researchers from
-mathematics, architecture, civil engineering and computer science. The
-aim is to develop an open multimodal data, modeling, simulation and
-visualization platform for interactive planning, design, exploration,
-experimentation and optimization of cities.
+The Digital Twin Cities Platform is an open-source platform for the
+exploration of digital twins for cities. The platform is developed and
+maintained by the Digital Twin Cities Centre (DTCC) hosted by Chalmers
+University of Technology. The aim is to develop an open multimodal
+data, modeling, simulation and visualization platform for interactive
+planning, design, exploration, experimentation and optimization of
+cities.
 
-This repository contains the server side functionality, including data processing, mesh generation and simulation.
+This repositotory (Core) provides software for data processing,
+modeling and simulation.
 
 ## Getting started
 
