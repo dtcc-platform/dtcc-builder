@@ -82,7 +82,7 @@ To run a simple demo, enter the `demo` directory and issue the following command
 
     ./vc-demo
 
-This will generate a height map from point cloud data, generate a city model from a property map, and finally create a 3D volume mesh for finite element simulation. Both the input and output data can be found in the `data` directory. The parameters for the demo are controlled by the file `Parameters.json` (see below).
+This will generate a height map from point cloud data, generate a city model from a property map, and finally generate meshes. Both the input and output data can be found in the `data` directory. The parameters for the demo are controlled by the file `Parameters.json` (see below).
 
 ## Deployment
 
@@ -130,12 +130,16 @@ When parsing data from original data files (LAS point clouds and SHP files), a n
     X0 = x-coordinate of new origin
     Y0 = y-coordinate of new origin
 
+In other words, the offset (X0, Y0) is subtracted from the original coordinates during processing. In the simplest case, the offset should be set to the coordinates of the lower left (south-east) corner of the domain covered by the data.
+
 Height maps, city models and meshes are generated for a rectangular domain with coordinates relative to the new origin specified by `X0` and `Y0`.
 
     XMin = x-coordinate for lower left corner
     YMin = y-coordinate for lower left corner
     XMax = x-coordinate for upper right corner
     YMax = y-coordinate for upper right corner
+
+In the simplest case, the lower left corner should be set to (XMin, YMin) = (0, 0) and the upper right corner should be set to (XMax, YMax) = (Width, Height).
 
 When generating the height map from LAS point cloud data, the `HeighMapResolution` parameter determines the resolution of the grid on to which the height map is sampled.
 

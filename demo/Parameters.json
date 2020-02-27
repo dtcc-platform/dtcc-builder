@@ -1,6 +1,6 @@
 {
   "Type": "Parameters",
-  "DataDirectory": "/home/vcuser/vccore/data/Hammarkullen",
+  "DataDirectory": "/home/dtcc/core/data/Hammarkullen",
   "DomainHeight": 75.0,
   "HeightMapResolution": 1.0,
   "MeshResolution": 2.0,
