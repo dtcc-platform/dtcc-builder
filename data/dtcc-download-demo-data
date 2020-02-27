@@ -1,8 +1,26 @@
 #!/usr/bin/env bash
-#This line only usable with SSH
-#git clone git@gitlab.com:virtualcity.chalmers/vcdata.git
-#This line is for HTTPS
-git clone https://gitlab.com/virtualcity.chalmers/vcdata.git
-git -C vcdata/ lfs pull  
-mv vcdata/* . &&
-rm -rf vcdata/ README.md
+
+download_ssh()
+{
+    git clone git@gitlab.com:dtcc3d/data.git
+}
+
+download_https()
+{
+    git clone https://gitlab.com/dtcc3d/data.git
+}
+
+# Select download: SSH or HTTPS
+while true; do
+    read -p "Download data via SSH (or otherwise use HTTPS)? [y/n] " YN
+    case $YN in
+        [Yy]* ) download_ssh; break;;
+        [Nn]* ) download_https;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+# Clean up
+git -C data/ lfs pull
+mv data/* . &&
+rm -rf data README.md
