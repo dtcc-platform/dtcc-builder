@@ -104,7 +104,7 @@ public:
   Point2D Index2Coordinate(size_t i) const
   {
     const size_t ix = i % XSize;
-    const size_t iy = i / YSize;
+    const size_t iy = i / XSize;
     return Point2D(XMin + ix * XStep, YMin + iy * YStep);
   }
 
