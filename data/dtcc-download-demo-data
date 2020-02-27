@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
+DATATMP=data-repository-tmp
+
 download_ssh()
 {
-    git clone git@gitlab.com:dtcc3d/data.git
+    rm -rf $DATATMP
+    git clone git@gitlab.com:dtcc3d/data.git $DATATMP
 }
 
 download_https()
 {
-    git clone https://gitlab.com/dtcc3d/data.git
+    rm -rf $DATATMP
+    git clone https://gitlab.com/dtcc3d/data.git $DATATMP
 }
 
 # Select download: SSH or HTTPS
@@ -21,6 +25,6 @@ while true; do
 done
 
 # Clean up
-git -C data/ lfs pull
-mv data/* . &&
-rm -rf data README.md
+git -C $DATATMP/ lfs pull
+cp -r $DATATMP/* . &&
+rm -rf $DATATMP README.md
