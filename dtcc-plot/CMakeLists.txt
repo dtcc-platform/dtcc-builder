@@ -1,2 +1,2 @@
-set(PROGRAM vc-plot)
+set(PROGRAM dtcc-plot)
 install(PROGRAMS ${PROGRAM} DESTINATION bin)
