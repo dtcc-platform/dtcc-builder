@@ -2,17 +2,20 @@
 #
 # Demo of the mesh generation pipeline
 
+#PARAMETERS=Hammarkullen.json
+PARAMETERS=Johanneberg.json
+
 # Generate height map
-../bin/dtcc-generate-heightmap Parameters.json
+../bin/dtcc-generate-heightmap $PARAMETERS
 
 # Generate city model
-../bin/dtcc-generate-citymodel Parameters.json
+../bin/dtcc-generate-citymodel $PARAMETERS
 
 # Simplify city model (used for simulation mesh generation)
-../bin/dtcc-simplify-citymodel Parameters.json
+../bin/dtcc-simplify-citymodel $PARAMETERS
 
 # Generate visualization mesh
-../bin/dtcc-generate-visualization-mesh Parameters.json
+../bin/dtcc-generate-visualization-mesh $PARAMETERS
 
 # Generate simulation mesh
 #../bin/dtcc-generate-simulation-mesh Parameters.json
