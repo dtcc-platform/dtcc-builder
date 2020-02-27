@@ -56,6 +56,7 @@ public:
     parameters.YMin = TryReadDouble("YMin", json);
     parameters.XMax = TryReadDouble("XMax", json);
     parameters.YMax = TryReadDouble("YMax", json);
+    parameters.AutoDomain = TryReadBool("AutoDomain", json);
     parameters.DomainHeight = TryReadDouble("DomainHeight", json);
     parameters.HeightMapResolution = TryReadDouble("HeightMapResolution", json);
     parameters.MeshResolution = TryReadDouble("MeshResolution", json);
@@ -81,6 +82,7 @@ public:
     json["YMin"] = parameters.YMin;
     json["XMax"] = parameters.XMax;
     json["YMax"] = parameters.YMax;
+    json["AutoDomain"] = parameters.AutoDomain;
     json["DomainHeight"] = parameters.DomainHeight;
     json["HeightMapResolution"] = parameters.HeightMapResolution;
     json["MeshResolution"] = parameters.MeshResolution;

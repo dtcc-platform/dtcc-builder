@@ -141,6 +141,10 @@ Height maps, city models and meshes are generated for a rectangular domain with 
 
 In the simplest case, the lower left corner should be set to (XMin, YMin) = (0, 0) and the upper right corner should be set to (XMax, YMax) = (Width, Height).
 
+Alternatively, the domain may be determined by the bounding box of the point cloud(s) by. If `AutoDomain` is `true`, then XMin, YMin, XMax, YMax are automatically determined (and their parameter values ignored).
+
+    AutoDomain = true/false
+
 When generating the height map from LAS point cloud data, the `HeighMapResolution` parameter determines the resolution of the grid on to which the height map is sampled.
 
     HeightMapResolution = resolution of height map grid

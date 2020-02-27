@@ -220,6 +220,8 @@ public:
       double resolution,
       bool flatGround)
   {
+    std::cout << "MeshGenerator: Generating 3D surface meshes..." << std::endl;
+
     // Create empty list of surfaces
     std::vector<Surface3D> surfaces;
 
@@ -234,6 +236,7 @@ public:
     boundary.push_back(Point2D(xMin, yMax));
 
     // Generate 2D mesh of domain
+    std::cout << "MeshGenerator: Generating ground mesh" << std::endl;
     Mesh2D mesh2D = CallTriangle(boundary, subDomains, resolution);
 
     // Compute domain markers
@@ -251,6 +254,7 @@ public:
     }
 
     // Displace ground surface
+    std::cout << "MeshGenerator: Displacing ground mesh" << std::endl;
     if (flatGround)
     {
       // If ground is flat, just iterate over vertices and set height
@@ -307,6 +311,7 @@ public:
     const double groundHeight = heightMap.Min();
 
     // Iterate over buildings to generate surfaces
+    std::cout << "MeshGenerator: Generating building meshes" << std::endl;
     for (auto const &building : cityModel.Buildings)
     {
       // Generate 2D mesh of building footprint

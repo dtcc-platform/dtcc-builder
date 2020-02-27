@@ -47,11 +47,33 @@ int main(int argc, char *argv[])
     }
   }
 
+  // Set domain size
+  double xMin{}, yMin{}, xMax{}, yMax{};
+  if (parameters.AutoDomain)
+  {
+    std::cout << "Automatically determining domain size:" << std::endl;
+    xMin = pointCloud.XMin - parameters.X0;
+    yMin = pointCloud.YMin - parameters.Y0;
+    xMax = pointCloud.XMax - parameters.X0;
+    yMax = pointCloud.YMax - parameters.Y0;
+    std::cout << "  XMin: " << pointCloud.XMin << " --> " << xMin << std::endl;
+    std::cout << "  YMin: " << pointCloud.YMin << " --> " << yMin << std::endl;
+    std::cout << "  XMax: " << pointCloud.XMax << " --> " << xMax << std::endl;
+    std::cout << "  YMax: " << pointCloud.YMax << " --> " << yMax << std::endl;
+  }
+  else
+  {
+    xMin = parameters.XMin;
+    yMin = parameters.YMin;
+    xMax = parameters.XMax;
+    yMax = parameters.YMax;
+  }
+
   // Generate height map
   HeightMap heightMap;
   HeightMapGenerator::GenerateHeightMap(
-      heightMap, pointCloud, parameters.X0, parameters.Y0, parameters.XMin,
-      parameters.YMin, parameters.XMax, parameters.YMax,
+      heightMap, pointCloud, parameters.X0, parameters.Y0,
+      xMin, yMin, xMax, yMax,
       parameters.HeightMapResolution);
   std::cout << heightMap << std::endl;
 

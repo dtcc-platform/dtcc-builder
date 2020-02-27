@@ -130,8 +130,8 @@ public:
     // closest existing value around each missing grid point.
     // It might be more efficient to do a flood fill.
 
-    std::cout << "HeightMapGenerator: Filling in missing grid points"
-              << std::endl;
+    std::cout << "HeightMapGenerator: Filling in missing grid points ("
+              << numMissing << "/" << numGridPoints << ")" << std::endl;
 
     // Fill in data for missing grid points
     const size_t maxDiameter = std::max(hm.XSize, hm.YSize);

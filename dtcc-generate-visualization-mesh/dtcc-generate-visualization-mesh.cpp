@@ -53,8 +53,9 @@ int main(int argc, char *argv[])
 
   // Generate 3D surfaces
   std::vector<Surface3D> surfaces = MeshGenerator::GenerateSurfaces3D(
-      cityModel, heightMap, parameters.XMin, parameters.YMin, parameters.XMax,
-      parameters.YMax, parameters.MeshResolution, parameters.FlatGround);
+      cityModel, heightMap,
+      heightMap.XMin, heightMap.YMin, heightMap.XMax, heightMap.YMax,
+      parameters.MeshResolution, parameters.FlatGround);
 
   // Extract ground surface
   Surface3D groundSurface = surfaces[0];

@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
 
   // Generate 2D mesh
   Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(
-      cityModel, parameters.XMin, parameters.YMin, parameters.XMax,
-      parameters.YMax, parameters.MeshResolution);
+      cityModel, heightMap.XMin, heightMap.YMin, heightMap.XMax,
+      heightMap.YMax, parameters.MeshResolution);
   std::cout << mesh2D << std::endl;
 
   // Compute ground elevation

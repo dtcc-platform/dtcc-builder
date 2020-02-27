@@ -24,8 +24,11 @@ public:
   // Domain dimensions
   double XMin = 0.0;
   double YMin = 0.0;
-  double XMax = 100.0;
-  double YMax = 100.0;
+  double XMax = 0.0;
+  double YMax = 0.0;
+
+  // Automatically determine domain size
+  bool AutoDomain = true;
 
   // Height map resolution
   double HeightMapResolution = 1.0;
@@ -67,12 +70,12 @@ std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
     << "  YMin                    = " << parameters.YMin << std::endl
     << "  XMax                    = " << parameters.XMax << std::endl
     << "  YMax                    = " << parameters.YMax << std::endl
-    << "  HeightMapResolution     = " << parameters.HeightMapResolution
-    << std::endl
+    << "  AutoDomain              = " << parameters.AutoDomain << std::endl
+    << "  HeightMapResolution     = " << parameters.HeightMapResolution << std::endl
     << "  MinimalBuildingDistance = " << parameters.MinimalBuildingDistance << std::endl
     << "  DomainHeight            = " << parameters.DomainHeight << std::endl
     << "  MeshResolution          = " << parameters.MeshResolution << std::endl
-    << "  FlatGround.             = " << parameters.FlatGround << std::endl;
+    << "  FlatGround              = " << parameters.FlatGround << std::endl;
 
   return s;
 }

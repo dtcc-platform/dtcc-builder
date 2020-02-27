@@ -49,9 +49,10 @@ int main(int argc, char *argv[])
 
   // Generate city model
   CityModel cityModel;
-  CityModelGenerator::GenerateCityModel(
-      cityModel, polygons, heightMap, parameters.X0, parameters.Y0,
-      parameters.XMin, parameters.YMin, parameters.XMax, parameters.YMax);
+  CityModelGenerator::GenerateCityModel(cityModel, polygons, heightMap,
+                                        parameters.X0, parameters.Y0,
+                                        heightMap.XMin, heightMap.YMin,
+                                        heightMap.XMax, heightMap.YMax);
   std::cout << cityModel << std::endl;
 
   // Write city model to file
