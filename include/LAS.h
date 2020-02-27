@@ -1,8 +1,8 @@
 // LAS I/O
 // Anders Logg 2019
 
-#ifndef VC_SHP_H
-#define VC_SHP_H
+#ifndef DTCC_SHP_H
+#define DTCC_SHP_H
 
 #include <fstream>
 #include <iostream>
@@ -12,7 +12,7 @@
 #include "Point.h"
 #include "PointCloud.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class LAS
@@ -75,6 +75,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

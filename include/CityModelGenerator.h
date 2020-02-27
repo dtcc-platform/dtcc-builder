@@ -1,8 +1,8 @@
 // City model generation from building footprints and height map.
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_CITY_MODEL_GENERATOR_H
-#define VC_CITY_MODEL_GENERATOR_H
+#ifndef DTCC_CITY_MODEL_GENERATOR_H
+#define DTCC_CITY_MODEL_GENERATOR_H
 
 #include <iostream>
 #include <queue>
@@ -13,7 +13,7 @@
 #include "Point.h"
 #include "Polygon.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class CityModelGenerator
@@ -439,6 +439,6 @@ private:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

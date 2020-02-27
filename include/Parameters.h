@@ -1,12 +1,12 @@
 // Global parameters for VCCore.
 // Anders Logg 2019
 
-#ifndef VC_PARAMETERS_H
-#define VC_PARAMETERS_H
+#ifndef DTCC_PARAMETERS_H
+#define DTCC_PARAMETERS_H
 
 #include <string>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Parameters
@@ -77,6 +77,6 @@ std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
   return s;
 }
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

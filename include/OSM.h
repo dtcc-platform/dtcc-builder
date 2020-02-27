@@ -1,8 +1,8 @@
 // OSM I/O
 // Anders Logg 2019
 
-#ifndef VC_OSM_H
-#define VC_OSM_H
+#ifndef DTCC_OSM_H
+#define DTCC_OSM_H
 
 #include <iostream>
 #include <map>
@@ -12,7 +12,7 @@
 #include "Point.h"
 #include "Polygon.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class OSM
@@ -111,6 +111,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

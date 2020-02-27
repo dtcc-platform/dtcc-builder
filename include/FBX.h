@@ -1,13 +1,13 @@
 // FBX I/O
 // Vasilis Naserentin 2019
 
-#ifndef VC_FBX_H
-#define VC_FBX_H
+#ifndef DTCC_FBX_H
+#define DTCC_FBX_H
 
 #include <fstream>
 #include <iostream>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class FBX
@@ -16,6 +16,6 @@ public:
 private:
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

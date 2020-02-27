@@ -1,8 +1,8 @@
 // Height map generation from point cloud (LiDAR) data.
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_HEIGHT_MAP_GENERATOR_H
-#define VC_HEIGHT_MAP_GENERATOR_H
+#ifndef DTCC_HEIGHT_MAP_GENERATOR_H
+#define DTCC_HEIGHT_MAP_GENERATOR_H
 
 #include <iomanip>
 #include <iostream>
@@ -14,7 +14,7 @@
 #include "Point.h"
 #include "PointCloud.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class HeightMapGenerator
@@ -198,6 +198,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

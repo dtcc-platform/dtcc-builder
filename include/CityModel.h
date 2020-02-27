@@ -1,8 +1,8 @@
 // Representation of a 2.5D city model.
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_CITY_MODEL_H
-#define VC_CITY_MODEL_H
+#ifndef DTCC_CITY_MODEL_H
+#define DTCC_CITY_MODEL_H
 
 #include <iomanip>
 #include <string>
@@ -12,7 +12,7 @@
 #include "Geometry.h"
 #include "Point.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class CityModel
@@ -81,6 +81,6 @@ std::ostream &operator<<(std::ostream &stream, const CityModel &cityModel)
   return stream;
 }
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

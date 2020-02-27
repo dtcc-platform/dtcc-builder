@@ -1,15 +1,15 @@
 // Digital Surface Model (DSM) for elevation (including buildings).
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_SURFACE_MODEL_H
-#define VC_SURFACE_MODEL_H
+#ifndef DTCC_SURFACE_MODEL_H
+#define DTCC_SURFACE_MODEL_H
 
 #include <vector>
 
 #include "GeoReference.h"
 #include "Point.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class SurfaceModel
@@ -53,6 +53,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

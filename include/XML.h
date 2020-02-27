@@ -1,8 +1,8 @@
 // FEniCS XML I/O
 // Anders Logg 2019
 
-#ifndef VC_XML_H
-#define VC_XML_H
+#ifndef DTCC_XML_H
+#define DTCC_XML_H
 
 #include <fstream>
 #include <iostream>
@@ -12,7 +12,7 @@
 #include "Point.h"
 #include "Simplex.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class XML
@@ -139,6 +139,6 @@ private:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

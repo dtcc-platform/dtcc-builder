@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <iostream>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Timer
@@ -32,4 +32,4 @@ private:
   std::clock_t clockStart;
 };
 
-} // namespace VirtualCity
+} // namespace DTCC

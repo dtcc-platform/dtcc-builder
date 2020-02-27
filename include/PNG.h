@@ -1,8 +1,8 @@
 // PNG I/O
 // Anders Logg 2019
 
-#ifndef VC_PNG_H
-#define VC_PNG_H
+#ifndef DTCC_PNG_H
+#define DTCC_PNG_H
 
 #include <Magick++.h>
 #include <iostream>
@@ -11,7 +11,7 @@
 
 #include "HeightMap.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class PNG
@@ -68,6 +68,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

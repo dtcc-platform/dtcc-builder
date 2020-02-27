@@ -1,8 +1,8 @@
 // JSON I/O
 // Anders Logg 2019
 
-#ifndef VC_JSON_H
-#define VC_JSON_H
+#ifndef DTCC_JSON_H
+#define DTCC_JSON_H
 
 #include <fstream>
 #include <iostream>
@@ -12,7 +12,7 @@
 #include "HeightMap.h"
 #include "Parameters.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class JSON
@@ -28,7 +28,7 @@ public:
 
     // Check file type
     if (json.find("Type") == json.end())
-      throw std::runtime_error("Not a VirtualCity JSON file.");
+      throw std::runtime_error("Not a DTCC JSON file.");
 
     return json["Type"];
   }
@@ -46,7 +46,7 @@ public:
 
     // Check file type
     if (json.find("Type") == json.end() || json["Type"] != "Parameters")
-      throw std::runtime_error("Not a VirtualCity Parameters JSON file.");
+      throw std::runtime_error("Not a DTCC Parameters JSON file.");
 
     // Extract JSON data
     parameters.DataDirectory = TryReadString("DataDirectory", json);
@@ -105,7 +105,7 @@ public:
 
     // Check file type
     if (json.find("Type") == json.end() || json["Type"] != "HeightMap")
-      throw std::runtime_error("Not a VirtualCity HeightMap JSON file.");
+      throw std::runtime_error("Not a DTCC HeightMap JSON file.");
 
     // Extract JSON data
     heightMap.XMin = json["XMin"];
@@ -159,7 +159,7 @@ public:
 
     // Check file type
     if (json.find("Type") == json.end() || json["Type"] != "CityModel")
-      throw std::runtime_error("Not a VirtualCity CityModel JSON file.");
+      throw std::runtime_error("Not a DTCC CityModel JSON file.");
 
     // Extract JSON data
     auto jsonBuildings = json["Buildings"];
@@ -237,6 +237,6 @@ private:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

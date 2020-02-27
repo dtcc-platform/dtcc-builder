@@ -5,8 +5,8 @@
 // UE4 Coding Standard since the code makes heavy use of FEniCS/DOLFIN
 // which uses a quite different coding standard and the mix looks horrible.
 
-#ifndef VC_MESH_SMOOTHER_H
-#define VC_MESH_SMOOTHER_H
+#ifndef DTCC_MESH_SMOOTHER_H
+#define DTCC_MESH_SMOOTHER_H
 
 #include <cmath>
 #include <dolfin.h>
@@ -17,7 +17,7 @@
 #include "LinearSpace2D.h"
 #include "Mesh.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class MeshSmoother
@@ -309,6 +309,6 @@ private:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

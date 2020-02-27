@@ -1,8 +1,8 @@
 // This class provides a collection of geometry utility functions.
 // Anders Logg 2019
 
-#ifndef VC_GEOMETRY_H
-#define VC_GEOMETRY_H
+#ifndef DTCC_GEOMETRY_H
+#define DTCC_GEOMETRY_H
 
 #include <algorithm>
 #include <cmath>
@@ -14,7 +14,7 @@
 #include "Point.h"
 #include "Polygon.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Geometry
@@ -409,6 +409,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

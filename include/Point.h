@@ -1,8 +1,8 @@
 // Point classes for 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef VC_POINT_H
-#define VC_POINT_H
+#ifndef DTCC_POINT_H
+#define DTCC_POINT_H
 
 #include <cmath>
 #include <iomanip>
@@ -10,7 +10,7 @@
 
 #include "Parameters.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Point2D
@@ -166,6 +166,6 @@ std::ostream &operator<<(std::ostream &stream, const Point3D &p)
   return stream;
 }
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

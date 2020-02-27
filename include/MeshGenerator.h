@@ -1,8 +1,8 @@
-// A simple, efficient and robust 3D mesh generator for VirtualCity@Chalmers.
+// A simple, efficient and robust 3D mesh generator for DTCC@Chalmers.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef VC_MESH_GENERATOR_H
-#define VC_MESH_GENERATOR_H
+#ifndef DTCC_MESH_GENERATOR_H
+#define DTCC_MESH_GENERATOR_H
 
 #include <cmath>
 #include <iostream>
@@ -24,7 +24,7 @@ extern "C"
 #include <triangle.h>
 }
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class MeshGenerator
@@ -618,6 +618,6 @@ private:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

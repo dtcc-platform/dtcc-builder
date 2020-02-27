@@ -1,8 +1,8 @@
 // CSV I/O
 // Anders Logg 2018, Vasilis Naserentin 2019
 
-#ifndef VC_CSV_H
-#define VC_CSV_H
+#ifndef DTCC_CSV_H
+#define DTCC_CSV_H
 
 #include <fstream>
 #include <iostream>
@@ -14,7 +14,7 @@
 #include "Point.h"
 #include "Simplex.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class CSV
@@ -159,6 +159,6 @@ private:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

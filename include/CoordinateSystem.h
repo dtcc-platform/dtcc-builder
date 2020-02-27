@@ -1,15 +1,15 @@
 // Coordinate system transformation.
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_COORDINATE_SYSTEM_H
-#define VC_COORDINATE_SYSTEM_H
+#ifndef DTCC_COORDINATE_SYSTEM_H
+#define DTCC_COORDINATE_SYSTEM_H
 
 #include <proj_api.h>
 #include <sstream>
 
 #include "Point.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class CoordinateSystem
@@ -54,6 +54,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

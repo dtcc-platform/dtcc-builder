@@ -1,15 +1,15 @@
 // STL I/O
 // Anders Logg 2018
 
-#ifndef VC_STL_H
-#define VC_STL_H
+#ifndef DTCC_STL_H
+#define DTCC_STL_H
 
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class STL
@@ -83,6 +83,6 @@ private:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

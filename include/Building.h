@@ -1,15 +1,15 @@
 // Representation of a 2.5D building.
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_BUILDING_H
-#define VC_BUILDING_H
+#ifndef DTCC_BUILDING_H
+#define DTCC_BUILDING_H
 
 #include <vector>
 
 #include "Point.h"
 #include "Polygon.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Building
@@ -25,6 +25,6 @@ public:
   Building() : Height(0) {}
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

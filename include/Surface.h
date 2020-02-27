@@ -1,14 +1,14 @@
 // Surface classes for 2D and 3D (boundaries of 2D and 3D meshes).
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_SURFACE_H
-#define VC_SURFACE_H
+#ifndef DTCC_SURFACE_H
+#define DTCC_SURFACE_H
 
 #include "Point.h"
 #include "Simplex.h"
 #include <vector>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Surface2D
@@ -45,6 +45,6 @@ std::ostream &operator<<(std::ostream &stream, const Surface3D &s)
   return stream;
 }
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

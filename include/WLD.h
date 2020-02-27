@@ -1,8 +1,8 @@
 // WLD I/O
 // Anders Logg 2019
 
-#ifndef VC_WLD_H
-#define VC_WLD_H
+#ifndef DTCC_WLD_H
+#define DTCC_WLD_H
 
 #include <fstream>
 #include <iomanip>
@@ -12,7 +12,7 @@
 #include "GeoReference.h"
 #include "Parameters.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class WLD
@@ -63,6 +63,6 @@ public:
   };
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

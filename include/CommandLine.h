@@ -1,15 +1,15 @@
 // JSON I/O
 // Anders Logg 2019
 
-#ifndef VC_COMMAND_LINE_H
-#define VC_COMMAND_LINE_H
+#ifndef DTCC_COMMAND_LINE_H
+#define DTCC_COMMAND_LINE_H
 
 #include <dirent.h>
 #include <string>
 #include <sys/types.h>
 #include <vector>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class CommandLine
@@ -64,6 +64,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

@@ -1,12 +1,12 @@
 // Simplex classes for 1D, 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef VC_SIMPLEX_H
-#define VC_SIMPLEX_H
+#ifndef DTCC_SIMPLEX_H
+#define DTCC_SIMPLEX_H
 
 #include <vector>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Simplex1D
@@ -78,6 +78,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

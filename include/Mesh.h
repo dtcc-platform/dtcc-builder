@@ -1,14 +1,14 @@
 // Mesh classes for 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
 
-#ifndef VC_MESH_H
-#define VC_MESH_H
+#ifndef DTCC_MESH_H
+#define DTCC_MESH_H
 
 #include "Point.h"
 #include "Simplex.h"
 #include <vector>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class Mesh2D
@@ -74,6 +74,6 @@ std::ostream &operator<<(std::ostream &stream, const Mesh3D &m)
   return stream;
 }
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

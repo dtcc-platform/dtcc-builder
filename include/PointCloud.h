@@ -1,14 +1,14 @@
 // Point cloud (array of 3D points).
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_POINT_CLOUD_H
-#define VC_POINT_CLOUD_H
+#ifndef DTCC_POINT_CLOUD_H
+#define DTCC_POINT_CLOUD_H
 
 #include <vector>
 
 #include "Point.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class PointCloud
@@ -32,6 +32,6 @@ std::ostream &operator<<(std::ostream &stream, const PointCloud &pointCloud)
   return stream;
 }
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

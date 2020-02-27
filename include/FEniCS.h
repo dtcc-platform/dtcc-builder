@@ -1,20 +1,20 @@
 // FEniCS utiliy functions.
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_FENICS_H
-#define VC_FENICS_H
+#ifndef DTCC_FENICS_H
+#define DTCC_FENICS_H
 
 #include "Mesh.h"
 #include "Surface.h"
 #include <dolfin.h>
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class FEniCS
 {
 public:
-  // Create FEniCS mesh from VirtualCity mesh (2D)
+  // Create FEniCS mesh from DTCC mesh (2D)
   static void ConvertMesh(const Mesh2D &mesh2D, dolfin::Mesh &mesh)
   {
     // Inialize mesh editor
@@ -41,7 +41,7 @@ public:
     meshEditor.close();
   }
 
-  // Create FEniCS mesh from VirtualCity mesh (3D)
+  // Create FEniCS mesh from DTCC mesh (3D)
   static void ConvertMesh(const Mesh3D &mesh3D, dolfin::Mesh &mesh)
   {
     // Inialize mesh editor
@@ -68,7 +68,7 @@ public:
     meshEditor.close();
   }
 
-  // Create FEniCS mesh from VirtualCity surface (3D)
+  // Create FEniCS mesh from DTCC surface (3D)
   static void ConvertMesh(const Surface3D &surface,
                           dolfin::Mesh &mesh)
   {
@@ -77,7 +77,7 @@ public:
     ConvertMesh(surfaces, mesh);
   }
 
-  // Create FEniCS mesh from VirtualCity surfaces (3D)
+  // Create FEniCS mesh from DTCC surfaces (3D)
   static void ConvertMesh(const std::vector<Surface3D> &surfaces,
                           dolfin::Mesh &mesh)
   {
@@ -129,6 +129,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

@@ -1,8 +1,8 @@
 // SHP I/O
 // Anders Logg 2019
 
-#ifndef VC_SHP_H
-#define VC_SHP_H
+#ifndef DTCC_SHP_H
+#define DTCC_SHP_H
 
 #include <iostream>
 #include <shapefil.h>
@@ -10,7 +10,7 @@
 
 #include "Polygon.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class SHP
@@ -76,6 +76,6 @@ public:
   }
 };
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif

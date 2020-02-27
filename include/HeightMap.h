@@ -1,8 +1,8 @@
 // Height map (Digital Surface Model, DSM)
 // Copyright (C) 2019 Anders Logg.
 
-#ifndef VC_HEIGHT_MAP_H
-#define VC_HEIGHT_MAP_H
+#ifndef DTCC_HEIGHT_MAP_H
+#define DTCC_HEIGHT_MAP_H
 
 #include <algorithm>
 #include <assert.h>
@@ -10,7 +10,7 @@
 
 #include "Point.h"
 
-namespace VirtualCity
+namespace DTCC
 {
 
 class HeightMap
@@ -197,6 +197,6 @@ std::ostream &operator<<(std::ostream &stream, const HeightMap &heightMap)
   return stream;
 }
 
-} // namespace VirtualCity
+} // namespace DTCC
 
 #endif
