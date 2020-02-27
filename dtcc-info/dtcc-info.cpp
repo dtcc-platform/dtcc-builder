@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-info
+// vc-info
 // Anders Logg 2019
 
 #include <iostream>
@@ -11,7 +11,7 @@
 #include "Parameters.h"
 #include "PointCloud.h"
 
-using namespace VirtualCity;
+using namespace DTCC;
 
 void help() { std::cerr << "Usage: vc-info Data.[json,las]" << std::endl; }
 

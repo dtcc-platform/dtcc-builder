@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-simplify-citymodel
+// vc-simplify-citymodel
 // Anders Logg 2019
 
 #include <iostream>
@@ -13,7 +13,7 @@
 #include "Parameters.h"
 #include "Polygon.h"
 
-using namespace VirtualCity;
+using namespace DTCC;
 
 void Help()
 {

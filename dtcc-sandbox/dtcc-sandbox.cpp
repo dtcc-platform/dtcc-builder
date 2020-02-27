@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-sandbox
+// vc-sandbox
 // Just a sandbox code for users to experiment with different API calls for
 // VCCore Vasilis Naserentin 2019
 
@@ -23,6 +23,6 @@ int main(int argc, char *argv[])
   // nlohmann::json json;
   // in.read_header(io::ignore_extra_column, "vendor", "size", "speed");
   // std::string vendor; int size; double speed;
-  VirtualCity::CSV csv;
+  DTCC::CSV csv;
   csv.Read("test.csv", true);
 }

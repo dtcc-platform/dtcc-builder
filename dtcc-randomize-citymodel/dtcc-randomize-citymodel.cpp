@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-randomize-citymodel
+// vc-randomize-citymodel
 // Anders Logg 2019
 
 #include <iomanip>
@@ -9,7 +9,7 @@
 #include "Geometry.h"
 #include "JSON.h"
 
-using namespace VirtualCity;
+using namespace DTCC;
 
 // FIXME: Consider moving to Parameters.json
 const double BUILDING_SIZE = 10.0;    // building side length

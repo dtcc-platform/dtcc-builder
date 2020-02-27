@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-convert-geojson2shp
+// vc-convert-geojson2shp
 // Anders Logg 2019
 // Vasilis Naserentin 2019
 // Requires ogr2ogr located in /usr/bin/ in VC Docker image

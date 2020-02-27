@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-generate-visualization-mesh
+// vc-generate-visualization-mesh
 // Anders Logg 2018
 
 #include <dolfin.h>
@@ -16,7 +16,7 @@
 #include "MeshSmoother.h"
 #include "Parameters.h"
 
-using namespace VirtualCity;
+using namespace DTCC;
 
 void Help()
 {

@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-generate-citymodel
+// vc-generate-citymodel
 // Anders Logg 2019
 
 #include <iostream>
@@ -14,7 +14,7 @@
 #include "Polygon.h"
 #include "SHP.h"
 
-using namespace VirtualCity;
+using namespace DTCC;
 
 void Help()
 {

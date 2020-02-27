@@ -1,4 +1,4 @@
-// VirtualCity@Chalmers: vc-generate-heightmap
+// vc-generate-heightmap
 // Anders Logg 2019
 
 #include <iostream>
@@ -12,7 +12,7 @@
 #include "LAS.h"
 #include "Parameters.h"
 
-using namespace VirtualCity;
+using namespace DTCC;
 
 void Help()
 {
