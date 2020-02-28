@@ -383,8 +383,8 @@ private:
                const std::vector<std::vector<Point2D>> &subDomains,
                double h)
   {
-    // Set area constraint to control mesh size (rough estimate)
-    const double maxArea = h * h;
+    // Set area constraint to control mesh size
+    const double maxArea = 0.5 * h * h;
 
     // Set input switches for Triangle
     char triswitches[64];
@@ -558,6 +558,8 @@ private:
   // Compute domain markers for subdomains
   static void ComputeDomainMarkers(Mesh2D & mesh, const CityModel & cityModel)
   {
+    std::cout << "MeshGenerator: Computing domain markers" << std::endl;
+
     // Initialize domain markers and set all markers to -2 (ground)
     mesh.DomainMarkers.resize(mesh.Cells.size());
     std::fill(mesh.DomainMarkers.begin(), mesh.DomainMarkers.end(), -2);
