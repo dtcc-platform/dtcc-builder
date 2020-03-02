@@ -210,7 +210,9 @@ public:
 
   // Generate 3D surface meshes for visualization. The first surface is
   // the ground (height map) and the remaining surfaces are the extruded
-  // building footprints.
+  // building footprints. Note that meshes are non-conforming; the ground
+  // and building meshes are non-matching and the building meshes may
+  // contain hanging nodes.
   static std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
       const HeightMap &heightMap,
       double xMin,
@@ -377,6 +379,11 @@ public:
         Simplex2D t1(v1, v2, v3); // Outward-pointing normal
         surface3D.Cells[numMeshTriangles + 2 * i] = t0;
         surface3D.Cells[numMeshTriangles + 2 * i + 1] = t1;
+      }
+
+      for (size_t i = 0; i < surface3D.Cells.size(); i++)
+      {
+        std::cout << i << ": " << surface3D.Cells[i] << std::endl;
       }
 
       // Add surface

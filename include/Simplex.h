@@ -41,15 +41,25 @@ public:
   // Create default simplex
   Simplex2D(){};
 
-  // Create simplex with sorted vertices
-  Simplex2D(std::size_t v0, std::size_t v1, std::size_t v2)
+  // Create simplex and optionally sort vertices
+  Simplex2D(std::size_t v0, std::size_t v1, std::size_t v2,
+            bool sort=false)
   {
-    // Sort vertices
-    std::vector<size_t> v = {v0, v1, v2};
-    std::sort(v.begin(), v.end());
-    this->v0 = v[0];
-    this->v1 = v[1];
-    this->v2 = v[2];
+    // Sort vertices if requested
+    if (sort)
+    {
+      std::vector<size_t> v = {v0, v1, v2};
+      std::sort(v.begin(), v.end());
+      this->v0 = v[0];
+      this->v1 = v[1];
+      this->v2 = v[2];
+    }
+    else
+    {
+      this->v0 = v0;
+      this->v1 = v1;
+      this->v2 = v2;
+    }
   }
 };
 
@@ -65,16 +75,27 @@ public:
   // Create default simplex
   Simplex3D(){};
 
-  // Create simplex with sorted vertices
-  Simplex3D(std::size_t v0, std::size_t v1, std::size_t v2, std::size_t v3)
+  // Create simplex and optionally sort vertices
+  Simplex3D(std::size_t v0, std::size_t v1, std::size_t v2, std::size_t v3,
+            bool sort=false)
   {
-    // Sort vertices
-    std::vector<size_t> v = {v0, v1, v2, v3};
-    std::sort(v.begin(), v.end());
-    this->v0 = v[0];
-    this->v1 = v[1];
-    this->v2 = v[2];
-    this->v3 = v[3];
+    // Sort vertices if requested
+    if (sort)
+    {
+      std::vector<size_t> v = {v0, v1, v2, v3};
+      std::sort(v.begin(), v.end());
+      this->v0 = v[0];
+      this->v1 = v[1];
+      this->v2 = v[2];
+      this->v3 = v[3];
+    }
+    else
+    {
+      this->v0 = v0;
+      this->v1 = v1;
+      this->v2 = v2;
+      this->v3 = v3;
+    }
   }
 };
 
