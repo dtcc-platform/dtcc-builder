@@ -314,6 +314,12 @@ public:
     std::cout << "MeshGenerator: Generating building meshes" << std::endl;
     for (auto const &building : cityModel.Buildings)
     {
+
+      std::cout << "BUILDING FOOTPRINT" << std::endl;
+      for (const auto& p: building.Footprint.Points)
+        std::cout << "  " << p << std::endl;
+
+
       // Generate 2D mesh of building footprint
       Mesh2D mesh2D =
         CallTriangle(building.Footprint.Points, subDomains, resolution);
@@ -498,6 +504,11 @@ private:
     // Call Triangle
     triangulate(triswitches, &in, &out, &vorout);
 
+    // Uncomment for debugging
+    PrintTriangleIO(out);
+    std::cout << std::endl;
+    PrintTriangleIO(vorout);
+
     // Create empty mesh
     Mesh2D mesh2D;
 
@@ -507,15 +518,18 @@ private:
     {
       Point2D p(out.pointlist[2 * i], out.pointlist[2 * i + 1]);
       mesh2D.Points.push_back(p);
+      std::cout << p << std::endl;
     }
 
     // Extract triangles
     mesh2D.Cells.reserve(out.numberoftriangles);
     for (int i = 0; i < out.numberoftriangles; i++)
     {
-      Simplex2D t(out.trianglelist[3 * i], out.trianglelist[3 * i + 1],
+      Simplex2D t(out.trianglelist[3 * i],
+                  out.trianglelist[3 * i + 1],
                   out.trianglelist[3 * i + 2]);
       mesh2D.Cells.push_back(t);
+      std::cout << t << std::endl;
     }
 
     // Free memory
@@ -527,7 +541,7 @@ private:
     return mesh2D;
   }
 
-// Create and reset Triangle I/O data structure
+  // Create and reset Triangle I/O data structure
   static struct triangulateio CreateTriangleIO()
   {
     struct triangulateio io;
@@ -557,6 +571,48 @@ private:
     io.numberofedges = 0;
 
     return io;
+  }
+
+  // Print triangle I/O data
+  static void PrintTriangleIO(const struct triangulateio& io)
+  {
+    std::cout << "Triangle I/O data: " << std::endl;
+    std::cout << "  pointlist = " << io.pointlist << std::endl;
+    std::cout << "  pointmarkerlist = " << io.pointmarkerlist << std::endl;
+    if (io.pointmarkerlist)
+    {
+      std::cout << "   ";
+      for (int i = 0; i < io.numberofpoints; i++)
+        std::cout << " " << io.pointmarkerlist[i];
+      std::cout << std::endl;
+    }
+    std::cout << "  numberofpoints = " << io.numberofpoints << std::endl;
+    std::cout << "  numberofpointattributes = " << io.numberofpointattributes << std::endl;
+    std::cout << "  trianglelist = " << io.trianglelist << std::endl;
+    std::cout << "  triangleattributelist = " << io.triangleattributelist << std::endl;
+    std::cout << "  trianglearealist = " << io.trianglearealist << std::endl;
+    std::cout << "  neighborlist = " << io.neighborlist << std::endl;
+    std::cout << "  numberoftriangles = " << io.numberoftriangles << std::endl;
+    std::cout << "  numberofcorners = " << io.numberofcorners << std::endl;
+    std::cout << "  numberoftriangleattributes = " << io.numberoftriangleattributes << std::endl;
+    std::cout << "  segmentlist = " << io.segmentlist << std::endl;
+    std::cout << "  segmentmarkerlist = " << io.segmentmarkerlist << std::endl;
+    if (io.segmentmarkerlist)
+    {
+      std::cout << "   ";
+      for (int i = 0; i < io.numberofsegments; i++)
+        std::cout << " " << io.segmentmarkerlist[i];
+      std::cout << std::endl;
+    }
+    std::cout << "  numberofsegments = " << io.numberofsegments << std::endl;
+    std::cout << "  holelist = " << io.holelist << std::endl;
+    std::cout << "  numberofholes = " << io.numberofholes << std::endl;
+    std::cout << "  regionlist = " << io.regionlist << std::endl;
+    std::cout << "  numberofregions = " << io.numberofregions << std::endl;
+    std::cout << "  edgelist = " << io.edgelist << std::endl;
+    std::cout << "  edgemarkerlist = " << io.edgemarkerlist << std::endl;
+    std::cout << "  normlist = " << io.normlist << std::endl;
+    std::cout << "  numberofedges = " << io.numberofedges << std::endl;
   }
 
   // Compute domain markers for subdomains

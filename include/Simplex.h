@@ -78,6 +78,18 @@ public:
   }
 };
 
+std::ostream &operator<<(std::ostream &stream, const Simplex2D &t)
+{
+  stream << "(" << t.v0 << ", " << t.v1 << ", " << t.v2 << ")";
+  return stream;
+}
+
+std::ostream &operator<<(std::ostream &stream, const Simplex3D &t)
+{
+  stream << "(" << t.v0 << ", " << t.v1 << ", " << t.v2 << ", " << t.v3 << ")";
+  return stream;
+}
+
 } // namespace DTCC
 
 #endif
