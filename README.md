@@ -103,8 +103,8 @@ WIP: Describe how to deploy on cloud server.
 
 The Digital Twin Cities Platform makes use of the following data sources:
 
-* Point clouds (Lantmäteriet:Laserdata vektor EPSG:3006)
-* Property maps (Fastighetskartan bebyggelse vektor EPSG:3006)
+* Point clouds (Lantmäteriet:Laserdata vektor; EPSG:3006)
+* Property maps (Lantmäteriet:Fastighetskartan bebyggelse vektor; EPSG:3006)
 
 Chalmers has a license for downloading data from `http://zeus.slu.se`.
 
