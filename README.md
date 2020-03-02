@@ -9,7 +9,7 @@ planning, design, exploration, experimentation and optimization of
 cities.
 
 This repositotory (Core) provides software for data processing,
-modeling and simulation.
+modeling, and simulation.
 
 ![](images/hammarkullen.jpg)
 
@@ -21,54 +21,57 @@ modeling and simulation.
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-### Pipeline overview
+### Downloading the software
 
-WIP: Describe pipeline overview.
+To download the software, clone the repository by the following command:
+
+    git clone https://gitlab.com/dtcc3d/core.git
+
+Alternatively, you may want to use the SSH protocol:
+
+    git clone git@gitlab.com:dtcc3d/core.git
+
+This will create a directory named `core` containing the full source code.
 
 ### Building the Docker container
 
 The most convenient way to work with the Digital Twin Cities Platform
 is via the custom [Docker](https://www.docker.com/) image, which
-contains all the dependencies needed for developing, building and
-running the software.
+contains all the dependencies needed for developing, building, and running the software.
 
 The first step is to download and install [Docker](https://www.docker.com/). After Docker has been installed, continue with the following steps.
 
-To build the Docker image for VCCore, enter the `docker` directory and issue the following command:
+To build the Docker image, enter the `docker` directory and issue the following command:
 
     ./dtcc-build-image
 
-if your host operating system is Linux, or
+On Windows, you should instead use the following command:
 
     ./dtcc-build-image.bat
 
-if your host operating system is Windows.
+This creates a Docker image named `dtccimage`.
 
-This creates a Docker image named `vcimage`.
-
-Then issue the following command to create and start a persistent container (virtual machine) in which to run VCCore:
+Then issue the following commands to create and start a persistent container (virtual machine) in which to run the Digital Twin Cities Platform:
 
     ./dtcc-create-container
     ./dtcc-start-container
 
-if your host operating system is Linux, or
+On Windows, you should instead use the following commands:
 
     ./dtcc-create-container.bat
     ./dtcc-start-container.bat
 
-if your host operating system is Windows.
+This creates a Docker container named `dtcc` that is used for developing, building and running VCCore.
 
-This creates a Docker container named `vccontainer` that is used for developing, building and running VCCore.
-
-Note that the VCCore source tree is shared into the Docker container.
+Note that the source tree is automatically shared into the Docker container. It is recommended that you edit the sources, run git commands, and visualize data *outside* of the Docker container (on your native operating system), while building and running the code *inside* the Docker container.
 
 ### Downloading data
 
-To download data for VCCore, enter the `data` directory and issue the following command:
+To download demo data, enter the `data` directory and issue the following command:
 
-    ./vc-download-demo-data
+    ./dtcc-download-demo-data
 
-Note that this step should be done outside of the Docker container (to ensure that you have the proper access to the data repository).
+Note that this step should be done *outside* of the Docker container to ensure that you have the proper access to the data repository.
 
 ### Building and installation
 
@@ -80,30 +83,32 @@ To build VCCore, use a standard out-of-source CMake build by issuing the followi
     make
     make install
 
-This will build and install all programs and scripts into the top level `bin` directory.
+This will build and install all programs into the top level `bin` directory.
 
 ### Running the demo
 
 To run a simple demo, enter the `demo` directory and issue the following command:
 
-    ./vc-demo
+    ./dtcc-demo
 
-This will generate a height map from point cloud data, generate a city model from a property map, and finally generate meshes. Both the input and output data can be found in the `data` directory. The parameters for the demo are controlled by the file `Parameters.json` (see below).
+This will generate a set of meshes for the demo data downloaded. The input data as well as the output data generated are stored in the `data` directory. To change dataset or parameters for the demo, edit the JSON file `Parameters.json`. See below for a description of the parameters.
 
 ## Deployment
 
 WIP: Describe how to deploy on cloud server.
 
-## Data sources
+## Data
 
-VCCore makes use of the following data sources:
+### Data sources
+
+The Digital Twin Cities Platform makes use of the following data sources:
 
 * Point clouds (Lantmäteriet:Laserdata vektor EPSG:3006)
 * Property maps (Fastighetskartan bebyggelse vektor EPSG:3006)
 
 Chalmers has a license for downloading data from `http://zeus.slu.se`.
 
-Point cloud data comes in the form of a number square grids big enough to cover the requested domain. Each point cloud is compressed as a RAR file. Uncompress it to get the LAS point cloud file, for example:
+Point cloud data comes in the form of a number square grids large enough to cover the requested domain. Each point cloud is compressed as a RAR file. Uncompress it to get the LAS point cloud file, for example:
 
     unrar e 09B008_64050_3225_25.rar
 
@@ -111,19 +116,19 @@ This will create the file 09B008_64050_3225_25.las. The lower left corner will i
 
 Property map data comes in the form of SHP files (with corresponding SHX, DBF and PRJ files). The files of interest are the ones named `by_get.*`.
 
-## Data formats
+### Data formats
 
-WIP: Describe internal JSON format.
+WIP: Describe DTCC JSON format.
 
 WIP: Describe CityJSON format.
 
-## Coordinate system
+### Coordinate system
 
 VCCore users meters as a unit of length, relative to the SWEREF99 TM (EPSG:3006) coordinate system.
 
 ## Parameters
 
-VCCore uses the following global parameters, controlled via a JSON file `Parameters.json`.
+The Digital Twin Cities Platform uses the following global parameters, controlled via a JSON file `Parameters.json`.
 
 All data files are assumed to be located in a directory determined by the
 parameter `DataDirectory`. Any generated data files will be stored in the
@@ -136,7 +141,7 @@ When parsing data from original data files (LAS point clouds and SHP files), a n
     X0 = x-coordinate of new origin
     Y0 = y-coordinate of new origin
 
-In other words, the offset (X0, Y0) is subtracted from the original coordinates during processing. In the simplest case, the offset should be set to the coordinates of the lower left (south-east) corner of the domain covered by the data.
+In other words, the offset `(X0, Y0)` is subtracted from the original coordinates during processing. In the simplest case, the offset should be set to the coordinates of the lower left (south-east) corner of the domain covered by the data.
 
 Height maps, city models and meshes are generated for a rectangular domain with coordinates relative to the new origin specified by `X0` and `Y0`.
 
@@ -145,13 +150,13 @@ Height maps, city models and meshes are generated for a rectangular domain with 
     XMax = x-coordinate for upper right corner
     YMax = y-coordinate for upper right corner
 
-In the simplest case, the lower left corner should be set to (XMin, YMin) = (0, 0) and the upper right corner should be set to (XMax, YMax) = (Width, Height).
+In the simplest case, the lower left corner should be set to `(XMin, YMin) = (0, 0)` and the upper right corner should be set to `(XMax, YMax) = (Width, Height)`.
 
-Alternatively, the domain may be determined by the bounding box of the point cloud(s) by. If `AutoDomain` is `true`, then XMin, YMin, XMax, YMax are automatically determined (and their parameter values ignored).
+Alternatively, the domain may be determined by the bounding box of the point cloud(s) by. If `AutoDomain` is `true`, then `XMin`, `YMin`, `XMax`, `YMax` are automatically determined (and their parameter values ignored).
 
     AutoDomain = true/false
 
-When generating the height map from LAS point cloud data, the `HeighMapResolution` parameter determines the resolution of the grid on to which the height map is sampled.
+When generating the height map from LAS point cloud data, the `HeighMapResolution` parameter determines the resolution of the grid onto which the height map is sampled.
 
     HeightMapResolution = resolution of height map grid
 
@@ -171,15 +176,17 @@ Both volume and visualization meshes may be generated with our without displacin
 
     FlatGround = true / false
 
-## Code organization
+## Design
 
-VCCore is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.
+### Code organization
 
-Common C++ code that is used across components is header only and is placed in the common directory `include`. The common code should have no (or minimal) external dependencies.
+The Digital Twin Cities Platform is organized as a collection of independent but interoperable components. Each component may be implemented using different libraries, and languages (C++, Python, ...) but follows a common naming scheme and provides a standardized command-line interface.
 
-## Coding style
+Common C++ code that is used across components is *header only* and is placed in the common directory `include`. The common code should have no (or minimal) external dependencies.
 
-VCCore uses Microsoft C# coding style (for both C++ and Python code):
+### Coding style
+
+The Digital Twin Cities Platform uses Microsoft C# coding style (for both C++ and Python code):
 
 ```
 ClassName
@@ -194,9 +201,9 @@ Code formatting is enforced using [ClangFormat](https://clang.llvm.org/docs/Clan
 
 Algorithms should be implemented as static functions in separate classes (for example in the class `MeshGenerator` rather than in the class `Mesh`). This means that pure data classes (like `Mesh`) can be kept clean with only class data and functions for data access and initialization.
 
-## Versioning
+### Versioning
 
-VCCore uses [CalVer](https://calver.org/) for versioning.
+The Digital Twin Cities Platform uses [CalVer](https://calver.org/) for versioning.
 
 ## Authors (in order of appearance)
 
@@ -205,6 +212,8 @@ VCCore uses [CalVer](https://calver.org/) for versioning.
 
 ## License
 
-VCCore is licensed under TBD.
+The Digital Twin Cities Platform is licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
 ## Acknowledgments
+
+This work is part of the Digital Twin Cities Centre supported by Sweden’s Innovation Agency VINNOVA under Grant No. XXX.
