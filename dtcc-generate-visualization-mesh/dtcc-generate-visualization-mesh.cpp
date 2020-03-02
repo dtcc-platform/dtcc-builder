@@ -8,9 +8,9 @@
 
 #include "CityModel.h"
 #include "CommandLine.h"
-#include "FEniCS.h"
 #include "HeightMap.h"
 #include "JSON.h"
+#include "VTK.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
 #include "MeshSmoother.h"
@@ -60,24 +60,38 @@ int main(int argc, char *argv[])
   // Extract ground surface
   Surface3D groundSurface = surfaces[0];
 
-  // Extract building surfaces
-  std::vector<Surface3D> buildingSurfaces;
+  // FIXME: Consider moving this somewhere else as a utility for merging surfaces
+
+  // Extract building surface as one common surface
+  Surface3D buildingSurface;
+  size_t numPoints = 0;
+  size_t numCells = 0;
   for (size_t i = 1; i < surfaces.size(); i++)
-    buildingSurfaces.push_back(surfaces[i]);
-
-  // Temporary hack to displace ground mesh
-  //for (size_t i = 0; i < groundSurface.Points.size(); i++)
-  //  groundSurface.Points[i].z -= 5.0;
-
-  // Convert to FEniCS meshs
-  dolfin::Mesh groundMesh;
-  dolfin::Mesh buildingMesh;
-  FEniCS::ConvertMesh(groundSurface, groundMesh);
-  FEniCS::ConvertMesh(buildingSurfaces, buildingMesh);
+  {
+    numPoints += surfaces[i].Points.size();
+    numCells += surfaces[i].Cells.size();
+  }
+  buildingSurface.Points.resize(numPoints);
+  buildingSurface.Cells.resize(numCells);
+  size_t k = 0;
+  size_t l = 0;
+  for (size_t i = 1; i < surfaces.size(); i++)
+  {
+    for (size_t j = 0; j < surfaces[i].Cells.size(); j++)
+    {
+      Simplex2D c = surfaces[i].Cells[j];
+      c.v0 += k;
+      c.v1 += k;
+      c.v2 += k;
+      buildingSurface.Cells[l++] = c;
+    }
+    for (size_t j = 0; j < surfaces[i].Points.size(); j++)
+      buildingSurface.Points[k++] = surfaces[i].Points[j];
+  }
 
   // Write to files
-  dolfin::File(dataDirectory + "GroundMesh.pvd") << groundMesh;
-  dolfin::File(dataDirectory + "BuildingMesh.pvd") << buildingMesh;
+  VTK::Write(groundSurface, dataDirectory + "GroundMesh.vtu");
+  VTK::Write(buildingSurface, dataDirectory + "BuildingMesh.vtu");
 
   return 0;
 }

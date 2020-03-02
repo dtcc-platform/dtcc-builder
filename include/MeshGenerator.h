@@ -316,12 +316,6 @@ public:
     std::cout << "MeshGenerator: Generating building meshes" << std::endl;
     for (auto const &building : cityModel.Buildings)
     {
-
-      std::cout << "BUILDING FOOTPRINT" << std::endl;
-      for (const auto& p: building.Footprint.Points)
-        std::cout << "  " << p << std::endl;
-
-
       // Generate 2D mesh of building footprint
       Mesh2D mesh2D =
         CallTriangle(building.Footprint.Points, subDomains, resolution);
@@ -379,11 +373,6 @@ public:
         Simplex2D t1(v1, v2, v3); // Outward-pointing normal
         surface3D.Cells[numMeshTriangles + 2 * i] = t0;
         surface3D.Cells[numMeshTriangles + 2 * i + 1] = t1;
-      }
-
-      for (size_t i = 0; i < surface3D.Cells.size(); i++)
-      {
-        std::cout << i << ": " << surface3D.Cells[i] << std::endl;
       }
 
       // Add surface
@@ -512,9 +501,9 @@ private:
     triangulate(triswitches, &in, &out, &vorout);
 
     // Uncomment for debugging
-    PrintTriangleIO(out);
-    std::cout << std::endl;
-    PrintTriangleIO(vorout);
+    //PrintTriangleIO(out);
+    //std::cout << std::endl;
+    //PrintTriangleIO(vorout);
 
     // Create empty mesh
     Mesh2D mesh2D;
@@ -525,7 +514,6 @@ private:
     {
       Point2D p(out.pointlist[2 * i], out.pointlist[2 * i + 1]);
       mesh2D.Points.push_back(p);
-      std::cout << p << std::endl;
     }
 
     // Extract triangles
@@ -536,7 +524,6 @@ private:
                   out.trianglelist[3 * i + 1],
                   out.trianglelist[3 * i + 2]);
       mesh2D.Cells.push_back(t);
-      std::cout << t << std::endl;
     }
 
     // Free memory
