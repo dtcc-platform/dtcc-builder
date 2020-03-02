@@ -91,7 +91,7 @@ To run a simple demo, enter the `demo` directory and issue the following command
 
     ./dtcc-demo
 
-This will generate a set of meshes for the demo data downloaded. The input data as well as the output data generated are stored in the `data` directory. To change dataset or parameters for the demo, edit the JSON file `Parameters.json`. See below for a description of the parameters.
+This will generate a set of meshes for the demo data downloaded. The input data as well as the output data generated are stored in the `data` directory. To change dataset or parameters for the demo, edit the script `dtcc-demo` to select a different paremeter set. See below for a description of the parameters.
 
 ## Deployment
 
