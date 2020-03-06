@@ -217,3 +217,6 @@ The Digital Twin Cities Platform is licensed under the [MIT license](https://ope
 ## Acknowledgments
 
 This work is part of the Digital Twin Cities Centre supported by Sweden’s Innovation Agency VINNOVA under Grant No. XXX.
+
+WIP: Add grant number.
+
