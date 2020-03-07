@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   PointCloud pointCloud;
   for (auto const &f : CommandLine::ListDirectory(dataDirectory))
   {
-    if (CommandLine::EndsWith(f, ".las"))
+    if (CommandLine::EndsWith(f, ".las")||CommandLine::EndsWith(f, ".laz"))
     {
       LAS::Read(pointCloud, dataDirectory + f);
       std::cout << pointCloud << std::endl;
