@@ -42,8 +42,8 @@ RUN apt-get update && apt-get install -y fenics
 RUN add-apt-repository ppa:ubuntugis/ppa
 RUN apt-get update && apt-get install -y gdal-bin
 
-# Install git with lfs support and dos2unix
-RUN apt-get install -y git git-lfs dos2unix
+# Install git with lfs support, dos2unix, nano simple editor and rsync
+RUN apt-get install -y git git-lfs dos2unix nano rsync
 
 # Get and compile LASZip
 RUN git clone -n https://github.com/LASzip/LASzip.git
