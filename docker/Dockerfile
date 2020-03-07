@@ -53,7 +53,7 @@ RUN mkdir /usr/local/include/laszip/ && mv /usr/local/include/las*.hpp /usr/loca
 # Get and compile libLAS with LASZip suppport
 
 RUN git clone git://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && make install
-RUN ln -s /usr/local/lib/liblas.so.3 /usr/lib
+RUN ln -s /usr/local/lib/liblas.so.3 /usr/lib && ln -s /usr/local/lib/liblaszip.so.4 /usr/lib
 
 # Add user and change to user
 RUN useradd -m $USER -G sudo && \
