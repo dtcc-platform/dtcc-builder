@@ -10,6 +10,8 @@
 
 #include "CityModel.h"
 #include "HeightMap.h"
+#include "Mesh.h"
+#include "Surface.h"
 #include "Parameters.h"
 
 namespace DTCC
@@ -36,8 +38,7 @@ public:
   // Read parameters from JSON file
   static void Read(Parameters &parameters, std::string fileName)
   {
-    std::cout << "JSON: "
-              << "Reading parameters from file " << fileName << std::endl;
+    std::cout << "JSON: Reading parameters from file " << fileName << std::endl;
 
     // Read data from file
     std::ifstream f(fileName);
@@ -63,13 +64,13 @@ public:
     parameters.MinimalBuildingDistance =
         TryReadDouble("MinimalBuildingDistance", json);
     parameters.FlatGround = TryReadBool("FlatGround", json);
+    parameters.GroundSmoothing = TryReadInt("GroundSmoothing", json);
   };
 
   // Write parameters to JSON file
   static void Write(const Parameters &parameters, std::string fileName)
   {
-    std::cout << "JSON: "
-              << "Writing parameters to file " << fileName << std::endl;
+    std::cout << "JSON: Writing parameters to file " << fileName << std::endl;
 
     // Set JSON data
     nlohmann::json json;
@@ -88,6 +89,7 @@ public:
     json["MeshResolution"] = parameters.MeshResolution;
     json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
     json["FlatGround"] = parameters.FlatGround;
+    json["GroundSmoothings"] = parameters.GroundSmoothing;
 
     // Write to file
     std::ofstream f(fileName);
@@ -97,8 +99,7 @@ public:
   // Read height map from JSON file
   static void Read(HeightMap &heightMap, std::string fileName)
   {
-    std::cout << "JSON: "
-              << "Reading height map from file " << fileName << std::endl;
+    std::cout << "JSON: Reading height map from file " << fileName << std::endl;
 
     // Read data from file
     std::ifstream f(fileName);
@@ -127,8 +128,7 @@ public:
   // Write height map to JSON file
   static void Write(const HeightMap &heightMap, std::string fileName)
   {
-    std::cout << "JSON: "
-              << "Writing height map to file " << fileName << std::endl;
+    std::cout << "JSON: Writing height map to file " << fileName << std::endl;
 
     // Set JSON data
     nlohmann::json json;
@@ -151,8 +151,7 @@ public:
   // Read city model from JSON file
   static void Read(CityModel &cityModel, std::string fileName)
   {
-    std::cout << "JSON: "
-              << "Reading city model from file " << fileName << std::endl;
+    std::cout << "JSON: Reading city model from file " << fileName << std::endl;
 
     // Read data from file
     std::ifstream f(fileName);
@@ -183,8 +182,7 @@ public:
   // Write city model to JSON file
   static void Write(CityModel &cityModel, std::string fileName)
   {
-    std::cout << "JSON: "
-              << "Writing city model to file " << fileName << std::endl;
+    std::cout << "JSON: Writing city model to file " << fileName << std::endl;
 
     // Generate JSON data
     auto jsonBuildings = nlohmann::json::array();
@@ -213,6 +211,209 @@ public:
     f << json;
   }
 
+  // FIXME: I/O for mesh domain markers currently not supported
+
+  // Read 2D mesh from JSON file
+  static void Read(Mesh2D &mesh, std::string fileName)
+  {
+    std::cout << "JSON: Reading 2D mesh from file " << fileName << std::endl;
+
+    // Read data from file
+    std::ifstream f(fileName);
+    nlohmann::json json;
+    f >> json;
+
+    // Check file type
+    if (json.find("Type") == json.end() || json["Type"] != "Mesh2D")
+      throw std::runtime_error("Not a DTCC Mesh2D JSON file.");
+
+    // Extract point data
+    const auto jsonPoints = json["Points"];
+    mesh.Points.resize(jsonPoints.size() / 2);
+    for (size_t i = 0; i < mesh.Points.size(); i++)
+    {
+      mesh.Points[i].x = jsonPoints[2*i];
+      mesh.Points[i].y = jsonPoints[2*i + 1];
+    }
+
+    // Extract cell data
+    const auto jsonCells = json["Cells"];
+    mesh.Cells.resize(jsonCells.size() / 3);
+    for (size_t i = 0; i < mesh.Cells.size(); i++)
+    {
+      mesh.Cells[i].v0 = jsonCells[3*i];
+      mesh.Cells[i].v1 = jsonCells[3*i + 1];
+      mesh.Cells[i].v2 = jsonCells[3*i + 2];
+    }
+  }
+
+  // Write 2D mesh to JSON file
+  static void Write(const Mesh2D& mesh, std::string fileName)
+  {
+    std::cout << "JSON: Writing 2D mesh to file " << fileName << std::endl;
+
+    // Generate JSON data
+    auto jsonPoints = nlohmann::json::array();
+    auto jsonCells = nlohmann::json::array();
+    for (const auto p: mesh.Points)
+    {
+      jsonPoints.push_back(p.x);
+      jsonPoints.push_back(p.y);
+    }
+    for (const auto T: mesh.Cells)
+    {
+      jsonCells.push_back(T.v0);
+      jsonCells.push_back(T.v1);
+      jsonCells.push_back(T.v2);
+    }
+
+    // Set JSON data
+    nlohmann::json json;
+    json["Type"] = "Mesh2D";
+    json["Points"] = jsonPoints;
+    json["Cells"] = jsonCells;
+
+    // Write to file
+    std::ofstream f(fileName);
+    f << json;
+  }
+
+  // Read 3D mesh from JSON file
+  static void Read(Mesh3D &mesh, std::string fileName)
+  {
+    std::cout << "JSON: Reading 3D mesh from file " << fileName << std::endl;
+
+    // Read data from file
+    std::ifstream f(fileName);
+    nlohmann::json json;
+    f >> json;
+
+    // Check file type
+    if (json.find("Type") == json.end() || json["Type"] != "Mesh3D")
+      throw std::runtime_error("Not a DTCC Mesh3D JSON file.");
+
+    // Extract point data
+    const auto jsonPoints = json["Points"];
+    mesh.Points.resize(jsonPoints.size() / 3);
+    for (size_t i = 0; i < mesh.Points.size(); i++)
+    {
+      mesh.Points[i].x = jsonPoints[3*i];
+      mesh.Points[i].y = jsonPoints[3*i + 1];
+      mesh.Points[i].z = jsonPoints[3*i + 2];
+    }
+
+    // Extract cell data
+    const auto jsonCells = json["Cells"];
+    mesh.Cells.resize(jsonCells.size() / 4);
+    for (size_t i = 0; i < mesh.Cells.size(); i++)
+    {
+      mesh.Cells[i].v0 = jsonCells[4*i];
+      mesh.Cells[i].v1 = jsonCells[4*i + 1];
+      mesh.Cells[i].v2 = jsonCells[4*i + 2];
+      mesh.Cells[i].v3 = jsonCells[4*i + 3];
+    }
+  }
+
+  // Write 3D mesh to JSON file
+  static void Write(const Mesh3D& mesh, std::string fileName)
+  {
+    std::cout << "JSON: Writing 3D mesh to file " << fileName << std::endl;
+
+    // Generate JSON data
+    auto jsonPoints = nlohmann::json::array();
+    auto jsonCells = nlohmann::json::array();
+    for (const auto p: mesh.Points)
+    {
+      jsonPoints.push_back(p.x);
+      jsonPoints.push_back(p.y);
+      jsonPoints.push_back(p.z);
+    }
+    for (const auto T: mesh.Cells)
+    {
+      jsonCells.push_back(T.v0);
+      jsonCells.push_back(T.v1);
+      jsonCells.push_back(T.v2);
+      jsonCells.push_back(T.v3);
+    }
+
+    // Set JSON data
+    nlohmann::json json;
+    json["Type"] = "Mesh3D";
+    json["Points"] = jsonPoints;
+    json["Cells"] = jsonCells;
+
+    // Write to file
+    std::ofstream f(fileName);
+    f << json;
+  }
+
+  // Read 3D surface from JSON file
+  static void Read(Surface3D &surface, std::string fileName)
+  {
+    std::cout << "JSON: Reading 3D surface from file " << fileName << std::endl;
+
+    // Read data from file
+    std::ifstream f(fileName);
+    nlohmann::json json;
+    f >> json;
+
+    // Check file type
+    if (json.find("Type") == json.end() || json["Type"] != "Surface3D")
+      throw std::runtime_error("Not a DTCC Surface3D JSON file.");
+
+    // Extract point data
+    const auto jsonPoints = json["Points"];
+    surface.Points.resize(jsonPoints.size() / 3);
+    for (size_t i = 0; i < surface.Points.size(); i++)
+    {
+      surface.Points[i].x = jsonPoints[3*i];
+      surface.Points[i].y = jsonPoints[3*i + 1];
+      surface.Points[i].z = jsonPoints[3*i + 2];
+    }
+
+    // Extract cell data
+    const auto jsonCells = json["Cells"];
+    surface.Cells.resize(jsonCells.size() / 3);
+    for (size_t i = 0; i < surface.Cells.size(); i++)
+    {
+      surface.Cells[i].v0 = jsonCells[3*i];
+      surface.Cells[i].v1 = jsonCells[3*i + 1];
+      surface.Cells[i].v2 = jsonCells[3*i + 2];
+    }
+  }
+
+  // Write 3D surface to JSON file
+  static void Write(const Surface3D& surface, std::string fileName)
+  {
+    std::cout << "JSON: Writing 3D surface to file " << fileName << std::endl;
+
+    // Generate JSON data
+    auto jsonPoints = nlohmann::json::array();
+    auto jsonCells = nlohmann::json::array();
+    for (const auto p: surface.Points)
+    {
+      jsonPoints.push_back(p.x);
+      jsonPoints.push_back(p.y);
+      jsonPoints.push_back(p.z);
+    }
+    for (const auto T: surface.Cells)
+    {
+      jsonCells.push_back(T.v0);
+      jsonCells.push_back(T.v1);
+      jsonCells.push_back(T.v2);
+    }
+
+    // Set JSON data
+    nlohmann::json json;
+    json["Type"] = "Surface3D";
+    json["Points"] = jsonPoints;
+    json["Cells"] = jsonCells;
+
+    // Write to file
+    std::ofstream f(fileName);
+    f << json;
+  }
+
 private:
   // Try reading string value
   static std::string TryReadString(std::string key, const nlohmann::json &json)
@@ -232,6 +433,14 @@ private:
 
   // Try reading double value
   static bool TryReadBool(std::string key, const nlohmann::json &json)
+  {
+    if (json.find(key) == json.end())
+      throw std::runtime_error("Missing field '" + key + "' in JSON file.");
+    return json[key];
+  }
+
+  // Try reading integer value
+  static int TryReadInt(std::string key, const nlohmann::json &json)
   {
     if (json.find(key) == json.end())
       throw std::runtime_error("Missing field '" + key + "' in JSON file.");
