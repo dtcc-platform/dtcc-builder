@@ -13,7 +13,6 @@
 #include "VTK.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
-#include "MeshSmoother.h"
 #include "Parameters.h"
 
 using namespace DTCC;
@@ -61,8 +60,8 @@ int main(int argc, char *argv[])
   Surface3D groundSurface = surfaces[0];
 
   // FIXME: Consider moving this somewhere else as a utility for merging surfaces
-
   // Extract building surface as one common surface
+  std::cout << "Merging building meshes..." << std::endl;
   Surface3D buildingSurface;
   size_t numPoints = 0;
   size_t numCells = 0;
@@ -90,6 +89,7 @@ int main(int argc, char *argv[])
   }
 
   // Write to files
+  JSON::Write(groundSurface, dataDirectory + "GroundMesh.json");
   VTK::Write(groundSurface, dataDirectory + "GroundMesh.vtu");
   VTK::Write(buildingSurface, dataDirectory + "BuildingMesh.vtu");
 

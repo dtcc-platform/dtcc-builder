@@ -3,8 +3,8 @@
 # Demo of the mesh generation pipeline
 
 #PARAMETERS=Hammarkullen.json
-#PARAMETERS=Johanneberg.json
-PARAMETERS=Kungsholmen.json
+PARAMETERS=Johanneberg.json
+#PARAMETERS=Kungsholmen.json
 #PARAMETERS=Test.json
 
 # Generate height map
@@ -21,3 +21,6 @@ PARAMETERS=Kungsholmen.json
 
 # Generate simulation mesh
 #../bin/dtcc-generate-simulation-mesh Parameters.json
+
+# Smooth ground mesh
+../bin/dtcc-smooth-ground-mesh $PARAMETERS

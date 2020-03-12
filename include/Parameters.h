@@ -45,6 +45,9 @@ public:
   // Keep ground flat (ignore height map)
   bool FlatGround = false;
 
+  // Number of smoothing iterations for extra ground mesh
+  int GroundSmoothing = 5;
+
   //--- Compile-time parameters ---
 
   // Tolerance for geometric tests

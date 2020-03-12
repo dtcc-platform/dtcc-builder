@@ -411,13 +411,13 @@ private:
     struct triangulateio in = CreateTriangleIO();
 
     // Set number of points
-    size_t NumberOfPoints = boundary.size();
-    for (auto const &InnerPolygon : subDomains)
-      NumberOfPoints += InnerPolygon.size();
-    in.numberofpoints = NumberOfPoints;
+    size_t numPoints = boundary.size();
+    for (auto const &innerPolygon : subDomains)
+      numPoints += innerPolygon.size();
+    in.numberofpoints = numPoints;
 
     // Set points
-    in.pointlist = new double[2 * NumberOfPoints];
+    in.pointlist = new double[2 * numPoints];
     {
       size_t k = 0;
       for (auto const &p : boundary)
@@ -425,9 +425,9 @@ private:
         in.pointlist[k++] = p.x;
         in.pointlist[k++] = p.y;
       }
-      for (auto const &InnerPolygon : subDomains)
+      for (auto const &innerPolygon : subDomains)
       {
-        for (auto const &p : InnerPolygon)
+        for (auto const &p : innerPolygon)
         {
           in.pointlist[k++] = p.x;
           in.pointlist[k++] = p.y;
@@ -436,11 +436,11 @@ private:
     }
 
     // Set number of segments
-    const size_t NumberOfSegments = NumberOfPoints;
-    in.numberofsegments = NumberOfSegments;
+    const size_t numSegments = numPoints;
+    in.numberofsegments = numSegments;
 
     // Set segments
-    in.segmentlist = new int[2 * NumberOfSegments];
+    in.segmentlist = new int[2 * numSegments];
     {
       size_t k = 0;
       size_t n = 0;
@@ -470,13 +470,13 @@ private:
 
     /*
     // Set number of holes
-    const size_t NumberOfHoles = SubDomains.size();
-    in.numberofholes = NumberOfHoles;
+    const size_t numHoles = SubDomains.size();
+    in.numberofholes = numHoles;
 
     // Set holes. Note that we assume that we can get an
     // interior point of each hole (inner polygon) by computing
     // its center of mass.
-    in.holelist = new double[2 * NumberOfHoles];
+    in.holelist = new double[2 * numHoles];
     {
     size_t k = 0;
     Point2D c;

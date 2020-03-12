@@ -3,7 +3,7 @@
     "DataDirectory": "/home/dtcc/core/data/Johanneberg",
     "DomainHeight": 75.0,
     "HeightMapResolution": 1.0,
-    "MeshResolution": 40.0,
+    "MeshResolution": 5.0,
     "X0": 317500,
     "Y0": 6397500,
     "XMin": 0,
@@ -12,5 +12,6 @@
     "YMax": 500,
     "AutoDomain": true,
     "MinimalBuildingDistance": 1.0,
-    "FlatGround": false
+    "FlatGround": false,
+    "GroundSmoothing": 25
 }

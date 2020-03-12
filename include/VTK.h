@@ -23,6 +23,8 @@ public:
   // Write 2D mesh to VTK file
   static void Write(const Mesh2D &mesh, std::string fileName)
   {
+    std::cout << "VTK: Writing 2D mesh to file " << fileName << std::endl;
+
     // Open file
     std::ofstream f(fileName.c_str());
 
@@ -76,6 +78,8 @@ public:
   // Write 3D mesh to VTK file
   static void Write(const Mesh3D &mesh, std::string fileName)
   {
+    std::cout << "VTK: Writing 3D mesh to file " << fileName << std::endl;
+
     // Open file
     std::ofstream f(fileName.c_str());
 
@@ -129,6 +133,8 @@ public:
   // Write 3D surface to VTK file
   static void Write(const Surface3D &surface, std::string fileName)
   {
+    std::cout << "VTK: Writing 3D surface to file " << fileName << std::endl;
+
     // Open file
     std::ofstream f(fileName.c_str());
 

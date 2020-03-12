@@ -5,6 +5,7 @@
 #define DTCC_SIMPLEX_H
 
 #include <vector>
+#include <algorithm>
 
 namespace DTCC
 {

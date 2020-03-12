@@ -176,6 +176,10 @@ Both volume and visualization meshes may be generated with our without displacin
 
     FlatGround = true / false
 
+The surface mesh generation produces an additional smoothed version of the ground surface. The number of smoothing iterations is controlled by the `GroundSmoothing` parameter.
+
+    GroundSmoothing = number of smoothing iterations
+
 ## Design
 
 ### Code organization
@@ -219,4 +223,3 @@ The Digital Twin Cities Platform is licensed under the [MIT license](https://ope
 This work is part of the Digital Twin Cities Centre supported by Sweden’s Innovation Agency VINNOVA under Grant No. XXX.
 
 WIP: Add grant number.
-

@@ -13,7 +13,7 @@
 #include "JSON.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
-#include "MeshSmoother.h"
+#include "LaplacianSmoother.h"
 #include "Parameters.h"
 
 using namespace DTCC;
@@ -72,11 +72,11 @@ int main(int argc, char *argv[])
   FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
   // Apply mesh smoothing to account for height map
-  MeshSmoother::SmoothMesh(_mesh3D, heightMap, cityModel, mesh3D.DomainMarkers,
-                           parameters.MeshResolution);
+  LaplacianSmoother::SmoothMesh(_mesh3D, heightMap, cityModel, mesh3D.DomainMarkers,
+                                parameters.MeshResolution);
 
   // Generate height map function (used only for testing/visualization)
-  auto z = MeshSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
+  auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
 
   // Generate mesh boundary (used only for testing/visualization)
   dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
