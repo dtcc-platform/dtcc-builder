@@ -11,6 +11,7 @@
 #include "Building.h"
 #include "Geometry.h"
 #include "Point.h"
+#include "BoundingBoxTree.h"
 
 namespace DTCC
 {
@@ -21,16 +22,53 @@ public:
   // List of buildings
   std::vector<Building> Buildings;
 
+  // Build search tree
+  void BuildSearchTree() const
+  {
+    // Create bounding boxes for all building footprints
+    std::vector<BoundingBox2D> bboxes;
+    for (const auto& building: Buildings)
+    {
+      BoundingBox2D bbox(building.Footprint);
+      bboxes.push_back(bbox);
+    }
+
+    // Build bounding box tree
+    bbtree.Build(bboxes);
+  }
+
   // Find building containing point (inside footprint), returning -1
   // if the point is not inside any building.
   int FindBuilding(const Point2D &p) const
   {
+    /*
+    // Check that search tree has been created
+    if (bbtree.Nodes.size() == 0)
+      throw std::runtime_error("Missing search tree; call BuildSearchTree()");
+
+    // Find candidate buildings from search tree
+    std::vector<size_t> indices = bbtree.Find(p);
+    if (indices.size() > 0)
+    {
+      std::cout << std::endl;
+      std::cout << "Indices:";
+      for (size_t i = 0; i < indices.size(); i++)
+      {
+        std::cout << " " << indices[i];
+      }
+      std::cout << std::endl;
+    }
+    */
+
     // Iterate over buildings
     for (size_t i = 0; i < Buildings.size(); i++)
     {
       // Check whether point is inside building
       if (Geometry::PolygonContains2D(Buildings[i].Footprint, p))
+      {
+        std::cout << "Found: " << i << std::endl;
         return i;
+      }
     }
 
     // Point not inside a building
@@ -69,6 +107,12 @@ public:
     }
     return std::sqrt(r2max);
   }
+
+private:
+
+  // Bounding box tree (used by find building)
+  mutable BoundingBoxTree2D bbtree;
+
 };
 
 std::ostream &operator<<(std::ostream &stream, const CityModel &cityModel)

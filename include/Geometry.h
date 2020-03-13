@@ -13,6 +13,7 @@
 
 #include "Point.h"
 #include "Polygon.h"
+#include "BoundingBox.h"
 
 namespace DTCC
 {
@@ -250,6 +251,21 @@ public:
     return Geometry::QuadrantAngle2D(p, polygon.Points) != 0;
   }
 
+  // Check whether bounding box contains point (2D)
+  static bool BoundingBoxContains2D(const BoundingBox2D& bbox, const Point2D &p)
+  {
+    return (bbox.P.x <= p.x && p.x <= bbox.Q.x &&
+            bbox.P.y <= p.y && p.y <= bbox.Q.y);
+  }
+
+  // Check whether bounding box contains point (3D)
+  static bool BoundingBoxContains3D(const BoundingBox3D& bbox, const Point3D &p)
+  {
+    return (bbox.P.x <= p.x && p.x <= bbox.Q.x &&
+            bbox.P.y <= p.y && p.y <= bbox.Q.y &&
+            bbox.P.z <= p.z && p.z <= bbox.Q.z);
+  }
+
   // Compute intersection between segments p0 - p1 and q0 - q1 (2D)
   static Point2D SegmentIntersection2D(const Point2D &p0,
                                        const Point2D &p1,
@@ -407,6 +423,9 @@ public:
 
     return polygon;
   }
+
+
+
 };
 
 } // namespace DTCC

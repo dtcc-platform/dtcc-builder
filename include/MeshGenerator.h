@@ -614,6 +614,9 @@ private:
   {
     std::cout << "MeshGenerator: Computing domain markers" << std::endl;
 
+    // Build search tree for city model
+    //cityModel.BuildSearchTree();
+
     // Initialize domain markers and set all markers to -2 (ground)
     mesh.DomainMarkers.resize(mesh.Cells.size());
     std::fill(mesh.DomainMarkers.begin(), mesh.DomainMarkers.end(), -2);
