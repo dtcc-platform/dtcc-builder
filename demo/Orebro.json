@@ -12,5 +12,6 @@
     "YMax": 500,
     "AutoDomain": true,
     "MinimalBuildingDistance": 1.0,
-    "FlatGround": false
+    "FlatGround": false,
+    "GroundSmoothing": 25
 }
