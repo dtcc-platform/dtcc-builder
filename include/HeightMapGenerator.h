@@ -7,12 +7,14 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <stack>
 
 #include "Geometry.h"
 #include "HeightMap.h"
 #include "Parameters.h"
 #include "Point.h"
 #include "PointCloud.h"
+#include "Timer.h"
 
 namespace DTCC
 {
@@ -132,38 +134,53 @@ public:
 
     std::cout << "HeightMapGenerator: Filling in missing grid points ("
               << numMissing << "/" << numGridPoints << ")" << std::endl;
+    Timer timer("Flood fill");
 
-    // Fill in data for missing grid points
-    const size_t maxDiameter = std::max(hm.XSize, hm.YSize);
-    size_t numFound = 0;
-    size_t maxStep = 0;
+    // Reuse vector numLocalPoints to indicate which points have been
+    // visited: 0 = empty, 1 = boundary, 2 = filled
+    for (size_t i = 0; i < numGridPoints; i++)
+      numLocalPoints[i] = (numLocalPoints[i] == 0 ? 0 : 2);
+
+    // Create stack of boundary points neighboring unfilled regions by
+    // examining the neighbors of all missing points. Note that we use
+    // numLocalPoints to keep track of which boundary that have already
+    // been added to the stack; only add neighbors that already contain
+    // a value and only add neighbors that have not been added before.
+    std::stack<size_t> boundaryIndices;
     for (size_t i : missingIndices)
     {
-      // Iterate over larger and larger boundaries
-      for (size_t step = 1; step < maxDiameter; step++)
+      for (size_t j : hm.Index2Boundary(i, 1))
       {
-        // Compute maximum step
-        if (step > maxStep)
-          maxStep = step;
-
-        // Search grid points at distance step
-        bool found = false;
-        for (size_t j : hm.Index2Boundary(i, step))
+        if (numLocalPoints[j] == 2)
         {
-          if (numLocalPoints[j] > 0)
-          {
-            hm.GridData[i] = hm.GridData[j];
-            numFound += 1;
-            found = true;
-            break;
-          }
+          boundaryIndices.push(j);
+          numLocalPoints[j] = 1;
         }
-
-        // Point found
-        if (found)
-          break;
       }
     }
+
+    // Flood fill values until stack is empty
+    size_t numFound = 0;
+    while (!boundaryIndices.empty())
+    {
+      // Get boundary index from top of stack
+      const size_t i = boundaryIndices.top();
+      boundaryIndices.pop();
+
+      // Propagate values to neighbors and add neighbor to stack
+      for (size_t j : hm.Index2Boundary(i, 1))
+      {
+        if (numLocalPoints[j] == 0)
+        {
+          hm.GridData[j] = hm.GridData[i];
+          boundaryIndices.push(j);
+          numLocalPoints[j] = 1;
+          numFound++;
+        }
+      }
+    }
+    timer.Stop();
+    timer.Print();
 
     // Check that we found data for all grid points
     if (numFound != numMissing)
@@ -181,8 +198,8 @@ public:
     std::cout << "HeightMapGenerator: " << numMissing
               << " missing grid points (" << std::setprecision(3)
               << percentMissing << "%)" << std::endl;
-    std::cout << "HeightMapGenerator: "
-              << "Maximum search distance is " << maxStep << std::endl;
+    //    std::cout << "HeightMapGenerator: "
+    //        << "Maximum search distance is " << maxStep << std::endl;
 
     // Test data for verifying orientation, bump in lower left corner
     // for (size_t i = 0; i < heightMap.GridData.size(); i++)

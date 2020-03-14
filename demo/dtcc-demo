@@ -8,7 +8,7 @@ PARAMETERS=Johanneberg.json
 #PARAMETERS=Test.json
 
 # Generate height map
-#../bin/dtcc-generate-heightmap $PARAMETERS
+../bin/dtcc-generate-heightmap $PARAMETERS
 
 # Generate city model
 #../bin/dtcc-generate-citymodel $PARAMETERS
@@ -17,7 +17,7 @@ PARAMETERS=Johanneberg.json
 #../bin/dtcc-simplify-citymodel $PARAMETERS
 
 # Generate visualization mesh
-../bin/dtcc-generate-visualization-mesh $PARAMETERS
+#../bin/dtcc-generate-visualization-mesh $PARAMETERS
 
 # Generate simulation mesh
 #../bin/dtcc-generate-simulation-mesh Parameters.json
