@@ -613,9 +613,10 @@ private:
   static void ComputeDomainMarkers(Mesh2D & mesh, const CityModel & cityModel)
   {
     std::cout << "MeshGenerator: Computing domain markers" << std::endl;
+    Timer timer("ComputeDomainMarkers");
 
     // Build search tree for city model
-    //cityModel.BuildSearchTree();
+    cityModel.BuildSearchTree();
 
     // Initialize domain markers and set all markers to -2 (ground)
     mesh.DomainMarkers.resize(mesh.Cells.size());

@@ -22,14 +22,13 @@ namespace DTCC
   public:
 
     // Tree node data structure. Each has two children (unless it is a
-    // leaf node) and a bounding box defining the region of the node
-    // A leaf-node is indicated by setting the first child node to -1.
+    // leaf node) and a bounding box defining the region of the node.
     struct Node
     {
-      // Index to first child node
+      // Index to first child node / -1 for leaf nodes
       int first{};
 
-      // Index to second child node
+      // Index to second child node / object index for leaf nodes
       int second{};
 
       // Bounding box of node
@@ -40,10 +39,10 @@ namespace DTCC
     // that the leaf nodes will be added first and the top node last.
     std::vector<Node> Nodes;
 
-    // Build bounding box tree for bounding boxes
+    // Build bounding box tree for objects (defined by their bounding boxes)
     void Build(const std::vector<BoundingBox2D>& bboxes)
     {
-      std::cout << "BoundingTree: Building 2D bounding box tree..." << std::endl;
+      std::cout << "BoundingTree: Building 2D bounding box tree for " << bboxes.size() << " objects..." << std::endl;
 
       // Initialize indices of bounding boxes to be sorted
       std::vector<size_t> indices(bboxes.size());
@@ -55,8 +54,6 @@ namespace DTCC
 
       // Recursively build bounding box tree
       BuildRecursive(bboxes, indices.begin(), indices.end());
-
-      //
     }
 
     // Find indices of bounding boxes containing point
@@ -111,7 +108,7 @@ namespace DTCC
       {
         node.bbox = bboxes[*begin];
         node.first = -1;
-        node.second = -1;
+        node.second = *begin;
       }
       else
       {
@@ -154,7 +151,7 @@ namespace DTCC
         if (node.first == -1)
         {
           // Leaf node containing point so add it
-          indices.push_back(nodeIndex);
+          indices.push_back(node.second);
         }
         else
         {

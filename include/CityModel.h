@@ -35,40 +35,25 @@ public:
 
     // Build bounding box tree
     bbtree.Build(bboxes);
+    std::cout << bbtree << std::endl;
   }
 
   // Find building containing point (inside footprint), returning -1
   // if the point is not inside any building.
   int FindBuilding(const Point2D &p) const
   {
-    /*
     // Check that search tree has been created
     if (bbtree.Nodes.size() == 0)
       throw std::runtime_error("Missing search tree; call BuildSearchTree()");
 
     // Find candidate buildings from search tree
     std::vector<size_t> indices = bbtree.Find(p);
-    if (indices.size() > 0)
-    {
-      std::cout << std::endl;
-      std::cout << "Indices:";
-      for (size_t i = 0; i < indices.size(); i++)
-      {
-        std::cout << " " << indices[i];
-      }
-      std::cout << std::endl;
-    }
-    */
 
-    // Iterate over buildings
-    for (size_t i = 0; i < Buildings.size(); i++)
+    // Check candidate buildings
+    for (const auto index: indices)
     {
-      // Check whether point is inside building
-      if (Geometry::PolygonContains2D(Buildings[i].Footprint, p))
-      {
-        std::cout << "Found: " << i << std::endl;
-        return i;
-      }
+      if (Geometry::PolygonContains2D(Buildings[index].Footprint, p))
+        return index;
     }
 
     // Point not inside a building

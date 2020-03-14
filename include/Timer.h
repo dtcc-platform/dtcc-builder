@@ -11,25 +11,57 @@ namespace DTCC
 class Timer
 {
 public:
-  Timer(std::string task) : task(task)
+
+  // Create timer for task. By default the clock starts when the timer
+  // is constructed and the elapsed time is reported when timer goes
+  // out of scope.
+  Timer(std::string task, bool autoStart=true) : task(task), autoStart(autoStart)
   {
-    task[0] = toupper(task[0]);
-    std::cout << task + "..." << std::endl;
+    if (autoStart)
+      Start();
+  }
+
+  // Destructor
+  ~Timer()
+  {
+    if (autoStart)
+    {
+      Stop();
+      Print();
+    }
+  }
+
+  // Start clock
+  void Start()
+  {
     clockStart = std::clock();
   }
 
-  ~Timer()
+  // Stop clock
+  void Stop()
   {
-    const clock_t clockStop = std::clock();
-    const double elapsedTime = (clockStop - clockStart) / (double) CLOCKS_PER_SEC;
+    clockStop = std::clock();
+  }
+
+  // Return elapsed time
+  double Time() const
+  {
+    return (clockStop - clockStart) / (double) CLOCKS_PER_SEC;
+  }
+
+  // Print elapsed time
+  void Print()
+  {
     std::cout << std::fixed << std::setprecision(2)
-              << "Elapsed time (CPU): " << elapsedTime << " (" << task << ")"
+              << "Elapsed time (CPU): " << Time() << " (" << task << ")"
               << std::endl;
   }
 
 private:
-  std::string task;
-  std::clock_t clockStart;
+  std::string task{};
+  bool autoStart{};
+  std::clock_t clockStart{};
+  std::clock_t clockStop{};
 };
 
 } // namespace DTCC
