@@ -71,6 +71,8 @@ public:
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
     double meanElevation = 0.0;
+    std::vector<size_t> neighborIndices;
+    neighborIndices.reserve(5);
     for (auto const &q3D : pointCloud.Points)
     {
       // Ignore outliers
@@ -86,24 +88,15 @@ public:
       // Recompute mean elevation (excluding outliers)
       meanElevation += q3D.z;
 
-      // Iterate over neighbors in grid
-      for (size_t i : hm.Coordinate2Indices(q2D))
+      // Iterate over closest stencil (including center of stencil)
+      neighborIndices.clear();
+      const size_t i = hm.Coordinate2Index(q2D);
+      neighborIndices.push_back(i);
+      hm.Index2Boundary(neighborIndices, i);
+      for (size_t j : neighborIndices)
       {
-        // Compute distance to grid point
-        const Point2D p2D = hm.Index2Coordinate(i);
-        const double dx = std::abs(p2D.x - q2D.x);
-        const double dy = std::abs(p2D.y - q2D.y);
-
-        // Note: The test below should (almost) always be true
-        // with current threshold but we might want to use a
-        // tighter threshold.
-
-        // Add if closer than threshold
-        if (dx < hm.XStep && dy < hm.YStep)
-        {
-          hm.GridData[i] += q3D.z;
-          numLocalPoints[i] += 1;
-        }
+        hm.GridData[j] += q3D.z;
+        numLocalPoints[j] += 1;
       }
     }
 
@@ -149,7 +142,9 @@ public:
     std::stack<size_t> boundaryIndices;
     for (size_t i : missingIndices)
     {
-      for (size_t j : hm.Index2Boundary(i, 1))
+      neighborIndices.clear();
+      hm.Index2Boundary(neighborIndices, i);
+      for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 2)
         {
@@ -168,7 +163,9 @@ public:
       boundaryIndices.pop();
 
       // Propagate values to neighbors and add neighbor to stack
-      for (size_t j : hm.Index2Boundary(i, 1))
+      neighborIndices.clear();
+      hm.Index2Boundary(neighborIndices, i);
+      for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 0)
         {

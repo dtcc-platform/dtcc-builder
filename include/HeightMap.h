@@ -100,37 +100,12 @@ public:
     return 0.5*(Min() + Max());
   }
 
-  // Map index to coordinate
-  Point2D Index2Coordinate(size_t i) const
+  // Map index to boundary at distance 1 in grid.
+  // This is the in-place version. Reserve vector to size 4 for efficiency.
+  void Index2Boundary(std::vector<size_t>& indices, size_t i) const
   {
-    const size_t ix = i % XSize;
-    const size_t iy = i / XSize;
-    return Point2D(XMin + ix * XStep, YMin + iy * YStep);
-  }
-
-  // Map coordinate to index (closest point)
-  size_t Coordinate2Index(const Point2D &p) const
-  {
-    long int _ix = std::lround((p.x - XMin) / XStep);
-    long int _iy = std::lround((p.y - YMin) / YStep);
-    size_t ix = (_ix < 0 ? 0 : _ix);
-    size_t iy = (_iy < 0 ? 0 : _iy);
-    if (ix >= XSize)
-      ix = XSize - 1;
-    if (iy >= YSize)
-      iy = YSize - 1;
-    return iy * XSize + ix;
-  }
-
-  // Map coordinate to neighbors (stencil centered at closest point)
-  std::vector<size_t> Coordinate2Indices(const Point2D &p) const
-  {
-    std::vector<size_t> indices;
-    indices.reserve(4);
-    const size_t i = Coordinate2Index(p);
     const size_t ix = i % XSize;
     const size_t iy = i / YSize;
-    indices.push_back(i);
     if (ix > 0)
       indices.push_back(i - 1);
     if (ix < XSize - 1)
@@ -139,6 +114,14 @@ public:
       indices.push_back(i - XSize);
     if (iy < YSize - 1)
       indices.push_back(i + XSize);
+  }
+
+  // Map index to boundary at distance 1 in grid
+  std::vector<size_t> Index2Boundary(size_t i) const
+  {
+    std::vector<size_t> indices;
+    indices.reserve(4);
+    Index2Boundary(indices, i);
     return indices;
   }
 
@@ -186,6 +169,29 @@ public:
 
     return indices;
   }
+
+  // Map index to coordinate
+  Point2D Index2Coordinate(size_t i) const
+  {
+    const size_t ix = i % XSize;
+    const size_t iy = i / XSize;
+    return Point2D(XMin + ix * XStep, YMin + iy * YStep);
+  }
+
+  // Map coordinate to index (closest point)
+  size_t Coordinate2Index(const Point2D &p) const
+  {
+    long int _ix = std::lround((p.x - XMin) / XStep);
+    long int _iy = std::lround((p.y - YMin) / YStep);
+    size_t ix = (_ix < 0 ? 0 : _ix);
+    size_t iy = (_iy < 0 ? 0 : _iy);
+    if (ix >= XSize)
+      ix = XSize - 1;
+    if (iy >= YSize)
+      iy = YSize - 1;
+    return iy * XSize + ix;
+  }
+
 };
 
 std::ostream &operator<<(std::ostream &stream, const HeightMap &heightMap)
