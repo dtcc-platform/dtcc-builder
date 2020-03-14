@@ -4,6 +4,7 @@
 
 #PARAMETERS=Hammarkullen.json
 PARAMETERS=Johanneberg.json
+#PARAMETERS=Orebro.json
 #PARAMETERS=Kungsholmen.json
 #PARAMETERS=Test.json
 
