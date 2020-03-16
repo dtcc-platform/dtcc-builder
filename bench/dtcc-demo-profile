@@ -5,7 +5,7 @@ checkflag=`grep CMAKE_CXX_FLAGS ../CMakeLists.txt|grep pg`
 echo "Checking compilation flags..."
 if [ -z "$checkflag" ]
 then
-        echo "Check failed! -pg flag not found, rerun cmake with -pg flag in order to enable profiling"
+        echo "Check failed! -pg flag not found, rerun cmake with -pg flag in order to enable profiling."
 	exit
 else
         echo "Check passed. Project was compiled with -pg flag..."
@@ -32,7 +32,7 @@ PARAMETERS=$j.json
 
 dir=`echo $PARAMETERS|cut -d "." -f1`
 echo $dir
-mkdir $dir
+mkdir -p $dir
 
 for i in generate-heightmap generate-citymodel simplify-citymodel generate-visualization-mesh
 do
