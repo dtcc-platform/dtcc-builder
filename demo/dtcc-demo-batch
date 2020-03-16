@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Demo of the mesh generation pipeline
+for j in Kungsholmen Hammarkullen Johanneberg Kungsholmen Orebro
+do
+PARAMETERS=$j.json
+#PARAMETERS=Hammarkullen.json
+#PARAMETERS=Johanneberg.json
+#PARAMETERS=Kungsholmen.json
+#PARAMETERS=Orebro.json
+#PARAMETERS=Test.json
+
+# Generate height map
+
+dir=`echo $PARAMETERS|cut -d "." -f1`
+echo $dir
+mkdir -p $dir
+
+for i in generate-heightmap generate-citymodel simplify-citymodel generate-visualization-mesh
+do
+echo "Running dtcc-$i..."
+../bin/dtcc-$i $PARAMETERS
+done
+done
