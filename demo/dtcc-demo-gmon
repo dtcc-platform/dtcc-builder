@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+#
+# Demo of the mesh generation pipeline
+checkflag=`grep CMAKE_CXX_FLAGS ../CMakeLists.txt|grep pg`
+echo "Checking compilation flags..."
+if [ -z "$checkflag" ]
+then
+        echo "Check failed! -pg flag not found, rerun cmake with -pg flag in order to enable profiling"
+	exit
+else
+        echo "Check passed. Project was compiled with -pg flag..."
+fi
+
+FILE=./gprof2dot/gprof2dot.py
+if test -f "$FILE"; then
+    echo "$FILE exists, getting data..."
+else
+   echo "Missing got2prof, downloading.."
+  git clone https://github.com/jrfonseca/gprof2dot.git
+fi
+sleep 5
+for j in Kungsholmen #Hammarkullen #Johanneberg Kungsholmen Orebro
+do
+PARAMETERS=$j.json
+#PARAMETERS=Hammarkullen.json
+#PARAMETERS=Johanneberg.json
+#PARAMETERS=Kungsholmen.json
+#PARAMETERS=Orebro.json
+#PARAMETERS=Test.json
+
+# Generate height map
+
+dir=`echo $PARAMETERS|cut -d "." -f1`
+echo $dir
+mkdir $dir
+
+for i in generate-heightmap generate-citymodel simplify-citymodel generate-visualization-mesh
+do
+echo "Running dtcc-$i..."
+../bin/dtcc-$i $PARAMETERS&&
+mv gmon.out $dir/dtcc-$i\.gmon.out
+gprof ../bin/dtcc-$i $dir/dtcc-$i\.gmon.out > $dir/dtcc-$i\.analysis.txt
+gprof ../bin/dtcc-$i ./Hammarkullen/dtcc-$i\.gmon.out|./gprof2dot/gprof2dot.py|dot -Tpng -o $i\.png
+mv $i\.png $dir/
+done
+done
