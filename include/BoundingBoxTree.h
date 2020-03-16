@@ -44,13 +44,17 @@ namespace DTCC
     {
       std::cout << "BoundingTree: Building 2D bounding box tree for " << bboxes.size() << " objects..." << std::endl;
 
+      // Clear tree if built before
+      Nodes.clear();
+
+      // Skip if there is no data
+      if (bboxes.size() == 0)
+        return;
+
       // Initialize indices of bounding boxes to be sorted
       std::vector<size_t> indices(bboxes.size());
       for (size_t i = 0; i < bboxes.size(); i++)
         indices[i] = i;
-
-      // Clear tree if built before
-      Nodes.clear();
 
       // Recursively build bounding box tree
       BuildRecursive(bboxes, indices.begin(), indices.end());

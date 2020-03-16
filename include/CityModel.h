@@ -44,7 +44,10 @@ public:
   {
     // Check that search tree has been created
     if (bbtree.Nodes.size() == 0)
-      throw std::runtime_error("Missing search tree; call BuildSearchTree()");
+    {
+      std::cout << "Warning: Missing search tree; call BuildSearchTree()" << std::endl;
+      return -1;
+    }
 
     // Find candidate buildings from search tree
     std::vector<size_t> indices = bbtree.Find(p);
