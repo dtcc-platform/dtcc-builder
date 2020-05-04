@@ -1,4 +1,7 @@
-image: "phusion/baseimage:0.11"
+image:
+  name: registry.gitlab.com/dtcc3d/core
+  entrypoint: [""]
+
 
 before_script:
   - apt-get update && apt-get upgrade -y && apt-get -y install locales sudo && apt-get update && apt-get install -y nlohmann-json-dev libshp-dev liblas-dev liblas-c-dev libpugixml-dev libproj-dev libtriangle-dev libnetcdf-c++4-dev clang-format clang-tidy && 
