@@ -4,8 +4,9 @@ DATATMP=data-repository-tmp
 
 download_ssh()
 {
-    rm -rf $DATATMP
-    git clone git@gitlab.com:dtcc3d/data.git $DATATMP
+    echo "hej"
+   # rm -rf $DATATMP
+   # git clone git@gitlab.com:dtcc3d/data.git $DATATMP
 }
 
 download_https()
@@ -19,18 +20,17 @@ echo "Connecting..."
 while true; do
     read -p "Download data via SSH (or otherwise use HTTPS)? [y/n] " YN
     case $YN in
-        [Yy]* ) download_ssh break;;
-        [Nn]* ) download_https break;;
+        [Yy]* ) download_ssh; break;;
+        [Nn]* ) download_https; break;;
         * ) echo "Please answer yes or no.";;
     esac
-    break
 done
 
 # Clean up
-echo "Pulling LFS"
+echo "Pulling LFS..."
 git -C $DATATMP/ lfs pull
-echo "Moving and cleaning up..."
-rsync --info=progress2 -a $DATATMP/ .
-#cp -r $DATATMP/* . &&
+echo "Moving and cleaning up"
+rsync --progress -a $DATATMP/ .
+cp -r $DATATMP/* . &&
 rm -rf $DATATMP README.md
 echo "Download complete"
