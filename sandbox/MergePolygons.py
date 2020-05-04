@@ -14,6 +14,105 @@ def Arrow(x0, y0, x1, y1, color='grey', rad=0.2, arrowstyle='->', size=10):
              arrowprops=dict(arrowstyle=arrowstyle, color=color,
                              connectionstyle="arc3,rad=%g" % rad))
 
+def QuadrantAnglePointPoint(p, q):
+    if p[0] > q[0]:
+        if p[1] > q[1]:
+            return 0
+        else:
+            return 3
+    else:
+        if p[1] > q[1]:
+            return 1
+        else:
+            return 2
+
+def QuadrantAnglePointPolygon(p, polygon):
+
+    # Compute angle to first vertex
+    q0 = polygon[0]
+    v0 = QuadrantAnglePointPoint(q0, p)
+
+    # Sum up total angle
+    totalAngle = 0
+    for i in range(1, len(polygon) + 1):
+
+      # Compute angle increment
+      q1 = polygon[i % len(polygon)]
+      v1 = QuadrantAnglePointPoint(q1, p)
+      dv = v1 - v0
+
+      # Adjust angle increment for wrap-around
+      if dv == 3:
+        dv = -1
+      elif dv == -3:
+        dv = 1
+      elif dv == 2 or dv == -2:
+        xx = q1[0] - ((q1[1] - p[1]) * ((q0[0] - q1[0]) / (q0[1] - q1[1])))
+        if xx > p[0]:
+          dv = -dv;
+
+      # Add to total angle and update
+      totalAngle += dv;
+      q0 = q1;
+      v0 = v1;
+
+    return totalAngle;
+
+def PolygonContainsPoint(polygon, p):
+    return QuadrantAnglePointPolygon(p, polygon) != 0
+
+def SquaredDistanceSegmentPoint(p0, p1, q):
+
+    # Project point to line
+    u = q - p0
+    v = p1 - p0
+    p = p0 + v * Dot(u, v) / Dot(v, v)
+
+    # Check whether projected point is inside segment. Check either
+    # x or y coordinates depending on which is largest (most stable)
+    if abs(v[0]) > abs(v[1]):
+        inside = min(p0[0], p1[0]) <= p[0] and p[0] <= max(p0[0], p1[0])
+    else:
+        inside = min(p0[1], p1[1]) <= p[1] and p[1] <= max(p0[1], p1[1])
+
+    # Use distance to projection if inside
+    if inside:
+      return Dot(q - p, q - p)
+
+    # Otherwise use distance to closest end point
+    d0 = Dot(q - p0, q - p0)
+    d1 = Dot(q - p1, q - p1)
+    return min(d0, d1)
+
+def SquaredDistancePolygonPoint(polygon, p):
+
+    # Check if point is contained in polygon
+    if PolygonContainsPoint(polygon, p):
+      return 0.0
+
+    # If not, compute minimal squared distance to all segments
+    d2Min = sys.float_info.max
+    for i in range(len(polygon)):
+        p0 = polygon[i]
+        p1 = polygon[(i + 1) % len(polygon)]
+        d2Min = min(d2Min, SquaredDistanceSegmentPoint(p0, p1, p))
+
+    return d2Min
+
+def SquaredDistancePolygonPolygon(polygon0, polygon1):
+
+    d2Min = sys.float_info.max
+
+    # Check all vertices in first polygon
+    for p in polygon0:
+      d2Min = min(d2Min, SquaredDistancePolygonPoint(polygon1, p))
+
+    # Check all vertices in second polygon
+    for p in polygon1:
+      d2Min = min(d2Min, SquaredDistancePolygonPoint(polygon0, p))
+
+    return d2Min
+
 def EdgeIntersection(edge0, edge1):
     p0, q0 = edge0
     p1, q1 = edge1
@@ -55,15 +154,13 @@ def Contains(edge, point, tol):
 def GetPoint(polygon, i):
     return polygon[i % len(polygon)]
 
-def MergePolygons(polygons):
+def MergePolygons(polygons, tol=0.2):
     polygon0 = polygons[0]
     polygon1 = polygons[1]
 
     # Get number of points
     n0 = len(polygon0)
     n1 = len(polygon1)
-
-    tol = 0.2
 
     # Create list of points
     points = [p for p in polygon0] + [p for p in polygon1]
@@ -146,14 +243,17 @@ def MergePolygons(polygons):
     yMin = sys.float_info.max
     firstVertex = 0
     for i, p in enumerate(points):
-        if p[0] < xMin and p[1] < yMin:
+        if p[0] < xMin or (p[0] < xMin + eps and p[1] < yMin):
             xMin = p[0]
             yMin = p[1]
             firstVertex = i
+    print('firstVertex = ', firstVertex)
+
+    # FIXME: Testing
 
     # Check that first vertex has only one outgoing edge
-    if len(edges[firstVertex]) != 1:
-        raise RuntimeError('First vertex should have a single edge')
+#    if len(edges[firstVertex]) != 1:
+#        raise RuntimeError('First vertex should have a single edge')
 
     # Keep track of visited vertices
     visited = [False for i in range(len(points))]
@@ -161,6 +261,7 @@ def MergePolygons(polygons):
     # Walk along first edge
     i = firstVertex # current vertex
     j = edges[i][0] # next vertex
+    print(i, "-->", j)
     u = points[j] - points[i]
     d = Norm(u)
     u = u / d
@@ -279,8 +380,30 @@ def TestCase2():
     p1 = array([(1.1, 0.5), (1.5, 0), (2, 0.5), (1.5, 1)])
     return p0, p1
 
-RunTestCase(TestCase0())
-RunTestCase(TestCase1())
-RunTestCase(TestCase2())
+def TestCase3():
+    p0 = array([(0, 0), (1, 0), (1, 1), (0, 1)])
+    p1 = p0 + array((1.0, 0.0))
+    return p0, p1
 
-show()
+def TestCase4():
+    p0 = array([[551.02099997, 57.5619951],
+                [557.94999997, 184.41399511],
+                [545.64399997, 185.08599511],
+                [539.38399997, 70.5609951],
+                [530.07099997, 71.0789951],
+                [529.47099997, 58.7409951]])
+    p1 = array([[529.47099997, 58.7409951],
+                [530.07099997, 71.0789951],
+                [460.38899997, 74.87799509],
+                [462.36899997, 111.58199508],
+                [449.93899997, 112.26099508],
+                [447.26099997, 63.22899508]])
+    return p0, p1
+
+if __name__ == '__main__':
+    #RunTestCase(TestCase0())
+    #RunTestCase(TestCase1())
+    #RunTestCase(TestCase2())
+    RunTestCase(TestCase3())
+    #RunTestCase(TestCase4())
+    show()

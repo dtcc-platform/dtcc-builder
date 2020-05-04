@@ -4,9 +4,8 @@ DATATMP=data-repository-tmp
 
 download_ssh()
 {
-    echo "hej"
-   # rm -rf $DATATMP
-   # git clone git@gitlab.com:dtcc3d/data.git $DATATMP
+   rm -rf $DATATMP
+   git clone git@gitlab.com:dtcc3d/data.git $DATATMP
 }
 
 download_https()
