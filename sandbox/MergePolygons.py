@@ -63,7 +63,7 @@ def MergePolygons(polygons):
     n0 = len(polygon0)
     n1 = len(polygon1)
 
-    tol = 0.25
+    tol = 0.2
 
     # Create list of points
     points = [p for p in polygon0] + [p for p in polygon1]
@@ -91,15 +91,40 @@ def MergePolygons(polygons):
             q1 = points[j1]
             e1 = (p1, q1)
             v1 = q1 - p1
-            if abs(NormDot(v0, v1)) < 0.5:
+            if abs(NormDot(v0, v1)) < 0.9:
                 p = EdgeIntersection(e0, e1)
+                k = len(points)
+                e = []
                 if Contains(e0, p, tol) and Contains(e1, p, tol):
-                    k = len(points)
-                    edges[i0].append(k)
-                    edges[j0].append(k)
-                    edges[i1].append(k)
-                    edges[j1].append(k)
-                    edges.append([i0, j0, i1, j1])
+                    if Contains(e0, p, eps):
+                        edges[i0].append(k)
+                        edges[j0].append(k)
+                        e.append(i0)
+                        e.append(j0)
+                    else:
+                        di = Norm(p0 - p)
+                        dj = Norm(q0 - p)
+                        if di < dj:
+                            edges[i0].append(k)
+                            e.append(i0)
+                        else:
+                            edges[j0].append(k)
+                            e.append(j0)
+                    if Contains(e1, p, eps):
+                        edges[i1].append(k)
+                        edges[j1].append(k)
+                        e.append(i1)
+                        e.append(j1)
+                    else:
+                        di = Norm(p1 - p)
+                        dj = Norm(q1 - p)
+                        if di < dj:
+                            edges[i1].append(k)
+                            e.append(i1)
+                        else:
+                            edges[j1].append(k)
+                            e.append(j1)
+                    edges.append(e)
                     points.append(p)
                     plot(p[0], p[1], 'x')
 
@@ -147,8 +172,12 @@ def MergePolygons(polygons):
     # the right-most turn at each intersection
     while (True):
 
-        # Add point to polygon
-        polygon.append(points[i])
+        # Add point to polygon if not visited before. Note that this if-case
+        # handles the case when a single vertex is close to an edge and we
+        # end up visiting the same vertex twice. We then just skip that
+        # vertex and move on to the next. Seems to work well.
+        if not visited[i]:
+            polygon.append(points[i])
 
         # Get current edge(s)
         edge = edges[i]
@@ -175,7 +204,7 @@ def MergePolygons(polygons):
                 a = sin if cos >= 0.0 else (2.0-sin if sin > 0.0 else sin-2.0)
                 angles.append((vertex, a, d))
 
-            # Done if we run out of vertices to visit
+            # We are done if we run out of vertices to visit
             if len(angles) == 0:
                 break
 
@@ -197,7 +226,14 @@ def MergePolygons(polygons):
 
         print(i, "-->", j)
 
-        # Com
+        # We are done if we return to the first vertex
+        if j == firstVertex:
+            break
+
+        # We should not return to the same vertex
+        #if visited[i]:
+        #    print('Error, already visited vertex')
+        #    break
 
         # Move to next vertex
         u = points[j] - points[i]
@@ -245,6 +281,6 @@ def TestCase2():
 
 RunTestCase(TestCase0())
 RunTestCase(TestCase1())
-#RunTestCase(TestCase2())
+RunTestCase(TestCase2())
 
 show()
