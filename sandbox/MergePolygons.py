@@ -84,6 +84,9 @@ def SquaredDistanceSegmentPoint(p0, p1, q):
     d1 = Dot(q - p1, q - p1)
     return min(d0, d1)
 
+def DistanceSegmentPoint(p0, p1, q):
+    return sqrt(SquaredDistanceSegmentPoint(p0, p1, q))
+
 def SquaredDistancePolygonPoint(polygon, p):
 
     # Check if point is contained in polygon
@@ -188,42 +191,86 @@ def MergePolygons(polygons, tol=0.2):
             q1 = points[j1]
             e1 = (p1, q1)
             v1 = q1 - p1
-            if abs(NormDot(v0, v1)) < 0.9:
-                p = EdgeIntersection(e0, e1)
-                k = len(points)
-                e = []
-                if Contains(e0, p, tol) and Contains(e1, p, tol):
-                    if Contains(e0, p, eps):
-                        edges[i0].append(k)
-                        edges[j0].append(k)
-                        e.append(i0)
-                        e.append(j0)
-                    else:
-                        di = Norm(p0 - p)
-                        dj = Norm(q0 - p)
-                        if di < dj:
-                            edges[i0].append(k)
-                            e.append(i0)
-                        else:
-                            edges[j0].append(k)
-                            e.append(j0)
-                    if Contains(e1, p, eps):
-                        edges[i1].append(k)
-                        edges[j1].append(k)
-                        e.append(i1)
-                        e.append(j1)
-                    else:
-                        di = Norm(p1 - p)
-                        dj = Norm(q1 - p)
-                        if di < dj:
-                            edges[i1].append(k)
-                            e.append(i1)
-                        else:
-                            edges[j1].append(k)
-                            e.append(j1)
-                    edges.append(e)
-                    points.append(p)
-                    plot(p[0], p[1], 'x')
+
+            # First check if a vertex is incident on an edge
+            incident = False
+            if DistanceSegmentPoint(p1, q1, p0) < eps:
+                edges[i0].append(i1)
+                edges[i0].append(j1)
+                edges[i1].append(i0)
+                edges[j1].append(i0)
+                incident = True
+            if DistanceSegmentPoint(p1, q1, q0) < eps:
+                edges[j0].append(i1)
+                edges[j0].append(j1)
+                edges[i1].append(j0)
+                edges[j1].append(j0)
+                incident = True
+            if DistanceSegmentPoint(p0, q0, p1) < eps:
+                edges[i1].append(i0)
+                edges[i1].append(j0)
+                edges[i0].append(i1)
+                edges[j0].append(i1)
+                incident = True
+            if DistanceSegmentPoint(p0, q0, q1) < eps:
+                edges[j1].append(i0)
+                edges[j1].append(j0)
+                edges[i0].append(j1)
+                edges[j0].append(j1)
+                incident = True
+
+            # Don't look for intersection if incident
+            if incident: continue
+
+            # Don't look for intersection if almost parallel
+            if abs(NormDot(v0, v1)) > 0.9: continue
+
+            # Compute intersection of lines defined by edges
+            p = EdgeIntersection(e0, e1)
+            k = len(points)
+            e = []
+
+            # Skip intersection if not close to both edges
+            if not (Contains(e0, p, tol) and Contains(e1, p, tol)):
+                continue
+
+            # Check first edge
+            if Contains(e0, p, eps):
+                edges[i0].append(k)
+                edges[j0].append(k)
+                e.append(i0)
+                e.append(j0)
+            else:
+                di = Norm(p0 - p)
+                dj = Norm(q0 - p)
+                if di < dj:
+                    edges[i0].append(k)
+                    e.append(i0)
+                else:
+                    edges[j0].append(k)
+                    e.append(j0)
+
+            # Check second edge
+            if Contains(e1, p, eps):
+                edges[i1].append(k)
+                edges[j1].append(k)
+                e.append(i1)
+                e.append(j1)
+            else:
+                di = Norm(p1 - p)
+                dj = Norm(q1 - p)
+                if di < dj:
+                    edges[i1].append(k)
+                    e.append(i1)
+                else:
+                    edges[j1].append(k)
+                    e.append(j1)
+
+            # Add new edge to graph
+            edges.append(e)
+            points.append(p)
+
+            plot(p[0], p[1], 'x')
 
     print(edges)
 
@@ -303,6 +350,7 @@ def MergePolygons(polygons, tol=0.2):
                 if visited[vertex]: continue
                 v = points[vertex] - points[i]
                 d = Norm(v)
+                if d < eps: continue
                 v = v / d
                 sin = u[0]*v[1] - u[1]*v[0]
                 cos = u[0]*v[0] + u[1]*v[1]
@@ -314,6 +362,7 @@ def MergePolygons(polygons, tol=0.2):
                 break
 
             print('')
+            print('Vertex ', i)
             for angle in angles:
                 print(angle)
 
@@ -405,9 +454,9 @@ def TestCase4():
     return p0, p1
 
 if __name__ == '__main__':
-    #RunTestCase(TestCase0())
-    #RunTestCase(TestCase1())
-    #RunTestCase(TestCase2())
+    RunTestCase(TestCase0())
+    RunTestCase(TestCase1())
+    RunTestCase(TestCase2())
     RunTestCase(TestCase3())
-    #RunTestCase(TestCase4())
+    RunTestCase(TestCase4())
     show()
