@@ -227,10 +227,14 @@ def MergePolygons(polygons, tol=0.2):
 
     print(edges)
 
-    # Plot all points
-    h = 0.02
+    # Write point labels (and make sure they don't overlap)
+    H = 0.02
     for i, p in enumerate(points):
-        text(p[0] + h, p[1] + h, str(i), va='bottom', ha='left')
+        h = H
+        for j, q in enumerate(points[:i]):
+            if Norm(p - q) < eps:
+                h += 5*H
+        text(p[0] + h, p[1] + H, str(i), va='bottom', ha='left')
 
     # # Sort edges by distance to first point
     # for i in range(n0+1):
