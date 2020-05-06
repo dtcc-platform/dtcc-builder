@@ -400,6 +400,7 @@ def MergePolygons(polygons, tol=0.2):
 
 def PlotPolygons(polygons, style='-o', arrows=False):
     for polygon in polygons:
+        print(polygon)
         x = [x[0] for x in polygon]
         y = [x[1] for x in polygon]
         x = x + [x[0]]

@@ -46,6 +46,7 @@ while len(indices) > 0:
         # Compute squared distance between polygons
         Pi = polygons[i]
         Pj = polygons[j]
+        if len(Pi) == 0 or len(Pj) == 0: continue
         d = sqrt(SquaredDistancePolygonPolygon(Pi, Pj))
 
         #  Check if distance is smaller than the tolerance
@@ -63,3 +64,10 @@ while len(indices) > 0:
             polygons[i] = mergedPolygon
             polygons[j] = []
             indices.append(i)
+
+# Extract non-empty polygons
+polygons = [polygon for polygon in polygons if len(polygon) > 1]
+
+# Plot polygons
+PlotPolygons(polygons)
+show()
