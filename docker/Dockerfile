@@ -42,8 +42,8 @@ RUN apt-get update && apt-get install -y fenics
 RUN add-apt-repository ppa:ubuntugis/ppa
 RUN apt-get update && apt-get install -y gdal-bin
 
-# Install git with lfs support, dos2unix, nano simple editor and rsync
-RUN apt-get install -y git git-lfs dos2unix nano rsync
+# Install git with lfs support, dos2unix, nano simple editor, rsync and wget
+RUN apt-get install -y git git-lfs dos2unix nano rsync wget
 
 # Get and compile LASZip
 RUN git clone -n https://github.com/LASzip/LASzip.git
@@ -52,8 +52,14 @@ RUN mkdir /usr/local/include/laszip/ && mv /usr/local/include/las*.hpp /usr/loca
 
 # Get and compile libLAS with LASZip suppport
 
-RUN git clone git://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && make install
-RUN ln -s /usr/local/lib/liblas.so.3 /usr/lib && ln -s /usr/local/lib/liblaszip.so.4 /usr/lib
+#RUN git clone git://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && make install
+#RUN ln -s /usr/local/lib/liblas.so.3 /usr/lib && ln -s /usr/local/lib/liblaszip.so.4 /usr/lib
+#Temp fix since make install has broken since 5/5/2020
+RUN git clone git://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && cp ./bin/Release/liblas.so* /usr/lib/ && cp ../include/* /usr/local/include/ -r
+
+# Get and compile VTK 7.1
+
+RUN wget https://www.vtk.org/files/release/7.1/VTK-7.1.1.tar.gz && tar xvzf VTK-7.1.1.tar.gz && cd VTK-7.1.1/ && mkdir build && cd build && cmake -DVTK_Group_Rendering=OFF -DVTK_BUILD_ALL_MODULES_FOR_TESTS:BOOL=OFF -DVTK_Group_StandAlone=OFF -DModule_vtkCommonCore:BOOL=ON .. && make all -j 4 && make install
 
 # Add user and change to user
 RUN useradd -m $USER -G sudo && \
