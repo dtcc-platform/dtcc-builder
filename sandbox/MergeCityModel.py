@@ -4,7 +4,7 @@
 import json
 from MergePolygons import *
 
-minimalBuildingDistance = 10.0
+minimalBuildingDistance = 0.5
 
 # Read building footprints for Hammarkullen
 with open('../data/Hammarkullen/CityModel.json') as f:
@@ -20,11 +20,24 @@ for building in data['Buildings']:
     polygons.append(polygon)
 
 # FIXME: Testing
-polygons = polygons[:10]
+#polygons = polygons[:100]
 
+test0 = [24,70,228,160,313,296,167,125,230,333,52,119,187,20,101,308,154,170,85,207,195,118,326,251,257,298,210,253,77,291,297,171,245,172,81,64,54,314,106,148,129,19,290,16,275,276,196,227,272,153,206]
+
+polygons = [polygons[i] for i in test0]
+
+#polygons = [polygons[12], polygons[13]]
+
+# Plot original model
+figure()
+PlotPolygons(polygons, style='-', labels=True)
+title('Original model')
 
 # Create queue of indices to check
 indices = list(i for i in range(len(polygons)))
+
+# Used for debugging
+stop = False
 
 # Process queue until empty
 while len(indices) > 0:
@@ -60,14 +73,29 @@ while len(indices) > 0:
             # Compute merged polygon
             mergedPolygon = MergePolygons([Pi, Pj], minimalBuildingDistance)
 
+            #polygons = [mergedPolygon]
+            #PlotPolygons(polygons)
+            #show()
+
             # Replace Pi, erase Pj and add Pi to queue
             polygons[i] = mergedPolygon
             polygons[j] = []
             indices.append(i)
 
-# Extract non-empty polygons
-polygons = [polygon for polygon in polygons if len(polygon) > 1]
+        if stop: break
+    if stop: break
 
-# Plot polygons
-PlotPolygons(polygons)
+
+# Extract non-empty polygons
+mergedPolygons = []
+for i, polygon in enumerate(polygons):
+    if len(polygon) > 0:
+        mergedPolygons.append(polygon)
+        print(i, ' --> ', len(mergedPolygons) - 1)
+
+# Plot simplified model
+figure()
+PlotPolygons(mergedPolygons, style='-', labels=True)
+title('Simplified model')
+
 show()

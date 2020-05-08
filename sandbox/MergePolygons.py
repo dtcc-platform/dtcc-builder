@@ -143,6 +143,9 @@ def Dot(v, w):
 def Norm(v):
     return sqrt(v[0]**2 + v[1]**2)
 
+def DistancePointPoint(p, q):
+    return Norm(p - q)
+
 def NormDot(v, w):
     return Dot(v, w) / (Norm(v)*Norm(w))
 
@@ -154,217 +157,301 @@ def Contains(edge, point, tol):
     else:
         return min(p[1], q[1]) - tol < point[1] and max(p[1], q[1]) + tol > point[1]
 
+def Intersects(edge0, edge1):
+    p = EdgeIntersection(edge0, edge1)
+    return Contains(edge0, p, eps) and Contains(edge1, p, eps)
+
 def GetPoint(polygon, i):
     return polygon[i % len(polygon)]
 
-def MergePolygons(polygons, tol=0.2):
-    polygon0 = polygons[0]
-    polygon1 = polygons[1]
+def EdgeSign(p0, p1, q):
+    v = p1 - p0
+    if abs(v[0] > v[1]):
+        l = abs(v[0])
+        d0 = abs(p0[0] - q[0])
+        d1 = abs(p1[0] - q[0])
+    else:
+        l = abs(v[1])
+        d0 = abs(p0[1] - q[1])
+        d1 = abs(p1[1] - q[1])
+    if d0 > l - eps and d0 > d1:
+        return 1
+    elif d1 > l - eps and d1 > d0:
+        return -1
+    else:
+        return 0
+
+def ConnectVertexEdge(i, j0, j1, points, edges, tol, plotting):
+
+    # Get points
+    p = points[i]
+    q0 = points[j0]
+    q1 = points[j1]
+
+    # Connect vertices if close (create new edge)
+    connected = False
+    if DistancePointPoint(p, q0) < tol:
+        edges[i].append(j0)
+        edges[j0].append(i)
+        connected = True
+    if DistancePointPoint(p, q1) < tol:
+        edges[i].append(j1)
+        edges[j1].append(i)
+        connected = True
+
+    # Don't connect vertex to edge if already connected
+    if connected:
+        return
+
+    # Don't connect vertex to edge if zero length
+    v = q1 - q0
+    vNorm = Norm(v)
+    if vNorm < eps:
+        return
+
+    # Connect vertex to edge if close (project)
+    if DistanceSegmentPoint(q0, q1, p) < tol:
+        v /= vNorm
+        r = q0 + Dot(p - q0, v)*v
+        k = len(points)
+        points.append(r)
+        edges.append([i, j0, j1])
+        edges[i].append(k)
+        edges[j0].append(k)
+        edges[j1].append(k)
+        if plotting: plot(r[0], r[1], 'x')
+
+def ConnectEdgeEdge(i0, i1, j0, j1, points, edges, tol, plotting):
+
+    # Get points
+    p0 = points[i0]
+    p1 = points[i1]
+    q0 = points[j0]
+    q1 = points[j1]
+
+    # Don't look for intersection if almost parallel
+    u = p1 - p0
+    v = q1 - q0
+    if abs(NormDot(u, v)) > 1.0 - eps:
+        return
+
+    # Compute edge-edge intersection
+    e = (p0, p1)
+    f = (q0, q1)
+    r = EdgeIntersection(e, f)
+
+    # Connect edges to intersection if close
+    if Contains(e, r, tol) and Contains(f, r, tol):
+        k = len(points)
+        points.append(r)
+        sp = EdgeSign(p0, p1, r)
+        sq = EdgeSign(q0, q1, r)
+        kEdges = []
+        if sp == -1 or sp == 0:
+            edges[i0].append(k)
+            kEdges.append(i0)
+        if sp == 0 or sp == 1:
+            edges[i1].append(k)
+            kEdges.append(i1)
+        if sq == -1 or sq == 0:
+            edges[j0].append(k)
+            kEdges.append(j0)
+        if sq == 0 or sq == 1:
+            edges[j1].append(k)
+            kEdges.append(j1)
+        edges.append(kEdges)
+        if plotting: plot(r[0], r[1], 'x')
+
+def MergePolygons(polygons, tol=0.5, plotting=False):
+    firstPolygon = polygons[0]
+    secondPolygon = polygons[1]
 
     # Get number of points
-    n0 = len(polygon0)
-    n1 = len(polygon1)
+    m = len(firstPolygon)
+    n = len(secondPolygon)
+    print(m, n)
 
     # Create list of points
-    points = [p for p in polygon0] + [p for p in polygon1]
+    points = [p for p in firstPolygon] + [p for p in secondPolygon]
 
     # Create directed graph of edges
     edges = []
-    for i in range(n0):
-        edges.append([(i+1) % n0])
-    for i in range(n1):
-        edges.append([(i+1) % n1 + n0])
+    for i in range(m):
+        edges.append([(i+1) % m])
+    for i in range(n):
+        edges.append([(i+1) % n + m])
 
-    print(edges)
+    # Find all pairwise connections between
+    # edge i = (i0, i1) and edge j = (j0, j1)
+    for i0 in range(m):
+        i1 = edges[i0][0]
+        for j0 in range(m, m + n):
+            j1 = edges[j0][0]
 
-    # Compute pairwise edge intersections
-    intersections = []
-    for i0 in range(n0):
-        j0 = edges[i0][0]
-        p0 = points[i0]
-        q0 = points[j0]
-        e0 = (p0, q0)
-        v0 = q0 - p0
-        for i1 in range(n1, n0 + n1):
-            j1 = edges[i1][0]
-            p1 = points[i1]
-            q1 = points[j1]
-            e1 = (p1, q1)
-            v1 = q1 - p1
+            # Find vertex-edge connections
+            ConnectVertexEdge(i0, j0, j1, points, edges, tol, plotting)
+            ConnectVertexEdge(i1, j0, j1, points, edges, tol, plotting)
+            ConnectVertexEdge(j0, i0, i1, points, edges, tol, plotting)
+            ConnectVertexEdge(j1, i0, i1, points, edges, tol, plotting)
 
-            # First check if a vertex is incident on an edge
-            incident = False
-            if DistanceSegmentPoint(p1, q1, p0) < eps:
-                edges[i0].append(i1)
-                edges[i0].append(j1)
-                edges[i1].append(i0)
-                edges[j1].append(i0)
-                incident = True
-            if DistanceSegmentPoint(p1, q1, q0) < eps:
-                edges[j0].append(i1)
-                edges[j0].append(j1)
-                edges[i1].append(j0)
-                edges[j1].append(j0)
-                incident = True
-            if DistanceSegmentPoint(p0, q0, p1) < eps:
-                edges[i1].append(i0)
-                edges[i1].append(j0)
-                edges[i0].append(i1)
-                edges[j0].append(i1)
-                incident = True
-            if DistanceSegmentPoint(p0, q0, q1) < eps:
-                edges[j1].append(i0)
-                edges[j1].append(j0)
-                edges[i0].append(j1)
-                edges[j0].append(j1)
-                incident = True
+            # Find edge-edge connections
+            ConnectEdgeEdge(i0, i1, j0, j1, points, edges, tol, plotting)
 
-            # Don't look for intersection if incident
-            if incident: continue
+    # Remove duplicate vertices
+    numPoints = len(points)
+    vertexMap = [i for i in range(numPoints)]
+    removed = [False for i in range(numPoints)]
+    for i in range(numPoints):
+        for j in range(i+1, numPoints):
+            if removed[i]: continue
+            if DistancePointPoint(points[i], points[j]) < eps:
+                #print('Merging:', i, j)
+                edges[i] = edges[i] + edges[j]
+                edges[j] = []
+                vertexMap[j] = i
+                removed[j] = True
 
-            # Don't look for intersection if almost parallel
-            if abs(NormDot(v0, v1)) > 0.9: continue
+    # Replace removed vertices in graph
+    for i in range(numPoints):
+        for j in range(len(edges[i])):
+            edges[i][j] = vertexMap[edges[i][j]]
 
-            # Compute intersection of lines defined by edges
-            p = EdgeIntersection(e0, e1)
-            k = len(points)
-            e = []
+    # Remove duplicate edges in graph
+    for i in range(len(edges)):
+        newEdge = []
+        for j in edges[i]:
+            if j not in newEdge and i != j: newEdge.append(j)
+        edges[i] = newEdge
 
-            # Skip intersection if not close to both edges
-            if not (Contains(e0, p, tol) and Contains(e1, p, tol)):
-                continue
-
-            # Check first edge
-            if Contains(e0, p, eps):
-                edges[i0].append(k)
-                edges[j0].append(k)
-                e.append(i0)
-                e.append(j0)
-            else:
-                di = Norm(p0 - p)
-                dj = Norm(q0 - p)
-                if di < dj:
-                    edges[i0].append(k)
-                    e.append(i0)
-                else:
-                    edges[j0].append(k)
-                    e.append(j0)
-
-            # Check second edge
-            if Contains(e1, p, eps):
-                edges[i1].append(k)
-                edges[j1].append(k)
-                e.append(i1)
-                e.append(j1)
-            else:
-                di = Norm(p1 - p)
-                dj = Norm(q1 - p)
-                if di < dj:
-                    edges[i1].append(k)
-                    e.append(i1)
-                else:
-                    edges[j1].append(k)
-                    e.append(j1)
-
-            # Add new edge to graph
-            edges.append(e)
-            points.append(p)
-
-            plot(p[0], p[1], 'x')
-
-    print(edges)
+    #for i, e in enumerate(edges):
+    #    print(i, e)
 
     # Write point labels (and make sure they don't overlap)
-    H = 0.02
-    for i, p in enumerate(points):
-        h = H
-        for j, q in enumerate(points[:i]):
-            if Norm(p - q) < eps:
-                h += 5*H
-        text(p[0] + h, p[1] + H, str(i), va='bottom', ha='left')
+    if plotting:
+        H = 0.0075*max([Norm(p-q) for p in points for q in points])
+        for i, p in enumerate(points):
+            h = H
+            for j, q in enumerate(points[:i]):
+                if Norm(p - q) < eps:
+                    h += 5*H
+            text(p[0] + h, p[1] + H, str(i), va='bottom', ha='left')
 
-    # # Sort edges by distance to first point
-    # for i in range(n0+1):
-    #     if len(edges[0][i]) > 2:
-    #         p0 = edges[0][i][0]
-    #         edges[0][i].sort(key=lambda p, p0=p0 : Norm(p - p0))
+    # Find first vertex by looking for an original edge that is to the
+    # "right" of all points
+    for i in range(m + n):
 
-    # Find starting point = lower left corner
-    xMin = sys.float_info.max
-    yMin = sys.float_info.max
-    firstVertex = 0
-    for i, p in enumerate(points):
-        if p[0] < xMin or (p[0] < xMin + eps and p[1] < yMin):
-            xMin = p[0]
-            yMin = p[1]
+        # Skip if no outgoing edges
+        if len(edges[i]) == 0: continue
+
+        # Get the edge
+        j = edges[i][0]
+        u = points[j] - points[i]
+        u /= Norm(u)
+
+        # Check all points
+        ok = True
+        for k in range(numPoints):
+
+            # Skip if removed
+            if removed[k]: continue
+
+            # Skip if on edge
+            if k == i or k == j: continue
+
+            # Check sin of angle (cross product)
+            v = points[k] - points[i]
+            v /= Norm(v)
+            sin = u[0]*v[1] - u[1]*v[0]
+            if sin < -eps:
+                ok = False
+                break
+
+        # Found first edge
+        if ok:
             firstVertex = i
+            nextVertex = j
+            break
+
     print('firstVertex = ', firstVertex)
-
-    # FIXME: Testing
-
-    # Check that first vertex has only one outgoing edge
-#    if len(edges[firstVertex]) != 1:
-#        raise RuntimeError('First vertex should have a single edge')
+    print('Vertex %d: %s' % (firstVertex, str(edges[firstVertex])))
 
     # Keep track of visited vertices
     visited = [False for i in range(len(points))]
+    visited[firstVertex] = True
+    visited[nextVertex] = True
 
-    # Walk along first edge
-    i = firstVertex # current vertex
-    j = edges[i][0] # next vertex
-    print(i, "-->", j)
-    u = points[j] - points[i]
-    d = Norm(u)
-    u = u / d
-    polygon = [points[i]]
-    visited[i] = True
-    i = j
+    # Initialize polygon
+    vertices = [firstVertex, nextVertex]
 
     # Walk graph to build polygon counter-clockwise by picking
     # the right-most turn at each intersection
     while (True):
 
-        # Add point to polygon if not visited before. Note that this if-case
-        # handles the case when a single vertex is close to an edge and we
-        # end up visiting the same vertex twice. We then just skip that
-        # vertex and move on to the next. Seems to work well.
-        if not visited[i]:
-            polygon.append(points[i])
+        print('Vertices:', vertices)
+
+        # Get previous and current vertex
+        i = len(vertices) - 1
+        previousVertex = vertices[i - 1]
+        currentVertex = vertices[i]
 
         # Get current edge(s)
-        edge = edges[i]
+        edge = edges[currentVertex]
 
-        # Decide next vertex
+        print('')
+        print('Vertex %d: %s' % (currentVertex, str(edges[currentVertex])))
+
+        # Find next vertex
         if len(edge) == 1:
 
-            # If only one edge, just follow
-            j = edge[0]
+            # If we only have one edge then follow it
+            nextVertex = edge[0]
 
         else:
 
-            # If multiple edges, compute angles and distances.
-            # Replace actual angle by cheaper but strictly increasing
-            # function to avoid needing to call acos() or asin().
+            # Get previous edge
+            u = points[currentVertex] - points[previousVertex]
+            d = Norm(u)
+            u = u / d
+
+            # Compute angles and distances for outgoing edges
             angles = []
-            for vertex in edge:
-                if visited[vertex]: continue
-                v = points[vertex] - points[i]
+            for k in edge:
+
+                # Skip if already visited (if not first vertex)
+                if k != firstVertex and visited[k]: continue
+
+                # Skip if candidate edge intersects previous edges
+                intersects = False
+                e = (points[currentVertex], points[k])
+                for l in range(1, i - 1):
+                    f = (points[vertices[l]], points[vertices[l+1]])
+                    if Intersects(e, f):
+                        intersects = True
+                        break
+                if intersects: continue
+
+                # Get new edge
+                v = points[k] - points[currentVertex]
                 d = Norm(v)
-                if d < eps: continue
                 v = v / d
+
+                # Replace actual angle by cheaper but strictly increasing
+                # function to avoid needing to call acos() or asin().
                 sin = u[0]*v[1] - u[1]*v[0]
                 cos = u[0]*v[0] + u[1]*v[1]
+                if cos < -1.0 + eps: continue
                 a = sin if cos >= 0.0 else (2.0-sin if sin > 0.0 else sin-2.0)
-                angles.append((vertex, a, d))
+                angles.append((k, a, d))
 
-            # We are done if we run out of vertices to visit
+            # If we have no more vertices to visit, take a step back
             if len(angles) == 0:
-                break
+                print('No more vertices to visit, stepping back')
+                del vertices[i]
+                continue
 
-            print('')
-            print('Vertex ', i)
-            for angle in angles:
-                print(angle)
+            # Print angles
+            #for angle in angles:
+            #    print(angle)
 
             # Find smallest (right-most) angle. First priority is the angle
             # and second priority is the distance (pick closest). Note that
@@ -372,50 +459,50 @@ def MergePolygons(polygons, tol=0.2):
             # if the vertices are on the same line.
             minAngle = angles[0]
             for angle in angles[1:]:
-                if (angle[1] < minAngle[1] - eps) or (angle[1] < minAngle[1] + eps and angle[2] < minAngle[2]):
+                if (angle[1] < minAngle[1] - eps) or \
+                   (angle[1] < minAngle[1] + eps and angle[2] < minAngle[2]):
                     minAngle = angle
 
             # Pick next vertex
-            j = minAngle[0]
+            nextVertex = minAngle[0]
 
-        print(i, "-->", j)
+        print(currentVertex, "-->", nextVertex)
 
         # We are done if we return to the first vertex
-        if j == firstVertex:
+        if nextVertex == firstVertex:
+            print('Back to first vertex')
             break
 
-        # We should not return to the same vertex
-        #if visited[i]:
-        #    print('Error, already visited vertex')
-        #    break
+        # Add next vertex
+        vertices.append(nextVertex)
+        visited[nextVertex] = True
 
-        # Move to next vertex
-        u = points[j] - points[i]
-        d = Norm(u)
-        u = u / d
-        visited[i] = True
-        i = j
+    # Extract polygon points
+    polygon = [points[i] for i in vertices]
 
-    return polygon
+    return array(polygon)
 
-def PlotPolygons(polygons, style='-o', arrows=False):
-    for polygon in polygons:
-        print(polygon)
+def PlotPolygons(polygons, style='-o', arrows=False, labels=False):
+    for i, polygon in enumerate(polygons):
         x = [x[0] for x in polygon]
         y = [x[1] for x in polygon]
+        if labels:
+            text(mean(x), mean(y), str(i), va='center', ha='center')
         x = x + [x[0]]
         y = y + [y[0]]
         if arrows:
-            for i in range(len(x) - 1):
-                Arrow(x[i], y[i], x[i+1], y[i+1])
+            for j in range(len(x) - 1):
+                Arrow(x[j], y[j], x[j+1], y[j+1])
         plot(x, y, style)
         axis('off')
 
 def RunTestCase(polygons):
+    polygons = [array(polygons[0]).astype(float),
+                array(polygons[1]).astype(float)]
     figure()
     subplot(2, 1, 1)
     PlotPolygons(polygons)
-    polygon = MergePolygons(polygons)
+    polygon = MergePolygons(polygons, plotting=True)
     subplot(2, 1, 2)
     PlotPolygons([polygon], '--o', arrows=True)
 
@@ -440,18 +527,79 @@ def TestCase3():
     return p0, p1
 
 def TestCase4():
-    p0 = array([[551.02099997, 57.5619951],
-                [557.94999997, 184.41399511],
-                [545.64399997, 185.08599511],
-                [539.38399997, 70.5609951],
-                [530.07099997, 71.0789951],
-                [529.47099997, 58.7409951]])
-    p1 = array([[529.47099997, 58.7409951],
-                [530.07099997, 71.0789951],
-                [460.38899997, 74.87799509],
-                [462.36899997, 111.58199508],
-                [449.93899997, 112.26099508],
-                [447.26099997, 63.22899508]])
+    p0 = [[551.02099997, 57.5619951],
+          [557.94999997, 184.41399511],
+          [545.64399997, 185.08599511],
+          [539.38399997, 70.5609951],
+          [530.07099997, 71.0789951],
+          [529.47099997, 58.7409951]]
+    p1 = [[529.47099997, 58.7409951],
+          [530.07099997, 71.0789951],
+          [460.38899997, 74.87799509],
+          [462.36899997, 111.58199508],
+          [449.93899997, 112.26099508],
+          [447.26099997, 63.22899508]]
+    return p0, p1
+
+def TestCase5():
+    p0 = array([(0, 0), (1, 0), (1, 1), (0, 1)])
+    p1 = p0 + array((1.1, 0.5))
+    p1[0] -= array((0.1, 0))
+    return p0, p1
+
+def TestCase6():
+    p0 = [[338.82099997, 326.20099506],
+          [335.96199997, 268.23299506],
+          [346.62299997, 267.70599506],
+          [346.53899997, 263.96099506],
+          [354.08399997, 263.68399506],
+          [357.65099997, 328.92299506],
+          [350.08599997, 329.20599506],
+          [349.69199997, 325.66799506]]
+    p1 = [[291.75699997, 346.98899504],
+          [295.37799997, 346.74599504],
+          [295.12199997, 342.06399505],
+          [331.63597417, 340.09247421],
+          [331.30799997, 333.47099505],
+          [334.88199997, 329.60499505],
+          [334.81099997, 327.91199505],
+          [336.40799997, 325.82299505],
+          [338.79999997, 325.71299506],
+          [338.81999997, 326.14699506],
+          [349.68999997, 325.61399506],
+          [350.08399997, 329.20399506],
+          [350.85899997, 329.17599506],
+          [350.91399997, 330.10899506],
+          [347.11499997, 334.38699506],
+          [347.46419003, 339.23785189],
+          [347.46599997, 339.26299506],
+          [346.98131866, 339.28840791],
+          [347.79299997, 354.31499506],
+          [330.95999188, 355.22284556],
+          [330.95999997, 355.22299505],
+          [331.11599997, 358.10699505],
+          [325.27699997, 358.42299505],
+          [325.23293055, 357.60827579],
+          [318.91799997, 357.95799505],
+          [318.86933569, 357.14365328],
+          [318.86299997, 357.14399505],
+          [308.43015642, 357.70677084],
+          [308.42599997, 357.70699505],
+          [308.42132643 ,357.62019097],
+          [292.37499997, 358.47599504]]
+    return p0, p1
+
+def TestCase7():
+    p0 = array([[689.40299996, 59.61399514],
+                [689.35699996, 64.63399514],
+                [676.57299996, 65.25199513],
+                [676.74399996, 59.23399514]])
+    p1 = array([[676.56899996, 65.37299513],
+                [676.57299996, 65.25199513],
+                [689.35699996, 64.63399514],
+                [689.35399996, 64.92899514],
+                [689.96199996, 69.64799514],
+                [677.26999996, 71.23799513]])
     return p0, p1
 
 if __name__ == '__main__':
@@ -460,4 +608,7 @@ if __name__ == '__main__':
     RunTestCase(TestCase2())
     RunTestCase(TestCase3())
     RunTestCase(TestCase4())
+    RunTestCase(TestCase5())
+    RunTestCase(TestCase6())
+    RunTestCase(TestCase7())
     show()
