@@ -181,6 +181,118 @@ def EdgeSign(p0, p1, q):
     else:
         return 0
 
+def Orient2D(p0, p1, q):
+    u = p1 - p0
+    v = q - p0
+    return u[0]*v[1] - u[1]*v[0]
+
+def ConvexHull(points):
+
+    # The convex hull is computed by doing a Graham scan: select an
+    # extreme base point, sort remaining points by angle and then
+    # add points that create a left turn around the perimeter.
+
+    # Find point with smallest y-coordinate. If y-coordinate is
+    # the same, sort by smallest x-coordinate.
+    xMin = points[0][0];
+    yMin = points[0][1];
+    iMin = 0;
+    numPoints = len(points)
+    for i in range(1, numPoints):
+        x = points[i][0];
+        y = points[i][1]
+        if (y < yMin or (y == yMin and x < xMin)):
+            xMin = x;
+            yMin = y;
+            iMin = i;
+
+    # Set base point
+    baseIndex = iMin
+    basePoint = points[baseIndex]
+
+    # Compute angles and distances relative to base point
+    angles = []
+    for i in range(numPoints):
+
+        # Skip base point
+        if i == baseIndex:
+            continue;
+
+        # Compute angle (negative cosine) and distance
+        p = points[i]
+        v = p - basePoint
+        distance = Norm(v)
+        angle = -v[0] / distance if distance > eps else 0.0
+
+        # Store angle and distance along with index (for sorting)
+        angles.append((angle, distance, i))
+
+    # Sort by angles (primary) and distance (secondary) to base point
+    print(angles)
+    angles = sorted(angles)
+    print(angles)
+
+    # Filter out points with unique angles, keeping only furthest point
+    filteredIndices = []
+    lastAngle = 2.0 # no angle has this value
+    for i in range(numPoints - 1):
+
+        # Get data for current point
+        currentAngle = angles[i][0]
+        currentIndex = angles[i][2]
+
+        # Add point or replace last point
+        if abs(currentAngle - lastAngle) > eps:
+            filteredIndices.append(currentIndex)
+        else:
+            filteredIndices[len(filteredIndices) - 1] = currentIndex
+
+        # Update last index
+        lastAngle = currentAngle
+
+    # Create stack of points and add first three candidates
+    convexHull = []
+    convexHull.append(baseIndex)
+    convexHull.append(filteredIndices[0])
+    convexHull.append(filteredIndices[1])
+
+    # Graham-Scan: Push candidates to stack and pop until
+    # we have a left turn
+    for i in range(2, len(filteredIndices)):
+
+        # Get next point
+        i2 = filteredIndices[i]
+        p2 = points[i2]
+
+        # Keep popping from stack until we see a left turn
+        while True:
+
+            # Get last two points from stack
+            i1 = convexHull.pop()
+            i0 = convexHull[-1]
+            p0 = points[i0]
+            p1 = points[i1]
+
+            # Check orientation, keep p1 if orientation is positive
+            if Orient2D(p0, p1, p2) > eps:
+                convexHull.append(i1)
+                break
+
+        # Push next candidate to stack
+        convexHull.append(i2)
+
+        print(convexHull)
+
+    # Extract polygon points from stack
+    polygon = []
+    while len(convexHull) > 0:
+        polygon.append(points[convexHull.pop()])
+
+    # Reverse polygon to make it counter-clockwise
+    polygon.reverse()
+
+    return polygon;
+
 def ConnectVertexEdge(i, j0, j1, points, edges, tol, plotting):
 
     # Get points
@@ -372,9 +484,6 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             nextVertex = j
             break
 
-    print('firstVertex = ', firstVertex)
-    print('Vertex %d: %s' % (firstVertex, str(edges[firstVertex])))
-
     # Keep track of visited vertices
     visited = [False for i in range(len(points))]
     visited[firstVertex] = True
@@ -383,9 +492,12 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     # Initialize polygon
     vertices = [firstVertex, nextVertex]
 
+    # Maximum number of step before failure
+    maxNumSteps = 2*numPoints
+
     # Walk graph to build polygon counter-clockwise by picking
     # the right-most turn at each intersection
-    while (True):
+    for step in range(maxNumSteps):
 
         print('Vertices:', vertices)
 
@@ -397,7 +509,6 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
         # Get current edge(s)
         edge = edges[currentVertex]
 
-        print('')
         print('Vertex %d: %s' % (currentVertex, str(edges[currentVertex])))
 
         # Find next vertex
@@ -467,6 +578,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             nextVertex = minAngle[0]
 
         print(currentVertex, "-->", nextVertex)
+        print('')
 
         # We are done if we return to the first vertex
         if nextVertex == firstVertex:
@@ -476,6 +588,11 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
         # Add next vertex
         vertices.append(nextVertex)
         visited[nextVertex] = True
+
+    # If merge failed, return convex hull
+    if nextVertex != firstVertex:
+        points = [p for p in firstPolygon] + [p for p in secondPolygon]
+        return ConvexHull(points)
 
     # Extract polygon points
     polygon = [points[i] for i in vertices]
@@ -590,25 +707,41 @@ def TestCase6():
     return p0, p1
 
 def TestCase7():
-    p0 = array([[689.40299996, 59.61399514],
-                [689.35699996, 64.63399514],
-                [676.57299996, 65.25199513],
-                [676.74399996, 59.23399514]])
-    p1 = array([[676.56899996, 65.37299513],
-                [676.57299996, 65.25199513],
-                [689.35699996, 64.63399514],
-                [689.35399996, 64.92899514],
-                [689.96199996, 69.64799514],
-                [677.26999996, 71.23799513]])
+    p0 = [[689.40299996, 59.61399514],
+          [689.35699996, 64.63399514],
+          [676.57299996, 65.25199513],
+          [676.74399996, 59.23399514]]
+    p1 = [[676.56899996, 65.37299513],
+          [676.57299996, 65.25199513],
+          [689.35699996, 64.63399514],
+          [689.35399996, 64.92899514],
+          [689.96199996, 69.64799514],
+          [677.26999996, 71.23799513]]
+    return p0, p1
+
+def TestCase8():
+    p0 = [[83.58099997, 249.880995],
+          [88.10899997, 249.639995],
+          [88.28699997, 252.991995],
+          [83.75999997, 253.231995]]
+    p1 = [[71.24799997, 250.721995],
+          [71.48399997, 254.38399499],
+          [75.36099997, 254.137995],
+          [75.12499997, 250.480995],
+          [83.93599997, 256.027995],
+          [64.79599997, 257.07299499],
+          [64.44799997, 250.89299499],
+          [83.59299997, 249.847995]]
     return p0, p1
 
 if __name__ == '__main__':
-    RunTestCase(TestCase0())
-    RunTestCase(TestCase1())
-    RunTestCase(TestCase2())
-    RunTestCase(TestCase3())
-    RunTestCase(TestCase4())
-    RunTestCase(TestCase5())
-    RunTestCase(TestCase6())
-    RunTestCase(TestCase7())
+    #RunTestCase(TestCase0())
+    #RunTestCase(TestCase1())
+    #RunTestCase(TestCase2())
+    #RunTestCase(TestCase3())
+    #RunTestCase(TestCase4())
+    #RunTestCase(TestCase5())
+    #RunTestCase(TestCase6())
+    #RunTestCase(TestCase7())
+    RunTestCase(TestCase8())
     show()
