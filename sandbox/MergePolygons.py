@@ -157,9 +157,86 @@ def Contains(edge, point, tol):
     else:
         return min(p[1], q[1]) - tol < point[1] and max(p[1], q[1]) + tol > point[1]
 
+# FIXME: Can be done much faster using Orient2D
 def Intersects(edge0, edge1):
     p = EdgeIntersection(edge0, edge1)
     return Contains(edge0, p, eps) and Contains(edge1, p, eps)
+
+def CheckIntersections(polygon):
+    n = len(polygon)
+    for i0 in range(n):
+        i1 = (i0 + 1) % n
+        p0 = polygon[i0]
+        p1 = polygon[i1]
+        for j0 in range(i0+1, n):
+            if min((i0 - j0) % n, (j0 - i0) % n) < 2: continue
+            j1 = (j0 + 1) % n
+            q0 = polygon[j0]
+            q1 = polygon[j1]
+            if Intersects((p0, p1), (q0, q1)):
+                #print('Bad intersection')
+                #figure()
+                #plot([p0[0], p1[0]], [p0[1], p1[1]], '-o')
+                #plot([q0[0], q1[0]], [q0[1], q1[1]], '-o')
+                #show()
+                return False
+    return True
+
+def CheckDistances(polygon, minimalDistance):
+    tol = minimalDistance*minimalDistance
+    n = len(polygon)
+    for i0 in range(n):
+        i1 = (i0 + 1) % n
+        p0 = polygon[i0]
+        p1 = polygon[i1]
+        for j in range(n):
+            if min((i0 - j) % n, (j - i0) % n) < 1: continue
+            if min((i1 - j) % n, (j - i1) % n) < 1: continue
+            q = polygon[j]
+            #print(DistanceSegmentPoint(p0, p1, q))
+            #figure()
+            #PlotPolygons([polygon], style='-')
+            #plot([p0[0], p1[0]], [p0[1], p1[1]], '-')
+            #plot(q[0], q[1], 'x')
+            #show()
+            if SquaredDistanceSegmentPoint(p0, p1, q) < tol:
+                #print('Bad distance')
+                #figure()
+                #plot([p0[0], p1[0]], [p0[1], p1[1]], '-o')
+                #plot([q0[0], q1[0]], [q0[1], q1[1]], '-o')
+                #show()
+                return False
+
+    return True
+
+def CheckAngles(polygon, minimalAngle):
+    tol = 1.0 - minimalAngle*minimalAngle
+    n = len(polygon)
+    for i0 in range(n):
+        i1 = (i0 + 1) % n
+        i2 = (i0 + 2) % n
+        p0 = polygon[i0]
+        p1 = polygon[i1]
+        p2 = polygon[i2]
+        u = p1 - p0
+        v = p2 - p1
+        u2 = Dot(u, u)
+        v2 = Dot(v, v)
+        dot = Dot(u, v)
+        if dot < 0.0 and dot*dot > tol*u2*v2:
+            #print('Bad angle')
+            return False
+
+    return True
+
+def CheckPolygon(polygon, minimalDistance, minimalAngle):
+    if not CheckIntersections(polygon):
+        return False
+    if not CheckDistances(polygon, minimalDistance):
+        return False
+    if not CheckAngles(polygon, minimalAngle):
+        return False
+    return True
 
 def GetPoint(polygon, i):
     return polygon[i % len(polygon)]
@@ -228,9 +305,7 @@ def ConvexHull(points):
         angles.append((angle, distance, i))
 
     # Sort by angles (primary) and distance (secondary) to base point
-    print(angles)
     angles = sorted(angles)
-    print(angles)
 
     # Filter out points with unique angles, keeping only furthest point
     filteredIndices = []
@@ -280,8 +355,6 @@ def ConvexHull(points):
 
         # Push next candidate to stack
         convexHull.append(i2)
-
-        print(convexHull)
 
     # Extract polygon points from stack
     polygon = []
@@ -381,7 +454,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     # Get number of points
     m = len(firstPolygon)
     n = len(secondPolygon)
-    print(m, n)
+    #print(m, n)
 
     # Create list of points
     points = [p for p in firstPolygon] + [p for p in secondPolygon]
@@ -499,7 +572,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     # the right-most turn at each intersection
     for step in range(maxNumSteps):
 
-        print('Vertices:', vertices)
+        #print('Vertices:', vertices)
 
         # Get previous and current vertex
         i = len(vertices) - 1
@@ -509,7 +582,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
         # Get current edge(s)
         edge = edges[currentVertex]
 
-        print('Vertex %d: %s' % (currentVertex, str(edges[currentVertex])))
+        #print('Vertex %d: %s' % (currentVertex, str(edges[currentVertex])))
 
         # Find next vertex
         if len(edge) == 1:
@@ -577,12 +650,12 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             # Pick next vertex
             nextVertex = minAngle[0]
 
-        print(currentVertex, "-->", nextVertex)
-        print('')
+        #print(currentVertex, "-->", nextVertex)
+        #print('')
 
         # We are done if we return to the first vertex
         if nextVertex == firstVertex:
-            print('Back to first vertex')
+            #print('Back to first vertex')
             break
 
         # Add next vertex
@@ -591,6 +664,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
 
     # If merge failed, return convex hull
     if nextVertex != firstVertex:
+        print('Merge failed, falling back to convex hull')
         points = [p for p in firstPolygon] + [p for p in secondPolygon]
         return ConvexHull(points)
 
@@ -599,12 +673,16 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
 
     return array(polygon)
 
+def PlotLabel(polygon, labelText):
+    x = [x[0] for x in polygon]
+    y = [x[1] for x in polygon]
+    text(mean(x), mean(y), labelText, va='center', ha='center')
+
 def PlotPolygons(polygons, style='-o', arrows=False, labels=False):
     for i, polygon in enumerate(polygons):
         x = [x[0] for x in polygon]
         y = [x[1] for x in polygon]
-        if labels:
-            text(mean(x), mean(y), str(i), va='center', ha='center')
+        if labels: PlotLabel(polygon, str(i))
         x = x + [x[0]]
         y = y + [y[0]]
         if arrows:
