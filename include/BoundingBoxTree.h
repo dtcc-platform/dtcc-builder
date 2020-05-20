@@ -190,7 +190,7 @@ namespace DTCC
       return boundingBox;
     }
 
-    // Compute main axis of bounding boxes
+    // Compute main axis of bounding box
     size_t ComputeMainAxis(const BoundingBox2D& bbox)
     {
       const double dx = bbox.Q.x - bbox.P.x;
