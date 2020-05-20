@@ -1,5 +1,5 @@
-// Mesh classes for 2D and 3D.
-// Copyright (C) 2018 Anders Logg.
+// Copyright (C) 2019 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_MESH_H
 #define DTCC_MESH_H

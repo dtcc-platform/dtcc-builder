@@ -1,5 +1,5 @@
-// Height map (Digital Surface Model, DSM)
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_HEIGHT_MAP_H
 #define DTCC_HEIGHT_MAP_H

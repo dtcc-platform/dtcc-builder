@@ -1,16 +1,59 @@
 // Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #define CATCH_CONFIG_MAIN
 
 #include "catch.hpp"
 
-//using namespace DTCC;
+#include "Grid.h"
 
-TEST_CASE("Foo")
+using namespace DTCC;
+
+TEST_CASE("Grid2D")
 {
-  SECTION("Bar")
+  Point2D p(0, 0);
+  Point2D q(1, 1);
+  BoundingBox2D bbox(p, q);
+  Grid2D grid(bbox, 4, 5);
+
+  SECTION("StepSize")
   {
-    double x = 1.0;
-    REQUIRE(x == Approx(1.0));
+    REQUIRE(grid.XStep == Approx(1.0/3.0));
+    REQUIRE(grid.YStep == Approx(1.0/4.0));
+  }
+
+  SECTION("NumVertices")
+  {
+    REQUIRE(grid.NumVertices() == 20);
+  }
+
+  SECTION("NumCells")
+  {
+    REQUIRE(grid.NumCells() == 12);
+  }
+}
+
+TEST_CASE("Grid3D")
+{
+  Point3D p(0, 0, 0);
+  Point3D q(1, 1, 1);
+  BoundingBox3D bbox(p, q);
+  Grid3D grid(bbox, 4, 5, 6);
+
+  SECTION("StepSize")
+  {
+    REQUIRE(grid.XStep == Approx(1.0/3.0));
+    REQUIRE(grid.YStep == Approx(1.0/4.0));
+    REQUIRE(grid.ZStep == Approx(1.0/5.0));
+  }
+
+  SECTION("NumVertices")
+  {
+    REQUIRE(grid.NumVertices() == 120);
+  }
+
+  SECTION("NumCells")
+  {
+    REQUIRE(grid.NumCells() == 60);
   }
 }
