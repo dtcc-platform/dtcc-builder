@@ -6,6 +6,7 @@
 #include "catch.hpp"
 
 #include "Grid.h"
+#include "UniformScalarField.h"
 
 using namespace DTCC;
 
@@ -55,5 +56,20 @@ TEST_CASE("Grid3D")
   SECTION("NumCells")
   {
     REQUIRE(grid.NumCells() == 60);
+  }
+}
+
+TEST_CASE("UniformScalarField2D")
+{
+  Point2D p(0, 0);
+  Point2D q(1, 1);
+  BoundingBox2D bbox(p, q);
+  Grid2D grid(bbox, 4, 5);
+  UniformScalarField2D u(grid);
+
+  SECTION("Evaluate")
+  {
+    Point2D x(0.5, 0.5);
+    REQUIRE(u(x) == Approx(0.0));
   }
 }
