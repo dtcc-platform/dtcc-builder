@@ -5,7 +5,7 @@
 
 import sys, numpy, json, pylab
 
-def PlotCityModel(data):
+def PlotCityModel(data, plotLabels=False):
 
     # Read JSON file
     with open(fileName) as f:
@@ -19,20 +19,26 @@ def PlotCityModel(data):
         x = numpy.array([float(xy['x']) for xy in footprint])
         y = numpy.array([float(xy['y']) for xy in footprint])
 
+        # Skip if empty
+        if len(footprint) == 0:
+            continue
+
         # Compute center
         xm = numpy.mean(x)
         ym = numpy.mean(y)
 
         # Plot
         pylab.plot(x, y, '.-')
-        pylab.plot(x[0], y[0], 'kx')
         pylab.plot([x[0], x[-1]], [y[0], y[-1]], 'k--')
-        pylab.text(xm, ym, str(i), fontsize=10, ha='center', va='center')
-        for j, (xx, yy) in enumerate(zip(x, y)):
-            pylab.text(xx, yy, str(j), fontsize=8, ha='left', va='bottom')
+        #pylab.plot(x[0], y[0], 'kx')
+        if plotLabels:
+            pylab.text(xm, ym, str(i), fontsize=10, ha='center', va='center')
+            for j, (xx, yy) in enumerate(zip(x, y)):
+                pylab.text(xx, yy, str(j), fontsize=8, ha='left', va='bottom')
 
-    pylab.grid(True)
+    #pylab.grid(True)
     pylab.axis('equal')
+    pylab.axis('off')
     pylab.show()
 
 def PlotHeightMap(data, plotContour=False):
@@ -91,7 +97,7 @@ if __name__ == "__main__":
     # Check type and plot
     dataType = data['Type']
     if dataType == 'CityModel':
-        PlotCityModel(data)
+        PlotCityModel(data, True)
     elif dataType == 'HeightMap':
         PlotHeightMap(data, False)
     else:

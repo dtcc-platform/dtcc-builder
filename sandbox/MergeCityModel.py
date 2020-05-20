@@ -68,7 +68,7 @@ while len(indices) > 0:
             continue
 
         # Skip if polygon has zero size (merged with other polygon)
-        if len(polygons) == 0:
+        if len(polygons[j]) == 0:
            continue;
 
         # Compute squared distance between polygons
