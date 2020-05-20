@@ -2,6 +2,9 @@ image:
   name: registry.gitlab.com/dtcc3d/core
   entrypoint: [""]
 
+stages:
+  - build
+  - test
 
 before_script:
   - apt-get update && apt-get upgrade -y && apt-get -y install locales sudo && apt-get update && apt-get install -y nlohmann-json-dev libshp-dev liblas-dev liblas-c-dev libpugixml-dev libproj-dev libtriangle-dev libnetcdf-c++4-dev clang-format clang-tidy && 
@@ -9,5 +12,16 @@ before_script:
       apt-get update && apt-get install -y fenics && add-apt-repository ppa:ubuntugis/ppa && apt-get update && apt-get install -y gdal-bin
 
 build:
+  stage: build
   script:
     - pwd && mkdir build && cd build && cmake .. && make all && make install
+  artifacts:
+    paths:
+      - build/
+
+test:
+  stage: test
+  script:
+    - pwd && ls -alt && cd build && ./unittests/run-unittests
+  dependencies:
+    - build
