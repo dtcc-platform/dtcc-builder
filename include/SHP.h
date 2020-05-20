@@ -32,16 +32,24 @@ public:
     std::cout << "SHP: " << numEntities << " entities" << std::endl;
     switch (shapeType)
     {
-    case SHPT_POINT:
+    case SHPT_POINT: 
+    case SHPT_POINTZ: 
+    case SHPT_POINTM: 
       std::cout << "SHP: point type" << std::endl;
       break;
     case SHPT_ARC:
+    case SHPT_ARCZ:
+    case SHPT_ARCM:
       std::cout << "SHP: arc type" << std::endl;
       break;
     case SHPT_POLYGON:
+    case SHPT_POLYGONZ:
+    case SHPT_POLYGONM:
       std::cout << "SHP: polygon type" << std::endl;
       break;
     case SHPT_MULTIPOINT:
+    case SHPT_MULTIPOINTZ:
+    case SHPT_MULTIPOINTM:
       std::cout << "SHP: multipoint type" << std::endl;
       break;
     default:
@@ -49,7 +57,7 @@ public:
     }
 
     // Check that we have polygon type
-    if (shapeType != SHPT_POLYGON)
+    if (shapeType != SHPT_POLYGON && shapeType != SHPT_POLYGONZ && shapeType != SHPT_POLYGONM)
       throw std::runtime_error("Shapefile not of polygon type.");
 
     // Read footprints
