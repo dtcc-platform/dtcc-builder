@@ -70,12 +70,27 @@ public:
       SHPObject *object = SHPReadObject(handle, i);
 
       // Get vertices
-      for (int j = 0; j < object->nVertices; j++)
+      if (object->nParts == 1) 
       {
-        const double x = object->padfX[j];
-        const double y = object->padfY[j];
-        Point2D p(x, y);
-        polygon.Points.push_back(p);
+        for (int j = 0; j < object->nVertices; j++)
+        {
+          const double x = object->padfX[j];
+          const double y = object->padfY[j];
+          Point2D p(x, y);
+          polygon.Points.push_back(p);
+        }
+        
+      } else { 
+        // for donut polygons only get the outer hull
+        // for multipatch polygons only get the first polygon
+        // TODO: handle donut and multipatch polygons correctly 
+        for (int j = 0; j < object->panPartStart[1]; j++)
+        {
+          const double x = object->padfX[j];
+          const double y = object->padfY[j];
+          Point2D p(x, y);
+          polygon.Points.push_back(p);
+        }
       }
 
       // Add polygon
