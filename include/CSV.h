@@ -7,8 +7,8 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include "rapidcsv.h"
 
-#include "../external/include/rapidcsv.h"
 #include "Mesh.h"
 #include "Parameters.h"
 #include "Point.h"

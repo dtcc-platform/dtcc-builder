@@ -26,6 +26,7 @@ include(${DOLFIN_USE_FILE})
 
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/external)
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
@@ -45,3 +46,4 @@ add_subdirectory(dtcc-convert-geojson2shp)
 add_subdirectory(dtcc-read-netcdf)
 add_subdirectory(dtcc-sandbox)
 add_subdirectory(dtcc-iotools)
+add_subdirectory(unittests)
