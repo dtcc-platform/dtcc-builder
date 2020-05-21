@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Polygon.h"
+#include "Geometry.h"
 
 namespace DTCC
 {
@@ -63,8 +64,7 @@ public:
     // Read footprints
     for (int i = 0; i < numEntities; i++)
     {
-      // Create empty polygon
-      Polygon polygon;
+      
 
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
@@ -72,6 +72,9 @@ public:
       // Get vertices
       if (object->nParts == 1) 
       {
+        // Create empty polygon
+        Polygon polygon;
+        
         for (int j = 0; j < object->nVertices; j++)
         {
           const double x = object->padfX[j];
@@ -79,22 +82,44 @@ public:
           Point2D p(x, y);
           polygon.Points.push_back(p);
         }
+        // Add polygon
+        polygons.push_back(polygon);
         
       } else { 
         // for donut polygons only get the outer hull
         // for multipatch polygons only get the first polygon
         // TODO: handle donut and multipatch polygons correctly 
-        for (int j = 0; j < object->panPartStart[1]; j++)
+
+        Polygon polygon;
+        int start;
+        int end;
+        for (int part = 0;part<object->nParts;part++) 
         {
-          const double x = object->padfX[j];
-          const double y = object->padfY[j];
-          Point2D p(x, y);
-          polygon.Points.push_back(p);
+          Polygon polygon;
+          start = object->panPartStart[part];
+          if (part + 1 == object->nParts) 
+          {
+            end = object->nVertices;
+          } else {
+            end =  object->panPartStart[part + 1];
+          }
+
+          for (int j = start; j < end; j++)
+          {
+            const double x = object->padfX[j];
+            const double y = object->padfY[j];
+            Point2D p(x, y);
+            polygon.Points.push_back(p);
+          }
+          if  (Geometry::PolygonOrientation2D(polygon) == 1) {
+            polygons.push_back(polygon);
+          }
+          
         }
+        
       }
 
-      // Add polygon
-      polygons.push_back(polygon);
+      
     }
   }
 };
