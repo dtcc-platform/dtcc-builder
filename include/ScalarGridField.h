@@ -1,8 +1,8 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
-#ifndef DTCC_SCALAR_FIELD_H
-#define DTCC_SCALAR_FIELD_H
+#ifndef DTCC_SCALAR_GRID_FIELD_H
+#define DTCC_SCALAR_GRID_FIELD_H
 
 #include <assert.h>
 
@@ -12,26 +12,26 @@
 namespace DTCC
 {
 
-  /// UniformScalarField2D represents a scalar field on a uniform 2D grid.
+  /// ScalarGridField2D represents a scalar field on a uniform 2D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by bilinear interpolation.
-  class UniformScalarField2D
+  class ScalarGridField2D
   {
   public:
 
     /// The grid
     Grid2D Grid{};
 
-    /// Array of values (one per grid point)
+    /// Array of values (vertex values)
     std::vector<double> Values{};
 
     /// Create empty scalar field
-    UniformScalarField2D() {}
+    ScalarGridField2D() {}
 
     /// Create zero scalar field on given grid.
     ///
     /// @param grid The grid
-    UniformScalarField2D(const Grid2D& grid)
+    ScalarGridField2D(const Grid2D& grid)
       : Grid(grid)
     {
       // Initialize values to zero
@@ -86,6 +86,22 @@ namespace DTCC
 
   };
 
+  /// ScalarGridField3D represents a scalar field on a uniform 3D grid.
+  /// The field can be efficiently evaluated at arbitrary points inside
+  /// the grid domain. The value is computed by trilinear interpolation.
+  class ScalarGridField3D
+  {
+  public:
+
+    /// The grid
+    Grid3D Grid{};
+
+    /// Array of values (vertex values)
+    std::vector<double> Values{};
+
+    // FIXME: In progress
+
+  };
 }
 
 #endif

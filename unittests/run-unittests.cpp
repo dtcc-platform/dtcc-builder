@@ -6,7 +6,7 @@
 #include "catch.hpp"
 
 #include "Grid.h"
-#include "UniformScalarField.h"
+#include "ScalarGridField.h"
 
 using namespace DTCC;
 
@@ -59,13 +59,13 @@ TEST_CASE("Grid3D")
   }
 }
 
-TEST_CASE("UniformScalarField2D")
+TEST_CASE("ScalarGridField2D")
 {
   Point2D p(0, 0);
   Point2D q(1, 1);
   BoundingBox2D bbox(p, q);
   Grid2D grid(bbox, 4, 5);
-  UniformScalarField2D u(grid);
+  ScalarGridField2D u(grid);
 
   SECTION("Evaluate")
   {
