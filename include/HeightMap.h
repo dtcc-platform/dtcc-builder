@@ -105,7 +105,7 @@ public:
   void Index2Boundary(std::vector<size_t>& indices, size_t i) const
   {
     const size_t ix = i % XSize;
-    const size_t iy = i / YSize;
+    const size_t iy = i / XSize;
     if (ix > 0)
       indices.push_back(i - 1);
     if (ix < XSize - 1)
