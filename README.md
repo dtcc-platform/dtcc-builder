@@ -213,7 +213,7 @@ The Digital Twin Cities Platform uses [CalVer](https://calver.org/) for versioni
 
 * [Anders Logg](http://anders.logg.org)
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
-* [Dag Wästerberg](http://www.google.com)
+* [Dag Wästerberg](http://www.ramboll.se)
 
 ## License
 
