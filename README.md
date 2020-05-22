@@ -1,4 +1,4 @@
-# Digital Twin Cities Platform - Core
+#Digital Twin Cities Platform - Core
 
 The Digital Twin Cities Platform is an open-source platform for the
 exploration of digital twins for cities. The platform is developed and
@@ -213,6 +213,7 @@ The Digital Twin Cities Platform uses [CalVer](https://calver.org/) for versioni
 
 * [Anders Logg](http://anders.logg.org)
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
+* [Dag Wästerberg](http://www.google.com)
 
 ## License
 
