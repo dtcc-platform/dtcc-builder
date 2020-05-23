@@ -4,7 +4,7 @@
 #ifndef DTCC_NETCDF4_H
 #define DTCC_NETCDF4_H
 
-#include <netcdf.h>
+#include <netcdf>
 #include <tuple>
 
 namespace DTCC
