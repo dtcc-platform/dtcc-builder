@@ -19,7 +19,7 @@ find_package(LibLAS)
 find_package(PugiXML REQUIRED)
 find_package(PROJ4 REQUIRED)
 find_package(Triangle REQUIRED)
-find_package(CDF REQUIRED)
+find_package(netCDF REQUIRED)
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
 include(${DOLFIN_USE_FILE})
