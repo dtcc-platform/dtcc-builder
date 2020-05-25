@@ -54,8 +54,8 @@ public:
     // Compute grid cell containing point (lower left corner)
     const double _x = x - XMin;
     const double _y = y - YMin;
-    const size_t ix = std::min(std::floor(_x / XStep), XSize - 2);
-    const size_t iy = std::min(std::floor(_y / YStep), YSize - 2);
+    const size_t ix = std::min(static_cast<size_t>(std::floor(_x / XStep)), XSize - 2);
+    const size_t iy = std::min(static_cast<size_t>(std::floor(_y / YStep)), YSize - 2);
     const size_t i = iy * XSize + ix;
 
     // Map coordinates to [0, 1] x [0, 1] within grid squares

@@ -56,12 +56,10 @@ namespace DTCC
       // Compute grid cell containing point (lower left corner)
       const double _x = p.x - Grid.BoundingBox.P.x;
       const double _y = p.y - Grid.BoundingBox.P.y;
-      const size_t ix = std::floor(_x / Grid.XStep);
-      const size_t iy = std::floor(_y / Grid.YStep);
+      const size_t ix = std::min(static_cast<size_t>(std::floor(_x / Grid.XStep)), Grid.XSize - 2);
+      const size_t iy = std::min(static_cast<size_t>(std::floor(_y / Grid.YStep)), Grid.YSize - 2);
       const size_t i = iy*Grid.XSize + ix;
-      assert(ix < Grid.XSize);
-      assert(iy < Grid.YSize);
-      assert(i < Values.size());
+      assert(i + Grid.XSize + 1 < Values.size());
 
       // Map coordinates to [0, 1] x [0, 1] within grid cell
       const double X = (_x - ix*Grid.XStep) / Grid.XStep;
