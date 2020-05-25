@@ -13,7 +13,7 @@ using namespace netCDF::exceptions;
 using namespace DTCC;
 void Help()
 {
-  std::cerr << "Usage: vc-read-netcdf filein.nc fileout.json Parameters.json"
+  std::cerr << "Usage: vc-read-netcdf filein.nc fileout.json variable"
             << std::endl;
 }
 
@@ -42,16 +42,18 @@ int main(int argc, char *argv[])
   std::string filein = argv[1];
   nlohmann::json json;
   std::cout << "I am here" << std::endl;
-  PostProcessParameters ppparameters;
+  // PostProcessParameters ppparameters;
   json["Type"] = "NetCDF4Parsed";
-  JSON::Read(ppparameters, argv[3]);
-  json["Variable"] = ppparameters.Variable;
-  std::cout << ppparameters << std::endl;
+  // JSON::Read(ppparameters, argv[3]);
+  // json["Variable"] = ppparameters.Variable;
+  json["Variable"] = argv[3];
+  // std::cout << ppparameters << std::endl;
   NcDim dim;
   std::cout << "I am here 2" << std::endl;
   NcFile dataFile(filein, NcFile::read);
   std::cout << "I am here 3" << std::endl;
-  NcVar datau = dataFile.getVar(ppparameters.Variable.c_str());
+  // NcVar datau = dataFile.getVar(ppparameters.Variable.c_str());
+  NcVar datau = dataFile.getVar(argv[3]);
   NcType type = datau.getType();
 
   std::vector<size_t> dimensions;
@@ -59,14 +61,15 @@ int main(int argc, char *argv[])
   {
     // NetCDF4<float> myNet;
     NetCDF4 myNet;
-    myNet.Name = ppparameters.Variable.c_str();
+    // myNet.Name = ppparameters.Variable.c_str();
+    myNet.Name = argv[3];
     myNet.FileName = fileout;
     myNet.initialize<float>(datau, dataFile);
     // myNet.toJson("test.in");
     // dimensions=NetCDF4<float>::createDimensions(datau, dataFile);
     // NetCDF4<float> myNet(std::accumulate(begin(dimensions), end(dimensions),
     // 1, 	  std::multiplies<double>()));
-    myNet.Name = ppparameters.Variable.c_str();
+    // myNet.Name = ppparameters.Variable.c_str();
     std::unique_ptr<double[]> p;
     p.reset(new double[myNet.CoordinateDimensions[2]]);
     NcVar datav = dataFile.getVar(myNet.Coordinates[2].getName());
@@ -100,13 +103,13 @@ int main(int argc, char *argv[])
   //       {
   //		   //NetCDF<float> myvariable;
   //		   size_t multi = std::accumulate(begin(dimensions),
-  //end(dimensions), 1, 			   std::multiplies<double>());
+  // end(dimensions), 1, 			   std::multiplies<double>());
   //
   //		   //NetCDF4<float> myvariable(multi);
   //		   //NetCDF4<float>* floatPtr= new NetCDF4<float>(multi);
   //		   //std::unique_ptr<NetCDF4 < float> > uptr(floatPtr);
   //		   std::unique_ptr< NetCDF4 < float> > uptr(new
-  //NetCDF4<float>(multi)); 		   uptr->Name = ppparameters.Variable;
+  // NetCDF4<float>(multi)); 		   uptr->Name = ppparameters.Variable;
   //		   //myvariable.Name = ppparameters.Variable;
   //
   //		   std::cout << "float !";
@@ -142,13 +145,13 @@ int main(int argc, char *argv[])
 //       {
 //		   //NetCDF<float> myvariable;
 //		   size_t multi = std::accumulate(begin(dimensions),
-//end(dimensions), 1, 			   std::multiplies<double>());
+// end(dimensions), 1, 			   std::multiplies<double>());
 //
 //		   //NetCDF4<float> myvariable(multi);
 //		   //NetCDF4<float>* floatPtr= new NetCDF4<float>(multi);
 //		   //std::unique_ptr<NetCDF4 < float> > uptr(floatPtr);
 //		   std::unique_ptr< NetCDF4 < float> > uptr(new
-//NetCDF4<float>(multi)); 		   uptr->Name = ppparameters.Variable;
+// NetCDF4<float>(multi)); 		   uptr->Name = ppparameters.Variable;
 //		   //myvariable.Name = ppparameters.Variable;
 //
 //		   std::cout << "float !";
@@ -161,18 +164,18 @@ int main(int argc, char *argv[])
 //       else if (type == NC_DOUBLE)
 //       {
 //		   size_t multi = std::accumulate(begin(dimensions),
-//end(dimensions), 1, 			   std::multiplies<double>());
+// end(dimensions), 1, 			   std::multiplies<double>());
 //         std::cout << "DOUBLE !";
 //         //double *arr2 = NULL;
 //		 NetCDF4<double> myvariable(multi);
 //		 myvariable.Name = ppparameters.Variable;
 //		 myvariable.allocateArray(myvariable.Vector, dimensions,
-//ppparameters.Variable,datau,json);
+// ppparameters.Variable,datau,json);
 //	   }
 //	   else
 //	   {
 //		   std::cout << "Only variables of type int, double or float
-//currently supported." << std::endl;; 		   return 0;
+// currently supported." << std::endl;; 		   return 0;
 //	   }
 //	   std::cout << "Writing json" << std::endl;
 //	   std::vector<double> origins;
@@ -185,14 +188,16 @@ int main(int argc, char *argv[])
 //	   {
 //		   NcType temp=coordinates[i].getType();
 //		   std::cout << "Coordinate type is " << temp.getName() <<" with
-//dimension "<< dimensions[i]<< std::endl;
+// dimension "<< dimensions[i]<< std::endl;
 //		   //double *arr2 = NULL;
 //		   NetCDF4<double> myvariable(dimensions[i]);
 //		   myvariable.Name = ppparameters.Variable;
 //		   std::cout << myvariable.Name << " vs " <<
-//coordinates[i].getName(); 		   if (coordinates[i].getName()!=myvariable.Name)
+// coordinates[i].getName(); 		   if
+// (coordinates[i].getName()!=myvariable.Name)
 //		   {myvariable.allocateArray(myvariable.Vector, dimensions[i],
-//coordinates[i]); 		   json["Coordinates"].push_back(coordinates[i].getName()); 		   for
+// coordinates[i]);
+// json["Coordinates"].push_back(coordinates[i].getName()); 		   for
 //(size_t j = 0; j < dimensions[i]; j++)
 //		   {
 //			   json[coordinates[i].getName()].push_back(myvariable.Vector[j]);

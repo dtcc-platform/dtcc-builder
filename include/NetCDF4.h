@@ -223,6 +223,7 @@ public:
     o.close();
   }
 };
+#if 0
 static void readGlobalAtts(NcVar &datau, std::vector<double> origins)
 {
   NcGroup group = datau.getParentGroup();
@@ -314,7 +315,7 @@ static void readVarAtts(NcVar &datau)
     std::cout << values << std::endl;
   }
 }
-
+#endif
 } // namespace DTCC
 
 #endif
