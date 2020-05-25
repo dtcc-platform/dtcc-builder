@@ -54,14 +54,11 @@ public:
     // Compute grid cell containing point (lower left corner)
     const double _x = x - XMin;
     const double _y = y - YMin;
-    const size_t ix = std::floor(_x / XStep);
-    const size_t iy = std::floor(_y / YStep);
+    const size_t ix = std::max(std::floor(_x / XStep), XSize - 2);
+    const size_t iy = std::max(std::floor(_y / YStep), YSize - 2);
     const size_t i = iy * XSize + ix;
-    assert(ix < XSize);
-    assert(iy < YSize);
-    assert(i < GridData.size());
 
-    // Map coordinates to [0, 1] x [0, 1] within grid square
+    // Map coordinates to [0, 1] x [0, 1] within grid squares
     const double X = (_x - ix * XStep) / XStep;
     const double Y = (_y - iy * YStep) / YStep;
     assert(X >= 0.0);
