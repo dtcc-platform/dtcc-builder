@@ -394,9 +394,9 @@ private:
 
     // Set input switches for Triangle
     char triswitches[64];
-    sprintf(triswitches, "zpq25a%.16f", maxArea);
-    std::cout << "MeshGenerator: triangle parameters = " << triswitches
-              << std::endl;
+    sprintf(triswitches, "zQpq25a%.16f", maxArea);
+    // std::cout << "MeshGenerator: triangle parameters = " << triswitches
+    //           << std::endl;
 
     // z = use zero-based numbering
     // p = use polygon input (segments)
