@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker container rm dtcc
+docker container rm dtcc -f
