@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
     clang-tidy \
     doxygen graphviz\
     libgeotiff-dev\
+    libassimp-dev\
     automake
 
 # Install FEniCS
