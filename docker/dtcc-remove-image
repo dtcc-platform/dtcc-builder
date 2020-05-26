@@ -1,2 +1,2 @@
-#!/ usr / bin / env bash
-docker image rm dtccimage - f
+#!/usr/bin/env bash
+docker image rm dtccimage -f
