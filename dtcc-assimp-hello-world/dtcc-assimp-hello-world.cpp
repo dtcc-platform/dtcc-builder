@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   aiMesh* mesh = new aiMesh();
   if(mesh)
   {
-      mesh->mNumVertices=vertices.size();
+      /*mesh->mNumVertices=vertices.size();
 
       aiVector3D* meshVertices;
       meshVertices=(aiVector3D*)malloc(sizeof(aiVector3D) * mesh->mNumVertices);
@@ -120,15 +120,43 @@ int main(int argc, char *argv[])
       {
           meshVertices[i]=*firstElement;
           firstElement++;
-      }
+      }*/
+
+      mesh->mNumVertices=3;
+      aiVector3D* meshVertices = new aiVector3D[3];
+      meshVertices[0]=aiVector3D(0, 0, 0);
+      meshVertices[1]=aiVector3D(0, 100, 0);
+      meshVertices[2]=aiVector3D(0, 0, 100);
 
       mesh->mVertices=meshVertices;
 
       std::cout<< "Printing mesh vertices"<<std::endl;
       for (uint i = 0; i < mesh->mNumVertices; i++)
       {
-          std::cout<<"X:"<< mesh->mVertices[i].x <<" - Y:" << mesh->mVertices[i].y << std::endl;
+          std::cout<<"X:"<< mesh->mVertices[i].x <<" - Y:" << mesh->mVertices[i].y << " - Z:" << mesh->mVertices[i].z << std::endl;
       }
+
+      mesh->mNumFaces=1;
+	  //! Number of indices defining this face.
+	  //! The maximum value for this member is #AI_MAX_FACE_INDICES.
+	  //unsigned int mNumIndices;
+
+	  //! Pointer to the indices array. Size of the array is given in numIndices.
+	  //unsigned int* mIndices;
+      /** The faces the mesh is constructed from.
+       * Each face refers to a number of vertices by their indices.
+       * This array is always present in a mesh, its size is given
+       * in mNumFaces. If the #AI_SCENE_FLAGS_NON_VERBOSE_FORMAT
+       * is NOT set each face references an unique set of vertices.
+       */
+      //C_STRUCT aiFace* mFaces;
+
+      mesh->mFaces=new aiFace[1];
+      mesh->mFaces[0].mNumIndices=3;
+      mesh->mFaces[0].mIndices=new uint[3];
+      mesh->mFaces[0].mIndices[0] = 0;
+      mesh->mFaces[0].mIndices[1] = 1;
+      mesh->mFaces[0].mIndices[2] = 2;
   }
 
   aiNode* rootNode = new aiNode();
@@ -156,14 +184,44 @@ int main(int argc, char *argv[])
       std::cout<<"file extension:"<<Assimp::Exporter::GetExportFormatDescription(i)->fileExtension()<<std::endl;
   }*/
 
+
+  // Create an instance of the Importer class
+  Assimp::Importer importer;
+  // And have it read the given file with some example postprocessing
+  // Usually - if speed is not the most important aspect for you - you'll
+  // probably to request more postprocessing than we do in this example.
+
+  //TODO: CHANGE THIS PATH
+  const aiScene* cubeScene = importer.ReadFile("C:/GitHub_Projects/core/bin/Cube.FBX",
+	  aiProcess_CalcTangentSpace |
+	  aiProcess_Triangulate |
+	  aiProcess_JoinIdenticalVertices |
+	  aiProcess_SortByPType);
+
+  if (cubeScene)
+  {
+      std::cout << " valid cube scene with # "<<cubeScene->mNumMeshes<<" of meshes!"<<std::endl;
+  }
+  else
+  {
+      std::cout <<importer.GetErrorString()<<std::endl;
+  }
+
   Assimp::Exporter* Exporter=new Assimp::Exporter();
   if (Exporter)
   {
       if (scene)
       {
           std::cout<<"Valid scene"<<std::endl;
-          //std::cout<<Exporter->Export(scene, "fbx", "C:/GitHub_Projects/core/bin/assimpexport")<<std::endl;
-          std::cout << Exporter->Export(scene, "stl", "C:/GitHub_Projects/core/bin/assimpexport") << std::endl;
+          //std::cout<<Exporter->Export(scene, "fbx", "C:/GitHub_Projects/core/bin/assimpexport.fbx")<<std::endl;
+          //std::cout << Exporter->Export(scene, "fbx", "D:/assimpexport.fbx") << std::endl;
+          //std::cout << Exporter->Export(scene, "stl", "D:\\assimpexport.stl") << std::endl;
+          //std::cout << Exporter->Export(scene, "obj", "C:/GitHub_Projects/core/bin/assimpexport.obj") << std::endl;
+
+          //std::cout << Exporter->ExportToBlob(scene,"stl") << std::endl;
+          //std::cout << Exporter->Export(scene, "fbx", "D:/assimpexport.stl") << std::endl;
+          std::cout << Exporter->Export(cubeScene, "fbx", "D:/assimpexport.FBX") << std::endl;
+
           std::cout<<"Error :"<<Exporter->GetErrorString()<<std::endl;
 
           size_t ExportFormatCount = Exporter->GetExportFormatCount();
