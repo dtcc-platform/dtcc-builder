@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   //std::cout <<"nlohman json:"<<serialized_str<<std::endl;
 
 
-  std::cout <<"----- json iteration -----"<<std::endl;
+  //std::cout <<"----- json iteration -----"<<std::endl;
 
   //int maxPrints=10;
   //int currentPrints=0;
@@ -67,46 +67,46 @@ int main(int argc, char *argv[])
   //    //std::cout<<*it<<std::endl;
   //}
 
-  CityModel model;
-  JSON::Read(model,fileName);
+  //CityModel model;
+  //JSON::Read(model,fileName);
 
-  bool firstBuildingRetrieved=false;
-  Building firstBuilding=Building();
+  //bool firstBuildingRetrieved=false;
+  //Building firstBuilding=Building();
 
-  for (auto it = model.Buildings.begin(); it != model.Buildings.end(); ++it)
-  {
-      std::vector<Point2D> Points = it->Footprint.Points;
-      for (auto p = Points.begin(); p != Points.end(); ++p)
-      {
-          std::cout<<"Point: "<<*p<<std::endl;
-          if (!firstBuildingRetrieved)
-          {
-              firstBuilding.Footprint.Points.push_back(*p);
-          }
-      }
-      //do-once flag
-      if (!firstBuildingRetrieved)
-      {
-          firstBuilding.Height=it->Height;
-          firstBuildingRetrieved=true;
-      }
-      std::cout<<"Moving on to next building!"<<std::endl;
-  }
+  //for (auto it = model.Buildings.begin(); it != model.Buildings.end(); ++it)
+  //{
+  //    std::vector<Point2D> Points = it->Footprint.Points;
+  //    for (auto p = Points.begin(); p != Points.end(); ++p)
+  //    {
+  //        std::cout<<"Point: "<<*p<<std::endl;
+  //        if (!firstBuildingRetrieved)
+  //        {
+  //            firstBuilding.Footprint.Points.push_back(*p);
+  //        }
+  //    }
+  //    //do-once flag
+  //    if (!firstBuildingRetrieved)
+  //    {
+  //        firstBuilding.Height=it->Height;
+  //        firstBuildingRetrieved=true;
+  //    }
+  //    std::cout<<"Moving on to next building!"<<std::endl;
+  //}
 
   
   //Bottom-up design?
-  std::vector<aiVector3D> vertices;
-  std::cout<<"first building:"<<std::endl;
-  for (auto it = firstBuilding.Footprint.Points.begin(); it != firstBuilding.Footprint.Points.end(); ++it)
-  {
-      std::cout<<"Point:"<<(*it)<<std::endl;
-      aiVector3D newVertex;
-      //newVertex.ai_real=0;
-      newVertex.x=(*it).x;
-      newVertex.y=(*it).y;
-      newVertex.z=0; //no height yet?
-      vertices.push_back(newVertex);
-  }
+  //std::vector<aiVector3D> vertices;
+  //std::cout<<"first building:"<<std::endl;
+  //for (auto it = firstBuilding.Footprint.Points.begin(); it != firstBuilding.Footprint.Points.end(); ++it)
+  //{
+  //    std::cout<<"Point:"<<(*it)<<std::endl;
+  //    aiVector3D newVertex;
+  //    //newVertex.ai_real=0;
+  //    newVertex.x=(*it).x;
+  //    newVertex.y=(*it).y;
+  //    newVertex.z=0; //no height yet?
+  //    vertices.push_back(newVertex);
+  //}
 
   aiMesh* mesh = new aiMesh();
   if(mesh)
