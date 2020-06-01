@@ -6,7 +6,11 @@
 #include "catch.hpp"
 
 #include "Grid.h"
-#include "ScalarGridField.h"
+#include "GridField.h"
+#include "GridVectorField.h"
+#include "Mesh.h"
+#include "MeshField.h"
+#include "MeshVectorField.h"
 
 using namespace DTCC;
 
@@ -65,7 +69,7 @@ TEST_CASE("ScalarGridField2D")
   Point2D q(1, 1);
   BoundingBox2D bbox(p, q);
   Grid2D grid(bbox, 4, 5);
-  ScalarGridField2D u(grid);
+  GridField2D u(grid);
 
   SECTION("Evaluate")
   {

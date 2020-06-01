@@ -1,21 +1,22 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
-#ifndef DTCC_SCALAR_GRID_FIELD_H
-#define DTCC_SCALAR_GRID_FIELD_H
+#ifndef DTCC_GRID_FIELD_H
+#define DTCC_GRID_FIELD_H
 
 #include <assert.h>
 
 #include "Grid.h"
+#include "Field.h"
 #include "Geometry.h"
 
 namespace DTCC
 {
 
-  /// ScalarGridField2D represents a scalar field on a uniform 2D grid.
+  /// GridField2D represents a scalar field on a uniform 2D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by bilinear interpolation.
-  class ScalarGridField2D
+  class GridField2D : public Field2D
   {
   public:
 
@@ -25,13 +26,13 @@ namespace DTCC
     /// Array of values (vertex values)
     std::vector<double> Values{};
 
-    /// Create empty scalar field
-    ScalarGridField2D() {}
+    /// Create empty field
+    GridField2D() {}
 
-    /// Create zero scalar field on given grid.
+    /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    ScalarGridField2D(const Grid2D& grid)
+    GridField2D(const Grid2D& grid)
       : Grid(grid)
     {
       // Initialize values to zero
@@ -55,12 +56,10 @@ namespace DTCC
       // Compute grid cell containing point (lower left corner)
       const double _x = p.x - Grid.BoundingBox.P.x;
       const double _y = p.y - Grid.BoundingBox.P.y;
-      const size_t ix = std::floor(_x / Grid.XStep);
-      const size_t iy = std::floor(_y / Grid.YStep);
+      const size_t ix = std::min(static_cast<size_t>(std::floor(_x / Grid.XStep)), Grid.XSize - 2);
+      const size_t iy = std::min(static_cast<size_t>(std::floor(_y / Grid.YStep)), Grid.YSize - 2);
       const size_t i = iy*Grid.XSize + ix;
-      assert(ix < Grid.XSize);
-      assert(iy < Grid.YSize);
-      assert(i < Values.size());
+      assert(i + Grid.XSize + 1 < Values.size());
 
       // Map coordinates to [0, 1] x [0, 1] within grid cell
       const double X = (_x - ix*Grid.XStep) / Grid.XStep;
@@ -86,10 +85,10 @@ namespace DTCC
 
   };
 
-  /// ScalarGridField3D represents a scalar field on a uniform 3D grid.
+  /// GridField3D represents a scalar field on a uniform 3D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by trilinear interpolation.
-  class ScalarGridField3D
+  class GridField3D : public Field3D
   {
   public:
 
@@ -99,7 +98,15 @@ namespace DTCC
     /// Array of values (vertex values)
     std::vector<double> Values{};
 
-    // FIXME: In progress
+    /// Evaluate field at given point.
+    ///
+    /// @param p The point
+    /// @return Value at point
+    double operator()(const Point3D& p) const
+    {
+      // FIXME: In progress
+      return 0.0;
+    }
 
   };
 }
