@@ -20,6 +20,7 @@ find_package(PugiXML REQUIRED)
 find_package(PROJ4 REQUIRED)
 find_package(Triangle REQUIRED)
 find_package(netCDF REQUIRED)
+find_package(VTK REQUIRED)
 find_package(assimp REQUIRED)
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
