@@ -32,7 +32,9 @@ RUN apt-get update && apt-get install -y \
     clang-tidy \
     doxygen graphviz\
     libgeotiff-dev\
-    automake
+    automake\
+    libhdf5-dev\
+    libhdf5-serial-dev
 
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
