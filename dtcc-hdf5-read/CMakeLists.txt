@@ -1,4 +1,4 @@
-set(PROGRAM dtcc-hdf5-hello-world)
+set(PROGRAM dtcc-hdf5-read)
 add_executable(${PROGRAM} ${PROGRAM}.cpp)
 include_directories( ${HDF5_INCLUDE_DIRS} )
 target_link_libraries(${PROGRAM} ${HDF5_LIBRARIES} -lhdf5_cpp)
