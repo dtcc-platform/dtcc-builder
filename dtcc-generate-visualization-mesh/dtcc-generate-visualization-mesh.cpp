@@ -67,10 +67,10 @@ int main(int argc, char *argv[])
   size_t numCells = 0;
   for (size_t i = 1; i < surfaces.size(); i++)
   {
-    numPoints += surfaces[i].Points.size();
+    numPoints += surfaces[i].Vertices.size();
     numCells += surfaces[i].Cells.size();
   }
-  buildingSurface.Points.resize(numPoints);
+  buildingSurface.Vertices.resize(numPoints);
   buildingSurface.Cells.resize(numCells);
   size_t k = 0;
   size_t l = 0;
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
       c.v2 += k;
       buildingSurface.Cells[l++] = c;
     }
-    for (size_t j = 0; j < surfaces[i].Points.size(); j++)
-      buildingSurface.Points[k++] = surfaces[i].Points[j];
+    for (size_t j = 0; j < surfaces[i].Vertices.size(); j++)
+      buildingSurface.Vertices[k++] = surfaces[i].Vertices[j];
   }
 
   // Write to files

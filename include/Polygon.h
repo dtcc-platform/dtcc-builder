@@ -15,8 +15,8 @@ namespace DTCC
 class Polygon
 {
 public:
-  // Array of points
-  std::vector<Point2D> Points;
+  // Array of vertices
+  std::vector<Point2D> Vertices;
 
   // Create empty polygon
   Polygon() {}

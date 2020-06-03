@@ -22,7 +22,7 @@ namespace DTCC
 
       // Build vertex connectivity
       std::cout << "VertexSmoother: Building vertex connectivity" << std::endl;
-      const size_t numVertices = surface.Points.size();
+      const size_t numVertices = surface.Vertices.size();
       std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
       for (const auto& T: surface.Cells)
       {
@@ -42,9 +42,9 @@ namespace DTCC
         {
           double z = 0.0;
           for (const auto& j: vertexNeighbors[i])
-            z += surface.Points[j].z;
+            z += surface.Vertices[j].z;
           z /= static_cast<float>(vertexNeighbors[i].size());
-          surface.Points[i].z = z;
+          surface.Vertices[i].z = z;
         }
       }
     }
