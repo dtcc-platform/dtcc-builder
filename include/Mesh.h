@@ -36,7 +36,7 @@ namespace DTCC
       return c;
     }
 
-    // Pretty-print
+    /// Pretty-print
     std::string __str__() const
     {
       return "2D triangular mesh with "
