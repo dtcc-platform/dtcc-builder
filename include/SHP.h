@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Polygon.h"
+#include "Geometry.h"
 
 namespace DTCC
 {
@@ -32,16 +33,24 @@ public:
     std::cout << "SHP: " << numEntities << " entities" << std::endl;
     switch (shapeType)
     {
-    case SHPT_POINT:
+    case SHPT_POINT: 
+    case SHPT_POINTZ: 
+    case SHPT_POINTM: 
       std::cout << "SHP: point type" << std::endl;
       break;
     case SHPT_ARC:
+    case SHPT_ARCZ:
+    case SHPT_ARCM:
       std::cout << "SHP: arc type" << std::endl;
       break;
     case SHPT_POLYGON:
+    case SHPT_POLYGONZ:
+    case SHPT_POLYGONM:
       std::cout << "SHP: polygon type" << std::endl;
       break;
     case SHPT_MULTIPOINT:
+    case SHPT_MULTIPOINTZ:
+    case SHPT_MULTIPOINTM:
       std::cout << "SHP: multipoint type" << std::endl;
       break;
     default:
@@ -49,29 +58,68 @@ public:
     }
 
     // Check that we have polygon type
-    if (shapeType != SHPT_POLYGON)
+    if (shapeType != SHPT_POLYGON && shapeType != SHPT_POLYGONZ && shapeType != SHPT_POLYGONM)
       throw std::runtime_error("Shapefile not of polygon type.");
 
     // Read footprints
     for (int i = 0; i < numEntities; i++)
     {
-      // Create empty polygon
-      Polygon polygon;
+      
 
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
 
       // Get vertices
-      for (int j = 0; j < object->nVertices; j++)
+      if (object->nParts == 1) 
       {
-        const double x = object->padfX[j];
-        const double y = object->padfY[j];
-        Point2D p(x, y);
-        polygon.Points.push_back(p);
+        // Create empty polygon
+        Polygon polygon;
+        
+        for (int j = 0; j < object->nVertices; j++)
+        {
+          const double x = object->padfX[j];
+          const double y = object->padfY[j];
+          Point2D p(x, y);
+          polygon.Points.push_back(p);
+        }
+        // Add polygon
+        polygons.push_back(polygon);
+        
+      } else { 
+        // for donut polygons only get the outer hull
+        // for multipatch polygons only get the first polygon
+        // TODO: handle donut and multipatch polygons correctly 
+
+        Polygon polygon;
+        int start;
+        int end;
+        for (int part = 0;part<object->nParts;part++) 
+        {
+          Polygon polygon;
+          start = object->panPartStart[part];
+          if (part + 1 == object->nParts) 
+          {
+            end = object->nVertices;
+          } else {
+            end =  object->panPartStart[part + 1];
+          }
+
+          for (int j = start; j < end; j++)
+          {
+            const double x = object->padfX[j];
+            const double y = object->padfY[j];
+            Point2D p(x, y);
+            polygon.Points.push_back(p);
+          }
+          if  (Geometry::PolygonOrientation2D(polygon) == 1) {
+            polygons.push_back(polygon);
+          }
+          
+        }
+        
       }
 
-      // Add polygon
-      polygons.push_back(polygon);
+      
     }
   }
 };
