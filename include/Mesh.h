@@ -4,75 +4,82 @@
 #ifndef DTCC_MESH_H
 #define DTCC_MESH_H
 
+#include <vector>
+
 #include "Point.h"
 #include "Simplex.h"
-#include <vector>
+#include "Logging.h"
 
 namespace DTCC
 {
 
-class Mesh2D
-{
-public:
-  /// Array of points (vertices)
-  std::vector<Point2D> Points;
-
-  /// Array of cells (triangles)
-  std::vector<Simplex2D> Cells;
-
-  /// Array of domain markers
-  std::vector<int> DomainMarkers;
-
-  /// Compute cell midpoint
-  Point2D MidPoint(const Simplex2D &Cell) const
+  class Mesh2D : public Printable
   {
-    Point2D c;
-    c += Points[Cell.v0];
-    c += Points[Cell.v1];
-    c += Points[Cell.v2];
-    c /= 3.0;
-    return c;
-  }
-};
+  public:
+    /// Array of vertices
+    std::vector<Point2D> Vertices;
 
-class Mesh3D
-{
-public:
-  /// Array of points (vertices)
-  std::vector<Point3D> Points;
+    /// Array of cells (triangles)
+    std::vector<Simplex2D> Cells;
 
-  /// Array of cells (tetrahedra)
-  std::vector<Simplex3D> Cells;
+    /// Array of domain markers
+    std::vector<int> DomainMarkers;
 
-  /// Array of domain markers
-  std::vector<int> DomainMarkers;
+    /// Compute cell midpoint
+    Point2D MidPoint(const Simplex2D &cell) const
+    {
+      Point2D c;
+      c += Vertices[cell.v0];
+      c += Vertices[cell.v1];
+      c += Vertices[cell.v2];
+      c /= 3.0;
+      return c;
+    }
 
-  /// Compute cell midpoint
-  Point3D MidPoint(const Simplex3D &Cell) const
+    // Pretty-print
+    std::string __str__() const
+    {
+      return "2D triangular mesh with "
+        + str(Vertices.size()) + " vertices and "
+        + str(Vertices.size()) + " faces";
+    }
+
+  };
+
+  class Mesh3D : public Printable
   {
-    Point3D c;
-    c += Points[Cell.v0];
-    c += Points[Cell.v1];
-    c += Points[Cell.v2];
-    c += Points[Cell.v3];
-    c /= 4.0;
-    return c;
-  }
-};
+  public:
 
-std::ostream &operator<<(std::ostream &stream, const Mesh2D &m)
-{
-  stream << "2D mesh with " << m.Points.size() << " points and "
-         << m.Cells.size() << " cells (triangles)";
-  return stream;
-}
+    /// Array of vertices
+    std::vector<Point3D> Vertices;
 
-std::ostream &operator<<(std::ostream &stream, const Mesh3D &m)
-{
-  stream << "3D mesh with " << m.Points.size() << " points and "
-         << m.Cells.size() << " cells (tetrahedra)";
-  return stream;
-}
+    /// Array of cells (tetrahedra)
+    std::vector<Simplex3D> Cells;
+
+    /// Array of domain markers
+    std::vector<int> DomainMarkers;
+
+    /// Compute cell midpoint
+    Point3D MidPoint(const Simplex3D &Cell) const
+    {
+      Point3D c;
+      c += Vertices[Cell.v0];
+      c += Vertices[Cell.v1];
+      c += Vertices[Cell.v2];
+      c += Vertices[Cell.v3];
+      c /= 4.0;
+      return c;
+    }
+
+    // Pretty-print
+    std::string __str__() const
+    {
+      return "3D tetrahedral mesh with "
+        + str(Vertices.size()) + " vertices and "
+        + str(Cells.size()) + " cells";
+    }
+
+  };
 
 } // namespace DTCC
 

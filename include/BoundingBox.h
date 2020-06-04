@@ -45,7 +45,7 @@ namespace DTCC
       constexpr double max = std::numeric_limits<double>::max();
       P.x = P.y = max;
       Q.x = Q.y = -max;
-      for (const auto& p: polygon.Points)
+      for (const auto& p: polygon.Vertices)
       {
         P.x = std::min(P.x, p.x);
         P.y = std::min(P.y, p.y);

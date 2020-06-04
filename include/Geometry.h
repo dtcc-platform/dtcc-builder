@@ -107,10 +107,10 @@ public:
 
     // If not, compute minimal squared distance to all segments
     double d2Min = std::numeric_limits<double>::max();
-    for (size_t i = 0; i < polygon.Points.size(); i++)
+    for (size_t i = 0; i < polygon.Vertices.size(); i++)
     {
-      Point2D p0 = polygon.Points[i];
-      Point2D p1 = polygon.Points[(i + 1) % polygon.Points.size()];
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
       d2Min = std::min(d2Min, SquaredDistance2D(p0, p1, p));
     }
 
@@ -124,11 +124,11 @@ public:
     double d2Min = std::numeric_limits<double>::max();
 
     // Check all vertices in first polygon
-    for (auto const &p : polygon0.Points)
+    for (auto const &p : polygon0.Vertices)
       d2Min = std::min(d2Min, SquaredDistance2D(polygon1, p));
 
     // Check all vertices in second polygon
-    for (auto const &p : polygon1.Points)
+    for (auto const &p : polygon1.Vertices)
       d2Min = std::min(d2Min, SquaredDistance2D(polygon0, p));
 
     return d2Min;
@@ -199,10 +199,10 @@ public:
   static double PolygonDeterminant2D(const Polygon &polygon)
   {
     double sum = 0.0;
-    for (size_t i = 0; i < polygon.Points.size(); i++)
+    for (size_t i = 0; i < polygon.Vertices.size(); i++)
     {
-      Point2D p0 = polygon.Points[i];
-      Point2D p1 = polygon.Points[(i + 1) % polygon.Points.size()];
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
       sum += (p1.x - p0.x) * (p1.y + p0.y);
     }
     return sum;
@@ -224,9 +224,9 @@ public:
   static Point2D PolygonCenter2D(const Polygon &polygon)
   {
     Point2D c;
-    for (auto const &p : polygon.Points)
+    for (auto const &p : polygon.Vertices)
       c += p;
-    c /= polygon.Points.size();
+    c /= polygon.Vertices.size();
     return c;
   }
 
@@ -234,7 +234,7 @@ public:
   static double PolygonRadius2D(const Polygon &polygon, const Point2D &center)
   {
     double r2max = 0.0;
-    for (auto const &p : polygon.Points)
+    for (auto const &p : polygon.Vertices)
     {
       const double r2 = SquaredDistance2D(p, center);
       if (r2 > r2max)
@@ -248,7 +248,7 @@ public:
   {
     // Compute total quadrant relative to polygon. If the point
     // is inside the polygon, the angle should be 4 (or -4).
-    return Geometry::QuadrantAngle2D(p, polygon.Points) != 0;
+    return Geometry::QuadrantAngle2D(p, polygon.Vertices) != 0;
   }
 
   // Check whether bounding box contains point (2D)
@@ -414,12 +414,12 @@ public:
     Polygon polygon;
     while (!convexHull.empty())
     {
-      polygon.Points.push_back(points[convexHull.top()]);
+      polygon.Vertices.push_back(points[convexHull.top()]);
       convexHull.pop();
     }
 
     // Reverse polygon to make it counter-clockwise
-    std::reverse(polygon.Points.begin(), polygon.Points.end());
+    std::reverse(polygon.Vertices.begin(), polygon.Vertices.end());
 
     return polygon;
   }

@@ -215,9 +215,12 @@ The Digital Twin Cities Platform uses [CalVer](https://calver.org/) for versioni
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
 * [Dag Wästerberg](http://www.ramboll.se)
 
+Part of this code is contributed by ReSpace AB under the MIT License.
+
 ## License
 
 The Digital Twin Cities Platform is licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Copyright is held by the individual authors as listed at the top of each source file.
 
 ## Acknowledgments
 

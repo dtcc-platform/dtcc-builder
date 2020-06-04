@@ -22,10 +22,10 @@ public:
     meshEditor.open(mesh, "triangle", 2, 2);
 
     // Add vertices
-    meshEditor.init_vertices(mesh2D.Points.size());
-    for (size_t i = 0; i < mesh2D.Points.size(); i++)
+    meshEditor.init_vertices(mesh2D.Vertices.size());
+    for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
     {
-      const Point2D &p = mesh2D.Points[i];
+      const Point2D &p = mesh2D.Vertices[i];
       meshEditor.add_vertex(i, p.x, p.y);
     }
 
@@ -49,10 +49,10 @@ public:
     meshEditor.open(mesh, "tetrahedron", 3, 3);
 
     // Add vertices
-    meshEditor.init_vertices(mesh3D.Points.size());
-    for (size_t i = 0; i < mesh3D.Points.size(); i++)
+    meshEditor.init_vertices(mesh3D.Vertices.size());
+    for (size_t i = 0; i < mesh3D.Vertices.size(); i++)
     {
-      const Point3D &p = mesh3D.Points[i];
+      const Point3D &p = mesh3D.Vertices[i];
       meshEditor.add_vertex(i, p.x, p.y, p.z);
     }
 
@@ -90,7 +90,7 @@ public:
     size_t numTriangles = 0;
     for (auto const &surface : surfaces)
     {
-      numVertices += surface.Points.size();
+      numVertices += surface.Vertices.size();
       numTriangles += surface.Cells.size();
     }
 
@@ -100,9 +100,9 @@ public:
       size_t k = 0;
       for (auto const &surface : surfaces)
       {
-        for (size_t i = 0; i < surface.Points.size(); i++)
+        for (size_t i = 0; i < surface.Vertices.size(); i++)
         {
-          const Point3D &p = surface.Points[i];
+          const Point3D &p = surface.Vertices[i];
           meshEditor.add_vertex(k++, p.x, p.y, p.z);
         }
       }
@@ -120,7 +120,7 @@ public:
           const Simplex2D &c = surface.Cells[i];
           meshEditor.add_cell(k++, c.v0 + offset, c.v1 + offset, c.v2 + offset);
         }
-        offset += surface.Points.size();
+        offset += surface.Vertices.size();
       }
     }
 

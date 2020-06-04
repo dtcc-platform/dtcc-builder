@@ -120,7 +120,7 @@ private:
     {
       // Check if all points are inside
       bool inside = true;
-      for (auto const &p : polygon.Points)
+      for (auto const &p : polygon.Vertices)
       {
         Point2D q(p.x - x0, p.y - y0);
         if (q.x < xMin || q.y < yMin || q.x > xMax || q.y > yMax)
@@ -134,10 +134,10 @@ private:
       if (inside)
       {
         Polygon transformedPolygon;
-        for (auto const &p : polygon.Points)
+        for (auto const &p : polygon.Vertices)
         {
           Point2D q(p.x - x0, p.y - y0);
-          transformedPolygon.Points.push_back(q);
+          transformedPolygon.Vertices.push_back(q);
         }
         transformedPolygons.push_back(transformedPolygon);
       }
@@ -164,11 +164,11 @@ private:
       Polygon closedPolygon;
 
       // Iterate over points and add only unique points
-      for (auto const &p : polygon.Points)
+      for (auto const &p : polygon.Vertices)
       {
         // Check if point is unique
         bool unique = true;
-        for (auto const &q : closedPolygon.Points)
+        for (auto const &q : closedPolygon.Vertices)
         {
           const double d = Geometry::Distance2D(p, q);
           if (d < Parameters::Epsilon)
@@ -180,7 +180,7 @@ private:
 
         // Add point if unique
         if (unique)
-          closedPolygon.Points.push_back(p);
+          closedPolygon.Vertices.push_back(p);
       }
 
       // Add polygon
@@ -211,8 +211,8 @@ private:
       if (Geometry::PolygonOrientation2D(orientedPolygon) != 0)
       {
         numReversed++;
-        std::reverse(orientedPolygon.Points.begin(),
-                     orientedPolygon.Points.end());
+        std::reverse(orientedPolygon.Vertices.begin(),
+                     orientedPolygon.Vertices.end());
       }
 
       // Add polygon
@@ -236,7 +236,7 @@ private:
     for (auto const &polygon : polygons)
     {
       // Previous vertex index
-      const size_t numPoints = polygon.Points.size();
+      const size_t numPoints = polygon.Vertices.size();
       size_t previousIndex = numPoints - 1;
 
       // Array of vertices to be included
@@ -250,9 +250,9 @@ private:
       for (size_t i = 0; i < numPoints; i++)
       {
         // Get previous, current and next points
-        const Point2D &p0 = polygon.Points[previousIndex];
-        const Point2D &p1 = polygon.Points[i];
-        const Point2D &p2 = polygon.Points[(i + 1) % numPoints];
+        const Point2D &p0 = polygon.Vertices[previousIndex];
+        const Point2D &p1 = polygon.Vertices[i];
+        const Point2D &p2 = polygon.Vertices[(i + 1) % numPoints];
 
         // Compute angle (cosine)
         Point2D u = p1 - p0;
@@ -264,7 +264,7 @@ private:
         // Add vertex if angle is large enough
         if (cos < 1.0 - 0.1)
         {
-          simplifiedPolygon.Points.push_back(p1);
+          simplifiedPolygon.Vertices.push_back(p1);
           previousIndex = i;
         }
       }
@@ -313,7 +313,7 @@ private:
           continue;
 
         // Skip if polygon has zero size (merged with other polygon)
-        if (mergedPolygons[j].Points.size() == 0)
+        if (mergedPolygons[j].Vertices.size() == 0)
           continue;
 
         // Compute squared distance between polygons
@@ -332,7 +332,7 @@ private:
 
           // Replace Pi, erase Pj and add Pi to queue
           mergedPolygons[i] = mergedPolygon;
-          mergedPolygons[j].Points.clear();
+          mergedPolygons[j].Vertices.clear();
           polygonIndices.push(i);
         }
       }
@@ -342,7 +342,7 @@ private:
     std::vector<Polygon> _mergedPolygons;
     for (auto const &polygon : mergedPolygons)
     {
-      if (polygon.Points.size() > 0)
+      if (polygon.Vertices.size() > 0)
         _mergedPolygons.push_back(polygon);
     }
 
@@ -359,9 +359,9 @@ private:
 
     // Collect points
     std::vector<Point2D> allPoints;
-    for (auto const &p : polygon0.Points)
+    for (auto const &p : polygon0.Vertices)
       allPoints.push_back(p);
-    for (auto const &p : polygon1.Points)
+    for (auto const &p : polygon1.Vertices)
       allPoints.push_back(p);
 
     // Remove duplicate points

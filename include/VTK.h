@@ -39,13 +39,13 @@ public:
     f << "<?xml version=\"1.0\"?>\n";
     f << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\">\n";
     f << "<UnstructuredGrid>\n";
-    f << "<Piece NumberOfPoints=\"" << mesh.Points.size() << "\""
+    f << "<Piece NumberOfPoints=\"" << mesh.Vertices.size() << "\""
       << " NumberOfCells=\"" << mesh.Cells.size() << "\">" << "\n";
 
     // Write points
     f << "<Points>\n";
     f << "<DataArray  type=\"Float64\" NumberOfComponents=\"2\" format=\"ascii\">";
-    for (const auto& p: mesh.Points)
+    for (const auto& p: mesh.Vertices)
       f << p.x << " " << p.y << " ";
     f << "\n</DataArray>\n";
     f << "</Points>\n";
@@ -94,13 +94,13 @@ public:
     f << "<?xml version=\"1.0\"?>\n";
     f << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\">\n";
     f << "<UnstructuredGrid>\n";
-    f << "<Piece NumberOfPoints=\"" << mesh.Points.size() << "\""
+    f << "<Piece NumberOfPoints=\"" << mesh.Vertices.size() << "\""
       << " NumberOfCells=\"" << mesh.Cells.size() << "\">\n";
 
     // Write points
     f << "<Points>\n";
     f << "<DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"ascii\">\n";
-    for (const auto& p: mesh.Points)
+    for (const auto& p: mesh.Vertices)
       f << p.x << " " << p.y << " " << p.z << " ";
     f << "\n</DataArray>\n";
     f << "</Points>\n";
@@ -149,13 +149,13 @@ public:
     f << "<?xml version=\"1.0\"?>\n";
     f << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\">\n";
     f << "<UnstructuredGrid>\n";
-    f << "<Piece NumberOfPoints=\"" << surface.Points.size() << "\""
+    f << "<Piece NumberOfPoints=\"" << surface.Vertices.size() << "\""
       << " NumberOfCells=\"" << surface.Cells.size() << "\">\n";
 
     // Write points
     f << "<Points>\n";
     f << "<DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"ascii\">\n";
-    for (const auto& p: surface.Points)
+    for (const auto& p: surface.Vertices)
       f << p.x << " " << p.y << " " << p.z << " ";
     f << "\n</DataArray>\n";
     f << "</Points>\n";

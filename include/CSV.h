@@ -69,7 +69,7 @@ public:
     ft << std::setprecision(Parameters::Precision);
 
     // Write points
-    for (auto const &p : mesh.Points)
+    for (auto const &p : mesh.Vertices)
       Write(p, fp);
 
     // Write triangles
@@ -100,7 +100,7 @@ public:
       throw std::runtime_error("Unable to write to file: " + fileNameTriangles);
 
     // Write points
-    for (auto const &p : mesh.Points)
+    for (auto const &p : mesh.Vertices)
       Write(p, fp);
 
     // Write triangles
