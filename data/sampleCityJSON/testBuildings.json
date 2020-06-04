@@ -1,0 +1,281 @@
+{
+    "type": "CityJSON",
+    "version": "1.0",
+    "CityObjects": {
+        "fccbfcb8-bb7a-4593-9c29-a105647bad80": {
+            "type": "Building",
+            "attributes": {
+                "roofType": "flat",
+                "function": "Bostad",
+                "yearOfConstruction": "1963",
+                "storeysAboveGround": "1",
+                "storeysBelowGround": "0"
+            },
+            "geometry": [
+                {
+                    "boundaries": [
+                        [
+                            [
+                                0,
+                                1,
+                                2,
+                                3
+                            ]
+                        ],
+                        [
+                            [
+                                4,
+                                5,
+                                3,
+                                0
+                            ]
+                        ],
+                        [
+                            [
+                                5,
+                                6,
+                                2,
+                                3
+                            ]
+                        ],
+                        [
+                            [
+                                6,
+                                7,
+                                1,
+                                2
+                            ]
+                        ],
+                        [
+                            [
+                                7,
+                                4,
+                                0,
+                                1
+                            ]
+                        ],
+                        [
+                            [
+                                4,
+                                7,
+                                6,
+                                5
+                            ]
+                        ]
+                    ],
+                    "semantics": {
+                        "surfaces": [
+                            {
+                                "type": "GroundSurface",
+                                "colour": "grey"
+                            },
+                            {
+                                "type": "WallSurface",
+                                "children": [
+                                    3
+                                ],
+                                "colour": "white"
+                            },
+                            {
+                                "type": "RoofSurface",
+                                "colour": "red"
+                            },
+                            {
+                                "type": "Window",
+                                "parent": 1,
+                                "colour": "blue"
+                            }
+                        ],
+                        "values": [
+                            0,
+                            1,
+                            1,
+                            1,
+                            1,
+                            2
+                        ]
+                    },
+                    "material": {
+                        "surface_type": {
+                            "values": [
+                                0,
+                                1,
+                                1,
+                                1,
+                                1,
+                                2
+                            ]
+                        }
+                    },
+                    "lod": 2,
+                    "type": "MultiSurface"
+                }
+            ],
+            "geographicalExtent": [
+                315986.20500002697,
+                6394130.588993277,
+                0.0,
+                316017.26000002696,
+                6394348.988993278,
+                2.95
+            ]
+        }
+    },
+    "vertices": [
+        [
+            12715,
+            0,
+            0
+        ],
+        [
+            31055,
+            217322,
+            0
+        ],
+        [
+            18285,
+            218400,
+            0
+        ],
+        [
+            0,
+            1075,
+            0
+        ],
+        [
+            12715,
+            0,
+            2950
+        ],
+        [
+            0,
+            1075,
+            2950
+        ],
+        [
+            18285,
+            218400,
+            2950
+        ],
+        [
+            31055,
+            217322,
+            2950
+        ]
+    ],
+    "appearance": {
+        "materials": [
+            {
+                "name": "GroundSurface",
+                "ambientIntensity": 0.2,
+                "diffuseColor": [
+                    0.9,
+                    0.1,
+                    0.75
+                ],
+                "emissiveColor": [
+                    0.9,
+                    0.1,
+                    0.75
+                ],
+                "specularColor": [
+                    0.9,
+                    0.1,
+                    0.75
+                ],
+                "shininess": 0.2,
+                "transparency": 0.5,
+                "isSmooth": false
+            },
+            {
+                "name": "WallSurface",
+                "ambientIntensity": 0.4,
+                "diffuseColor": [
+                    0.1,
+                    0.1,
+                    0.9
+                ],
+                "emissiveColor": [
+                    0.1,
+                    0.1,
+                    0.9
+                ],
+                "specularColor": [
+                    0.9,
+                    0.1,
+                    0.75
+                ],
+                "shininess": 0.0,
+                "transparency": 0.5,
+                "isSmooth": false
+            },
+            {
+                "name": "RoofSurface",
+                "ambientIntensity": 0.2,
+                "diffuseColor": [
+                    0.9,
+                    0.1,
+                    0.75
+                ],
+                "emissiveColor": [
+                    0.9,
+                    0.1,
+                    0.75
+                ],
+                "specularColor": [
+                    0.9,
+                    0.1,
+                    0.75
+                ],
+                "shininess": 0.2,
+                "transparency": 0.5,
+                "isSmooth": false
+            },
+            {
+                "name": "Window",
+                "ambientIntensity": 0.4,
+                "diffuseColor": [
+                    0.05,
+                    0.0,
+                    0.45
+                ],
+                "emissiveColor": [
+                    0.05,
+                    0.0,
+                    0.45
+                ],
+                "specularColor": [
+                    0.05,
+                    0.0,
+                    0.45
+                ],
+                "shininess": 0.0,
+                "transparency": 0.5,
+                "isSmooth": true
+            }
+        ]
+    },
+    "metadata": {
+        "referenceSystem": "urn:ogc:def:crs:EPSG::3006",
+        "geographicalExtent": [
+            315986.20500002697,
+            6394130.588993277,
+            0.0,
+            316017.26000002696,
+            6394348.988993278,
+            2.95
+        ]
+    },
+    "transform": {
+        "scale": [
+            0.001,
+            0.001,
+            0.001
+        ],
+        "translate": [
+            315986.20500002697,
+            6394130.588993277,
+            0.0
+        ]
+    }
+}
