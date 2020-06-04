@@ -11,6 +11,23 @@
 namespace DTCC
 {
 
+struct Extensions {
+};
+
+struct Appearance {
+};
+
+struct Geometry-templates
+};
+
+struct Transform {
+    std::vector<nlohmann::json> Scale;
+    std::vector<nlohmann::json> Translate;
+};
+
+struct Metadata {
+};
+
 struct Attributes {
 };
 
@@ -66,5 +83,20 @@ public:
   "version": "1.0",
   "vertices": [
   ]
+}
+------------------------------------------
+{
+  "type": "CityJSON",
+  "version": "1.0",
+  "extensions": {},
+  "metadata": {},
+  "transform": {
+    "scale": [],
+    "translate": []
+  },
+  "CityObjects": {},
+  "vertices": [],
+  "appearance": {},
+  "geometry-templates": {}
 }
 */
