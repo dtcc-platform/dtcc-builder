@@ -17,7 +17,7 @@ struct Extensions {
 struct Appearance {
 };
 
-struct Geometry-templates
+struct GeometryTemplates {
 };
 
 struct Transform {
