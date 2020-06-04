@@ -63,6 +63,13 @@ On Windows, you should instead use the following commands:
 
 This creates a Docker container named `dtcc` that is used for developing, building and running VCCore.
 
+For removing the image and containers, you can use 
+
+    ./dtcc-uninstall 
+    ./dtcc-uninstall.bat 
+
+in Linux and Windows respectivelly.
+
 Note that the source tree is automatically shared into the Docker container. It is recommended that you edit the sources, run git commands, and visualize data *outside* of the Docker container (on your native operating system), while building and running the code *inside* the Docker container.
 
 ### Downloading data
@@ -214,6 +221,7 @@ The Digital Twin Cities Platform uses [CalVer](https://calver.org/) for versioni
 * [Anders Logg](http://anders.logg.org)
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
 * [Dag Wästerberg](http://www.ramboll.se)
+* [Orfeas Eleutheriou](http://orfeasel.com/)
 
 Part of this code is contributed by ReSpace AB under the MIT License.
 
