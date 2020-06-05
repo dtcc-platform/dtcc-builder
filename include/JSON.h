@@ -13,6 +13,7 @@
 #include "Mesh.h"
 #include "Surface.h"
 #include "Parameters.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -20,6 +21,18 @@ namespace DTCC
 class JSON
 {
 public:
+  // Read JSON from file
+  static nlohmann::json Read(std::string fileName)
+  {
+    Info("JSON: Reading from file " + fileName + "...");
+    std::ifstream f(fileName);
+    if (!f)
+      Error("Unable to read from file " + fileName);
+    nlohmann::json json{};
+    f >> json;
+    return json;
+  }
+
   // Get type of JSON file
   static std::string ReadType(std::string fileName)
   {
