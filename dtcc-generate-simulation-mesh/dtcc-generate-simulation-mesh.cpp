@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(
       cityModel, heightMap.XMin, heightMap.YMin, heightMap.XMax,
       heightMap.YMax, parameters.MeshResolution);
-  std::cout << mesh2D << std::endl;
+  Info(mesh2D);
 
   // Compute ground elevation
   const double groundElevation = heightMap.Min();
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
   Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(
       mesh2D, cityModel, groundElevation, parameters.DomainHeight,
       parameters.MeshResolution);
-  std::cout << mesh3D << std::endl;
+  Info(mesh3D);
 
   // Convert to FEniCS meshes
   dolfin::Mesh _mesh2D, _mesh3D;

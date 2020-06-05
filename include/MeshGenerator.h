@@ -50,7 +50,7 @@ public:
     // Extract subdomains (building footprints)
     std::vector<std::vector<Point2D>> subDomains;
     for (auto const &building : cityModel.Buildings)
-      subDomains.push_back(building.Footprint.Points);
+      subDomains.push_back(building.Footprint.Vertices);
 
     // Generate boundary
     std::vector<Point2D> boundary;
@@ -91,13 +91,13 @@ public:
     // Compute number of layers
     const size_t numLayers = int(std::ceil(domainHeight / meshResolution));
     const double dz = domainHeight / double(numLayers);
-    const size_t layerSize = mesh2D.Points.size();
+    const size_t layerSize = mesh2D.Vertices.size();
 
     std::cout << "MeshGenerator: Generating 3D mesh with " << numLayers
               << " layers..." << std::endl;
 
     // Create markers for used points
-    const size_t numPoints = (numLayers + 1) * mesh2D.Points.size();
+    const size_t numPoints = (numLayers + 1) * mesh2D.Vertices.size();
     std::vector<size_t> pointIndices(numPoints);
     std::fill(pointIndices.begin(), pointIndices.end(), numPoints);
 
@@ -184,15 +184,15 @@ public:
     }
 
     // Add points
-    mesh3D.Points.reserve(k);
+    mesh3D.Vertices.reserve(k);
     for (size_t i = 0; i < numPoints; i++)
     {
       if (pointIndices[i] != numPoints)
       {
-        const Point2D &p2D = mesh2D.Points[i % layerSize];
+        const Point2D &p2D = mesh2D.Vertices[i % layerSize];
         const double z = (i / layerSize) * dz + groundElevation;
         Point3D p3D(p2D.x, p2D.y, z);
-        mesh3D.Points.push_back(p3D);
+        mesh3D.Vertices.push_back(p3D);
       }
     }
 
@@ -247,12 +247,12 @@ public:
     // Create ground surface with zero height
     Surface3D surface3D;
     surface3D.Cells = mesh2D.Cells;
-    surface3D.Points.resize(mesh2D.Points.size());
-    for (size_t i = 0; i < mesh2D.Points.size(); i++)
+    surface3D.Vertices.resize(mesh2D.Vertices.size());
+    for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
     {
-      const Point2D &p2D = mesh2D.Points[i];
+      const Point2D &p2D = mesh2D.Vertices[i];
       Point3D p3D(p2D.x, p2D.y, 0.0);
-      surface3D.Points[i] = p3D;
+      surface3D.Vertices[i] = p3D;
     }
 
     // Displace ground surface
@@ -261,8 +261,8 @@ public:
     {
       // If ground is flat, just iterate over vertices and set height
       const double z = heightMap.Min();
-      for (size_t i = 0; i < mesh2D.Points.size(); i++)
-        surface3D.Points[i].z = z;
+      for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
+        surface3D.Vertices[i].z = z;
     }
     else
     {
@@ -270,8 +270,8 @@ public:
       // always choose the smallest height for each point since
       // each point may be visited multiple times.
       const double zMax = heightMap.Max();
-      for (size_t i = 0; i < mesh2D.Points.size(); i++)
-        surface3D.Points[i].z = zMax;
+      for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
+        surface3D.Vertices[i].z = zMax;
 
       // If ground is not float, iterate over the triangles
       for (size_t i = 0; i < mesh2D.Cells.size(); i++)
@@ -287,21 +287,21 @@ public:
         {
           // Compute minimum height of vertices
           double zMin = std::numeric_limits<double>::max();
-          zMin = std::min(zMin, heightMap(mesh2D.Points[T.v0]));
-          zMin = std::min(zMin, heightMap(mesh2D.Points[T.v1]));
-          zMin = std::min(zMin, heightMap(mesh2D.Points[T.v2]));
+          zMin = std::min(zMin, heightMap(mesh2D.Vertices[T.v0]));
+          zMin = std::min(zMin, heightMap(mesh2D.Vertices[T.v1]));
+          zMin = std::min(zMin, heightMap(mesh2D.Vertices[T.v2]));
 
           // Set minimum height for all vertices
-          setMin(surface3D.Points[T.v0].z, zMin);
-          setMin(surface3D.Points[T.v1].z, zMin);
-          setMin(surface3D.Points[T.v2].z, zMin);
+          setMin(surface3D.Vertices[T.v0].z, zMin);
+          setMin(surface3D.Vertices[T.v1].z, zMin);
+          setMin(surface3D.Vertices[T.v2].z, zMin);
         }
         else
         {
           // Sample height map at vertex position for all vertices
-          setMin(surface3D.Points[T.v0].z, heightMap(mesh2D.Points[T.v0]));
-          setMin(surface3D.Points[T.v1].z, heightMap(mesh2D.Points[T.v1]));
-          setMin(surface3D.Points[T.v2].z, heightMap(mesh2D.Points[T.v2]));
+          setMin(surface3D.Vertices[T.v0].z, heightMap(mesh2D.Vertices[T.v0]));
+          setMin(surface3D.Vertices[T.v1].z, heightMap(mesh2D.Vertices[T.v1]));
+          setMin(surface3D.Vertices[T.v2].z, heightMap(mesh2D.Vertices[T.v2]));
         }
       }
     }
@@ -318,7 +318,7 @@ public:
     {
       // Generate 2D mesh of building footprint
       Mesh2D mesh2D =
-        CallTriangle(building.Footprint.Points, subDomains, resolution);
+        CallTriangle(building.Footprint.Vertices, subDomains, resolution);
 
       // Create empty 3D surface
       Surface3D surface3D;
@@ -333,9 +333,9 @@ public:
       const double buildingHeight = building.Height;
 
       // Set total number of points
-      const size_t numMeshPoints = mesh2D.Points.size();
-      const size_t numBoundaryPoints = building.Footprint.Points.size();
-      surface3D.Points.resize(numMeshPoints + numBoundaryPoints);
+      const size_t numMeshPoints = mesh2D.Vertices.size();
+      const size_t numBoundaryPoints = building.Footprint.Vertices.size();
+      surface3D.Vertices.resize(numMeshPoints + numBoundaryPoints);
 
       // Set total number of triangles
       const size_t numMeshTriangles = mesh2D.Cells.size();
@@ -345,17 +345,17 @@ public:
       // Add points at top
       for (size_t i = 0; i < numMeshPoints; i++)
       {
-        const Point2D &p2D = mesh2D.Points[i];
+        const Point2D &p2D = mesh2D.Vertices[i];
         const Point3D p3D(p2D.x, p2D.y, buildingHeight);
-        surface3D.Points[i] = p3D;
+        surface3D.Vertices[i] = p3D;
       }
 
       // Add points at bottom
       for (size_t i = 0; i < numBoundaryPoints; i++)
       {
-        const Point2D &p2D = mesh2D.Points[i];
+        const Point2D &p2D = mesh2D.Vertices[i];
         const Point3D p3D(p2D.x, p2D.y, groundHeight);
-        surface3D.Points[numMeshPoints + i] = p3D;
+        surface3D.Vertices[numMeshPoints + i] = p3D;
       }
 
       // Add triangles on top
@@ -509,11 +509,11 @@ private:
     Mesh2D mesh2D;
 
     // Extract points
-    mesh2D.Points.reserve(out.numberofpoints);
+    mesh2D.Vertices.reserve(out.numberofpoints);
     for (int i = 0; i < out.numberofpoints; i++)
     {
       Point2D p(out.pointlist[2 * i], out.pointlist[2 * i + 1]);
-      mesh2D.Points.push_back(p);
+      mesh2D.Vertices.push_back(p);
     }
 
     // Extract triangles
@@ -623,7 +623,7 @@ private:
     std::fill(mesh.DomainMarkers.begin(), mesh.DomainMarkers.end(), -2);
 
     // Initialize markers for vertices belonging to a building
-    std::vector<bool> isBuildingVertex(mesh.Points.size());
+    std::vector<bool> isBuildingVertex(mesh.Vertices.size());
     std::fill(isBuildingVertex.begin(), isBuildingVertex.end(), false);
 
     // Iterate over cells to mark buildings
@@ -651,11 +651,11 @@ private:
       // Check if individual vertices are inside a building
       // (not only midpoint). Necessary for when generating
       // visualization meshes that are not boundary-fitted.
-      if (cityModel.FindBuilding(mesh.Points[T.v0]))
+      if (cityModel.FindBuilding(mesh.Vertices[T.v0]))
         isBuildingVertex[T.v0] = true;
-      if (cityModel.FindBuilding(mesh.Points[T.v1]))
+      if (cityModel.FindBuilding(mesh.Vertices[T.v1]))
         isBuildingVertex[T.v1] = true;
-      if (cityModel.FindBuilding(mesh.Points[T.v2]))
+      if (cityModel.FindBuilding(mesh.Vertices[T.v2]))
         isBuildingVertex[T.v2] = true;
     }
 

@@ -13,6 +13,7 @@
 #include "Mesh.h"
 #include "Surface.h"
 #include "Parameters.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -20,6 +21,18 @@ namespace DTCC
 class JSON
 {
 public:
+  // Read JSON from file
+  static nlohmann::json Read(std::string fileName)
+  {
+    Info("JSON: Reading from file " + fileName + "...");
+    std::ifstream f(fileName);
+    if (!f)
+      Error("Unable to read from file " + fileName);
+    nlohmann::json json{};
+    f >> json;
+    return json;
+  }
+
   // Get type of JSON file
   static std::string ReadType(std::string fileName)
   {
@@ -169,11 +182,11 @@ public:
     {
       auto jsonBuilding = jsonBuildings[i];
       auto jsonFootprint = jsonBuilding["Footprint"];
-      cityModel.Buildings[i].Footprint.Points.resize(jsonFootprint.size());
+      cityModel.Buildings[i].Footprint.Vertices.resize(jsonFootprint.size());
       for (size_t j = 0; j < jsonFootprint.size(); j++)
       {
-        cityModel.Buildings[i].Footprint.Points[j].x = jsonFootprint[j]["x"];
-        cityModel.Buildings[i].Footprint.Points[j].y = jsonFootprint[j]["y"];
+        cityModel.Buildings[i].Footprint.Vertices[j].x = jsonFootprint[j]["x"];
+        cityModel.Buildings[i].Footprint.Vertices[j].y = jsonFootprint[j]["y"];
       }
       cityModel.Buildings[i].Height = jsonBuilding["Height"];
     }
@@ -190,7 +203,7 @@ public:
     {
       auto jsonBuilding = nlohmann::json::object();
       jsonBuilding["Footprint"] = nlohmann::json::array();
-      for (auto const &point : building.Footprint.Points)
+      for (auto const &point : building.Footprint.Vertices)
       {
         auto jsonPoint = nlohmann::json::object();
         jsonPoint["x"] = point.x;
@@ -229,11 +242,11 @@ public:
 
     // Extract point data
     const auto jsonPoints = json["Points"];
-    mesh.Points.resize(jsonPoints.size() / 2);
-    for (size_t i = 0; i < mesh.Points.size(); i++)
+    mesh.Vertices.resize(jsonPoints.size() / 2);
+    for (size_t i = 0; i < mesh.Vertices.size(); i++)
     {
-      mesh.Points[i].x = jsonPoints[2*i];
-      mesh.Points[i].y = jsonPoints[2*i + 1];
+      mesh.Vertices[i].x = jsonPoints[2*i];
+      mesh.Vertices[i].y = jsonPoints[2*i + 1];
     }
 
     // Extract cell data
@@ -255,7 +268,7 @@ public:
     // Generate JSON data
     auto jsonPoints = nlohmann::json::array();
     auto jsonCells = nlohmann::json::array();
-    for (const auto p: mesh.Points)
+    for (const auto p: mesh.Vertices)
     {
       jsonPoints.push_back(p.x);
       jsonPoints.push_back(p.y);
@@ -294,12 +307,12 @@ public:
 
     // Extract point data
     const auto jsonPoints = json["Points"];
-    mesh.Points.resize(jsonPoints.size() / 3);
-    for (size_t i = 0; i < mesh.Points.size(); i++)
+    mesh.Vertices.resize(jsonPoints.size() / 3);
+    for (size_t i = 0; i < mesh.Vertices.size(); i++)
     {
-      mesh.Points[i].x = jsonPoints[3*i];
-      mesh.Points[i].y = jsonPoints[3*i + 1];
-      mesh.Points[i].z = jsonPoints[3*i + 2];
+      mesh.Vertices[i].x = jsonPoints[3*i];
+      mesh.Vertices[i].y = jsonPoints[3*i + 1];
+      mesh.Vertices[i].z = jsonPoints[3*i + 2];
     }
 
     // Extract cell data
@@ -322,7 +335,7 @@ public:
     // Generate JSON data
     auto jsonPoints = nlohmann::json::array();
     auto jsonCells = nlohmann::json::array();
-    for (const auto p: mesh.Points)
+    for (const auto p: mesh.Vertices)
     {
       jsonPoints.push_back(p.x);
       jsonPoints.push_back(p.y);
@@ -363,12 +376,12 @@ public:
 
     // Extract point data
     const auto jsonPoints = json["Points"];
-    surface.Points.resize(jsonPoints.size() / 3);
-    for (size_t i = 0; i < surface.Points.size(); i++)
+    surface.Vertices.resize(jsonPoints.size() / 3);
+    for (size_t i = 0; i < surface.Vertices.size(); i++)
     {
-      surface.Points[i].x = jsonPoints[3*i];
-      surface.Points[i].y = jsonPoints[3*i + 1];
-      surface.Points[i].z = jsonPoints[3*i + 2];
+      surface.Vertices[i].x = jsonPoints[3*i];
+      surface.Vertices[i].y = jsonPoints[3*i + 1];
+      surface.Vertices[i].z = jsonPoints[3*i + 2];
     }
 
     // Extract cell data
@@ -390,7 +403,7 @@ public:
     // Generate JSON data
     auto jsonPoints = nlohmann::json::array();
     auto jsonCells = nlohmann::json::array();
-    for (const auto p: surface.Points)
+    for (const auto p: surface.Vertices)
     {
       jsonPoints.push_back(p.x);
       jsonPoints.push_back(p.y);

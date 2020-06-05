@@ -5,52 +5,17 @@
 #define DTCC_CITYJSON_H
 
 #include <vector>
-
 #include "JSON.h"
+#include "Point.h"
 
-namespace DTCC
-{
-
-struct Attributes {
-};
-
-struct Semantics {
-    std::vector<nlohmann::json> Surfaces;
-    std::vector<nlohmann::json> Values;
-};
-
-struct CJGeometry { // temp till we merge with Geometry.h
-    std::vector<nlohmann::json> Boundaries;
-    int64_t Lod;
-    Semantics semantics;
-    std::string Type;
-};
-
-struct CityObjects {
-    Attributes attributes;
-    std::vector<CJGeometry> geometry;
-    std::string type;
-};
-
-class CityJSON
-{
-public:
-
-    CityObjects cityObjects;
-    std::string Type;
-    std::string Version;
-    std::vector<nlohmann::json> Vertices;
-
-  // Create empty CityJSON
-  CityJSON() : Version("1.0") {}
-};
-
-
-} // namespace DTCC
-#endif
-
-// Template CityJson.json
 /*
+ {
+  "type": "CityJSON",
+  "version": "1.0",
+  "CityObjects": {},
+  "vertices": []
+}
+
 {
  "CityObjects": {
          "attributes": {},
@@ -58,7 +23,6 @@ public:
            { "boundaries": [], "lod": 1, "semantics":{"surfaces":[], "values":[]},
              "type": "Solid"
              }
-           
            ],
            "type": "Building"
  },
@@ -67,4 +31,50 @@ public:
   "vertices": [
   ]
 }
+
 */
+namespace DTCC
+{
+struct Attributes {
+    double MeasuredHeight;
+};
+struct Semantics {
+    std::vector<nlohmann::json> Surfaces;
+    std::vector<nlohmann::json> Values;
+};
+struct _Geometry {
+    std::vector<nlohmann::json> Boundaries;
+    int64_t Lod;
+    Semantics _Semantics;
+    std::string Type;
+};
+struct CityObjects {
+    Attributes _Attributes;
+    std::vector<_Geometry> Geometry;
+    std::string Type;
+};
+class CityJSON{
+public:
+
+    std::vector<std::string> UUID;
+    CityObjects _CityObjects;
+    std::string Type;
+    std::string Version;
+    nlohmann::json Vertices;
+    // Create empty CityJSON
+    CityJSON() : Type("CityJSON"), Version("1.0"), Vertices{} {}
+
+    void printInfo()
+    {
+        Info("Information of CityJSON object");
+        Info(Type);
+        Info(Version);
+        Info("Included UUIDs: ");
+        for (size_t i = 0; i < UUID.size(); i++)
+        {
+            Info(UUID[i]);
+        }
+    }
+};
+}
+#endif

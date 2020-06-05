@@ -70,7 +70,7 @@ public:
     size_t numPoints = 0;
     for (auto const &building : Buildings)
     {
-      for (auto const &p : building.Footprint.Points)
+      for (auto const &p : building.Footprint.Vertices)
       {
         c += p;
         numPoints += 1;
@@ -86,7 +86,7 @@ public:
     double r2max = 0.0;
     for (auto const &building : Buildings)
     {
-      for (auto const &p : building.Footprint.Points)
+      for (auto const &p : building.Footprint.Vertices)
       {
         const double r2 = Geometry::SquaredDistance2D(p, center);
         if (r2 > r2max)
