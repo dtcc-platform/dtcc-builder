@@ -58,8 +58,9 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const
     {
-      return ("[" + str(P.x) + ", " + str(Q.x) + "] x " +
-              "[" + str(P.y) + ", " + str(Q.y) + "]");
+      return
+        "[" + str(P.x) + ", " + str(Q.x) + "] x " +
+        "[" + str(P.y) + ", " + str(Q.y) + "]";
     }
 
   };
@@ -92,9 +93,10 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const
     {
-      return ("[" + str(P.x) + ", " + str(Q.x) + "] x " +
-              "[" + str(P.y) + ", " + str(Q.y) + "] x " +
-              "[" + str(P.z) + ", " + str(Q.z) + "]");
+      return
+        "[" + str(P.x) + ", " + str(Q.x) + "] x " +
+        "[" + str(P.y) + ", " + str(Q.y) + "] x " +
+        "[" + str(P.z) + ", " + str(Q.z) + "]";
     }
 
   };

@@ -67,13 +67,76 @@ TEST_CASE("ScalarGridField2D")
 {
   Point2D p(0, 0);
   Point2D q(1, 1);
+  Point2D r(0.234, 0.485);
   BoundingBox2D bbox(p, q);
-  Grid2D grid(bbox, 4, 5);
+  Grid2D grid(bbox, 11, 17);
   GridField2D u(grid);
+
+  class MyField : public Field2D
+  {
+  public:
+    double operator()(const Point2D& p) const
+    {
+      return sin(p.x) * cos(p.y);
+    }
+  };
 
   SECTION("Evaluate")
   {
-    Point2D x(0.5, 0.5);
-    REQUIRE(u(x) == Approx(0.0));
+    REQUIRE(u(p) == Approx(0.0));
+    REQUIRE(u(q) == Approx(0.0));
   }
+
+  SECTION("Interpolate")
+  {
+    MyField f;
+    u.Interpolate(f);
+    REQUIRE(u(r) == Approx(f(r)).margin(0.001));
+  }
+
+  SECTION("Index2Point2Index")
+  {
+    size_t index = u.Values.size() / 3;
+    REQUIRE(u.Point2Index(u.Index2Point(index)) == index);
+  }
+
+}
+
+TEST_CASE("ScalarGridField3D")
+{
+  Point3D p(0, 0, 0);
+  Point3D q(1, 1, 1);
+  Point3D r(0.234, 0.485, 0.763);
+  BoundingBox3D bbox(p, q);
+  Grid3D grid(bbox, 11, 17, 23);
+  GridField3D u(grid);
+
+  class MyField : public Field3D
+  {
+  public:
+    double operator()(const Point3D& p) const
+    {
+      return sin(p.x) * cos(p.y) * exp(p.z);
+    }
+  };
+
+  SECTION("Evaluate")
+  {
+    REQUIRE(u(p) == Approx(0.0));
+    REQUIRE(u(q) == Approx(0.0));
+  }
+
+  SECTION("Interpolate")
+  {
+    MyField f;
+    u.Interpolate(f);
+    REQUIRE(u(r) == Approx(f(r)).margin(0.001));
+  }
+
+  SECTION("Index2Point2Index")
+  {
+    size_t index = u.Values.size() / 3;
+    REQUIRE(u.Point2Index(u.Index2Point(index)) == index);
+  }
+
 }

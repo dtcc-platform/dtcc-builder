@@ -9,11 +9,12 @@
 #include <iostream>
 
 #include "Parameters.h"
+#include "Logging.h"
 
 namespace DTCC
 {
 
-class Point2D
+  class Point2D : public Printable
 {
 public:
   double x;
@@ -79,9 +80,16 @@ public:
   double SquaredMagnitude() const { return x * x + y * y; }
 
   void Normalize() { (*this) /= Magnitude(); }
+
+  /// Pretty-print
+  std::string __str__() const
+  {
+    return "(" + str(x) + ", " + str(y) + ")";
+  }
+
 };
 
-class Point3D
+  class Point3D : public Printable
 {
 public:
   double x;
@@ -150,21 +158,14 @@ public:
   double Magnitude() const { return sqrt(SquaredMagnitude()); }
 
   double SquaredMagnitude() const { return x * x + y * y + z * z; }
+
+  /// Pretty-print
+  std::string __str__() const
+  {
+    return "(" + str(x) + ", " + str(y) + ", " + str(z) + ")";
+  }
+
 };
-
-std::ostream &operator<<(std::ostream &stream, const Point2D &p)
-{
-  stream << std::setprecision(Parameters::Precision) << "(" << p.x << ", "
-         << p.y << ")";
-  return stream;
-}
-
-std::ostream &operator<<(std::ostream &stream, const Point3D &p)
-{
-  stream << std::setprecision(Parameters::Precision) << "(" << p.x << ", "
-         << p.y << ", " << p.z << ")";
-  return stream;
-}
 
 } // namespace DTCC
 

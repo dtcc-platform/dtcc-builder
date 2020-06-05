@@ -175,7 +175,7 @@ public:
     return Point2D(XMin + ix * XStep, YMin + iy * YStep);
   }
 
-  // Map coordinate to index (closest point)
+  // Map coordinate to index int)
   size_t Coordinate2Index(const Point2D &p) const
   {
     long int _ix = std::lround((p.x - XMin) / XStep);
