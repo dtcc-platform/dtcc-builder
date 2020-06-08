@@ -1,5 +1,5 @@
-// City model generation from building footprints and height map.
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_CITY_MODEL_GENERATOR_H
 #define DTCC_CITY_MODEL_GENERATOR_H
@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "CityModel.h"
-#include "HeightMap.h"
+#include "GridField.h"
 #include "Point.h"
 #include "Polygon.h"
 
@@ -22,7 +22,7 @@ public:
   // Generate city model from building footprints and height map
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &polygons,
-                                const HeightMap &heightMap,
+                                const GridField2D &heightMap,
                                 double x0,
                                 double y0,
                                 double xMin,
@@ -62,7 +62,7 @@ public:
 
   // Simplify city model (simplify and merge polygons)
   static void SimplifyCityModel(CityModel &cityModel,
-                                const HeightMap &heightMap,
+                                const GridField2D &heightMap,
                                 double minimalBuildingDistance)
   {
     std::cout << "CityModelGenerator: Simplifying city model..." << std::endl;
@@ -391,7 +391,7 @@ private:
 
   // Compute building heights
   static void ComputeBuildingHeights(CityModel &cityModel,
-                                     const HeightMap &heightMap)
+                                     const GridField2D &heightMap)
   {
     // Iterate over buildings
     for (auto &building : cityModel.Buildings)

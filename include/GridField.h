@@ -18,7 +18,7 @@ namespace DTCC
   /// GridField2D represents a scalar field on a uniform 2D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by bilinear interpolation.
-  class GridField2D : public Field2D
+  class GridField2D : public Field2D, public Printable
   {
   public:
 
@@ -88,32 +88,37 @@ namespace DTCC
     {
       // Iterate over vertices and evaluate field
       for (size_t i = 0; i < Values.size(); i++)
-        Values[i] = field(Index2Point(i));
+        Values[i] = field(Grid.Index2Point(i));
     }
 
-    /// Map vertex index to point.
+    /// Compute minimal vertex value.
     ///
-    /// @param i Vertex index
-    /// @return Vertex coordinates as a point
-    Point2D Index2Point(size_t i) const
+    /// @return Minimal vertex value
+    double Min() const
     {
-      const size_t ix = i % Grid.XSize;
-      const size_t iy = i / Grid.XSize;
-      return Point2D(Grid.BoundingBox.P.x + ix * Grid.XStep,
-                     Grid.BoundingBox.P.y + iy * Grid.YStep);
+      return *std::min_element(Values.begin(), Values.end());
     }
 
-    /// Map point to index of closest vertex.
+    /// Compute maximal of vertex value.
     ///
-    /// @param p Point
-    /// @return Vertex index
-    size_t Point2Index(const Point2D& p)
+    /// @return Maximal vertex value
+    double Max() const
     {
-      const double _x = p.x - Grid.BoundingBox.P.x;
-      const double _y = p.y - Grid.BoundingBox.P.y;
-      const long int ix = Utils::crop(std::lround(_x / Grid.XStep), Grid.XSize);
-      const long int iy = Utils::crop(std::lround(_y / Grid.YStep), Grid.YSize);
-      return ix + iy * Grid.XSize;
+      return *std::max_element(Values.begin(), Values.end());
+    }
+
+    /// Compute mean vertex value.
+    ///
+    /// @return Mean vertex value
+    double Mean() const
+    {
+      return 0.5*(Min() + Max());
+    }
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "2D field on " + str(Grid);
     }
 
   };
@@ -121,7 +126,7 @@ namespace DTCC
   /// GridField3D represents a scalar field on a uniform 3D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by trilinear interpolation.
-  class GridField3D : public Field3D
+  class GridField3D : public Field3D, public Printable
   {
   public:
 
@@ -130,6 +135,9 @@ namespace DTCC
 
     /// Array of values (vertex values)
     std::vector<double> Values{};
+
+    /// Create empty field
+    GridField3D() {}
 
     /// Create zero field on given grid.
     ///
@@ -201,37 +209,39 @@ namespace DTCC
     {
       // Iterate over vertices and evaluate field
       for (size_t i = 0; i < Values.size(); i++)
-        Values[i] = field(Index2Point(i));
+        Values[i] = field(Grid.Index2Point(i));
     }
 
-    /// Map vertex index to point.
+    /// Compute minimal vertex value.
     ///
-    /// @param i Vertex index
-    /// @return Vertex coordinates as a point
-    Point3D Index2Point(size_t i) const
+    /// @return Minimal vertex value
+    double Min() const
     {
-      const size_t ix = i % Grid.XSize;
-      const size_t iy = (i / Grid.XSize) % Grid.YSize;
-      const size_t iz = i / (Grid.XSize * Grid.YSize);
-      return Point3D(Grid.BoundingBox.P.x + ix * Grid.XStep,
-                     Grid.BoundingBox.P.y + iy * Grid.YStep,
-                     Grid.BoundingBox.P.z + iz * Grid.ZStep);
+      return *std::min_element(Values.begin(), Values.end());
     }
 
-    /// Map point to index of closest vertex.
+    /// Compute maximal of vertex value.
     ///
-    /// @param p Point
-    /// @return Vertex index
-    size_t Point2Index(const Point3D& p)
+    /// @return Maximal vertex value
+    double Max() const
     {
-      const double _x = p.x - Grid.BoundingBox.P.x;
-      const double _y = p.y - Grid.BoundingBox.P.y;
-      const double _z = p.z - Grid.BoundingBox.P.z;
-      const long int ix = Utils::crop(std::lround(_x / Grid.XStep), Grid.XSize);
-      const long int iy = Utils::crop(std::lround(_y / Grid.YStep), Grid.YSize);
-      const long int iz = Utils::crop(std::lround(_z / Grid.ZStep), Grid.ZSize);
-      return ix + iy * Grid.XSize + iz * Grid.XSize * Grid.YSize;
+      return *std::max_element(Values.begin(), Values.end());
     }
+
+    /// Compute mean vertex value.
+    ///
+    /// @return Mean vertex value
+    double Mean() const
+    {
+      return 0.5*(Min() + Max());
+    }
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "3D field on " + str(Grid);
+    }
+
   };
 }
 

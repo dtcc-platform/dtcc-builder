@@ -36,6 +36,12 @@ TEST_CASE("Grid2D")
   {
     REQUIRE(grid.NumCells() == 12);
   }
+
+  SECTION("Index2Point2Index")
+  {
+    size_t index = grid.NumVertices() / 3;
+    REQUIRE(grid.Point2Index(grid.Index2Point(index)) == index);
+  }
 }
 
 TEST_CASE("Grid3D")
@@ -60,6 +66,12 @@ TEST_CASE("Grid3D")
   SECTION("NumCells")
   {
     REQUIRE(grid.NumCells() == 60);
+  }
+
+  SECTION("Index2Point2Index")
+  {
+    size_t index = grid.NumVertices() / 3;
+    REQUIRE(grid.Point2Index(grid.Index2Point(index)) == index);
   }
 }
 
@@ -93,13 +105,6 @@ TEST_CASE("ScalarGridField2D")
     u.Interpolate(f);
     REQUIRE(u(r) == Approx(f(r)).margin(0.001));
   }
-
-  SECTION("Index2Point2Index")
-  {
-    size_t index = u.Values.size() / 3;
-    REQUIRE(u.Point2Index(u.Index2Point(index)) == index);
-  }
-
 }
 
 TEST_CASE("ScalarGridField3D")
@@ -132,11 +137,4 @@ TEST_CASE("ScalarGridField3D")
     u.Interpolate(f);
     REQUIRE(u(r) == Approx(f(r)).margin(0.001));
   }
-
-  SECTION("Index2Point2Index")
-  {
-    size_t index = u.Values.size() / 3;
-    REQUIRE(u.Point2Index(u.Index2Point(index)) == index);
-  }
-
 }

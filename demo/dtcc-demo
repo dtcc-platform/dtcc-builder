@@ -15,7 +15,7 @@ PARAMETERS=Hammarkullen.json
 ../bin/dtcc-generate-citymodel $PARAMETERS
 
 # Simplify city model (used for simulation mesh generation)
-#../bin/dtcc-simplify-citymodel $PARAMETERS
+../bin/dtcc-simplify-citymodel $PARAMETERS
 
 # Generate visualization mesh
 ../bin/dtcc-generate-visualization-mesh $PARAMETERS

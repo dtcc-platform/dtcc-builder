@@ -1,5 +1,5 @@
-// Point cloud (array of 3D points).
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_POINT_CLOUD_H
 #define DTCC_POINT_CLOUD_H
@@ -7,30 +7,32 @@
 #include <vector>
 
 #include "Point.h"
+#include "BoundingBox.h"
+#include "Logging.h"
 
 namespace DTCC
 {
 
-class PointCloud
-{
-public:
-  // Array of points
-  std::vector<Point3D> Points;
+  class PointCloud : public Printable
+  {
+  public:
 
-  // Bounding box dimensions
-  double XMin, YMin, XMax, YMax;
+    /// Array of points
+    std::vector<Point3D> Points{};
 
-  // Create empty point cloud
-  PointCloud() : XMin(0), YMin(0), XMax(0), YMax(0) {}
-};
+    /// Bounding box
+    BoundingBox2D BoundingBox{};
 
-std::ostream &operator<<(std::ostream &stream, const PointCloud &pointCloud)
-{
-  stream << "Point cloud with " << pointCloud.Points.size()
-         << " points on domain [" << pointCloud.XMin << ", " << pointCloud.XMax
-         << "] x [" << pointCloud.YMin << ", " << pointCloud.YMax << "]";
-  return stream;
-}
+    // Create empty point cloud
+  PointCloud() {}
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "Point cloud on " + str(BoundingBox) + " with " + str(Points.size()) + " points ";
+    }
+
+  };
 
 } // namespace DTCC
 

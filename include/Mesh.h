@@ -41,7 +41,7 @@ namespace DTCC
     {
       return "2D triangular mesh with "
         + str(Vertices.size()) + " vertices and "
-        + str(Vertices.size()) + " faces";
+        + str(Cells.size()) + " faces";
     }
 
   };

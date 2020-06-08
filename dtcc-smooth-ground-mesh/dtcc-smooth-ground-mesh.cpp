@@ -1,5 +1,5 @@
-// vc-smooth-surface-mesh
-// Anders Logg 2020
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #include <iostream>
 
@@ -14,8 +14,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-smooth-surface-mesh Parameters.json"
-            << std::endl;
+  Error("Usage: vc-smooth-surface-mesh Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -30,7 +29,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
-  std::cout << parameters << std::endl;
+  Info(parameters);
 
   // Get data directory (add trailing slash just in case)
   const std::string dataDirectory = parameters.DataDirectory + "/";
@@ -38,7 +37,7 @@ int main(int argc, char *argv[])
   // Read ground mesh
   Surface3D groundMesh;
   JSON::Read(groundMesh, dataDirectory + "GroundMesh.json");
-  std::cout << groundMesh << std::endl;
+  Info(groundMesh);
 
   // Smooth ground mesh
   VertexSmoother::SmoothSurface(groundMesh, parameters.GroundSmoothing);

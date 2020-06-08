@@ -1,5 +1,5 @@
-// vc-generate-citymodel
-// Anders Logg 2019
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #include <iostream>
 #include <string>
@@ -8,8 +8,8 @@
 #include "CityModel.h"
 #include "CityModelGenerator.h"
 #include "CommandLine.h"
-#include "HeightMap.h"
 #include "JSON.h"
+#include "GridField.h"
 #include "Parameters.h"
 #include "Polygon.h"
 #include "SHP.h"
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
-  std::cout << parameters << std::endl;
+  Info(parameters);
 
   // Get data directory (add trailing slash just in case)
   const std::string dataDirectory = parameters.DataDirectory + "/";
@@ -43,17 +43,19 @@ int main(int argc, char *argv[])
   SHP::Read(polygons, dataDirectory + "PropertyMap.shp");
 
   // Read height map data
-  HeightMap heightMap;
+  GridField2D heightMap;
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
-  std::cout << heightMap << std::endl;
+  Info(heightMap);
 
   // Generate city model
   CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, polygons, heightMap,
                                         parameters.X0, parameters.Y0,
-                                        heightMap.XMin, heightMap.YMin,
-                                        heightMap.XMax, heightMap.YMax);
-  std::cout << cityModel << std::endl;
+                                        heightMap.Grid.BoundingBox.P.x,
+                                        heightMap.Grid.BoundingBox.P.y,
+                                        heightMap.Grid.BoundingBox.Q.x,
+                                        heightMap.Grid.BoundingBox.Q.y);
+  Info(cityModel);
 
   // Write city model to file
   JSON::Write(cityModel, dataDirectory + "CityModel.json");

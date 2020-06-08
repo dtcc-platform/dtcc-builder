@@ -1,5 +1,5 @@
-// vc-simplify-citymodel
-// Anders Logg 2019
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 #include "CityModel.h"
 #include "CityModelGenerator.h"
 #include "CommandLine.h"
-#include "HeightMap.h"
+#include "GridField.h"
 #include "JSON.h"
 #include "Parameters.h"
 #include "Polygon.h"
@@ -17,7 +17,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-citymodel Parameters.json" << std::endl;
+  Error("Usage: vc-generate-citymodel Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
-  std::cout << parameters << std::endl;
+  Info(parameters);
 
   // Get data directory (add trailing slash just in case)
   const std::string dataDirectory = parameters.DataDirectory + "/";
@@ -40,17 +40,17 @@ int main(int argc, char *argv[])
   // Read city model data
   CityModel cityModel;
   JSON::Read(cityModel, dataDirectory + "CityModel.json");
-  std::cout << cityModel << std::endl;
+  Info(cityModel);
 
   // Read height map data
-  HeightMap heightMap;
+  GridField2D heightMap;
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
-  std::cout << heightMap << std::endl;
+  Info(heightMap);
 
   // Simplify city model
   CityModelGenerator::SimplifyCityModel(cityModel, heightMap,
                                         parameters.MinimalBuildingDistance);
-  std::cout << cityModel << std::endl;
+  Info(cityModel);
 
   // Write city model to file
   JSON::Write(cityModel, dataDirectory + "SimplifiedCityModel.json");

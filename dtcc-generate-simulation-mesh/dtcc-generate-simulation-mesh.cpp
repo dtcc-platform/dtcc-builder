@@ -1,5 +1,5 @@
-// vc-generate-simulation-mesh
-// Anders Logg 2018
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #include <dolfin.h>
 #include <iostream>
@@ -9,7 +9,7 @@
 #include "CityModel.h"
 #include "CommandLine.h"
 #include "FEniCS.h"
-#include "HeightMap.h"
+#include "GridField.h"
 #include "JSON.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
@@ -20,8 +20,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-simulation-mesh Parameters.json"
-            << std::endl;
+  Error("Usage: vc-generate-simulation-mesh Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -36,7 +35,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
-  std::cout << parameters << std::endl;
+  Info(parameters);
 
   // Get data directory (add trailing slash just in case)
   const std::string dataDirectory = parameters.DataDirectory + "/";
@@ -44,17 +43,22 @@ int main(int argc, char *argv[])
   // Read city model data
   CityModel cityModel;
   JSON::Read(cityModel, dataDirectory + "SimplifiedCityModel.json");
-  std::cout << cityModel << std::endl;
+  Info(cityModel);
 
   // Read height map data
-  HeightMap heightMap;
+  GridField2D heightMap;
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
-  std::cout << heightMap << std::endl;
+  Info(heightMap);
+
+  // FIXME: Replace xmin, ymin arguments with BoundingBox2D here and elsewhere
 
   // Generate 2D mesh
-  Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(
-      cityModel, heightMap.XMin, heightMap.YMin, heightMap.XMax,
-      heightMap.YMax, parameters.MeshResolution);
+  Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
+                                                heightMap.Grid.BoundingBox.P.x,
+                                                heightMap.Grid.BoundingBox.P.y,
+                                                heightMap.Grid.BoundingBox.Q.x,
+                                                heightMap.Grid.BoundingBox.Q.y,
+                                                parameters.MeshResolution);
   Info(mesh2D);
 
   // Compute ground elevation
