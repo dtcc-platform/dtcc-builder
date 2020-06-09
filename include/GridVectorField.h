@@ -92,7 +92,7 @@ namespace DTCC
   /// GridVectorField3D represents a vector field on a uniform 3D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by trilinear interpolation.
-  class GridVectorField3D : public VectorField3D
+  class GridVectorField3D : public VectorField3D, public Printable
   {
   public:
 

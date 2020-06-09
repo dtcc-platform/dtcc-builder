@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "Surface.h"
 #include "GridField.h"
+#include "GridVectorField.h"
 #include "CityModel.h"
 
 namespace DTCC
@@ -381,6 +382,48 @@ namespace DTCC
       auto jsonGrid = nlohmann::json::object();
       Serialize(field.Grid, jsonGrid);
       json["Type"] = "GridField3D";
+      json["Grid"] = jsonGrid;
+      json["Values"] = field.Values;
+    }
+
+    /// Deserialize GridVectorField2D
+    static void Deserialize(GridVectorField2D& field, const nlohmann::json& json)
+    {
+      CheckType("GridVectorField2D", json);
+      Deserialize(field.Grid, json["Grid"]);
+      const auto jsonValues = json["Values"];
+      field.Values.resize(jsonValues.size());
+      for (size_t i = 0; i < field.Values.size(); i++)
+        field.Values[i] = jsonValues[i];
+    }
+
+    /// Serialize GridVectorField2D
+    static void Serialize(const GridVectorField2D& field, nlohmann::json& json)
+    {
+      auto jsonGrid = nlohmann::json::object();
+      Serialize(field.Grid, jsonGrid);
+      json["Type"] = "GridVectorField2D";
+      json["Grid"] = jsonGrid;
+      json["Values"] = field.Values;
+    }
+
+    /// Deserialize GridVectorField3D
+    static void Deserialize(GridVectorField3D& field, const nlohmann::json& json)
+    {
+      CheckType("GridVectorField3D", json);
+      Deserialize(field.Grid, json["Grid"]);
+      const auto jsonValues = json["Values"];
+      field.Values.resize(jsonValues.size());
+      for (size_t i = 0; i < field.Values.size(); i++)
+        field.Values[i] = jsonValues[i];
+    }
+
+    /// Serialize GridVectorField3D
+    static void Serialize(const GridVectorField3D& field, nlohmann::json& json)
+    {
+      auto jsonGrid = nlohmann::json::object();
+      Serialize(field.Grid, jsonGrid);
+      json["Type"] = "GridVectorField3D";
       json["Grid"] = jsonGrid;
       json["Values"] = field.Values;
     }

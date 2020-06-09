@@ -10,14 +10,24 @@
 
 using namespace DTCC;
 
-void help() { std::cerr << "Usage: vc-info Data.[json,las]" << std::endl; }
+void Help()
+{
+  Error("Usage: vc-info Data.[json,las]");
+}
+
+template <class T> void Info(nlohmann::json json)
+{
+  T t;
+  JSON::Deserialize(t, json);
+  Info(t);
+}
 
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
   if (argc != 2)
   {
-    help();
+    Help();
     return 1;
   }
 
@@ -34,59 +44,29 @@ int main(int argc, char *argv[])
 
     // Check type
     if (typeName == "Parameters")
-    {
-      Parameters parameters;
-      JSON::Deserialize(parameters, json);
-      Info(parameters);
-    }
+      Info<Parameters>(json);
     else if (typeName == "BoundingBox2D")
-    {
-      BoundingBox2D boundingBox;
-      JSON::Deserialize(boundingBox, json);
-      Info(boundingBox);
-    }
+      Info<BoundingBox2D>(json);
     else if (typeName == "BoundingBox3D")
-    {
-      BoundingBox3D boundingBox;
-      JSON::Deserialize(boundingBox, json);
-      Info(boundingBox);
-    }
+      Info<BoundingBox3D>(json);
     else if (typeName == "Grid2D")
-    {
-      Grid2D grid;
-      JSON::Deserialize(grid, json);
-      Info(grid);
-    }
+      Info<Grid2D>(json);
     else if (typeName == "Grid3D")
-    {
-      Grid3D grid;
-      JSON::Deserialize(grid, json);
-      Info(grid);
-    }
+      Info<Grid3D>(json);
     else if (typeName == "Mesh2D")
-    {
-      Mesh2D mesh;
-      JSON::Deserialize(mesh, json);
-      Info(mesh);
-    }
+      Info<Mesh2D>(json);
     else if (typeName == "Mesh3D")
-    {
-      Mesh3D mesh;
-      JSON::Deserialize(mesh, json);
-      Info(mesh);
-    }
+      Info<Mesh3D>(json);
     else if (typeName == "GridField2D")
-    {
-      GridField2D field;
-      JSON::Deserialize(field, json);
-      Info(field);
-    }
+      Info<GridField2D>(json);
     else if (typeName == "GridField3D")
-    {
-      GridField3D field;
-      JSON::Deserialize(field, json);
-      Info(field);
-    }
+      Info<GridField3D>(json);
+    else if (typeName == "GridVectorField2D")
+      Info<GridVectorField2D>(json);
+    else if (typeName == "GridVectorField3D")
+      Info<GridVectorField3D>(json);
+    else if (typeName == "CityModel")
+      Info<CityModel>(json);
     else
     {
       Error("Unknown JSON type: '" + typeName + "'");
