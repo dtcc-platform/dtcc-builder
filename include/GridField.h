@@ -48,24 +48,10 @@ namespace DTCC
     /// @return Value at point
     double operator()(const Point2D& p) const
     {
-      // Check that point is inside domain
-      if (!Geometry::BoundingBoxContains2D(Grid.BoundingBox, p))
-        Error("Point p = " + str(p) + " is outside of domain = " + str(Grid.BoundingBox));
-
-      // Compute grid cell containing point (lower left corner)
-      const double _x = p.x - Grid.BoundingBox.P.x;
-      const double _y = p.y - Grid.BoundingBox.P.y;
-      const long int ix = Utils::crop(std::lround(_x / Grid.XStep - 0.5), Grid.XSize, 1);
-      const long int iy = Utils::crop(std::lround(_y / Grid.YStep - 0.5), Grid.YSize, 1);
-      const size_t i = iy * Grid.XSize + ix;
-
-      // Map coordinates to [0, 1] x [0, 1] within grid cell
-      const double X = (_x - ix*Grid.XStep) / Grid.XStep;
-      const double Y = (_y - iy*Grid.YStep) / Grid.YStep;
-      assert(X >= 0.0);
-      assert(Y >= 0.0);
-      assert(X <= 1.0);
-      assert(Y <= 1.0);
+      // Map point to cell
+      size_t i{};
+      double x{}, y{};
+      Grid.Point2Cell(p, i, x, y);
 
       // Extract grid data
       const double v00 = Values[i];
@@ -74,11 +60,7 @@ namespace DTCC
       const double v11 = Values[i + Grid.XSize + 1];
 
       // Compute value by bilinear interpolation
-      return
-        (1.0 - X) * (1.0 - Y) * v00 +
-        X * (1.0 - Y) * v10 +
-        (1.0 - X) * Y * v01 +
-        X * Y * v11;
+      return Grid.Interpolate(x, y, v00, v10, v01, v11);
     }
 
     /// Interpolate given field at vertices.
@@ -156,29 +138,10 @@ namespace DTCC
     /// @return Value at point
     double operator()(const Point3D& p) const
     {
-      // Check that point is inside domain
-      if (!Geometry::BoundingBoxContains3D(Grid.BoundingBox, p))
-        Error("Point p = " + str(p) + " is outside of domain = " + str(Grid.BoundingBox));
-
-      // Compute grid cell containing point (lower left corner)
-      const double _x = p.x - Grid.BoundingBox.P.x;
-      const double _y = p.y - Grid.BoundingBox.P.y;
-      const double _z = p.z - Grid.BoundingBox.P.z;
-      const long int ix = Utils::crop(std::lround(_x / Grid.XStep - 0.5), Grid.XSize, 1);
-      const long int iy = Utils::crop(std::lround(_y / Grid.YStep - 0.5), Grid.YSize, 1);
-      const long int iz = Utils::crop(std::lround(_z / Grid.ZStep - 0.5), Grid.ZSize, 1);
-      const size_t i = iz * Grid.XSize * Grid.YSize + iy * Grid.XSize + ix;
-
-      // Map coordinates to [0, 1] x [0, 1] within grid cell
-      const double X = (_x - ix * Grid.XStep) / Grid.XStep;
-      const double Y = (_y - iy * Grid.YStep) / Grid.YStep;
-      const double Z = (_z - iz * Grid.ZStep) / Grid.ZStep;
-      assert(X >= 0.0);
-      assert(Y >= 0.0);
-      assert(Z >= 0.0);
-      assert(X <= 1.0);
-      assert(Y <= 1.0);
-      assert(Z <= 1.0);
+      // Map point to cell
+      size_t i{};
+      double x{}, y{}, z{};
+      Grid.Point2Cell(p, i, x, y, z);
 
       // Extract grid data
       const double v000 = Values[i];
@@ -191,15 +154,7 @@ namespace DTCC
       const double v111 = Values[i + Grid.XSize + 1 + Grid.XSize * Grid.YSize];
 
       // Compute value by trilinear interpolation
-      return
-        (1.0 - X) * (1.0 - Y) * (1.0 - Z) * v000 +
-        X * (1.0 - Y) * (1.0 - Z) * v100 +
-        (1.0 - X) * Y * (1.0 - Z) * v010 +
-        X * Y *  (1.0 - Z) * v110 +
-        (1.0 - X) * (1.0 - Y) * Z * v001 +
-        X * (1.0 - Y) * Z * v101 +
-        (1.0 - X) * Y * Z * v011 +
-        X * Y * Z * v111;
+      return Grid.Interpolate(x, y, z, v000, v100, v010, v110, v001, v101, v011, v111);
     }
 
     /// Interpolate given field at vertices.

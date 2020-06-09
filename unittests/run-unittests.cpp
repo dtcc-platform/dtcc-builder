@@ -75,7 +75,7 @@ TEST_CASE("Grid3D")
   }
 }
 
-TEST_CASE("ScalarGridField2D")
+TEST_CASE("GridField2D")
 {
   Point2D p(0, 0);
   Point2D q(1, 1);
@@ -107,7 +107,7 @@ TEST_CASE("ScalarGridField2D")
   }
 }
 
-TEST_CASE("ScalarGridField3D")
+TEST_CASE("GridField3D")
 {
   Point3D p(0, 0, 0);
   Point3D q(1, 1, 1);
