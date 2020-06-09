@@ -9,7 +9,6 @@
 #include "Grid.h"
 #include "Field.h"
 #include "Geometry.h"
-#include "Utils.h"
 #include "Logging.h"
 
 namespace DTCC
@@ -34,8 +33,7 @@ namespace DTCC
     /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    GridField2D(const Grid2D& grid)
-      : Grid(grid)
+    GridField2D(const Grid2D& grid) : Grid(grid)
     {
       // Initialize values to zero
       Values.resize(grid.NumVertices());
@@ -69,7 +67,7 @@ namespace DTCC
     void Interpolate(const Field2D& field)
     {
       // Iterate over vertices and evaluate field
-      for (size_t i = 0; i < Values.size(); i++)
+      for (size_t i = 0; i < Grid.NumVertices(); i++)
         Values[i] = field(Grid.Index2Point(i));
     }
 
@@ -124,8 +122,7 @@ namespace DTCC
     /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    GridField3D(const Grid3D& grid)
-      : Grid(grid)
+    GridField3D(const Grid3D& grid) : Grid(grid)
     {
       // Initialize values to zero
       Values.resize(grid.NumVertices());
@@ -163,7 +160,7 @@ namespace DTCC
     void Interpolate(const Field3D& field)
     {
       // Iterate over vertices and evaluate field
-      for (size_t i = 0; i < Values.size(); i++)
+      for (size_t i = 0; i < Grid.NumVertices(); i++)
         Values[i] = field(Grid.Index2Point(i));
     }
 
