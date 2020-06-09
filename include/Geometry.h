@@ -253,14 +253,14 @@ public:
   }
 
   // Check whether bounding box contains point (2D)
-  static bool BoundingBoxContains2D(const BoundingBox2D& bbox, const Vector2D &p)
+  static bool BoundingBoxContains2D(const BoundingBox2D& bbox, const Point2D &p)
   {
     return (bbox.P.x <= p.x && p.x <= bbox.Q.x &&
             bbox.P.y <= p.y && p.y <= bbox.Q.y);
   }
 
   // Check whether bounding box contains point (3D)
-  static bool BoundingBoxContains3D(const BoundingBox3D& bbox, const Vector3D &p)
+  static bool BoundingBoxContains3D(const BoundingBox3D& bbox, const Point3D &p)
   {
     return (bbox.P.x <= p.x && p.x <= bbox.Q.x &&
             bbox.P.y <= p.y && p.y <= bbox.Q.y &&

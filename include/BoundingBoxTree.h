@@ -7,7 +7,7 @@
 #include <vector>
 #include <limits>
 
-#include "Vector.h"
+#include "BoundingBox.h"
 
 namespace DTCC
 {
@@ -61,7 +61,7 @@ namespace DTCC
     }
 
     // Find indices of bounding boxes containing point
-    std::vector<size_t> Find(const Vector2D& point) const
+    std::vector<size_t> Find(const Point2D& point) const
     {
       // Create empty list of bounding box indices
       std::vector<size_t> indices;
@@ -143,7 +143,7 @@ namespace DTCC
 
     // Findcollisions (recursive call)
     void FindRecursive(std::vector<size_t>& indices,
-                       const Vector2D& point,
+                       const Point2D& point,
                        size_t nodeIndex) const
     {
       // Get current node
@@ -174,8 +174,8 @@ namespace DTCC
       // Initialize bounding box
       constexpr double max = std::numeric_limits<double>::max();
       BoundingBox2D boundingBox;
-      boundingBox.P = Vector2D(max, max);
-      boundingBox.Q = Vector2D(-max, -max);
+      boundingBox.P = Point2D(max, max);
+      boundingBox.Q = Point2D(-max, -max);
 
       // Iterate over bounding boxes to compute bounds
       for (auto it = begin; it != end; it++)

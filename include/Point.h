@@ -58,7 +58,8 @@ namespace DTCC
     ///
     /// @param x First coordinate
     /// @param y Second coordinate
-    Point3D(double x, double y) : x(x), y(y) {}
+    /// @param z Third coordinate
+    Point3D(double x, double y, double z) : x(x), y(y), z(z) {}
 
     /// Pretty-print
     std::string __str__() const

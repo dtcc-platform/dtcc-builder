@@ -8,6 +8,9 @@
 
 #include "Logging.h"
 
+// FIXME: Temporary conversion during transition to Point/Vector
+#include "Point.h"
+
 namespace DTCC
 {
 
@@ -22,6 +25,9 @@ namespace DTCC
 
     /// Second component
     double y{};
+
+    // FIXME: Temporary conversion during transition to Point/Vector
+    operator Point2D() const { return Point2D(x, y); }
 
     // FIXME: This class requires documentation
 

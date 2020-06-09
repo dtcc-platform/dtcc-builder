@@ -74,11 +74,11 @@ namespace DTCC
     ///
     /// @param i Vertex index
     /// @return Vertex coordinates as a point
-    Vector2D Index2Point(size_t i) const
+    Point2D Index2Point(size_t i) const
     {
       const size_t ix = i % XSize;
       const size_t iy = i / XSize;
-      return Vector2D(BoundingBox.P.x + ix * XStep,
+      return Point2D(BoundingBox.P.x + ix * XStep,
                      BoundingBox.P.y + iy * YStep);
     }
 
@@ -117,7 +117,7 @@ namespace DTCC
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Vector2D& p)
+    size_t Point2Index(const Point2D& p)
     {
       const double _x = p.x - BoundingBox.P.x;
       const double _y = p.y - BoundingBox.P.y;
@@ -132,7 +132,7 @@ namespace DTCC
     /// @param i Index of cell containing point
     /// @param x Local X-coordinate on cell (scaled)
     /// @param y Local Y-coordinate on cell (scaled)
-    void Point2Cell(const Vector2D& p, size_t& i, double& x, double& y) const
+    void Point2Cell(const Point2D& p, size_t& i, double& x, double& y) const
     {
       // Check that point is inside domain
       if (!Geometry::BoundingBoxContains2D(BoundingBox, p))
@@ -251,12 +251,12 @@ namespace DTCC
     ///
     /// @param i Vertex index
     /// @return Vertex coordinates as a point
-    Vector3D Index2Point(size_t i) const
+    Point3D Index2Point(size_t i) const
     {
       const size_t ix = i % XSize;
       const size_t iy = (i / XSize) % YSize;
       const size_t iz = i / (XSize * YSize);
-      return Vector3D(BoundingBox.P.x + ix * XStep,
+      return Point3D(BoundingBox.P.x + ix * XStep,
                      BoundingBox.P.y + iy * YStep,
                      BoundingBox.P.z + iz * ZStep);
     }
@@ -265,7 +265,7 @@ namespace DTCC
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Vector3D& p)
+    size_t Point2Index(const Point3D& p)
     {
       const double _x = p.x - BoundingBox.P.x;
       const double _y = p.y - BoundingBox.P.y;
@@ -283,7 +283,7 @@ namespace DTCC
     /// @param X Local X-coordinate on cell (scaled)
     /// @param Y Local Y-coordinate on cell (scaled)
     /// @param Z Local Z-coordinate on cell (scaled)
-    void Point2Cell(const Vector3D& p, size_t& i, double& x, double& y, double& z) const
+    void Point2Cell(const Point3D& p, size_t& i, double& x, double& y, double& z) const
     {
       // Check that point is inside domain
       if (!Geometry::BoundingBoxContains3D(BoundingBox, p))
