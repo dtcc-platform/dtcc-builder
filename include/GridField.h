@@ -44,7 +44,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    double operator()(const Point2D& p) const
+    double operator()(const Vector2D& p) const
     {
       // Map point to cell
       size_t i{};
@@ -133,7 +133,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    double operator()(const Point3D& p) const
+    double operator()(const Vector3D& p) const
     {
       // Map point to cell
       size_t i{};

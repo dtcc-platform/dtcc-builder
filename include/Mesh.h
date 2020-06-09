@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "Point.h"
+#include "Vector.h"
 #include "Simplex.h"
 #include "Logging.h"
 
@@ -17,7 +17,7 @@ namespace DTCC
   {
   public:
     /// Array of vertices
-    std::vector<Point2D> Vertices;
+    std::vector<Vector2D> Vertices;
 
     /// Array of cells (triangles)
     std::vector<Simplex2D> Cells;
@@ -26,9 +26,9 @@ namespace DTCC
     std::vector<int> DomainMarkers;
 
     /// Compute cell midpoint
-    Point2D MidPoint(const Simplex2D &cell) const
+    Vector2D MidPoint(const Simplex2D &cell) const
     {
-      Point2D c;
+      Vector2D c;
       c += Vertices[cell.v0];
       c += Vertices[cell.v1];
       c += Vertices[cell.v2];
@@ -51,7 +51,7 @@ namespace DTCC
   public:
 
     /// Array of vertices
-    std::vector<Point3D> Vertices;
+    std::vector<Vector3D> Vertices;
 
     /// Array of cells (tetrahedra)
     std::vector<Simplex3D> Cells;
@@ -60,9 +60,9 @@ namespace DTCC
     std::vector<int> DomainMarkers;
 
     /// Compute cell midpoint
-    Point3D MidPoint(const Simplex3D &Cell) const
+    Vector3D MidPoint(const Simplex3D &Cell) const
     {
-      Point3D c;
+      Vector3D c;
       c += Vertices[Cell.v0];
       c += Vertices[Cell.v1];
       c += Vertices[Cell.v2];

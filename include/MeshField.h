@@ -27,7 +27,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    double operator()(const Point2D& p) const
+    double operator()(const Vector2D& p) const
     {
       // FIXME: In progress
       return 0.0;
@@ -52,7 +52,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    double operator()(const Point3D& p) const
+    double operator()(const Vector3D& p) const
     {
       // FIXME: In progress
       return 0.0;

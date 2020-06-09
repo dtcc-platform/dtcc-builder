@@ -27,10 +27,10 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Point2D operator()(const Point2D& p) const
+    Vector2D operator()(const Vector2D& p) const
     {
       // FIXME: In progress
-      return Point2D();
+      return Vector2D();
     }
 
   };
@@ -52,10 +52,10 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Point3D operator()(const Point3D& p) const
+    Vector3D operator()(const Vector3D& p) const
     {
       // FIXME: In progress
-      return Point3D();
+      return Vector3D();
     }
 
   };

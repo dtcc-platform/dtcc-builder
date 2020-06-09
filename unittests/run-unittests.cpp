@@ -16,8 +16,8 @@ using namespace DTCC;
 
 TEST_CASE("Grid2D")
 {
-  Point2D p(0, 0);
-  Point2D q(1, 1);
+  Vector2D p(0, 0);
+  Vector2D q(1, 1);
   BoundingBox2D bbox(p, q);
   Grid2D grid(bbox, 4, 5);
 
@@ -46,8 +46,8 @@ TEST_CASE("Grid2D")
 
 TEST_CASE("Grid3D")
 {
-  Point3D p(0, 0, 0);
-  Point3D q(1, 1, 1);
+  Vector3D p(0, 0, 0);
+  Vector3D q(1, 1, 1);
   BoundingBox3D bbox(p, q);
   Grid3D grid(bbox, 4, 5, 6);
 
@@ -77,9 +77,9 @@ TEST_CASE("Grid3D")
 
 TEST_CASE("GridField2D")
 {
-  Point2D p(0, 0);
-  Point2D q(1, 1);
-  Point2D r(0.234, 0.485);
+  Vector2D p(0, 0);
+  Vector2D q(1, 1);
+  Vector2D r(0.234, 0.485);
   BoundingBox2D bbox(p, q);
   Grid2D grid(bbox, 11, 17);
   GridField2D u(grid);
@@ -87,7 +87,7 @@ TEST_CASE("GridField2D")
   class MyField : public Field2D
   {
   public:
-    double operator()(const Point2D& p) const
+    double operator()(const Vector2D& p) const
     {
       return sin(p.x)*cos(p.y);
     }
@@ -109,9 +109,9 @@ TEST_CASE("GridField2D")
 
 TEST_CASE("GridField3D")
 {
-  Point3D p(0, 0, 0);
-  Point3D q(1, 1, 1);
-  Point3D r(0.234, 0.485, 0.763);
+  Vector3D p(0, 0, 0);
+  Vector3D q(1, 1, 1);
+  Vector3D r(0.234, 0.485, 0.763);
   BoundingBox3D bbox(p, q);
   Grid3D grid(bbox, 11, 17, 23);
   GridField3D u(grid);
@@ -119,7 +119,7 @@ TEST_CASE("GridField3D")
   class MyField : public Field3D
   {
   public:
-    double operator()(const Point3D& p) const
+    double operator()(const Vector3D& p) const
     {
       return sin(p.x)*cos(p.y)*exp(p.z);
     }
@@ -141,9 +141,9 @@ TEST_CASE("GridField3D")
 
 TEST_CASE("GridVectorField2D")
 {
-  Point2D p(0, 0);
-  Point2D q(1, 1);
-  Point2D r(0.234, 0.485);
+  Vector2D p(0, 0);
+  Vector2D q(1, 1);
+  Vector2D r(0.234, 0.485);
   BoundingBox2D bbox(p, q);
   Grid2D grid(bbox, 11, 17);
   GridVectorField2D u(grid);
@@ -151,9 +151,9 @@ TEST_CASE("GridVectorField2D")
   class MyField : public VectorField2D
   {
   public:
-    Point2D operator()(const Point2D& p) const
+    Vector2D operator()(const Vector2D& p) const
     {
-      return Point2D(sin(p.x)*cos(p.y), cos(p.x)*sin(p.y));
+      return Vector2D(sin(p.x)*cos(p.y), cos(p.x)*sin(p.y));
     }
   };
 
@@ -176,9 +176,9 @@ TEST_CASE("GridVectorField2D")
 
 TEST_CASE("GridVectorField3D")
 {
-  Point3D p(0, 0, 0);
-  Point3D q(1, 1, 1);
-  Point3D r(0.234, 0.485, 0.763);
+  Vector3D p(0, 0, 0);
+  Vector3D q(1, 1, 1);
+  Vector3D r(0.234, 0.485, 0.763);
   BoundingBox3D bbox(p, q);
   Grid3D grid(bbox, 11, 17, 23);
   GridVectorField3D u(grid);
@@ -186,9 +186,9 @@ TEST_CASE("GridVectorField3D")
   class MyField : public VectorField3D
   {
   public:
-    Point3D operator()(const Point3D& p) const
+    Vector3D operator()(const Vector3D& p) const
     {
-      return Point3D(sin(p.x)*cos(p.y)*exp(p.z),
+      return Vector3D(sin(p.x)*cos(p.y)*exp(p.z),
                      cos(p.x)*exp(p.y)*sin(p.z),
                      exp(p.x)*sin(p.y)*cos(p.z));
     }

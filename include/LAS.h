@@ -9,7 +9,7 @@
 #include <liblas/liblas.hpp>
 #include <string>
 
-#include "Point.h"
+#include "Vector.h"
 #include "PointCloud.h"
 
 namespace DTCC
@@ -51,7 +51,7 @@ public:
     {
       // Get point
       liblas::Point const &_p = reader.GetPoint();
-      const Point3D p(_p.GetX(), _p.GetY(), _p.GetZ());
+      const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
 
       // Update bounding box dimensions
       if (pointCloud.Points.size() == 0)

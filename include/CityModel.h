@@ -10,7 +10,7 @@
 
 #include "Building.h"
 #include "Geometry.h"
-#include "Point.h"
+#include "Vector.h"
 #include "BoundingBoxTree.h"
 #include "Logging.h"
 
@@ -41,7 +41,7 @@ namespace DTCC
 
     // Find building containing point (inside footprint), returning -1
     // if the point is not inside any building.
-    int FindBuilding(const Point2D &p) const
+    int FindBuilding(const Vector2D &p) const
     {
       // Check that search tree has been created
       if (bbtree.Nodes.size() == 0)
@@ -65,9 +65,9 @@ namespace DTCC
     }
 
     // Compute center of city model
-    Point2D Center() const
+    Vector2D Center() const
     {
-      Point2D c;
+      Vector2D c;
       size_t numPoints = 0;
       for (auto const &building : Buildings)
       {
@@ -82,7 +82,7 @@ namespace DTCC
     }
 
     // Compute radius of city model (relative to center)
-    double Radius(const Point2D &center) const
+    double Radius(const Vector2D &center) const
     {
       double r2max = 0.0;
       for (auto const &building : Buildings)

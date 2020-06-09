@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "GeoReference.h"
-#include "Point.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -39,17 +39,17 @@ public:
   }
 
   // Return height (z) at 2D point p
-  double operator()(const Point2D &p) const { return (*this)(p.x, p.y); }
+  double operator()(const Vector2D &p) const { return (*this)(p.x, p.y); }
 
   // Return height (z) at 2D point (x, y)
   double operator()(double x, double y) const { return 0.0; }
 
   // Return coordinate number i (of flattened grid data)
-  Point2D Coordinate(size_t i) const
+  Vector2D Coordinate(size_t i) const
   {
     const size_t ix = i % SizeX;
     const size_t iy = i / SizeX;
-    return Point2D(ix * Resolution, iy * Resolution);
+    return Vector2D(ix * Resolution, iy * Resolution);
   }
 };
 

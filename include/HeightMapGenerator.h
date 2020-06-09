@@ -9,7 +9,7 @@
 #include <vector>
 #include <stack>
 
-#include "Point.h"
+#include "Vector.h"
 #include "PointCloud.h"
 #include "GridField.h"
 #include "Geometry.h"
@@ -84,7 +84,7 @@ public:
       }
 
       // Get 2D point and subtract origin
-      const Point2D q2D(q3D.x - x0, q3D.y - y0);
+      const Vector2D q2D(q3D.x - x0, q3D.y - y0);
 
       // Recompute mean elevation (excluding outliers)
       meanElevation += q3D.z;
@@ -202,7 +202,7 @@ public:
     // Test data for verifying orientation, bump in lower left corner
     // for (size_t i = 0; i < heightMap.Values.size(); i++)
     // {
-    //     Point2D p = heightMap.Index2Coordinate(i);
+    //     Vector2D p = heightMap.Index2Coordinate(i);
     //     const double dx = heightMap.XMax - heightMap.XMin;
     //     const double dy = heightMap.YMax - heightMap.YMin;
     //     const double x = (p.x - heightMap.XMin) / dx;

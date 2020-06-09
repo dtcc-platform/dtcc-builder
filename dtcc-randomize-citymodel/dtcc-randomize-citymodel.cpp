@@ -26,20 +26,20 @@ void Help()
 double Random() { return std::rand() / double(RAND_MAX); }
 
 // Generate building at given position with side length a and height h
-Building GenerateBuilding(const Point2D &p, double a, double h)
+Building GenerateBuilding(const Vector2D &p, double a, double h)
 {
   Building building;
-  building.Footprint.push_back(Point2D(p.x - 0.5 * a, p.y - 0.5 * a));
-  building.Footprint.push_back(Point2D(p.x + 0.5 * a, p.y - 0.5 * a));
-  building.Footprint.push_back(Point2D(p.x + 0.5 * a, p.y + 0.5 * a));
-  building.Footprint.push_back(Point2D(p.x - 0.5 * a, p.y + 0.5 * a));
+  building.Footprint.push_back(Vector2D(p.x - 0.5 * a, p.y - 0.5 * a));
+  building.Footprint.push_back(Vector2D(p.x + 0.5 * a, p.y - 0.5 * a));
+  building.Footprint.push_back(Vector2D(p.x + 0.5 * a, p.y + 0.5 * a));
+  building.Footprint.push_back(Vector2D(p.x - 0.5 * a, p.y + 0.5 * a));
   building.Height = h;
   return building;
 }
 
 // Generate random city model
 std::vector<CityModel>
-GenerateRandomCityModel(size_t numBuildings, const Point2D &C, double R)
+GenerateRandomCityModel(size_t numBuildings, const Vector2D &C, double R)
 {
   // Get parameters for building dimensions
   const double a = BUILDING_SIZE;
@@ -50,7 +50,7 @@ GenerateRandomCityModel(size_t numBuildings, const Point2D &C, double R)
   CityModel cityModel;
 
   // Generate the buildings
-  std::vector<Point2D> centers;
+  std::vector<Vector2D> centers;
   for (size_t i = 0; i < numBuildings; i++)
   {
     while (true)
@@ -60,7 +60,7 @@ GenerateRandomCityModel(size_t numBuildings, const Point2D &C, double R)
       const double r = Random() * m * R;
       const double x = C.x + r * std::cos(v);
       const double y = C.y + r * std::sin(v);
-      Point2D p(x, y);
+      Vector2D p(x, y);
       // std::cout << "Trying to add building at p = " << p << std::endl;
 
       // Check that we are not too close to other buildings
@@ -106,7 +106,7 @@ GenerateRandomCityModel(size_t numBuildings, const Point2D &C, double R)
 // Generate evolviing city model
 std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
                                                  size_t numFrames,
-                                                 const Point2D &C,
+                                                 const Vector2D &C,
                                                  double R)
 {
   // Generate a random city model
@@ -114,17 +114,17 @@ std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
   cityModels = GenerateRandomCityModel(numBuildings, C, R);
 
   // Initialize building positions
-  std::vector<Point2D> x(numBuildings);
+  std::vector<Vector2D> x(numBuildings);
   for (size_t i = 0; i < numBuildings; i++)
   {
-    std::vector<Point2D> &footPrint = cityModels[0].Buildings[i].Footprint;
+    std::vector<Vector2D> &footPrint = cityModels[0].Buildings[i].Footprint;
     for (auto const &p : footPrint)
       x[i] += p;
     x[i] /= footPrint.size();
   }
 
   // Compute center of gravity
-  Point2D c;
+  Vector2D c;
   for (size_t i = 0; i < numBuildings; i++)
     c += x[i];
   c /= numBuildings;
@@ -134,7 +134,7 @@ std::vector<CityModel> GenerateEvolvingCityModel(size_t numBuildings,
   R -= BUILDING_SIZE;
 
   // Initialize building velocities
-  std::vector<Point2D> v(numBuildings);
+  std::vector<Vector2D> v(numBuildings);
   for (size_t i = 0; i < numBuildings; i++)
   {
     v[i].x = VELOCITY * (Random() - 0.5);
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
   std::cout << parameters << std::endl;
 
   // Report used parameters
-  const Point2D C(parameters.DomainCenterX, parameters.DomainCenterY);
+  const Vector2D C(parameters.DomainCenterX, parameters.DomainCenterY);
   const double R(parameters.DomainRadius);
   std::cout << "vc-randomize-citymodel: DomainCenter = " << C << std::endl;
   std::cout << "vc-randomize-citymodel: DomainRadius = " << R << std::endl;

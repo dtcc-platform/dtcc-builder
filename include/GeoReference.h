@@ -25,7 +25,7 @@ public:
   GeoReference() : A(0), D(0), B(0), E(0), C(0), F(0) {}
 
   // Map pixel to world (UTM) coordinates
-  Point2D Pixel2Coordinate(int X, int Y) const
+  Vector2D Pixel2Coordinate(int X, int Y) const
   {
     const double AX = GridMap.A * X;
     const double BY = GridMap.B * Y;
@@ -33,12 +33,12 @@ public:
     const double EY = GridMap.E * Y;
     const double C = GridMap.C;
     const double F = GridMap.F;
-    Point2D p(AX + BY + C, DX + EY + F);
+    Vector2D p(AX + BY + C, DX + EY + F);
     return p;
   }
 
   // Map world (UTM) coordinates to pixels
-  std::pair<int, int> Coordinate2Pixel(const Point2D &p) const
+  std::pair<int, int> Coordinate2Pixel(const Vector2D &p) const
   {
     const double Ex = GridMap.E * p.x;
     const double By = GridMap.B * p.y;

@@ -42,7 +42,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Point2D operator()(const Point2D& p) const
+    Vector2D operator()(const Vector2D& p) const
     {
       // Map point to cell
       size_t i{};
@@ -60,7 +60,7 @@ namespace DTCC
       const double v11y = Values[2*(i + Grid.XSize + 1) + 1];
 
       // Compute value by bilinear interpolation
-      Point2D v{};
+      Vector2D v{};
       v.x = Grid.Interpolate(x, y, v00x, v10x, v01x, v11x);
       v.y = Grid.Interpolate(x, y, v00y, v10y, v01y, v11y);
 
@@ -75,7 +75,7 @@ namespace DTCC
       // Iterate over vertices and evaluate field
       for (size_t i = 0; i < Grid.NumVertices(); i++)
       {
-        const Point2D v = field(Grid.Index2Point(i));
+        const Vector2D v = field(Grid.Index2Point(i));
         Values[2*i] = v.x;
         Values[2*i + 1] = v.y;
       }
@@ -119,7 +119,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Point3D operator()(const Point3D& p) const
+    Vector3D operator()(const Vector3D& p) const
     {
       // Map point to cell
       size_t i{};
@@ -153,7 +153,7 @@ namespace DTCC
       const double v111z = Values[3*(i + Grid.XSize + 1 + Grid.XSize * Grid.YSize) + 2];
 
       // Compute value by trilinear interpolation
-      Point3D v;
+      Vector3D v;
       v.x = Grid.Interpolate(x, y, z, v000x, v100x, v010x, v110x, v001x, v101x, v011x, v111x);
       v.y = Grid.Interpolate(x, y, z, v000y, v100y, v010y, v110y, v001y, v101y, v011y, v111y);
       v.z = Grid.Interpolate(x, y, z, v000z, v100z, v010z, v110z, v001z, v101z, v011z, v111z);
@@ -169,7 +169,7 @@ namespace DTCC
       // Iterate over vertices and evaluate field
       for (size_t i = 0; i < Grid.NumVertices(); i++)
       {
-        const Point3D v = field(Grid.Index2Point(i));
+        const Vector3D v = field(Grid.Index2Point(i));
         Values[3*i] = v.x;
         Values[3*i + 1] = v.y;
         Values[3*i + 2] = v.z;

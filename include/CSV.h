@@ -1,17 +1,18 @@
-// CSV I/O
-// Anders Logg 2018, Vasilis Naserentin 2019
+// Copyright (C) 2020 Anders Logg and Vasilis Naserentin
+// Licensed under the MIT License
 
 #ifndef DTCC_CSV_H
 #define DTCC_CSV_H
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include "rapidcsv.h"
 
 #include "Mesh.h"
 #include "Parameters.h"
-#include "Point.h"
+#include "Vector.h"
 #include "Simplex.h"
 
 namespace DTCC
@@ -23,7 +24,7 @@ public:
   // Wrap for rapidcsv CSV container
   rapidcsv::Document Document;
   // Write 2D point set to CSV file
-  static void Write(const std::vector<Point2D> &Points, std::string fileName)
+  static void Write(const std::vector<Vector2D> &Points, std::string fileName)
   {
     std::cout << "CSV: "
               << "Writing 2D point set to file " << fileName << std::endl;
@@ -136,13 +137,13 @@ public:
 
 private:
   // Write 2D point to file
-  static void Write(const Point2D &p, std::ofstream &f)
+  static void Write(const Vector2D &p, std::ofstream &f)
   {
     f << p.x << "," << p.y << std::endl;
   }
 
   // Write 3D point to file
-  static void Write(const Point3D &p, std::ofstream &f)
+  static void Write(const Vector3D &p, std::ofstream &f)
   {
     f << p.x << "," << p.y << "," << p.z << std::endl;
   }

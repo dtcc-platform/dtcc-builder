@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "Point.h"
+#include "Vector.h"
 #include "BoundingBox.h"
 #include "Logging.h"
 
@@ -18,7 +18,7 @@ namespace DTCC
   public:
 
     /// Array of points
-    std::vector<Point3D> Points{};
+    std::vector<Vector3D> Points{};
 
     /// Bounding box
     BoundingBox2D BoundingBox{};

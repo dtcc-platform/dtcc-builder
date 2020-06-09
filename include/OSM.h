@@ -9,7 +9,7 @@
 #include <pugixml.hpp>
 #include <strings.h>
 
-#include "Point.h"
+#include "Vector.h"
 #include "Polygon.h"
 
 namespace DTCC
@@ -36,7 +36,7 @@ public:
     pugi::xml_node osm = doc.child("osm");
 
     // Create map for ref --> node
-    std::map<size_t, Point2D> nodeMap;
+    std::map<size_t, Vector2D> nodeMap;
 
     // Read nodes (vertices)
     for (pugi::xml_node_iterator it = osm.begin(); it != osm.end(); ++it)
@@ -49,7 +49,7 @@ public:
       const size_t ref = it->attribute("id").as_uint();
       const double x = it->attribute("lon").as_double();
       const double y = it->attribute("lat").as_double();
-      nodeMap.insert(std::make_pair(ref, Point2D(x, y)));
+      nodeMap.insert(std::make_pair(ref, Vector2D(x, y)));
     }
 
     // Diagnostic printing
@@ -99,7 +99,7 @@ public:
         const auto n = nodeMap.find(ref);
         if (n == nodeMap.end())
           throw std::runtime_error("Missing node reference for building.");
-        Point2D p = n->second;
+        Vector2D p = n->second;
 
         // Add to polygon
         polygon.Points.push_back(p);

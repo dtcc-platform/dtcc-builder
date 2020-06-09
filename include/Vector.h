@@ -1,0 +1,187 @@
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
+
+#ifndef DTCC_VECTOR_H
+#define DTCC_VECTOR_H
+
+#include <cmath>
+
+#include "Logging.h"
+
+namespace DTCC
+{
+
+  /// Vector2D represents a Euclidean 2D vector
+  /// with the standard vector operations.
+  class Vector2D : public Printable
+  {
+  public:
+
+    /// First component
+    double x{};
+
+    /// Second component
+    double y{};
+
+    // FIXME: This class requires documentation
+
+    Vector2D() : x(0), y(0) {}
+    Vector2D(double x, double y) : x(x), y(y) {}
+
+    Vector2D operator+(const Vector2D &p) const
+    {
+      Vector2D q(x + p.x, y + p.y);
+      return q;
+    }
+
+    Vector2D operator+=(const Vector2D &p)
+    {
+      x += p.x;
+      y += p.y;
+      return *this;
+    }
+
+    Vector2D operator-(const Vector2D &p) const
+    {
+      Vector2D q(x - p.x, y - p.y);
+      return q;
+    }
+
+    Vector2D operator-=(const Vector2D &p)
+    {
+      x -= p.x;
+      y -= p.y;
+      return *this;
+    }
+
+    Vector2D operator*(double a) const
+    {
+      Vector2D q(x * a, y * a);
+      return q;
+    }
+
+    Vector2D operator*=(double a)
+    {
+      x *= a;
+      y *= a;
+      return *this;
+    }
+
+    Vector2D operator/(double a) const
+    {
+      Vector2D q(x / a, y / a);
+      return q;
+    }
+
+    Vector2D operator/=(double a)
+    {
+      x /= a;
+      y /= a;
+      return *this;
+    }
+
+    double Magnitude() const { return sqrt(SquaredMagnitude()); }
+
+    double SquaredMagnitude() const { return x * x + y * y; }
+
+    void Normalize() { (*this) /= Magnitude(); }
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "<" + str(x) + ", " + str(y) + ">";
+    }
+
+  };
+
+  /// Vector3D represents a Euclidean 3D vector
+  /// with the standard vector operations.
+  class Vector3D : public Printable
+  {
+  public:
+
+    /// First component
+    double x{};
+
+    /// Second component
+    double y{};
+
+    /// Third component
+    double z{};
+
+    // FIXME: This class requires documentation
+
+    Vector3D() : x(0), y(0), z(0) {}
+    Vector3D(double x, double y, double z) : x(x), y(y), z(z) {}
+
+    Vector3D operator+(const Vector3D &p) const
+    {
+      Vector3D q(x + p.x, y + p.y, z + p.z);
+      return q;
+    }
+
+    Vector3D operator+=(const Vector3D &p)
+    {
+      x += p.x;
+      y += p.y;
+      z += p.z;
+      return *this;
+    }
+
+    Vector3D operator-(const Vector3D &p) const
+    {
+      Vector3D q(x - p.x, y - p.y, z - p.z);
+      return q;
+    }
+
+    Vector3D operator-=(const Vector3D &p)
+    {
+      x -= p.x;
+      y -= p.y;
+      z -= p.z;
+      return *this;
+    }
+
+    Vector3D operator*(double a) const
+    {
+      Vector3D q(x * a, y * a, z * a);
+      return q;
+    }
+
+    Vector3D operator*=(double a)
+    {
+      x *= a;
+      y *= a;
+      z *= a;
+      return *this;
+    }
+
+    Vector3D operator/(double a) const
+    {
+      Vector3D q(x / a, y / a, z / a);
+      return q;
+    }
+
+    Vector3D operator/=(double a)
+    {
+      x /= a;
+      y /= a;
+      z /= a;
+      return *this;
+    }
+
+    double Magnitude() const { return sqrt(SquaredMagnitude()); }
+
+    double SquaredMagnitude() const { return x * x + y * y + z * z; }
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "<" + str(x) + ", " + str(y) + ", " + str(z) + ">";
+    }
+
+  };
+
+} // namespace DTCC
+
+#endif

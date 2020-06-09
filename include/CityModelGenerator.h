@@ -10,7 +10,7 @@
 
 #include "CityModel.h"
 #include "GridField.h"
-#include "Point.h"
+#include "Vector.h"
 #include "Polygon.h"
 
 namespace DTCC
@@ -122,7 +122,7 @@ private:
       bool inside = true;
       for (auto const &p : polygon.Vertices)
       {
-        Point2D q(p.x - x0, p.y - y0);
+        Vector2D q(p.x - x0, p.y - y0);
         if (q.x < xMin || q.y < yMin || q.x > xMax || q.y > yMax)
         {
           inside = false;
@@ -136,7 +136,7 @@ private:
         Polygon transformedPolygon;
         for (auto const &p : polygon.Vertices)
         {
-          Point2D q(p.x - x0, p.y - y0);
+          Vector2D q(p.x - x0, p.y - y0);
           transformedPolygon.Vertices.push_back(q);
         }
         transformedPolygons.push_back(transformedPolygon);
@@ -250,13 +250,13 @@ private:
       for (size_t i = 0; i < numPoints; i++)
       {
         // Get previous, current and next points
-        const Point2D &p0 = polygon.Vertices[previousIndex];
-        const Point2D &p1 = polygon.Vertices[i];
-        const Point2D &p2 = polygon.Vertices[(i + 1) % numPoints];
+        const Vector2D &p0 = polygon.Vertices[previousIndex];
+        const Vector2D &p1 = polygon.Vertices[i];
+        const Vector2D &p2 = polygon.Vertices[(i + 1) % numPoints];
 
         // Compute angle (cosine)
-        Point2D u = p1 - p0;
-        Point2D v = p2 - p1;
+        Vector2D u = p1 - p0;
+        Vector2D v = p2 - p1;
         u /= u.Magnitude();
         v /= v.Magnitude();
         const double cos = Geometry::Dot2D(u, v);
@@ -358,14 +358,14 @@ private:
     // a more advanced merging later
 
     // Collect points
-    std::vector<Point2D> allPoints;
+    std::vector<Vector2D> allPoints;
     for (auto const &p : polygon0.Vertices)
       allPoints.push_back(p);
     for (auto const &p : polygon1.Vertices)
       allPoints.push_back(p);
 
     // Remove duplicate points
-    std::vector<Point2D> uniquePoints;
+    std::vector<Vector2D> uniquePoints;
     for (auto const &p : allPoints)
     {
       // Check if point is unique
@@ -400,17 +400,17 @@ private:
       Polygon &polygon = building.Footprint;
 
       // Compute center and radius of footprint
-      const Point2D center = Geometry::PolygonCenter2D(polygon);
+      const Vector2D center = Geometry::PolygonCenter2D(polygon);
       const double radius = Geometry::PolygonRadius2D(polygon, center);
 
       // Add points for sampling height
-      std::vector<Point2D> samplePoints;
+      std::vector<Vector2D> samplePoints;
       const double a = 0.5 * radius;
       samplePoints.push_back(center);
-      samplePoints.push_back(Point2D(center.x + a, center.y));
-      samplePoints.push_back(Point2D(center.x - a, center.y));
-      samplePoints.push_back(Point2D(center.x, center.y + a));
-      samplePoints.push_back(Point2D(center.x, center.y - a));
+      samplePoints.push_back(Vector2D(center.x + a, center.y));
+      samplePoints.push_back(Vector2D(center.x - a, center.y));
+      samplePoints.push_back(Vector2D(center.x, center.y + a));
+      samplePoints.push_back(Vector2D(center.x, center.y - a));
 
       // Compute mean height at points inside footprint
       double z = 0.0;

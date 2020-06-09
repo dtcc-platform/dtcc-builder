@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <limits>
 
-#include "Point.h"
+#include "Vector.h"
 #include "Polygon.h"
 #include "Logging.h"
 
@@ -20,10 +20,10 @@ namespace DTCC
   public:
 
     /// First ("lower left") corner
-    Point2D P;
+    Vector2D P;
 
     /// Second ("upper right") corner
-    Point2D Q;
+    Vector2D Q;
 
     /// Create empty bounding box
     BoundingBox2D() {}
@@ -32,7 +32,7 @@ namespace DTCC
     ///
     /// @param p First ("lower left") corner
     /// @param q Second ("upper right") corner
-    BoundingBox2D(const Point2D& p, const Point2D& q) : P(p), Q(q)
+    BoundingBox2D(const Vector2D& p, const Vector2D& q) : P(p), Q(q)
     {
       assert(p.x < q.x);
       assert(p.y < q.y);
@@ -71,10 +71,10 @@ namespace DTCC
   public:
 
     /// First ("lower left") corner
-    Point3D P{};
+    Vector3D P{};
 
     /// Second ("upper right") corner
-    Point3D Q{};
+    Vector3D Q{};
 
     /// Create empty bounding box
     BoundingBox3D() {}
@@ -83,7 +83,7 @@ namespace DTCC
     ///
     /// @param p First ("lower left") corner
     /// @param q Second ("upper right") corner
-    BoundingBox3D(const Point3D& p, const Point3D& q) : P(p), Q(q)
+    BoundingBox3D(const Vector3D& p, const Vector3D& q) : P(p), Q(q)
     {
       assert(p.x < q.x);
       assert(p.y < q.y);

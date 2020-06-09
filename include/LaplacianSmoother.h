@@ -211,7 +211,7 @@ namespace DTCC
         for (dolfin::VertexIterator vertex(cell); !vertex.end(); ++vertex)
         {
           const dolfin::Point p = vertex->point();
-          const double z = heightMap(Point2D(p.x(), p.y()));
+          const double z = heightMap(Vector2D(p.x(), p.y()));
           zmin = std::min(zmin, z);
         }
 
@@ -242,7 +242,7 @@ namespace DTCC
                 const dolfin::Array<double> &x) const
       {
         // Evaluate height map
-        values[0] = heightMap(Point2D(x[0], x[1]));
+        values[0] = heightMap(Vector2D(x[0], x[1]));
 
         // See note above on subtracting z-coordinate
         if (x.size() == 3)
