@@ -173,6 +173,61 @@ aiScene *generatePlane()
   return plane;
 }
 
+/************************************************************************/
+/* Vertices getter & printer                                            */
+/************************************************************************/
+
+std::vector<aiVector3D> getMeshVertices(const aiMesh& mesh) 
+{
+  std::vector<aiVector3D> vertices;
+  uint vertexNum = mesh.mNumVertices;
+    
+  for(uint i=0;i<vertexNum;i++)
+  {
+    vertices.push_back(mesh.mVertices[i]);
+  }
+  return vertices;
+}
+
+void printVertices(const std::vector<aiVector3D>& vertices) 
+{
+  uint counter=0;
+  for(auto it=vertices.begin();it!=vertices.end();++it,counter++)
+  {
+    std::cout << "Vertex " << counter << ": {" << (*it).x << "," << (*it).y
+              << "," << (*it).z << "}" << std::endl;
+  }
+}
+
+
+/************************************************************************/
+/* Normals getter & printer                                             */
+/************************************************************************/
+
+std::vector<aiVector3D> getMeshNormals(const aiMesh& mesh) 
+{
+  std::vector<aiVector3D> normals;
+  uint normalsNum = mesh.mNumVertices;
+
+  for(uint i=0;i<normalsNum;i++)
+  {
+    normals.push_back(mesh.mNormals[i]);
+
+  }
+
+  return normals;
+}
+
+void printNormals(const std::vector<aiVector3D>& normals)
+{
+  uint counter = 0;
+  for (auto it = normals.begin(); it != normals.end(); ++it, counter++)
+  {
+    std::cout << "Normal " << counter << ": {" << (*it).x << "," << (*it).y
+              << "," << (*it).z << "}" << std::endl;
+  }
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -191,6 +246,18 @@ int main(int argc, char *argv[])
   {
     std::cout << " valid cube scene with # " << cubeScene->mNumMeshes
               << " of meshes!" << std::endl;
+
+    //Get the first mesh
+
+    aiMesh *mesh = cubeScene->mMeshes[0];
+    //Get vertices and print them on console
+    std::vector<aiVector3D> vertices = getMeshVertices(*mesh);
+    printVertices(vertices);
+
+    //Get the normals and print them on console
+    std::vector<aiVector3D> normals = getMeshNormals(*mesh);
+    printNormals(normals);
+
   }
   else
   {
