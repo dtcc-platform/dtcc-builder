@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 
   std::cout << cubeScene->mRootNode->mNumChildren << std::endl;
   std::cout << cubeScene->mRootNode->mNumMeshes << std::endl;
-  aiMesh *newMesh = cubeScene->mRootNode->mMeshes[0];
+  // aiMesh *newMesh = cubeScene->mRootNode->aiNode->mMeshes[0];
 
   /*
       Assimp::Exporter* TestExporter=new Assimp::Exporter();

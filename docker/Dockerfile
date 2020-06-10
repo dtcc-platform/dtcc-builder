@@ -32,7 +32,8 @@ RUN apt-get update && apt-get install -y \
     clang-tidy \
     doxygen graphviz\
     libgeotiff-dev\
-    automake
+    automake\
+    colordiff
 
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
