@@ -33,8 +33,7 @@ RUN apt-get update && apt-get install -y \
     doxygen graphviz\
     libgeotiff-dev\
     automake\
-    libhdf5-dev\
-    libhdf5-serial-dev
+    colordiff
 
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
