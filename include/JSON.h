@@ -44,8 +44,11 @@ namespace DTCC
       parameters.HeightMapResolution = ToDouble("HeightMapResolution", json);
       parameters.MeshResolution = ToDouble("MeshResolution", json);
       parameters.MinimalBuildingDistance = ToDouble("MinimalBuildingDistance", json);
+      parameters.MinimalVertexDistance =
+          ToDouble("MinimalVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
       parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
+      parameters.Debug = ToBool("Debug", json);
     };
 
     /// Serialize Parameters
@@ -65,8 +68,10 @@ namespace DTCC
       json["HeightMapResolution"] = parameters.HeightMapResolution;
       json["MeshResolution"] = parameters.MeshResolution;
       json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
+      json["MinimalVertexDistance"] = parameters.MinimalVertexDistance;
       json["FlatGround"] = parameters.FlatGround;
       json["GroundSmoothing"] = parameters.GroundSmoothing;
+      json["Debug"] = parameters.Debug;
     }
 
     /// Deserialize BoundingBox2D
@@ -176,7 +181,7 @@ namespace DTCC
     /// Deserialize Mesh2D
     static void Deserialize(Mesh2D& mesh, const nlohmann::json& json)
     {
-      CheckType("Mesh3D", json);
+      CheckType("Mesh2D", json);
       const auto jsonVertices = json["Vertices"];
       mesh.Vertices.resize(jsonVertices.size() / 2);
       for (size_t i = 0; i < mesh.Vertices.size(); i++)
@@ -192,6 +197,10 @@ namespace DTCC
         mesh.Cells[i].v1 = jsonCells[3*i + 1];
         mesh.Cells[i].v2 = jsonCells[3*i + 2];
       }
+      const auto jsonMarkers = json["Markers"];
+      mesh.Markers.resize(jsonMarkers.size());
+      for (size_t i = 0; i < mesh.Markers.size(); i++)
+        mesh.Markers[i] = jsonMarkers[i];
     }
 
     /// Serialize Mesh2D
@@ -213,6 +222,7 @@ namespace DTCC
       json["Type"] = "Mesh2D";
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
+      json["Markers"] = mesh.Markers;
     }
 
     /// Deserialize Mesh3D
@@ -236,6 +246,10 @@ namespace DTCC
         mesh.Cells[i].v2 = jsonCells[4*i + 2];
         mesh.Cells[i].v3 = jsonCells[4*i + 3];
       }
+      const auto jsonMarkers = json["Markers"];
+      mesh.Markers.resize(jsonMarkers.size());
+      for (size_t i = 0; i < mesh.Markers.size(); i++)
+        mesh.Markers[i] = jsonMarkers[i];
     }
 
     /// Serialize Mesh3D
@@ -259,6 +273,7 @@ namespace DTCC
       json["Type"] = "Mesh3D";
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
+      json["Markers"] = mesh.Markers;
     }
 
     /// Deserialize Surface3D
@@ -472,7 +487,7 @@ namespace DTCC
     }
 
     /// Serialize CityJSON
-    static void Serialize(const CityJSON& cityJson, nlohmann::json& json) 
+    static void Serialize(const CityJSON &cityJson, nlohmann::json &json)
     {
       // Serializing city objects
       auto jsonBuilding = nlohmann::json::object();
@@ -483,7 +498,7 @@ namespace DTCC
         std::string id = cityObject.ID;
         auto objID = nlohmann::json::object();
         json["CityObjects"][id]=objID;
-        
+
         // Storing the attributes object
         auto attributesObj = nlohmann::json::object();
         attributesObj["measuredHeight"]=cityObject.ObjectAttributes.MeasuredHeight;
@@ -500,13 +515,27 @@ namespace DTCC
 
         auto geometryArray=nlohmann::json::array();
 
+<<<<<<< HEAD
         if(cityObject.ObjectGeometry.Type==CityObject::Geometry::GeometryType::Solid)
+=======
+        // Storing the boundaries array
+        auto boundariesExternalArray = nlohmann::json::array();
+        auto boundariesInternalArray = nlohmann::json::array();
+
+        for(auto const& boundary : cityObject.ObjectGeometry.Boundaries)
+>>>>>>> 04319bf... Some fine-tuning of mesh generation
         {
+<<<<<<< HEAD
           // Storing the boundaries array for solid meshes
           auto boundariesExternalArray = nlohmann::json::array();
           auto boundariesInternalArray = nlohmann::json::array();
 
           for (auto const &boundary : cityObject.ObjectGeometry.Boundaries)
+=======
+          auto singleBoundaryArray = nlohmann::json::array();
+          auto boundariesIDs = nlohmann::json::array();
+          for(auto const& id : boundary.BoundariesIDs)
+>>>>>>> 6444015... Merged dev/CityJSON into master
           {
             auto singleBoundaryArray = nlohmann::json::array();
             auto boundariesIDs = nlohmann::json::array();
@@ -517,12 +546,20 @@ namespace DTCC
             singleBoundaryArray.push_back(boundariesIDs);
             boundariesInternalArray.push_back(singleBoundaryArray);
           }
+<<<<<<< HEAD
 
           boundariesExternalArray.push_back(boundariesInternalArray);
 
           geometryObj["boundaries"] = boundariesExternalArray;
           geometryArray.push_back(geometryObj);
           json["CityObjects"][id]["geometry"] = geometryArray;
+=======
+          singleBoundaryArray.push_back(boundariesIDs);
+          boundariesInternalArray.push_back(singleBoundaryArray);
+        }
+
+        boundariesExternalArray.push_back(boundariesInternalArray);
+>>>>>>> 6444015... Merged dev/CityJSON into master
 
           // TODO: Change this accordingly to support different types
           objID["type"] = "Building";
@@ -549,15 +586,13 @@ namespace DTCC
         }
         
       }
-      
-      
 
       //Serializing vertices
       auto jsonVertices= nlohmann::json::array();
       for(auto const& vertex: cityJson.Vertices)
       {
         auto jsonVertex = nlohmann::json::array();
-        
+
         jsonVertex.push_back(vertex.x);
         jsonVertex.push_back(vertex.y);
         jsonVertex.push_back(vertex.z);
@@ -573,7 +608,7 @@ namespace DTCC
     }
 
     /// Deserialize CityJSON
-    static void Deserialize(CityJSON& cityJson, const nlohmann::json& json) 
+    static void Deserialize(CityJSON &cityJson, const nlohmann::json &json)
     {
       //CheckType("CityJSON",json);
       //Getting vertices
@@ -621,7 +656,11 @@ namespace DTCC
         // Storing geometry
         CityObject::Geometry geometry = CityObject::Geometry();
         auto jsonGeometryArray = json["CityObjects"][NewObj.ID]["geometry"][0];
+<<<<<<< HEAD
         //std::cout << jsonGeometryArray << std::endl;
+=======
+        Progress(jsonGeometryArray);
+>>>>>>> 7e67c47... Convert all std::cout calls to instead use the Logging.h functions (Error(), Warning(), Info() and Progress()).
 
         // Storing lod settings
         NewObj.ObjectGeometry.LOD = jsonGeometryArray["lod"];

@@ -1,10 +1,16 @@
+// vc-sandbox
+// Just a sandbox code for users to experiment with different API calls for
+// VCCore Vasilis Naserentin 2019
+// Licensed under the MIT License
+
 #include "CSV.h"
 #include "JSON.h"
-#include "CityJSON.h"
 #include <iostream>
+
 using namespace std;
-using namespace DTCC;
+
 void Help() { std::cerr << "Usage: vc-sandbox" << std::endl; }
+
 int main(int argc, char *argv[])
 {
   if (argc > 4)
@@ -18,10 +24,6 @@ int main(int argc, char *argv[])
   // nlohmann::json json;
   // in.read_header(io::ignore_extra_column, "vendor", "size", "speed");
   // std::string vendor; int size; double speed;
-  CSV csv;
-  //csv.Read("test.csv", true);
-  CityJSON cityobj;
-  JSON::Read(cityobj,"test.json");
-  std::cout<<cityobj.CityObjects[0]<<std::endl;
-  //DTCC::CityJSON::Read("HI");
+  DTCC::CSV csv;
+  csv.Read("test.csv", true);
 }

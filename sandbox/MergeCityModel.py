@@ -5,6 +5,8 @@ import json
 from MergePolygons import *
 
 minimalBuildingDistance = 0.5
+PLOT_LABELS = True
+PLOT_ALGORITHM = True
 
 # Read building footprints for Hammarkullen
 with open('../data/Hammarkullen/CityModel.json') as f:
@@ -30,20 +32,20 @@ for building in data['Buildings']:
 
 # Plot original model
 figure()
-PlotPolygons(polygons, style='-', labels=False)
+PlotPolygons(polygons, style='-', labels=PLOT_LABELS)
 title('Original model')
 
 # Replace self-intersecting polygons with convex hull
-for i in range(len(polygons)):
-    if not CheckPolygon(polygons[i], 0.5*minimalBuildingDistance, 0.5):
-        print('Bad polygon:', i)
-        polygons[i] = ConvexHull(polygons[i])
-        #PlotPolygons([polygons[i]], style='--', labels=False)
-        #PlotLabel(polygons[i], str(i))
+#for i in range(len(polygons)):
+#    if not CheckPolygon(polygons[i], 0.5*minimalBuildingDistance, 0.5):
+#        print('Bad polygon:', i)
+#        polygons[i] = ConvexHull(polygons[i])
+#        #PlotPolygons([polygons[i]], style='--', labels=False)
+#        #PlotLabel(polygons[i], str(i))
 
 # Plot cleaned model
 figure()
-PlotPolygons(polygons, style='-', labels=False)
+PlotPolygons(polygons, style='-', labels=PLOT_LABELS)
 title('Cleaned model')
 
 # Create queue of indices to check
@@ -86,7 +88,7 @@ while len(indices) > 0:
             #print(Pj)
 
             # Compute merged polygon
-            mergedPolygon = MergePolygons([Pi, Pj], minimalBuildingDistance)
+            mergedPolygon = MergePolygons([Pi, Pj], minimalBuildingDistance, PLOT_ALGORITHM)
 
             #polygons = [mergedPolygon]
             #PlotPolygons(polygons)
@@ -110,7 +112,7 @@ for i, polygon in enumerate(polygons):
 
 # Plot simplified model
 figure()
-PlotPolygons(mergedPolygons, style='-', labels=False)
+PlotPolygons(mergedPolygons, style='-', labels=PLOT_LABELS)
 title('Simplified model')
 
 show()
