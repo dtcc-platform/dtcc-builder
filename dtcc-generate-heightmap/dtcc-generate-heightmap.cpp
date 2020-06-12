@@ -1,15 +1,15 @@
-// vc-generate-heightmap
-// Anders Logg 2019
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include "CommandLine.h"
-#include "HeightMap.h"
 #include "HeightMapGenerator.h"
 #include "JSON.h"
 #include "LAS.h"
+#include "Logging.h"
 #include "Parameters.h"
 
 using namespace DTCC;
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
-  std::cout << parameters << std::endl;
+  Info(parameters);
 
   // Get data directory (add trailing slash just in case)
   const std::string dataDirectory = parameters.DataDirectory + "/";
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
     {
       LAS::Read(pointCloud, dataDirectory + f);
-      std::cout << pointCloud << std::endl;
+      Info(pointCloud);
     }
   }
 
@@ -52,14 +52,14 @@ int main(int argc, char *argv[])
   if (parameters.AutoDomain)
   {
     std::cout << "Automatically determining domain size:" << std::endl;
-    xMin = pointCloud.XMin - parameters.X0;
-    yMin = pointCloud.YMin - parameters.Y0;
-    xMax = pointCloud.XMax - parameters.X0;
-    yMax = pointCloud.YMax - parameters.Y0;
-    std::cout << "  XMin: " << pointCloud.XMin << " --> " << xMin << std::endl;
-    std::cout << "  YMin: " << pointCloud.YMin << " --> " << yMin << std::endl;
-    std::cout << "  XMax: " << pointCloud.XMax << " --> " << xMax << std::endl;
-    std::cout << "  YMax: " << pointCloud.YMax << " --> " << yMax << std::endl;
+    xMin = pointCloud.BoundingBox.P.x - parameters.X0;
+    yMin = pointCloud.BoundingBox.P.y - parameters.Y0;
+    xMax = pointCloud.BoundingBox.Q.x - parameters.X0;
+    yMax = pointCloud.BoundingBox.Q.y - parameters.Y0;
+    std::cout << "  XMin: " << pointCloud.BoundingBox.P.x << " --> " << xMin << std::endl;
+    std::cout << "  YMin: " << pointCloud.BoundingBox.P.y << " --> " << yMin << std::endl;
+    std::cout << "  XMax: " << pointCloud.BoundingBox.Q.x << " --> " << xMax << std::endl;
+    std::cout << "  YMax: " << pointCloud.BoundingBox.Q.y << " --> " << yMax << std::endl;
   }
   else
   {
@@ -70,12 +70,12 @@ int main(int argc, char *argv[])
   }
 
   // Generate height map
-  HeightMap heightMap;
-  HeightMapGenerator::GenerateHeightMap(
-      heightMap, pointCloud, parameters.X0, parameters.Y0,
-      xMin, yMin, xMax, yMax,
-      parameters.HeightMapResolution);
-  std::cout << heightMap << std::endl;
+  GridField2D heightMap;
+  HeightMapGenerator::GenerateHeightMap(heightMap, pointCloud,
+                                        parameters.X0, parameters.Y0,
+                                        xMin, yMin, xMax, yMax,
+                                        parameters.HeightMapResolution);
+  Info(heightMap);
 
   // Write height map data
   JSON::Write(heightMap, dataDirectory + "HeightMap.json");

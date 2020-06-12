@@ -21,7 +21,7 @@ namespace DTCC
     /// @return Value at point
     virtual double operator()(const Point2D& p) const = 0;
 
-  };
+    };
 
   /// Field3D represents a scalar field on a 3D domain.
   /// This is an interface class with several different implementations.

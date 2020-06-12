@@ -7,7 +7,7 @@
 #include <vector>
 #include <limits>
 
-#include "Point.h"
+#include "BoundingBox.h"
 
 namespace DTCC
 {

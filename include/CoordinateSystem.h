@@ -7,7 +7,7 @@
 #include <proj_api.h>
 #include <sstream>
 
-#include "Point.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -25,7 +25,7 @@ public:
   // https://proj4.org/development/migration.html
 
   // Transform point from between coordinate systems U and V
-  static Point2D Transform(const Point2D &p, std::string U, std::string V)
+  static Vector2D Transform(const Vector2D &p, std::string U, std::string V)
   {
     // Set up projections
     const std::string s;
@@ -48,7 +48,7 @@ public:
     pj_transform(pjU, pjV, 1, 1, &x, &y, NULL);
 
     // Set output coordinates
-    Point2D q(x, y);
+    Vector2D q(x, y);
 
     return q;
   }

@@ -5,6 +5,7 @@
 #define DTCC_VECTOR_FIELD_H
 
 #include "Point.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -19,7 +20,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    virtual Point2D operator()(const Point2D& p) const = 0;
+    virtual Vector2D operator()(const Point2D& p) const = 0;
 
   };
 
@@ -33,7 +34,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    virtual Point3D operator()(const Point3D& p) const = 0;
+    virtual Vector3D operator()(const Point3D& p) const = 0;
 
   };
 

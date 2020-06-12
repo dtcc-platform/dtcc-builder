@@ -9,12 +9,13 @@
 
 #include "Point.h"
 #include "Polygon.h"
+#include "Logging.h"
 
 namespace DTCC
 {
 
   /// BoundingBox2D represents a 2D bounding box defined by two 2D points.
-  class BoundingBox2D
+  class BoundingBox2D : public Printable
   {
   public:
 
@@ -54,23 +55,31 @@ namespace DTCC
       }
     }
 
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return
+        "[" + str(P.x) + ", " + str(Q.x) + "] x " +
+        "[" + str(P.y) + ", " + str(Q.y) + "]";
+    }
+
   };
 
   /// BoundingBox3D represents a 3D bounding box defined by two 3D points.
-  class BoundingBox3D
+  class BoundingBox3D : public Printable
   {
   public:
 
     /// First ("lower left") corner
-    Point3D P;
+    Point3D P{};
 
     /// Second ("upper right") corner
-    Point3D Q;
+    Point3D Q{};
 
     /// Create empty bounding box
     BoundingBox3D() {}
 
-    /// Create bounding box for given points.
+    /// Create bounding box defined by given points.
     ///
     /// @param p First ("lower left") corner
     /// @param q Second ("upper right") corner
@@ -81,22 +90,16 @@ namespace DTCC
       assert(p.z < q.z);
     }
 
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return
+        "[" + str(P.x) + ", " + str(Q.x) + "] x " +
+        "[" + str(P.y) + ", " + str(Q.y) + "] x " +
+        "[" + str(P.z) + ", " + str(Q.z) + "]";
+    }
+
   };
-
-  std::ostream &operator<<(std::ostream& stream, const BoundingBox2D& boundingBox)
-  {
-    stream << "[" << boundingBox.P.x << ", " << boundingBox.Q.x << "] x "
-           << "[" << boundingBox.P.y << ", " << boundingBox.Q.y << "]";
-    return stream;
-  }
-
-  std::ostream &operator<<(std::ostream& stream, const BoundingBox3D& boundingBox)
-  {
-    stream << "[" << boundingBox.P.x << ", " << boundingBox.Q.x << "] x "
-           << "[" << boundingBox.P.y << ", " << boundingBox.Q.y << "] x "
-           << "[" << boundingBox.P.z << ", " << boundingBox.Q.z << "]";
-    return stream;
-  }
 
 }
 

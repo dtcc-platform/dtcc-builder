@@ -1,5 +1,5 @@
-// Height map generation from point cloud (LiDAR) data.
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_HEIGHT_MAP_GENERATOR_H
 #define DTCC_HEIGHT_MAP_GENERATOR_H
@@ -9,12 +9,13 @@
 #include <vector>
 #include <stack>
 
-#include "Geometry.h"
-#include "HeightMap.h"
-#include "Parameters.h"
-#include "Point.h"
+#include "Vector.h"
 #include "PointCloud.h"
+#include "GridField.h"
+#include "Geometry.h"
 #include "Timer.h"
+#include "Logging.h"
+#include "Parameters.h"
 
 namespace DTCC
 {
@@ -23,7 +24,7 @@ class HeightMapGenerator
 {
 public:
   // Generate height map from point cloud
-  static void GenerateHeightMap(HeightMap &heightMap,
+  static void GenerateHeightMap(GridField2D &heightMap,
                                 const PointCloud &pointCloud,
                                 double x0,
                                 double y0,
@@ -37,21 +38,21 @@ public:
               << std::endl;
 
     // Shortcut
-    HeightMap &hm = heightMap;
+    GridField2D& hm = heightMap;
 
     // Initialize grid dimensions
-    hm.XMin = xMin;
-    hm.YMin = yMin;
-    hm.XMax = xMax;
-    hm.YMax = yMax;
+    hm.Grid.BoundingBox.P.x = xMin;
+    hm.Grid.BoundingBox.P.y = yMin;
+    hm.Grid.BoundingBox.Q.x = xMax;
+    hm.Grid.BoundingBox.Q.y = yMax;
 
     // Initialize grid data
-    hm.XSize = (hm.XMax - hm.XMin) / heightMapResolution + 1;
-    hm.YSize = (hm.YMax - hm.YMin) / heightMapResolution + 1;
-    hm.GridData.resize(hm.XSize * hm.YSize);
-    std::fill(hm.GridData.begin(), hm.GridData.end(), 0.0);
-    hm.XStep = (hm.XMax - hm.XMin) / (hm.XSize - 1);
-    hm.YStep = (hm.YMax - hm.YMin) / (hm.YSize - 1);
+    hm.Grid.XSize = (hm.Grid.BoundingBox.Q.x - hm.Grid.BoundingBox.P.x) / heightMapResolution + 1;
+    hm.Grid.YSize = (hm.Grid.BoundingBox.Q.y - hm.Grid.BoundingBox.P.y) / heightMapResolution + 1;
+    hm.Values.resize(hm.Grid.XSize * hm.Grid.YSize);
+    std::fill(hm.Values.begin(), hm.Values.end(), 0.0);
+    hm.Grid.XStep = (hm.Grid.BoundingBox.Q.x - hm.Grid.BoundingBox.P.x) / (hm.Grid.XSize - 1);
+    hm.Grid.YStep = (hm.Grid.BoundingBox.Q.y - hm.Grid.BoundingBox.P.y) / (hm.Grid.YSize - 1);
 
     std::cout << "HeightMapGenerator: Computing mean elevation" << std::endl;
 
@@ -62,7 +63,7 @@ public:
     meanElevationRaw /= pointCloud.Points.size();
 
     // Initialize counters for number of points for local mean
-    size_t numGridPoints = hm.GridData.size();
+    size_t numGridPoints = hm.Values.size();
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
@@ -83,19 +84,19 @@ public:
       }
 
       // Get 2D point and subtract origin
-      const Point2D q2D(q3D.x - x0, q3D.y - y0);
+      const Vector2D q2D(q3D.x - x0, q3D.y - y0);
 
       // Recompute mean elevation (excluding outliers)
       meanElevation += q3D.z;
 
       // Iterate over closest stencil (including center of stencil)
       neighborIndices.clear();
-      const size_t i = hm.Coordinate2Index(q2D);
+      const size_t i = hm.Grid.Point2Index(q2D);
       neighborIndices.push_back(i);
-      hm.Index2Boundary(neighborIndices, i);
+      hm.Grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
-        hm.GridData[j] += q3D.z;
+        hm.Values[j] += q3D.z;
         numLocalPoints[j] += 1;
       }
     }
@@ -111,7 +112,7 @@ public:
     for (size_t i = 0; i < numGridPoints; i++)
     {
       if (numLocalPoints[i] > 0)
-        hm.GridData[i] /= numLocalPoints[i];
+        hm.Values[i] /= numLocalPoints[i];
       else
         missingIndices.push_back(i);
     }
@@ -143,7 +144,7 @@ public:
     for (size_t i : missingIndices)
     {
       neighborIndices.clear();
-      hm.Index2Boundary(neighborIndices, i);
+      hm.Grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 2)
@@ -164,12 +165,12 @@ public:
 
       // Propagate values to neighbors and add neighbor to stack
       neighborIndices.clear();
-      hm.Index2Boundary(neighborIndices, i);
+      hm.Grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 0)
         {
-          hm.GridData[j] = hm.GridData[i];
+          hm.Values[j] = hm.Values[i];
           boundaryIndices.push(j);
           numLocalPoints[j] = 1;
           numFound++;
@@ -199,14 +200,14 @@ public:
     //        << "Maximum search distance is " << maxStep << std::endl;
 
     // Test data for verifying orientation, bump in lower left corner
-    // for (size_t i = 0; i < heightMap.GridData.size(); i++)
+    // for (size_t i = 0; i < heightMap.Values.size(); i++)
     // {
-    //     Point2D p = heightMap.Index2Coordinate(i);
+    //     Vector2D p = heightMap.Index2Coordinate(i);
     //     const double dx = heightMap.XMax - heightMap.XMin;
     //     const double dy = heightMap.YMax - heightMap.YMin;
     //     const double x = (p.x - heightMap.XMin) / dx;
     //     const double y = (p.y - heightMap.YMin) / dy;
-    //     heightMap.GridData[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 -
+    //     heightMap.Values[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 -
     //     y);
     // }
   }

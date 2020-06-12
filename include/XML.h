@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "Mesh.h"
-#include "Point.h"
+#include "Vector.h"
 #include "Simplex.h"
 
 namespace DTCC
@@ -95,7 +95,7 @@ public:
 
 private:
   // Write 2D point to file
-  static void Write(const Point2D &p, size_t i, std::ofstream &f)
+  static void Write(const Vector2D &p, size_t i, std::ofstream &f)
   {
     f << "      <vertex"
       << " index=\"" << i << "\""
@@ -105,7 +105,7 @@ private:
   }
 
   // Write 3D point to file
-  static void Write(const Point3D &p, size_t i, std::ofstream &f)
+  static void Write(const Vector3D &p, size_t i, std::ofstream &f)
   {
     f << "      <vertex"
       << " index=\"" << i << "\""

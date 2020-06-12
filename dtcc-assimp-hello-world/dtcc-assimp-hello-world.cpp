@@ -10,7 +10,7 @@
 #include "JSON.h"
 #include "Building.h"
 #include "CityModel.h"
-#include "Point.h"
+#include "Vector.h"
 
 //Assimp includes
 #include <assimp/Importer.hpp>      

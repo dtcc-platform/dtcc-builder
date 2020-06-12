@@ -1,15 +1,15 @@
-// LAS I/O
-// Anders Logg 2019
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
-#ifndef DTCC_SHP_H
-#define DTCC_SHP_H
+#ifndef DTCC_LAS_H
+#define DTCC_LAS_H
 
 #include <fstream>
 #include <iostream>
 #include <liblas/liblas.hpp>
 #include <string>
 
-#include "Point.h"
+#include "Vector.h"
 #include "PointCloud.h"
 
 namespace DTCC
@@ -51,22 +51,22 @@ public:
     {
       // Get point
       liblas::Point const &_p = reader.GetPoint();
-      const Point3D p(_p.GetX(), _p.GetY(), _p.GetZ());
+      const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
 
       // Update bounding box dimensions
       if (pointCloud.Points.size() == 0)
       {
-        pointCloud.XMin = p.x;
-        pointCloud.YMin = p.y;
-        pointCloud.XMax = p.x;
-        pointCloud.YMax = p.y;
+        pointCloud.BoundingBox.P.x = p.x;
+        pointCloud.BoundingBox.P.y = p.y;
+        pointCloud.BoundingBox.Q.x = p.x;
+        pointCloud.BoundingBox.Q.y = p.y;
       }
       else
       {
-        pointCloud.XMin = std::min(p.x, pointCloud.XMin);
-        pointCloud.YMin = std::min(p.y, pointCloud.YMin);
-        pointCloud.XMax = std::max(p.x, pointCloud.XMax);
-        pointCloud.YMax = std::max(p.y, pointCloud.YMax);
+        pointCloud.BoundingBox.P.x = std::min(p.x, pointCloud.BoundingBox.P.x);
+        pointCloud.BoundingBox.P.y = std::min(p.y, pointCloud.BoundingBox.P.y);
+        pointCloud.BoundingBox.Q.x = std::max(p.x, pointCloud.BoundingBox.Q.x);
+        pointCloud.BoundingBox.Q.y = std::max(p.y, pointCloud.BoundingBox.Q.y);
       }
 
       // Add point to point cloud

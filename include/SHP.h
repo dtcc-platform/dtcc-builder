@@ -77,7 +77,7 @@ public:
         {
           const double x = object->padfX[j];
           const double y = object->padfY[j];
-          Point2D p(x, y);
+          Vector2D p(x, y);
           polygon.Vertices.push_back(p);
         }
 
@@ -110,7 +110,7 @@ public:
           {
             const double x = object->padfX[j];
             const double y = object->padfY[j];
-            Point2D p(x, y);
+            Vector2D p(x, y);
             polygon.Vertices.push_back(p);
           }
           if  (Geometry::PolygonOrientation2D(polygon) == 1)

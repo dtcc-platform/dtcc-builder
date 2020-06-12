@@ -10,7 +10,7 @@
 
 #include "Mesh.h"
 #include "Surface.h"
-#include "Point.h"
+#include "Vector.h"
 #include "Simplex.h"
 
 namespace DTCC

@@ -1,49 +1,57 @@
-// Surface classes for 2D and 3D (boundaries of 2D and 3D meshes).
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2019 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_SURFACE_H
 #define DTCC_SURFACE_H
 
-#include "Point.h"
-#include "Simplex.h"
 #include <vector>
+
+#include "Vector.h"
+#include "Simplex.h"
+#include "Logging.h"
 
 namespace DTCC
 {
 
-class Surface2D
-{
-public:
-  // Array of vertices
-  std::vector<Point2D> Vertices;
+  class Surface2D : public Printable
+  {
+  public:
 
-  // List of cells (segments)
-  std::vector<Simplex1D> Cells;
-};
+    // Array of vertices
+    std::vector<Vector2D> Vertices;
 
-class Surface3D
-{
-public:
-  // Array of vertices
-  std::vector<Point3D> Vertices;
+    // List of cells (segments)
+    std::vector<Simplex1D> Cells;
 
-  // List of cells (triangles)
-  std::vector<Simplex2D> Cells;
-};
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "2D surface (mesh boundary) with "
+        + str(Vertices.size()) + " vertices and "
+        + str(Cells.size()) + " edges";
+    }
 
-std::ostream &operator<<(std::ostream &stream, const Surface2D &s)
-{
-  stream << "2D surface with " << s.Vertices.size() << " vertices and "
-         << s.Cells.size() << " cells (segments)";
-  return stream;
-}
+  };
 
-std::ostream &operator<<(std::ostream &stream, const Surface3D &s)
-{
-  stream << "3D surface with " << s.Vertices.size() << " vertices and "
-         << s.Cells.size() << " cells (triangles)";
-  return stream;
-}
+  class Surface3D : public Printable
+  {
+  public:
+
+    // Array of vertices
+    std::vector<Vector3D> Vertices;
+
+    // List of cells (triangles)
+    std::vector<Simplex2D> Cells;
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "3D surface (mesh boundary) with "
+        + str(Vertices.size()) + " vertices and "
+        + str(Cells.size()) + " faces";
+    }
+
+  };
 
 } // namespace DTCC
 

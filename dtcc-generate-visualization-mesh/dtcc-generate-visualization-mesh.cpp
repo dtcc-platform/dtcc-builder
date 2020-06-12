@@ -1,5 +1,5 @@
-// vc-generate-visualization-mesh
-// Anders Logg 2018
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #include <dolfin.h>
 #include <iostream>
@@ -8,7 +8,7 @@
 
 #include "CityModel.h"
 #include "CommandLine.h"
-#include "HeightMap.h"
+#include "GridField.h"
 #include "JSON.h"
 #include "VTK.h"
 #include "Mesh.h"
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
-  std::cout << parameters << std::endl;
+  Info(parameters);
 
   // Get data directory (add trailing slash just in case)
   const std::string dataDirectory = parameters.DataDirectory + "/";
@@ -43,18 +43,21 @@ int main(int argc, char *argv[])
   // Read city model data
   CityModel cityModel;
   JSON::Read(cityModel, dataDirectory + "CityModel.json");
-  std::cout << cityModel << std::endl;
+  Info(cityModel);
 
   // Read height map data
-  HeightMap heightMap;
+  GridField2D heightMap;
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
-  std::cout << heightMap << std::endl;
+  Info(heightMap);
 
   // Generate 3D surfaces
-  std::vector<Surface3D> surfaces = MeshGenerator::GenerateSurfaces3D(
-      cityModel, heightMap,
-      heightMap.XMin, heightMap.YMin, heightMap.XMax, heightMap.YMax,
-      parameters.MeshResolution, parameters.FlatGround);
+  std::vector<Surface3D> surfaces
+    = MeshGenerator::GenerateSurfaces3D(cityModel, heightMap,
+                                        heightMap.Grid.BoundingBox.P.x,
+                                        heightMap.Grid.BoundingBox.P.y,
+                                        heightMap.Grid.BoundingBox.Q.x,
+                                        heightMap.Grid.BoundingBox.Q.y,
+                                        parameters.MeshResolution, parameters.FlatGround);
 
   // Extract ground surface
   Surface3D groundSurface = surfaces[0];

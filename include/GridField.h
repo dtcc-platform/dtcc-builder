@@ -9,6 +9,7 @@
 #include "Grid.h"
 #include "Field.h"
 #include "Geometry.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -16,7 +17,7 @@ namespace DTCC
   /// GridField2D represents a scalar field on a uniform 2D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by bilinear interpolation.
-  class GridField2D : public Field2D
+  class GridField2D : public Field2D, public Printable
   {
   public:
 
@@ -32,8 +33,7 @@ namespace DTCC
     /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    GridField2D(const Grid2D& grid)
-      : Grid(grid)
+    GridField2D(const Grid2D& grid) : Grid(grid)
     {
       // Initialize values to zero
       Values.resize(grid.NumVertices());
@@ -46,41 +46,59 @@ namespace DTCC
     /// @return Value at point
     double operator()(const Point2D& p) const
     {
-      // Check that point is inside domain
-      if (!Geometry::BoundingBoxContains2D(Grid.BoundingBox, p))
-      {
-        std::cout << "p = " << p << std::endl;
-        throw std::runtime_error("Unable to evaluate field; point outside of domain.");
-      }
-
-      // Compute grid cell containing point (lower left corner)
-      const double _x = p.x - Grid.BoundingBox.P.x;
-      const double _y = p.y - Grid.BoundingBox.P.y;
-      const size_t ix = std::min(static_cast<size_t>(std::floor(_x / Grid.XStep)), Grid.XSize - 2);
-      const size_t iy = std::min(static_cast<size_t>(std::floor(_y / Grid.YStep)), Grid.YSize - 2);
-      const size_t i = iy*Grid.XSize + ix;
-      assert(i + Grid.XSize + 1 < Values.size());
-
-      // Map coordinates to [0, 1] x [0, 1] within grid cell
-      const double X = (_x - ix*Grid.XStep) / Grid.XStep;
-      const double Y = (_y - iy*Grid.YStep) / Grid.YStep;
-      assert(X >= 0.0);
-      assert(Y >= 0.0);
-      assert(X <= 1.0);
-      assert(Y <= 1.0);
+      // Map point to cell
+      size_t i{};
+      double x{}, y{};
+      Grid.Point2Cell(p, i, x, y);
 
       // Extract grid data
-      const double z00 = Values[i];
-      const double z10 = Values[i + 1];
-      const double z01 = Values[i + Grid.XSize];
-      const double z11 = Values[i + Grid.XSize + 1];
+      const double v00 = Values[i];
+      const double v10 = Values[i + 1];
+      const double v01 = Values[i + Grid.XSize];
+      const double v11 = Values[i + Grid.XSize + 1];
 
       // Compute value by bilinear interpolation
-      return
-        (1.0 - X) * (1.0 - Y) * z00 +
-        (1.0 - X) * Y * z01 +
-        X * (1.0 - Y) * z10 +
-        X * Y * z11;
+      return Grid.Interpolate(x, y, v00, v10, v01, v11);
+    }
+
+    /// Interpolate given field at vertices.
+    ///
+    /// @param field The field to be interpolated
+    void Interpolate(const Field2D& field)
+    {
+      // Iterate over vertices and evaluate field
+      for (size_t i = 0; i < Grid.NumVertices(); i++)
+        Values[i] = field(Grid.Index2Point(i));
+    }
+
+    /// Compute minimal vertex value.
+    ///
+    /// @return Minimal vertex value
+    double Min() const
+    {
+      return *std::min_element(Values.begin(), Values.end());
+    }
+
+    /// Compute maximal of vertex value.
+    ///
+    /// @return Maximal vertex value
+    double Max() const
+    {
+      return *std::max_element(Values.begin(), Values.end());
+    }
+
+    /// Compute mean vertex value.
+    ///
+    /// @return Mean vertex value
+    double Mean() const
+    {
+      return 0.5*(Min() + Max());
+    }
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "2D field on " + str(Grid);
     }
 
   };
@@ -88,7 +106,7 @@ namespace DTCC
   /// GridField3D represents a scalar field on a uniform 3D grid.
   /// The field can be efficiently evaluated at arbitrary points inside
   /// the grid domain. The value is computed by trilinear interpolation.
-  class GridField3D : public Field3D
+  class GridField3D : public Field3D, public Printable
   {
   public:
 
@@ -98,14 +116,82 @@ namespace DTCC
     /// Array of values (vertex values)
     std::vector<double> Values{};
 
+    /// Create empty field
+    GridField3D() {}
+
+    /// Create zero field on given grid.
+    ///
+    /// @param grid The grid
+    GridField3D(const Grid3D& grid) : Grid(grid)
+    {
+      // Initialize values to zero
+      Values.resize(grid.NumVertices());
+      std::fill(Values.begin(), Values.end(), 0.0);
+    }
+
     /// Evaluate field at given point.
     ///
     /// @param p The point
     /// @return Value at point
     double operator()(const Point3D& p) const
     {
-      // FIXME: In progress
-      return 0.0;
+      // Map point to cell
+      size_t i{};
+      double x{}, y{}, z{};
+      Grid.Point2Cell(p, i, x, y, z);
+
+      // Extract grid data
+      const double v000 = Values[i];
+      const double v100 = Values[i + 1];
+      const double v010 = Values[i + Grid.XSize];
+      const double v110 = Values[i + Grid.XSize + 1];
+      const double v001 = Values[i + Grid.XSize * Grid.YSize];
+      const double v101 = Values[i + 1 + Grid.XSize * Grid.YSize];
+      const double v011 = Values[i + Grid.XSize + Grid.XSize * Grid.YSize];
+      const double v111 = Values[i + Grid.XSize + 1 + Grid.XSize * Grid.YSize];
+
+      // Compute value by trilinear interpolation
+      return Grid.Interpolate(x, y, z, v000, v100, v010, v110, v001, v101, v011, v111);
+    }
+
+    /// Interpolate given field at vertices.
+    ///
+    /// @param field The field to be interpolated
+    void Interpolate(const Field3D& field)
+    {
+      // Iterate over vertices and evaluate field
+      for (size_t i = 0; i < Grid.NumVertices(); i++)
+        Values[i] = field(Grid.Index2Point(i));
+    }
+
+    /// Compute minimal vertex value.
+    ///
+    /// @return Minimal vertex value
+    double Min() const
+    {
+      return *std::min_element(Values.begin(), Values.end());
+    }
+
+    /// Compute maximal of vertex value.
+    ///
+    /// @return Maximal vertex value
+    double Max() const
+    {
+      return *std::max_element(Values.begin(), Values.end());
+    }
+
+    /// Compute mean vertex value.
+    ///
+    /// @return Mean vertex value
+    double Mean() const
+    {
+      return 0.5*(Min() + Max());
+    }
+
+    /// Pretty-print
+    std::string __str__() const
+    {
+      return "3D field on " + str(Grid);
     }
 
   };

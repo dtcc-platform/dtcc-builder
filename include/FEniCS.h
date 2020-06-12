@@ -25,7 +25,7 @@ public:
     meshEditor.init_vertices(mesh2D.Vertices.size());
     for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
     {
-      const Point2D &p = mesh2D.Vertices[i];
+      const Vector2D &p = mesh2D.Vertices[i];
       meshEditor.add_vertex(i, p.x, p.y);
     }
 
@@ -52,7 +52,7 @@ public:
     meshEditor.init_vertices(mesh3D.Vertices.size());
     for (size_t i = 0; i < mesh3D.Vertices.size(); i++)
     {
-      const Point3D &p = mesh3D.Vertices[i];
+      const Vector3D &p = mesh3D.Vertices[i];
       meshEditor.add_vertex(i, p.x, p.y, p.z);
     }
 
@@ -102,7 +102,7 @@ public:
       {
         for (size_t i = 0; i < surface.Vertices.size(); i++)
         {
-          const Point3D &p = surface.Vertices[i];
+          const Vector3D &p = surface.Vertices[i];
           meshEditor.add_vertex(k++, p.x, p.y, p.z);
         }
       }

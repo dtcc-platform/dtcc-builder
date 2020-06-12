@@ -1,15 +1,16 @@
-// Global parameters for VCCore.
-// Anders Logg 2019
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_PARAMETERS_H
 #define DTCC_PARAMETERS_H
 
 #include <string>
+#include "Logging.h"
 
 namespace DTCC
 {
 
-class Parameters
+  class Parameters : public Printable
 {
 public:
   //--- Run-time parameters (parsed from file) ---
@@ -61,27 +62,27 @@ public:
 
   // Threshold for filtering outliers (clouds?) from point cloud
   static constexpr double PointCloudOutlierThreshold = 150.0;
+
+  /// Pretty-print
+  std::string __str__() const
+  {
+    return str("Parameters:") +
+     "\n  DataDirectory           = " + DataDirectory +
+     "\n  X0                      = " + str(X0) +
+     "\n  Y0                      = " + str(Y0) +
+     "\n  XMin                    = " + str(XMin) +
+     "\n  YMin                    = " + str(YMin) +
+     "\n  XMax                    = " + str(XMax) +
+     "\n  YMax                    = " + str(YMax) +
+     "\n  AutoDomain              = " + str(AutoDomain) +
+     "\n  HeightMapResolution     = " + str(HeightMapResolution) +
+     "\n  MinimalBuildingDistance = " + str(MinimalBuildingDistance) +
+     "\n  DomainHeight            = " + str(DomainHeight) +
+     "\n  MeshResolution          = " + str(MeshResolution) +
+      "\n  FlatGround              = " + str(FlatGround);
+  }
+
 };
-
-std::ostream &operator<<(std::ostream &s, const Parameters &parameters)
-{
-  s << "Parameters:" << std::endl
-    << "  DataDirectory           = " << parameters.DataDirectory << std::endl
-    << "  X0                      = " << parameters.X0 << std::endl
-    << "  Y0                      = " << parameters.Y0 << std::endl
-    << "  XMin                    = " << parameters.XMin << std::endl
-    << "  YMin                    = " << parameters.YMin << std::endl
-    << "  XMax                    = " << parameters.XMax << std::endl
-    << "  YMax                    = " << parameters.YMax << std::endl
-    << "  AutoDomain              = " << parameters.AutoDomain << std::endl
-    << "  HeightMapResolution     = " << parameters.HeightMapResolution << std::endl
-    << "  MinimalBuildingDistance = " << parameters.MinimalBuildingDistance << std::endl
-    << "  DomainHeight            = " << parameters.DomainHeight << std::endl
-    << "  MeshResolution          = " << parameters.MeshResolution << std::endl
-    << "  FlatGround              = " << parameters.FlatGround << std::endl;
-
-  return s;
-}
 
 } // namespace DTCC
 
