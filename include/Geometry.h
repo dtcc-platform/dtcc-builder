@@ -267,6 +267,16 @@ public:
             bbox.P.z <= p.z && p.z <= bbox.Q.z);
   }
 
+  // Check whether bounding box contains polygon (2D)
+  static bool BoundingBoxContains2D(const BoundingBox2D &bbox,
+                                    const Polygon &polygon)
+  {
+    for (const auto &p : polygon.Vertices)
+      if (!BoundingBoxContains2D(bbox, p))
+        return false;
+    return true;
+  }
+
   // Compute intersection between segments p0 - p1 and q0 - q1 (2D)
   static Vector2D SegmentIntersection2D(const Vector2D &p0,
                                        const Vector2D &p1,

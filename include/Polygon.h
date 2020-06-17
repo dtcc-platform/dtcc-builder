@@ -1,5 +1,5 @@
-// Polygon (array of 2D points).
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2019 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_POLYGON_H
 #define DTCC_POLYGON_H
@@ -16,7 +16,7 @@ class Polygon
 {
 public:
   // Array of vertices
-  std::vector<Vector2D> Vertices;
+  std::vector<Vector2D> Vertices{};
 
   // Create empty polygon
   Polygon() {}

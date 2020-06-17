@@ -34,8 +34,11 @@ public:
                                 double yMax,
                                 double heightMapResolution)
   {
-    std::cout << "HeightMapGenerator: Generating heightmap from point cloud..."
-              << std::endl;
+    Info("HeightMapGenerator: Generating heightmap from point cloud...");
+
+    // Check for empty data
+    if (pointCloud.Points.size() == 0)
+      Error("HeightMapGenerator: Empty point cloud");
 
     // Shortcut
     GridField2D& hm = heightMap;

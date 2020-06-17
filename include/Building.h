@@ -16,13 +16,13 @@ class Building
 {
 public:
   // Building footprint (polygon)
-  Polygon Footprint;
+  Polygon Footprint{};
 
   // Building height (above ground)
-  double Height;
+  double Height{};
 
   // Create empty building
-  Building() : Height(0) {}
+  Building() {}
 };
 
 } // namespace DTCC
