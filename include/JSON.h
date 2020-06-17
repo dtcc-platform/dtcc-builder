@@ -16,6 +16,7 @@
 #include "GridField.h"
 #include "GridVectorField.h"
 #include "CityModel.h"
+#include "CityJSON.h"
 
 namespace DTCC
 {
@@ -468,6 +469,181 @@ namespace DTCC
       }
       json["Type"] = "CityModel";
       json["Buildings"] = jsonBuildings;
+    }
+
+    /// Serialize CityJSON
+    static void Serialize(const CityJSON& cityJson, nlohmann::json& json) 
+    {
+      // Serializing city objects
+      auto jsonBuilding = nlohmann::json::object();
+      for(auto const& cityObject : cityJson.CityObjects)
+      {
+        //jsonBuilding[cityObject.ID]
+        // Storing the id of the object
+        std::string id = cityObject.ID;
+        auto objID = nlohmann::json::object();
+        json["CityObjects"][id]=objID;
+        
+        // Storing the attributes object
+        auto attributesObj = nlohmann::json::object();
+        attributesObj["measuredHeight"]=cityObject.ObjectAttributes.MeasuredHeight;
+        // TODO: Extend this with additional attributes
+        json["CityObjects"][id]["attributes"]=attributesObj;
+
+        // Storing the geometry object
+        auto geometryObj = nlohmann::json::object();
+        geometryObj["lod"]=cityObject.ObjectGeometry.LOD;
+        geometryObj["type"]=CityObject::Geometry::GeometryTypeToString(cityObject.ObjectGeometry.Type);
+        // TODO: Extend this with additional geometry fields
+
+        //json["CityObjects"][id]["geometry"]=geometryObj;
+
+        auto geometryArray=nlohmann::json::array();
+        //geometryArray.push_back(geometryObj);
+        //json["CityObjects"][id]["geometry"]=geometryArray;
+
+        // Storing the boundaries array
+        auto boundariesExternalArray = nlohmann::json::array();
+        auto boundariesInternalArray = nlohmann::json::array();
+        auto singleBoundaryArray=nlohmann::json::array();
+        
+        for(auto const& boundary : cityObject.ObjectGeometry.Boundaries)
+        {
+          auto boundariesIDs = nlohmann::json::array();
+          for(auto const& id : boundary.BoundariesIDs)
+          {
+            boundariesIDs.push_back(id);
+          }
+          singleBoundaryArray.push_back(boundariesIDs);
+        }
+
+        boundariesInternalArray.push_back(singleBoundaryArray);
+        boundariesExternalArray.push_back(boundariesInternalArray);
+
+        geometryObj["boundaries"]=boundariesExternalArray;
+        geometryArray.push_back(geometryObj);
+        json["CityObjects"][id]["geometry"]=geometryArray;
+
+        // TODO: Change this accordingly to support different types
+        objID["type"] = "Building";
+      }
+      
+      
+
+      //Serializing vertices
+      auto jsonVertices= nlohmann::json::array();
+      for(auto const& vertex: cityJson.Vertices)
+      {
+        auto jsonVertex = nlohmann::json::array();
+        
+        jsonVertex.push_back(vertex.x);
+        jsonVertex.push_back(vertex.y);
+        jsonVertex.push_back(vertex.z);
+        jsonVertices.push_back(jsonVertex);
+      }
+      json["vertices"] = jsonVertices;
+
+
+
+
+      json["type"] = "CityJSON";
+      json["version"] = "1.0";
+    }
+
+    /// Deserialize CityJSON
+    static void Deserialize(CityJSON& cityJson, const nlohmann::json& json) 
+    {
+      //CheckType("CityJSON",json);
+      //Getting vertices
+      uint verticesNum = json["vertices"].size();
+      for (uint i = 0; i < verticesNum; i++)
+      {
+        // debug
+        //std::cout << json["vertices"][i] << std::endl;
+        auto vertex = json["vertices"][i];
+
+        assert(vertex.size() == 3 &&
+               "Attempted to read non 3D vertex from json file");
+
+        cityJson.Vertices.push_back(Point3D(json["vertices"][i][0],
+                                   json["vertices"][i][1],
+                                   json["vertices"][i][2]));
+      }
+
+      //Getting city objects
+      auto cityObjectsField = json["CityObjects"].get<nlohmann::json::object_t>();
+      for (auto cityObjectIterator = cityObjectsField.begin();
+           cityObjectIterator != cityObjectsField.end(); ++cityObjectIterator)
+      {
+        //debug
+        //std::cout << cityObjectIterator->first << std::endl; // getting City Object ID here
+
+        // Creating a new object in stack, we're going to store the information
+        // here and later store this into cityObjects vector
+        CityObject NewObj = CityObject(cityObjectIterator->first);
+
+        auto jsonCityObj = json["CityObjects"][cityObjectIterator->first];
+
+        // Getting attributes
+        CityObject::Attributes attributes = CityObject::Attributes();
+        attributes.MeasuredHeight = json["CityObjects"][NewObj.ID]["attributes"]["measuredHeight"];
+        // TODO: Get more fields for attributes here
+        NewObj.ObjectAttributes=attributes;
+
+        // Storing geometry
+        CityObject::Geometry geometry = CityObject::Geometry();
+        auto jsonGeometryArray = json["CityObjects"][NewObj.ID]["geometry"][0];
+        std::cout << jsonGeometryArray << std::endl;
+
+        // Storing lod settings
+        NewObj.ObjectGeometry.LOD = jsonGeometryArray["lod"];
+        // std::cout << "LOD:"<<geometry.LOD<<std::endl;
+
+        // Storing boundaries
+        uint boundariesArraySize = jsonGeometryArray["boundaries"][0].size();
+        for (uint i = 0; i < boundariesArraySize; i++)
+        {
+          auto boundariesJson = jsonGeometryArray["boundaries"][0][i];
+          for (auto boundaryIter = boundariesJson.begin(); boundaryIter != boundariesJson.end(); ++boundaryIter)
+          {
+            // std::cout << "boundary iter:" << *boundaryIter << std::endl;
+            auto internalJsonArray = boundariesJson[0];
+
+            CityObject::Geometry::Boundary newBoundary;
+
+            for (auto it = internalJsonArray.begin(); it != internalJsonArray.end(); ++it)
+            {
+              // std::cout << *it << std::endl;
+              newBoundary.BoundariesIDs.push_back(*it);
+            }
+
+            NewObj.ObjectGeometry.Boundaries.push_back(newBoundary);
+          }
+        }
+
+        // Storing building type
+        std::string tempGeomType = jsonGeometryArray["type"];
+        // TODO: correlate this to string-enum
+        if (tempGeomType.compare("Solid"))
+        {
+          NewObj.ObjectGeometry.Type = CityObject::Geometry::Solid;
+        }
+        else
+        {
+          // TODO: this should be replaced by built-in functionality in struct
+        }
+
+        // Getting type
+        // TODO: move this whole impl to cityobj class function
+        std::string tempStr = jsonCityObj["type"];
+        if (tempStr.compare("Building"))
+        {
+          NewObj.ObjectType = CityObject::Building;
+        }
+
+        cityJson.CityObjects.push_back(NewObj);
+      }
+
     }
 
   };
