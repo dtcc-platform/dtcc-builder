@@ -41,7 +41,7 @@ def PlotCityModel(data, plotLabels=False):
     pylab.axis('off')
     pylab.show()
 
-def PlotHeightMap(data, plotContour=False):
+def PlotHeightMap(data, plotContours=False):
 
     # Get data
     gridData = data['GridData']
@@ -64,7 +64,7 @@ def PlotHeightMap(data, plotContour=False):
     z = numpy.reshape(gridData, (xSize, ySize))
 
     # Select plot
-    if plotContour:
+    if plotContours:
         pylab.contour(z, extent=[xMin, xMax, yMin, yMax])
         pylab.axis('scaled')
         pylab.axis('off')
@@ -80,7 +80,7 @@ def PlotHeightMap(data, plotContour=False):
     pylab.show()
 
 def Help():
-    print('Usage: vc-plot Data.json')
+    print('Usage: vc-plot [--plot-labels --plot-contors] Data.json')
 
 if __name__ == "__main__":
 
@@ -90,15 +90,15 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Load JSON data
-    fileName = sys.argv[1]
+    fileName = sys.argv[-1]
     with open(fileName) as f:
         data = json.load(f)
 
     # Check type and plot
     dataType = data['Type']
     if dataType == 'CityModel':
-        PlotCityModel(data, True)
+        PlotCityModel(data, '--plot-labels' in sys.argv)
     elif dataType == 'HeightMap':
-        PlotHeightMap(data, False)
+        PlotHeightMap(data, '--plot-contours' in sys.argv)
     else:
         print('Unknown data type: ' + str(dataType))
