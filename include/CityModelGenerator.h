@@ -101,7 +101,7 @@ public:
   static void SimplifyCityModel(CityModel &cityModel,
                                 double minimalBuildingDistance)
   {
-    std::cout << "CityModelGenerator: Simplifying city model..." << std::endl;
+    Info("CityModelGenerator: Simplifying city model...");
 
     // Merge buildings if too close
     MergeBuildings(cityModel, minimalBuildingDistance);
@@ -109,12 +109,13 @@ public:
     // Make buildings simple (remove duplicates after merging)
     size_t numSimple = 0;
     for (auto &building : cityModel.Buildings)
+    {
       numSimple += Polyfix::MakeSimple(building.Footprint,
-                                       Parameters::FootprintAngleThreshold)
-                       ? 1
-                       : 0;
-    std::cout << "CityModelGenerator: Fixed " << numSimple
-              << " polygons that were not simple" << std::endl;
+                                       Parameters::FootprintAngleThreshold);
+    }
+
+    Info("CityModelGenerator: Fixed " + str(numSimple) + "/" +
+         str(cityModel.Buildings.size()) + " polygons that were not simple");
   }
 
   /// Compute heights of buildings from height map.
@@ -188,7 +189,7 @@ private:
     // Get buildings
     std::vector<Building> &buildings = cityModel.Buildings;
 
-    // Create queue of buildings to check
+    // Create queue of indices to check
     std::queue<size_t> indices;
     for (size_t i = 0; i < buildings.size(); i++)
       indices.push(i);
@@ -196,7 +197,7 @@ private:
     // Process queue until empty
     while (indices.size() > 0)
     {
-      // Pop index of next polygon to check
+      // Pop index of next building to check
       const size_t i = indices.front();
       indices.pop();
 
@@ -219,10 +220,12 @@ private:
         // Check if distance is smaller than the tolerance
         if (d2 < tol2)
         {
-          std::cout << "CityModelGenerator: Buildings " << i << " and " << j
-                    << " are too close, merging" << std::endl;
+          Progress("CityModelGenerator: Buildings " + str(i) + " and " +
+                   str(j) + " are too close, merging");
 
           // Compute merged polygon
+          // Polygon mergedPolygon = Polyfix::Merge(Pi, Pj,
+          // minimalBuildingDistance);
           Polygon mergedPolygon = MergePolygons(Pi, Pj);
 
           // Replace Pi, erase Pj and add Pi to queue
@@ -245,7 +248,7 @@ private:
     cityModel.Buildings = mergedBuildings;
   }
 
-  // Merge the two polygons
+  // Merge the two polygonspolygon
   static Polygon MergePolygons(const Polygon &polygon0, const Polygon &polygon1)
   {
     // For now, we just compute the convex hull, consider

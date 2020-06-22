@@ -22,6 +22,27 @@ namespace DTCC
 class Geometry
 {
 public:
+  // FIXME: This needs to be reworked in light of the introduction of two
+  // different classes Point and Vector. Currently somewhat inconsistent.
+
+  // Compute squared norm (2D)
+  static double SquaredNorm2D(const Vector2D &v) { return Dot2D(v, v); }
+
+  // Compute squared norm (3D)
+  static double SquaredNorm3D(const Vector3D &v) { return Dot3D(v, v); }
+
+  // Compute norm (2D)
+  static double Norm2D(const Vector2D &v)
+  {
+    return std::sqrt(SquaredNorm2D(v));
+  }
+
+  // Compute norm (3D)
+  static double Norm3D(const Vector3D &v)
+  {
+    return std::sqrt(SquaredNorm3D(v));
+  }
+
   // Compute dot product (2D)
   static double Dot2D(const Vector2D &u, const Vector2D &v)
   {
@@ -35,7 +56,7 @@ public:
   }
 
   // Compute distance between points (2D)
-  static double Distance2D(const Vector2D &p, const Vector2D &q)
+  static double Distance2D(const Point2D &p, const Point2D &q)
   {
     return std::sqrt(SquaredDistance2D(p, q));
   }
@@ -66,7 +87,7 @@ public:
   }
 
   // Compute squared distance between points (2D)
-  static double SquaredDistance2D(const Vector2D &p, const Vector2D &q)
+  static double SquaredDistance2D(const Point2D &p, const Point2D &q)
   {
     const double dx = p.x - q.x;
     const double dy = p.y - q.y;

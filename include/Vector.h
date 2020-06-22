@@ -26,13 +26,25 @@ namespace DTCC
     /// Second component
     double y{};
 
+    /// Create zero vector
+    Vector2D() {}
+
+    /// Create vector with given components.
+    ///
+    /// @param x First component
+    /// @param y Second component
+    Vector2D(double x, double y) : x(x), y(y) {}
+
+    /// Create vector between points.
+    ///
+    /// @param p First point
+    /// @param q Second point
+    Vector2D(const Point2D &p, const Point2D &q) : x(q.x - p.x), y(q.y - p.y) {}
+
     // FIXME: Temporary conversion during transition to Point/Vector
     operator Point2D() const { return Point2D(x, y); }
 
     // FIXME: This class requires documentation
-
-    Vector2D() : x(0), y(0) {}
-    Vector2D(double x, double y) : x(x), y(y) {}
 
     Vector2D operator+(const Vector2D &p) const
     {
@@ -115,10 +127,26 @@ namespace DTCC
     /// Third component
     double z{};
 
-    // FIXME: This class requires documentation
+    /// Create zero vector
+    Vector3D() {}
 
-    Vector3D() : x(0), y(0), z(0) {}
+    /// Create vector with given components.
+    ///
+    /// @param x First component
+    /// @param y Second component
+    /// @param z Third component
     Vector3D(double x, double y, double z) : x(x), y(y), z(z) {}
+
+    /// Create vector between points.
+    ///
+    /// @param p First point
+    /// @param q Second point
+    Vector3D(const Point3D &p, const Point3D &q)
+        : x(q.x - p.x), y(q.y - p.y), z(q.z - p.z)
+    {
+    }
+
+    // FIXME: This class requires documentation
 
     Vector3D operator+(const Vector3D &p) const
     {
