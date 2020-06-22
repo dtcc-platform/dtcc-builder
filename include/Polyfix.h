@@ -19,8 +19,8 @@ public:
   ///
   /// @param polygon The polygon
   /// @param tol Tolerance for small distance
-  /// @return true iff polygon was not alredy closed
-  static bool MakeClosed(Polygon &polygon, double tol)
+  /// @return 0 if already closed, 1 if modified
+  static size_t MakeClosed(Polygon &polygon, double tol)
   {
     // Avoid using sqrt for efficiency
     const double tol2 = tol * tol;
@@ -44,36 +44,36 @@ public:
 
     // Return if no vertices should be removed
     if (end == 0)
-      return false;
+      return 0;
 
     // Remove vertices
     RemoveVertices(polygon, end);
 
-    return true;
+    return 1;
   }
 
   /// Make polygon counter-clockwise oriented.
   ///
   /// @param polygon The polygon
   /// @param tol Tolerance
-  /// @return true iff polygon was not already oriented
-  static bool MakeOriented(Polygon &polygon)
+  /// @return 0 if already counter-clockwise, 1 if modified
+  static size_t MakeOriented(Polygon &polygon)
   {
     // Return if already counter-clockwise
     if (Geometry::PolygonOrientation2D(polygon) == 0)
-      return false;
+      return 0;
 
     // Reverse polygon
     std::reverse(polygon.Vertices.begin(), polygon.Vertices.end());
 
-    return true;
+    return 1;
   }
 
   /// Make polygon simple (remove consecutive parallel edges).
   ///
   /// @param polygon The polygon
   /// @param tol Tolerance for small angle (sin of angle)
-  /// @return true iff polygon was not already simple
+  /// @return 0 if already simple, 1 if modified
   static bool MakeSimple(Polygon &polygon, double tol)
   {
     // Avoid using sqrt for efficiency
@@ -106,12 +106,12 @@ public:
 
     // Return if no vertices should be removed
     if (remove.size() == 0)
-      return false;
+      return 0;
 
     // Remove vertices
     RemoveVertices(polygon, remove);
 
-    return true;
+    return 1;
   }
 
   /// Transform polygon by subtracting given origin.

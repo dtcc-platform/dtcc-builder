@@ -33,7 +33,7 @@ public:
                                 const Vector2D &origin,
                                 const BoundingBox2D &bbox)
   {
-    std::cout << "CityModelGenerator: Generating city model..." << std::endl;
+    Info("CityModelGenerator: Generating city model...");
 
     // Clear old data
     cityModel.Buildings.clear();
@@ -54,9 +54,8 @@ public:
       }
     }
 
-    std::cout << "CityModelGenerator: Found " << cityModel.Buildings.size()
-              << " building(s) out of " << footprints.size() << " inside domain"
-              << std::endl;
+    Info("CityModelGenerator: Found " + str(cityModel.Buildings.size()) + "/" +
+         str(footprints.size()) + " buildings inside domain");
   }
 
   /// Clean city model by making sure that all building footprints
@@ -65,34 +64,37 @@ public:
   /// @param cityModel The city model
   static void CleanCityModel(CityModel &cityModel)
   {
-    std::cout << "CityModelGenerator: Cleaning city model..." << std::endl;
+    Info("CityModelGenerator: Cleaning city model...");
 
     // Make buildings closed
     size_t numClosed = 0;
     for (auto &building : cityModel.Buildings)
+    {
       numClosed += Polyfix::MakeClosed(building.Footprint,
-                                       Parameters::FootprintDistanceThreshold)
-                       ? 1
-                       : 0;
-    std::cout << "CityModelGenerator: Fixed " << numClosed
-              << " polygons that were not closed" << std::endl;
+                                       Parameters::FootprintDistanceThreshold);
+    }
 
     // Make buildings oriented
     size_t numOriented = 0;
     for (auto &building : cityModel.Buildings)
-      numOriented += Polyfix::MakeOriented(building.Footprint) ? 1 : 0;
-    std::cout << "CityModelGenerator: Fixed " << numOriented
-              << " polygons that were not oriented" << std::endl;
+    {
+      numOriented += Polyfix::MakeOriented(building.Footprint);
+    }
 
     // Make buildings simple
     size_t numSimple = 0;
     for (auto &building : cityModel.Buildings)
+    {
       numSimple += Polyfix::MakeSimple(building.Footprint,
-                                       Parameters::FootprintAngleThreshold)
-                       ? 1
-                       : 0;
-    std::cout << "CityModelGenerator: Fixed " << numSimple
-              << " polygons that were not simple" << std::endl;
+                                       Parameters::FootprintAngleThreshold);
+    }
+
+    Info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
+         str(cityModel.Buildings.size()) + " polygons that were not closed");
+    Info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
+         str(cityModel.Buildings.size()) + " polygons that were not oriented");
+    Info("CityModelGenerator: Fixed " + str(numSimple) + "/" +
+         str(cityModel.Buildings.size()) + " polygons that were not simple");
   }
 
   // Simplify city model (simplify and merge polygons)
