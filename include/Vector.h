@@ -216,6 +216,30 @@ namespace DTCC
 
   };
 
+  // Note: We allow a minimal set of algebra for points such as
+  // translation by a vector. These need to be declared outside
+  // of the Point class to avoid circular includes.
+
+  /// Translate point by given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point2D operator+(const Point2D &p, const Vector2D &v)
+  {
+    return Point2D(p.x + v.x, p.y + v.y);
+  }
+
+  /// Translate point by given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point3D operator+(const Point3D &p, const Vector3D &v)
+  {
+    return Point3D(p.x + v.x, p.y + v.y, p.z + v.z);
+  }
+
 } // namespace DTCC
 
 #endif

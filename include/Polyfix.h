@@ -184,7 +184,7 @@ public:
 
     /*
 
-    # Remove duplicate vertices
+    // Remove duplicate vertices
     numPoints = len(points)
     vertexMap = [i for i in range(numPoints)]
     removed = [false for i in range(numPoints)]
@@ -198,12 +198,12 @@ public:
                 vertexMap[j] = i
                 removed[j] = true
 
-    # Replace removed vertices in graph
+    // Replace removed vertices in graph
     for i in range(numPoints):
         for j in range(len(edges[i])):
             edges[i][j] = vertexMap[edges[i][j]]
 
-    # Remove duplicate edges in graph
+    // Remove duplicate edges in graph
     for i in range(len(edges)):
         newEdge = []
         for j in edges[i]:
@@ -211,9 +211,9 @@ public:
         edges[i] = newEdge
 
     #for i, e in enumerate(edges):
-    #    print(i, e)
+    //    print(i, e)
 
-    # Write point labels (and make sure they don't overlap)
+    // Write point labels (and make sure they don't overlap)
     if plotting:
         H = 0.0075*max([Norm(p-q) for p in points for q in points])
         for i, p in enumerate(points):
@@ -223,29 +223,29 @@ public:
                     h += 5*H
             text(p[0] + h, p[1] + H, str(i), va='bottom', ha='left')
 
-    # Find first vertex by looking for an original edge that is to the
-    # "right" of all points
+    // Find first vertex by looking for an original edge that is to the
+    // "right" of all points
     for i in range(m + n):
 
-        # Skip if no outgoing edges
+        // Skip if no outgoing edges
         if len(edges[i]) == 0: continue
 
-        # Get the edge
+        // Get the edge
         j = edges[i][0]
         u = points[j] - points[i]
         u /= Norm(u)
 
-        # Check all points
+        // Check all points
         ok = true
         for k in range(numPoints):
 
-            # Skip if removed
+            // Skip if removed
             if removed[k]: continue
 
-            # Skip if on edge
+            // Skip if on edge
             if k == i or k == j: continue
 
-            # Check sin of angle (cross product)
+            // Check sin of angle (cross product)
             v = points[k] - points[i]
             v /= Norm(v)
             sin = u[0]*v[1] - u[1]*v[0]
@@ -253,60 +253,60 @@ public:
                  ok = false
                 break
 
-        # Found first edge
+        // Found first edge
         if ok:
             firstVertex = i
             nextVertex = j
             break
 
-    # Keep track of visited vertices
+    // Keep track of visited vertices
     visited = [false for i in range(len(points))]
     visited[firstVertex] = true
     visited[nextVertex] = true
 
-    # Initialize polygon
+    // Initialize polygon
     vertices = [firstVertex, nextVertex]
 
-    # Maximum number of step before failure
+    // Maximum number of step before failure
     maxNumSteps = 2*numPoints
 
-    # Walk graph to build polygon counter-clockwise by picking
-    # the right-most turn at each intersection
+    // Walk graph to build polygon counter-clockwise by picking
+    // the right-most turn at each intersection
     for step in range(maxNumSteps):
 
         #print('Vertices:', vertices)
 
-        # Get previous and current vertex
+        // Get previous and current vertex
         i = len(vertices) - 1
         previousVertex = vertices[i - 1]
         currentVertex = vertices[i]
 
-        # Get current edge(s)
+        // Get current edge(s)
         edge = edges[currentVertex]
 
         #print('Vertex %d: %s' % (currentVertex, str(edges[currentVertex])))
 
-        # Find next vertex
+        // Find next vertex
         if len(edge) == 1:
 
-            # If we only have one edge then follow it
+            // If we only have one edge then follow it
             nextVertex = edge[0]
 
         else:
 
-            # Get previous edge
+            // Get previous edge
             u = points[currentVertex] - points[previousVertex]
             d = Norm(u)
             u = u / d
 
-            # Compute angles and distances for outgoing edges
+            // Compute angles and distances for outgoing edges
             angles = []
             for k in edge:
 
-                # Skip if already visited (if not first vertex)
+                // Skip if already visited (if not first vertex)
                 if k != firstVertex and visited[k]: continue
 
-                # Skip if candidate edge intersects previous edges
+                // Skip if candidate edge intersects previous edges
                 intersects = false
                 e = (points[currentVertex], points[k])
                 for l in range(1, i - 1):
@@ -316,61 +316,61 @@ public:
                         break
                 if intersects: continue
 
-                # Get new edge
+                // Get new edge
                 v = points[k] - points[currentVertex]
                 d = Norm(v)
                 v = v / d
 
-                # Replace actual angle by cheaper but strictly increasing
-                # function to avoid needing to call acos() or asin().
+                // Replace actual angle by cheaper but strictly increasing
+                // function to avoid needing to call acos() or asin().
                 sin = u[0]*v[1] - u[1]*v[0]
                 cos = u[0]*v[0] + u[1]*v[1]
                 if cos < -1.0 + eps: continue
                 a = sin if cos >= 0.0 else (2.0-sin if sin > 0.0 else sin-2.0)
                 angles.push_back((k, a, d))
 
-            # If we have no more vertices to visit, take a step back
+            // If we have no more vertices to visit, take a step back
             if len(angles) == 0:
                 print('No more vertices to visit, stepping back')
                 del vertices[i]
                 continue
 
-            # Print angles
+            // Print angles
             #for angle in angles:
-            #    print(angle)
+            //    print(angle)
 
-            # Find smallest (right-most) angle. First priority is the angle
-            # and second priority is the distance (pick closest). Note that
-            # we add a small tolerance to ensure we get the closest vertex
-            # if the vertices are on the same line.
+            // Find smallest (right-most) angle. First priority is the angle
+            // and second priority is the distance (pick closest). Note that
+            // we add a small tolerance to ensure we get the closest vertex
+            // if the vertices are on the same line.
             minAngle = angles[0]
             for angle in angles[1:]:
                 if (angle[1] < minAngle[1] - eps) or \
                    (angle[1] < minAngle[1] + eps and angle[2] < minAngle[2]):
                     minAngle = angle
 
-            # Pick next vertex
+            // Pick next vertex
             nextVertex = minAngle[0]
 
         #print(currentVertex, "-->", nextVertex)
         #print('')
 
-        # We are done if we return to the first vertex
+        // We are done if we return to the first vertex
         if nextVertex == firstVertex:
             #print('Back to first vertex')
             break
 
-        # Add next vertex
+        // Add next vertex
         vertices.push_back(nextVertex)
         visited[nextVertex] = true
 
-    # If merge failed, return convex hull
+    // If merge failed, return convex hull
     if nextVertex != firstVertex:
         print('Merge failed, falling back to convex hull')
         points = [p for p in firstPolygon] + [p for p in secondPolygon]
         return ConvexHull(points)
 
-    # Extract polygon points
+    // Extract polygon points
     polygon = [points[i] for i in vertices]
 
     */
@@ -417,7 +417,7 @@ private:
   static void ConnectVertexEdge(size_t i,
                                 size_t j0,
                                 size_t j1,
-                                const std::vector<Point2D> &vertices,
+                                std::vector<Point2D> &vertices,
                                 std::vector<std::vector<size_t>> &edges,
                                 double tol)
   {
@@ -449,24 +449,23 @@ private:
       return;
 
     // Don't connect vertex to edge if zero length
-    const Vector2D v(q0, q1);
-    const double vNorm = Geometry::Norm2D(v);
-    if (vNorm < Parameters::Epsilon)
+    Vector2D v(q0, q1);
+    const double v2 = Geometry::SquaredNorm2D(v);
+    if (v2 < Parameters::Epsilon)
       return;
 
-    /*
-    # Connect vertex to edge if close (project)
-    if DistanceSegmentPoint(q0, q1, p) < tol:
-        v /= vNorm
-        r = q0 + Dot(p - q0, v)*v
-        k = len(points)
-        points.push_back(r)
-        edges.push_back([i, j0, j1])
-        edges[i].push_back(k)
-        edges[j0].push_back(k)
-        edges[j1].push_back(k)
-        if plotting: plot(r[0], r[1], 'x')
-    */
+    // Connect vertex to edge if close (project)
+    if (Geometry::SquaredDistance2D(q0, q1, p) < tol2)
+    {
+      const Vector2D u(q0, p);
+      const Point2D r = q0 + v * (Geometry::Dot2D(u, v) / v2);
+      const size_t k = vertices.size();
+      vertices.push_back(r);
+      edges.push_back(std::vector<size_t>({i, j0, j1}));
+      edges[i].push_back(k);
+      edges[j0].push_back(k);
+      edges[j1].push_back(k);
+    }
   }
 
   // Connect edge (i0, i1) to edge (j0, j1)
@@ -474,7 +473,7 @@ private:
                               size_t i1,
                               size_t j0,
                               size_t j1,
-                              const std::vector<Point2D> &vertices,
+                              std::vector<Point2D> &vertices,
                               std::vector<std::vector<size_t>> &edges,
                               double tol)
   {
@@ -493,35 +492,40 @@ private:
     if (std::abs(Geometry::Dot2D(u, v)) > 1.0 - Parameters::Epsilon)
       return;
 
-    /*
+    // Compute edge-edge intersection
+    const Point2D r = Geometry::EdgeIntersection2D(p0, p1, q0, q1);
 
-    # Compute edge-edge intersection
-    e = (p0, p1)
-    f = (q0, q1)
-    r = EdgeIntersection(e, f)
-
-    # Connect edges to intersection if close
-    if Contains(e, r, tol) and Contains(f, r, tol):
-        k = len(points)
-        points.push_back(r)
-        sp = EdgeSign(p0, p1, r)
-        sq = EdgeSign(q0, q1, r)
-        kEdges = []
-        if sp == -1 or sp == 0:
-            edges[i0].push_back(k)
-            kEdges.push_back(i0)
-        if sp == 0 or sp == 1:
-            edges[i1].push_back(k)
-            kEdges.push_back(i1)
-        if sq == -1 or sq == 0:
-            edges[j0].push_back(k)
-            kEdges.push_back(j0)
-        if sq == 0 or sq == 1:
-            edges[j1].push_back(k)
-            kEdges.push_back(j1)
-        edges.push_back(kEdges)
-        if plotting: plot(r[0], r[1], 'x')
-    */
+    // Connect edges to intersection if close
+    if (Geometry::EdgeContains2D(p0, p1, r, tol) &&
+        Geometry::EdgeContains2D(q0, q1, r, tol))
+    {
+      const size_t k = vertices.size();
+      vertices.push_back(r);
+      const int sp = Geometry::EdgeSign2D(p0, p1, r);
+      const int sq = Geometry::EdgeSign2D(q0, q1, r);
+      std::vector<size_t> kEdges{};
+      if (sp == -1 || sp == 0)
+      {
+        edges[i0].push_back(k);
+        kEdges.push_back(i0);
+      }
+      if (sp == 0 || sp == 1)
+      {
+        edges[i1].push_back(k);
+        kEdges.push_back(i1);
+      }
+      if (sq == -1 || sq == 0)
+      {
+        edges[j0].push_back(k);
+        kEdges.push_back(j0);
+      }
+      if (sq == 0 || sq == 1)
+      {
+        edges[j1].push_back(k);
+        kEdges.push_back(j1);
+      }
+      edges.push_back(kEdges);
+    }
   }
 };
 

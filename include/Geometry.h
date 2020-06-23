@@ -11,10 +11,11 @@
 #include <tuple>
 #include <vector>
 
-#include "Vector.h"
-#include "Polygon.h"
 #include "BoundingBox.h"
 #include "Parameters.h"
+#include "Point.h"
+#include "Polygon.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -63,7 +64,7 @@ public:
 
   // Compute distance between segment (p0, p1) and point q (2D)
   static double
-  Distance2D(const Vector2D &p0, const Vector2D &p1, const Vector2D &q)
+  Distance2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
   {
     return std::sqrt(SquaredDistance2D(p0, p1, q));
   }
@@ -96,12 +97,12 @@ public:
 
   // Compute squared distance between segment (p0, p1) and point q (2D)
   static double
-  SquaredDistance2D(const Vector2D &p0, const Vector2D &p1, const Vector2D &q)
+  SquaredDistance2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
   {
     // Project point to line
-    const Vector2D u = q - p0;
-    const Vector2D v = p1 - p0;
-    const Vector2D p = p0 + v * (Dot2D(u, v) / v.SquaredMagnitude());
+    const Vector2D u(p0, q);
+    const Vector2D v(p0, p1);
+    const Point2D p = p0 + v * (Dot2D(u, v) / v.SquaredMagnitude());
 
     // Check whether projected point is inside segment. Check either
     // x or y coordinates depending on which is largest (most stable)
@@ -112,11 +113,11 @@ public:
 
     // Use distance to projection if inside
     if (inside)
-      return (q - p).SquaredMagnitude();
+      return SquaredDistance2D(p, q);
 
     // Otherwise use distance to closest end point
-    const double d0 = (q - p0).SquaredMagnitude();
-    const double d1 = (q - p1).SquaredMagnitude();
+    const double d0 = SquaredDistance2D(p0, q);
+    const double d1 = SquaredDistance2D(p1, q);
     return std::min(d0, d1);
   }
 
@@ -165,12 +166,38 @@ public:
     return dx * dx + dy * dy + dz * dz;
   }
 
-  // Compute orientation of point q relative to segment p0 - p1 (2D)
+  // Compute orientation of point q relative to edge (p0, p1) (2D)
   static double Orient2D(const Vector2D &p0, const Vector2D &p1, const Vector2D &q)
   {
     const Vector2D u = p1 - p0;
     const Vector2D v = q - p0;
     return u.x * v.y - u.y * v.x;
+  }
+
+  // Compute sign of point q relative to edge (p0, p1) (2D).
+  // -1 --- (p0) --- 0 --- (p1) --- +1
+  static int EdgeSign2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
+  {
+    const Vector2D v(p0, p1);
+    double l{}, d0{}, d1{};
+    if (std::abs(v.x > v.y))
+    {
+      l = std::abs(v.x);
+      d0 = std::abs(p0.x - q.x);
+      d1 = std::abs(p1.x - q.x);
+    }
+    else
+    {
+      l = std::abs(v.y);
+      d0 = std::abs(p0.y - q.y);
+      d1 = std::abs(p1.y - q.y);
+    }
+    if (d0 > l - Parameters::Epsilon && d0 > d1)
+      return 1;
+    else if (d1 > l - Parameters::Epsilon && d1 > d0)
+      return -1;
+    else
+      return 0;
   }
 
   // Compute quadrant angle of point p relative to polygon (2D)
@@ -265,6 +292,22 @@ public:
     return std::sqrt(r2max);
   }
 
+  // Check whether edge (p0, p1) contains point q. It is assumed that the
+  // point is located on the line defined by the edge.
+  static bool EdgeContains2D(const Point2D &p0,
+                             const Point2D &p1,
+                             const Point2D &q,
+                             double tol = 0.0)
+  {
+    const Vector2D v(p0, p1);
+    if (std::abs(v.x) > std::abs(v.y))
+      return std::min(p0.x, p1.x) - tol < q.x and
+             std::max(p0.x, p1.x) + tol > q.x;
+    else
+      return std::min(p0.y, p1.y) - tol < q.y and
+             std::max(p0.y, p1.y) + tol > q.y;
+  }
+
   // Check whether polygon contains point (2D)
   static bool PolygonContains2D(const Polygon &polygon, const Vector2D &p)
   {
@@ -298,18 +341,18 @@ public:
     return true;
   }
 
-  // Compute intersection between segments p0 - p1 and q0 - q1 (2D)
-  static Vector2D SegmentIntersection2D(const Vector2D &p0,
-                                       const Vector2D &p1,
-                                       const Vector2D &q0,
-                                       const Vector2D &q1)
+  // Compute intersection between edges p0 - p1 and q0 - q1 (2D)
+  static Point2D EdgeIntersection2D(const Point2D &p0,
+                                    const Point2D &p1,
+                                    const Point2D &q0,
+                                    const Point2D &q1)
   {
     // Solve for intersection: p0 + k*(p1 - p0) = q0 + l*(q1 - q0)
 
     // Compute vectors
-    const Vector2D u = q0 - p0;
-    const Vector2D v = p1 - p0;
-    const Vector2D w = q1 - q0;
+    const Vector2D u(p0, q0);
+    const Vector2D v(p0, p1);
+    const Vector2D w(q0, q1);
 
     // Create linear system
     const double a = v.x;
@@ -330,7 +373,7 @@ public:
 
     // Solve linear system
     const double k = (d * e - b * f) / det;
-    const Vector2D p = p0 + v * k;
+    const Point2D p = p0 + v * k;
 
     return p;
   }
