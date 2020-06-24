@@ -167,10 +167,10 @@ public:
   }
 
   // Compute orientation of point q relative to edge (p0, p1) (2D)
-  static double Orient2D(const Vector2D &p0, const Vector2D &p1, const Vector2D &q)
+  static double Orient2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
   {
-    const Vector2D u = p1 - p0;
-    const Vector2D v = q - p0;
+    const Vector2D u(p0, p1);
+    const Vector2D v(p0, q);
     return u.x * v.y - u.y * v.x;
   }
 
@@ -198,6 +198,20 @@ public:
       return -1;
     else
       return 0;
+  }
+
+  // Compute strictly increasing function [0, 2pi] -> [0, 4] of angle of v
+  // relative to u. This is a cheap alternative compared to working with asin,
+  // acos.
+  static double VectorAngle2D(const Vector2D &u, const Vector2D &v)
+  {
+    const double u2 = u.x * u.x + u.y * u.y;
+    const double v2 = v.x * v.x + v.y * v.y;
+    const double sin = u.x * v.y - u.y * v.x;
+    const double cos = u.x * v.x + u.y * v.y;
+    const double a = sin * sin / (u2 * v2);
+    return (sin > 0.0 ? (cos > 0.0 ? a : 2.0 - a)
+                      : (cos > 0.0 ? 4.0 - a : 2.0 + a));
   }
 
   // Compute quadrant angle of point p relative to polygon (2D)
@@ -339,6 +353,16 @@ public:
       if (!BoundingBoxContains2D(bbox, p))
         return false;
     return true;
+  }
+
+  // Check whether edges (p0, p1) and (q0, q1) intersect
+  static bool Intersects2D(const Point2D &p0,
+                           const Point2D &p1,
+                           const Point2D &q0,
+                           const Point2D &q1)
+  {
+    return (Orient2D(p0, p1, q0) * Orient2D(p0, p1, q1) <= 0.0 &&
+            Orient2D(q0, q1, p0) * Orient2D(q0, q1, p1) <= 0.0);
   }
 
   // Compute intersection between edges p0 - p1 and q0 - q1 (2D)

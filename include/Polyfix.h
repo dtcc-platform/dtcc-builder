@@ -136,6 +136,9 @@ public:
   static Polygon
   Merge(const Polygon &polygon0, const Polygon &polygon1, double tol)
   {
+    // Avoid using sqrt for efficiency
+    const double tol2 = tol * tol;
+
     // Get number of vertices
     const size_t m = polygon0.Vertices.size();
     const size_t n = polygon1.Vertices.size();
@@ -182,197 +185,215 @@ public:
       }
     }
 
-    /*
-
     // Remove duplicate vertices
-    numPoints = len(points)
-    vertexMap = [i for i in range(numPoints)]
-    removed = [false for i in range(numPoints)]
-    for i in range(numPoints):
-        for j in range(i+1, numPoints):
-            if removed[i]: continue
-            if DistancePointPoint(points[i], points[j]) < eps:
-                #print('Merging:', i, j)
-                edges[i] = edges[i] + edges[j]
-                edges[j] = []
-                vertexMap[j] = i
-                removed[j] = true
+    assert(vertices.size() == edges.size());
+    const size_t numVertices = vertices.size();
+    std::vector<size_t> vertexMap(numVertices);
+    std::vector<bool> removed(numVertices);
+    for (size_t i = 0; i < numVertices; i++)
+    {
+      vertexMap[i] = i;
+      removed[i] = false;
+    }
+    for (size_t i = 0; i < numVertices; i++)
+    {
+      for (size_t j = i + 1; j < numVertices; j++)
+      {
+        if (removed[i])
+          continue;
+        if (Geometry::SquaredDistance2D(vertices[i], vertices[j]) < tol2)
+        {
+          for (const auto k : edges[j])
+            edges[i].push_back(k);
+          edges[j].clear();
+          vertexMap[j] = i;
+          removed[j] = true;
+        }
+      }
+    }
 
     // Replace removed vertices in graph
-    for i in range(numPoints):
-        for j in range(len(edges[i])):
-            edges[i][j] = vertexMap[edges[i][j]]
+    for (size_t i = 0; i < edges.size(); i++)
+      for (auto &edge : edges[i])
+        edge = vertexMap[edge];
 
     // Remove duplicate edges in graph
-    for i in range(len(edges)):
-        newEdge = []
-        for j in edges[i]:
-            if j not in newEdge and i != j: newEdge.push_back(j)
-        edges[i] = newEdge
-
-    #for i, e in enumerate(edges):
-    //    print(i, e)
-
-    // Write point labels (and make sure they don't overlap)
-    if plotting:
-        H = 0.0075*max([Norm(p-q) for p in points for q in points])
-        for i, p in enumerate(points):
-            h = H
-            for j, q in enumerate(points[:i]):
-                if Norm(p - q) < eps:
-                    h += 5*H
-            text(p[0] + h, p[1] + H, str(i), va='bottom', ha='left')
+    for (size_t i = 0; i < edges.size(); i++)
+    {
+      std::vector<size_t> newEdges{};
+      for (auto &edge : edges[i])
+      {
+        if (edge == i)
+          continue;
+        if (std::find(edges[i].begin(), edges[i].end(), edge) != edges[i].end())
+          continue;
+        newEdges.push_back(edge);
+      }
+      edges[i] = newEdges;
+    }
 
     // Find first vertex by looking for an original edge that is to the
     // "right" of all points
-    for i in range(m + n):
+    size_t firstVertex{}, _nextVertex{};
+    for (size_t i = 0; i < m + n; i++)
+    {
+      // Skip if no outgoing edges
+      if (edges[i].size() == 0)
+        continue;
 
-        // Skip if no outgoing edges
-        if len(edges[i]) == 0: continue
+      // Get the edge
+      const size_t j = edges[i][0];
+      const Vector2D u(vertices[i], vertices[j]);
+      const double u2 = Geometry::SquaredNorm2D(u);
 
-        // Get the edge
-        j = edges[i][0]
-        u = points[j] - points[i]
-        u /= Norm(u)
+      // Check all points
+      bool ok = true;
+      for (size_t k = 0; k < numVertices; k++)
+      {
+        // Skip if removed
+        if (removed[k])
+          continue;
 
-        // Check all points
-        ok = true
-        for k in range(numPoints):
+        // Skip if on edge
+        if (k == i || k == j)
+          continue;
 
-            // Skip if removed
-            if removed[k]: continue
+        // Check sin of angle (cross product)
+        const Vector2D v(vertices[i], vertices[k]);
+        const double v2 = Geometry::SquaredNorm2D(v);
+        const double sin = u.x * v.y - u.y * v.x;
+        if (sin < 0.0 && sin * sin > tol2 * u2 * v2)
+        {
+          ok = false;
+          break;
+        }
+      }
 
-            // Skip if on edge
-            if k == i or k == j: continue
-
-            // Check sin of angle (cross product)
-            v = points[k] - points[i]
-            v /= Norm(v)
-            sin = u[0]*v[1] - u[1]*v[0]
-            if sin < -eps:
-                 ok = false
-                break
-
-        // Found first edge
-        if ok:
-            firstVertex = i
-            nextVertex = j
-            break
+      // Found first edge
+      if (ok)
+      {
+        firstVertex = i;
+        _nextVertex = j;
+        break;
+      }
+    }
 
     // Keep track of visited vertices
-    visited = [false for i in range(len(points))]
-    visited[firstVertex] = true
-    visited[nextVertex] = true
+    std::vector<bool> visited(numVertices);
+    std::fill(visited.begin(), visited.end(), false);
+    visited[firstVertex] = true;
+    visited[_nextVertex] = true;
 
     // Initialize polygon
-    vertices = [firstVertex, nextVertex]
+    std::vector<size_t> polygon;
+    polygon.push_back(firstVertex);
+    polygon.push_back(_nextVertex);
 
     // Maximum number of step before failure
-    maxNumSteps = 2*numPoints
+    const size_t maxNumSteps = 2 * numVertices;
 
     // Walk graph to build polygon counter-clockwise by picking
     // the right-most turn at each intersection
-    for step in range(maxNumSteps):
+    for (size_t step = 0; step < maxNumSteps; step++)
+    {
+      // Get previous and current vertex
+      const size_t i = polygon.size() - 1;
+      const size_t previousVertex = polygon[i - 1];
+      const size_t currentVertex = polygon[i];
 
-        #print('Vertices:', vertices)
+      // Get current edge(s)
+      const std::vector<size_t> &edge = edges[currentVertex];
 
-        // Get previous and current vertex
-        i = len(vertices) - 1
-        previousVertex = vertices[i - 1]
-        currentVertex = vertices[i]
+      // Find next vertex
+      assert(edges.size() > 0);
+      size_t nextVertex{};
+      if (edges.size() == 1)
+      {
+        // If we only have one edge then follow it
+        nextVertex = edge[0];
+      }
+      else
+      {
+        // Get previous edge
+        const Vector2D u(vertices[previousVertex], vertices[currentVertex]);
 
-        // Get current edge(s)
-        edge = edges[currentVertex]
+        // Compute angles and distances for outgoing edges
+        std::vector<std::tuple<size_t, double, double>> angles{};
+        for (const auto k : edge)
+        {
+          // Skip if already visited (if not first vertex)
+          if (k != firstVertex && visited[k])
+            continue;
 
-        #print('Vertex %d: %s' % (currentVertex, str(edges[currentVertex])))
+          // Skip if candidate edge intersects a previous edge
+          bool intersects = false;
+          const auto e = std::make_pair(vertices[currentVertex], vertices[k]);
+          for (size_t l = 1; l < i - 1; l++)
+          {
+            const auto f =
+                std::make_pair(vertices[polygon[l]], vertices[polygon[l + 1]]);
+            if (Geometry::Intersects2D(e.first, e.second, f.first, f.second))
+            {
+              intersects = true;
+              break;
+            }
+          }
+          if (intersects)
+            continue;
 
-        // Find next vertex
-        if len(edge) == 1:
+          // Get new edge
+          const Vector2D v(vertices[currentVertex], vertices[k]);
+          const double v2 = Geometry::SquaredNorm2D(v);
 
-            // If we only have one edge then follow it
-            nextVertex = edge[0]
+          // Compute vector angle
+          const double a = Geometry::VectorAngle2D(u, v);
+          angles.push_back(std::make_tuple(k, a, v2));
+        }
 
-        else:
+        /*
 
-            // Get previous edge
-            u = points[currentVertex] - points[previousVertex]
-            d = Norm(u)
-            u = u / d
+        // If we have no more vertices to visit, take a step back
+        if (angles.size() == 0)
+        {
+          del polygon[i];
+          continue;
+        }
 
-            // Compute angles and distances for outgoing edges
-            angles = []
-            for k in edge:
+        // Find smallest (right-most) angle. First priority is the angle
+        // and second priority is the distance (pick closest). Note that
+        // we add a small tolerance to ensure we get the closest vertex
+        // if the vertices are on the same line.
+        const double minAngle = std::numeric_limits<double>::max();
+        for (const auto &angle :angles)
+        {
+          if (angle[1] < minAngle[1] - eps) or                          \
+                                              (angle[1] < minAngle[1] + eps and
+        angle[2] < minAngle[2]) minAngle = angle;
+        }
 
-                // Skip if already visited (if not first vertex)
-                if k != firstVertex and visited[k]: continue
+        // Pick next vertex
+        nextVertex = minAngle[0];
 
-                // Skip if candidate edge intersects previous edges
-                intersects = false
-                e = (points[currentVertex], points[k])
-                for l in range(1, i - 1):
-                    f = (points[vertices[l]], points[vertices[l+1]])
-                    if Intersects(e, f):
-                        intersects = true
-                        break
-                if intersects: continue
+        */
+      }
 
-                // Get new edge
-                v = points[k] - points[currentVertex]
-                d = Norm(v)
-                v = v / d
+      // We are done if we return to the first vertex
+      if (nextVertex == firstVertex)
+        break;
 
-                // Replace actual angle by cheaper but strictly increasing
-                // function to avoid needing to call acos() or asin().
-                sin = u[0]*v[1] - u[1]*v[0]
-                cos = u[0]*v[0] + u[1]*v[1]
-                if cos < -1.0 + eps: continue
-                a = sin if cos >= 0.0 else (2.0-sin if sin > 0.0 else sin-2.0)
-                angles.push_back((k, a, d))
+      // Add next vertex
+      polygon.push_back(nextVertex);
+      visited[nextVertex] = true;
+    }
 
-            // If we have no more vertices to visit, take a step back
-            if len(angles) == 0:
-                print('No more vertices to visit, stepping back')
-                del vertices[i]
-                continue
-
-            // Print angles
-            #for angle in angles:
-            //    print(angle)
-
-            // Find smallest (right-most) angle. First priority is the angle
-            // and second priority is the distance (pick closest). Note that
-            // we add a small tolerance to ensure we get the closest vertex
-            // if the vertices are on the same line.
-            minAngle = angles[0]
-            for angle in angles[1:]:
-                if (angle[1] < minAngle[1] - eps) or \
-                   (angle[1] < minAngle[1] + eps and angle[2] < minAngle[2]):
-                    minAngle = angle
-
-            // Pick next vertex
-            nextVertex = minAngle[0]
-
-        #print(currentVertex, "-->", nextVertex)
-        #print('')
-
-        // We are done if we return to the first vertex
-        if nextVertex == firstVertex:
-            #print('Back to first vertex')
-            break
-
-        // Add next vertex
-        vertices.push_back(nextVertex)
-        visited[nextVertex] = true
-
+    /*
     // If merge failed, return convex hull
-    if nextVertex != firstVertex:
-        print('Merge failed, falling back to convex hull')
-        points = [p for p in firstPolygon] + [p for p in secondPolygon]
-        return ConvexHull(points)
-
-    // Extract polygon points
-    polygon = [points[i] for i in vertices]
-
+    if (nextVertex != firstVertex)
+    {
+      print('Merge failed, falling back to convex hull');
+      points = [p for p in firstPolygon] + [p for p in secondPolygon];
+      return ConvexHull(points);
+    }
     */
 
     return Polygon();

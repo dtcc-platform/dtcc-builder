@@ -548,7 +548,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             v /= Norm(v)
             sin = u[0]*v[1] - u[1]*v[0]
             if sin < -eps:
-                ok = False
+                 ok = False
                 break
 
         # Found first edge
