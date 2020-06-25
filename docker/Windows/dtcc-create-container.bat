@@ -1,5 +1,5 @@
 SET CURRENTDIR="%cd%"
-cd ..\..
+cd %~dp0..\..
 SET UPDIR="%cd%"
 cd %CURRENTDIR%
 docker create -ti --name dtcc -v %UPDIR%:/home/dtcc/core dtccimage
