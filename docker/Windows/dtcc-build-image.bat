@@ -1,1 +1,1 @@
-docker build -t dtccimage .
+docker build -t dtccimage ..
