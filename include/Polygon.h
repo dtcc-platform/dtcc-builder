@@ -7,7 +7,7 @@
 #include <cmath>
 #include <vector>
 
-#include "Vector.h"
+#include "Point.h"
 
 namespace DTCC
 {
@@ -16,7 +16,7 @@ class Polygon
 {
 public:
   // Array of vertices
-  std::vector<Vector2D> Vertices{};
+  std::vector<Point2D> Vertices{};
 
   // Create empty polygon
   Polygon() {}

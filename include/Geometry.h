@@ -70,7 +70,7 @@ public:
   }
 
   // Compute distance between polygon and point (2D)
-  static double Distance2D(const Polygon &polygon, const Vector2D &p)
+  static double Distance2D(const Polygon &polygon, const Point2D &p)
   {
     return std::sqrt(SquaredDistance2D(polygon, p));
   }
@@ -82,7 +82,7 @@ public:
   }
 
   // Compute distance between points (3D)
-  static double Distance3D(const Vector3D &p, const Vector3D &q)
+  static double Distance3D(const Point3D &p, const Point3D &q)
   {
     return std::sqrt(SquaredDistance3D(p, q));
   }
@@ -122,7 +122,7 @@ public:
   }
 
   // Compute squared distance between polygon and point(2D)
-  static double SquaredDistance2D(const Polygon &polygon, const Vector2D &p)
+  static double SquaredDistance2D(const Polygon &polygon, const Point2D &p)
   {
     // Check if point is contained in polygon
     if (PolygonContains2D(polygon, p))
@@ -132,8 +132,8 @@ public:
     double d2Min = std::numeric_limits<double>::max();
     for (size_t i = 0; i < polygon.Vertices.size(); i++)
     {
-      Vector2D p0 = polygon.Vertices[i];
-      Vector2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
       d2Min = std::min(d2Min, SquaredDistance2D(p0, p1, p));
     }
 
@@ -158,7 +158,7 @@ public:
   }
 
   // Compute squared distance between points (3D)
-  static double SquaredDistance3D(const Vector3D &p, const Vector3D &q)
+  static double SquaredDistance3D(const Point3D &p, const Point3D &q)
   {
     const double dx = p.x - q.x;
     const double dy = p.y - q.y;
@@ -215,11 +215,11 @@ public:
   }
 
   // Compute quadrant angle of point p relative to polygon (2D)
-  static int QuadrantAngle2D(const Vector2D &p,
-                             const std::vector<Vector2D> &polygon)
+  static int QuadrantAngle2D(const Point2D &p,
+                             const std::vector<Point2D> &polygon)
   {
     // Compute angle to first vertex
-    Vector2D q0 = polygon[0];
+    Point2D q0 = polygon[0];
     int v0 = QuadrantAngle2D(q0, p);
 
     // Sum up total angle
@@ -227,7 +227,7 @@ public:
     for (size_t i = 1; i < polygon.size() + 1; i++)
     {
       // Compute angle increment
-      Vector2D q1 = polygon[i % polygon.size()];
+      Point2D q1 = polygon[i % polygon.size()];
       int v1 = QuadrantAngle2D(q1, p);
       int dv = v1 - v0;
 
@@ -253,7 +253,7 @@ public:
   }
 
   // Compute quadrant angle of point p relative to point q (2D)
-  static int QuadrantAngle2D(const Vector2D &p, const Vector2D &q)
+  static int QuadrantAngle2D(const Point2D &p, const Point2D &q)
   {
     return ((p.x > q.x) ? ((p.y > q.y) ? 0 : 3) : ((p.y > q.y) ? 1 : 2));
   }
@@ -264,8 +264,8 @@ public:
     double sum = 0.0;
     for (size_t i = 0; i < polygon.Vertices.size(); i++)
     {
-      Vector2D p0 = polygon.Vertices[i];
-      Vector2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
       sum += (p1.x - p0.x) * (p1.y + p0.y);
     }
     return sum;
@@ -284,17 +284,18 @@ public:
   }
 
   // Compute center of polygon (2D)
-  static Vector2D PolygonCenter2D(const Polygon &polygon)
+  static Point2D PolygonCenter2D(const Polygon &polygon)
   {
-    Vector2D c;
+    Vector2D o{};
+    Vector2D c{};
     for (auto const &p : polygon.Vertices)
-      c += p;
-    c /= polygon.Vertices.size();
+      c += Vector2D(o, p);
+    c /= static_cast<double>(polygon.Vertices.size());
     return c;
   }
 
   // Compute radius of polygon relative to center (2D)
-  static double PolygonRadius2D(const Polygon &polygon, const Vector2D &center)
+  static double PolygonRadius2D(const Polygon &polygon, const Point2D &center)
   {
     double r2max = 0.0;
     for (auto const &p : polygon.Vertices)
@@ -323,7 +324,7 @@ public:
   }
 
   // Check whether polygon contains point (2D)
-  static bool PolygonContains2D(const Polygon &polygon, const Vector2D &p)
+  static bool PolygonContains2D(const Polygon &polygon, const Point2D &p)
   {
     // Compute total quadrant relative to polygon. If the point
     // is inside the polygon, the angle should be 4 (or -4).
@@ -403,7 +404,7 @@ public:
   }
 
   // Compute convex hull of point set (2D)
-  static Polygon ConvexHull2D(const std::vector<Vector2D> &points)
+  static Polygon ConvexHull2D(const std::vector<Point2D> &points)
   {
     // The convex hull is computed by doing a Graham scan: select an
     // extreme base point, sort remaining points by angle and then
@@ -429,7 +430,7 @@ public:
 
     // Set base point
     const size_t baseIndex = iMin;
-    Vector2D basePoint = points[baseIndex];
+    Point2D basePoint = points[baseIndex];
 
     // Compute angles and distances relative to base point
     std::vector<std::tuple<double, double, size_t>> angles(numPoints - 1);
@@ -441,8 +442,8 @@ public:
         continue;
 
       // Compute angle (negative cosine) and distance
-      const Vector2D &p = points[i];
-      const Vector2D v = p - basePoint;
+      const Point2D &p = points[i];
+      const Vector2D v(basePoint, p);
       const double distance = v.Magnitude();
       const double angle =
           (distance > Parameters::Epsilon ? -v.x / distance : 0.0);
@@ -485,7 +486,7 @@ public:
     {
       // Get next point
       const size_t i2 = filteredIndices[i];
-      const Vector2D &p2 = points[i2];
+      const Point2D &p2 = points[i2];
 
       // Keep popping from stack until we see a left turn
       while (true)
@@ -494,8 +495,8 @@ public:
         const size_t i1 = convexHull.top();
         convexHull.pop();
         const size_t i0 = convexHull.top();
-        const Vector2D &p0 = points[i0];
-        const Vector2D &p1 = points[i1];
+        const Point2D &p0 = points[i0];
+        const Point2D &p1 = points[i1];
 
         // Check orientation, keep p1 if orientation is positive
         if (Orient2D(p0, p1, p2) > Parameters::Epsilon)

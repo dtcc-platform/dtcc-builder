@@ -118,11 +118,12 @@ public:
   ///
   /// @param polygon The polygon
   /// @param origin The origin to be subtracted
-  static void Transform(Polygon &polygon, const Vector2D &origin)
+  static void Transform(Polygon &polygon, const Point2D &origin)
   {
     // Subtract origin from each vertex
+    Vector2D _origin(origin);
     for (auto &p : polygon.Vertices)
-      p -= origin;
+      p -= _origin;
   }
 
   /// Merge polygons. This creates a new polygon that covers the
@@ -234,7 +235,7 @@ public:
 
     // Find first vertex by looking for an original edge that is to the
     // "right" of all points
-    size_t firstVertex{}, _nextVertex{};
+    size_t firstVertex{}, nextVertex{};
     for (size_t i = 0; i < m + n; i++)
     {
       // Skip if no outgoing edges
@@ -273,7 +274,7 @@ public:
       if (ok)
       {
         firstVertex = i;
-        _nextVertex = j;
+        nextVertex = j;
         break;
       }
     }
@@ -282,12 +283,12 @@ public:
     std::vector<bool> visited(numVertices);
     std::fill(visited.begin(), visited.end(), false);
     visited[firstVertex] = true;
-    visited[_nextVertex] = true;
+    visited[nextVertex] = true;
 
     // Initialize polygon
     std::vector<size_t> polygon;
     polygon.push_back(firstVertex);
-    polygon.push_back(_nextVertex);
+    polygon.push_back(nextVertex);
 
     // Maximum number of step before failure
     const size_t maxNumSteps = 2 * numVertices;
@@ -306,7 +307,6 @@ public:
 
       // Find next vertex
       assert(edges.size() > 0);
-      size_t nextVertex{};
       if (edges.size() == 1)
       {
         // If we only have one edge then follow it
@@ -318,7 +318,7 @@ public:
         const Vector2D u(vertices[previousVertex], vertices[currentVertex]);
 
         // Compute angles and distances for outgoing edges
-        std::vector<std::tuple<size_t, double, double>> angles{};
+        std::vector<std::tuple<size_t, double, double>> candidates{};
         for (const auto k : edge)
         {
           // Skip if already visited (if not first vertex)
@@ -345,17 +345,15 @@ public:
           const Vector2D v(vertices[currentVertex], vertices[k]);
           const double v2 = Geometry::SquaredNorm2D(v);
 
-          // Compute vector angle
+          // Compute vector angle and add candidate edge
           const double a = Geometry::VectorAngle2D(u, v);
-          angles.push_back(std::make_tuple(k, a, v2));
+          candidates.push_back(std::make_tuple(k, a, v2));
         }
 
-        /*
-
         // If we have no more vertices to visit, take a step back
-        if (angles.size() == 0)
+        if (candidates.size() == 0)
         {
-          del polygon[i];
+          polygon.pop_back();
           continue;
         }
 
@@ -363,18 +361,20 @@ public:
         // and second priority is the distance (pick closest). Note that
         // we add a small tolerance to ensure we get the closest vertex
         // if the vertices are on the same line.
-        const double minAngle = std::numeric_limits<double>::max();
-        for (const auto &angle :angles)
+        auto minCandidate = candidates[0];
+        for (size_t k = 1; k < candidates.size(); k++)
         {
-          if (angle[1] < minAngle[1] - eps) or                          \
-                                              (angle[1] < minAngle[1] + eps and
-        angle[2] < minAngle[2]) minAngle = angle;
+          const double angle = std::get<1>(candidates[k]);
+          const double distance = std::get<2>(candidates[k]);
+          const double minAngle = std::get<1>(minCandidate);
+          const double minDistance = std::get<2>(minCandidate);
+          if ((angle < minAngle - tol) ||
+              (angle < minAngle + tol && distance < minDistance))
+            minCandidate = candidates[k];
         }
 
         // Pick next vertex
-        nextVertex = minAngle[0];
-
-        */
+        nextVertex = std::get<0>(minCandidate);
       }
 
       // We are done if we return to the first vertex
@@ -386,17 +386,25 @@ public:
       visited[nextVertex] = true;
     }
 
-    /*
     // If merge failed, return convex hull
     if (nextVertex != firstVertex)
     {
-      print('Merge failed, falling back to convex hull');
-      points = [p for p in firstPolygon] + [p for p in secondPolygon];
-      return ConvexHull(points);
+      Warning("Polygon merge failed, falling back to convex hull.");
+      vertices.clear();
+      for (const auto &p : polygon0.Vertices)
+        vertices.push_back(p);
+      for (const auto &p : polygon1.Vertices)
+        vertices.push_back(p);
+      return Geometry::ConvexHull2D(vertices);
     }
-    */
 
-    return Polygon();
+    // Create polygon
+    Polygon _polygon{};
+    _polygon.Vertices.reserve(polygon.size());
+    for (size_t i = 0; i < polygon.size(); i++)
+      _polygon.Vertices.push_back(vertices[polygon[i]]);
+
+    return _polygon;
   }
 
 private:
@@ -404,7 +412,7 @@ private:
   static void RemoveVertices(Polygon &polygon, size_t end)
   {
     // Copy vertices to be kept to new vector
-    std::vector<Vector2D> vertices(end);
+    std::vector<Point2D> vertices(end);
     for (size_t i = 0; i < end; i++)
       vertices[i] = polygon.Vertices[i];
 
@@ -416,7 +424,7 @@ private:
   static void RemoveVertices(Polygon &polygon, const std::vector<size_t> remove)
   {
     // Copy vertices to be kept to new vector
-    std::vector<Vector2D> vertices(polygon.Vertices.size() - remove.size());
+    std::vector<Point2D> vertices(polygon.Vertices.size() - remove.size());
     size_t k = 0;
     size_t l = 0;
     for (size_t i = 0; i < polygon.Vertices.size(); i++)
@@ -502,6 +510,10 @@ private:
     // const double tol2 = tol * tol;
 
     // Get vertices
+    assert(i0 < vertices.size());
+    assert(i1 < vertices.size());
+    assert(j0 < vertices.size());
+    assert(j1 < vertices.size());
     const Point2D &p0 = vertices[i0];
     const Point2D &p1 = vertices[i1];
     const Point2D &q0 = vertices[j0];
