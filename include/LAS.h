@@ -38,28 +38,15 @@ public:
 
     liblas::Bounds<double> bounds;
     std::vector<liblas::FilterPtr> filters;
-    bounds = liblas::Bounds<double>(bbox.P.x,bbox.P.y,bbox.Q.x,bbox.Q.y);
-    liblas::FilterPtr bounds_filter = liblas::FilterPtr(new liblas::BoundsFilter(bounds));
-    bounds_filter->SetType(liblas::FilterI::eInclusion);
-    filters.push_back(bounds_filter);
-
+    filters.push_back(MakeBoundsFilter(bbox));
     _Read(pointCloud, fileName, filters);
   }
 
   // Read point cloud from LAS file only if they have the defined classification
   static void Read(PointCloud &pointCloud, std::string fileName, const std::vector<int> &classifications) 
   {
-    std::vector<liblas::Classification> classes;
-    for (int c: classifications ) 
-    {
-      classes.push_back(liblas::Classification(c));
-    }
     std::vector<liblas::FilterPtr> filters;
-    liblas::FilterPtr class_filter =
-        liblas::FilterPtr(new liblas::ClassificationFilter(classes));
-    class_filter->SetType(liblas::FilterI::eInclusion);
-    filters.push_back(class_filter);
-
+    filters.push_back(MakeClassFilter(classifications));
     _Read(pointCloud, fileName, filters);
   }
 
@@ -68,24 +55,10 @@ public:
   {
     std::cout << "LAS: Reading point cloud from file: " << fileName 
               << " bounded by " << str(bbox) << std::endl;
-    std::vector<liblas::Classification> classes;
-    liblas::Bounds<double> bounds;
+
     std::vector<liblas::FilterPtr> filters;
-
-
-    for (int c: classifications ) 
-    {
-      classes.push_back(liblas::Classification(c));
-    }
-    liblas::FilterPtr class_filter =
-    liblas::FilterPtr(new liblas::ClassificationFilter(classes));
-    class_filter->SetType(liblas::FilterI::eInclusion);
-    filters.push_back(class_filter);
-
-    bounds = liblas::Bounds<double>(bbox.P.x,bbox.P.y,bbox.Q.x,bbox.Q.y);
-    liblas::FilterPtr bounds_filter = liblas::FilterPtr(new liblas::BoundsFilter(bounds));
-    bounds_filter->SetType(liblas::FilterI::eInclusion);
-    filters.push_back(bounds_filter);
+    filters.push_back(MakeClassFilter(classifications));
+    filters.push_back(MakeBoundsFilter(bbox));
 
     _Read(pointCloud, fileName, filters);
   }
@@ -93,6 +66,30 @@ public:
 
 
 private:
+
+  static liblas::FilterPtr MakeClassFilter(const std::vector<int> &classifications)
+  {
+    std::vector<liblas::Classification> classes;
+    for (int c: classifications ) 
+    {
+      classes.push_back(liblas::Classification(c));
+    }
+    liblas::FilterPtr class_filter = liblas::FilterPtr(new liblas::ClassificationFilter(classes));
+    class_filter->SetType(liblas::FilterI::eInclusion);
+
+    return class_filter;
+  }
+
+  static liblas::FilterPtr MakeBoundsFilter(BoundingBox2D bbox)
+  {
+    liblas::Bounds<double> bounds;
+    bounds = liblas::Bounds<double>(bbox.P.x,bbox.P.y,bbox.Q.x,bbox.Q.y);
+    liblas::FilterPtr bounds_filter = liblas::FilterPtr(new liblas::BoundsFilter(bounds));
+    bounds_filter->SetType(liblas::FilterI::eInclusion);
+
+    return bounds_filter;
+  }
+
   static void _Read(PointCloud &pointCloud, std::string fileName,std::vector<liblas::FilterPtr> filters) 
   {
     // Open file
