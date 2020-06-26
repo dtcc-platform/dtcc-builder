@@ -31,7 +31,7 @@ namespace DTCC
     // set a default color to all points
     void InitColors(Color c) 
     {
-      for (int i = 0; i < Points.size(); i++) {
+      for (size_t i = 0; i < Points.size(); i++) {
         Colors.push_back(c);
       }
     }
