@@ -28,12 +28,21 @@ namespace DTCC
 
     // Create empty point cloud
   PointCloud() {}
+    // set a default color to all points
+    void InitColors(Color c) 
+    {
+      for (int i = 0; i < Points.size(); i++) {
+        Colors.push_back(c);
+      }
+    }
 
     /// Pretty-print
     std::string __str__() const
     {
       return "Point cloud on " + str(BoundingBox) + " with " + str(Points.size()) + " points ";
     }
+
+    
 
   };
 
