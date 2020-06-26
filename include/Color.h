@@ -10,26 +10,28 @@
 
 namespace DTCC
 {
+
+/// Colors are stored as doubles in the range 0-1
 class Color
 {
 public:
   /// Red (R)
-  uint8_t R{};
+  double R{};
 
   /// Green (G)
-  uint8_t G{};
+  double G{};
 
   /// Blue (B)
-  uint8_t B{};
+  double B{};
 
   /// Alpha (A)
-  uint8_t A{};
+  double A{};
 
   /// Empty constructor
   Color() {}
 
-  Color(uint8_t r, uint8_t g, uint8_t b) : R(r), G(g), B(b), A(255) {}
-  Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : R(r), G(g), B(b), A(a) {}
+  Color(double r, double g, double b) : R(r), G(g), B(b), A(1.0) {}
+  Color(double r, double g, double b, double a) : R(r), G(g), B(b), A(a) {}
 
   // Convert to string (pretty-print)
   std::string __str__() const
