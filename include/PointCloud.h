@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "Color.h"
 #include "Vector.h"
 #include "BoundingBox.h"
 #include "Logging.h"
@@ -19,6 +20,8 @@ namespace DTCC
 
     /// Array of points
     std::vector<Vector3D> Points{};
+
+    std::vector<Color> Colors{};
 
     /// Bounding box
     BoundingBox2D BoundingBox{};
