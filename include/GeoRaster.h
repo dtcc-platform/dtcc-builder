@@ -83,6 +83,9 @@ public:
     }
 
     Bands = bands.size()+1; //Bands 1-indexed
+    
+    // accepted method of closing a GDAL dataset according to docs
+    rasterDataset->~GDALDataset();
   }
 
   double operator()(const Point2D& p, size_t band = 1) const {
