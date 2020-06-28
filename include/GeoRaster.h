@@ -48,9 +48,7 @@ public:
       gt[5] = -1;
     }
 
-    
-    printf("Origin = (%.6f,%.6f)\n\n", gt[0], gt[3]);
-    printf("Pixel Size = (%.6f,%.6f)\n\n", gt[1], gt[5]);
+
     Bounds.P.x = gt[0];
     Bounds.P.y = gt[3]+(YSize*gt[5]);
     Bounds.Q.x = gt[0]+(XSize*gt[1]);
@@ -87,7 +85,7 @@ public:
     Bands = bands.size()+1; //Bands 1-indexed
   }
 
-  double operator()(const Point2D& p, size_t band = 1) {
+  double operator()(const Point2D& p, size_t band = 1) const {
     if (band > Bands) 
     {
       throw std::runtime_error("Raster only has " + str(Bands) + " bands");
