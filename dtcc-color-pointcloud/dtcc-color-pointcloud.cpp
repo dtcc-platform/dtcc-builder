@@ -26,10 +26,11 @@ int main(int argc, char *argv[])
   PointCloud pointCloud;
 
   const std::string lasFile =
-      "/home/dtcc/core/data/colorize_points/09B003_639_35_5025_trees.las";
+      "/home/dtcc/core/data/colorize_points/09B003_639_35_5025.las";
   const std::string tifFile =
       "/home/dtcc/core/data/colorize_points/1200_639_18_50_2018.tif";
-  LAS::Read(pointCloud, lasFile);
+  std::vector<int> cls = {1};
+  LAS::Read(pointCloud, lasFile, cls);
 
   std::cout << str(pointCloud.BoundingBox) << std::endl;
 
