@@ -84,8 +84,27 @@ public:
       Values.push_back(data);
     }
 
-    Bands = bands.size();
+    Bands = bands.size()+1; //Bands 1-indexed
   }
+
+  double operator()(const Point2D& p, size_t band = 1) {
+    if (band > Bands) 
+    {
+      throw std::runtime_error("Raster only has " + str(Bands) + " bands");
+    }
+    return Values[band-1].Nearest(p);
+  }
+
+  double Interpolate(const Point2D& p, size_t band = 1) {
+    if (band > Bands) 
+    {
+      throw std::runtime_error("Raster only has " + str(Bands) + " bands");
+    }
+    return Values[band-1](p);
+  }
+
+
+
 };
 } // namespace DTCC
 
