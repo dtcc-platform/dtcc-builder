@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_POINT_CLOUD_PROCESSOR_H

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Anders Logg, Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_LAS_H
