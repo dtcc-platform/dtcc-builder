@@ -12,7 +12,7 @@ namespace DTCC
 {
 
 /// Colors are stored as doubles in the range 0-1
-class Color
+class Color: public Printable
 {
 public:
   /// Red (R)
