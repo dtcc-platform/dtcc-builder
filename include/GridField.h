@@ -61,6 +61,14 @@ namespace DTCC
       return Grid.Interpolate(x, y, v00, v10, v01, v11);
     }
 
+    double Nearest(const Point2D& p) const
+    {
+      size_t i{};
+      double x{}, y{};
+      Grid.Point2Cell(p, i, x, y);
+      return Values[i];
+    }
+
     /// Interpolate given field at vertices.
     ///
     /// @param field The field to be interpolated
@@ -152,6 +160,14 @@ namespace DTCC
 
       // Compute value by trilinear interpolation
       return Grid.Interpolate(x, y, z, v000, v100, v010, v110, v001, v101, v011, v111);
+    }
+
+    double Nearest(const Point3D& p) const 
+    {
+      size_t i{};
+      double x{}, y{}, z{};
+      Grid.Point2Cell(p, i, x, y, z);
+      return  Values[i];
     }
 
     /// Interpolate given field at vertices.
