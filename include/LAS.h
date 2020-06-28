@@ -9,6 +9,7 @@
 #include <liblas/liblas.hpp>
 #include <string>
 
+#include "Color.h"
 #include "Vector.h"
 #include "PointCloud.h"
 
@@ -52,6 +53,9 @@ public:
       // Get point
       liblas::Point const &_p = reader.GetPoint();
       const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
+      
+      liblas::Color const& color = _p.GetColor();
+      const Color c(color.GetRed()/65535.0,color.GetGreen()/65535.0,color.GetBlue()/65535.0);
 
       // Update bounding box dimensions
       if (pointCloud.Points.size() == 0)
@@ -71,6 +75,7 @@ public:
 
       // Add point to point cloud
       pointCloud.Points.push_back(p);
+      pointCloud.Colors.push_back(c);
     }
   }
 };
