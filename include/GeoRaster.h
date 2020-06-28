@@ -4,23 +4,28 @@
 #include <gdal/cpl_conv.h>
 #include <gdal/gdal_priv.h>
 
+#include "BoundingBox.h"
 #include "GeoReference.h"
+#include "GridField.h"
 #include "Point.h"
+#include "Logging.h"
 namespace DTCC
 {
 // template<class T>
 class GeoRaster
 {
 public:
-  size_t XSize, YSize, Bands;
-  std::vector<std::vector<double>> Values{};
-  GeoReference geoReference = GeoReference();
+  size_t XSize, YSize, Bands = 0;
+  BoundingBox2D Bounds{};
+  std::vector<GridField2D> Values{};
+  // GeoReference geoReference = GeoReference();
 
+  GeoRaster() {}
 
-  GeoRaster(std::string fileName, std::vector<size_t> bands = {}) 
+  GeoRaster(std::string fileName, std::vector<size_t> bands = {})
   {
     GDALDataset *rasterDataset;
-    GDALRasterBand  *rBand;
+    GDALRasterBand *rBand;
     size_t band_count;
     GDALAllRegister();
     rasterDataset = (GDALDataset *)GDALOpen(fileName.c_str(), GA_ReadOnly);
@@ -33,31 +38,45 @@ public:
     band_count = rasterDataset->GetRasterCount();
 
     double gt[6];
-    if (rasterDataset->GetGeoTransform(gt) == CE_None)
-    {
-      geoReference.A = gt[1];
-      geoReference.B = gt[2];
-      geoReference.C = gt[0];
-      geoReference.D = gt[4];
-      geoReference.E = gt[5];
-      geoReference.F = gt[3];
+    if (rasterDataset->GetGeoTransform(gt) != CE_None) {
+      // file not georeferences
+      gt[0] = 0;
+      gt[1] = 1;
+      gt[2] = 0;
+      gt[3] = YSize;
+      gt[4] = 0;
+      gt[5] = -1;
     }
+
+    
+    printf("Origin = (%.6f,%.6f)\n\n", gt[0], gt[3]);
+    printf("Pixel Size = (%.6f,%.6f)\n\n", gt[1], gt[5]);
+    Bounds.P.x = gt[0];
+    Bounds.P.y = gt[3]+(YSize*gt[5]);
+    Bounds.Q.x = gt[0]+(XSize*gt[1]);
+    Bounds.Q.y = gt[3];
+    
+    
 
     if (bands.size() == 0) // load all bands in order
     {
-      //bands 1-indexed in GDAL
-      for (size_t b = 1; b<=band_count; b++) 
+      // bands 1-indexed in GDAL
+      for (size_t b = 1; b <= band_count; b++)
       {
         bands.push_back(b);
       }
     }
 
-    for (auto band: bands) 
+    std::cout << "GeoRaster: Reading (" << XSize << "," << YSize << "," << bands.size() << ") raster" << std::endl;
+    std::cout << "GeoRaster: Bounded by " << str(Bounds) << std::endl;
+
+    for (auto band : bands)
     {
       std::cout << "loading band " << band << std::endl;
-      std::vector<double> data(XSize * YSize);
+      GridField2D data(Grid2D(Bounds,XSize,YSize));
       rBand = rasterDataset->GetRasterBand(band);
-      CPLErr err = rBand->RasterIO( GF_Read, 0,0,XSize,YSize, &data[0], XSize, YSize, GDT_Float64,0,0   );
+      CPLErr err = rBand->RasterIO(GF_Read, 0, 0, XSize, YSize, &data.Values[0], XSize,
+                                   YSize, GDT_Float64, 0, 0);
       if (err == CE_Failure)
       {
         throw std::runtime_error("Could not load data from " + fileName);
@@ -66,11 +85,7 @@ public:
     }
 
     Bands = bands.size();
-
-
   }
-
-
 };
 } // namespace DTCC
 
