@@ -10,6 +10,7 @@
 #include <string>
 
 #include "Color.h"
+#include "BoundingBox.h"
 #include "Vector.h"
 #include "PointCloud.h"
 
@@ -23,29 +24,99 @@ public:
   // to the given point cloud, enabling reading data from several
   // LAS files into the same point cloud.
   static void Read(PointCloud &pointCloud, std::string fileName)
-  {
+  { 
     std::cout << "LAS: "
               << "Reading point cloud from file " << fileName << std::endl;
+    std::vector<liblas::FilterPtr> filters;
+    _Read(pointCloud,fileName,filters);
+  }
 
+  // Read point cloud from LAS file only if they are within the BoundingBox
+  static void Read(PointCloud &pointCloud, std::string fileName, BoundingBox2D bbox )
+  {
+    std::cout << "LAS: Reading point cloud from file: " << fileName 
+              << " bounded by " << str(bbox) << std::endl;
+
+    liblas::Bounds<double> bounds;
+    std::vector<liblas::FilterPtr> filters;
+    filters.push_back(MakeBoundsFilter(bbox));
+    _Read(pointCloud, fileName, filters);
+  }
+
+  // Read point cloud from LAS file only if they have the defined classification
+  static void Read(PointCloud &pointCloud, std::string fileName, const std::vector<int> &classifications) 
+  {
+    std::vector<liblas::FilterPtr> filters;
+    filters.push_back(MakeClassFilter(classifications));
+    _Read(pointCloud, fileName, filters);
+  }
+
+  // Read point cloud from LAS file only if they have the defined classification and are within the BoundingBox
+  static void Read(PointCloud &pointCloud, std::string fileName, const std::vector<int> &classifications,BoundingBox2D bbox) 
+  {
+    std::cout << "LAS: Reading point cloud from file: " << fileName 
+              << " bounded by " << str(bbox) << std::endl;
+
+    std::vector<liblas::FilterPtr> filters;
+    filters.push_back(MakeClassFilter(classifications));
+    filters.push_back(MakeBoundsFilter(bbox));
+
+    _Read(pointCloud, fileName, filters);
+  }
+
+
+
+private:
+
+  static liblas::FilterPtr MakeClassFilter(const std::vector<int> &classifications)
+  {
+    std::vector<liblas::Classification> classes;
+    for (int c: classifications ) 
+    {
+      classes.push_back(liblas::Classification(c));
+    }
+    liblas::FilterPtr class_filter = liblas::FilterPtr(new liblas::ClassificationFilter(classes));
+    class_filter->SetType(liblas::FilterI::eInclusion);
+
+    return class_filter;
+  }
+
+  static liblas::FilterPtr MakeBoundsFilter(BoundingBox2D bbox)
+  {
+    liblas::Bounds<double> bounds;
+    bounds = liblas::Bounds<double>(bbox.P.x,bbox.P.y,bbox.Q.x,bbox.Q.y);
+    liblas::FilterPtr bounds_filter = liblas::FilterPtr(new liblas::BoundsFilter(bounds));
+    bounds_filter->SetType(liblas::FilterI::eInclusion);
+
+    return bounds_filter;
+  }
+
+  static void _Read(PointCloud &pointCloud, std::string fileName,std::vector<liblas::FilterPtr> filters) 
+  {
     // Open file
     std::ifstream f;
     f.open(fileName, std::ios::in | std::ios::binary);
+    
 
     // Create reader
     liblas::ReaderFactory factory;
     liblas::Reader reader = factory.CreateWithStream(f);
 
+    if (filters.size() > 0) {
+      reader.SetFilters(filters);
+    }
     // Read header
     liblas::Header const &header = reader.GetHeader();
     const bool isCompressed = header.Compressed();
     const std::string signature = header.GetFileSignature();
     const size_t numPoints = header.GetPointRecordsCount();
+    size_t readPoints = 0;
     if (isCompressed)
       std::cout << "LAS: Compressed" << std::endl;
     else
       std::cout << "LAS: Uncompressed" << std::endl;
     std::cout << "LAS: " << signature << std::endl;
-    std::cout << "LAS: " << numPoints << " points" << std::endl;
+    std::cout << "LAS: contains " << numPoints << " points" << std::endl;
 
     // Iterate over points
     while (reader.ReadNextPoint())
@@ -77,8 +148,12 @@ public:
       // Add point to point cloud
       pointCloud.Points.push_back(p);
       pointCloud.Colors.push_back(c);
+      readPoints++;
     }
+    std::cout << "LAS: read " << readPoints << " points" << std::endl;
+
   }
+
 };
 
 } // namespace DTCC
