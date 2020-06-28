@@ -55,6 +55,7 @@ public:
       const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
       
       liblas::Color const& color = _p.GetColor();
+      // colors seem to be 16-bit in las spec.
       const Color c(color.GetRed()/65535.0,color.GetGreen()/65535.0,color.GetBlue()/65535.0);
 
       // Update bounding box dimensions
