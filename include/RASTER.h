@@ -73,6 +73,15 @@ public:
       {
         throw std::runtime_error("Could not load data from " + fileName);
       }
+
+      // GDAL loads data top to bottom, GridRaster Assumes bottom to top
+      for (size_t i = 0;i<YSize/2;i++) { 
+        std::vector<double> tempdata(data.Values.begin() + (i*XSize),data.Values.begin() + ( (i+1)*XSize ) );
+        std::copy(data.Values.end() - ( (i+1)*XSize ), data.Values.end() - ( (i)*XSize ), data.Values.begin() + (i*XSize)  );
+        std::copy(tempdata.begin(),tempdata.end(),data.Values.end() - ( (i+1)*XSize ));
+      }
+
+
       geoRaster.Values.push_back(data);
     }
 
