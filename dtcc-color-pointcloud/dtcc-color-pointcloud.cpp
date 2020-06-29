@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Dag Wästberg
 // Licensed under the MIT License
 
 #include <algorithm>
@@ -12,6 +12,7 @@
 
 #include "Color.h"
 #include "GeoRaster.h"
+#include "RASTER.h"
 #include "LAS.h"
 #include "Logging.h"
 #include "Point.h"
@@ -33,8 +34,8 @@ int main(int argc, char *argv[])
   LAS::Read(pointCloud, lasFile, cls);
 
   std::cout << str(pointCloud.BoundingBox) << std::endl;
-
-  GeoRaster orto = GeoRaster(tifFile);
+  GeoRaster orto;
+  RASTER::Read(orto, tifFile,{1,2,3});
   
   std::cout << "XSize " << orto.XSize << " YSize " << orto.YSize << std::endl;
  
