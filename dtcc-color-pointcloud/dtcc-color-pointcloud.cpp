@@ -11,6 +11,7 @@
 #include <gdal/gdal_priv.h>
 
 #include "Color.h"
+#include "CSV.h"
 #include "GeoRaster.h"
 #include "RASTER.h"
 #include "LAS.h"
@@ -31,7 +32,8 @@ int main(int argc, char *argv[])
   const std::string tifFile =
       "/home/dtcc/core/data/colorize_points/1200_639_18_50_2018.tif";
   std::vector<int> cls = {1};
-  LAS::Read(pointCloud, lasFile, cls);
+  BoundingBox2D bbox = BoundingBox2D(Point2D(182200,6395200),Point2D(182500,6395500));
+  LAS::Read(pointCloud, lasFile, cls,bbox);
 
   std::cout << str(pointCloud.BoundingBox) << std::endl;
   GeoRaster orto;
@@ -48,5 +50,7 @@ int main(int argc, char *argv[])
       break;
     i++;
   }
+
+  CSV::Write(pointCloud,"/home/dtcc/core/data/colorize_points/testPC.txt");
 
 }
