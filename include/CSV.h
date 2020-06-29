@@ -14,6 +14,7 @@
 #include "Parameters.h"
 #include "Vector.h"
 #include "Simplex.h"
+#include "PointCloud.h"
 
 namespace DTCC
 {
@@ -112,6 +113,45 @@ public:
     fp.close();
     ft.close();
   }
+  
+  static void Write(const PointCloud &pointCloud, std::string fileName)
+  {
+    std::cout << "CSV: "
+              << "Writing pointcloud to file " << fileName << std::endl;
+
+    // Open file
+    std::ofstream f(fileName.c_str());
+
+    // Check file
+    if (!f)
+      throw std::runtime_error("Unable to write to file: " + fileName);
+
+    // Set precision
+    f << std::setprecision(Parameters::Precision);
+
+    // Write points 
+    if (pointCloud.Points.size() == pointCloud.Colors.size())
+    {
+      for (size_t i = 0;i<pointCloud.Points.size();i++) 
+      {
+        f << pointCloud.Points[i].x << "," << pointCloud.Points[i].y << "," << pointCloud.Points[i].z << ","
+          << pointCloud.Colors[i].R << "," << pointCloud.Colors[i].G << "," << pointCloud.Colors[i].G << std::endl;
+      }
+    } else 
+    {
+       for (auto const &p : pointCloud.Points) 
+       {
+         f << p.x << "," << p.y << "," << p.z << std::endl;
+       }
+    }
+    
+    
+
+    // Close file
+    f.close();
+    
+  }
+
   // Read CSV file and store it in rapidcsv
   void Read(std::string iFilename, bool verbose = false)
   {
