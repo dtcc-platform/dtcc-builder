@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Anders Logg, Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_LAS_H
@@ -9,6 +9,7 @@
 #include <liblas/liblas.hpp>
 #include <string>
 
+#include "Color.h"
 #include "BoundingBox.h"
 #include "Vector.h"
 #include "PointCloud.h"
@@ -123,6 +124,10 @@ private:
       // Get point
       liblas::Point const &_p = reader.GetPoint();
       const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
+      
+      liblas::Color const& color = _p.GetColor();
+      // colors seem to be 16-bit in las spec.
+      const Color c(color.GetRed()/65535.0,color.GetGreen()/65535.0,color.GetBlue()/65535.0);
 
       // Update bounding box dimensions
       if (pointCloud.Points.size() == 0)
@@ -142,6 +147,7 @@ private:
 
       // Add point to point cloud
       pointCloud.Points.push_back(p);
+      pointCloud.Colors.push_back(c);
       readPoints++;
     }
     std::cout << "LAS: read " << readPoints << " points" << std::endl;

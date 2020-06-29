@@ -5,8 +5,12 @@
 #ifndef DTCC_GEO_REFERENCE_H
 #define DTCC_GEO_REFERENCE_H
 
-#include <pair>
+#include <utility>
+	
+// #include <pair>
 #include <string>
+
+#include "Point.h"
 
 namespace DTCC
 {
@@ -25,31 +29,30 @@ public:
   GeoReference() : A(0), D(0), B(0), E(0), C(0), F(0) {}
 
   // Map pixel to world (UTM) coordinates
-  Vector2D Pixel2Coordinate(int X, int Y) const
+  Point2D Pixel2Coordinate(int X, int Y) const
   {
-    const double AX = GridMap.A * X;
-    const double BY = GridMap.B * Y;
-    const double DX = GridMap.D * X;
-    const double EY = GridMap.E * Y;
-    const double C = GridMap.C;
-    const double F = GridMap.F;
-    Vector2D p(AX + BY + C, DX + EY + F);
+    const double AX = A * X;
+    const double BY = B * Y;
+    const double DX = D * X;
+    const double EY = E * Y;
+
+    Point2D p(AX + BY + C, DX + EY + F);
     return p;
   }
 
   // Map world (UTM) coordinates to pixels
-  std::pair<int, int> Coordinate2Pixel(const Vector2D &p) const
+  std::pair<int, int> Coordinate2Pixel(const Point2D &p) const
   {
-    const double Ex = GridMap.E * p.x;
-    const double By = GridMap.B * p.y;
-    const double BF = GridMap.B * GridMap.F;
-    const double EC = GridMap.E * GridMap.C;
-    const double Dx = GridMap.D * p.x;
-    const double Ay = GridMap.A * p.y;
-    const double DC = GridMap.D * GridMap.C;
-    const double AF = GridMap.A * GridMap.F;
-    const double AE = GridMap.A * GridMap.E;
-    const double DB = GridMap.D * GridMap.B;
+    const double Ex = E * p.x;
+    const double By = B * p.y;
+    const double BF = B * F;
+    const double EC = E * C;
+    const double Dx = D * p.x;
+    const double Ay = A * p.y;
+    const double DC = D * C;
+    const double AF = A * F;
+    const double AE = A * E;
+    const double DB = D * B;
     const double det = AE - DB;
     double X = (Ex - By + BF - EC) / det;  // column
     double Y = (-Dx + Ay + DC - AF) / det; // row
