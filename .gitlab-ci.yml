@@ -7,9 +7,9 @@ stages:
   - test
 
 before_script:
-  - sudo apt-get update && apt-get upgrade -y && apt-get -y install locales sudo && apt-get update && apt-get install -y nlohmann-json-dev libshp-dev liblas-dev liblas-c-dev libpugixml-dev libproj-dev libtriangle-dev libnetcdf-c++4-dev clang-format clang-tidy && 
-     add-apt-repository ppa:fenics-packages/fenics &&
-      apt-get update && apt-get install -y fenics && add-apt-repository ppa:ubuntugis/ppa && apt-get update && apt-get install -y gdal-bin libgdal-dev
+  - sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get -y install locales sudo && sudo apt-get update && sudo apt-get install -y nlohmann-json-dev libshp-dev liblas-dev liblas-c-dev libpugixml-dev libproj-dev libtriangle-dev libnetcdf-c++4-dev clang-format clang-tidy && 
+     sudo add-apt-repository ppa:fenics-packages/fenics &&
+      sudo apt-get update && sudo apt-get install -y fenics && sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update && sudo apt-get install -y gdal-bin libgdal-dev
 
 build:
   stage: build
