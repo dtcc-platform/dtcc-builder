@@ -51,6 +51,6 @@ int main(int argc, char *argv[])
     i++;
   }
 
-  CSV::Write(pointCloud,"/home/dtcc/core/data/colorize_points/testPC.txt");
+  LAS::Write(pointCloud,"/home/dtcc/core/data/colorize_points/testPC.las");
 
 }

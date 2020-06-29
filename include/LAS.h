@@ -64,6 +64,34 @@ public:
     _Read(pointCloud, fileName, filters);
   }
 
+  static void Write(const PointCloud &pointCloud, std::string fileName) {
+    std::cout << "LAS: Writing " << pointCloud.Points.size() << " points to "
+              << fileName << std::endl;
+    std::ofstream ofs;
+    ofs.open(fileName, std::ios::out | std::ios::binary);
+
+    liblas::Header header;
+    liblas::Writer writer(ofs, header);
+    if (pointCloud.Points.size() == pointCloud.Colors.size())
+    {
+      for (size_t i = 0;i<pointCloud.Points.size();i++) 
+      {
+        liblas::Point point(&header);
+        point.SetCoordinates(pointCloud.Points[i].x, pointCloud.Points[i].y, pointCloud.Points[i].z);
+        point.SetColor(liblas::Color(pointCloud.Colors[i].R * 65535, pointCloud.Colors[i].G * 65535, pointCloud.Colors[i].B * 65535 ))  ;
+        writer.WritePoint(point);
+      }
+    } else 
+    {
+       for (auto const &p : pointCloud.Points) 
+       {
+         liblas::Point point(&header);
+         point.SetCoordinates(p.x,p.y,p.z);
+         writer.WritePoint(point);
+       }
+    }
+
+  }
 
 
 private:
