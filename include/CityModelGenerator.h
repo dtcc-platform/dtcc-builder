@@ -168,8 +168,8 @@ public:
       // Check if we got at least one point
       if (numInside == 0)
       {
-        std::cout << "CityModelGenerator: No sample points inside building "
-                  << i << ", setting height to 0" << std::endl;
+        Info("CityModelGenerator: No sample points inside building " + str(i) +
+             ", setting height to 0");
         numInside = 1;
       }
 
@@ -183,6 +183,8 @@ private:
   static void MergeBuildings(CityModel &cityModel,
                              double minimalBuildingDistance)
   {
+    Info("CityModelGenerator: Merging buildings...");
+
     // Avoid using sqrt for efficiency
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
 

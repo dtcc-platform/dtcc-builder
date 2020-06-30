@@ -110,11 +110,7 @@ namespace DTCC
     void Normalize() { (*this) /= Magnitude(); }
 
     /// Pretty-print
-    std::string __str__() const
-    {
-      return "<" + str(x) + ", " + str(y) + ">";
-    }
-
+    std::string __str__() const { return "(" + str(x) + ", " + str(y) + ")"; }
   };
 
   /// Vector3D represents a Euclidean 3D vector
@@ -226,7 +222,7 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const
     {
-      return "<" + str(x) + ", " + str(y) + ", " + str(z) + ">";
+      return "(" + str(x) + ", " + str(y) + ", " + str(z) + ")";
     }
 
   };

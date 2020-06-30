@@ -138,7 +138,9 @@ public:
   Merge(const Polygon &polygon0, const Polygon &polygon1, double tol)
   {
     // Avoid using sqrt for efficiency
-    const double tol2 = tol * tol;
+    // const double tol2 = tol * tol;
+    const double eps = Parameters::Epsilon;
+    const double eps2 = eps * eps;
 
     // Get number of vertices
     const size_t m = polygon0.Vertices.size();
@@ -202,7 +204,7 @@ public:
       {
         if (removed[i])
           continue;
-        if (Geometry::SquaredDistance2D(vertices[i], vertices[j]) < tol2)
+        if (Geometry::SquaredDistance2D(vertices[i], vertices[j]) < eps2)
         {
           for (const auto k : edges[j])
             edges[i].push_back(k);
@@ -222,16 +224,16 @@ public:
     for (size_t i = 0; i < edges.size(); i++)
     {
       std::vector<size_t> newEdges{};
-      for (auto &edge : edges[i])
+      for (const auto &edge : edges[i])
       {
-        if (edge == i)
-          continue;
-        if (std::find(edges[i].begin(), edges[i].end(), edge) != edges[i].end())
-          continue;
-        newEdges.push_back(edge);
+        if (edge != i &&
+            std::find(newEdges.begin(), newEdges.end(), edge) == newEdges.end())
+          newEdges.push_back(edge);
       }
       edges[i] = newEdges;
     }
+
+    // PrintEdges(edges);
 
     // Find first vertex by looking for an original edge that is to the
     // "right" of all points
@@ -263,7 +265,7 @@ public:
         const Vector2D v(vertices[i], vertices[k]);
         const double v2 = Geometry::SquaredNorm2D(v);
         const double sin = u.x * v.y - u.y * v.x;
-        if (sin < 0.0 && sin * sin > tol2 * u2 * v2)
+        if (sin < 0.0 && sin * sin > eps2 * u2 * v2)
         {
           ok = false;
           break;
@@ -306,8 +308,8 @@ public:
       const std::vector<size_t> &edge = edges[currentVertex];
 
       // Find next vertex
-      assert(edges.size() > 0);
-      if (edges.size() == 1)
+      assert(edge.size() > 0);
+      if (edge.size() == 1)
       {
         // If we only have one edge then follow it
         nextVertex = edge[0];
@@ -347,6 +349,8 @@ public:
 
           // Compute vector angle and add candidate edge
           const double a = Geometry::VectorAngle2D(u, v);
+          if (std::abs(a) > 2.0 - eps)
+            continue;
           candidates.push_back(std::make_tuple(k, a, v2));
         }
 
@@ -368,8 +372,8 @@ public:
           const double distance = std::get<2>(candidates[k]);
           const double minAngle = std::get<1>(minCandidate);
           const double minDistance = std::get<2>(minCandidate);
-          if ((angle < minAngle - tol) ||
-              (angle < minAngle + tol && distance < minDistance))
+          if ((angle < minAngle - eps) ||
+              (angle < minAngle + eps && distance < minDistance))
             minCandidate = candidates[k];
         }
 
@@ -397,6 +401,8 @@ public:
         vertices.push_back(p);
       return Geometry::ConvexHull2D(vertices);
     }
+
+    PrintPolygon(polygon);
 
     // Create polygon
     Polygon _polygon{};
@@ -452,6 +458,7 @@ private:
   {
     // Avoid using sqrt for efficiency
     const double tol2 = tol * tol;
+    const double eps2 = Parameters::Epsilon * Parameters::Epsilon;
 
     // Get vertices
     const Point2D &p = vertices[i];
@@ -480,7 +487,7 @@ private:
     // Don't connect vertex to edge if zero length
     Vector2D v(q0, q1);
     const double v2 = Geometry::SquaredNorm2D(v);
-    if (v2 < Parameters::Epsilon)
+    if (v2 < eps2)
       return;
 
     // Connect vertex to edge if close (project)
@@ -506,9 +513,6 @@ private:
                               std::vector<std::vector<size_t>> &edges,
                               double tol)
   {
-    // Avoid using sqrt for efficiency
-    // const double tol2 = tol * tol;
-
     // Get vertices
     assert(i0 < vertices.size());
     assert(i1 < vertices.size());
@@ -522,7 +526,11 @@ private:
     // Don't look for intersection if almost parallel
     const Vector2D u(p0, p1);
     const Vector2D v(q0, q1);
-    if (std::abs(Geometry::Dot2D(u, v)) > 1.0 - Parameters::Epsilon)
+    const double uv = Geometry::Dot2D(u, v);
+    const double u2 = Geometry::SquaredNorm2D(u);
+    const double v2 = Geometry::SquaredNorm2D(v);
+    const double eps = Parameters::Epsilon;
+    if (uv * uv > (1.0 - eps) * (1.0 - eps) * u2 * v2)
       return;
 
     // Compute edge-edge intersection
@@ -559,6 +567,39 @@ private:
       }
       edges.push_back(kEdges);
     }
+  }
+
+  // Used for debugging
+  static void PrintEdges(const std::vector<std::vector<size_t>> &edges)
+  {
+    std::cout << "Edges: [";
+    for (size_t i = 0; i < edges.size(); i++)
+    {
+      if (i > 0)
+        std::cout << ", ";
+      std::cout << "[";
+      for (size_t j = 0; j < edges[i].size(); j++)
+      {
+        if (j > 0)
+          std::cout << ", ";
+        std::cout << edges[i][j];
+      }
+      std::cout << "]";
+    }
+    std::cout << "]" << std::endl;
+  }
+
+  // Used for debugging
+  static void PrintPolygon(const std::vector<size_t> &polygon)
+  {
+    std::cout << "Polygon: [";
+    for (size_t i = 0; i < polygon.size(); i++)
+    {
+      if (i > 0)
+        std::cout << ", ";
+      std::cout << polygon[i];
+    }
+    std::cout << "]" << std::endl;
   }
 };
 

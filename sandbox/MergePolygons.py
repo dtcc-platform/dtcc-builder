@@ -454,7 +454,6 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     # Get number of points
     m = len(firstPolygon)
     n = len(secondPolygon)
-    #print(m, n)
 
     # Create list of points
     points = [p for p in firstPolygon] + [p for p in secondPolygon]
@@ -490,7 +489,6 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
         for j in range(i+1, numPoints):
             if removed[i]: continue
             if DistancePointPoint(points[i], points[j]) < eps:
-                #print('Merging:', i, j)
                 edges[i] = edges[i] + edges[j]
                 edges[j] = []
                 vertexMap[j] = i
@@ -508,8 +506,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             if j not in newEdge and i != j: newEdge.append(j)
         edges[i] = newEdge
 
-    #for i, e in enumerate(edges):
-    #    print(i, e)
+    #print(edges)
 
     # Write point labels (and make sure they don't overlap)
     if plotting:
@@ -549,7 +546,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             sin = u[0]*v[1] - u[1]*v[0]
             if sin < -eps:
                  ok = False
-                break
+                 break
 
         # Found first edge
         if ok:
@@ -572,8 +569,6 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     # the right-most turn at each intersection
     for step in range(maxNumSteps):
 
-        #print('Vertices:', vertices)
-
         # Get previous and current vertex
         i = len(vertices) - 1
         previousVertex = vertices[i - 1]
@@ -581,8 +576,6 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
 
         # Get current edge(s)
         edge = edges[currentVertex]
-
-        #print('Vertex %d: %s' % (currentVertex, str(edges[currentVertex])))
 
         # Find next vertex
         if len(edge) == 1:
@@ -651,7 +644,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             nextVertex = minAngle[0]
 
         #print(currentVertex, "-->", nextVertex)
-        #print('')
+        #print('')s
 
         # We are done if we return to the first vertex
         if nextVertex == firstVertex:
@@ -667,6 +660,8 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
         print('Merge failed, falling back to convex hull')
         points = [p for p in firstPolygon] + [p for p in secondPolygon]
         return ConvexHull(points)
+
+    print("Polygon:", vertices)
 
     # Extract polygon points
     polygon = [points[i] for i in vertices]

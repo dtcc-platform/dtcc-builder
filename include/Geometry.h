@@ -200,7 +200,7 @@ public:
       return 0;
   }
 
-  // Compute strictly increasing function [0, 2pi] -> [0, 4] of angle of v
+  // Compute strictly increasing function [-pi, pi] -> [-2, 2] of angle of v
   // relative to u. This is a cheap alternative compared to working with asin,
   // acos.
   static double VectorAngle2D(const Vector2D &u, const Vector2D &v)
@@ -210,8 +210,7 @@ public:
     const double sin = u.x * v.y - u.y * v.x;
     const double cos = u.x * v.x + u.y * v.y;
     const double a = sin * sin / (u2 * v2);
-    return (sin > 0.0 ? (cos > 0.0 ? a : 2.0 - a)
-                      : (cos > 0.0 ? 4.0 - a : 2.0 + a));
+    return (sin > 0.0 ? (cos > 0.0 ? a : 2.0 - a) : (cos > 0.0 ? -a : a - 2.0));
   }
 
   // Compute quadrant angle of point p relative to polygon (2D)

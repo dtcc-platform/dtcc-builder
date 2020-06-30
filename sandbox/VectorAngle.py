@@ -18,12 +18,12 @@ def VectorAngle2D(u, v):
     if sin > 0.0:
         return a if cos > 0.0 else 2.0 - a
     else:
-        return 4.0 - a if cos > 0.0 else 2.0 + a
+        return -a if cos > 0.0 else a - 2.0
 
 a0 = 3.4
 ur = 3.0
 vr = 2.5
-x = linspace(0, 2.0*pi, 1000)
+x = linspace(-pi, pi, 1000)
 y = []
 for a in x:
     u = Vector(ur*cos(a0), ur*sin(a0))

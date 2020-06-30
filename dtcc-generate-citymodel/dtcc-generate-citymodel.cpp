@@ -33,6 +33,9 @@ int main(int argc, char *argv[])
   JSON::Read(parameters, argv[1]);
   Info(parameters);
 
+  // FIXME: Testing
+  LogLevel = PROGRESS;
+
   // Read property map data
   std::vector<Polygon> footprints;
   SHP::Read(footprints, parameters.DataDirectory + "/PropertyMap.shp");
