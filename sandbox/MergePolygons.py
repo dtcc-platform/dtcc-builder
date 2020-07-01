@@ -5,6 +5,7 @@ import sys
 from pylab import *
 
 eps = 1e-6
+FootprintDistanceThreshold = 0.01
 
 def VectorAngle(u, v):
     "Return strictly increasing function of angle of v relative to u"
@@ -463,6 +464,9 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     firstPolygon = polygons[0]
     secondPolygon = polygons[1]
 
+    print(firstPolygon)
+    print(secondPolygon)
+
     # Get number of points
     m = len(firstPolygon)
     n = len(secondPolygon)
@@ -477,7 +481,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     for i in range(n):
         edges.append([(i+1) % n + m])
 
-    #print('Edges:', edges)
+    print('Edges:', edges)
 
     # Find all pairwise connections between
     # edge i = (i0, i1) and edge j = (j0, j1)
@@ -495,7 +499,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             # Find edge-edge connections
             ConnectEdgeEdge(i0, i1, j0, j1, points, edges, tol, plotting)
 
-    #print('Edges:', edges)
+    print('Edges:', edges)
 
     # Remove duplicate vertices
     numPoints = len(points)
@@ -504,7 +508,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     for i in range(numPoints):
         for j in range(i+1, numPoints):
             if removed[i]: continue
-            if DistancePointPoint(points[i], points[j]) < eps:
+            if DistancePointPoint(points[i], points[j]) < FootprintDistanceThreshold:
                 edges[i] = edges[i] + edges[j]
                 edges[j] = []
                 vertexMap[j] = i
@@ -638,7 +642,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
                 if abs(a) > 2.0 - eps:
                     continue
                 angles.append((k, a, d))
-                print('Adding k =', k, 'a =', a)
+                print('Adding k =', k, 'a =', a, 'd =', d)
 
             # If we have no more vertices to visit, take a step back
             if len(angles) == 0:
@@ -656,16 +660,15 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             # if the vertices are on the same line.
             minAngle = angles[0]
             for angle in angles[1:]:
-                print(angle[0], (angle[1] < minAngle[1] - eps), (angle[1] < minAngle[1] + eps), (angle[2] < minAngle[2]))
-                if (angle[1] < minAngle[1] - eps) or \
-                   (angle[1] < minAngle[1] + eps and angle[2] < minAngle[2]):
+                if (angle[1] < minAngle[1] - 0.01) or \
+                   (angle[1] < minAngle[1] + 0.01 and angle[2] < minAngle[2]):
                     minAngle = angle
 
             # Pick next vertex
             nextVertex = minAngle[0]
 
-        #print(currentVertex, "-->", nextVertex)
-        #print('')s
+        print(currentVertex, "-->", nextVertex)
+        print('')
 
         # We are done if we return to the first vertex
         if nextVertex == firstVertex:
@@ -828,14 +831,119 @@ def TestCase8():
           [83.59299997, 249.847995]]
     return p0, p1
 
+def TestCase9():
+    p0 = [[539.39399997, 411.2619951 ],
+          [534.37199997, 411.5369951 ],
+          [533.99599997, 404.7629951 ],
+          [539.02399997, 404.4879951 ]]
+    p1 = [[526.26499997, 393.8649951 ],
+          [553.67099997, 392.2179951 ],
+          [554.30599997, 403.8439951 ],
+          [533.99599997, 404.7629951 ],
+          [534.94199997, 421.9599951 ],
+          [523.44399997, 422.4769951 ],
+          [522.29099997, 404.43099509],
+          [526.81199997, 404.2289951 ]]
+    return p0, p1
+
+def TestCase10():
+    p0 = [[526.26499997, 393.8649951 ],
+          [553.67099997, 392.2179951 ],
+          [554.30599997, 403.8439951 ],
+          [539.02658749, 404.53536783],
+          [539.39399997, 411.2619951 ],
+          [534.37199997, 411.5369951 ],
+          [534.36864511, 411.53717965],
+          [534.94199997, 421.9599951 ],
+          [523.44399997, 422.4769951 ],
+          [522.29099997, 404.43099509],
+          [526.81199997, 404.2289951 ]]
+    p1 = [[523.16699997, 418.0989951 ],
+          [521.35499997, 418.21899509],
+          [520.64999997, 407.1569951 ],
+          [522.46099997, 407.0369951 ]]
+    return p0, p1
+
+def TestCase11():
+    p0 = [[568.54499997, 407.83799511],
+          [554.56599997, 408.6009951 ],
+          [552.50099997, 370.9129951 ],
+          [566.47899997, 370.14999511]]
+    p1 = [[526.26499997, 393.8649951 ],
+          [553.67099997, 392.2179951 ],
+          [554.30599997, 403.8439951 ],
+          [539.02658749, 404.53536783],
+          [539.39399997, 411.2619951 ],
+          [534.37199997, 411.5369951 ],
+          [534.36864511, 411.53717965],
+          [534.94199997, 421.9599951 ],
+          [523.44399997, 422.4769951 ],
+          [523.16429105, 418.09917449],
+          [521.35499997, 418.21899509],
+          [520.64999997, 407.1569951 ],
+          [522.45751798, 407.03722582],
+          [522.29099997, 404.43099509],
+          [526.81199997, 404.2289951 ]]
+    return p0, p1
+
+def TestCase12():
+    p0 = [[552.50099997, 370.9129951 ],
+          [566.47899997, 370.14999511],
+          [568.54499997, 407.83799511],
+          [554.56599997, 408.6009951 ],
+          [554.30535647, 403.84403036]]
+    p1 = [[554.42399997, 370.7089951 ],
+          [554.40499997, 368.7879951 ],
+          [567.26199997, 368.04799511],
+          [567.85999997, 380.42599511],
+          [567.16399997, 380.36599511],
+          [567.03499997, 380.26199511],
+          [566.47899997, 370.14499511],
+          [554.54399997, 370.8039951 ]]
+    return p0, p1
+
+def TestCase13():
+    p0 = [[292.37499997, 358.47599504],
+          [291.75699997, 346.98899504],
+          [295.37799997, 346.74599504],
+          [295.12199997, 342.06399505],
+          [346.97999997, 339.26399506],
+          [347.79299997, 354.31499506],
+          [330.95999997, 355.22299505],
+          [331.11599997, 358.10699505],
+          [325.27699997, 358.42299505],
+          [325.15126955, 356.09859427],
+          [325.12099997, 355.53899505],
+          [318.79399997, 355.88299505],
+          [308.35499997, 356.44199505],
+          [308.42499997, 357.61999505]]
+    p1 = [[338.79999997, 325.71299506],
+          [338.81999997, 326.14699506],
+          [349.68999997, 325.61399506],
+          [350.08399997, 329.20399506],
+          [350.85899997, 329.17599506],
+          [350.91399997, 330.10899506],
+          [347.11499997, 334.38699506],
+          [347.46599997, 339.26299506],
+          [331.63599997, 340.09299505],
+          [331.30799997, 333.47099505],
+          [334.88199997, 329.60499505],
+          [334.81099997, 327.91199505],
+          [336.40799997, 325.82299505]]
+    return p0, p1
+
 if __name__ == '__main__':
-    #RunTestCase(TestCase0())
-    #RunTestCase(TestCase1())
-    #RunTestCase(TestCase2())
-    #RunTestCase(TestCase3())
-    #RunTestCase(TestCase4())
-    #RunTestCase(TestCase5())
-    #RunTestCase(TestCase6())
-    #RunTestCase(TestCase7())
-    RunTestCase(TestCase8())
+    RunTestCase(TestCase0())
+    RunTestCase(TestCase1())
+    RunTestCase(TestCase2())
+    RunTestCase(TestCase3())
+    RunTestCase(TestCase4())
+    RunTestCase(TestCase5())
+    RunTestCase(TestCase6())
+    RunTestCase(TestCase7())
+    RunTestCase(TestCase9())
+    RunTestCase(TestCase10())
+    RunTestCase(TestCase11())
+    RunTestCase(TestCase12())
+    RunTestCase(TestCase13())
     show()

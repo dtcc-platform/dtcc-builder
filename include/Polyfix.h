@@ -141,6 +141,8 @@ public:
     // const double tol2 = tol * tol;
     const double eps = Parameters::Epsilon;
     const double eps2 = eps * eps;
+    const double dtol = Parameters::FootprintDistanceThreshold;
+    const double dtol2 = dtol * dtol;
 
     // Get number of vertices
     const size_t m = polygon0.Vertices.size();
@@ -208,7 +210,7 @@ public:
       {
         if (removed[i])
           continue;
-        if (Geometry::SquaredDistance2D(vertices[i], vertices[j]) < eps2)
+        if (Geometry::SquaredDistance2D(vertices[i], vertices[j]) < dtol2)
         {
           for (const auto k : edges[j])
             edges[i].push_back(k);
@@ -237,7 +239,7 @@ public:
       edges[i] = newEdges;
     }
 
-    PrintEdges(edges);
+    // PrintEdges(edges);
 
     // Find first vertex by looking for an original edge that is to the
     // "right" of all points
@@ -356,7 +358,7 @@ public:
           if (std::abs(a) > 2.0 - eps)
             continue;
           candidates.push_back(std::make_tuple(k, a, v2));
-          std::cout << "Adding k = " << k << " a = " << a << std::endl;
+          // std::cout << "Adding k = " << k << " a = " << a << std::endl;
         }
 
         // If we have no more vertices to visit, take a step back
@@ -377,12 +379,8 @@ public:
           const double distance = std::get<2>(candidates[k]);
           const double minAngle = std::get<1>(minCandidate);
           const double minDistance = std::get<2>(minCandidate);
-          std::cout << "CHECK:" << std::get<0>(candidates[k]) << " "
-                    << (angle < minAngle - eps2) << " "
-                    << (angle < minAngle + eps2) << " "
-                    << (distance < minDistance) << std::endl;
-          if ((angle < minAngle - eps) ||
-              (angle < minAngle + eps && distance < minDistance))
+          if ((angle < minAngle - 0.01) ||
+              (angle < minAngle + 0.01 && distance < minDistance))
           {
             minCandidate = candidates[k];
           }
