@@ -168,6 +168,8 @@ public:
       edges.push_back(edge);
     }
 
+    // PrintEdges(edges);
+
     // Find all pairwise connections between
     // edge i = (i0, i1) and edge j = (j0, j1)
     for (size_t i0 = 0; i0 < m; i0++)
@@ -187,6 +189,8 @@ public:
         ConnectEdgeEdge(i0, i1, j0, j1, vertices, edges, tol);
       }
     }
+
+    // PrintEdges(edges);
 
     // Remove duplicate vertices
     assert(vertices.size() == edges.size());
@@ -233,7 +237,7 @@ public:
       edges[i] = newEdges;
     }
 
-    // PrintEdges(edges);
+    PrintEdges(edges);
 
     // Find first vertex by looking for an original edge that is to the
     // "right" of all points
@@ -352,6 +356,7 @@ public:
           if (std::abs(a) > 2.0 - eps)
             continue;
           candidates.push_back(std::make_tuple(k, a, v2));
+          std::cout << "Adding k = " << k << " a = " << a << std::endl;
         }
 
         // If we have no more vertices to visit, take a step back
@@ -372,9 +377,15 @@ public:
           const double distance = std::get<2>(candidates[k]);
           const double minAngle = std::get<1>(minCandidate);
           const double minDistance = std::get<2>(minCandidate);
+          std::cout << "CHECK:" << std::get<0>(candidates[k]) << " "
+                    << (angle < minAngle - eps2) << " "
+                    << (angle < minAngle + eps2) << " "
+                    << (distance < minDistance) << std::endl;
           if ((angle < minAngle - eps) ||
               (angle < minAngle + eps && distance < minDistance))
+          {
             minCandidate = candidates[k];
+          }
         }
 
         // Pick next vertex

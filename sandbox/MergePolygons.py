@@ -6,6 +6,18 @@ from pylab import *
 
 eps = 1e-6
 
+def VectorAngle(u, v):
+    "Return strictly increasing function of angle of v relative to u"
+    u2 = u[0]*u[0] + u[1]*u[1]
+    v2 = v[0]*v[0] + v[1]*v[1]
+    sin = u[0]*v[1] - u[1]*v[0]
+    cos = u[0]*v[0] + u[1]*v[1]
+    a = sin*sin / (u2*v2)
+    if sin > 0.0:
+        return a if cos > 0.0 else 2.0 - a
+    else:
+        return -a if cos > 0.0 else a - 2.0
+
 def Arrow(x0, y0, x1, y1, color='grey', rad=0.2, arrowstyle='->', size=10):
     annotate('',
              xy=(x1, y1), xycoords='data',
@@ -465,6 +477,8 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     for i in range(n):
         edges.append([(i+1) % n + m])
 
+    #print('Edges:', edges)
+
     # Find all pairwise connections between
     # edge i = (i0, i1) and edge j = (j0, j1)
     for i0 in range(m):
@@ -480,6 +494,8 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
 
             # Find edge-edge connections
             ConnectEdgeEdge(i0, i1, j0, j1, points, edges, tol, plotting)
+
+    #print('Edges:', edges)
 
     # Remove duplicate vertices
     numPoints = len(points)
@@ -506,7 +522,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             if j not in newEdge and i != j: newEdge.append(j)
         edges[i] = newEdge
 
-    #print(edges)
+    print('Edges:', edges)
 
     # Write point labels (and make sure they don't overlap)
     if plotting:
@@ -614,15 +630,19 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
 
                 # Replace actual angle by cheaper but strictly increasing
                 # function to avoid needing to call acos() or asin().
-                sin = u[0]*v[1] - u[1]*v[0]
-                cos = u[0]*v[0] + u[1]*v[1]
-                if cos < -1.0 + eps: continue
-                a = sin if cos >= 0.0 else (2.0-sin if sin > 0.0 else sin-2.0)
+                #sin = u[0]*v[1] - u[1]*v[0]
+                #cos = u[0]*v[0] + u[1]*v[1]
+                #if cos < -1.0 + eps: continue
+                #a = sin if cos >= 0.0 else (2.0-sin if sin > 0.0 else sin-2.0)
+                a = VectorAngle(u, v)
+                if abs(a) > 2.0 - eps:
+                    continue
                 angles.append((k, a, d))
+                print('Adding k =', k, 'a =', a)
 
             # If we have no more vertices to visit, take a step back
             if len(angles) == 0:
-                print('No more vertices to visit, stepping back')
+                #print('No more vertices to visit, stepping back')
                 del vertices[i]
                 continue
 
@@ -636,6 +656,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
             # if the vertices are on the same line.
             minAngle = angles[0]
             for angle in angles[1:]:
+                print(angle[0], (angle[1] < minAngle[1] - eps), (angle[1] < minAngle[1] + eps), (angle[2] < minAngle[2]))
                 if (angle[1] < minAngle[1] - eps) or \
                    (angle[1] < minAngle[1] + eps and angle[2] < minAngle[2]):
                     minAngle = angle

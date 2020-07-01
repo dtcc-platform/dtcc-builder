@@ -34,12 +34,12 @@ PlotPolygons(polygons, style='-', labels=False)
 title('Original model')
 
 # Replace self-intersecting polygons with convex hull
-for i in range(len(polygons)):
-    if not CheckPolygon(polygons[i], 0.5*minimalBuildingDistance, 0.5):
-        print('Bad polygon:', i)
-        polygons[i] = ConvexHull(polygons[i])
-        #PlotPolygons([polygons[i]], style='--', labels=False)
-        #PlotLabel(polygons[i], str(i))
+#for i in range(len(polygons)):
+#    if not CheckPolygon(polygons[i], 0.5*minimalBuildingDistance, 0.5):
+#        print('Bad polygon:', i)
+#        polygons[i] = ConvexHull(polygons[i])
+#        #PlotPolygons([polygons[i]], style='--', labels=False)
+#        #PlotLabel(polygons[i], str(i))
 
 # Plot cleaned model
 figure()
