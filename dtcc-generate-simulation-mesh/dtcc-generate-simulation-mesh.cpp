@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
   // Read city model data
   CityModel cityModel;
-  JSON::Read(cityModel, dataDirectory + "SimplifiedCityModel.json");
+  JSON::Read(cityModel, dataDirectory + "CityModelSimple.json");
   Info(cityModel);
 
   // Read height map data

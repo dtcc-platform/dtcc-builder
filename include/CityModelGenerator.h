@@ -30,7 +30,7 @@ public:
   /// @param bbox Bounding box of domain
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
-                                const Vector2D &origin,
+                                const Point2D &origin,
                                 const BoundingBox2D &bbox)
   {
     Info("CityModelGenerator: Generating city model...");
@@ -131,12 +131,12 @@ public:
       Building &building = cityModel.Buildings[i];
 
       // Compute center and radius of building footprint
-      const Vector2D center = Geometry::PolygonCenter2D(building.Footprint);
+      const Point2D center = Geometry::PolygonCenter2D(building.Footprint);
       const double radius =
           Geometry::PolygonRadius2D(building.Footprint, center);
 
       // Add points for sampling height
-      std::vector<Vector2D> samplePoints;
+      std::vector<Point2D> samplePoints;
       samplePoints.push_back(center);
       const size_t m = 2;
       const size_t n = 8;
@@ -148,8 +148,8 @@ public:
         {
           const double theta =
               static_cast<double>(l) / static_cast<double>(n) * 2.0 * M_PI;
-          samplePoints.push_back(
-              Vector2D(center.x + r * cos(theta), center.y + r * sin(theta)));
+          Point2D p(center.x + r * cos(theta), center.y + r * sin(theta));
+          samplePoints.push_back(p);
         }
       }
 
@@ -168,8 +168,8 @@ public:
       // Check if we got at least one point
       if (numInside == 0)
       {
-        std::cout << "CityModelGenerator: No sample points inside building "
-                  << i << ", setting height to 0" << std::endl;
+        Info("CityModelGenerator: No sample points inside building " + str(i) +
+             ", setting height to 0");
         numInside = 1;
       }
 
@@ -183,6 +183,8 @@ private:
   static void MergeBuildings(CityModel &cityModel,
                              double minimalBuildingDistance)
   {
+    Info("CityModelGenerator: Merging buildings...");
+
     // Avoid using sqrt for efficiency
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
 
@@ -224,9 +226,9 @@ private:
                    str(j) + " are too close, merging");
 
           // Compute merged polygon
-          // Polygon mergedPolygon = Polyfix::Merge(Pi, Pj,
-          // minimalBuildingDistance);
-          Polygon mergedPolygon = MergePolygons(Pi, Pj);
+          Polygon mergedPolygon =
+              Polyfix::Merge(Pi, Pj, minimalBuildingDistance);
+          // Polygon mergedPolygon = MergePolygons(Pi, Pj);
 
           // Replace Pi, erase Pj and add Pi to queue
           buildings[i].Footprint = mergedPolygon;
@@ -255,14 +257,14 @@ private:
     // a more advanced merging later
 
     // Collect points
-    std::vector<Vector2D> allPoints;
+    std::vector<Point2D> allPoints;
     for (auto const &p : polygon0.Vertices)
       allPoints.push_back(p);
     for (auto const &p : polygon1.Vertices)
       allPoints.push_back(p);
 
     // Remove duplicate points
-    std::vector<Vector2D> uniquePoints;
+    std::vector<Point2D> uniquePoints;
     for (auto const &p : allPoints)
     {
       // Check if point is unique

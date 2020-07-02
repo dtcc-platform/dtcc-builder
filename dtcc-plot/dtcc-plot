@@ -5,14 +5,13 @@
 
 import sys, numpy, json, pylab
 
-def PlotCityModel(data, plotLabels=False):
+def PlotCityModel(data, plotLabels=False, plotVertices=False):
 
-    # Read JSON file
-    with open(fileName) as f:
-        cityModel = json.load(f)
+    # Get data
+    buildings = data['Buildings']
 
     # Iterate over buildings
-    for i, building in enumerate(cityModel['Buildings']):
+    for i, building in enumerate(buildings):
 
         # Get footprint
         footprint = building['Footprint']
@@ -28,8 +27,14 @@ def PlotCityModel(data, plotLabels=False):
         ym = numpy.mean(y)
 
         # Plot
-        pylab.plot(x, y, '.-')
-        pylab.plot([x[0], x[-1]], [y[0], y[-1]], 'k--')
+        if plotVertices:
+            pylab.plot(x, y, '.-')
+            pylab.plot([x[0], x[-1]], [y[0], y[-1]], 'k--')
+        else:
+            xx = numpy.append(x, x[0])
+            yy = numpy.append(y, y[0])
+            pylab.plot(xx, yy, '-')
+
         #pylab.plot(x[0], y[0], 'kx')
         if plotLabels:
             pylab.text(xm, ym, str(i), fontsize=10, ha='center', va='center')
@@ -39,7 +44,7 @@ def PlotCityModel(data, plotLabels=False):
     #pylab.grid(True)
     pylab.axis('equal')
     pylab.axis('off')
-    pylab.show()
+    #pylab.show()
 
 def PlotHeightMap(data, plotContours=False):
 
@@ -97,7 +102,8 @@ if __name__ == "__main__":
     # Check type and plot
     dataType = data['Type']
     if dataType == 'CityModel':
-        PlotCityModel(data, '--plot-labels' in sys.argv)
+        PlotCityModel(data, '--plot-labels' in sys.argv, '--plot-vertices' in sys.argv)
+        pylab.show()
     elif dataType == 'HeightMap':
         PlotHeightMap(data, '--plot-contours' in sys.argv)
     else:

@@ -48,16 +48,16 @@ namespace DTCC
       std::cout << "MeshGenerator: Generating 2D mesh..." << std::endl;
 
       // Extract subdomains (building footprints)
-      std::vector<std::vector<Vector2D>> subDomains;
+      std::vector<std::vector<Point2D>> subDomains;
       for (auto const &building : cityModel.Buildings)
         subDomains.push_back(building.Footprint.Vertices);
 
       // Generate boundary
-      std::vector<Vector2D> boundary;
-      boundary.push_back(Vector2D(xMin, yMin));
-      boundary.push_back(Vector2D(xMax, yMin));
-      boundary.push_back(Vector2D(xMax, yMax));
-      boundary.push_back(Vector2D(xMin, yMax));
+      std::vector<Point2D> boundary;
+      boundary.push_back(Point2D(xMin, yMin));
+      boundary.push_back(Point2D(xMax, yMin));
+      boundary.push_back(Point2D(xMax, yMax));
+      boundary.push_back(Point2D(xMin, yMax));
 
       // Generate 2D mesh
       Mesh2D mesh2D = CallTriangle(boundary, subDomains, resolution);
@@ -189,7 +189,7 @@ namespace DTCC
       {
         if (pointIndices[i] != numPoints)
         {
-          const Vector2D &p2D = mesh2D.Vertices[i % layerSize];
+          const Point2D &p2D = mesh2D.Vertices[i % layerSize];
           const double z = (i / layerSize) * dz + groundElevation;
           Vector3D p3D(p2D.x, p2D.y, z);
           mesh3D.Vertices.push_back(p3D);
@@ -228,14 +228,14 @@ namespace DTCC
       std::vector<Surface3D> surfaces;
 
       // Generate empty subdomains for Triangle mesh generation
-      std::vector<std::vector<Vector2D>> subDomains;
+      std::vector<std::vector<Point2D>> subDomains;
 
       // Generate boundary for Triangle mesh generation
-      std::vector<Vector2D> boundary;
-      boundary.push_back(Vector2D(xMin, yMin));
-      boundary.push_back(Vector2D(xMax, yMin));
-      boundary.push_back(Vector2D(xMax, yMax));
-      boundary.push_back(Vector2D(xMin, yMax));
+      std::vector<Point2D> boundary;
+      boundary.push_back(Point2D(xMin, yMin));
+      boundary.push_back(Point2D(xMax, yMin));
+      boundary.push_back(Point2D(xMax, yMax));
+      boundary.push_back(Point2D(xMin, yMax));
 
       // Generate 2D mesh of domain
       std::cout << "MeshGenerator: Generating ground mesh" << std::endl;
@@ -250,7 +250,7 @@ namespace DTCC
       surface3D.Vertices.resize(mesh2D.Vertices.size());
       for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
       {
-        const Vector2D &p2D = mesh2D.Vertices[i];
+        const Point2D &p2D = mesh2D.Vertices[i];
         Vector3D p3D(p2D.x, p2D.y, 0.0);
         surface3D.Vertices[i] = p3D;
       }
@@ -345,7 +345,7 @@ namespace DTCC
         // Add points at top
         for (size_t i = 0; i < numMeshPoints; i++)
         {
-          const Vector2D &p2D = mesh2D.Vertices[i];
+          const Point2D &p2D = mesh2D.Vertices[i];
           const Vector3D p3D(p2D.x, p2D.y, buildingHeight);
           surface3D.Vertices[i] = p3D;
         }
@@ -353,7 +353,7 @@ namespace DTCC
         // Add points at bottom
         for (size_t i = 0; i < numBoundaryPoints; i++)
         {
-          const Vector2D &p2D = mesh2D.Vertices[i];
+          const Point2D &p2D = mesh2D.Vertices[i];
           const Vector3D p3D(p2D.x, p2D.y, groundHeight);
           surface3D.Vertices[numMeshPoints + i] = p3D;
         }
@@ -385,8 +385,8 @@ namespace DTCC
   private:
     // Call Triangle to compute 2D mesh
     static Mesh2D
-    CallTriangle(const std::vector<Vector2D> &boundary,
-                 const std::vector<std::vector<Vector2D>> &subDomains,
+    CallTriangle(const std::vector<Point2D> &boundary,
+                 const std::vector<std::vector<Point2D>> &subDomains,
                  double h)
     {
       // Set area constraint to control mesh size
@@ -479,7 +479,7 @@ namespace DTCC
       in.holelist = new double[2 * numHoles];
       {
       size_t k = 0;
-      Vector2D c;
+      Point2D c;
       for (auto const & InnerPolygon : SubDomains)
       {
       for (auto const & p : InnerPolygon)
@@ -512,7 +512,7 @@ namespace DTCC
       mesh2D.Vertices.reserve(out.numberofpoints);
       for (int i = 0; i < out.numberofpoints; i++)
       {
-        Vector2D p(out.pointlist[2 * i], out.pointlist[2 * i + 1]);
+        Point2D p(out.pointlist[2 * i], out.pointlist[2 * i + 1]);
         mesh2D.Vertices.push_back(p);
       }
 
@@ -630,7 +630,7 @@ namespace DTCC
       for (size_t i = 0; i < mesh.Cells.size(); i++)
       {
         // Find building containg midpoint of cell (if any)
-        const Vector2D c = mesh.MidPoint(mesh.Cells[i]);
+        const Point2D c = mesh.MidPoint(mesh.Cells[i]);
         const int marker = cityModel.FindBuilding(c);
 
         // Get triangle

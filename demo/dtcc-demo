@@ -21,7 +21,7 @@ set -e
 ../bin/dtcc-generate-visualization-mesh $PARAMETERS
 
 # Generate simulation mesh
-#../bin/dtcc-generate-simulation-mesh Parameters.json
+../bin/dtcc-generate-simulation-mesh $PARAMETERS
 
 # Smooth ground mesh
 ../bin/dtcc-smooth-ground-mesh $PARAMETERS
