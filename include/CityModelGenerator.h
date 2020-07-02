@@ -197,6 +197,7 @@ private:
       indices.push(i);
 
     // Process queue until empty
+    size_t numMerged = 0;
     while (indices.size() > 0)
     {
       // Pop index of next building to check
@@ -228,7 +229,7 @@ private:
           // Compute merged polygon
           Polygon mergedPolygon =
               Polyfix::Merge(Pi, Pj, minimalBuildingDistance);
-          // Polygon mergedPolygon = MergePolygons(Pi, Pj);
+          numMerged++;
 
           // Replace Pi, erase Pj and add Pi to queue
           buildings[i].Footprint = mergedPolygon;
@@ -248,6 +249,8 @@ private:
 
     // Overwrite buildings
     cityModel.Buildings = mergedBuildings;
+
+    Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
   }
 
   // Merge the two polygonspolygon

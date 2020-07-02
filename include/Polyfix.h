@@ -411,7 +411,7 @@ public:
       return Geometry::ConvexHull2D(vertices);
     }
 
-    PrintPolygon(polygon);
+    // PrintPolygon(polygon);
 
     // Create polygon
     Polygon _polygon{};

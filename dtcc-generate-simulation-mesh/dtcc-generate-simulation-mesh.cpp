@@ -50,15 +50,9 @@ int main(int argc, char *argv[])
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
   Info(heightMap);
 
-  // FIXME: Replace xmin, ymin arguments with BoundingBox2D here and elsewhere
-
   // Generate 2D mesh
-  Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(cityModel,
-                                                heightMap.Grid.BoundingBox.P.x,
-                                                heightMap.Grid.BoundingBox.P.y,
-                                                heightMap.Grid.BoundingBox.Q.x,
-                                                heightMap.Grid.BoundingBox.Q.y,
-                                                parameters.MeshResolution);
+  Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(
+      cityModel, heightMap.Grid.BoundingBox, parameters.MeshResolution);
   Info(mesh2D);
 
   // Compute ground elevation

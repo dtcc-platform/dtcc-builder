@@ -39,13 +39,10 @@ namespace DTCC
     // neighbors of building triangles (just outside buildings) are marked
     // as -1 and the remaining triangles (the ground) are marked as -2.
     static Mesh2D GenerateMesh2D(const CityModel &cityModel,
-                                 double xMin,
-                                 double yMin,
-                                 double xMax,
-                                 double yMax,
+                                 const BoundingBox2D &boundingBox,
                                  double resolution)
     {
-      std::cout << "MeshGenerator: Generating 2D mesh..." << std::endl;
+      Info("MeshGenerator: Generating 2D mesh...");
 
       // Extract subdomains (building footprints)
       std::vector<std::vector<Point2D>> subDomains;
@@ -53,11 +50,11 @@ namespace DTCC
         subDomains.push_back(building.Footprint.Vertices);
 
       // Generate boundary
-      std::vector<Point2D> boundary;
-      boundary.push_back(Point2D(xMin, yMin));
-      boundary.push_back(Point2D(xMax, yMin));
-      boundary.push_back(Point2D(xMax, yMax));
-      boundary.push_back(Point2D(xMin, yMax));
+      std::vector<Point2D> boundary{};
+      boundary.push_back(boundingBox.P);
+      boundary.push_back(Point2D(boundingBox.Q.x, boundingBox.P.y));
+      boundary.push_back(boundingBox.Q);
+      boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
 
       // Generate 2D mesh
       Mesh2D mesh2D = CallTriangle(boundary, subDomains, resolution);
@@ -93,8 +90,8 @@ namespace DTCC
       const double dz = domainHeight / double(numLayers);
       const size_t layerSize = mesh2D.Vertices.size();
 
-      std::cout << "MeshGenerator: Generating 3D mesh with " << numLayers
-                << " layers..." << std::endl;
+      Info("MeshGenerator: Generating 3D mesh with " + str(numLayers) +
+           " layers...");
 
       // Create markers for used points
       const size_t numPoints = (numLayers + 1) * mesh2D.Vertices.size();
@@ -222,7 +219,7 @@ namespace DTCC
                                                      double resolution,
                                                      bool flatGround)
     {
-      std::cout << "MeshGenerator: Generating 3D surface meshes..." << std::endl;
+      Info("MeshGenerator: Generating 3D surface meshes...");
 
       // Create empty list of surfaces
       std::vector<Surface3D> surfaces;
@@ -238,7 +235,7 @@ namespace DTCC
       boundary.push_back(Point2D(xMin, yMax));
 
       // Generate 2D mesh of domain
-      std::cout << "MeshGenerator: Generating ground mesh" << std::endl;
+      Info("MeshGenerator: Generating ground mesh");
       Mesh2D mesh2D = CallTriangle(boundary, subDomains, resolution);
 
       // Compute domain markers
@@ -256,7 +253,7 @@ namespace DTCC
       }
 
       // Displace ground surface
-      std::cout << "MeshGenerator: Displacing ground mesh" << std::endl;
+      Info("MeshGenerator: Displacing ground mesh");
       if (flatGround)
       {
         // If ground is flat, just iterate over vertices and set height
@@ -313,7 +310,7 @@ namespace DTCC
       const double groundHeight = heightMap.Min();
 
       // Iterate over buildings to generate surfaces
-      std::cout << "MeshGenerator: Generating building meshes" << std::endl;
+      Info("MeshGenerator: Generating building meshes");
       for (auto const &building : cityModel.Buildings)
       {
         // Generate 2D mesh of building footprint
@@ -395,8 +392,6 @@ namespace DTCC
       // Set input switches for Triangle
       char triswitches[64];
       sprintf(triswitches, "zQpq25a%.16f", maxArea);
-      // std::cout << "MeshGenerator: triangle parameters = " << triswitches
-      //           << std::endl;
 
       // z = use zero-based numbering
       // p = use polygon input (segments)
@@ -502,7 +497,6 @@ namespace DTCC
 
       // Uncomment for debugging
       //PrintTriangleIO(out);
-      //std::cout << std::endl;
       //PrintTriangleIO(vorout);
 
       // Create empty mesh
@@ -612,7 +606,7 @@ namespace DTCC
     // Compute domain markers for subdomains
     static void ComputeDomainMarkers(Mesh2D & mesh, const CityModel & cityModel)
     {
-      std::cout << "MeshGenerator: Computing domain markers" << std::endl;
+      Info("MeshGenerator: Computing domain markers");
       Timer timer("ComputeDomainMarkers");
 
       // Build search tree for city model
