@@ -96,5 +96,8 @@ int main(int argc, char *argv[])
   VTK::Write(groundSurface, dataDirectory + "GroundMesh.vtu");
   VTK::Write(buildingSurface, dataDirectory + "BuildingMesh.vtu");
 
+  // Report timings
+  Timer::Report("dtcc-generate-visualization-mesh");
+
   return 0;
 }

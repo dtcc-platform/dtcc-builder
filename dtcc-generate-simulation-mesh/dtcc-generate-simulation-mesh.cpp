@@ -86,5 +86,8 @@ int main(int argc, char *argv[])
   dolfin::File(dataDirectory + "MeshBoundary.pvd") << _boundary3D;
   dolfin::File(dataDirectory + "HeightMap.pvd") << *z;
 
+  // Report timings
+  Timer::Report("dtcc-generate-simulation-mesh");
+
   return 0;
 }

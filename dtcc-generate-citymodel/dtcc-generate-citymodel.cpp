@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   JSON::Write(cityModel, parameters.DataDirectory + "/CityModelSimple.json");
 
   // Report timings
-  Timer::Report();
+  Timer::Report("dtcc-generate-citymodel");
 
   return 0;
 }

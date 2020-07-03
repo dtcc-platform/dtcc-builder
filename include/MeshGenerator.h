@@ -43,6 +43,7 @@ namespace DTCC
                                  double resolution)
     {
       Info("MeshGenerator: Generating 2D mesh...");
+      Timer("GenerateMesh2D");
 
       // Extract subdomains (building footprints)
       std::vector<std::vector<Point2D>> subDomains;
@@ -82,6 +83,9 @@ namespace DTCC
                                  double domainHeight,
                                  double meshResolution)
     {
+      Info("MeshGenerator: Generating 3D mesh...");
+      Timer("GenerateMesh2D");
+
       // Create empty 3D mesh
       Mesh3D mesh3D;
 
@@ -220,6 +224,7 @@ namespace DTCC
                                                      bool flatGround)
     {
       Info("MeshGenerator: Generating 3D surface meshes...");
+      Timer("GenerateSurfaces3D");
 
       // Create empty list of surfaces
       std::vector<Surface3D> surfaces;
@@ -386,6 +391,8 @@ namespace DTCC
                  const std::vector<std::vector<Point2D>> &subDomains,
                  double h)
     {
+      Timer("CallTriangle");
+
       // Set area constraint to control mesh size
       const double maxArea = 0.5 * h * h;
 

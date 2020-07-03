@@ -30,10 +30,7 @@ public:
   ~Timer()
   {
     if (autoStart)
-    {
       Stop();
-      Print();
-    }
   }
 
   // Start clock
@@ -74,11 +71,11 @@ public:
   }
 
   // Print report (summary of all timers)
-  static void Report()
+  static void Report(std::string title)
   {
     // Create columns
     std::vector<std::vector<std::string>> cols(4);
-    cols[0].push_back("Task");
+    cols[0].push_back(title);
     cols[1].push_back("CPU mean");
     cols[2].push_back("CPU total");
     cols[3].push_back("Count");
@@ -97,7 +94,7 @@ public:
     const size_t tabsize = 2;
     std::vector<size_t> colsize(cols.size());
     std::fill(colsize.begin(), colsize.end(), 0);
-    for (size_t i = 0; i < timings.size(); i++)
+    for (size_t i = 0; i < cols[0].size(); i++)
       for (size_t j = 0; j < cols.size(); j++)
         colsize[j] = std::max(colsize[j], cols[j][i].size());
     size_t width = 0;
@@ -107,7 +104,7 @@ public:
 
     // Generate table
     std::string s = "\n";
-    for (size_t i = 0; i < timings.size(); i++)
+    for (size_t i = 0; i < cols[0].size(); i++)
     {
       s += "Timer: ";
       for (size_t j = 0; j < cols.size(); j++)

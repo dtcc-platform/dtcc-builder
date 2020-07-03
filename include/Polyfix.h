@@ -6,6 +6,7 @@
 
 #include "Geometry.h"
 #include "Polygon.h"
+#include "Timer.h"
 
 namespace DTCC
 {
@@ -177,8 +178,10 @@ public:
   /// @param tolerance Tolerance for connecting vertices and edges
   /// @return The merged polygon
   static Polygon
-  Merge(const Polygon &polygon0, const Polygon &polygon1, double tol)
+  MergePolygons(const Polygon &polygon0, const Polygon &polygon1, double tol)
   {
+    Timer("MergePolygons");
+
     // Avoid using sqrt for efficiency
     // const double tol2 = tol * tol;
     const double eps = Parameters::Epsilon;

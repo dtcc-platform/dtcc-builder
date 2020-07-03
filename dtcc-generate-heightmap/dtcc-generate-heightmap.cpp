@@ -80,5 +80,8 @@ int main(int argc, char *argv[])
   // Write height map data
   JSON::Write(heightMap, dataDirectory + "HeightMap.json");
 
+  // Report timings
+  Timer::Report("dtcc-generate-heightmap");
+
   return 0;
 }

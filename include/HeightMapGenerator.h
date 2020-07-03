@@ -35,6 +35,7 @@ public:
                                 double heightMapResolution)
   {
     Info("HeightMapGenerator: Generating heightmap from point cloud...");
+    Timer("GenerateHeightMap");
 
     // Check for empty data
     if (pointCloud.Points.size() == 0)
@@ -131,7 +132,6 @@ public:
 
     std::cout << "HeightMapGenerator: Filling in missing grid points ("
               << numMissing << "/" << numGridPoints << ")" << std::endl;
-    Timer timer("Flood fill");
 
     // Reuse vector numLocalPoints to indicate which points have been
     // visited: 0 = empty, 1 = boundary, 2 = filled
@@ -180,8 +180,6 @@ public:
         }
       }
     }
-    timer.Stop();
-    timer.Print();
 
     // Check that we found data for all grid points
     if (numFound != numMissing)

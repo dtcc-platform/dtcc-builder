@@ -231,7 +231,7 @@ private:
 
           // Compute merged polygon
           Polygon mergedPolygon =
-              Polyfix::Merge(Pi, Pj, minimalBuildingDistance);
+              Polyfix::MergePolygons(Pi, Pj, minimalBuildingDistance);
           numMerged++;
 
           // Replace Pi, erase Pj and add Pi to queue
