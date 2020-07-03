@@ -1,7 +1,7 @@
 {
     "Type": "Parameters",
     "DataDirectory": "/home/dtcc/core/data/Hammarkullen",
-    "DomainHeight": 75.0,
+    "DomainHeight": 100.0,
     "HeightMapResolution": 1.0,
     "MeshResolution": 10.0,
     "X0": 323100,

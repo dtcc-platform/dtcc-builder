@@ -14,7 +14,9 @@
 
 #include "Laplacian.h"
 #include "LinearSpace2D.h"
+#include "Logging.h"
 #include "Mesh.h"
+#include "Timer.h"
 
 namespace DTCC
 {
@@ -30,7 +32,8 @@ namespace DTCC
                            const std::vector<int> &domainMarkers,
                            double h)
     {
-      std::cout << "Smoothing mesh (Laplacian smoothing)..." << std::endl;
+      Info("Smoothing mesh (Laplacian smoothing)...");
+      Timer("SmoothMesh");
 
       // Get number of vertices
       const size_t num_vertices = mesh.num_vertices();
