@@ -14,6 +14,7 @@
 #include "Parameters.h"
 #include "Polygon.h"
 #include "SHP.h"
+#include "Timer.h"
 
 using namespace DTCC;
 
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
   // Clean city model and add building heights
   CityModelGenerator::CleanCityModel(cityModel,
                                      parameters.MinimalVertexDistance);
-  CityModelGenerator::ComputeHeights(cityModel, heightMap);
+  CityModelGenerator::ComputeBuildingHeights(cityModel, heightMap);
   Info(cityModel);
 
   // Write city model to file
@@ -64,11 +65,14 @@ int main(int argc, char *argv[])
   CityModelGenerator::SimplifyCityModel(cityModel,
                                         parameters.MinimalBuildingDistance,
                                         parameters.MinimalVertexDistance);
-  CityModelGenerator::ComputeHeights(cityModel, heightMap);
+  CityModelGenerator::ComputeBuildingHeights(cityModel, heightMap);
   Info(cityModel);
 
   // Write simplified city model to file
   JSON::Write(cityModel, parameters.DataDirectory + "/CityModelSimple.json");
+
+  // Report timings
+  Timer::Report();
 
   return 0;
 }

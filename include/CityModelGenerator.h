@@ -12,6 +12,7 @@
 #include "GridField.h"
 #include "Polyfix.h"
 #include "Polygon.h"
+#include "Timer.h"
 #include "Vector.h"
 
 namespace DTCC
@@ -34,6 +35,7 @@ public:
                                 const BoundingBox2D &bbox)
   {
     Info("CityModelGenerator: Generating city model...");
+    Timer("GenerateCityModel");
 
     // Clear old data
     cityModel.Buildings.clear();
@@ -66,6 +68,7 @@ public:
   static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
   {
     Info("CityModelGenerator: Cleaning city model...");
+    Timer("CleanCityModel");
 
     // Iterate over buildings
     size_t numClosed = 0;
@@ -105,6 +108,7 @@ public:
                                 double minimalVertexDistance)
   {
     Info("CityModelGenerator: Simplifying city model...");
+    Timer("SimplifyCityModel");
 
     // Merge buildings if too close
     MergeBuildings(cityModel, minimalBuildingDistance);
@@ -117,8 +121,12 @@ public:
   ///
   /// @param cityModel The city model
   /// @param heightMap The height map
-  static void ComputeHeights(CityModel &cityModel, const GridField2D &heightMap)
+  static void ComputeBuildingHeights(CityModel &cityModel,
+                                     const GridField2D &heightMap)
   {
+    Info("CityModelGenerator: Computing building heights...");
+    Timer("ComputeBuildingHeights");
+
     // Iterate over buildings
     for (size_t i = 0; i < cityModel.Buildings.size(); i++)
     {
