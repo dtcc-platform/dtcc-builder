@@ -79,8 +79,9 @@ int main(int argc, char *argv[])
   // Generate mesh boundary (used only for testing/visualization)
   dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
 
-  // Write mesh to files¨
+  // Write mesh to files
   std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
+  JSON::Write(mesh2D, dataDirectory + "Mesh2D.json");
   dolfin::File(dataDirectory + "Mesh2D.pvd") << _mesh2D;
   dolfin::File(dataDirectory + "Mesh3D.pvd") << _mesh3D;
   dolfin::File(dataDirectory + "MeshBoundary.pvd") << _boundary3D;

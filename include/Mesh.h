@@ -18,13 +18,13 @@ namespace DTCC
   {
   public:
     /// Array of vertices
-    std::vector<Point2D> Vertices;
+    std::vector<Point2D> Vertices{};
 
     /// Array of cells (triangles)
-    std::vector<Simplex2D> Cells;
+    std::vector<Simplex2D> Cells{};
 
     /// Array of domain markers
-    std::vector<int> DomainMarkers;
+    std::vector<int> DomainMarkers{};
 
     /// Compute cell midpoint
     Point2D MidPoint(const Simplex2D &cell) const
@@ -52,13 +52,13 @@ namespace DTCC
   public:
 
     /// Array of vertices
-    std::vector<Point3D> Vertices;
+    std::vector<Point3D> Vertices{};
 
     /// Array of cells (tetrahedra)
-    std::vector<Simplex3D> Cells;
+    std::vector<Simplex3D> Cells{};
 
     /// Array of domain markers
-    std::vector<int> DomainMarkers;
+    std::vector<int> DomainMarkers{};
 
     /// Compute cell midpoint
     Point3D MidPoint(const Simplex3D &Cell) const
