@@ -44,6 +44,8 @@ namespace DTCC
       parameters.HeightMapResolution = ToDouble("HeightMapResolution", json);
       parameters.MeshResolution = ToDouble("MeshResolution", json);
       parameters.MinimalBuildingDistance = ToDouble("MinimalBuildingDistance", json);
+      parameters.MinimalVertexDistance =
+          ToDouble("MinimalVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
       parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
     };
@@ -65,6 +67,7 @@ namespace DTCC
       json["HeightMapResolution"] = parameters.HeightMapResolution;
       json["MeshResolution"] = parameters.MeshResolution;
       json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
+      json["MinimalVertexDistance"] = parameters.MinimalVertexDistance;
       json["FlatGround"] = parameters.FlatGround;
       json["GroundSmoothing"] = parameters.GroundSmoothing;
     }
@@ -472,7 +475,7 @@ namespace DTCC
     }
 
     /// Serialize CityJSON
-    static void Serialize(const CityJSON& cityJson, nlohmann::json& json) 
+    static void Serialize(const CityJSON &cityJson, nlohmann::json &json)
     {
       // Serializing city objects
       auto jsonBuilding = nlohmann::json::object();
@@ -483,7 +486,7 @@ namespace DTCC
         std::string id = cityObject.ID;
         auto objID = nlohmann::json::object();
         json["CityObjects"][id]=objID;
-        
+
         // Storing the attributes object
         auto attributesObj = nlohmann::json::object();
         attributesObj["measuredHeight"]=cityObject.ObjectAttributes.MeasuredHeight;
@@ -506,7 +509,7 @@ namespace DTCC
         auto boundariesExternalArray = nlohmann::json::array();
         auto boundariesInternalArray = nlohmann::json::array();
         auto singleBoundaryArray=nlohmann::json::array();
-        
+
         for(auto const& boundary : cityObject.ObjectGeometry.Boundaries)
         {
           auto boundariesIDs = nlohmann::json::array();
@@ -527,15 +530,13 @@ namespace DTCC
         // TODO: Change this accordingly to support different types
         objID["type"] = "Building";
       }
-      
-      
 
       //Serializing vertices
       auto jsonVertices= nlohmann::json::array();
       for(auto const& vertex: cityJson.Vertices)
       {
         auto jsonVertex = nlohmann::json::array();
-        
+
         jsonVertex.push_back(vertex.x);
         jsonVertex.push_back(vertex.y);
         jsonVertex.push_back(vertex.z);
@@ -551,7 +552,7 @@ namespace DTCC
     }
 
     /// Deserialize CityJSON
-    static void Deserialize(CityJSON& cityJson, const nlohmann::json& json) 
+    static void Deserialize(CityJSON &cityJson, const nlohmann::json &json)
     {
       //CheckType("CityJSON",json);
       //Getting vertices

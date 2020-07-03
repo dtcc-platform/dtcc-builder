@@ -62,60 +62,55 @@ public:
   /// are closed and counter-clockwise oriented.
   ///
   /// @param cityModel The city model
-  static void CleanCityModel(CityModel &cityModel)
+  /// @param minimalVertexDistance Minimal vertex distance
+  static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
   {
     Info("CityModelGenerator: Cleaning city model...");
 
-    // Make buildings closed
+    // Iterate over buildings
     size_t numClosed = 0;
-    for (auto &building : cityModel.Buildings)
-    {
-      numClosed += Polyfix::MakeClosed(building.Footprint,
-                                       Parameters::FootprintDistanceThreshold);
-    }
-
-    // Make buildings oriented
     size_t numOriented = 0;
+    size_t numVertexMerged = 0;
+    size_t numEdgeMerged = 0;
     for (auto &building : cityModel.Buildings)
     {
-      numOriented += Polyfix::MakeOriented(building.Footprint);
-    }
+      // Make closed
+      numClosed += Polyfix::MakeClosed(building.Footprint, Parameters::Epsilon);
 
-    // Make buildings simple
-    size_t numSimple = 0;
-    for (auto &building : cityModel.Buildings)
-    {
-      numSimple += Polyfix::MakeSimple(building.Footprint,
-                                       Parameters::FootprintAngleThreshold);
+      // Make oriented
+      numOriented += Polyfix::MakeOriented(building.Footprint);
+
+      // Merge vertices
+      numVertexMerged +=
+          Polyfix::MergeVertices(building.Footprint, minimalVertexDistance);
+
+      // Merge edges
+      numEdgeMerged += Polyfix::MergeEdges(building.Footprint,
+                                           Parameters::FootprintAngleThreshold);
     }
 
     Info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not closed");
     Info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not oriented");
-    Info("CityModelGenerator: Fixed " + str(numSimple) + "/" +
-         str(cityModel.Buildings.size()) + " polygons that were not simple");
+    Info("CityModelGenerator: Merged vertices for " + str(numVertexMerged) +
+         "/" + str(cityModel.Buildings.size()) + " polygons");
+    Info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
+         str(cityModel.Buildings.size()) + " polygons");
   }
 
   // Simplify city model (simplify and merge polygons)
   static void SimplifyCityModel(CityModel &cityModel,
-                                double minimalBuildingDistance)
+                                double minimalBuildingDistance,
+                                double minimalVertexDistance)
   {
     Info("CityModelGenerator: Simplifying city model...");
 
     // Merge buildings if too close
     MergeBuildings(cityModel, minimalBuildingDistance);
 
-    // Make buildings simple (remove duplicates after merging)
-    size_t numSimple = 0;
-    for (auto &building : cityModel.Buildings)
-    {
-      numSimple += Polyfix::MakeSimple(building.Footprint,
-                                       Parameters::FootprintAngleThreshold);
-    }
-
-    Info("CityModelGenerator: Fixed " + str(numSimple) + "/" +
-         str(cityModel.Buildings.size()) + " polygons that were not simple");
+    // Clean after merge
+    CleanCityModel(cityModel, minimalVertexDistance);
   }
 
   /// Compute heights of buildings from height map.

@@ -35,7 +35,7 @@ public:
       const double d2 = Geometry::SquaredDistance2D(p, p0);
 
       // Remove if distance is small
-      if (d2 < tol2)
+      if (i > 2 && d2 < tol2)
       {
         end = i;
         break;
@@ -69,18 +69,60 @@ public:
     return 1;
   }
 
-  /// Make polygon simple (remove consecutive parallel edges).
+  /// Merge polygon vertices.
   ///
   /// @param polygon The polygon
-  /// @param tol Tolerance for small angle (sin of angle)
+  /// @param tol Tolerance for small distance
   /// @return 0 if already simple, 1 if modified
-  static size_t MakeSimple(Polygon &polygon, double tol)
+  static size_t MergeVertices(Polygon &polygon, double tol)
   {
     // Avoid using sqrt for efficiency
     const double tol2 = tol * tol;
 
     // Vertices to be removed
-    std::vector<size_t> remove;
+    std::vector<size_t> remove{};
+
+    // Check each edge
+    const size_t numVertices = polygon.Vertices.size();
+    size_t i0 = 0;
+    for (size_t i = 1; i < numVertices; i++)
+    {
+      // Get current vertex
+      const Vector2D &p0 = polygon.Vertices[i0];
+      const Vector2D &p = polygon.Vertices[i];
+
+      // Compute distance
+      const double d2 = Geometry::SquaredDistance2D(p0, p);
+
+      // Remove if distance is small
+      if (d2 < tol2)
+        remove.push_back(i);
+      else
+        i0 = i;
+    }
+
+    // Return if no vertices should be removed
+    if (remove.size() == 0)
+      return 0;
+
+    // Remove vertices
+    RemoveVertices(polygon, remove);
+
+    return 1;
+  }
+
+  /// Merge polygon edges.
+  ///
+  /// @param polygon The polygon
+  /// @param tol Tolerance for small angle (sin of angle)
+  /// @return 0 if already simple, 1 if modified
+  static size_t MergeEdges(Polygon &polygon, double tol)
+  {
+    // Avoid using sqrt for efficiency
+    const double tol2 = tol * tol;
+
+    // Vertices to be removed
+    std::vector<size_t> remove{};
 
     // Check each edge
     const size_t numVertices = polygon.Vertices.size();
@@ -141,8 +183,7 @@ public:
     // const double tol2 = tol * tol;
     const double eps = Parameters::Epsilon;
     const double eps2 = eps * eps;
-    const double dtol = Parameters::FootprintDistanceThreshold;
-    const double dtol2 = dtol * dtol;
+    const double tol2 = tol * tol;
 
     // Get number of vertices
     const size_t m = polygon0.Vertices.size();
@@ -210,7 +251,7 @@ public:
       {
         if (removed[i])
           continue;
-        if (Geometry::SquaredDistance2D(vertices[i], vertices[j]) < dtol2)
+        if (Geometry::SquaredDistance2D(vertices[i], vertices[j]) < tol2)
         {
           for (const auto k : edges[j])
             edges[i].push_back(k);

@@ -35,7 +35,10 @@ namespace DTCC
     double HeightMapResolution = 1.0;
 
     // Minimal building distance (merged if closer)
-    double MinimalBuildingDistance = 0.5;
+    double MinimalBuildingDistance = 1.0;
+
+    // Minimal vertex distance (merged if closer)
+    double MinimalVertexDistance = 1.0;
 
     // Height of computational domain
     double DomainHeight = 100.0;
@@ -56,10 +59,6 @@ namespace DTCC
 
     // Precision for output and printing
     static constexpr double Precision = 16;
-
-    // Threshold for filtering points with small distances in building
-    // footprints
-    static constexpr double FootprintDistanceThreshold = 0.01;
 
     // Threshold for filtering points with small angles in building footprints
     static constexpr double FootprintAngleThreshold = 0.01;

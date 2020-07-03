@@ -33,9 +33,6 @@ int main(int argc, char *argv[])
   JSON::Read(parameters, argv[1]);
   Info(parameters);
 
-  // FIXME: Testing
-  LogLevel = PROGRESS;
-
   // Read property map data
   std::vector<Polygon> footprints;
   SHP::Read(footprints, parameters.DataDirectory + "/PropertyMap.shp");
@@ -55,7 +52,8 @@ int main(int argc, char *argv[])
   JSON::Write(cityModel, parameters.DataDirectory + "/CityModelRaw.json");
 
   // Clean city model and add building heights
-  CityModelGenerator::CleanCityModel(cityModel);
+  CityModelGenerator::CleanCityModel(cityModel,
+                                     parameters.MinimalVertexDistance);
   CityModelGenerator::ComputeHeights(cityModel, heightMap);
   Info(cityModel);
 
@@ -64,7 +62,8 @@ int main(int argc, char *argv[])
 
   // Simplify city model and add building heights
   CityModelGenerator::SimplifyCityModel(cityModel,
-                                        parameters.MinimalBuildingDistance);
+                                        parameters.MinimalBuildingDistance,
+                                        parameters.MinimalVertexDistance);
   CityModelGenerator::ComputeHeights(cityModel, heightMap);
   Info(cityModel);
 

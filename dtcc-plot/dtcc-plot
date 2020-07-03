@@ -85,12 +85,12 @@ def PlotHeightMap(data, plotContours=False):
     pylab.show()
 
 def Help():
-    print('Usage: vc-plot [--plot-labels --plot-contors] Data.json')
+    print('Usage: vc-plot [--plot-labels] [--plot-vertices] [--plot-contors] Data.json')
 
 if __name__ == "__main__":
 
     # Check command-line arguments
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         Help()
         sys.exit(1)
 

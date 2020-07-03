@@ -11,7 +11,8 @@
     "XMax": 1000,
     "YMax": 1000,
     "AutoDomain": false,
-    "MinimalBuildingDistance": 0.5,
+    "MinimalBuildingDistance": 1.0,
+    "MinimalVertexDistance": 1.0,
     "FlatGround": false,
     "GroundSmoothing": 5
 }
