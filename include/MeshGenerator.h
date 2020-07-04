@@ -654,11 +654,11 @@ namespace DTCC
         // Check if individual vertices are inside a building
         // (not only midpoint). Necessary for when generating
         // visualization meshes that are not boundary-fitted.
-        if (cityModel.FindBuilding(mesh.Vertices[T.v0]))
+        if (cityModel.FindBuilding(mesh.Vertices[T.v0]) >= 0)
           isBuildingVertex[T.v0] = true;
-        if (cityModel.FindBuilding(mesh.Vertices[T.v1]))
+        if (cityModel.FindBuilding(mesh.Vertices[T.v1]) >= 0)
           isBuildingVertex[T.v1] = true;
-        if (cityModel.FindBuilding(mesh.Vertices[T.v2]))
+        if (cityModel.FindBuilding(mesh.Vertices[T.v2]) >= 0)
           isBuildingVertex[T.v2] = true;
       }
 

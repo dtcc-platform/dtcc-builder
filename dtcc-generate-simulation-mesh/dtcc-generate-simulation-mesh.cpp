@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
 
   // Write mesh to files
-  std::cout << "vc-generate-mesh: Writing to files..." << std::endl;
+  Info("vc-generate-simulation-mesh: Writing to files...");
   JSON::Write(mesh2D, dataDirectory + "Mesh2D.json");
   dolfin::File(dataDirectory + "Mesh2D.pvd") << _mesh2D;
   dolfin::File(dataDirectory + "Mesh3D.pvd") << _mesh3D;

@@ -58,14 +58,18 @@ namespace DTCC
       ComputeBoundaryMarkers(*subDomains, domainMarkers);
 
       // Create expressions for boundary values (heights)
-      auto h0 = std::make_shared<GroundExpression>(heightMap);
-      auto h1 = std::make_shared<HaloExpression>(heightMap, mesh);
-      auto h2 = std::make_shared<BuildingsExpression>(cityModel, domainMarkers);
+      const auto h0 =
+          std::make_shared<BuildingsExpression>(cityModel, domainMarkers);
+      const auto h1 = std::make_shared<HaloExpression>(heightMap, mesh);
+      const auto h2 = std::make_shared<GroundExpression>(heightMap);
 
       // Create boundary conditions
-      auto bc0 = std::make_shared<dolfin::DirichletBC>(V, h0, subDomains, 2);
-      auto bc1 = std::make_shared<dolfin::DirichletBC>(V, h1, subDomains, 0);
-      auto bc2 = std::make_shared<dolfin::DirichletBC>(V, h2, subDomains, 0);
+      const auto bc0 =
+          std::make_shared<dolfin::DirichletBC>(V, h0, subDomains, 0);
+      const auto bc1 =
+          std::make_shared<dolfin::DirichletBC>(V, h1, subDomains, 1);
+      const auto bc2 =
+          std::make_shared<dolfin::DirichletBC>(V, h2, subDomains, 2);
 
       // Apply boundary conditions
       bc2->apply(*A, *b);
