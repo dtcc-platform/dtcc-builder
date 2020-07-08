@@ -30,7 +30,7 @@ namespace DTCC
                            const GridField2D &heightMap,
                            const CityModel &cityModel,
                            const std::vector<int> &domainMarkers,
-                           double h)
+                           bool fixBuildings)
     {
       Info("Smoothing mesh (Laplacian smoothing)...");
       Timer("SmoothMesh");
@@ -62,6 +62,7 @@ namespace DTCC
           std::make_shared<BuildingsExpression>(cityModel, domainMarkers);
       const auto h1 = std::make_shared<HaloExpression>(heightMap, mesh);
       const auto h2 = std::make_shared<GroundExpression>(heightMap);
+      const auto h3 = std::make_shared<TopExpression>();
 
       // Create boundary conditions
       const auto bc0 =
@@ -70,11 +71,17 @@ namespace DTCC
           std::make_shared<dolfin::DirichletBC>(V, h1, subDomains, 1);
       const auto bc2 =
           std::make_shared<dolfin::DirichletBC>(V, h2, subDomains, 2);
+      const auto bc3 =
+          std::make_shared<dolfin::DirichletBC>(V, h3, subDomains, 3);
 
-      // Apply boundary conditions
+      // Apply boundary conditions for top, halos and ground
+      bc3->apply(*A, *b);
       bc2->apply(*A, *b);
       bc1->apply(*A, *b);
-      bc0->apply(*A, *b);
+
+      // Apply boundary condition for buildings
+      if (fixBuildings)
+        bc0->apply(*A, *b);
 
       // Create linear solver
       dolfin::KrylovSolver solver(mesh.mpi_comm(), "bicgstab", "amg");
@@ -257,26 +264,43 @@ namespace DTCC
       }
     };
 
+    // Boundary value for top
+    class TopExpression : public dolfin::Expression
+    {
+    public:
+      // Constructor
+      TopExpression() : Expression() {}
+
+      // Evaluation of z-displacement
+      void eval(dolfin::Array<double> &values,
+                const dolfin::Array<double> &x) const
+      {
+        values[0] = 0.0;
+      }
+    };
+
     // Compute boundary markers from domain markers
     static void ComputeBoundaryMarkers(dolfin::MeshFunction<size_t> &subDomains,
                                        std::vector<int> domainMarkers)
     {
       // The domain markers indicate a nonnegative building number for cells
       // that touch the roofs of buildings, -1 for cells that touch the
-      // ground close to buildings, -2 for other cells that touch the ground
-      // and -3 for remaining cells. We now need to convert these *cell*
-      // markers to *facet* markers. The facet markers are set as follows:
+      // ground close to buildings, -2 for other cells that touch the ground,
+      // -3 for top layer and -4 for remaining cells. We now need to convert
+      // these *cell* markers to *facet* markers. The facet markers are set
+      // as follows:
       //
       // 0: roofs of buildings
       // 1: ground close to buildings (converted from -1 cell markers)
       // 2: ground away from buildings (converted from -2 cell markers)
-      // 3: everything else
+      // 3: top of domain
+      // 4: everything else
 
       // Iterate over the facets of the mesh
       for (dolfin::FacetIterator f(*subDomains.mesh()); !f.end(); ++f)
       {
         // Set default facet marker
-        size_t facetMarker = 3;
+        size_t facetMarker = 4;
 
         // Check if we are on the boundary
         if (f->exterior())
@@ -287,6 +311,7 @@ namespace DTCC
           // Check z-component of cell normal
           const double nz = f->normal(2);
           const bool downwardFacet = nz <= -1.0 + tol;
+          const bool upwardFacet = nz >= 1.0 - tol;
 
           // Get cell marker
           const int cellMarker = domainMarkers[cellIndex];
@@ -298,6 +323,8 @@ namespace DTCC
             facetMarker = 1;
           else if (downwardFacet && cellMarker == -2)
             facetMarker = 2;
+          else if (upwardFacet && cellMarker == -3)
+            facetMarker = 3;
         }
 
         // Set marker value

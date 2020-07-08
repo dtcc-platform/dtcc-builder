@@ -11,10 +11,11 @@
 #include "FEniCS.h"
 #include "GridField.h"
 #include "JSON.h"
+#include "LaplacianSmoother.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
-#include "LaplacianSmoother.h"
 #include "Parameters.h"
+#include "VertexSmoother.h"
 
 using namespace DTCC;
 
@@ -51,17 +52,20 @@ int main(int argc, char *argv[])
   Info(heightMap);
 
   // Generate 2D mesh
-  Mesh2D mesh2D = MeshGenerator::GenerateMesh2D(
-      cityModel, heightMap.Grid.BoundingBox, parameters.MeshResolution);
+  Mesh2D mesh2D;
+  MeshGenerator::GenerateMesh2D(mesh2D, cityModel, heightMap.Grid.BoundingBox,
+                                parameters.MeshResolution);
   Info(mesh2D);
 
   // Compute ground elevation
-  const double groundElevation = heightMap.Min();
+  // const double groundElevation = heightMap.Min();
 
-  // Generate 3D mesh (excluding height map)
-  Mesh3D mesh3D = MeshGenerator::GenerateMesh3D(
-      mesh2D, cityModel, groundElevation, parameters.DomainHeight,
-      parameters.MeshResolution);
+  VertexSmoother::SmoothField(heightMap, 5);
+
+  // Generate 3D mesh
+  Mesh3D mesh3D;
+  MeshGenerator::GenerateMesh3D(mesh3D, mesh2D, parameters.DomainHeight,
+                                parameters.MeshResolution);
   Info(mesh3D);
 
   // Convert to FEniCS meshes
@@ -70,11 +74,11 @@ int main(int argc, char *argv[])
   FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
   // Apply mesh smoothing to account for height map
-  LaplacianSmoother::SmoothMesh(_mesh3D, heightMap, cityModel, mesh3D.DomainMarkers,
-                                parameters.MeshResolution);
+  // LaplacianSmoother::SmoothMesh(_mesh3D, heightMap, cityModel,
+  // mesh3D.DomainMarkers, false);
 
   // Generate height map function (used only for testing/visualization)
-  auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
+  // auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
 
   // Generate mesh boundary (used only for testing/visualization)
   dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
@@ -85,7 +89,7 @@ int main(int argc, char *argv[])
   dolfin::File(dataDirectory + "Mesh2D.pvd") << _mesh2D;
   dolfin::File(dataDirectory + "Mesh3D.pvd") << _mesh3D;
   dolfin::File(dataDirectory + "MeshBoundary.pvd") << _boundary3D;
-  dolfin::File(dataDirectory + "HeightMap.pvd") << *z;
+  // dolfin::File(dataDirectory + "HeightMap.pvd") << *z;
 
   // Report timings
   Timer::Report("dtcc-generate-simulation-mesh");

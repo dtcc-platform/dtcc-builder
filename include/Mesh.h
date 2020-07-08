@@ -26,13 +26,13 @@ namespace DTCC
     /// Array of domain markers
     std::vector<int> DomainMarkers{};
 
-    /// Compute cell midpoint
-    Point2D MidPoint(const Simplex2D &cell) const
+    /// Compute midpoint of cell
+    Point2D MidPoint(size_t cellIndex) const
     {
       Vector2D c{};
-      c += Vector2D(Vertices[cell.v0]);
-      c += Vector2D(Vertices[cell.v1]);
-      c += Vector2D(Vertices[cell.v2]);
+      c += Vector2D(Vertices[Cells[cellIndex].v0]);
+      c += Vector2D(Vertices[Cells[cellIndex].v1]);
+      c += Vector2D(Vertices[Cells[cellIndex].v2]);
       c /= 3.0;
       return c;
     }
@@ -60,14 +60,14 @@ namespace DTCC
     /// Array of domain markers
     std::vector<int> DomainMarkers{};
 
-    /// Compute cell midpoint
-    Point3D MidPoint(const Simplex3D &Cell) const
+    /// Compute of cell
+    Point3D MidPoint(size_t cellIndex) const
     {
       Vector3D c;
-      c += Vector3D(Vertices[Cell.v0]);
-      c += Vector3D(Vertices[Cell.v1]);
-      c += Vector3D(Vertices[Cell.v2]);
-      c += Vector3D(Vertices[Cell.v3]);
+      c += Vector3D(Vertices[Cells[cellIndex].v0]);
+      c += Vector3D(Vertices[Cells[cellIndex].v1]);
+      c += Vector3D(Vertices[Cells[cellIndex].v2]);
+      c += Vector3D(Vertices[Cells[cellIndex].v3]);
       c /= 4.0;
       return c;
     }
