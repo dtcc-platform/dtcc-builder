@@ -89,7 +89,7 @@ def PlotMesh2D(data):
     # Get data
     v = data['Vertices']
     f = data['Cells']
-    c = data['DomainMarkers']
+    c = data['Markers']
     x = [v[2*i] for i in range(len(v) // 2)]
     y = [v[2*i+1] for i in range(len(v) // 2)]
     t = [(f[3*i], f[3*i+1], f[3*i+2]) for i in range(len(f) // 3)]
