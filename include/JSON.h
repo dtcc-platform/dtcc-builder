@@ -48,6 +48,7 @@ namespace DTCC
           ToDouble("MinimalVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
       parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
+      parameters.Debug = ToBool("Debug", json);
     };
 
     /// Serialize Parameters
@@ -70,6 +71,7 @@ namespace DTCC
       json["MinimalVertexDistance"] = parameters.MinimalVertexDistance;
       json["FlatGround"] = parameters.FlatGround;
       json["GroundSmoothing"] = parameters.GroundSmoothing;
+      json["Debug"] = parameters.Debug;
     }
 
     /// Deserialize BoundingBox2D
@@ -195,10 +197,10 @@ namespace DTCC
         mesh.Cells[i].v1 = jsonCells[3*i + 1];
         mesh.Cells[i].v2 = jsonCells[3*i + 2];
       }
-      const auto jsonDomainMarkers = json["DomainMarkers"];
-      mesh.DomainMarkers.resize(jsonDomainMarkers.size());
-      for (size_t i = 0; i < mesh.DomainMarkers.size(); i++)
-        mesh.DomainMarkers[i] = jsonDomainMarkers[i];
+      const auto jsonMarkers = json["Markers"];
+      mesh.Markers.resize(jsonMarkers.size());
+      for (size_t i = 0; i < mesh.Markers.size(); i++)
+        mesh.Markers[i] = jsonMarkers[i];
     }
 
     /// Serialize Mesh2D
@@ -220,7 +222,7 @@ namespace DTCC
       json["Type"] = "Mesh2D";
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
-      json["DomainMarkers"] = mesh.DomainMarkers;
+      json["Markers"] = mesh.Markers;
     }
 
     /// Deserialize Mesh3D
@@ -244,10 +246,10 @@ namespace DTCC
         mesh.Cells[i].v2 = jsonCells[4*i + 2];
         mesh.Cells[i].v3 = jsonCells[4*i + 3];
       }
-      const auto jsonDomainMarkers = json["DomainMarkers"];
-      mesh.DomainMarkers.resize(jsonDomainMarkers.size());
-      for (size_t i = 0; i < mesh.DomainMarkers.size(); i++)
-        mesh.DomainMarkers[i] = jsonDomainMarkers[i];
+      const auto jsonMarkers = json["Markers"];
+      mesh.Markers.resize(jsonMarkers.size());
+      for (size_t i = 0; i < mesh.Markers.size(); i++)
+        mesh.Markers[i] = jsonMarkers[i];
     }
 
     /// Serialize Mesh3D
@@ -271,7 +273,7 @@ namespace DTCC
       json["Type"] = "Mesh3D";
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
-      json["DomainMarkers"] = mesh.DomainMarkers;
+      json["Markers"] = mesh.Markers;
     }
 
     /// Deserialize Surface3D

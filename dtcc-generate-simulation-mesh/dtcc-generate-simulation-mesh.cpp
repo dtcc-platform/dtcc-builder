@@ -51,45 +51,94 @@ int main(int argc, char *argv[])
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
   Info(heightMap);
 
+  // Smooth height map
+  VertexSmoother::SmoothField(heightMap, parameters.GroundSmoothing);
+
+  // Compute absolute height of top of domain
+  const double topHeight = heightMap.Mean() + parameters.DomainHeight;
+
   // Generate 2D mesh
   Mesh2D mesh2D;
   MeshGenerator::GenerateMesh2D(mesh2D, cityModel, heightMap.Grid.BoundingBox,
                                 parameters.MeshResolution);
   Info(mesh2D);
 
-  // Compute ground elevation
-  // const double groundElevation = heightMap.Min();
-
-  VertexSmoother::SmoothField(heightMap, 5);
+  // Write mesh for debugging
+  if (parameters.Debug)
+  {
+    dolfin::Mesh _mesh2D;
+    FEniCS::ConvertMesh(mesh2D, _mesh2D);
+    auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
+    FEniCS::Write(_mesh2D, dataDirectory + "Mesh2D.pvd");
+    FEniCS::Write(*z, dataDirectory + "HeightMap.pvd");
+  }
 
   // Generate 3D mesh
   Mesh3D mesh3D;
-  MeshGenerator::GenerateMesh3D(mesh3D, mesh2D, parameters.DomainHeight,
-                                parameters.MeshResolution);
+  const size_t numLayers = MeshGenerator::GenerateMesh3D(
+      mesh3D, mesh2D, parameters.DomainHeight, parameters.MeshResolution);
   Info(mesh3D);
 
-  // Convert to FEniCS meshes
+  // Uncomment to write to file for debugging
+  if (parameters.Debug)
+  {
+    dolfin::Mesh _mesh3D;
+    FEniCS::ConvertMesh(mesh3D, _mesh3D);
+    dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
+    FEniCS::Write(_mesh3D, dataDirectory + "Mesh3DFull.pvd");
+    FEniCS::Write(_boundary3D, dataDirectory + "Surface3DFull.pvd");
+  }
+
+  // Apply mesh smoothing to ground
+  LaplacianSmoother::SmoothMesh(mesh3D, cityModel, heightMap, topHeight, false);
+  Info(mesh3D);
+
+  // Uncomment to write to file for debugging
+  if (parameters.Debug)
+  {
+    dolfin::Mesh _mesh3D;
+    FEniCS::ConvertMesh(mesh3D, _mesh3D);
+    dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
+    FEniCS::Write(_mesh3D, dataDirectory + "Mesh3DFullSmoothed.pvd");
+    FEniCS::Write(_boundary3D, dataDirectory + "Surface3DFullSmoothed.pvd");
+  }
+
+  // Trim 3D mesh (remove tets inside buildings)
+  MeshGenerator::TrimMesh3D(mesh3D, mesh2D, cityModel, numLayers);
+  Info(mesh3D);
+
+  // Uncomment to write to file for debugging
+  if (parameters.Debug)
+  {
+    dolfin::Mesh _mesh3D;
+    FEniCS::ConvertMesh(mesh3D, _mesh3D);
+    dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
+    FEniCS::Write(_mesh3D, dataDirectory + "Mesh3DTrimmed.pvd");
+    FEniCS::Write(_boundary3D, dataDirectory + "Surface3DTrimmed.pvd");
+  }
+
+  // Apply mesh smoothing to ground and buildings
+  LaplacianSmoother::SmoothMesh(mesh3D, cityModel, heightMap, topHeight, true);
+
+  // Uncomment to write to file for debugging
+  if (parameters.Debug)
+  {
+    dolfin::Mesh _mesh3D;
+    FEniCS::ConvertMesh(mesh3D, _mesh3D);
+    dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
+    FEniCS::Write(_mesh3D, dataDirectory + "Mesh3DTrimmedSmoothed.pvd");
+    FEniCS::Write(_boundary3D, dataDirectory + "Surface3DTrimmedSmoothed.pvd");
+  }
+
+  // Convert to FEniCS meshes (used for testing/visualization)
   dolfin::Mesh _mesh2D, _mesh3D;
   FEniCS::ConvertMesh(mesh2D, _mesh2D);
   FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
-  // Apply mesh smoothing to account for height map
-  // LaplacianSmoother::SmoothMesh(_mesh3D, heightMap, cityModel,
-  // mesh3D.DomainMarkers, false);
-
-  // Generate height map function (used only for testing/visualization)
-  // auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
-
-  // Generate mesh boundary (used only for testing/visualization)
-  dolfin::BoundaryMesh _boundary3D(_mesh3D, "exterior");
-
-  // Write mesh to files
+  // Write to files
   Info("vc-generate-simulation-mesh: Writing to files...");
   JSON::Write(mesh2D, dataDirectory + "Mesh2D.json");
-  dolfin::File(dataDirectory + "Mesh2D.pvd") << _mesh2D;
-  dolfin::File(dataDirectory + "Mesh3D.pvd") << _mesh3D;
-  dolfin::File(dataDirectory + "MeshBoundary.pvd") << _boundary3D;
-  // dolfin::File(dataDirectory + "HeightMap.pvd") << *z;
+  JSON::Write(mesh3D, dataDirectory + "Mesh3D.json");
 
   // Report timings
   Timer::Report("dtcc-generate-simulation-mesh");

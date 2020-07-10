@@ -14,5 +14,6 @@
     "MinimalBuildingDistance": 1.0,
     "MinimalVertexDistance": 1.0,
     "FlatGround": false,
-    "GroundSmoothing": 5
+    "GroundSmoothing": 10,
+    "Debug": true
 }

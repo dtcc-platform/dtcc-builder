@@ -23,8 +23,8 @@ namespace DTCC
     /// Array of cells (triangles)
     std::vector<Simplex2D> Cells{};
 
-    /// Array of domain markers
-    std::vector<int> DomainMarkers{};
+    /// Array of cell markers
+    std::vector<int> Markers{};
 
     /// Compute midpoint of cell
     Point2D MidPoint(size_t cellIndex) const
@@ -57,8 +57,8 @@ namespace DTCC
     /// Array of cells (tetrahedra)
     std::vector<Simplex3D> Cells{};
 
-    /// Array of domain markers
-    std::vector<int> DomainMarkers{};
+    /// Array of cell markers
+    std::vector<int> Markers{};
 
     /// Compute of cell
     Point3D MidPoint(size_t cellIndex) const

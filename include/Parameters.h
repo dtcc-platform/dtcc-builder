@@ -52,6 +52,9 @@ namespace DTCC
     // Number of smoothing iterations for extra ground mesh
     int GroundSmoothing = 5;
 
+    // Write extra data for debugging
+    bool Debug = false;
+
     //--- Compile-time parameters ---
 
     // Tolerance for geometric tests

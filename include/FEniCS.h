@@ -1,12 +1,14 @@
-// FEniCS utiliy functions.
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_FENICS_H
 #define DTCC_FENICS_H
 
+#include <dolfin.h>
+
+#include "Logging.h"
 #include "Mesh.h"
 #include "Surface.h"
-#include <dolfin.h>
 
 namespace DTCC
 {
@@ -17,6 +19,8 @@ public:
   // Create FEniCS mesh from DTCC mesh (2D)
   static void ConvertMesh(const Mesh2D &mesh2D, dolfin::Mesh &mesh)
   {
+    Info("FEniCS: Converting to FEniCS 2D mesh...");
+
     // Inialize mesh editor
     dolfin::MeshEditor meshEditor;
     meshEditor.open(mesh, "triangle", 2, 2);
@@ -44,6 +48,8 @@ public:
   // Create FEniCS mesh from DTCC mesh (3D)
   static void ConvertMesh(const Mesh3D &mesh3D, dolfin::Mesh &mesh)
   {
+    Info("FEniCS: Converting to FEniCS 3D mesh...");
+
     // Inialize mesh editor
     dolfin::MeshEditor meshEditor;
     meshEditor.open(mesh, "tetrahedron", 3, 3);
@@ -81,6 +87,8 @@ public:
   static void ConvertMesh(const std::vector<Surface3D> &surfaces,
                           dolfin::Mesh &mesh)
   {
+    Info("FEniCS: Converting to FEniCS 3D surface...");
+
     // Inialize mesh editor
     dolfin::MeshEditor meshEditor;
     meshEditor.open(mesh, "triangle", 2, 3);
@@ -126,6 +134,27 @@ public:
 
     // Finalize mesh editor
     meshEditor.close();
+  }
+
+  // Write FEniCS mesh to file
+  static void Write(const dolfin::Mesh &mesh, std::string fileName)
+  {
+    Info("FEniCS: Writing to file " + fileName + "...");
+    dolfin::File(fileName) << mesh;
+  }
+
+  // Write FEniCS boundary mesh to file
+  static void Write(const dolfin::BoundaryMesh &boundary, std::string fileName)
+  {
+    Info("FEniCS: Writing to file " + fileName + "...");
+    dolfin::File(fileName) << boundary;
+  }
+
+  // Write FEniCS function to file
+  static void Write(const dolfin::Function &function, std::string fileName)
+  {
+    Info("FEniCS: Writing to file " + fileName + "...");
+    dolfin::File(fileName) << function;
   }
 };
 

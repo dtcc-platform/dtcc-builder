@@ -26,20 +26,24 @@ namespace DTCC
   public:
 
     // Smooth mesh using Laplacian smoothing
-    static void SmoothMesh(dolfin::Mesh &mesh,
-                           const GridField2D &heightMap,
+    static void SmoothMesh(Mesh3D &mesh3D,
                            const CityModel &cityModel,
-                           const std::vector<int> &domainMarkers,
+                           const GridField2D &heightMap,
+                           double topHeight,
                            bool fixBuildings)
     {
       Info("Smoothing mesh (Laplacian smoothing)...");
       Timer("SmoothMesh");
 
+      // Convert to FEniCS mesh
+      dolfin::Mesh _mesh3D;
+      FEniCS::ConvertMesh(mesh3D, _mesh3D);
+
       // Get number of vertices
-      const size_t num_vertices = mesh.num_vertices();
+      const size_t num_vertices = _mesh3D.num_vertices();
 
       // Create function space and bilinear form
-      auto m = std::make_shared<dolfin::Mesh>(mesh);
+      auto m = std::make_shared<dolfin::Mesh>(_mesh3D);
       auto V = std::make_shared<Laplacian::FunctionSpace>(m);
       auto a = std::make_shared<Laplacian::BilinearForm>(V, V);
 
@@ -55,14 +59,14 @@ namespace DTCC
 
       // Create boundary markers from domain markers
       auto subDomains = std::make_shared<dolfin::MeshFunction<size_t>>(m, 2);
-      ComputeBoundaryMarkers(*subDomains, domainMarkers);
+      ComputeBoundaryMarkers(*subDomains, mesh3D.Markers);
 
       // Create expressions for boundary values (heights)
       const auto h0 =
-          std::make_shared<BuildingsExpression>(cityModel, domainMarkers);
-      const auto h1 = std::make_shared<HaloExpression>(heightMap, mesh);
+          std::make_shared<BuildingsExpression>(cityModel, mesh3D.Markers);
+      const auto h1 = std::make_shared<HaloExpression>(heightMap, _mesh3D);
       const auto h2 = std::make_shared<GroundExpression>(heightMap);
-      const auto h3 = std::make_shared<TopExpression>();
+      const auto h3 = std::make_shared<TopExpression>(topHeight);
 
       // Create boundary conditions
       const auto bc0 =
@@ -74,18 +78,21 @@ namespace DTCC
       const auto bc3 =
           std::make_shared<dolfin::DirichletBC>(V, h3, subDomains, 3);
 
-      // Apply boundary conditions for top, halos and ground
-      bc3->apply(*A, *b);
-      bc2->apply(*A, *b);
-      bc1->apply(*A, *b);
+      // Note order of boundary conditions!
 
       // Apply boundary condition for buildings
       if (fixBuildings)
         bc0->apply(*A, *b);
 
+      // Apply boundary conditions for top, ground and halos
+      bc3->apply(*A, *b);
+      bc2->apply(*A, *b);
+      bc1->apply(*A, *b);
+
       // Create linear solver
-      dolfin::KrylovSolver solver(mesh.mpi_comm(), "bicgstab", "amg");
+      dolfin::KrylovSolver solver(_mesh3D.mpi_comm(), "bicgstab", "amg");
       solver.parameters["nonzero_initial_guess"] = true;
+      solver.parameters["monitor_convergence"] = true;
       solver.set_operator(A);
 
       // Solve linear system
@@ -98,14 +105,8 @@ namespace DTCC
       x->get_local(dz.data(), num_vertices, v2d.data());
 
       // Update mesh coordinates
-      double coordinates[3];
-      for (std::size_t i = 0; i < num_vertices; i++)
-      {
-        coordinates[0] = mesh.geometry().x(i, 0);
-        coordinates[1] = mesh.geometry().x(i, 1);
-        coordinates[2] = mesh.geometry().x(i, 2) + dz[i];
-        mesh.geometry().set(i, coordinates);
-      }
+      for (std::size_t i = 0; i < mesh3D.Vertices.size(); i++)
+        mesh3D.Vertices[i].z += dz[i];
     }
 
     // Smooth mesh using elastic smoothing
@@ -140,8 +141,6 @@ namespace DTCC
     }
 
   private:
-    // Tolerance for geometric tests
-    static constexpr double tol = 1e-3;
 
     // Boundary definition for entire domain
     class EntireDomain : public dolfin::SubDomain
@@ -264,18 +263,26 @@ namespace DTCC
       }
     };
 
-    // Boundary value for top
+    // Boundary value for top (no displacement)
     class TopExpression : public dolfin::Expression
     {
     public:
+      // Absolute level of top
+      double topHeight{};
+
       // Constructor
-      TopExpression() : Expression() {}
+      TopExpression(double topHeight) : Expression(), topHeight(topHeight) {}
 
       // Evaluation of z-displacement
       void eval(dolfin::Array<double> &values,
                 const dolfin::Array<double> &x) const
       {
-        values[0] = 0.0;
+        // Set absolute level of top
+        values[0] = topHeight;
+
+        // See note above on subtracting z-coordinate
+        if (x.size() == 3)
+          values[0] -= x[2];
       }
     };
 
@@ -290,11 +297,22 @@ namespace DTCC
       // these *cell* markers to *facet* markers. The facet markers are set
       // as follows:
       //
-      // 0: roofs of buildings
-      // 1: ground close to buildings (converted from -1 cell markers)
-      // 2: ground away from buildings (converted from -2 cell markers)
-      // 3: top of domain
+      // 0: roofs of buildings (converted from non-negative cell markers)
+      // 1: building halos (converted from -1 cell markers)
+      // 2: ground (converted from -2 cell markers)
+      // 3: top of domain (converted from -3 cell markers)
       // 4: everything else
+
+      // Counters for boundary facets
+      size_t k0 = 0;
+      size_t k1 = 0;
+      size_t k2 = 0;
+      size_t k3 = 0;
+
+      // Tolerance for checking whether we are on the top or bottom boundary.
+      // Since we only displace the z-coordinates, the faces on the side should
+      // always have a z-coordinate that is exactly zero.
+      const double tol = 1e-6;
 
       // Iterate over the facets of the mesh
       for (dolfin::FacetIterator f(*subDomains.mesh()); !f.end(); ++f)
@@ -302,34 +320,48 @@ namespace DTCC
         // Set default facet marker
         size_t facetMarker = 4;
 
-        // Check if we are on the boundary
-        if (f->exterior())
+        // Check if we are on the top or bottom boundary
+        if (f->exterior() && std::abs(f->normal(2)) > tol)
         {
           // Get index of neighboring cell (should only be one)
           const size_t cellIndex = f->entities(3)[0];
 
-          // Check z-component of cell normal
-          const double nz = f->normal(2);
-          const bool downwardFacet = nz <= -1.0 + tol;
-          const bool upwardFacet = nz >= 1.0 - tol;
-
           // Get cell marker
           const int cellMarker = domainMarkers[cellIndex];
 
-          // Set facet marker (default to 3 in the else case)
-          if (downwardFacet && cellMarker >= 0)
-            facetMarker = 0;
-          else if (downwardFacet && cellMarker == -1)
-            facetMarker = 1;
-          else if (downwardFacet && cellMarker == -2)
-            facetMarker = 2;
-          else if (upwardFacet && cellMarker == -3)
-            facetMarker = 3;
+          // Set facet marker
+          if (cellMarker >= 0)
+          {
+            facetMarker = 0; // building
+            k0++;
+          }
+          else if (cellMarker == -1)
+          {
+            facetMarker = 1; // halo
+            k1++;
+          }
+          else if (cellMarker == -2)
+          {
+            facetMarker = 2; // ground
+            k2++;
+          }
+          else if (cellMarker == -3)
+          {
+            facetMarker = 3; // top
+            k3++;
+          }
         }
 
         // Set marker value
         subDomains.set_value(f->index(), facetMarker);
       }
+
+      const size_t k4 = subDomains.size() - (k0 + k1 + k2 + k3);
+      Info("LaplacianSmoother: Found " + str(k0) + " building boundary facets");
+      Info("LaplacianSmoother: Found " + str(k1) + " ground boundary facets");
+      Info("LaplacianSmoother: Found " + str(k2) + " halo boundary facets");
+      Info("LaplacianSmoother: Found " + str(k3) + " top boundary facets");
+      Info("LaplacianSmoother: Found " + str(k4) + " Neumann boundary facets");
     }
   };
 
