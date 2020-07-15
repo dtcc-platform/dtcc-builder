@@ -505,19 +505,21 @@ namespace DTCC
         // Storing the boundaries array
         auto boundariesExternalArray = nlohmann::json::array();
         auto boundariesInternalArray = nlohmann::json::array();
-        auto singleBoundaryArray=nlohmann::json::array();
+        //auto singleBoundaryArray=nlohmann::json::array();
         
         for(auto const& boundary : cityObject.ObjectGeometry.Boundaries)
         {
+          auto singleBoundaryArray = nlohmann::json::array();
           auto boundariesIDs = nlohmann::json::array();
           for(auto const& id : boundary.BoundariesIDs)
           {
             boundariesIDs.push_back(id);
           }
           singleBoundaryArray.push_back(boundariesIDs);
+          boundariesInternalArray.push_back(singleBoundaryArray);
         }
 
-        boundariesInternalArray.push_back(singleBoundaryArray);
+        //boundariesInternalArray.push_back(singleBoundaryArray);
         boundariesExternalArray.push_back(boundariesInternalArray);
 
         geometryObj["boundaries"]=boundariesExternalArray;
