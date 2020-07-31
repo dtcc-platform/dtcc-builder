@@ -207,7 +207,7 @@ namespace DTCC
 
   std::ostream &operator<<(std::ostream &stream, const BoundingBoxTree2D& bbtree)
   {
-    stream << "2D bounding box tree with " << bbtree.Nodes.size() << " nodes" << std::endl;
+    stream << "2D bounding box tree with " << bbtree.Nodes.size() << " nodes";
     return stream;
   }
 

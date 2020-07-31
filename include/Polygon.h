@@ -7,19 +7,34 @@
 #include <cmath>
 #include <vector>
 
-#include "Vector.h"
+#include "Logging.h"
+#include "Point.h"
 
 namespace DTCC
 {
 
-class Polygon
+class Polygon : public Printable
 {
 public:
   // Array of vertices
-  std::vector<Vector2D> Vertices{};
+  std::vector<Point2D> Vertices{};
 
   // Create empty polygon
   Polygon() {}
+
+  /// Pretty-print
+  std::string __str__() const
+  {
+    std::string s = "[";
+    for (size_t i = 0; i < Vertices.size(); i++)
+    {
+      if (i > 0)
+        s += ", ";
+      s += str(Vertices[i]);
+    }
+    s += "]";
+    return s;
+  }
 };
 
 } // namespace DTCC

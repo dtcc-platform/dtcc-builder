@@ -65,19 +65,19 @@ namespace DTCC
     }
 
     // Compute center of city model
-    Vector2D Center() const
+    Point2D Center() const
     {
-      Vector2D c;
+      Vector2D c{};
       size_t numPoints = 0;
       for (auto const &building : Buildings)
       {
         for (auto const &p : building.Footprint.Vertices)
         {
-          c += p;
+          c += Vector2D(p);
           numPoints += 1;
         }
       }
-      c /= numPoints;
+      c /= static_cast<double>(numPoints);
       return c;
     }
 

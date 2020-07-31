@@ -6,9 +6,9 @@
 
 #include <vector>
 
-#include "Vector.h"
-#include "Simplex.h"
 #include "Logging.h"
+#include "Point.h"
+#include "Simplex.h"
 
 namespace DTCC
 {
@@ -18,7 +18,7 @@ namespace DTCC
   public:
 
     // Array of vertices
-    std::vector<Vector2D> Vertices;
+    std::vector<Point2D> Vertices;
 
     // List of cells (segments)
     std::vector<Simplex1D> Cells;
@@ -38,7 +38,7 @@ namespace DTCC
   public:
 
     // Array of vertices
-    std::vector<Vector3D> Vertices;
+    std::vector<Point3D> Vertices;
 
     // List of cells (triangles)
     std::vector<Simplex2D> Cells;
