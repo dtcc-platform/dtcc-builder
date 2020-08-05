@@ -61,7 +61,7 @@ On Windows, you should instead use the following commands:
     ./dtcc-create-container.bat
     ./dtcc-start-container.bat
 
-This creates a Docker container named `dtcc` that is used for developing, building and running VCCore.
+This creates a Docker container named `dtcc` that is used for developing, building and running core.
 
 For removing the image and containers, you can use 
 
@@ -82,7 +82,7 @@ Note that this step should be done *outside* of the Docker container to ensure t
 
 ### Building and installation
 
-To build VCCore, use a standard out-of-source CMake build by issuing the following commands from the top level directory:
+To build core, use a standard out-of-source CMake build by issuing the following commands from the top level directory:
 
     mkdir build
     cd build
@@ -131,7 +131,7 @@ WIP: Describe CityJSON format.
 
 ### Coordinate system
 
-VCCore users meters as a unit of length, relative to the SWEREF99 TM (EPSG:3006) coordinate system.
+Core uses meters as a unit of length, relative to the SWEREF99 TM (EPSG:3006) coordinate system.
 
 ## Parameters
 
