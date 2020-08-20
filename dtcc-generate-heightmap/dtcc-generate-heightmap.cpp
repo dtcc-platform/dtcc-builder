@@ -80,6 +80,27 @@ int main(int argc, char *argv[])
   // Write height map data
   JSON::Write(heightMap, dataDirectory + "HeightMap.json");
 
+  // read in only ground points
+  pointCloud.clear();
+  for (auto const &f : CommandLine::ListDirectory(dataDirectory))
+  {
+    if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
+    {
+      // read only ground and water points
+      LAS::Read(pointCloud, dataDirectory + f, {2,9});
+    }
+  }
+  GridField2D groundMap;
+  HeightMapGenerator::GenerateHeightMap(groundMap, pointCloud,
+                                        parameters.X0, parameters.Y0,
+                                        xMin, yMin, xMax, yMax,
+                                        parameters.HeightMapResolution);
+
+  Info(groundMap);
+
+  // Write height map data
+  JSON::Write(groundMap, dataDirectory + "GroundMap.json");
+
   // Report timings
   Timer::Report("dtcc-generate-heightmap");
 
