@@ -121,6 +121,15 @@ public:
       }
     }
   }
+static void ReadDBF(std::string fileName)
+{
+    DBFHandle handle = DBFOpen(fileName.c_str(), "r");
+int fieldCount=DBFGetFieldCount(handle );
+int recordCount=DBFGetRecordCount(handle);
+
+std::cout<<fieldCount<<" "<<recordCount<<std::endl;
+}
+
 };
 
 } // namespace DTCC
