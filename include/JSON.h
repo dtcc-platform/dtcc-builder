@@ -499,35 +499,55 @@ namespace DTCC
         //json["CityObjects"][id]["geometry"]=geometryObj;
 
         auto geometryArray=nlohmann::json::array();
-        //geometryArray.push_back(geometryObj);
-        //json["CityObjects"][id]["geometry"]=geometryArray;
 
-        // Storing the boundaries array
-        auto boundariesExternalArray = nlohmann::json::array();
-        auto boundariesInternalArray = nlohmann::json::array();
-        //auto singleBoundaryArray=nlohmann::json::array();
-        
-        for(auto const& boundary : cityObject.ObjectGeometry.Boundaries)
+        if(cityObject.ObjectGeometry.Type==CityObject::Geometry::GeometryType::Solid)
         {
-          auto singleBoundaryArray = nlohmann::json::array();
-          auto boundariesIDs = nlohmann::json::array();
-          for(auto const& id : boundary.BoundariesIDs)
+          // Storing the boundaries array for solid meshes
+          auto boundariesExternalArray = nlohmann::json::array();
+          auto boundariesInternalArray = nlohmann::json::array();
+
+          for (auto const &boundary : cityObject.ObjectGeometry.Boundaries)
           {
-            boundariesIDs.push_back(id);
+            auto singleBoundaryArray = nlohmann::json::array();
+            auto boundariesIDs = nlohmann::json::array();
+            for (auto const &id : boundary.BoundariesIDs)
+            {
+              boundariesIDs.push_back(id);
+            }
+            singleBoundaryArray.push_back(boundariesIDs);
+            boundariesInternalArray.push_back(singleBoundaryArray);
           }
-          singleBoundaryArray.push_back(boundariesIDs);
-          boundariesInternalArray.push_back(singleBoundaryArray);
+
+          boundariesExternalArray.push_back(boundariesInternalArray);
+
+          geometryObj["boundaries"] = boundariesExternalArray;
+          geometryArray.push_back(geometryObj);
+          json["CityObjects"][id]["geometry"] = geometryArray;
+
+          // TODO: Change this accordingly to support different types
+          objID["type"] = "Building";
         }
+        else //Treat everything as multisurface for now
+        {
+            auto externalArray = nlohmann::json::array();
 
-        //boundariesInternalArray.push_back(singleBoundaryArray);
-        boundariesExternalArray.push_back(boundariesInternalArray);
-
-        geometryObj["boundaries"]=boundariesExternalArray;
-        geometryArray.push_back(geometryObj);
-        json["CityObjects"][id]["geometry"]=geometryArray;
-
-        // TODO: Change this accordingly to support different types
-        objID["type"] = "Building";
+            for(auto const& boundary : cityObject.ObjectGeometry.Boundaries)
+            {
+              auto boundariesInternalArray = nlohmann::json::array();  
+              auto boundariesArray = nlohmann::json::array();
+              for(auto const& id: boundary.BoundariesIDs)
+              {
+                boundariesArray.push_back(id);
+              }
+              boundariesInternalArray.push_back(boundariesArray);
+              externalArray.push_back(boundariesInternalArray);
+            }
+            
+            geometryObj["boundaries"] = externalArray;
+            geometryArray.push_back(geometryObj);
+            json["CityObjects"][id]["geometry"] = geometryArray;
+        }
+        
       }
       
       
@@ -585,64 +605,94 @@ namespace DTCC
         CityObject NewObj = CityObject(cityObjectIterator->first);
 
         auto jsonCityObj = json["CityObjects"][cityObjectIterator->first];
-
-        // Getting attributes
+        //std::cout<<jsonCityObj<<std::endl;
+        // Getting attributes -- TODO Make this error free
         CityObject::Attributes attributes = CityObject::Attributes();
-        attributes.MeasuredHeight = json["CityObjects"][NewObj.ID]["attributes"]["measuredHeight"];
-        // TODO: Get more fields for attributes here
+        auto attributesField = json.find("attributes");
+        if(attributesField!=json.end())
+        {
+          // TODO: Get more fields for attributes here
+          //attributes = attributesField["measuredHeight"];
+          attributes.MeasuredHeight = jsonCityObj["attributes"]["measuredHeight"];
+        }
+        
         NewObj.ObjectAttributes=attributes;
 
         // Storing geometry
         CityObject::Geometry geometry = CityObject::Geometry();
         auto jsonGeometryArray = json["CityObjects"][NewObj.ID]["geometry"][0];
-        std::cout << jsonGeometryArray << std::endl;
+        //std::cout << jsonGeometryArray << std::endl;
 
         // Storing lod settings
         NewObj.ObjectGeometry.LOD = jsonGeometryArray["lod"];
-        // std::cout << "LOD:"<<geometry.LOD<<std::endl;
-
-        // Storing boundaries
-        uint boundariesArraySize = jsonGeometryArray["boundaries"][0].size();
-        for (uint i = 0; i < boundariesArraySize; i++)
-        {
-          auto boundariesJson = jsonGeometryArray["boundaries"][0][i];
-          for (auto boundaryIter = boundariesJson.begin(); boundaryIter != boundariesJson.end(); ++boundaryIter)
-          {
-            // std::cout << "boundary iter:" << *boundaryIter << std::endl;
-            auto internalJsonArray = boundariesJson[0];
-
-            CityObject::Geometry::Boundary newBoundary;
-
-            for (auto it = internalJsonArray.begin(); it != internalJsonArray.end(); ++it)
-            {
-              // std::cout << *it << std::endl;
-              newBoundary.BoundariesIDs.push_back(*it);
-            }
-
-            NewObj.ObjectGeometry.Boundaries.push_back(newBoundary);
-          }
-        }
+        std::cout << "LOD:"<<geometry.LOD<<std::endl;
 
         // Storing building type
         std::string tempGeomType = jsonGeometryArray["type"];
+        std::cout<<tempGeomType<<std::endl;
         // TODO: correlate this to string-enum
-        if (tempGeomType.compare("Solid"))
+        if(tempGeomType=="Solid")
         {
           NewObj.ObjectGeometry.Type = CityObject::Geometry::Solid;
         }
-        else
+        else if (tempGeomType == "MultiSurface")
         {
+          NewObj.ObjectGeometry.Type = CityObject::Geometry::MultiSurface;
           // TODO: this should be replaced by built-in functionality in struct
         }
 
+        // Storing boundaries
+        uint boundariesArraySize = jsonGeometryArray["boundaries"][0].size();
+
+        if (NewObj.ObjectGeometry.Type == CityObject::Geometry::Solid)
+        {
+          for (uint i = 0; i < boundariesArraySize; i++)
+          {
+            auto boundariesJson = jsonGeometryArray["boundaries"][0][i];
+            for (auto boundaryIter = boundariesJson.begin();
+                 boundaryIter != boundariesJson.end(); ++boundaryIter)
+            {
+              // std::cout << "boundary iter:" << *boundaryIter << std::endl;
+              auto internalJsonArray = boundariesJson[0];
+
+              CityObject::Geometry::Boundary newBoundary;
+
+              for (auto it = internalJsonArray.begin();
+                   it != internalJsonArray.end(); ++it)
+              {
+                // std::cout << *it << std::endl;
+                newBoundary.BoundariesIDs.push_back(*it);
+              }
+
+              NewObj.ObjectGeometry.Boundaries.push_back(newBoundary);
+            }
+          }
+        }
+        else //Assume everything else is multi-surface for now
+        {
+          for(auto& outer: jsonGeometryArray["boundaries"])
+          {
+            CityObject::Geometry::Boundary newBoundary;
+            for(auto& inner:outer)
+            {
+                for (auto& id : inner)
+                {
+                    newBoundary.BoundariesIDs.push_back(id);
+                }
+            }
+            NewObj.ObjectGeometry.Boundaries.push_back(newBoundary);
+          }
+        }
+        
+
+        
         // Getting type
         // TODO: move this whole impl to cityobj class function
-        std::string tempStr = jsonCityObj["type"];
-        if (tempStr.compare("Building"))
+        auto objectType = jsonCityObj.find("type");
+        if(objectType!=jsonCityObj.end())
         {
           NewObj.ObjectType = CityObject::Building;
         }
-
         cityJson.CityObjects.push_back(NewObj);
       }
 
