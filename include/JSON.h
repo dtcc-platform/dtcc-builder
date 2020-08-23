@@ -461,6 +461,7 @@ namespace DTCC
           cityModel.Buildings[i].Footprint.Vertices[j].y = jsonFootprint[j]["y"];
         }
         cityModel.Buildings[i].Height = jsonBuilding["Height"];
+        cityModel.Buildings[i].UUID = jsonBuilding["UUID"];
       }
     }
 
@@ -480,6 +481,7 @@ namespace DTCC
           jsonBuilding["Footprint"].push_back(jsonPoint);
         }
         jsonBuilding["Height"] = building.Height;
+        jsonBuilding["UUID"] = building.UUID;
         jsonBuildings.push_back(jsonBuilding);
       }
       json["Type"] = "CityModel";

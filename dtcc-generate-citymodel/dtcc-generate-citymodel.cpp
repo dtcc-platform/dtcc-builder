@@ -36,7 +36,8 @@ int main(int argc, char *argv[])
 
   // Read property map data
   std::vector<Polygon> footprints;
-  SHP::Read(footprints, parameters.DataDirectory + "/PropertyMap.shp");
+  std::vector<std::string> UUIDs;
+  SHP::Read(footprints, UUIDs, parameters.DataDirectory + "/PropertyMap.shp");
 
   // Read height map data
   GridField2D heightMap;
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
   // Generate city model and transform to new origin
   Vector2D origin(parameters.X0, parameters.Y0);
   CityModel cityModel;
-  CityModelGenerator::GenerateCityModel(cityModel, footprints, origin,
+  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, origin,
                                         heightMap.Grid.BoundingBox);
 
   // Write raw city model to file

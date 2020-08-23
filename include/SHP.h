@@ -19,13 +19,16 @@ class SHP
 public:
   // Read polygons from SHP file. Note that the corresponding
   // .shx and .dbf files must also be present in the same directory.
-  static void Read(std::vector<Polygon> &polygons, std::string fileName)
+  static void Read(std::vector<Polygon> &polygons,
+                   std::vector<std::string> &UUIDs,
+                   std::string fileName)
   {
     std::cout << "SHP: "
               << "Reading polygons from file " << fileName << std::endl;
 
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
+    DBFHandle handleD = DBFOpen(fileName.c_str(), "r");
 
     // Get info
     int numEntities, shapeType;
@@ -64,6 +67,11 @@ public:
     // Read footprints
     for (int i = 0; i < numEntities; i++)
     {
+      // Get UUID
+      const char *test = DBFReadStringAttribute(handleD, i, 0);
+      UUIDs.push_back(test);
+      // std::cout<<UUIDs[i]<<std::endl;
+
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
 
@@ -121,26 +129,6 @@ public:
       }
     }
   }
-static void Read(std::string fileName)
-{
-    DBFHandle handle = DBFOpen(fileName.c_str(), "r");
-int fieldCount=DBFGetFieldCount(handle );
-int recordCount=DBFGetRecordCount(handle);
-int fieldIndex=DBFGetFieldIndex(handle,"OBJEKT_ID");
-const char *test=DBFReadStringAttribute(handle,1, 0 );
-
-std::cout << fieldCount << " " << recordCount << "@@ " << fieldIndex << test
-          << std::endl;
-
-SHPHandle handle2 = SHPOpen(fileName.c_str(), "r");
-
-// Get info
-int numEntities, shapeType;
-SHPGetInfo(handle2, &numEntities, &shapeType, NULL, NULL);
-std::cout << "SHP: " << numEntities << " entities" << std::endl;
-
-}
-
 };
 
 } // namespace DTCC

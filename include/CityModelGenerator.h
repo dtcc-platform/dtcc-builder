@@ -31,15 +31,16 @@ public:
   /// @param bbox Bounding box of domain
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
+                                const std::vector<std::string> &UUIDs,
                                 const Point2D &origin,
                                 const BoundingBox2D &bbox)
   {
     Info("CityModelGenerator: Generating city model...");
     Timer("GenerateCityModel");
-
+    std::cout << UUIDs.size() << std::endl;
     // Clear old data
     cityModel.Buildings.clear();
-
+    int i = 0;
     // Add buildings
     for (const auto &footprint : footprints)
     {
@@ -52,7 +53,10 @@ public:
       {
         Building building;
         building.Footprint = transformedFootprint;
+        building.UUID = UUIDs[i];
+        std::cout << UUIDs[i] << std::endl;
         cityModel.Buildings.push_back(building);
+        i++;
       }
     }
 

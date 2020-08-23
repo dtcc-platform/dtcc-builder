@@ -18,6 +18,9 @@ public:
   // Building footprint (polygon)
   Polygon Footprint{};
 
+  // Building UUID
+  std::string UUID;
+
   // Building height (above ground)
   double Height{};
 
