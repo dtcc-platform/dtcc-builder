@@ -13,6 +13,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 # Add clang tools
 include(cmake/clang-cxx-dev-tools.cmake)
 
+# Add precommit git hooks
+MESSAGE("Running pre-commit hook")
+execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/scripts/git/git-pre-commit-format install"
+                OUTPUT_VARIABLE outVar)
+MESSAGE("${outVar}")
+
+
 # Find packages
 find_package(ShapeLib REQUIRED)
 find_package(LibLAS)
@@ -50,7 +57,3 @@ add_subdirectory(dtcc-read-netcdf)
 add_subdirectory(dtcc-sandbox)
 #add_subdirectory(dtcc-iotools)
 add_subdirectory(unittests) 
-MESSAGE("Running pre-commit hook") 
-execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/scripts/git/git-pre-commit-format install"
-                OUTPUT_VARIABLE outVar) 
-MESSAGE("${outVar}")
