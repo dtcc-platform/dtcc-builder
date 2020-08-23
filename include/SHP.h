@@ -121,13 +121,25 @@ public:
       }
     }
   }
-static void ReadDBF(std::string fileName)
+static void Read(std::string fileName)
 {
     DBFHandle handle = DBFOpen(fileName.c_str(), "r");
 int fieldCount=DBFGetFieldCount(handle );
 int recordCount=DBFGetRecordCount(handle);
+int fieldIndex=DBFGetFieldIndex(handle,"OBJEKT_ID");
+const char *test=DBFReadStringAttribute(handle,1, 0 );
 
-std::cout<<fieldCount<<" "<<recordCount<<std::endl;
+
+std::cout<<fieldCount<<" "<<recordCount<<"@@ "<<fieldIndex<<test<<std::endl;
+
+
+    SHPHandle handle2 = SHPOpen(fileName.c_str(), "r");
+
+    // Get info
+    int numEntities, shapeType;
+    SHPGetInfo(handle2, &numEntities, &shapeType, NULL, NULL);
+    std::cout << "SHP: " << numEntities << " entities" << std::endl;
+
 }
 
 };

@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   // in.read_header(io::ignore_extra_column, "vendor", "size", "speed");
   // std::string vendor; int size; double speed;
   DTCC::CSV csv;
-  DTCC::SHP::ReadDBF(parameters.DataDirectory + "/PropertyMap.dbf");
+  DTCC::SHP::Read(parameters.DataDirectory + "/PropertyMap.dbf");
 
 //  csv.Read("test.csv", true);
 }
