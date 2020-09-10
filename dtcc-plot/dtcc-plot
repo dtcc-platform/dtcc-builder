@@ -46,16 +46,16 @@ def PlotCityModel(data, plotLabels=False, plotVertices=False):
     pylab.axis('off')
     #pylab.show()
 
-def PlotHeightMap(data, plotContours=False):
+def PlotGridField2D(data, plotContours=False):
 
     # Get data
-    gridData = data['GridData']
-    xMin = data['XMin']
-    yMin = data['YMin']
-    xMax = data['XMax']
-    yMax = data['YMax']
-    xSize = data['XSize']
-    ySize = data['YSize']
+    values = data['Values']
+    xMin = data['Grid']['BoundingBox']['P']['x']
+    yMin = data['Grid']['BoundingBox']['P']['y']
+    xMax = data['Grid']['BoundingBox']['Q']['x']
+    yMax = data['Grid']['BoundingBox']['Q']['y']
+    xSize = data['Grid']['XSize']
+    ySize = data['Grid']['YSize']
 
     # Test data for verifying orientation, bump in lower left corner
     # for i in range(len(gridData)):
@@ -63,10 +63,10 @@ def PlotHeightMap(data, plotContours=False):
     #     y = i // ySize;
     #     x = float(x) / (xSize - 1)
     #     y = float(y) / (ySize - 1)
-    #     gridData[i] = x*(1 - x)**2*y*(1 - y)**2
+    #     values[i] = x*(1 - x)**2*y*(1 - y)**2
 
     # Reshape to 2D grid
-    z = numpy.reshape(gridData, (xSize, ySize))
+    z = numpy.reshape(values, (xSize, ySize))
 
     # Select plot
     if plotContours:
@@ -118,8 +118,8 @@ if __name__ == "__main__":
     if dataType == 'CityModel':
         PlotCityModel(data, '--plot-labels' in sys.argv, '--plot-vertices' in sys.argv)
         pylab.show()
-    elif dataType == 'HeightMap':
-        PlotHeightMap(data, '--plot-contours' in sys.argv)
+    elif dataType == 'GridField2D':
+        PlotGridField2D(data, '--plot-contours' in sys.argv)
     elif dataType == 'Mesh2D':
         PlotMesh2D(data)
     else:
