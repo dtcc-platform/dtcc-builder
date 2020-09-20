@@ -1,5 +1,6 @@
 // NetCDF4 Class.
 // Copyright (C) Vasilis Naserentin
+// Licensed under the MIT License
 
 #ifndef DTCC_NETCDF4_H
 #define DTCC_NETCDF4_H

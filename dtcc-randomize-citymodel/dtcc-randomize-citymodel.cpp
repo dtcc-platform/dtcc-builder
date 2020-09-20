@@ -1,5 +1,6 @@
 // vc-randomize-citymodel
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #include <iomanip>
 #include <iostream>

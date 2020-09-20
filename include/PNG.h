@@ -1,5 +1,6 @@
 // PNG I/O
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_PNG_H
 #define DTCC_PNG_H

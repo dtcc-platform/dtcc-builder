@@ -2,6 +2,7 @@
 #
 # VirtualCity@Chalmers: vc-generate-citymodel
 # Anders Logg 2019
+# Licensed under the MIT License
 
 import sys, numpy, json, pylab
 

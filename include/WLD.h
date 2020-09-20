@@ -1,5 +1,6 @@
 // WLD I/O
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_WLD_H
 #define DTCC_WLD_H

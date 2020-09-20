@@ -1,5 +1,6 @@
 // VTK I/O
 // Anders Logg 2020
+// Licensed under the MIT License
 
 #ifndef DTCC_VTK_H
 #define DTCC_VTK_H

@@ -1,5 +1,6 @@
 // SHP I/O
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
 #define DTCC_SHP_H

@@ -1,3 +1,5 @@
+// Licensed under the MIT License
+
 #include "JSON.h"
 #include "NetCDF4.h"
 #include "Parameters.h"

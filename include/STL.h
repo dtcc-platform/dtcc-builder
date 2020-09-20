@@ -1,5 +1,6 @@
 // STL I/O
 // Anders Logg 2018
+// Licensed under the MIT License
 
 #ifndef DTCC_STL_H
 #define DTCC_STL_H

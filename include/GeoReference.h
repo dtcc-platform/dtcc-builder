@@ -1,6 +1,7 @@
 // Georeference following the Esri World File format.
 // https://en.wikipedia.org/wiki/World_file
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_GEO_REFERENCE_H
 #define DTCC_GEO_REFERENCE_H

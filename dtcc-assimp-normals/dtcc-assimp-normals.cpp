@@ -1,5 +1,6 @@
 // vc-assimp-hello-world
 // Orfeas Eleftheriou 2020
+// Licensed under the MIT License
 
 #include <fstream> //ifstream
 #include <iostream>

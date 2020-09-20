@@ -1,5 +1,6 @@
 // OSM I/O
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_OSM_H
 #define DTCC_OSM_H

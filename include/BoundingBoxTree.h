@@ -1,5 +1,6 @@
 // Axis-aligned bounding box tree (AABB tree)
 // Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_BOUNDING_BOX_TREE_H
 #define DTCC_BOUNDING_BOX_TREE_H
