@@ -18,6 +18,7 @@
 #include "Surface.h"
 #include "GridField.h"
 #include "Timer.h"
+#include "Logging.h"
 
 extern "C"
 {
@@ -337,7 +338,7 @@ namespace DTCC
       std::vector<bool> firstLayerAdded(mesh2D.Cells.size());
       std::fill(firstLayerAdded.begin(), firstLayerAdded.end(), false);
 
-      std::cout << "groundElevation = " << groundElevation << std::endl;
+      Progress("groundElevation = " + str(groundElevation));
 
       // Compute ground elevation (zero level for grid). Make sure that
       // each building is above the ground by some margin.
@@ -347,7 +348,7 @@ namespace DTCC
             std::min(groundElevation, cityModel.Buildings[i].Height);
       groundElevation -= 2.0 * meshResolution;
 
-      std::cout << "groundElevation = " << groundElevation << std::endl;
+      Progress("groundElevation = " + str(groundElevation));
 
       // Iterate over layers
       size_t offset = 0;
@@ -810,43 +811,47 @@ namespace DTCC
     // Print triangle I/O data
     static void PrintTriangleIO(const struct triangulateio& io)
     {
-      std::cout << "Triangle I/O data: " << std::endl;
-      std::cout << "  pointlist = " << io.pointlist << std::endl;
-      std::cout << "  pointmarkerlist = " << io.pointmarkerlist << std::endl;
+      Info("Triangle I/O data: ");
+      Info("  pointlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointlist)));
+      Info("  pointmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointmarkerlist)));
       if (io.pointmarkerlist)
       {
-        std::cout << "   ";
+        std::stringstream stringBuilder{};
+        stringBuilder << "   ";
         for (int i = 0; i < io.numberofpoints; i++)
-          std::cout << " " << io.pointmarkerlist[i];
-        std::cout << std::endl;
+          stringBuilder << " " << io.pointmarkerlist[i];
+        stringBuilder << std::endl;
+        Info(stringBuilder.str());
       }
-      std::cout << "  numberofpoints = " << io.numberofpoints << std::endl;
-      std::cout << "  numberofpointattributes = " << io.numberofpointattributes << std::endl;
-      std::cout << "  trianglelist = " << io.trianglelist << std::endl;
-      std::cout << "  triangleattributelist = " << io.triangleattributelist << std::endl;
-      std::cout << "  trianglearealist = " << io.trianglearealist << std::endl;
-      std::cout << "  neighborlist = " << io.neighborlist << std::endl;
-      std::cout << "  numberoftriangles = " << io.numberoftriangles << std::endl;
-      std::cout << "  numberofcorners = " << io.numberofcorners << std::endl;
-      std::cout << "  numberoftriangleattributes = " << io.numberoftriangleattributes << std::endl;
-      std::cout << "  segmentlist = " << io.segmentlist << std::endl;
-      std::cout << "  segmentmarkerlist = " << io.segmentmarkerlist << std::endl;
+      Info("  numberofpoints = " + str(io.numberofpoints));
+      Info("  numberofpointattributes = " + str(io.numberofpointattributes));
+      Info("  trianglelist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglelist)));
+      Info("  triangleattributelist = " + str(reinterpret_cast<std::uintptr_t>(io.triangleattributelist)));
+      Info("  trianglearealist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglearealist)));
+      Info("  neighborlist = " + str(reinterpret_cast<std::uintptr_t>(io.neighborlist)));
+      Info("  numberoftriangles = " + str(io.numberoftriangles));
+      Info("  numberofcorners = " + str(io.numberofcorners));
+      Info("  numberoftriangleattributes = " + str(io.numberoftriangleattributes));
+      Info("  segmentlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentlist)));
+      Info("  segmentmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentmarkerlist)));
       if (io.segmentmarkerlist)
       {
-        std::cout << "   ";
+        std::stringstream stringBuilder{};
+        stringBuilder << "   ";
         for (int i = 0; i < io.numberofsegments; i++)
-          std::cout << " " << io.segmentmarkerlist[i];
-        std::cout << std::endl;
+          stringBuilder << " " << io.segmentmarkerlist[i];
+        stringBuilder << std::endl;
+        Info(stringBuilder.str());
       }
-      std::cout << "  numberofsegments = " << io.numberofsegments << std::endl;
-      std::cout << "  holelist = " << io.holelist << std::endl;
-      std::cout << "  numberofholes = " << io.numberofholes << std::endl;
-      std::cout << "  regionlist = " << io.regionlist << std::endl;
-      std::cout << "  numberofregions = " << io.numberofregions << std::endl;
-      std::cout << "  edgelist = " << io.edgelist << std::endl;
-      std::cout << "  edgemarkerlist = " << io.edgemarkerlist << std::endl;
-      std::cout << "  normlist = " << io.normlist << std::endl;
-      std::cout << "  numberofedges = " << io.numberofedges << std::endl;
+      Info("  numberofsegments = " + str(io.numberofsegments));
+      Info("  holelist = " + str(reinterpret_cast<std::uintptr_t>(io.holelist)));
+      Info("  numberofholes = " + str(io.numberofholes));
+      Info("  regionlist = " + str(reinterpret_cast<std::uintptr_t>(io.regionlist)));
+      Info("  numberofregions = " + str(io.numberofregions));
+      Info("  edgelist = " + str(reinterpret_cast<std::uintptr_t>(io.edgelist)));
+      Info("  edgemarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.edgemarkerlist)));
+      Info("  normlist = " + str(reinterpret_cast<std::uintptr_t>(io.normlist)));
+      Info("  numberofedges = " + str(io.numberofedges));
     }
 
     // Compute domain markers for subdomains

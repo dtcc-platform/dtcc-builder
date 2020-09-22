@@ -4,6 +4,7 @@
 #include "NetCDF4.h"
 #include "Parameters.h"
 #include "PostProcessParameters.h"
+#include "Logging.h"
 #include <iostream>
 #include <memory>
 #include <netcdf>
@@ -28,9 +29,9 @@ void unflatted(int height, int width, int depth, int index)
                                                                      // y
   int depth_index =
       index - width_index * height * depth - height_index * depth; // This is z
-  std::cout << height_index << std::endl;
-  std::cout << width_index << std::endl;
-  std::cout << depth_index << std::endl;
+  Info(str(height_index));
+  Info(str(width_index));
+  Info(str(depth_index));
 }
 
 int main(int argc, char *argv[])
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
   std::string fileout = argv[2];
   std::string filein = argv[1];
   nlohmann::json json;
-  std::cout << "I am here" << std::endl;
+  Progress("I am here");
   // PostProcessParameters ppparameters;
   json["Type"] = "NetCDF4Parsed";
   // JSON::Read(ppparameters, argv[3]);
@@ -51,9 +52,9 @@ int main(int argc, char *argv[])
   json["Variable"] = argv[3];
   // std::cout << ppparameters << std::endl;
   NcDim dim;
-  std::cout << "I am here 2" << std::endl;
+  Progress("I am here 2");
   NcFile dataFile(filein, NcFile::read);
-  std::cout << "I am here 3" << std::endl;
+  Progress("I am here 3");
   // NcVar datau = dataFile.getVar(ppparameters.Variable.c_str());
   NcVar datau = dataFile.getVar(argv[3]);
   NcType type = datau.getType();

@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "MeshGenerator.h"
 #include "Parameters.h"
+#include "Logging.h"
 
 using namespace DTCC;
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
 
   // FIXME: Consider moving this somewhere else as a utility for merging surfaces
   // Extract building surface as one common surface
-  std::cout << "Merging building meshes..." << std::endl;
+  Progress("Merging building meshes...");
   Surface3D buildingSurface;
   size_t numPoints = 0;
   size_t numCells = 0;

@@ -58,7 +58,7 @@ public:
     hm.Grid.XStep = (hm.Grid.BoundingBox.Q.x - hm.Grid.BoundingBox.P.x) / (hm.Grid.XSize - 1);
     hm.Grid.YStep = (hm.Grid.BoundingBox.Q.y - hm.Grid.BoundingBox.P.y) / (hm.Grid.YSize - 1);
 
-    std::cout << "HeightMapGenerator: Computing mean elevation" << std::endl;
+    Progress("HeightMapGenerator: Computing mean elevation");
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
@@ -71,7 +71,7 @@ public:
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
-    std::cout << "HeightMapGenerator: Extracting point cloud data" << std::endl;
+    Progress("HeightMapGenerator: Extracting point cloud data");
 
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
@@ -108,8 +108,7 @@ public:
     // Compute mean elevation
     meanElevation /= pointCloud.Points.size() - numOutliers;
 
-    std::cout << "HeightMapGenerator: Computing local mean elevation"
-              << std::endl;
+    Progress("HeightMapGenerator: Computing local mean elevation");
 
     // Compute mean of elevations for each grid point
     std::vector<size_t> missingIndices;
@@ -130,8 +129,7 @@ public:
     // closest existing value around each missing grid point.
     // It might be more efficient to do a flood fill.
 
-    std::cout << "HeightMapGenerator: Filling in missing grid points ("
-              << numMissing << "/" << numGridPoints << ")" << std::endl;
+    Progress("HeightMapGenerator: Filling in missing grid points (" + str(numMissing) + "/" + str(numGridPoints) + ")");
 
     // Reuse vector numLocalPoints to indicate which points have been
     // visited: 0 = empty, 1 = boundary, 2 = filled
@@ -188,15 +186,10 @@ public:
     // Print some stats
     const double percentMissing =
         100.0 * static_cast<double>(numMissing) / numGridPoints;
-    std::cout << "HeightMapGenerator: " << numOutliers << " outliers ignored"
-              << std::endl;
-    std::cout << "HeightMapGenerator: Mean elevation is "
-              << std::setprecision(4) << meanElevation << "m" << std::endl;
-    std::cout << "HeightMapGenerator: " << numGridPoints << " grid points"
-              << std::endl;
-    std::cout << "HeightMapGenerator: " << numMissing
-              << " missing grid points (" << std::setprecision(3)
-              << percentMissing << "%)" << std::endl;
+    Info("HeightMapGenerator: " + str(numOutliers) + " outliers ignored");
+    Info("HeightMapGenerator: Mean elevation is " + str(meanElevation, 4) + "m");
+    Info("HeightMapGenerator: " + str(numGridPoints) + " grid points");
+    Info("HeightMapGenerator: " + str(numMissing) + " missing grid points ("  + str(percentMissing, 3) + "%)");
     //    std::cout << "HeightMapGenerator: "
     //        << "Maximum search distance is " << maxStep << std::endl;
 

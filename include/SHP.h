@@ -11,6 +11,7 @@
 
 #include "Polygon.h"
 #include "Geometry.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -22,40 +23,38 @@ public:
   // .shx and .dbf files must also be present in the same directory.
   static void Read(std::vector<Polygon> &polygons, std::string fileName)
   {
-    std::cout << "SHP: "
-              << "Reading polygons from file " << fileName << std::endl;
-
+    Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
 
     // Get info
     int numEntities, shapeType;
     SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
-    std::cout << "SHP: " << numEntities << " entities" << std::endl;
+    Info("SHP: " + str(numEntities) + " entities");
     switch (shapeType)
     {
     case SHPT_POINT:
     case SHPT_POINTZ:
     case SHPT_POINTM:
-      std::cout << "SHP: point type" << std::endl;
+      Info("SHP: point type");
       break;
     case SHPT_ARC:
     case SHPT_ARCZ:
     case SHPT_ARCM:
-      std::cout << "SHP: arc type" << std::endl;
+      Info("SHP: arc type");
       break;
     case SHPT_POLYGON:
     case SHPT_POLYGONZ:
     case SHPT_POLYGONM:
-      std::cout << "SHP: polygon type" << std::endl;
+      Info("SHP: polygon type");
       break;
     case SHPT_MULTIPOINT:
     case SHPT_MULTIPOINTZ:
     case SHPT_MULTIPOINTM:
-      std::cout << "SHP: multipoint type" << std::endl;
+      Info("SHP: multipoint type");
       break;
     default:
-      std::cout << "SHP: unkown type" << std::endl;
+      Info("SHP: unknown type");
     }
 
     // Check that we have polygon type

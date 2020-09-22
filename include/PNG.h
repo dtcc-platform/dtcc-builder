@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #include "HeightMap.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -21,8 +22,7 @@ public:
   // Read height map from PNG file
   static void Read(HeightMap &heightMap, std::string fileName, size_t stride)
   {
-    std::cout << "PNG: "
-              << "Reading height map from file " << fileName << std::endl;
+    Info("PNG: Reading height map from file " + fileName);
 
     // Read image
     Magick::Image image;
@@ -40,8 +40,7 @@ public:
     const size_t numRows = image.rows();
     const size_t numCols = image.columns();
     const size_t numPixels = numRows * numCols;
-    std::cout << std::fixed << "PNG: " << numCols << " x " << numRows << " ("
-              << numPixels << " pixels)" << std::endl;
+    Info("PNG: " + str(numCols) + " x " + str(numRows) + " (" + str(numPixels) + " pixels)");
 
     // Write pixel data to array
     std::vector<double> pixels(numPixels);
@@ -62,7 +61,7 @@ public:
         z *= 65535; // 16 bit depth
         z -= 1024;  // 1024 is sea level
         z *= 0.01;  // pixel data is cm
-        std::cout << "z = " << z << std::endl;
+        Progress("z = " + z);
         heightMap.GridData[k++] = z;
       }
     }

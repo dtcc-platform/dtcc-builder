@@ -12,6 +12,7 @@
 
 #include "Vector.h"
 #include "Polygon.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -22,8 +23,7 @@ public:
   // Read polygons from OSM file
   static void Read(std::vector<Polygon> polygons, std::string fileName)
   {
-    std::cout << "OSM: "
-              << "Reading polygons from file " << fileName << std::endl;
+    Info("OSM: Reading polygons from file " + fileName);
 
     // Read XML data from file
     pugi::xml_document doc;
@@ -54,7 +54,7 @@ public:
     }
 
     // Diagnostic printing
-    std::cout << "OSM: Parsed " << nodeMap.size() << " nodes" << std::endl;
+    Progress("OSM: Parsed " + str(nodeMap.size()) + " nodes");
 
     // Read ways (footprints)
     for (pugi::xml_node_iterator it = osm.begin(); it != osm.end(); ++it)

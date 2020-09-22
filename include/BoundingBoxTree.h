@@ -9,6 +9,7 @@
 #include <limits>
 
 #include "BoundingBox.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -18,7 +19,7 @@ namespace DTCC
   // and simpler design (separate 2D and 3D implementations).
 
   // Axis-aligned bouding box tree (2D).
-  class BoundingBoxTree2D
+  class BoundingBoxTree2D : public Printable
   {
   public:
 
@@ -43,8 +44,7 @@ namespace DTCC
     // Build bounding box tree for objects (defined by their bounding boxes)
     void Build(const std::vector<BoundingBox2D>& bboxes)
     {
-      std::cout << "BoundingTree: Building 2D bounding box tree for " << bboxes.size() << " objects..." << std::endl;
-
+      Info("BoundingTree: Building 2D bounding box tree for " + str(bboxes.size()) + " objects...");
       // Clear tree if built before
       Nodes.clear();
 
@@ -71,6 +71,11 @@ namespace DTCC
       FindRecursive(indices, point, Nodes.size() - 1);
 
       return indices;
+    }
+
+    std::string __str__() const override
+    {
+      return "2D bounding box tree with " + str(Nodes.size()) + " nodes";
     }
 
   private:
@@ -211,6 +216,8 @@ namespace DTCC
     stream << "2D bounding box tree with " << bbtree.Nodes.size() << " nodes";
     return stream;
   }
+
+
 
 }
 

@@ -12,6 +12,7 @@
 #include "Building.h"
 #include "CityModel.h"
 #include "Vector.h"
+#include "Logging.h"
 
 //Assimp includes
 #include <assimp/Importer.hpp>      
@@ -185,12 +186,12 @@ int main(int argc, char *argv[])
     int result = TestExporter->Export(planeScene,"obj",fileName);
     if(result==0)
     {
-        std::cout<<"File exported successfully: "<<fileName<<std::endl;
+      Info("File exported successfully: " + fileName);
     }
     else
     {
-        std::cout<<"There was an error in file export"<<std::endl;
-        std::cout<<"Error:"<<TestExporter->GetErrorString()<<std::endl;
+      Error("There was an error in file export");
+      Error("Error:" + str(TestExporter->GetErrorString()));
     }
     
     return 0;

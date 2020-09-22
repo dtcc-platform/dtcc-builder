@@ -7,6 +7,7 @@
 #include "Geometry.h"
 #include "Polygon.h"
 #include "Timer.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -625,34 +626,38 @@ private:
   // Used for debugging
   static void PrintEdges(const std::vector<std::vector<size_t>> &edges)
   {
-    std::cout << "Edges: [";
+    std::stringstream stringBuilder{};
+    stringBuilder << "Edges: [";
     for (size_t i = 0; i < edges.size(); i++)
     {
       if (i > 0)
-        std::cout << ", ";
-      std::cout << "[";
+        stringBuilder << ", ";
+      stringBuilder << "[";
       for (size_t j = 0; j < edges[i].size(); j++)
       {
         if (j > 0)
-          std::cout << ", ";
-        std::cout << edges[i][j];
+          stringBuilder << ", ";
+        stringBuilder << edges[i][j];
       }
-      std::cout << "]";
+      stringBuilder << "]";
     }
-    std::cout << "]" << std::endl;
+    stringBuilder << "]" << std::endl;
+    Info(stringBuilder.str());
   }
 
   // Used for debugging
   static void PrintPolygon(const std::vector<size_t> &polygon)
   {
-    std::cout << "Polygon: [";
+    std::stringstream stringBuilder{};
+    stringBuilder << "Polygon: [";
     for (size_t i = 0; i < polygon.size(); i++)
     {
       if (i > 0)
-        std::cout << ", ";
-      std::cout << polygon[i];
+        stringBuilder << ", ";
+      stringBuilder << polygon[i];
     }
-    std::cout << "]" << std::endl;
+    stringBuilder << "]" << std::endl;
+    Info(stringBuilder.str());
   }
 };
 
