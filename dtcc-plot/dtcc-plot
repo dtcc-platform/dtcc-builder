@@ -2,17 +2,17 @@
 #
 # VirtualCity@Chalmers: vc-generate-citymodel
 # Anders Logg 2019
-# Licensed under the MIT License
 
 import sys, numpy, json, pylab
 
-def PlotCityModel(data, plotLabels=False, plotVertices=False):
+def PlotCityModel(data, plotLabels=False):
 
-    # Get data
-    buildings = data['Buildings']
+    # Read JSON file
+    with open(fileName) as f:
+        cityModel = json.load(f)
 
     # Iterate over buildings
-    for i, building in enumerate(buildings):
+    for i, building in enumerate(cityModel['Buildings']):
 
         # Get footprint
         footprint = building['Footprint']
@@ -28,14 +28,8 @@ def PlotCityModel(data, plotLabels=False, plotVertices=False):
         ym = numpy.mean(y)
 
         # Plot
-        if plotVertices:
-            pylab.plot(x, y, '.-')
-            pylab.plot([x[0], x[-1]], [y[0], y[-1]], 'k--')
-        else:
-            xx = numpy.append(x, x[0])
-            yy = numpy.append(y, y[0])
-            pylab.plot(xx, yy, '-')
-
+        pylab.plot(x, y, '.-')
+        pylab.plot([x[0], x[-1]], [y[0], y[-1]], 'k--')
         #pylab.plot(x[0], y[0], 'kx')
         if plotLabels:
             pylab.text(xm, ym, str(i), fontsize=10, ha='center', va='center')
@@ -45,18 +39,18 @@ def PlotCityModel(data, plotLabels=False, plotVertices=False):
     #pylab.grid(True)
     pylab.axis('equal')
     pylab.axis('off')
-    #pylab.show()
+    pylab.show()
 
-def PlotGridField2D(data, plotContours=False):
+def PlotHeightMap(data, plotContour=False):
 
     # Get data
-    values = data['Values']
-    xMin = data['Grid']['BoundingBox']['P']['x']
-    yMin = data['Grid']['BoundingBox']['P']['y']
-    xMax = data['Grid']['BoundingBox']['Q']['x']
-    yMax = data['Grid']['BoundingBox']['Q']['y']
-    xSize = data['Grid']['XSize']
-    ySize = data['Grid']['YSize']
+    gridData = data['GridData']
+    xMin = data['XMin']
+    yMin = data['YMin']
+    xMax = data['XMax']
+    yMax = data['YMax']
+    xSize = data['XSize']
+    ySize = data['YSize']
 
     # Test data for verifying orientation, bump in lower left corner
     # for i in range(len(gridData)):
@@ -64,13 +58,13 @@ def PlotGridField2D(data, plotContours=False):
     #     y = i // ySize;
     #     x = float(x) / (xSize - 1)
     #     y = float(y) / (ySize - 1)
-    #     values[i] = x*(1 - x)**2*y*(1 - y)**2
+    #     gridData[i] = x*(1 - x)**2*y*(1 - y)**2
 
     # Reshape to 2D grid
-    z = numpy.reshape(values, (xSize, ySize))
+    z = numpy.reshape(gridData, (xSize, ySize))
 
     # Select plot
-    if plotContours:
+    if plotContour:
         pylab.contour(z, extent=[xMin, xMax, yMin, yMax])
         pylab.axis('scaled')
         pylab.axis('off')
@@ -85,43 +79,26 @@ def PlotGridField2D(data, plotContours=False):
                 (xMin, xMax, yMin, yMax))
     pylab.show()
 
-def PlotMesh2D(data):
-
-    # Get data
-    v = data['Vertices']
-    f = data['Cells']
-    c = data['Markers']
-    x = [v[2*i] for i in range(len(v) // 2)]
-    y = [v[2*i+1] for i in range(len(v) // 2)]
-    t = [(f[3*i], f[3*i+1], f[3*i+2]) for i in range(len(f) // 3)]
-
-    # Create plot
-    pylab.tripcolor(x, y, t, c, edgecolors='white')
-    pylab.show()
-
 def Help():
-    print('Usage: vc-plot [--plot-labels] [--plot-vertices] [--plot-contors] Data.json')
+    print('Usage: vc-plot Data.json')
 
 if __name__ == "__main__":
 
     # Check command-line arguments
-    if len(sys.argv) < 2:
+    if len(sys.argv) != 2:
         Help()
         sys.exit(1)
 
     # Load JSON data
-    fileName = sys.argv[-1]
+    fileName = sys.argv[1]
     with open(fileName) as f:
         data = json.load(f)
 
     # Check type and plot
     dataType = data['Type']
     if dataType == 'CityModel':
-        PlotCityModel(data, '--plot-labels' in sys.argv, '--plot-vertices' in sys.argv)
-        pylab.show()
-    elif dataType == 'GridField2D':
-        PlotGridField2D(data, '--plot-contours' in sys.argv)
-    elif dataType == 'Mesh2D':
-        PlotMesh2D(data)
+        PlotCityModel(data, True)
+    elif dataType == 'HeightMap':
+        PlotHeightMap(data, False)
     else:
         print('Unknown data type: ' + str(dataType))

@@ -1,6 +1,5 @@
 // vc-randomize-citymodel
 // Anders Logg 2019
-// Licensed under the MIT License
 
 #include <iomanip>
 #include <iostream>
@@ -9,7 +8,6 @@
 #include "CityModel.h"
 #include "Geometry.h"
 #include "JSON.h"
-#include "Logging.h"
 
 using namespace DTCC;
 
@@ -91,7 +89,7 @@ GenerateRandomCityModel(size_t numBuildings, const Vector2D &C, double R)
         cityModel.Buildings.push_back(building);
         centers.push_back(p);
 
-        Progress("Creating building at p = " + str(p));
+        std::cout << "Creating building at p = " << p << std::endl;
 
         break;
       }
@@ -210,13 +208,12 @@ int main(int argc, char *argv[])
   Parameters parameters;
   JSON::Read(parameters, fileNameParameters);
   std::cout << parameters << std::endl;
-  // TODO: Convert to Info call. Info(str(parameters));
 
   // Report used parameters
   const Vector2D C(parameters.DomainCenterX, parameters.DomainCenterY);
   const double R(parameters.DomainRadius);
-  Info("vc-randomize-citymodel: DomainCenter = " + str(C));
-  Info("vc-randomize-citymodel: DomainRadius = " + str(R));
+  std::cout << "vc-randomize-citymodel: DomainCenter = " << C << std::endl;
+  std::cout << "vc-randomize-citymodel: DomainRadius = " << R << std::endl;
 
   // FIXME: Handle command-line and selection of city model
 

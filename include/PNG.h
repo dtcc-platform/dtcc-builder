@@ -1,6 +1,5 @@
 // PNG I/O
 // Anders Logg 2019
-// Licensed under the MIT License
 
 #ifndef DTCC_PNG_H
 #define DTCC_PNG_H
@@ -11,7 +10,6 @@
 #include <stdio.h>
 
 #include "HeightMap.h"
-#include "Logging.h"
 
 namespace DTCC
 {
@@ -22,7 +20,8 @@ public:
   // Read height map from PNG file
   static void Read(HeightMap &heightMap, std::string fileName, size_t stride)
   {
-    Info("PNG: Reading height map from file " + fileName);
+    std::cout << "PNG: "
+              << "Reading height map from file " << fileName << std::endl;
 
     // Read image
     Magick::Image image;
@@ -40,7 +39,8 @@ public:
     const size_t numRows = image.rows();
     const size_t numCols = image.columns();
     const size_t numPixels = numRows * numCols;
-    Info("PNG: " + str(numCols) + " x " + str(numRows) + " (" + str(numPixels) + " pixels)");
+    std::cout << std::fixed << "PNG: " << numCols << " x " << numRows << " ("
+              << numPixels << " pixels)" << std::endl;
 
     // Write pixel data to array
     std::vector<double> pixels(numPixels);
@@ -61,7 +61,7 @@ public:
         z *= 65535; // 16 bit depth
         z -= 1024;  // 1024 is sea level
         z *= 0.01;  // pixel data is cm
-        Progress("z = " + z);
+        std::cout << "z = " << z << std::endl;
         heightMap.GridData[k++] = z;
       }
     }

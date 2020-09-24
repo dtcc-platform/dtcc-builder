@@ -1,6 +1,5 @@
 // OSM I/O
 // Anders Logg 2019
-// Licensed under the MIT License
 
 #ifndef DTCC_OSM_H
 #define DTCC_OSM_H
@@ -12,7 +11,6 @@
 
 #include "Vector.h"
 #include "Polygon.h"
-#include "Logging.h"
 
 namespace DTCC
 {
@@ -23,7 +21,8 @@ public:
   // Read polygons from OSM file
   static void Read(std::vector<Polygon> polygons, std::string fileName)
   {
-    Info("OSM: Reading polygons from file " + fileName);
+    std::cout << "OSM: "
+              << "Reading polygons from file " << fileName << std::endl;
 
     // Read XML data from file
     pugi::xml_document doc;
@@ -54,7 +53,7 @@ public:
     }
 
     // Diagnostic printing
-    Progress("OSM: Parsed " + str(nodeMap.size()) + " nodes");
+    std::cout << "OSM: Parsed " << nodeMap.size() << " nodes" << std::endl;
 
     // Read ways (footprints)
     for (pugi::xml_node_iterator it = osm.begin(); it != osm.end(); ++it)

@@ -4,11 +4,10 @@
 #ifndef DTCC_LOGGING_H
 #define DTCC_LOGGING_H
 
-#include <ctime>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
+#include <ctime>
 
 namespace DTCC
 {
@@ -138,17 +137,8 @@ namespace DTCC
   // Convert unsigned integer to string
   std::string str(size_t x) { return std::to_string(x); }
 
-  // Convert unsigned integer to string
-  std::string str(uint x) {return std::to_string(x); }
-
   // Convert double to string
-  std::string str(double x, std::streamsize precision = 6)
-  {
-    std::ostringstream out;
-    out.precision(precision);
-    out << std::scientific << x;
-    return out.str();
-  }
+  std::string str(double x) { return std::to_string(x); }
 
 } // namespace DTCC
 

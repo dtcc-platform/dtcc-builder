@@ -1,6 +1,5 @@
 // Post process parameters for dtccore.
 // Anders Logg, Vasilis Naserentin 2020
-// Licensed under the MIT License
 
 #ifndef DTCC_POST_PROCESS_PARAMETERS_H
 #define DTCC_POST_PROCESS_PARAMETERS_H

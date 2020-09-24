@@ -8,20 +8,20 @@ PARAMETERS=Hammarkullen.json
 #PARAMETERS=Kungsholmen.json
 #PARAMETERS=Test.json
 
-# Exit on errors
-set -e
-
 # Generate height map
 ../bin/dtcc-generate-heightmap $PARAMETERS
 
 # Generate city model
 ../bin/dtcc-generate-citymodel $PARAMETERS
 
+# Simplify city model (used for simulation mesh generation)
+../bin/dtcc-simplify-citymodel $PARAMETERS
+
 # Generate visualization mesh
 ../bin/dtcc-generate-visualization-mesh $PARAMETERS
 
 # Generate simulation mesh
-../bin/dtcc-generate-simulation-mesh $PARAMETERS
+#../bin/dtcc-generate-simulation-mesh Parameters.json
 
 # Smooth ground mesh
 ../bin/dtcc-smooth-ground-mesh $PARAMETERS

@@ -1,6 +1,5 @@
 // FEniCS XML I/O
 // Anders Logg 2019
-// Licensed under the MIT License
 
 #ifndef DTCC_XML_H
 #define DTCC_XML_H

@@ -1,6 +1,5 @@
 // Representation of a 2.5D building.
 // Copyright (C) 2019 Anders Logg.
-// Licensed under the MIT License
 
 #ifndef DTCC_BUILDING_H
 #define DTCC_BUILDING_H
@@ -17,13 +16,13 @@ class Building
 {
 public:
   // Building footprint (polygon)
-  Polygon Footprint{};
+  Polygon Footprint;
 
   // Building height (above ground)
-  double Height{};
+  double Height;
 
   // Create empty building
-  Building() {}
+  Building() : Height(0) {}
 };
 
 } // namespace DTCC

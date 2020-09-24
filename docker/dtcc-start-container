@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 docker start dtcc
-docker exec --user "$(id -u):$(id -g)" -it dtcc bash
+docker exec -it dtcc bash

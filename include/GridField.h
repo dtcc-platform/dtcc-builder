@@ -87,15 +87,12 @@ namespace DTCC
       return *std::max_element(Values.begin(), Values.end());
     }
 
-    /// Compute mean vertex value
+    /// Compute mean vertex value.
     ///
     /// @return Mean vertex value
     double Mean() const
     {
-      double mean = 0.0;
-      for (const auto &value : Values)
-        mean += value;
-      return mean / static_cast<double>(Values.size());
+      return 0.5*(Min() + Max());
     }
 
     /// Pretty-print
@@ -183,15 +180,12 @@ namespace DTCC
       return *std::max_element(Values.begin(), Values.end());
     }
 
-    /// Compute mean vertex value
+    /// Compute mean vertex value.
     ///
     /// @return Mean vertex value
     double Mean() const
     {
-      double mean = 0.0;
-      for (const auto &value : Values)
-        mean += value;
-      return mean / static_cast<double>(Values.size());
+      return 0.5*(Min() + Max());
     }
 
     /// Pretty-print

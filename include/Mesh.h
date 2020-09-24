@@ -6,10 +6,9 @@
 
 #include <vector>
 
-#include "Logging.h"
-#include "Point.h"
-#include "Simplex.h"
 #include "Vector.h"
+#include "Simplex.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -18,21 +17,21 @@ namespace DTCC
   {
   public:
     /// Array of vertices
-    std::vector<Point2D> Vertices{};
+    std::vector<Vector2D> Vertices;
 
     /// Array of cells (triangles)
-    std::vector<Simplex2D> Cells{};
+    std::vector<Simplex2D> Cells;
 
-    /// Array of cell markers
-    std::vector<int> Markers{};
+    /// Array of domain markers
+    std::vector<int> DomainMarkers;
 
-    /// Compute midpoint of cell
-    Point2D MidPoint(size_t cellIndex) const
+    /// Compute cell midpoint
+    Vector2D MidPoint(const Simplex2D &cell) const
     {
-      Vector2D c{};
-      c += Vector2D(Vertices[Cells[cellIndex].v0]);
-      c += Vector2D(Vertices[Cells[cellIndex].v1]);
-      c += Vector2D(Vertices[Cells[cellIndex].v2]);
+      Vector2D c;
+      c += Vertices[cell.v0];
+      c += Vertices[cell.v1];
+      c += Vertices[cell.v2];
       c /= 3.0;
       return c;
     }
@@ -52,22 +51,22 @@ namespace DTCC
   public:
 
     /// Array of vertices
-    std::vector<Point3D> Vertices{};
+    std::vector<Vector3D> Vertices;
 
     /// Array of cells (tetrahedra)
-    std::vector<Simplex3D> Cells{};
+    std::vector<Simplex3D> Cells;
 
-    /// Array of cell markers
-    std::vector<int> Markers{};
+    /// Array of domain markers
+    std::vector<int> DomainMarkers;
 
-    /// Compute of cell
-    Point3D MidPoint(size_t cellIndex) const
+    /// Compute cell midpoint
+    Vector3D MidPoint(const Simplex3D &Cell) const
     {
       Vector3D c;
-      c += Vector3D(Vertices[Cells[cellIndex].v0]);
-      c += Vector3D(Vertices[Cells[cellIndex].v1]);
-      c += Vector3D(Vertices[Cells[cellIndex].v2]);
-      c += Vector3D(Vertices[Cells[cellIndex].v3]);
+      c += Vertices[Cell.v0];
+      c += Vertices[Cell.v1];
+      c += Vertices[Cell.v2];
+      c += Vertices[Cell.v3];
       c /= 4.0;
       return c;
     }

@@ -1,6 +1,5 @@
 // SHP I/O
 // Anders Logg 2019
-// Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
 #define DTCC_SHP_H
@@ -11,7 +10,6 @@
 
 #include "Polygon.h"
 #include "Geometry.h"
-#include "Logging.h"
 
 namespace DTCC
 {
@@ -23,38 +21,40 @@ public:
   // .shx and .dbf files must also be present in the same directory.
   static void Read(std::vector<Polygon> &polygons, std::string fileName)
   {
-    Info("SHP: Reading polygons from file " + fileName);
+    std::cout << "SHP: "
+              << "Reading polygons from file " << fileName << std::endl;
+
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
 
     // Get info
     int numEntities, shapeType;
     SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
-    Info("SHP: " + str(numEntities) + " entities");
+    std::cout << "SHP: " << numEntities << " entities" << std::endl;
     switch (shapeType)
     {
     case SHPT_POINT:
     case SHPT_POINTZ:
     case SHPT_POINTM:
-      Info("SHP: point type");
+      std::cout << "SHP: point type" << std::endl;
       break;
     case SHPT_ARC:
     case SHPT_ARCZ:
     case SHPT_ARCM:
-      Info("SHP: arc type");
+      std::cout << "SHP: arc type" << std::endl;
       break;
     case SHPT_POLYGON:
     case SHPT_POLYGONZ:
     case SHPT_POLYGONM:
-      Info("SHP: polygon type");
+      std::cout << "SHP: polygon type" << std::endl;
       break;
     case SHPT_MULTIPOINT:
     case SHPT_MULTIPOINTZ:
     case SHPT_MULTIPOINTM:
-      Info("SHP: multipoint type");
+      std::cout << "SHP: multipoint type" << std::endl;
       break;
     default:
-      Info("SHP: unknown type");
+      std::cout << "SHP: unkown type" << std::endl;
     }
 
     // Check that we have polygon type

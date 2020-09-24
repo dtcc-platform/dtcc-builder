@@ -1,6 +1,5 @@
 // Axis-aligned bounding box tree (AABB tree)
 // Copyright (C) 2020 Anders Logg
-// Licensed under the MIT License
 
 #ifndef DTCC_BOUNDING_BOX_TREE_H
 #define DTCC_BOUNDING_BOX_TREE_H
@@ -9,7 +8,6 @@
 #include <limits>
 
 #include "BoundingBox.h"
-#include "Logging.h"
 
 namespace DTCC
 {
@@ -19,7 +17,7 @@ namespace DTCC
   // and simpler design (separate 2D and 3D implementations).
 
   // Axis-aligned bouding box tree (2D).
-  class BoundingBoxTree2D : public Printable
+  class BoundingBoxTree2D
   {
   public:
 
@@ -44,7 +42,8 @@ namespace DTCC
     // Build bounding box tree for objects (defined by their bounding boxes)
     void Build(const std::vector<BoundingBox2D>& bboxes)
     {
-      Info("BoundingTree: Building 2D bounding box tree for " + str(bboxes.size()) + " objects...");
+      std::cout << "BoundingTree: Building 2D bounding box tree for " << bboxes.size() << " objects..." << std::endl;
+
       // Clear tree if built before
       Nodes.clear();
 
@@ -71,11 +70,6 @@ namespace DTCC
       FindRecursive(indices, point, Nodes.size() - 1);
 
       return indices;
-    }
-
-    std::string __str__() const override
-    {
-      return "2D bounding box tree with " + str(Nodes.size()) + " nodes";
     }
 
   private:
@@ -213,11 +207,9 @@ namespace DTCC
 
   std::ostream &operator<<(std::ostream &stream, const BoundingBoxTree2D& bbtree)
   {
-    stream << "2D bounding box tree with " << bbtree.Nodes.size() << " nodes";
+    stream << "2D bounding box tree with " << bbtree.Nodes.size() << " nodes" << std::endl;
     return stream;
   }
-
-
 
 }
 

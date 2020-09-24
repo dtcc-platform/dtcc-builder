@@ -44,7 +44,7 @@ RUN add-apt-repository ppa:ubuntugis/ppa
 RUN apt-get update && apt-get install -y gdal-bin
 
 # Install git with lfs support, dos2unix, nano simple editor, rsync and wget
-RUN apt-get update && apt-get install -y git git-lfs dos2unix nano rsync wget
+RUN apt-get install -y git git-lfs dos2unix nano rsync wget
 
 # Get and compile LASZip
 RUN git clone -n https://github.com/LASzip/LASzip.git

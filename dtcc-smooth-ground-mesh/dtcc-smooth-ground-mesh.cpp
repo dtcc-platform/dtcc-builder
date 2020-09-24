@@ -4,12 +4,11 @@
 #include <iostream>
 
 #include "CommandLine.h"
-#include "JSON.h"
 #include "Parameters.h"
 #include "Surface.h"
-#include "Timer.h"
-#include "VTK.h"
 #include "VertexSmoother.h"
+#include "JSON.h"
+#include "VTK.h"
 
 using namespace DTCC;
 
@@ -46,9 +45,6 @@ int main(int argc, char *argv[])
   // Write to file
   JSON::Write(groundMesh, dataDirectory + "SmoothedGroundMesh.json");
   VTK::Write(groundMesh, dataDirectory + "SmoothedGroundMesh.vtu");
-
-  // Report timings
-  Timer::Report("dtcc-smooth-ground-mesh");
 
   return 0;
 }

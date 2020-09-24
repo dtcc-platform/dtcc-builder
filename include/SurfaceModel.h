@@ -1,6 +1,5 @@
 // Digital Surface Model (DSM) for elevation (including buildings).
 // Copyright (C) 2019 Anders Logg.
-// Licensed under the MIT License
 
 #ifndef DTCC_SURFACE_MODEL_H
 #define DTCC_SURFACE_MODEL_H

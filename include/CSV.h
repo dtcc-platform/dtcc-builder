@@ -14,7 +14,6 @@
 #include "Parameters.h"
 #include "Vector.h"
 #include "Simplex.h"
-#include "Logging.h"
 
 namespace DTCC
 {
@@ -27,7 +26,8 @@ public:
   // Write 2D point set to CSV file
   static void Write(const std::vector<Vector2D> &Points, std::string fileName)
   {
-    Info("CSV: Writing 2D point set to file " + fileName);
+    std::cout << "CSV: "
+              << "Writing 2D point set to file " << fileName << std::endl;
 
     // Open file
     std::ofstream f(fileName.c_str());
@@ -50,7 +50,8 @@ public:
   // Write 2D mesh to CSV files (.csv will be appended)
   static void Write(const Mesh2D &mesh, std::string prefix)
   {
-    Info("CSV: Writing 2D mesh to file " + prefix);
+    std::cout << "CSV: "
+              << "Writing 2D mesh to file " << prefix << std::endl;
 
     // Open files
     std::string fileNamePoints = prefix + "Points.csv";
@@ -84,7 +85,8 @@ public:
   // Write 3D mesh to CSV files
   static void Write(const Mesh3D &mesh, std::string prefix)
   {
-    Info("CSV: Writing 3D mesh to file " + prefix);
+    std::cout << "CSV: "
+              << "Writing 3D mesh to file " << prefix << std::endl;
 
     // Open files
     std::string fileNamePoints = prefix + "Points.csv";
@@ -125,8 +127,11 @@ public:
 
     if (verbose)
     {
-      Info("Read " + str(Document.GetColumnCount() + 1) + " columns"); // Columns seems to be 0-indexed counts
-      Info("Read " + str(Document.GetRowCount() + 1) + " rows");
+      std::cout << "Read " << Document.GetColumnCount() + 1
+                << " columns" // seems to be 0-indexed counts
+                << std::endl;
+      std::cout << "Read " << Document.GetRowCount() + 1 << " rows"
+                << std::endl;
     }
   }
 

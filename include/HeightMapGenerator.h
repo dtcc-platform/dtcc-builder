@@ -34,12 +34,8 @@ public:
                                 double yMax,
                                 double heightMapResolution)
   {
-    Info("HeightMapGenerator: Generating heightmap from point cloud...");
-    Timer("GenerateHeightMap");
-
-    // Check for empty data
-    if (pointCloud.Points.size() == 0)
-      Error("HeightMapGenerator: Empty point cloud");
+    std::cout << "HeightMapGenerator: Generating heightmap from point cloud..."
+              << std::endl;
 
     // Shortcut
     GridField2D& hm = heightMap;
@@ -58,7 +54,7 @@ public:
     hm.Grid.XStep = (hm.Grid.BoundingBox.Q.x - hm.Grid.BoundingBox.P.x) / (hm.Grid.XSize - 1);
     hm.Grid.YStep = (hm.Grid.BoundingBox.Q.y - hm.Grid.BoundingBox.P.y) / (hm.Grid.YSize - 1);
 
-    Progress("HeightMapGenerator: Computing mean elevation");
+    std::cout << "HeightMapGenerator: Computing mean elevation" << std::endl;
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
@@ -71,7 +67,7 @@ public:
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
-    Progress("HeightMapGenerator: Extracting point cloud data");
+    std::cout << "HeightMapGenerator: Extracting point cloud data" << std::endl;
 
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
@@ -108,7 +104,8 @@ public:
     // Compute mean elevation
     meanElevation /= pointCloud.Points.size() - numOutliers;
 
-    Progress("HeightMapGenerator: Computing local mean elevation");
+    std::cout << "HeightMapGenerator: Computing local mean elevation"
+              << std::endl;
 
     // Compute mean of elevations for each grid point
     std::vector<size_t> missingIndices;
@@ -129,7 +126,9 @@ public:
     // closest existing value around each missing grid point.
     // It might be more efficient to do a flood fill.
 
-    Progress("HeightMapGenerator: Filling in missing grid points (" + str(numMissing) + "/" + str(numGridPoints) + ")");
+    std::cout << "HeightMapGenerator: Filling in missing grid points ("
+              << numMissing << "/" << numGridPoints << ")" << std::endl;
+    Timer timer("Flood fill");
 
     // Reuse vector numLocalPoints to indicate which points have been
     // visited: 0 = empty, 1 = boundary, 2 = filled
@@ -178,6 +177,8 @@ public:
         }
       }
     }
+    timer.Stop();
+    timer.Print();
 
     // Check that we found data for all grid points
     if (numFound != numMissing)
@@ -186,10 +187,15 @@ public:
     // Print some stats
     const double percentMissing =
         100.0 * static_cast<double>(numMissing) / numGridPoints;
-    Info("HeightMapGenerator: " + str(numOutliers) + " outliers ignored");
-    Info("HeightMapGenerator: Mean elevation is " + str(meanElevation, 4) + "m");
-    Info("HeightMapGenerator: " + str(numGridPoints) + " grid points");
-    Info("HeightMapGenerator: " + str(numMissing) + " missing grid points ("  + str(percentMissing, 3) + "%)");
+    std::cout << "HeightMapGenerator: " << numOutliers << " outliers ignored"
+              << std::endl;
+    std::cout << "HeightMapGenerator: Mean elevation is "
+              << std::setprecision(4) << meanElevation << "m" << std::endl;
+    std::cout << "HeightMapGenerator: " << numGridPoints << " grid points"
+              << std::endl;
+    std::cout << "HeightMapGenerator: " << numMissing
+              << " missing grid points (" << std::setprecision(3)
+              << percentMissing << "%)" << std::endl;
     //    std::cout << "HeightMapGenerator: "
     //        << "Maximum search distance is " << maxStep << std::endl;
 

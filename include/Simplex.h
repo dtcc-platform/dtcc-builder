@@ -1,6 +1,5 @@
 // Simplex classes for 1D, 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
-// Licensed under the MIT License
 
 #ifndef DTCC_SIMPLEX_H
 #define DTCC_SIMPLEX_H
@@ -22,21 +21,13 @@ public:
   Simplex1D(){};
 
   // Create simplex with sorted vertices
-  Simplex1D(std::size_t v0, std::size_t v1, bool sort = false)
+  Simplex1D(std::size_t v0, std::size_t v1)
   {
-    /// Sort vertices if requested
-    if (sort)
-    {
-      std::vector<size_t> v = {v0, v1};
-      std::sort(v.begin(), v.end());
-      this->v0 = v[0];
-      this->v1 = v[1];
-    }
-    else
-    {
-      this->v0 = v0;
-      this->v1 = v1;
-    }
+    /// Sort vertices
+    std::vector<size_t> v = {v0, v1};
+    std::sort(v.begin(), v.end());
+    this->v0 = v[0];
+    this->v1 = v[1];
   }
 };
 

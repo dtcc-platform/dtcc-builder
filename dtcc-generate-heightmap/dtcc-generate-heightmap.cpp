@@ -51,15 +51,15 @@ int main(int argc, char *argv[])
   double xMin{}, yMin{}, xMax{}, yMax{};
   if (parameters.AutoDomain)
   {
-    Progress("Automatically determining domain size:");
+    std::cout << "Automatically determining domain size:" << std::endl;
     xMin = pointCloud.BoundingBox.P.x - parameters.X0;
     yMin = pointCloud.BoundingBox.P.y - parameters.Y0;
     xMax = pointCloud.BoundingBox.Q.x - parameters.X0;
     yMax = pointCloud.BoundingBox.Q.y - parameters.Y0;
-    Progress("  XMin: " + str(pointCloud.BoundingBox.P.x) + " --> " + str(xMin));
-    Progress("  YMin: " + str(pointCloud.BoundingBox.P.y) + " --> " + str(yMin));
-    Progress("  XMax: " + str(pointCloud.BoundingBox.Q.x) + " --> " + str(xMax));
-    Progress("  YMax: " + str(pointCloud.BoundingBox.Q.y) + " --> " + str(yMax));
+    std::cout << "  XMin: " << pointCloud.BoundingBox.P.x << " --> " << xMin << std::endl;
+    std::cout << "  YMin: " << pointCloud.BoundingBox.P.y << " --> " << yMin << std::endl;
+    std::cout << "  XMax: " << pointCloud.BoundingBox.Q.x << " --> " << xMax << std::endl;
+    std::cout << "  YMax: " << pointCloud.BoundingBox.Q.y << " --> " << yMax << std::endl;
   }
   else
   {
@@ -79,9 +79,6 @@ int main(int argc, char *argv[])
 
   // Write height map data
   JSON::Write(heightMap, dataDirectory + "HeightMap.json");
-
-  // Report timings
-  Timer::Report("dtcc-generate-heightmap");
 
   return 0;
 }

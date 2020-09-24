@@ -1,14 +1,11 @@
 // NetCDF4 Class.
 // Copyright (C) Vasilis Naserentin
-// Licensed under the MIT License
 
 #ifndef DTCC_NETCDF4_H
 #define DTCC_NETCDF4_H
 
 #include <netcdf>
 #include <tuple>
-
-#include "Logging.h"
 
 namespace DTCC
 {
@@ -31,21 +28,20 @@ public:
   // T *Vector;
   NetCDF4(size_t size)
   {
-    Info("Creating new NetCDF4 with known size " + str(size));
+    std::cout << "Creating new NetCDF4 with known size " << size << std::endl;
     // Vector = new T[size];
     // Pointer.reset(new T[Size]);
     // Size = size;
   }
   NetCDF4()
   {
-    Info("Creating new NetCDF4 without known size");
-
+    std::cout << "Creating new NetCDF4 without known size" << std::endl;
     Size = 0;
   }
   ~NetCDF4()
   {
-    Info("Destroying NetCDF4");
-    Info("Size is " + str(Size));
+    std::cout << "Destroying NetCDF4" << std::endl;
+    std::cout << "Size is " << Size << std::endl;
     /*if (Size!=0)
         {
         delete Vector;
@@ -84,7 +80,8 @@ public:
       size_t dims = dim.getSize();
       Dimensions.push_back(dims);
 
-      Progress("Dim is " + str(dims) + " of " + str(numDims) + " with name " + dim.getName());
+      std::cout << "Dim is " << dims << " of " << numDims << " with name "
+                << dim.getName() << std::endl;
       CoordinateNames.push_back(dim.getName());
 
       // NcVar tempvar=iFile.getVar(dim.getName());
@@ -109,23 +106,23 @@ public:
 
     auto tempvector = new double[CoordinateDimensions[i]];
 
-    Progress("into extractCoordinates");
-    Progress(Coordinates[i].getName());
+    std::cout << "into extractCoordinates" << std::endl;
+    std::cout << Coordinates[i].getName();
 
     Coordinates[i].getVar(tempvector);
 
-    Progress("Got em" + str(CoordinateDimensions[i]));
-    Progress(str(tempvector[0]));
+    std::cout << "Got em" << CoordinateDimensions[i] << std::endl;
+    std::cout << tempvector[0] << std::endl;
     // iVector.push_back(tempvector);
 
-    Progress("Got em all");
+    std::cout << "Got em all" << std::endl;
     delete tempvector;
     tempvector = nullptr;
   }
   void getOrigin(NcVar &iData)
   {
     NcGroup group = iData.getParentGroup();
-    Progress(str(group.getAttCount()));
+    std::cout << group.getAttCount() << std::endl;
     std::multimap<std::string, NcGroupAtt> myMap;
     std::multimap<std::string, NcGroupAtt>::iterator itr;
     std::map<std::string, NcGroup> myCoordMap;
@@ -133,42 +130,44 @@ public:
     myCoordMap = group.getCoordVars();
     for (citr = myCoordMap.begin(); citr != myCoordMap.end(); ++citr)
     {
-      Progress("Coordinates");
-      Progress(citr->first);
+      std::cout << "Coordinates" << std::endl;
+      std::cout << citr->first << std::endl;
     }
     myMap = group.getAtts();
     int counter = 0;
     for (itr = myMap.begin(); itr != myMap.end(); ++itr)
     {
-      Progress(str(counter) + " " + itr->first + " " + itr->second.getName());
+
+      std::cout << counter << " " << itr->first << " " << itr->second.getName()
+                << std::endl;
       counter++;
       NcType type = itr->second.getType();
-      Progress(type.getName());
+      std::cout << type.getName() << std::endl;
       if (type.getName() == "char")
-        Progress(" char found");
+        std::cout << " char found" << std::endl;
       if (itr->first == "origin_x")
       {
-        Progress(" X origin found");
+        std::cout << " X origin found" << std::endl;
         double *originx = new double[itr->second.getAttLength()];
         itr->second.getValues(originx);
         Origin.push_back(originx[0]);
-        Progress(str(originx[0]));
+        std::cout << originx[0] << std::endl;
       }
       if (itr->first == "origin_y")
       {
-        Progress(" y origin found");
+        std::cout << " y origin found" << std::endl;
         double *originy = new double[itr->second.getAttLength()];
         itr->second.getValues(originy);
         Origin.push_back(originy[0]);
-        Progress(str(originy[0]));
+        std::cout << originy[0] << std::endl;
       }
       if (itr->first == "origin_z")
       {
-        Progress(" z origin found");
+        std::cout << " z origin found" << std::endl;
         double *originz = new double[itr->second.getAttLength()];
         itr->second.getValues(originz);
         Origin.push_back(originz[0]);
-        Progress(str(originz[0]));
+        std::cout << originz[0] << std::endl;
       }
     }
   }
@@ -178,7 +177,8 @@ public:
     // Coordinates[0].getVar(CoordinatesName[0]);
     for (size_t i = 0; i < Coordinates.size(); i++)
     {
-      Info("Coordinate Name " + Coordinates[i].getName());
+
+      std::cout << "Coordinate Name " << Coordinates[i].getName() << std::endl;
     }
   }
 
@@ -204,7 +204,7 @@ public:
     {
       if (Coordinates[i].getName() != Name)
       {
-        Progress(Coordinates[i].getName());
+        std::cout << Coordinates[i].getName() << std::endl;
         ;
         tempPtr.reset(new double[CoordinateDimensions[i]]);
         Coordinates[i].getVar(tempPtr.get());

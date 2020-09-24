@@ -42,12 +42,12 @@ int main(int argc, char *argv[])
   // Debug Printing in case you want to access parsed data
   for(auto it:cityJson.CityObjects)
   {
-    Progress(str(it));
+    std::cout<<it<<std::endl;
   }
 
   for(auto it:cityJson.Vertices)
   {
-    Progress(it.__str__());
+    std::cout<<it.__str__()<<std::endl;
   }
 
   //Testing Serialization to json

@@ -8,17 +8,16 @@
 #include "CityModel.h"
 #include "CityModelGenerator.h"
 #include "CommandLine.h"
-#include "JSON.h"
 #include "GridField.h"
+#include "JSON.h"
 #include "Parameters.h"
 #include "Polygon.h"
-#include "SHP.h"
 
 using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-citymodel Parameters.json" << std::endl;
+  Error("Usage: vc-generate-citymodel Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -38,27 +37,23 @@ int main(int argc, char *argv[])
   // Get data directory (add trailing slash just in case)
   const std::string dataDirectory = parameters.DataDirectory + "/";
 
-  // Read property map data
-  std::vector<Polygon> polygons;
-  SHP::Read(polygons, dataDirectory + "PropertyMap.shp");
+  // Read city model data
+  CityModel cityModel;
+  JSON::Read(cityModel, dataDirectory + "CityModel.json");
+  Info(cityModel);
 
   // Read height map data
   GridField2D heightMap;
   JSON::Read(heightMap, dataDirectory + "HeightMap.json");
   Info(heightMap);
 
-  // Generate city model
-  CityModel cityModel;
-  CityModelGenerator::GenerateCityModel(cityModel, polygons, heightMap,
-                                        parameters.X0, parameters.Y0,
-                                        heightMap.Grid.BoundingBox.P.x,
-                                        heightMap.Grid.BoundingBox.P.y,
-                                        heightMap.Grid.BoundingBox.Q.x,
-                                        heightMap.Grid.BoundingBox.Q.y);
+  // Simplify city model
+  CityModelGenerator::SimplifyCityModel(cityModel, heightMap,
+                                        parameters.MinimalBuildingDistance);
   Info(cityModel);
 
   // Write city model to file
-  JSON::Write(cityModel, dataDirectory + "CityModel.json");
+  JSON::Write(cityModel, dataDirectory + "SimplifiedCityModel.json");
 
   return 0;
 }

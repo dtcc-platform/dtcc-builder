@@ -1,6 +1,5 @@
 // vc-assimp-hello-world
 // Orfeas Eleftheriou 2020
-// Licensed under the MIT License
 
 #include <fstream> //ifstream
 #include <iostream>
@@ -11,7 +10,6 @@
 #include "CityModel.h"
 #include "JSON.h"
 #include "Vector.h"
-#include "Logging.h"
 
 // Assimp includes
 #include <assimp/Exporter.hpp>
@@ -196,7 +194,8 @@ void printVertices(const std::vector<aiVector3D>& vertices)
   uint counter=0;
   for(auto it=vertices.begin();it!=vertices.end();++it,counter++)
   {
-    Info("Vertex " + str(counter) + ": {" + str((*it).x) + "," + str((*it).y) + "," + str((*it).z) + "}");
+    std::cout << "Vertex " << counter << ": {" << (*it).x << "," << (*it).y
+              << "," << (*it).z << "}" << std::endl;
   }
 }
 
@@ -224,7 +223,8 @@ void printNormals(const std::vector<aiVector3D>& normals)
   uint counter = 0;
   for (auto it = normals.begin(); it != normals.end(); ++it, counter++)
   {
-    Info("Normal " + str(counter) + ": {" + str((*it).x) + "," + str((*it).y) + "," + str((*it).z) + "}");
+    std::cout << "Normal " << counter << ": {" << (*it).x << "," << (*it).y
+              << "," << (*it).z << "}" << std::endl;
   }
 }
 
@@ -244,7 +244,8 @@ int main(int argc, char *argv[])
 
   if (cubeScene)
   {
-    Info(" valid cube scene with # " + str(cubeScene->mNumMeshes) + " of meshes!");
+    std::cout << " valid cube scene with # " << cubeScene->mNumMeshes
+              << " of meshes!" << std::endl;
 
     //Get the first mesh
 
@@ -260,11 +261,11 @@ int main(int argc, char *argv[])
   }
   else
   {
-    Error(importer.GetErrorString());
+    std::cout << importer.GetErrorString() << std::endl;
   }
 
-  Info(str(cubeScene->mRootNode->mNumChildren));
-  Info(str(cubeScene->mRootNode->mNumMeshes));
+  std::cout << cubeScene->mRootNode->mNumChildren << std::endl;
+  std::cout << cubeScene->mRootNode->mNumMeshes << std::endl;
   // aiMesh *newMesh = cubeScene->mRootNode->aiNode->mMeshes[0];
 
   /*

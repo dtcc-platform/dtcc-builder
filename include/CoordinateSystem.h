@@ -1,6 +1,5 @@
 // Coordinate system transformation.
 // Copyright (C) 2019 Anders Logg.
-// Licensed under the MIT License
 
 #ifndef DTCC_COORDINATE_SYSTEM_H
 #define DTCC_COORDINATE_SYSTEM_H

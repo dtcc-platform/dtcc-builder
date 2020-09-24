@@ -6,7 +6,6 @@
 
 #include <vector>
 
-#include "Color.h"
 #include "Vector.h"
 #include "BoundingBox.h"
 #include "Logging.h"
@@ -21,28 +20,17 @@ namespace DTCC
     /// Array of points
     std::vector<Vector3D> Points{};
 
-    std::vector<Color> Colors{};
-
     /// Bounding box
     BoundingBox2D BoundingBox{};
 
     // Create empty point cloud
   PointCloud() {}
-    // set a default color to all points
-    void InitColors(Color c) 
-    {
-      for (size_t i = 0; i < Points.size(); i++) {
-        Colors.push_back(c);
-      }
-    }
 
     /// Pretty-print
     std::string __str__() const
     {
       return "Point cloud on " + str(BoundingBox) + " with " + str(Points.size()) + " points ";
     }
-
-    
 
   };
 
