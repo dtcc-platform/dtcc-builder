@@ -54,6 +54,8 @@ public:
   {
 
     Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
+    std::vector<liblas::FilterPtr> filters;
+    filters.push_back(MakeClassFilter(classifications));
     filters.push_back(MakeBoundsFilter(bbox));
     _Read(pointCloud, fileName, filters);
   }
