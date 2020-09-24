@@ -7,8 +7,6 @@
 #include <cmath>
 
 #include "Logging.h"
-
-// FIXME: Temporary conversion during transition to Point/Vector
 #include "Point.h"
 
 namespace DTCC
@@ -26,13 +24,32 @@ namespace DTCC
     /// Second component
     double y{};
 
-    // FIXME: Temporary conversion during transition to Point/Vector
+    /// Create zero vector
+    Vector2D() {}
+
+    /// Create vector with given components.
+    ///
+    /// @param x First component
+    /// @param y Second component
+    Vector2D(double x, double y) : x(x), y(y) {}
+
+    /// Create vector between origin and point (conversion from point).
+    ///
+    /// @param p The point
+    Vector2D(const Point2D &p) : x(p.x), y(p.y) {}
+
+    /// Create vector between points.
+    ///
+    /// @param p First point
+    /// @param q Second point
+    Vector2D(const Point2D &p, const Point2D &q) : x(q.x - p.x), y(q.y - p.y) {}
+
+    /// Return point at origin + vector (conversion to point).
+    ///
+    /// @return Point at origin + vector.
     operator Point2D() const { return Point2D(x, y); }
 
     // FIXME: This class requires documentation
-
-    Vector2D() : x(0), y(0) {}
-    Vector2D(double x, double y) : x(x), y(y) {}
 
     Vector2D operator+(const Vector2D &p) const
     {
@@ -93,11 +110,7 @@ namespace DTCC
     void Normalize() { (*this) /= Magnitude(); }
 
     /// Pretty-print
-    std::string __str__() const
-    {
-      return "<" + str(x) + ", " + str(y) + ">";
-    }
-
+    std::string __str__() const { return "(" + str(x) + ", " + str(y) + ")"; }
   };
 
   /// Vector3D represents a Euclidean 3D vector
@@ -115,10 +128,36 @@ namespace DTCC
     /// Third component
     double z{};
 
-    // FIXME: This class requires documentation
+    /// Create zero vector
+    Vector3D() {}
 
-    Vector3D() : x(0), y(0), z(0) {}
+    /// Create vector with given components.
+    ///
+    /// @param x First component
+    /// @param y Second component
+    /// @param z Third component
     Vector3D(double x, double y, double z) : x(x), y(y), z(z) {}
+
+    /// Create vector between origin and point (conversion from point).
+    ///
+    /// @param p The point
+    Vector3D(const Point3D &p) : x(p.x), y(p.y), z(p.z) {}
+
+    /// Create vector between points.
+    ///
+    /// @param p First point
+    /// @param q Second point
+    Vector3D(const Point3D &p, const Point3D &q)
+        : x(q.x - p.x), y(q.y - p.y), z(q.z - p.z)
+    {
+    }
+
+    /// Return point at origin + vector (conversion to point).
+    ///
+    /// @return Point at origin + vector.
+    operator Point3D() const { return Point3D(x, y, z); }
+
+    // FIXME: This class requires documentation
 
     Vector3D operator+(const Vector3D &p) const
     {
@@ -183,10 +222,104 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const
     {
-      return "<" + str(x) + ", " + str(y) + ", " + str(z) + ">";
+      return "(" + str(x) + ", " + str(y) + ", " + str(z) + ")";
     }
 
   };
+
+  // Note: We allow a minimal set of algebra for points such as
+  // translation by a vector. These need to be declared outside
+  // of the Point class to avoid circular includes.
+
+  /// Translate point by given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point2D operator+(const Point2D &p, const Vector2D &v)
+  {
+    return Point2D(p.x + v.x, p.y + v.y);
+  }
+
+  /// Translate point by negative of given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point2D operator-(const Point2D &p, const Vector2D &v)
+  {
+    return Point2D(p.x - v.x, p.y - v.y);
+  }
+
+  /// Translate point by given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point2D operator+=(Point2D &p, const Vector2D &v)
+  {
+    p.x += v.x;
+    p.y += v.y;
+    return p;
+  }
+
+  /// Translate point by negative of given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point2D operator-=(Point2D &p, const Vector2D &v)
+  {
+    p.x -= v.x;
+    p.y -= v.y;
+    return p;
+  }
+
+  /// Translate point by given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point3D operator+(const Point3D &p, const Vector3D &v)
+  {
+    return Point3D(p.x + v.x, p.y + v.y, p.z + v.z);
+  }
+
+  /// Translate point by negative of given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point3D operator-(const Point3D &p, const Vector3D &v)
+  {
+    return Point3D(p.x - v.x, p.y - v.y, p.z - v.z);
+  }
+
+  /// Translate point by given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point3D operator+=(Point3D &p, const Vector3D &v)
+  {
+    p.x += v.x;
+    p.y += v.y;
+    p.z += v.z;
+    return p;
+  }
+
+  /// Translate point by negative of given vector.
+  ///
+  /// @param p The point
+  /// @param v Translation vector
+  /// @return Translated point
+  Point3D operator-=(Point3D &p, const Vector3D &v)
+  {
+    p.x -= v.x;
+    p.y -= v.y;
+    p.z -= v.z;
+    return p;
+  }
 
 } // namespace DTCC
 

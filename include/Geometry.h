@@ -11,10 +11,11 @@
 #include <tuple>
 #include <vector>
 
-#include "Vector.h"
-#include "Polygon.h"
 #include "BoundingBox.h"
 #include "Parameters.h"
+#include "Point.h"
+#include "Polygon.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -22,6 +23,27 @@ namespace DTCC
 class Geometry
 {
 public:
+  // FIXME: This needs to be reworked in light of the introduction of two
+  // different classes Point and Vector. Currently somewhat inconsistent.
+
+  // Compute squared norm (2D)
+  static double SquaredNorm2D(const Vector2D &v) { return Dot2D(v, v); }
+
+  // Compute squared norm (3D)
+  static double SquaredNorm3D(const Vector3D &v) { return Dot3D(v, v); }
+
+  // Compute norm (2D)
+  static double Norm2D(const Vector2D &v)
+  {
+    return std::sqrt(SquaredNorm2D(v));
+  }
+
+  // Compute norm (3D)
+  static double Norm3D(const Vector3D &v)
+  {
+    return std::sqrt(SquaredNorm3D(v));
+  }
+
   // Compute dot product (2D)
   static double Dot2D(const Vector2D &u, const Vector2D &v)
   {
@@ -35,20 +57,20 @@ public:
   }
 
   // Compute distance between points (2D)
-  static double Distance2D(const Vector2D &p, const Vector2D &q)
+  static double Distance2D(const Point2D &p, const Point2D &q)
   {
     return std::sqrt(SquaredDistance2D(p, q));
   }
 
   // Compute distance between segment (p0, p1) and point q (2D)
   static double
-  Distance2D(const Vector2D &p0, const Vector2D &p1, const Vector2D &q)
+  Distance2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
   {
     return std::sqrt(SquaredDistance2D(p0, p1, q));
   }
 
   // Compute distance between polygon and point (2D)
-  static double Distance2D(const Polygon &polygon, const Vector2D &p)
+  static double Distance2D(const Polygon &polygon, const Point2D &p)
   {
     return std::sqrt(SquaredDistance2D(polygon, p));
   }
@@ -60,13 +82,13 @@ public:
   }
 
   // Compute distance between points (3D)
-  static double Distance3D(const Vector3D &p, const Vector3D &q)
+  static double Distance3D(const Point3D &p, const Point3D &q)
   {
     return std::sqrt(SquaredDistance3D(p, q));
   }
 
   // Compute squared distance between points (2D)
-  static double SquaredDistance2D(const Vector2D &p, const Vector2D &q)
+  static double SquaredDistance2D(const Point2D &p, const Point2D &q)
   {
     const double dx = p.x - q.x;
     const double dy = p.y - q.y;
@@ -75,12 +97,12 @@ public:
 
   // Compute squared distance between segment (p0, p1) and point q (2D)
   static double
-  SquaredDistance2D(const Vector2D &p0, const Vector2D &p1, const Vector2D &q)
+  SquaredDistance2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
   {
     // Project point to line
-    const Vector2D u = q - p0;
-    const Vector2D v = p1 - p0;
-    const Vector2D p = p0 + v * (Dot2D(u, v) / v.SquaredMagnitude());
+    const Vector2D u(p0, q);
+    const Vector2D v(p0, p1);
+    const Point2D p = p0 + v * (Dot2D(u, v) / v.SquaredMagnitude());
 
     // Check whether projected point is inside segment. Check either
     // x or y coordinates depending on which is largest (most stable)
@@ -91,16 +113,16 @@ public:
 
     // Use distance to projection if inside
     if (inside)
-      return (q - p).SquaredMagnitude();
+      return SquaredDistance2D(p, q);
 
     // Otherwise use distance to closest end point
-    const double d0 = (q - p0).SquaredMagnitude();
-    const double d1 = (q - p1).SquaredMagnitude();
+    const double d0 = SquaredDistance2D(p0, q);
+    const double d1 = SquaredDistance2D(p1, q);
     return std::min(d0, d1);
   }
 
   // Compute squared distance between polygon and point(2D)
-  static double SquaredDistance2D(const Polygon &polygon, const Vector2D &p)
+  static double SquaredDistance2D(const Polygon &polygon, const Point2D &p)
   {
     // Check if point is contained in polygon
     if (PolygonContains2D(polygon, p))
@@ -110,8 +132,8 @@ public:
     double d2Min = std::numeric_limits<double>::max();
     for (size_t i = 0; i < polygon.Vertices.size(); i++)
     {
-      Vector2D p0 = polygon.Vertices[i];
-      Vector2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
       d2Min = std::min(d2Min, SquaredDistance2D(p0, p1, p));
     }
 
@@ -136,7 +158,7 @@ public:
   }
 
   // Compute squared distance between points (3D)
-  static double SquaredDistance3D(const Vector3D &p, const Vector3D &q)
+  static double SquaredDistance3D(const Point3D &p, const Point3D &q)
   {
     const double dx = p.x - q.x;
     const double dy = p.y - q.y;
@@ -144,20 +166,59 @@ public:
     return dx * dx + dy * dy + dz * dz;
   }
 
-  // Compute orientation of point q relative to segment p0 - p1 (2D)
-  static double Orient2D(const Vector2D &p0, const Vector2D &p1, const Vector2D &q)
+  // Compute orientation of point q relative to edge (p0, p1) (2D)
+  static double Orient2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
   {
-    const Vector2D u = p1 - p0;
-    const Vector2D v = q - p0;
+    const Vector2D u(p0, p1);
+    const Vector2D v(p0, q);
     return u.x * v.y - u.y * v.x;
   }
 
+  // Compute sign of point q relative to edge (p0, p1) (2D).
+  // -1 --- (p0) --- 0 --- (p1) --- +1
+  static int EdgeSign2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
+  {
+    const Vector2D v(p0, p1);
+    double l{}, d0{}, d1{};
+    if (std::abs(v.x > v.y))
+    {
+      l = std::abs(v.x);
+      d0 = std::abs(p0.x - q.x);
+      d1 = std::abs(p1.x - q.x);
+    }
+    else
+    {
+      l = std::abs(v.y);
+      d0 = std::abs(p0.y - q.y);
+      d1 = std::abs(p1.y - q.y);
+    }
+    if (d0 > l - Parameters::Epsilon && d0 > d1)
+      return 1;
+    else if (d1 > l - Parameters::Epsilon && d1 > d0)
+      return -1;
+    else
+      return 0;
+  }
+
+  // Compute strictly increasing function [-pi, pi] -> [-2, 2] of angle of v
+  // relative to u. This is a cheap alternative compared to working with asin,
+  // acos.
+  static double VectorAngle2D(const Vector2D &u, const Vector2D &v)
+  {
+    const double u2 = u.x * u.x + u.y * u.y;
+    const double v2 = v.x * v.x + v.y * v.y;
+    const double sin = u.x * v.y - u.y * v.x;
+    const double cos = u.x * v.x + u.y * v.y;
+    const double a = sin * sin / (u2 * v2);
+    return (sin > 0.0 ? (cos > 0.0 ? a : 2.0 - a) : (cos > 0.0 ? -a : a - 2.0));
+  }
+
   // Compute quadrant angle of point p relative to polygon (2D)
-  static int QuadrantAngle2D(const Vector2D &p,
-                             const std::vector<Vector2D> &polygon)
+  static int QuadrantAngle2D(const Point2D &p,
+                             const std::vector<Point2D> &polygon)
   {
     // Compute angle to first vertex
-    Vector2D q0 = polygon[0];
+    Point2D q0 = polygon[0];
     int v0 = QuadrantAngle2D(q0, p);
 
     // Sum up total angle
@@ -165,7 +226,7 @@ public:
     for (size_t i = 1; i < polygon.size() + 1; i++)
     {
       // Compute angle increment
-      Vector2D q1 = polygon[i % polygon.size()];
+      Point2D q1 = polygon[i % polygon.size()];
       int v1 = QuadrantAngle2D(q1, p);
       int dv = v1 - v0;
 
@@ -191,7 +252,7 @@ public:
   }
 
   // Compute quadrant angle of point p relative to point q (2D)
-  static int QuadrantAngle2D(const Vector2D &p, const Vector2D &q)
+  static int QuadrantAngle2D(const Point2D &p, const Point2D &q)
   {
     return ((p.x > q.x) ? ((p.y > q.y) ? 0 : 3) : ((p.y > q.y) ? 1 : 2));
   }
@@ -202,8 +263,8 @@ public:
     double sum = 0.0;
     for (size_t i = 0; i < polygon.Vertices.size(); i++)
     {
-      Vector2D p0 = polygon.Vertices[i];
-      Vector2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
       sum += (p1.x - p0.x) * (p1.y + p0.y);
     }
     return sum;
@@ -222,17 +283,18 @@ public:
   }
 
   // Compute center of polygon (2D)
-  static Vector2D PolygonCenter2D(const Polygon &polygon)
+  static Point2D PolygonCenter2D(const Polygon &polygon)
   {
-    Vector2D c;
+    Vector2D o{};
+    Vector2D c{};
     for (auto const &p : polygon.Vertices)
-      c += p;
-    c /= polygon.Vertices.size();
+      c += Vector2D(o, p);
+    c /= static_cast<double>(polygon.Vertices.size());
     return c;
   }
 
   // Compute radius of polygon relative to center (2D)
-  static double PolygonRadius2D(const Polygon &polygon, const Vector2D &center)
+  static double PolygonRadius2D(const Polygon &polygon, const Point2D &center)
   {
     double r2max = 0.0;
     for (auto const &p : polygon.Vertices)
@@ -244,8 +306,24 @@ public:
     return std::sqrt(r2max);
   }
 
+  // Check whether edge (p0, p1) contains point q. It is assumed that the
+  // point is located on the line defined by the edge.
+  static bool EdgeContains2D(const Point2D &p0,
+                             const Point2D &p1,
+                             const Point2D &q,
+                             double tol = 0.0)
+  {
+    const Vector2D v(p0, p1);
+    if (std::abs(v.x) > std::abs(v.y))
+      return std::min(p0.x, p1.x) - tol < q.x and
+             std::max(p0.x, p1.x) + tol > q.x;
+    else
+      return std::min(p0.y, p1.y) - tol < q.y and
+             std::max(p0.y, p1.y) + tol > q.y;
+  }
+
   // Check whether polygon contains point (2D)
-  static bool PolygonContains2D(const Polygon &polygon, const Vector2D &p)
+  static bool PolygonContains2D(const Polygon &polygon, const Point2D &p)
   {
     // Compute total quadrant relative to polygon. If the point
     // is inside the polygon, the angle should be 4 (or -4).
@@ -267,18 +345,38 @@ public:
             bbox.P.z <= p.z && p.z <= bbox.Q.z);
   }
 
-  // Compute intersection between segments p0 - p1 and q0 - q1 (2D)
-  static Vector2D SegmentIntersection2D(const Vector2D &p0,
-                                       const Vector2D &p1,
-                                       const Vector2D &q0,
-                                       const Vector2D &q1)
+  // Check whether bounding box contains polygon (2D)
+  static bool BoundingBoxContains2D(const BoundingBox2D &bbox,
+                                    const Polygon &polygon)
+  {
+    for (const auto &p : polygon.Vertices)
+      if (!BoundingBoxContains2D(bbox, p))
+        return false;
+    return true;
+  }
+
+  // Check whether edges (p0, p1) and (q0, q1) intersect
+  static bool Intersects2D(const Point2D &p0,
+                           const Point2D &p1,
+                           const Point2D &q0,
+                           const Point2D &q1)
+  {
+    return (Orient2D(p0, p1, q0) * Orient2D(p0, p1, q1) <= 0.0 &&
+            Orient2D(q0, q1, p0) * Orient2D(q0, q1, p1) <= 0.0);
+  }
+
+  // Compute intersection between edges p0 - p1 and q0 - q1 (2D)
+  static Point2D EdgeIntersection2D(const Point2D &p0,
+                                    const Point2D &p1,
+                                    const Point2D &q0,
+                                    const Point2D &q1)
   {
     // Solve for intersection: p0 + k*(p1 - p0) = q0 + l*(q1 - q0)
 
     // Compute vectors
-    const Vector2D u = q0 - p0;
-    const Vector2D v = p1 - p0;
-    const Vector2D w = q1 - q0;
+    const Vector2D u(p0, q0);
+    const Vector2D v(p0, p1);
+    const Vector2D w(q0, q1);
 
     // Create linear system
     const double a = v.x;
@@ -299,13 +397,13 @@ public:
 
     // Solve linear system
     const double k = (d * e - b * f) / det;
-    const Vector2D p = p0 + v * k;
+    const Point2D p = p0 + v * k;
 
     return p;
   }
 
   // Compute convex hull of point set (2D)
-  static Polygon ConvexHull2D(const std::vector<Vector2D> &points)
+  static Polygon ConvexHull2D(const std::vector<Point2D> &points)
   {
     // The convex hull is computed by doing a Graham scan: select an
     // extreme base point, sort remaining points by angle and then
@@ -331,7 +429,7 @@ public:
 
     // Set base point
     const size_t baseIndex = iMin;
-    Vector2D basePoint = points[baseIndex];
+    Point2D basePoint = points[baseIndex];
 
     // Compute angles and distances relative to base point
     std::vector<std::tuple<double, double, size_t>> angles(numPoints - 1);
@@ -343,8 +441,8 @@ public:
         continue;
 
       // Compute angle (negative cosine) and distance
-      const Vector2D &p = points[i];
-      const Vector2D v = p - basePoint;
+      const Point2D &p = points[i];
+      const Vector2D v(basePoint, p);
       const double distance = v.Magnitude();
       const double angle =
           (distance > Parameters::Epsilon ? -v.x / distance : 0.0);
@@ -387,7 +485,7 @@ public:
     {
       // Get next point
       const size_t i2 = filteredIndices[i];
-      const Vector2D &p2 = points[i2];
+      const Point2D &p2 = points[i2];
 
       // Keep popping from stack until we see a left turn
       while (true)
@@ -396,8 +494,8 @@ public:
         const size_t i1 = convexHull.top();
         convexHull.pop();
         const size_t i0 = convexHull.top();
-        const Vector2D &p0 = points[i0];
-        const Vector2D &p1 = points[i1];
+        const Point2D &p0 = points[i0];
+        const Point2D &p1 = points[i1];
 
         // Check orientation, keep p1 if orientation is positive
         if (Orient2D(p0, p1, p2) > Parameters::Epsilon)
