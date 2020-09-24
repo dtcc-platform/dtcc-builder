@@ -174,5 +174,8 @@ private:
       pointCloud.Colors.push_back(c);
       readPoints++;
     }
+  }
+};
+} // namespace DTCC
 
 #endif
