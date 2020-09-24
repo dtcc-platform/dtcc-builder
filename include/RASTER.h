@@ -5,6 +5,7 @@
 #include <gdal/gdal_priv.h>
 
 #include "GeoRaster.h"
+#include "Logging.h"
 
 #ifndef DTCC_RASTER_H
 #define DTCC_RASTER_H
@@ -59,12 +60,12 @@ public:
       }
     }
 
-    std::cout << "GeoRaster: Reading (" << XSize << "," << YSize << "," << bands.size() << ") raster" << std::endl;
-    std::cout << "GeoRaster: Bounded by " << str(geoRaster.Bounds) << std::endl;
+    Info( "GeoRaster: Reading ("+str(XSize)+","+str(YSize)+","+str(bands.size())+") raster");
+    Info("GeoRaster: bounded by " + str(geoRaster.Bounds));
 
     for (auto band : bands)
     {
-      std::cout << "loading band " << band << std::endl;
+      Info("GeoRaster: loading band " + str(band));
       GridField2D data(Grid2D(geoRaster.Bounds,XSize,YSize));
       rBand = rasterDataset->GetRasterBand(band);
       CPLErr err = rBand->RasterIO(GF_Read, 0, 0, XSize, YSize, &data.Values[0], XSize,
