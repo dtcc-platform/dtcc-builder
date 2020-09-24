@@ -116,7 +116,7 @@ namespace DTCC
                                   const std::vector<int> &domainMarkers,
                                   double h)
     {
-      std::cout << "Elastic smoothing not (yet) implemented." << std::endl;
+      Warning("Elastic smoothing not (yet) implemented.");
     }
 
     // Generate height map function (used only for testing/visualization)

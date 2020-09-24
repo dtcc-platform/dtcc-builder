@@ -51,15 +51,15 @@ int main(int argc, char *argv[])
   double xMin{}, yMin{}, xMax{}, yMax{};
   if (parameters.AutoDomain)
   {
-    std::cout << "Automatically determining domain size:" << std::endl;
+    Progress("Automatically determining domain size:");
     xMin = pointCloud.BoundingBox.P.x - parameters.X0;
     yMin = pointCloud.BoundingBox.P.y - parameters.Y0;
     xMax = pointCloud.BoundingBox.Q.x - parameters.X0;
     yMax = pointCloud.BoundingBox.Q.y - parameters.Y0;
-    std::cout << "  XMin: " << pointCloud.BoundingBox.P.x << " --> " << xMin << std::endl;
-    std::cout << "  YMin: " << pointCloud.BoundingBox.P.y << " --> " << yMin << std::endl;
-    std::cout << "  XMax: " << pointCloud.BoundingBox.Q.x << " --> " << xMax << std::endl;
-    std::cout << "  YMax: " << pointCloud.BoundingBox.Q.y << " --> " << yMax << std::endl;
+    Progress("  XMin: " + str(pointCloud.BoundingBox.P.x) + " --> " + str(xMin));
+    Progress("  YMin: " + str(pointCloud.BoundingBox.P.y) + " --> " + str(yMin));
+    Progress("  XMax: " + str(pointCloud.BoundingBox.Q.x) + " --> " + str(xMax));
+    Progress("  YMax: " + str(pointCloud.BoundingBox.Q.y) + " --> " + str(yMax));
   }
   else
   {

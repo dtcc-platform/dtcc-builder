@@ -1,5 +1,6 @@
 // Simplex classes for 1D, 2D and 3D.
 // Copyright (C) 2018 Anders Logg.
+// Licensed under the MIT License
 
 #ifndef DTCC_SIMPLEX_H
 #define DTCC_SIMPLEX_H

@@ -606,7 +606,7 @@ namespace DTCC
         // Storing geometry
         CityObject::Geometry geometry = CityObject::Geometry();
         auto jsonGeometryArray = json["CityObjects"][NewObj.ID]["geometry"][0];
-        std::cout << jsonGeometryArray << std::endl;
+        Progress(jsonGeometryArray);
 
         // Storing lod settings
         NewObj.ObjectGeometry.LOD = jsonGeometryArray["lod"];

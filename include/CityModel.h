@@ -37,6 +37,7 @@ namespace DTCC
       // Build bounding box tree
       bbtree.Build(bboxes);
       std::cout << bbtree << std::endl;
+      Progress(str(bbtree));
     }
 
     // Find building containing point (inside footprint), returning -1
@@ -46,7 +47,7 @@ namespace DTCC
       // Check that search tree has been created
       if (bbtree.Nodes.size() == 0)
       {
-        std::cout << "Warning: Missing search tree; call BuildSearchTree()" << std::endl;
+        Warning("Warning: Missing search tree; call BuildSearchTree()");
         return -1;
       }
 
