@@ -37,6 +37,7 @@ namespace DTCC
       // Build bounding box tree
       bbtree.Build(bboxes);
       std::cout << bbtree << std::endl;
+      Progress(str(bbtree));
     }
 
     // Find building containing point (inside footprint), returning -1
@@ -46,7 +47,7 @@ namespace DTCC
       // Check that search tree has been created
       if (bbtree.Nodes.size() == 0)
       {
-        std::cout << "Warning: Missing search tree; call BuildSearchTree()" << std::endl;
+        Warning("Warning: Missing search tree; call BuildSearchTree()");
         return -1;
       }
 
@@ -65,19 +66,19 @@ namespace DTCC
     }
 
     // Compute center of city model
-    Vector2D Center() const
+    Point2D Center() const
     {
-      Vector2D c;
+      Vector2D c{};
       size_t numPoints = 0;
       for (auto const &building : Buildings)
       {
         for (auto const &p : building.Footprint.Vertices)
         {
-          c += p;
+          c += Vector2D(p);
           numPoints += 1;
         }
       }
-      c /= numPoints;
+      c /= static_cast<double>(numPoints);
       return c;
     }
 

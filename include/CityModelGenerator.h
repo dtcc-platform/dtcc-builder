@@ -12,6 +12,7 @@
 #include "GridField.h"
 #include "Polyfix.h"
 #include "Polygon.h"
+#include "Timer.h"
 #include "Vector.h"
 
 namespace DTCC
@@ -30,10 +31,11 @@ public:
   /// @param bbox Bounding box of domain
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
-                                const Vector2D &origin,
+                                const Point2D &origin,
                                 const BoundingBox2D &bbox)
   {
     Info("CityModelGenerator: Generating city model...");
+    Timer("GenerateCityModel");
 
     // Clear old data
     cityModel.Buildings.clear();
@@ -62,68 +64,69 @@ public:
   /// are closed and counter-clockwise oriented.
   ///
   /// @param cityModel The city model
-  static void CleanCityModel(CityModel &cityModel)
+  /// @param minimalVertexDistance Minimal vertex distance
+  static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
   {
     Info("CityModelGenerator: Cleaning city model...");
+    Timer("CleanCityModel");
 
-    // Make buildings closed
+    // Iterate over buildings
     size_t numClosed = 0;
-    for (auto &building : cityModel.Buildings)
-    {
-      numClosed += Polyfix::MakeClosed(building.Footprint,
-                                       Parameters::FootprintDistanceThreshold);
-    }
-
-    // Make buildings oriented
     size_t numOriented = 0;
+    size_t numVertexMerged = 0;
+    size_t numEdgeMerged = 0;
     for (auto &building : cityModel.Buildings)
     {
-      numOriented += Polyfix::MakeOriented(building.Footprint);
-    }
+      // Make closed
+      numClosed += Polyfix::MakeClosed(building.Footprint, Parameters::Epsilon);
 
-    // Make buildings simple
-    size_t numSimple = 0;
-    for (auto &building : cityModel.Buildings)
-    {
-      numSimple += Polyfix::MakeSimple(building.Footprint,
-                                       Parameters::FootprintAngleThreshold);
+      // Make oriented
+      numOriented += Polyfix::MakeOriented(building.Footprint);
+
+      // Merge vertices
+      numVertexMerged +=
+          Polyfix::MergeVertices(building.Footprint, minimalVertexDistance);
+
+      // Merge edges
+      numEdgeMerged += Polyfix::MergeEdges(building.Footprint,
+                                           Parameters::FootprintAngleThreshold);
     }
 
     Info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not closed");
     Info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not oriented");
-    Info("CityModelGenerator: Fixed " + str(numSimple) + "/" +
-         str(cityModel.Buildings.size()) + " polygons that were not simple");
+    Info("CityModelGenerator: Merged vertices for " + str(numVertexMerged) +
+         "/" + str(cityModel.Buildings.size()) + " polygons");
+    Info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
+         str(cityModel.Buildings.size()) + " polygons");
   }
 
   // Simplify city model (simplify and merge polygons)
   static void SimplifyCityModel(CityModel &cityModel,
-                                double minimalBuildingDistance)
+                                double minimalBuildingDistance,
+                                double minimalVertexDistance)
   {
     Info("CityModelGenerator: Simplifying city model...");
+    Timer("SimplifyCityModel");
 
     // Merge buildings if too close
     MergeBuildings(cityModel, minimalBuildingDistance);
 
-    // Make buildings simple (remove duplicates after merging)
-    size_t numSimple = 0;
-    for (auto &building : cityModel.Buildings)
-    {
-      numSimple += Polyfix::MakeSimple(building.Footprint,
-                                       Parameters::FootprintAngleThreshold);
-    }
-
-    Info("CityModelGenerator: Fixed " + str(numSimple) + "/" +
-         str(cityModel.Buildings.size()) + " polygons that were not simple");
+    // Clean after merge
+    CleanCityModel(cityModel, minimalVertexDistance);
   }
 
   /// Compute heights of buildings from height map.
   ///
   /// @param cityModel The city model
   /// @param heightMap The height map
-  static void ComputeHeights(CityModel &cityModel, const GridField2D &heightMap)
+  static void ComputeBuildingHeights(CityModel &cityModel,
+                                     const GridField2D &heightMap)
   {
+    Info("CityModelGenerator: Computing building heights...");
+    Timer("ComputeBuildingHeights");
+
     // Iterate over buildings
     for (size_t i = 0; i < cityModel.Buildings.size(); i++)
     {
@@ -131,12 +134,12 @@ public:
       Building &building = cityModel.Buildings[i];
 
       // Compute center and radius of building footprint
-      const Vector2D center = Geometry::PolygonCenter2D(building.Footprint);
+      const Point2D center = Geometry::PolygonCenter2D(building.Footprint);
       const double radius =
           Geometry::PolygonRadius2D(building.Footprint, center);
 
       // Add points for sampling height
-      std::vector<Vector2D> samplePoints;
+      std::vector<Point2D> samplePoints;
       samplePoints.push_back(center);
       const size_t m = 2;
       const size_t n = 8;
@@ -148,8 +151,8 @@ public:
         {
           const double theta =
               static_cast<double>(l) / static_cast<double>(n) * 2.0 * M_PI;
-          samplePoints.push_back(
-              Vector2D(center.x + r * cos(theta), center.y + r * sin(theta)));
+          Point2D p(center.x + r * cos(theta), center.y + r * sin(theta));
+          samplePoints.push_back(p);
         }
       }
 
@@ -168,8 +171,8 @@ public:
       // Check if we got at least one point
       if (numInside == 0)
       {
-        std::cout << "CityModelGenerator: No sample points inside building "
-                  << i << ", setting height to 0" << std::endl;
+        Info("CityModelGenerator: No sample points inside building " + str(i) +
+             ", setting height to 0");
         numInside = 1;
       }
 
@@ -183,6 +186,8 @@ private:
   static void MergeBuildings(CityModel &cityModel,
                              double minimalBuildingDistance)
   {
+    Info("CityModelGenerator: Merging buildings...");
+
     // Avoid using sqrt for efficiency
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
 
@@ -195,6 +200,7 @@ private:
       indices.push(i);
 
     // Process queue until empty
+    size_t numMerged = 0;
     while (indices.size() > 0)
     {
       // Pop index of next building to check
@@ -224,9 +230,9 @@ private:
                    str(j) + " are too close, merging");
 
           // Compute merged polygon
-          // Polygon mergedPolygon = Polyfix::Merge(Pi, Pj,
-          // minimalBuildingDistance);
-          Polygon mergedPolygon = MergePolygons(Pi, Pj);
+          Polygon mergedPolygon =
+              Polyfix::MergePolygons(Pi, Pj, minimalBuildingDistance);
+          numMerged++;
 
           // Replace Pi, erase Pj and add Pi to queue
           buildings[i].Footprint = mergedPolygon;
@@ -246,6 +252,8 @@ private:
 
     // Overwrite buildings
     cityModel.Buildings = mergedBuildings;
+
+    Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
   }
 
   // Merge the two polygonspolygon
@@ -255,14 +263,14 @@ private:
     // a more advanced merging later
 
     // Collect points
-    std::vector<Vector2D> allPoints;
+    std::vector<Point2D> allPoints;
     for (auto const &p : polygon0.Vertices)
       allPoints.push_back(p);
     for (auto const &p : polygon1.Vertices)
       allPoints.push_back(p);
 
     // Remove duplicate points
-    std::vector<Vector2D> uniquePoints;
+    std::vector<Point2D> uniquePoints;
     for (auto const &p : allPoints)
     {
       // Check if point is unique

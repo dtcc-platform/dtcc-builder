@@ -24,9 +24,8 @@ public:
   // to the given point cloud, enabling reading data from several
   // LAS files into the same point cloud.
   static void Read(PointCloud &pointCloud, std::string fileName)
-  { 
-    std::cout << "LAS: "
-              << "Reading point cloud from file " << fileName << std::endl;
+  {
+    Info(str("LAS: ") + str("Reading point cloud from file ") + fileName);
     std::vector<liblas::FilterPtr> filters;
     _Read(pointCloud,fileName,filters);
   }
@@ -34,8 +33,7 @@ public:
   // Read point cloud from LAS file only if they are within the BoundingBox
   static void Read(PointCloud &pointCloud, std::string fileName, BoundingBox2D bbox )
   {
-    std::cout << "LAS: Reading point cloud from file: " << fileName 
-              << " bounded by " << str(bbox) << std::endl;
+    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
 
     liblas::Bounds<double> bounds;
     std::vector<liblas::FilterPtr> filters;
@@ -54,19 +52,15 @@ public:
   // Read point cloud from LAS file only if they have the defined classification and are within the BoundingBox
   static void Read(PointCloud &pointCloud, std::string fileName, const std::vector<int> &classifications,BoundingBox2D bbox) 
   {
-    std::cout << "LAS: Reading point cloud from file: " << fileName 
-              << " bounded by " << str(bbox) << std::endl;
 
-    std::vector<liblas::FilterPtr> filters;
-    filters.push_back(MakeClassFilter(classifications));
+    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
     filters.push_back(MakeBoundsFilter(bbox));
-
     _Read(pointCloud, fileName, filters);
   }
 
   static void Write(const PointCloud &pointCloud, std::string fileName) {
-    std::cout << "LAS: Writing " << pointCloud.Points.size() << " points to "
-              << fileName << std::endl;
+    Info("LAS: Writing " + str(pointCloud.Points.size()) + " points to " + fileName);
+
     std::ofstream ofs;
     ofs.open(fileName, std::ios::out | std::ios::binary);
 
@@ -140,11 +134,11 @@ private:
     const size_t numPoints = header.GetPointRecordsCount();
     size_t readPoints = 0;
     if (isCompressed)
-      std::cout << "LAS: Compressed" << std::endl;
+      Info("LAS: Compressed");
     else
-      std::cout << "LAS: Uncompressed" << std::endl;
-    std::cout << "LAS: " << signature << std::endl;
-    std::cout << "LAS: contains " << numPoints << " points" << std::endl;
+      Info("LAS: Uncompressed");
+    Info("LAS: " + signature);
+    Info("LAS: contains " + str(numPoints) + " points");
 
     // Iterate over points
     while (reader.ReadNextPoint())
@@ -178,12 +172,5 @@ private:
       pointCloud.Colors.push_back(c);
       readPoints++;
     }
-    std::cout << "LAS: read " << readPoints << " points" << std::endl;
-
-  }
-
-};
-
-} // namespace DTCC
 
 #endif

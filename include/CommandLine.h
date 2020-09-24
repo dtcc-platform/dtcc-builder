@@ -1,5 +1,6 @@
 // JSON I/O
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_COMMAND_LINE_H
 #define DTCC_COMMAND_LINE_H
