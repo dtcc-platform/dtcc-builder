@@ -1,4 +1,4 @@
-#Digital Twin Cities Platform - Core
+# Digital Twin Cities Platform - Core
 
 The Digital Twin Cities Platform is an open-source platform for the
 exploration of digital twins for cities. The platform is developed and
@@ -8,7 +8,7 @@ data, modeling, simulation and visualization platform for interactive
 planning, design, exploration, experimentation and optimization of
 cities.
 
-This repositotory (Core) provides software for data processing,
+This repository (Core) provides software for data processing,
 modeling, and simulation.
 
 ![](images/hammarkullen.jpg)
@@ -22,6 +22,11 @@ modeling, and simulation.
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Downloading the software
+
+if you are using Windows, you might first want to make sure Git does not convert Unix-style file endings on checkout. For this, issue
+```
+git config --global core.autocrlf false
+```
 
 To download the software, clone the repository by the following command:
 
@@ -45,7 +50,7 @@ To build the Docker image, enter the `docker` directory and issue the following 
 
     ./dtcc-build-image
 
-On Windows, you should instead use the following command:
+On Windows, you should instead enter the `Windows` subdirectory and from there use
 
     ./dtcc-build-image.bat
 
@@ -74,11 +79,11 @@ Note that the source tree is automatically shared into the Docker container. It 
 
 ### Downloading data
 
-To download demo data, enter the `data` directory and issue the following command:
+To download demo data, first make sure you have [Git LFS](https://git-lfs.github.com/) installed. Then enter the `data` directory and issue the following command:
 
     ./dtcc-download-demo-data
 
-Note that this step should be done *outside* of the Docker container to ensure that you have the proper access to the data repository.
+For the typical new user, this should be done inside the container. If using Windows, choose HTTPS instead of SSH when asked. If downloading goes as planned, you will be asked for your credentials twice.
 
 ### Building and installation
 
