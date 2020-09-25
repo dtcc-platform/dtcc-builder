@@ -220,12 +220,31 @@ TEST_CASE("GridVectorField3D")
 TEST_CASE("COLORMAPS")
 {
   ColorMap cm;
+  cm.InsertColor(1,Color(1.0,1.0,1.0));
+  cm.InsertColor(0,Color(0.0,0.0,0.0));
+
+  ColorMap cm2;
+  cm2.InsertColor(0.8,Color(0.0,0.0,0.0));
+  cm2.InsertColor(0.9,Color(1.0,0.0,0.0));
+
   SECTION("Insert")
   {
-    cm.InsertColor(1,Color(1.0,1.0,1.0));
-    cm.InsertColor(0,Color(0.0,0.0,0.0));
     REQUIRE(cm.Colors.size() == 2);
     REQUIRE(cm.Colors.front().first == 0);
     REQUIRE(cm.Colors.back().first == 1);
+  }
+  SECTION("Interpolate")
+  {
+    REQUIRE(cm(1.1).R == 1.0);
+    REQUIRE(cm(1.1).G == 1.0);
+    REQUIRE(cm(1.1).B == 1.0);
+
+    REQUIRE(cm(0.5).R == 0.5);
+    REQUIRE(cm(0.5).G == 0.5);
+    REQUIRE(cm(0.5).B == 0.5);
+
+    REQUIRE(cm2(0.85).R == Approx(0.5).margin(0.0001));
+    REQUIRE(cm2(0.85).G == 0.0);
+    REQUIRE(cm2(0.85).B == 0.0);
   }
 }

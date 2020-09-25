@@ -6,8 +6,11 @@
 
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
+
 
 #include "Color.h"
+#include "ColotFunctions.h"
 #include "Logging.h"
 namespace DTCC
 {
@@ -23,10 +26,45 @@ public:
 
     void InsertColor(float startPoint, Color c)
     {
+        if (startPoint<0 || startPoint>1)
+        {
+            throw std::invalid_argument("ColorMap data values must be between 0 and 1");
+        }
         Colors.push_back(std::make_pair(startPoint,c));
         sortColormap();
     }
 
+    Color operator()(double d, bool interpolate = true)
+    {
+        colorMapEntry lower;
+        colorMapEntry higher;
+
+        // if we are outside the range of the colormap 
+        if (d<Colors.front().first)
+            return Colors.front().second;
+        if (d>Colors.back().first)
+            return Colors.back().second;
+        // inside the range of the color map 
+        for (auto c: Colors) {
+            if (d == c.first)
+                return c.second;
+            if (d > c.first)
+                lower = c;
+            if (d < c.first)
+            {
+                higher = c;
+                break;
+            }
+        }
+        if (interpolate) {
+            double interval_size = higher.first-lower.first;
+            d = (d-lower.first)/interval_size;
+            return ColorFunctions::Interpolate(lower.second,higher.second,d);
+        } else
+        {
+            return lower.second;
+        }
+    }
 
     std::string __str__() const
     {
