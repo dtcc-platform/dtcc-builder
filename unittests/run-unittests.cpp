@@ -7,6 +7,7 @@
 
 #include "Color.h"
 #include "ColorMap.h"
+#include "ColorMapIO.h"
 #include "Grid.h"
 #include "GridField.h"
 #include "GridVectorField.h"
@@ -229,7 +230,7 @@ TEST_CASE("COLORMAPS")
 
   SECTION("Insert")
   {
-    REQUIRE(cm.Colors.size() == 2);
+    REQUIRE(cm.size() == 2);
     REQUIRE(cm.Colors.front().first == 0);
     REQUIRE(cm.Colors.back().first == 1);
   }
@@ -246,5 +247,24 @@ TEST_CASE("COLORMAPS")
     REQUIRE(cm2(0.85).R == Approx(0.5).margin(0.0001));
     REQUIRE(cm2(0.85).G == 0.0);
     REQUIRE(cm2(0.85).B == 0.0);
+  }
+
+  SECTION("Load PNG")
+  { 
+    ColorMap cm3;
+    ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
+    REQUIRE(cm3.size()==256);
+    REQUIRE(cm3(0).R==Approx(0).margin(0.0001));
+    REQUIRE(cm3(0).G==Approx(0).margin(0.0001));
+    REQUIRE(cm3(0).B==Approx(127/255.0).margin(0.0001));
+
+    REQUIRE(cm3(0.5).R==Approx(121/255.0).margin(0.0001));
+    REQUIRE(cm3(0.5).G==Approx(255/255.0).margin(0.0001));
+    REQUIRE(cm3(0.5).B==Approx(124.5/255.0).margin(0.0001));
+
+    REQUIRE(cm3(1).R==Approx(127/255.0).margin(0.0001));
+    REQUIRE(cm3(1).G==Approx(0).margin(0.0001));
+    REQUIRE(cm3(1).B==Approx(0).margin(0.0001));
+
   }
 }

@@ -37,6 +37,10 @@ public:
         sortColormap();
     }
 
+    size_t size() {
+        return Colors.size();
+    }
+
     Color operator()(double d)
     {
         colorMapEntry lower;
@@ -72,7 +76,8 @@ public:
     std::string __str__() const
     {
         std::string out = "Colormap: \n";
-        for (auto c: Colors) {
+        for (auto c: Colors) 
+        {
             out += (str(c.first) + ": ");   
             out += str(c.second);
             out += "\n";
@@ -81,7 +86,8 @@ public:
     }
 
 private:
-    void sortColormap() {
+    void sortColormap() 
+    {
         std::sort(std::begin(Colors), 
               std::end(Colors), 
               [](colorMapEntry a, colorMapEntry b ) {return a.first < b.first; });
