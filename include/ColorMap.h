@@ -1,8 +1,8 @@
 // Copyright (C) 2020 Dag Wästberg
 // Licensed under the MIT License
 
-#ifndef DTCC_MESH_VECTOR_FIELD_H
-#define DTCC_MESH_VECTOR_FIELD_H
+#ifndef DTCC_COLOR_MAP_FIELD_H
+#define DTCC_COLOR_MAP_FIELD_H
 
 #include <vector>
 #include <algorithm>
@@ -27,6 +27,7 @@ public:
         sortColormap();
     }
 
+
     std::string __str__() const
     {
         std::string out = "Colormap: \n";
@@ -44,8 +45,6 @@ private:
               std::end(Colors), 
               [](colorMapEntry a, colorMapEntry b ) {return a.first < b.first; });
     }
-
-
 };
 }
 #endif
