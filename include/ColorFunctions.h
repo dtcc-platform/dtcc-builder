@@ -22,9 +22,9 @@ public:
       return c1;
     if (d >= 1)
       return c2;
-    r = c1.R*d+c2.R*(1-d);
-    g = c1.G*d+c2.G*(1-d);
-    b = c1.B*d+c2.B*(1-d);
+    r = c1.R*(1-d)+c2.R*(d);
+    g = c1.G*(1-d)+c2.G*(d);
+    b = c1.B*(1-d)+c2.B*(d);
     return Color(r,g,b);
   }
 };

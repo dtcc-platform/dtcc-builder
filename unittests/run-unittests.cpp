@@ -236,13 +236,22 @@ TEST_CASE("COLORMAPS")
   }
   SECTION("Interpolate")
   {
+    
+    REQUIRE(cm(0).R == 0.0);
+    REQUIRE(cm(0).G == 0.0);
+    REQUIRE(cm(0).B == 0.0);
+
+    REQUIRE(cm(1.0).R == 1.0);
+    REQUIRE(cm(1.0).G == 1.0);
+    REQUIRE(cm(1.0).B == 1.0);
+
     REQUIRE(cm(1.1).R == 1.0);
     REQUIRE(cm(1.1).G == 1.0);
     REQUIRE(cm(1.1).B == 1.0);
 
-    REQUIRE(cm(0.5).R == 0.5);
-    REQUIRE(cm(0.5).G == 0.5);
-    REQUIRE(cm(0.5).B == 0.5);
+    REQUIRE(cm(0.3).R == 0.3);
+    REQUIRE(cm(0.3).G == 0.3);
+    REQUIRE(cm(0.3).B == 0.3);
 
     REQUIRE(cm2(0.85).R == Approx(0.5).margin(0.0001));
     REQUIRE(cm2(0.85).G == 0.0);
@@ -254,17 +263,21 @@ TEST_CASE("COLORMAPS")
     ColorMap cm3;
     ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
     REQUIRE(cm3.size()==256);
-    REQUIRE(cm3(0).R==Approx(0).margin(0.0001));
+    
+    REQUIRE(cm3(0).R==Approx(127/255.0).margin(0.0001));
     REQUIRE(cm3(0).G==Approx(0).margin(0.0001));
-    REQUIRE(cm3(0).B==Approx(127/255.0).margin(0.0001));
+    REQUIRE(cm3(0).B==Approx(0).margin(0.0001));
 
     REQUIRE(cm3(0.5).R==Approx(121/255.0).margin(0.0001));
     REQUIRE(cm3(0.5).G==Approx(255/255.0).margin(0.0001));
     REQUIRE(cm3(0.5).B==Approx(124.5/255.0).margin(0.0001));
 
-    REQUIRE(cm3(1).R==Approx(127/255.0).margin(0.0001));
+    REQUIRE(cm3(1).R==Approx(0).margin(0.0001));
     REQUIRE(cm3(1).G==Approx(0).margin(0.0001));
-    REQUIRE(cm3(1).B==Approx(0).margin(0.0001));
+    REQUIRE(cm3(1).B==Approx(127/255.0).margin(0.0001));
 
   }
+
+  SECTION("Write PNG")
+  ColorMapIO::WritePNG(cm, "testmap.png");
 }

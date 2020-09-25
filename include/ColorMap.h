@@ -41,7 +41,7 @@ public:
         return Colors.size();
     }
 
-    Color operator()(double d)
+    Color operator()(double d) const
     {
         colorMapEntry lower;
         colorMapEntry higher;
