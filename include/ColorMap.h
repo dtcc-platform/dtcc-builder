@@ -10,7 +10,7 @@
 
 
 #include "Color.h"
-#include "ColotFunctions.h"
+#include "ColorFunctions.h"
 #include "Logging.h"
 namespace DTCC
 {
