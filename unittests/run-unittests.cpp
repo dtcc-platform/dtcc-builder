@@ -278,6 +278,13 @@ TEST_CASE("COLORMAPS")
 
   }
 
-  SECTION("Write PNG")
-  ColorMapIO::WritePNG(cm, "testmap.png");
+  SECTION("Write PNG") 
+  {
+    ColorMapIO::WritePNG(cm, "testmap.png");
+    ColorMap cm4;
+    ColorMapIO::ReadPNG(cm4,  "testmap.png");
+    REQUIRE(cm4(0.3).R == Approx(0.3).margin(0.0001));
+    REQUIRE(cm4(0.3).G == Approx(0.3).margin(0.0001));
+    REQUIRE(cm4(0.3).B == Approx(0.3).margin(0.0001));
+  }
 }
