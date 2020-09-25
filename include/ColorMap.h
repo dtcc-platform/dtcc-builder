@@ -14,15 +14,18 @@
 #include "Logging.h"
 namespace DTCC
 {
+enum ColorMapType {Linear,Discrete};
+
 class ColorMap
 {
 public:
 
     typedef std::pair<float,Color> colorMapEntry;
-     
+    
+    ColorMapType mapType;
     std::vector<colorMapEntry> Colors{};
 
-    ColorMap() {}
+    ColorMap(ColorMapType type = ColorMapType::Linear): mapType(type) {}
 
     void InsertColor(float startPoint, Color c)
     {
@@ -34,7 +37,7 @@ public:
         sortColormap();
     }
 
-    Color operator()(double d, bool interpolate = true)
+    Color operator()(double d)
     {
         colorMapEntry lower;
         colorMapEntry higher;
@@ -56,7 +59,7 @@ public:
                 break;
             }
         }
-        if (interpolate) {
+        if (mapType == Linear) {
             double interval_size = higher.first-lower.first;
             d = (d-lower.first)/interval_size;
             return ColorFunctions::Interpolate(lower.second,higher.second,d);
@@ -70,7 +73,7 @@ public:
     {
         std::string out = "Colormap: \n";
         for (auto c: Colors) {
-            out += (str(c.first) + ": ");
+            out += (str(c.first) + ": ");   
             out += str(c.second);
             out += "\n";
         }
