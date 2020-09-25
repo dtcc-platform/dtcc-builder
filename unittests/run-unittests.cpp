@@ -11,6 +11,7 @@
 #include "Grid.h"
 #include "GridField.h"
 #include "GridVectorField.h"
+#include "JSON.h"
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
@@ -286,5 +287,31 @@ TEST_CASE("COLORMAPS")
     REQUIRE(cm4(0.3).R == Approx(0.3).margin(0.0001));
     REQUIRE(cm4(0.3).G == Approx(0.3).margin(0.0001));
     REQUIRE(cm4(0.3).B == Approx(0.3).margin(0.0001));
+    remove("testmap.png");
+  }
+
+  SECTION("Serialize JSON")
+  {
+    ColorMap cm3;
+    ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
+    JSON::Write(cm3,"testmap.json");
+    ColorMap cm5;
+    JSON::Read(cm5,"testmap.json");
+
+    REQUIRE(cm5.size()==256);
+    
+    REQUIRE(cm5(0).R==Approx(127/255.0).margin(0.0001));
+    REQUIRE(cm5(0).G==Approx(0).margin(0.0001));
+    REQUIRE(cm5(0).B==Approx(0).margin(0.0001));
+
+    REQUIRE(cm5(0.5).R==Approx(121/255.0).margin(0.0001));
+    REQUIRE(cm5(0.5).G==Approx(255/255.0).margin(0.0001));
+    REQUIRE(cm5(0.5).B==Approx(124.5/255.0).margin(0.0001));
+
+    REQUIRE(cm5(1).R==Approx(0).margin(0.0001));
+    REQUIRE(cm5(1).G==Approx(0).margin(0.0001));
+    REQUIRE(cm5(1).B==Approx(127/255.0).margin(0.0001));
+    remove("testmap.json");
+
   }
 }

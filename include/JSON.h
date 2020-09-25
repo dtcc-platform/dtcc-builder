@@ -17,6 +17,8 @@
 #include "GridVectorField.h"
 #include "CityModel.h"
 #include "CityJSON.h"
+#include "Color.h"
+#include "ColorMap.h"
 
 namespace DTCC
 {
@@ -658,6 +660,44 @@ namespace DTCC
       }
 
     }
+
+    static void Serialize(const ColorMap &colorMap, nlohmann::json &json) 
+    {
+      auto jsonColorMap = nlohmann::json::array();
+      json["Type"] = "ColorMap";
+      if (colorMap.mapType == Linear)
+        json["colorMapType"] = "Linear";
+      else
+        json["colorMapType"] = "Discrete";
+      for (const auto c: colorMap.Colors) 
+      {
+        auto jsonColorMapEntry = nlohmann::json::array();
+        jsonColorMapEntry.push_back(c.first);
+        Color cl = c.second;
+        jsonColorMapEntry.push_back(cl.R);
+        jsonColorMapEntry.push_back(cl.G);
+        jsonColorMapEntry.push_back(cl.B);
+        jsonColorMap.push_back(jsonColorMapEntry);
+      }
+      json["map"] = jsonColorMap;
+    }
+
+    static void Deserialize(ColorMap& colorMap, const nlohmann::json& json)
+    {
+      CheckType("ColorMap", json);
+      if (json["colorMapType"] == "Linear")
+        colorMap.mapType = Linear;
+      else
+        colorMap.mapType = Discrete;
+      const auto colorMapEntries = json["map"];
+      for (auto c: colorMapEntries) 
+      {
+        colorMap.InsertColor((double)c[0],Color((double)c[1],(double)c[2],(double)c[3]));
+      }
+
+    }
+
+
 
   };
 
