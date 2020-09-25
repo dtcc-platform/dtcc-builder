@@ -5,12 +5,15 @@
 
 #include "catch.hpp"
 
+#include "Color.h"
+#include "ColorMap.h"
 #include "Grid.h"
 #include "GridField.h"
 #include "GridVectorField.h"
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
+
 
 using namespace DTCC;
 
@@ -211,5 +214,18 @@ TEST_CASE("GridVectorField3D")
     REQUIRE(u(r).x == Approx(f(r).x).margin(0.01));
     REQUIRE(u(r).y == Approx(f(r).y).margin(0.01));
     REQUIRE(u(r).z == Approx(f(r).z).margin(0.01));
+  }
+}
+
+TEST_CASE("COLORMAPS")
+{
+  ColorMap cm;
+  SECTION("Insert")
+  {
+    cm.InsertColor(1,Color(1.0,1.0,1.0));
+    cm.InsertColor(0,Color(0.0,0.0,0.0));
+    REQUIRE(cm.Colors.size() == 2);
+    REQUIRE(cm.Colors.front().first == 0);
+    REQUIRE(cm.Colors.back().first == 1);
   }
 }
