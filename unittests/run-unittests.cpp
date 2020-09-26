@@ -3,14 +3,15 @@
 
 #define CATCH_CONFIG_MAIN
 
-#include "catch.hpp"
-
 #include "Grid.h"
 #include "GridField.h"
 #include "GridVectorField.h"
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
+#include "catch.hpp"
+#include <XMLParser.h>
+#include <nlohmann/json.hpp>
 
 using namespace DTCC;
 
@@ -212,4 +213,10 @@ TEST_CASE("GridVectorField3D")
     REQUIRE(u(r).y == Approx(f(r).y).margin(0.01));
     REQUIRE(u(r).z == Approx(f(r).z).margin(0.01));
   }
+}
+
+TEST_CASE("XMLParser")
+{
+  std::string filePath = "/home/dtcc/core/unittests/XMLExampleFileSimple.xml";
+  nlohmann::json json = XMLParser::GetJsonFromXML(filePath);
 }
