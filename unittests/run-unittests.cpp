@@ -290,6 +290,14 @@ TEST_CASE("COLORMAPS")
     remove("testmap.png");
   }
 
+  SECTION("Read cpt")
+  {
+    ColorMap cm6;
+    ColorMapIO::ReadCPT(cm6,"../unittests/data/inferno.cpt");
+    REQUIRE(cm6.size()==255*2);
+
+  }
+
   SECTION("Serialize JSON")
   {
     ColorMap cm3;
