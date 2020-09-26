@@ -295,6 +295,9 @@ TEST_CASE("COLORMAPS")
     ColorMap cm6;
     ColorMapIO::ReadCPT(cm6,"../unittests/data/inferno.cpt");
     REQUIRE(cm6.size()==255*2);
+    REQUIRE(cm6(125/255.0).R == Approx(183/255.0).margin(0.0001) );
+    REQUIRE(cm6(125/255.0).G == Approx(53/255.0).margin(0.0001) );
+    REQUIRE(cm6(125/255.0).B == Approx(87/255.0).margin(0.0001) );
 
   }
 
