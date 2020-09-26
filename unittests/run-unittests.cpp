@@ -217,6 +217,6 @@ TEST_CASE("GridVectorField3D")
 
 TEST_CASE("XMLParser")
 {
-  std::string filePath = "/home/dtcc/core/unittests/XMLExampleFileSimple.xml";
+  std::string filePath = "./unittests/XMLExampleFileSimple.xml";
   nlohmann::json json = XMLParser::GetJsonFromXML(filePath);
 }
