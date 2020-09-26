@@ -23,7 +23,6 @@ find_package(netCDF REQUIRED)
 find_package(VTK REQUIRED)
 find_package(assimp REQUIRED)
 find_package(PNG REQUIRED)
-
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
 include(${DOLFIN_USE_FILE})
