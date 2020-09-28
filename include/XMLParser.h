@@ -32,9 +32,6 @@ public:
     if (!result)
       PrintError(result, doc, filePath);
 
-    /*simple_walker walker;
-    doc.traverse(walker);*/
-
     ParseNode(doc, json);
 
     std::cout << json.dump(4) << std::endl;
@@ -43,24 +40,6 @@ public:
   }
 
 private:
-  struct simple_walker : pugi::xml_tree_walker
-  {
-    bool for_each(pugi::xml_node &node) override
-    {
-      for (int i = 0; i < depth(); ++i)
-        std::cout << "  "; // indentation
-
-      std::cout << node_types[node.type()] << ": name='" << node.name()
-                << "', value='" << node.value() << "'\n";
-
-      for (pugi::xml_attribute attr : node.attributes())
-      {
-        std::cout << " " << attr.name() << "=" << attr.value();
-      }
-
-      return true; // continue traversal
-    }
-  };
 
   static void ParseNode(pugi::xml_node &node, nlohmann::json &json)
   {
@@ -71,8 +50,27 @@ private:
 
     for (pugi::xml_node child : node.children())
     {
-      json[child.name()] = {};
-      ParseNode(child, json[child.name()]);
+      nlohmann::json jsonChild = {};
+      if (json.count(child.name()) > 0)
+      {
+        ParseNode(child, jsonChild);
+        if (json[child.name()].is_array())
+        {
+          json[child.name()].push_back(jsonChild);
+        }
+        else
+        {
+          std::string jsonString = json[child.name()].dump();
+          nlohmann::json sameNameChild = nlohmann::json::parse(jsonString);
+          json.erase(child.name());
+          json[child.name()] = {jsonChild, sameNameChild};
+        }
+      }
+      else
+      {
+        json[child.name()] = jsonChild;
+        ParseNode(child, json[child.name()]);
+      }
     }
   }
 
