@@ -6,114 +6,75 @@
 #define CORE_XMLPARSER_H
 
 #include "Logging.h"
-#include <boost/lexical_cast.hpp>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <pugixml.hpp>
 #include <string>
 
 namespace DTCC
 {
 
+const char *node_types[] = {"null",  "document", "element", "pcdata",
+                            "cdata", "comment",  "pi",      "declaration"};
+
 class XMLParser
+
 {
+
 public:
-  static nlohmann::json GetJsonFromXML(const std::string &filePath)
+  static nlohmann::json GetJsonFromXML(const char *filePath)
   {
+
     nlohmann::json json;
-    std::ifstream xmlFile;
-    xmlFile.open(filePath);
-    if (!xmlFile.is_open())
-    {
-      Error("Couldn't open " + filePath);
-    }
 
-    Node root;
-    CreateNode(root, xmlFile);
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(filePath);
+    if (!result)
+      PrintError(result, doc, filePath);
 
-    // ParseElement(xmlFile, json);
+    /*simple_walker walker;
+    doc.traverse(walker);*/
+
+    ParseNode(doc, json);
+
+    std::cout << json.dump(4) << std::endl;
 
     return json;
   }
 
 private:
-  static const size_t CHAR_STREAM_SIZE = 1000;
-
-  struct Node
+  struct simple_walker : pugi::xml_tree_walker
   {
-    std::string name;
-    std::string value;
-    std::vector<std::string> children;
+    bool for_each(pugi::xml_node &node) override
+    {
+      for (int i = 0; i < depth(); ++i)
+        std::cout << "  "; // indentation
+
+      std::cout << node_types[node.type()] << ": name='" << node.name()
+                << "', value='" << node.value() << "'\n";
+
+      for (pugi::xml_attribute attr : node.attributes())
+      {
+        std::cout << " " << attr.name() << "=" << attr.value();
+      }
+
+      return true; // continue traversal
+    }
   };
 
-  static std::string GetStartTag(std::istream &istream)
+  static void ParseNode(pugi::xml_node &node, nlohmann::json &json)
   {
-    char charTag[CHAR_STREAM_SIZE];
-    istream.getline(charTag, CHAR_STREAM_SIZE, '>');
-    return std::string(charTag).substr(1);
-  }
-
-  static std::array<int, 2> GetNodeContentPositions(std::istream &istream,
-                                                    const std::string &nodeName)
-  {
-    std::array<int, 2> startEndPos{};
-    startEndPos[0] = istream.tellg();
-    char endTag[CHAR_STREAM_SIZE];
-    while (endTag != nodeName)
+    for (pugi::xml_attribute attr : node.attributes())
     {
-      if (istream.eof())
-        Error("Missing end-tag");
-
-      istream.ignore(CHAR_STREAM_SIZE, '<');
-      if (istream.get() != '/')
-        continue;
-      istream.getline(endTag, CHAR_STREAM_SIZE, '>');
+      InsertJsonValue(attr.name(), attr.value(), json);
     }
 
-    startEndPos[1] =
-        (int)istream.tellg() - nodeName.size() - std::string("</>").size();
-    return startEndPos;
-  }
-
-  static void SetNodeChildren(Node &node,
-                              std::istream &istream,
-                              std::array<int, 2> startEndPos)
-  {
-  }
-
-  static void CreateNode(Node &node, std::istream &istream)
-  {
-    std::string name = GetStartTag(istream);
-    node.name = name;
-    std::array<int, 2> startEndPos = GetNodeContentPositions(istream, name);
-    istream.seekg(startEndPos[0]);
-    if (istream.peek() == '<')
-      SetNodeChildren(node, istream, startEndPos);
-    else
+    for (pugi::xml_node child : node.children())
     {
-      char charValue[CHAR_STREAM_SIZE];
-      istream.getline(charValue, CHAR_STREAM_SIZE, '<');
-      node.value = std::string(charValue);
+      json[child.name()] = {};
+      ParseNode(child, json[child.name()]);
     }
   }
-
-  /*static std::string GetString(std::ifstream &ifstream, char delimiter,
-                               int startIndex)
-  {
-    char *element = new char;
-    ifstream.getline(element, 10000, delimiter);
-    std::string elemStr(element);
-    return elemStr.substr(startIndex, elemStr.size());
-  }
-
-  static std::string ToLowerCase(const std::string& str)
-  {
-    std::string lowStr;
-    for (char i : str)
-    {
-      lowStr += std::tolower(i);
-    }
-    return lowStr;
-  }*/
 
   static void MakeNumericAnalysis(const std::string &value,
                                   bool &isNumeric,
@@ -135,25 +96,40 @@ private:
     hasFraction = numPoints > 0;
   }
 
-  /*static void ParseElement(std::ifstream& ifstream, nlohmann::json& json)
+  static void
+  InsertJsonValue(const char *key, const char *value, nlohmann::json &json)
   {
-    std::string key = GetString(ifstream, '>', 1);
-    std::string value = GetString(ifstream, '<', 0);
-
     bool isNumeric, isNegative, hasFraction;
     MakeNumericAnalysis(value, isNumeric, isNegative, hasFraction);
     if (isNumeric)
     {
-      if (hasFraction) json[key] = std::stod(value);
-      else if (isNegative) json[key] = std::stoi(value);
-      else json[key] = (size_t ) std::stoul(value);
+      if (hasFraction)
+        json[key] = std::stod(value);
+      else if (isNegative)
+        json[key] = std::stoi(value);
+      else
+        json[key] = (size_t)std::stoul(value);
     }
-    else if (ToLowerCase(value) == "true")
+    else if (std::string(value) == "true")
       json[key] = true;
-    else if (ToLowerCase(value) == "false")
+    else if (std::string(value) == "false")
       json[key] = false;
-    else json[key] = value;
-  }*/
+    else
+      json[key] = value;
+  }
+
+  static void PrintError(pugi::xml_parse_result result,
+                         const pugi::xml_document &doc,
+                         const char *path)
+  {
+    std::stringstream ss;
+    ss << "XML [" << path << "] parsed with errors, attr value: ["
+       << doc.child("node").attribute("attr").value() << "]\n";
+    ss << "Error description: " << result.description() << "\n";
+    ss << "Error offset: " << result.offset << " (error at [..."
+       << (path + result.offset) << "]\n\n";
+    Error(ss.str());
+  }
 };
 
 } // namespace DTCC
