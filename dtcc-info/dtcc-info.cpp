@@ -67,6 +67,8 @@ int main(int argc, char *argv[])
       Info<GridVectorField3D>(json);
     else if (typeName == "CityModel")
       Info<CityModel>(json);
+    else if (typeName == "RoadNetwork")
+      Info<Road>(json);
     else
     {
       Error("Unknown JSON type: '" + typeName + "'");
