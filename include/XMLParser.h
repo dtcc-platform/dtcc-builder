@@ -1,6 +1,5 @@
-//
-// Created by Anton J Olsson on 2020-09-25.
-//
+// Copyright (C) 2020 Anton J Olsson
+// Licensed under the MIT License
 
 #ifndef CORE_XMLPARSER_H
 #define CORE_XMLPARSER_H
@@ -14,17 +13,13 @@
 namespace DTCC
 {
 
-const char *node_types[] = {"null",  "document", "element", "pcdata",
-                            "cdata", "comment",  "pi",      "declaration"};
-
 class XMLParser
-
 {
 
 public:
-  static nlohmann::json GetJsonFromXML(const char *filePath)
+  static nlohmann::json GetJsonFromXML(const char *filePath,
+                                       bool includeRoot = false)
   {
-
     nlohmann::json json;
 
     pugi::xml_document doc;
@@ -32,7 +27,14 @@ public:
     if (!result)
       PrintError(result, doc, filePath);
 
-    ParseNode(doc, json);
+    if (!includeRoot && !doc.empty())
+    {
+      pugi::xml_node root;
+      root = doc.first_child();
+      ParseNode(root, json);
+    }
+    else
+      ParseNode(doc, json);
 
     std::cout << json.dump(4) << std::endl;
 
@@ -44,12 +46,15 @@ private:
   static void ParseNode(pugi::xml_node &node, nlohmann::json &json)
   {
     for (pugi::xml_attribute attr : node.attributes())
-    {
       InsertJsonValue(attr.name(), attr.value(), json);
-    }
-
     for (pugi::xml_node child : node.children())
     {
+      if (child.first_attribute() == nullptr && !child.empty() &&
+          child.first_child().type() == pugi::node_pcdata)
+      {
+        InsertJsonValue(child.name(), child.first_child().value(), json);
+        continue;
+      }
       nlohmann::json jsonChild = {};
       if (json.count(child.name()) > 0)
       {
@@ -59,12 +64,7 @@ private:
           json[child.name()].push_back(jsonChild);
         }
         else
-        {
-          std::string jsonString = json[child.name()].dump();
-          nlohmann::json sameNameChild = nlohmann::json::parse(jsonString);
-          json.erase(child.name());
-          json[child.name()] = {jsonChild, sameNameChild};
-        }
+          CreateJsonArray(jsonChild, json, child);
       }
       else
       {
@@ -72,6 +72,16 @@ private:
         ParseNode(child, json[child.name()]);
       }
     }
+  }
+
+  static void CreateJsonArray(nlohmann::json &jsonChild,
+                              nlohmann::json &json,
+                              pugi::xml_node &node)
+  {
+    std::string jsonString = json[node.name()].dump();
+    nlohmann::json sameNameChild = nlohmann::json::parse(jsonString);
+    json.erase(node.name());
+    json[node.name()] = {jsonChild, sameNameChild};
   }
 
   static void MakeNumericAnalysis(const std::string &value,
@@ -88,9 +98,13 @@ private:
       if (value[i] == '.')
         numPoints++;
     }
-    isNumeric =
-        value.find_first_not_of("0123456789.", pos) == std::string::npos &&
-        numPoints < 2;
+    if (value.size() > 1 && value[0] == '0' && value[1] != '.')
+      isNumeric = false;
+    else
+      isNumeric =
+          value.find_first_not_of("0123456789.", pos) == std::string::npos &&
+          numPoints < 2;
+
     hasFraction = numPoints > 0;
   }
 
