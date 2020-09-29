@@ -217,7 +217,29 @@ TEST_CASE("GridVectorField3D")
 
 TEST_CASE("XMLParser")
 {
-  const char *filePath = "/home/dtcc/core/unittests/xml-parser-test-files/"
-                         "XMLExampleFile.xml";
-  nlohmann::json json = XMLParser::GetJsonFromXML(filePath);
+  const std::string ROOT_PATH1 = "/home/dtcc";
+  const std::string ROOT_PATH2 = "/builds/dtcc3d";
+  const std::string FILE1_PATH = "/core/unittests/xml-parser-test-files/"
+                                 "XMLExampleFile1.xml";
+  const std::string FILE2_PATH = "/core/unittests/xml-parser-test-files/"
+                                 "XMLExampleFile2.xml";
+  std::string rootPath = ROOT_PATH1;
+
+  pugi::xml_document doc;
+  std::string file1Path = rootPath + FILE1_PATH;
+  pugi::xml_parse_result result = doc.load_file(file1Path.c_str());
+  if (!result)
+    rootPath = ROOT_PATH2;
+  file1Path = rootPath + FILE1_PATH;
+
+  nlohmann::json json = XMLParser::GetJsonFromXML(file1Path.c_str(), true);
+  REQUIRE(json["city"]["name"] == "Johanneberg");
+
+  json = XMLParser::GetJsonFromXML(file1Path.c_str());
+  REQUIRE(json["test_value"] == 42);
+  REQUIRE(json["geometry"].is_array());
+  REQUIRE(json["geometry"][0]["file_name"] == "Mesh/GroundFine.vtk");
+
+  json = XMLParser::GetJsonFromXML((rootPath + FILE2_PATH).c_str());
+  REQUIRE(json["Test"][0]["TestId"] == "0002");
 }
