@@ -4,6 +4,7 @@
     <number_of_base_cells x="100" y="100" z="40"/>
     <lower_corner x="1500.0" y="-780.0" z="0.0"/>
     <inlet_velocity x="10.0" y="0.0" z="0.0"/>
+    <test_value>42</test_value>
     <geometry file_name = "Mesh/Buildings.vtk">
         <refinement_level value="2"/>
         <refinement_length value="10.0"/> <!-- m -->
