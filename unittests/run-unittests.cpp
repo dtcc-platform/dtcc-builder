@@ -241,8 +241,10 @@ TEST_CASE("XMLParser")
 
   json = XMLParser::GetJsonFromXML((rootPath + FILE2_PATH).c_str());
   REQUIRE(json["Test"][0]["TestId"] == "0001");
-  REQUIRE(json["example1"]["#content"] == 42);
+  REQUIRE(json["example1"]["#content"][0] == 42);
   REQUIRE(json["example1"]["tag"][0] == "Content1");
+  REQUIRE(json["example1"].size() == 2);
+  REQUIRE(json["example1"]["#content"].size() == 2);
   REQUIRE(json["example2"]["#content"] == 37);
   REQUIRE(json["example2"]["x"] == 5);
   REQUIRE(json["example3"] == -26.3);

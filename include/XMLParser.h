@@ -51,10 +51,102 @@ private:
     return n;
   }
 
-  static void ParseNode(pugi::xml_node &node, nlohmann::json &json)
+  static std::vector<pugi::xml_node> GetTextChildren(pugi::xml_node node)
   {
-    for (pugi::xml_attribute attr : node.attributes())
-      InsertJsonValue(attr.name(), attr.value(), json);
+    std::vector<pugi::xml_node> children;
+    for (pugi::xml_node child : node.children())
+    {
+      if (child.type() == pugi::node_pcdata)
+      {
+        children.push_back(child);
+      }
+    }
+    return children;
+  }
+
+  static void ParseNode(pugi::xml_node &xmlNode, nlohmann::json &json)
+  {
+    for (pugi::xml_attribute attr : xmlNode.attributes())
+      FormatAndInsertJson(attr.name(), attr.value(), json);
+    std::map<std::string, int> childNames = GetChildrensNameCount(xmlNode);
+    for (pugi::xml_node xmlChild : xmlNode.children())
+    {
+      nlohmann::json jsonChild = {};
+      if (childNames[xmlChild.name()] > 1)
+        PutNodeInArray(jsonChild, json, xmlChild);
+      else if (xmlChild.type() == pugi::node_pcdata)
+        FormatAndInsertJson("#content", xmlChild.value(), json);
+      else
+      {
+        std::vector<pugi::xml_node> grandTextChildren =
+            GetTextChildren(xmlChild);
+        if (grandTextChildren.size() == 1 && GetNumChildren(xmlChild) == 1 &&
+            xmlChild.first_attribute() == nullptr)
+        {
+          InsertChildAsJson(json, xmlChild, grandTextChildren[0]);
+        }
+        else if (grandTextChildren.size() > 1)
+          PutTextNodesInArray(jsonChild, grandTextChildren, json, xmlChild);
+        else
+        {
+          json[xmlChild.name()] = jsonChild;
+          ParseNode(xmlChild, json[xmlChild.name()]);
+        }
+      }
+    }
+  }
+
+  static void
+  PutTextNodesInArray(nlohmann::json &jsonChild,
+                      const std::vector<pugi::xml_node> &nodeChildren,
+                      nlohmann::json &json,
+                      pugi::xml_node &node)
+  {
+    nlohmann::json arr;
+    for (pugi::xml_node grandChild : nodeChildren)
+    {
+      std::string valueStr(grandChild.value());
+      FormatAndInsertJson(nullptr, valueStr, arr, true);
+    }
+    jsonChild["#content"] = arr;
+    std::string xmlChildName = node.name(); // Delete
+    json[node.name()] = jsonChild;
+    ParseNode(node, json[node.name()]);
+  }
+
+  static int GetNumTextChildren(pugi::xml_node &node)
+  {
+    size_t n = 0;
+    for (auto &child : node)
+      if (child.type() == pugi::node_pcdata)
+        n++;
+    return n;
+  }
+
+  static void PutNodeInArray(nlohmann::json &jsonChild,
+                             nlohmann::json &json,
+                             pugi::xml_node &xmlNode)
+  {
+    if (std::string(xmlNode.name()).empty())
+      return;
+    bool hasOnlyTextChildren =
+        (GetNumChildren(xmlNode) == GetNumTextChildren(xmlNode));
+    if (!hasOnlyTextChildren)
+      ParseNode(xmlNode, jsonChild);
+    if (json[xmlNode.name()].is_array())
+      json[xmlNode.name()].push_back(
+          hasOnlyTextChildren ? xmlNode.first_child().value() : jsonChild);
+    else
+    {
+      std::string childName = xmlNode.name();
+      json[xmlNode.name()] = {
+          hasOnlyTextChildren ? xmlNode.first_child().value() : jsonChild};
+    }
+  }
+
+  static std::map<std::string, int>
+  GetChildrensNameCount(const pugi::xml_node &node)
+  {
     std::map<std::string, int> childNames;
     for (pugi::xml_node child : node.children())
     {
@@ -63,43 +155,7 @@ private:
       else
         childNames[child.name()]++;
     }
-    for (pugi::xml_node child : node.children())
-    {
-      nlohmann::json jsonChild = {};
-      if (childNames[child.name()] > 1)
-      {
-        bool textChild = (GetNumChildren(child) == 1);
-        if (!textChild)
-          ParseNode(child, jsonChild);
-        if (json[child.name()].is_array())
-        {
-          json[child.name()].push_back(textChild ? child.first_child().value()
-                                                 : jsonChild);
-        }
-        else
-          json[child.name()] = {textChild ? child.first_child().value()
-                                          : jsonChild};
-        continue;
-      }
-      if (child.type() == pugi::node_pcdata)
-      {
-        InsertJsonValue("#content", child.value(), json);
-        continue;
-      }
-      pugi::xml_node grandTextChild = GetTextChild(json, child);
-      if (grandTextChild != child && GetNumChildren(child) == 1 &&
-          child.first_attribute() == nullptr)
-      {
-        std::string grandTextChildName = grandTextChild.value();
-        InsertChildAsJson(json, child, grandTextChild);
-        continue;
-      }
-      else
-      {
-        json[child.name()] = jsonChild;
-        ParseNode(child, json[child.name()]);
-      }
-    }
+    return childNames;
   }
 
   static void InsertChildAsJson(nlohmann::json &json,
@@ -107,29 +163,7 @@ private:
                                 pugi::xml_node &child)
   {
     node.remove_child(child);
-    InsertJsonValue(node.name(), child.value(), json);
-  }
-
-  static pugi::xml_node GetTextChild(nlohmann::json &json, pugi::xml_node &node)
-  {
-    for (pugi::xml_node child : node.children())
-    {
-      if (child.type() == pugi::node_pcdata)
-      {
-        return child;
-      }
-    }
-    return node;
-  }
-
-  static void CreateJsonArray(nlohmann::json &jsonChild,
-                              nlohmann::json &json,
-                              pugi::xml_node &node)
-  {
-    std::string jsonString = json[node.name()].dump();
-    nlohmann::json sameNameChild = nlohmann::json::parse(jsonString);
-    json.erase(node.name());
-    json[node.name()] = {jsonChild, sameNameChild};
+    FormatAndInsertJson(node.name(), child.value(), json);
   }
 
   static void MakeNumericAnalysis(const std::string &value,
@@ -162,8 +196,22 @@ private:
     value.erase(value.find_last_not_of(" \n\r\t") + 1);
   }
 
-  static void
-  InsertJsonValue(const char *key, std::string value, nlohmann::json &json)
+  template <typename T>
+  static void InsertJsonValue(const char *key,
+                              T value,
+                              nlohmann::json &json,
+                              bool jsonIsArray)
+  {
+    if (jsonIsArray)
+      json.push_back(value);
+    else
+      json[key] = value;
+  }
+
+  static void FormatAndInsertJson(const char *key,
+                                  std::string value,
+                                  nlohmann::json &json,
+                                  bool jsonIsArray = false)
   {
     StripWhitespace(value);
     bool isNumeric, isNegative, hasFraction;
@@ -171,18 +219,18 @@ private:
     if (isNumeric)
     {
       if (hasFraction)
-        json[key] = std::stod(value);
+        InsertJsonValue(key, std::stod(value), json, jsonIsArray);
       else if (isNegative)
-        json[key] = std::stoi(value);
+        InsertJsonValue(key, std::stoi(value), json, jsonIsArray);
       else
-        json[key] = (size_t)std::stoul(value);
+        InsertJsonValue(key, std::stoul(value), json, jsonIsArray);
     }
     else if (std::string(value) == "true")
-      json[key] = true;
+      InsertJsonValue(key, true, json, jsonIsArray);
     else if (std::string(value) == "false")
-      json[key] = false;
+      InsertJsonValue(key, false, json, jsonIsArray);
     else
-      json[key] = value;
+      InsertJsonValue(key, value, json, jsonIsArray);
   }
 
   static void PrintError(pugi::xml_parse_result result,

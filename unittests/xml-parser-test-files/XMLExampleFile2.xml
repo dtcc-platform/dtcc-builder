@@ -4,6 +4,7 @@
         <tag>Content1</tag>
         42
         <tag>Content2</tag>
+        89
     </example1>
     <example2 x="5">37</example2>
     <example3>-26.3</example3>
