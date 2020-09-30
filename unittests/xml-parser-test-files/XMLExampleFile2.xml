@@ -1,5 +1,13 @@
 <?xml version="1.0"?>
 <Tests xmlns="http://www.adatum.com">
+    <example1>
+        <tag>Content1</tag>
+        42
+        <tag>Content2</tag>
+    </example1>
+    <example2 x="5">37</example2>
+    <example3>-26.3</example3>
+    <example4></example4>
     <Test TestId="0001" TestType="CMD">
         <Name>Convert number to string</Name>
         <CommandLine>Examp1.EXE</CommandLine>

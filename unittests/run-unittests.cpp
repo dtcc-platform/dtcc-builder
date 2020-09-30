@@ -226,20 +226,24 @@ TEST_CASE("XMLParser")
   std::string rootPath = ROOT_PATH1;
 
   pugi::xml_document doc;
-  std::string file1Path = rootPath + FILE1_PATH;
-  pugi::xml_parse_result result = doc.load_file(file1Path.c_str());
+  std::string filePath = rootPath + FILE1_PATH;
+  pugi::xml_parse_result result = doc.load_file(filePath.c_str());
   if (!result)
     rootPath = ROOT_PATH2;
-  file1Path = rootPath + FILE1_PATH;
+  filePath = rootPath + FILE1_PATH;
 
-  nlohmann::json json = XMLParser::GetJsonFromXML(file1Path.c_str(), true);
+  nlohmann::json json = XMLParser::GetJsonFromXML(filePath.c_str(), true);
   REQUIRE(json["city"]["name"] == "Johanneberg");
 
-  json = XMLParser::GetJsonFromXML(file1Path.c_str());
-  REQUIRE(json["test_value"] == 42);
+  json = XMLParser::GetJsonFromXML(filePath.c_str());
   REQUIRE(json["geometry"].is_array());
-  REQUIRE(json["geometry"][0]["file_name"] == "Mesh/GroundFine.vtk");
+  REQUIRE(json["geometry"][0]["file_name"] == "Mesh/Buildings.vtk");
 
   json = XMLParser::GetJsonFromXML((rootPath + FILE2_PATH).c_str());
-  REQUIRE(json["Test"][0]["TestId"] == "0002");
+  REQUIRE(json["Test"][0]["TestId"] == "0001");
+  REQUIRE(json["example1"]["#content"] == 42);
+  REQUIRE(json["example1"]["tag"][0] == "Content1");
+  REQUIRE(json["example2"]["#content"] == 37);
+  REQUIRE(json["example2"]["x"] == 5);
+  REQUIRE(json["example3"] == -26.3);
 }
