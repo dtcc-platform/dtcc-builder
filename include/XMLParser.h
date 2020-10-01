@@ -17,12 +17,10 @@ class XMLParser
 {
 
 public:
-
   static nlohmann::json GetJsonFromXML(const char *filePath,
                                        bool includeRoot = false)
   {
     nlohmann::json json;
-
     pugi::xml_document doc;
 
     pugi::xml_parse_result result = doc.load_file(filePath);
@@ -37,8 +35,6 @@ public:
     }
     else
       ParseNode(doc, json);
-
-    std::cout << json.dump(4) << std::endl;
 
     return json;
   }
@@ -103,13 +99,14 @@ private:
 
   static void OnSameNameChildren(nlohmann::json &jsonChild,
                                  nlohmann::json &json,
-                                 pugi::xml_node &xmlChild)
+                                 pugi::xml_node &xmlNode)
   {
     bool hasOnlyTextChildren =
-        (GetNumOfChildren(xmlChild) == GetNumTextChildren(xmlChild));
+        (GetNumOfChildren(xmlNode) == GetNumTextChildren(xmlNode) &&
+         xmlNode.first_attribute() == nullptr);
     if (!hasOnlyTextChildren)
-      ParseNode(xmlChild, jsonChild);
-    PutNodeInArray(jsonChild, json, xmlChild, hasOnlyTextChildren);
+      ParseNode(xmlNode, jsonChild);
+    PutNodeInArray(jsonChild, json, xmlNode, hasOnlyTextChildren);
   }
 
   static void
@@ -167,9 +164,9 @@ private:
   }
 
   static void InsertAsJsonAndRemove(nlohmann::json &json,
-                                pugi::xml_node &node,
-                                pugi::xml_node &child,
-                                bool insertInArray = false)
+                                    pugi::xml_node &node,
+                                    pugi::xml_node &child,
+                                    bool insertInArray = false)
   {
     node.remove_child(child);
     FormatAndInsertJson(node.name(), child.value(), json, insertInArray);
