@@ -13,10 +13,20 @@
 namespace DTCC
 {
 
+/// Class for reading an XML file and returning the data as a JSON object, with
+/// inferred and formatted JSON data types.
 class XMLParser
 {
 
 public:
+  /// Return JSON object given an XML file. Root XML node can be excluded, as
+  /// this creates yet another level of nesting and is often obvious from
+  /// object/file name.
+  ///
+  /// \param filePath Path to the XML file
+  /// \param includeRoot Whether the root node should be included in the JSON
+  /// object or not
+  /// \return File contents as a JSON object
   static nlohmann::json GetJsonFromXML(const char *filePath,
                                        bool includeRoot = false)
   {
@@ -40,38 +50,35 @@ public:
   }
 
 private:
-  static int GetNumOfChildren(pugi::xml_node &node)
-  {
-    size_t n = 0;
-    for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it)
-      n++;
-    return n;
-  }
-
+  /// Get all children of XML node that have values (i.e. text).
+  ///
+  /// \param node Node to get children from
+  /// \return A vector with children of type node_pcdata
   static std::vector<pugi::xml_node> GetTextChildren(pugi::xml_node node)
   {
     std::vector<pugi::xml_node> children;
     for (pugi::xml_node child : node.children())
-    {
       if (child.type() == pugi::node_pcdata)
-      {
         children.push_back(child);
-      }
-    }
     return children;
   }
 
+  /// Recursively insert XML node's content into JSON object.
+  ///
+  /// \param xmlNode The node whose content will be parsed and inserted
+  /// \param json The JSON object to insert the content into
   static void ParseNode(pugi::xml_node &xmlNode, nlohmann::json &json)
   {
+    // Add all xmlNode's attributes to json
     for (pugi::xml_attribute attr : xmlNode.attributes())
       FormatAndInsertJson(attr.name(), attr.value(), json);
     std::map<std::string, int> childNames = GetChildrensNameCount(xmlNode);
     for (pugi::xml_node xmlChild : xmlNode.children())
     {
       nlohmann::json jsonChild = {};
-      // Handle multiple child elements with same name
+      // Handle multiple child nodes with same name
       if (childNames[xmlChild.name()] > 1)
-        OnSameNameChildren(jsonChild, json, xmlChild);
+        PutSameNameNodeInArray(jsonChild, json, xmlChild);
       // Handle element with attributes and text child
       else if (xmlChild.type() == pugi::node_pcdata)
         FormatAndInsertJson("#content", xmlChild.value(), json);
@@ -79,17 +86,17 @@ private:
       {
         std::vector<pugi::xml_node> grandTextChildren =
             GetTextChildren(xmlChild);
-        // Base case of element of unique type and text node as only child
-        if (grandTextChildren.size() == 1 && GetNumOfChildren(xmlChild) == 1 &&
+        // Base case of node with unique name and text node as only child
+        if (grandTextChildren.size() == 1 && GetNumChildren(xmlChild) == 1 &&
             xmlChild.first_attribute() == nullptr)
         {
           InsertAsJsonAndRemove(json, xmlChild, grandTextChildren[0], false);
         }
         else
         {
-          // Handle multiple text nodes in element
+          // Handle multiple text nodes in node
           if (grandTextChildren.size() > 1)
-            PutTextNodesInArray(jsonChild, grandTextChildren, json, xmlChild);
+            PutTextNodesInArray(jsonChild, grandTextChildren, xmlChild);
           json[xmlChild.name()] = jsonChild;
           ParseNode(xmlChild, json[xmlChild.name()]);
         }
@@ -97,58 +104,65 @@ private:
     }
   }
 
-  static void OnSameNameChildren(nlohmann::json &jsonChild,
-                                 nlohmann::json &json,
-                                 pugi::xml_node &xmlNode)
+  /// If node has just one (text) child and no attributes, put text into array
+  /// (create array first if it doesn't exist). Otherwise, parse node and put
+  /// jsonChild with its content in the array.
+  ///
+  /// \param jsonChild JSON object on same level as xmlNode
+  /// \param json jsonChild's parent
+  /// \param xmlNode Child with same name as at least one sibling
+  static void PutSameNameNodeInArray(nlohmann::json &jsonChild,
+                                     nlohmann::json &json,
+                                     pugi::xml_node &xmlNode)
   {
-    bool hasOnlyTextChildren =
-        (GetNumOfChildren(xmlNode) == GetNumTextChildren(xmlNode) &&
-         xmlNode.first_attribute() == nullptr);
-    if (!hasOnlyTextChildren)
+    bool hasJustOneValue =
+        GetNumChildren(xmlNode) == 1 && xmlNode.first_attribute() == nullptr;
+    if (!hasJustOneValue)
       ParseNode(xmlNode, jsonChild);
-    PutNodeInArray(jsonChild, json, xmlNode, hasOnlyTextChildren);
+    if (json[xmlNode.name()].is_array())
+      json[xmlNode.name()].push_back(
+          hasJustOneValue ? xmlNode.first_child().value() : jsonChild);
+    else
+      json[xmlNode.name()] = {hasJustOneValue ? xmlNode.first_child().value()
+                                              : jsonChild};
   }
 
+  /// Put all children (text nodes) of XML node into JSON array, remove the
+  /// children from node and insert array into JSON object.
+  ///
+  /// \param json The JSON object to insert the array into
+  /// \param nodeChildren The nodes to insert in the array
+  /// \param node The node whose children are to be inserted in the array
   static void
-  PutTextNodesInArray(nlohmann::json &jsonChild,
+  PutTextNodesInArray(nlohmann::json &json,
                       const std::vector<pugi::xml_node> &nodeChildren,
-                      nlohmann::json &json,
                       pugi::xml_node &node)
   {
-    nlohmann::json arr;
-    for (pugi::xml_node grandChild : nodeChildren)
+    nlohmann::json array;
+    for (pugi::xml_node child : nodeChildren)
     {
-      std::string valueStr(grandChild.value());
-      InsertAsJsonAndRemove(arr, node, grandChild, true);
+      std::string valueStr(child.value());
+      InsertAsJsonAndRemove(array, node, child, true);
     }
-    jsonChild["#content"] = arr;
+    json["#content"] = array;
   }
 
-  static int GetNumTextChildren(pugi::xml_node &node)
+  /// Get number of children of XML node.
+  ///
+  /// \param node The XML node
+  /// \return The number of children
+  static int GetNumChildren(pugi::xml_node &node)
   {
     size_t n = 0;
-    for (auto &child : node)
-      if (child.type() == pugi::node_pcdata)
-        n++;
+    for (auto it = node.begin(); it != node.end(); it++)
+      n++;
     return n;
   }
 
-  static void PutNodeInArray(nlohmann::json &jsonChild,
-                             nlohmann::json &json,
-                             pugi::xml_node &xmlNode,
-                             bool hasOnlyTextChildren)
-  {
-    if (json[xmlNode.name()].is_array())
-      json[xmlNode.name()].push_back(
-          hasOnlyTextChildren ? xmlNode.first_child().value() : jsonChild);
-    else
-    {
-      std::string childName = xmlNode.name();
-      json[xmlNode.name()] = {
-          hasOnlyTextChildren ? xmlNode.first_child().value() : jsonChild};
-    }
-  }
-
+  /// Get the name frequency of a node's children.
+  ///
+  /// \param node The node whose children's names will be counted
+  /// \return A map containing all child names and their frequency
   static std::map<std::string, int>
   GetChildrensNameCount(const pugi::xml_node &node)
   {
@@ -163,6 +177,14 @@ private:
     return childNames;
   }
 
+  /// Insert an XML child node into a JSON object/array and then remove the
+  /// child node from its parent.
+  ///
+  /// \param json The JSON to insert the child node into
+  /// \param node The parent node
+  /// \param child The node to insert and remove
+  /// \param insertInArray Whether the node should be inserted into a JSON array
+  /// or object.
   static void InsertAsJsonAndRemove(nlohmann::json &json,
                                     pugi::xml_node &node,
                                     pugi::xml_node &child,
@@ -172,6 +194,14 @@ private:
     FormatAndInsertJson(node.name(), child.value(), json, insertInArray);
   }
 
+  /// Determine whether a string is a number and if so, whether it's negative
+  /// and/or has a fraction.
+  ///
+  /// \param value The string to analyze
+  /// \param isNumeric Will be set true if the string is a number
+  /// \param isNegative Will be set true if the string starts with '-'
+  /// \param hasFraction Will be set true if the string has at least one decimal
+  /// point
   static void MakeNumericAnalysis(const std::string &value,
                                   bool &isNumeric,
                                   bool &isNegative,
@@ -196,12 +226,23 @@ private:
     hasFraction = numPoints > 0;
   }
 
-  static void StripWhitespace(std::string &value)
+  /// Remove leading and trailing whitespace, newline and tab characters.
+  /// Could be moved to Utils.h.
+  ///
+  /// \param string The string to trim
+  static void TrimString(std::string &string)
   {
-    value.erase(0, value.find_first_not_of(" \n\r\t"));
-    value.erase(value.find_last_not_of(" \n\r\t") + 1);
+    string.erase(0, string.find_first_not_of(" \n\r\t"));
+    string.erase(string.find_last_not_of(" \n\r\t") + 1);
   }
 
+  /// Insert a value into a JSON object or array.
+  ///
+  /// \tparam T The type of JSON value to insert
+  /// \param key The value's key (null if jsonIsArray)
+  /// \param value The value to insert
+  /// \param json The JSON object or array to insert value into
+  /// \param jsonIsArray Whether json is an array or object
   template <typename T>
   static void InsertJsonValue(const char *key,
                               T value,
@@ -214,12 +255,19 @@ private:
       json[key] = value;
   }
 
+  /// Trim value string, determine its JSON type, format and insert it
+  /// into a JSON object/array.
+  ///
+  /// \param key The key of the value
+  /// \param value The non-formatted JSON value
+  /// \param json The JSON object/array
+  /// \param jsonIsArray Whether json is an array or object
   static void FormatAndInsertJson(const char *key,
                                   std::string value,
                                   nlohmann::json &json,
                                   bool jsonIsArray = false)
   {
-    StripWhitespace(value);
+    TrimString(value);
     bool isNumeric, isNegative, hasFraction;
     MakeNumericAnalysis(value, isNumeric, isNegative, hasFraction);
     if (isNumeric)
@@ -239,6 +287,11 @@ private:
       InsertJsonValue(key, value, json, jsonIsArray);
   }
 
+  /// Print an error message if there was an error when parsing the XML.
+  ///
+  /// \param result Details of the parsing result
+  /// \param doc The xml_document that tried to parse the file
+  /// \param path The XML file path
   static void PrintError(pugi::xml_parse_result result,
                          const pugi::xml_document &doc,
                          const char *path)
