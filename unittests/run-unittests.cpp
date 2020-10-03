@@ -217,17 +217,17 @@ TEST_CASE("GridVectorField3D")
 
 TEST_CASE("XMLParser")
 {
-  const std::string ROOT_PATH1 =
+  const std::string RootPath1 =
       "/home/dtcc/core/unittests/xml-parser-test-files/";
-  const std::string ROOT_PATH2 =
+  const std::string RootPath2 =
       "/builds/dtcc3d/core/unittests/xml-parser-test-files/";
-  std::string rootPath = ROOT_PATH1;
+  std::string rootPath = RootPath1;
 
   pugi::xml_document doc;
   std::string filePath = rootPath + "XMLExampleFile1.xml";
   pugi::xml_parse_result result = doc.load_file(filePath.c_str());
   if (!result)
-    rootPath = ROOT_PATH2;
+    rootPath = RootPath2;
   filePath = rootPath + "XMLExampleFile1.xml";
 
   nlohmann::json json = XMLParser::GetJsonFromXML(filePath.c_str(), true);
@@ -247,6 +247,8 @@ TEST_CASE("XMLParser")
   REQUIRE(json["example2"]["x"] == 5);
   REQUIRE(json["example3"] == -26.3);
 
-  json = XMLParser::GetJsonFromXML((rootPath + "XMLExampleFile3.xml").c_str());
+  json = XMLParser::GetJsonFromXML((rootPath + "XMLExampleFile3.xml").c_str(),
+                                   false);
   REQUIRE(json["item"]["batters"]["batter"][0]["id"] == 1001);
+  REQUIRE(json["item"]["topping"][5]["#content"] == "Maple");
 }
