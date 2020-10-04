@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     libproj-dev \
     libtriangle-dev \
     libnetcdf-c++4-dev \
+    libpng++-dev \
     clang-format \
     clang-tidy \
     doxygen graphviz\
