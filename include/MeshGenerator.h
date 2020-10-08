@@ -562,12 +562,12 @@ namespace DTCC
       for (auto const &building : cityModel.Buildings)
       {
         // Generate 2D mesh of building footprint
-        Mesh2D mesh2D;
-        CallTriangle(mesh2D, building.Footprint.Vertices, subDomains,
+        Mesh2D _mesh2D;
+        CallTriangle(_mesh2D, building.Footprint.Vertices, subDomains,
                      resolution);
 
         // Create empty 3D surface
-        Surface3D surface3D;
+        Surface3D _surface3D;
 
         // Note: The generated 2D mesh contains all the input boundary
         // points with the same numbers as in the footprint polygon, but
@@ -579,34 +579,34 @@ namespace DTCC
         const double buildingHeight = building.Height;
 
         // Set total number of points
-        const size_t numMeshPoints = mesh2D.Vertices.size();
+        const size_t numMeshPoints = _mesh2D.Vertices.size();
         const size_t numBoundaryPoints = building.Footprint.Vertices.size();
-        surface3D.Vertices.resize(numMeshPoints + numBoundaryPoints);
+        _surface3D.Vertices.resize(numMeshPoints + numBoundaryPoints);
 
         // Set total number of triangles
-        const size_t numMeshTriangles = mesh2D.Cells.size();
+        const size_t numMeshTriangles = _mesh2D.Cells.size();
         const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
-        surface3D.Cells.resize(numMeshTriangles + numBoundaryTriangles);
+        _surface3D.Cells.resize(numMeshTriangles + numBoundaryTriangles);
 
         // Add points at top
         for (size_t i = 0; i < numMeshPoints; i++)
         {
-          const Point2D &p2D = mesh2D.Vertices[i];
+          const Point2D &p2D = _mesh2D.Vertices[i];
           const Vector3D p3D(p2D.x, p2D.y, buildingHeight);
-          surface3D.Vertices[i] = p3D;
+          _surface3D.Vertices[i] = p3D;
         }
 
         // Add points at bottom
         for (size_t i = 0; i < numBoundaryPoints; i++)
         {
-          const Point2D &p2D = mesh2D.Vertices[i];
+          const Point2D &p2D = _mesh2D.Vertices[i];
           const Vector3D p3D(p2D.x, p2D.y, groundHeight);
-          surface3D.Vertices[numMeshPoints + i] = p3D;
+          _surface3D.Vertices[numMeshPoints + i] = p3D;
         }
 
         // Add triangles on top
         for (size_t i = 0; i < numMeshTriangles; i++)
-          surface3D.Cells[i] = mesh2D.Cells[i];
+          _surface3D.Cells[i] = _mesh2D.Cells[i];
 
         // Add triangles on boundary
         for (size_t i = 0; i < numBoundaryPoints; i++)
@@ -617,12 +617,12 @@ namespace DTCC
           const size_t v3 = v1 + numMeshPoints;
           Simplex2D t0(v0, v2, v1); // Outward-pointing normal
           Simplex2D t1(v1, v2, v3); // Outward-pointing normal
-          surface3D.Cells[numMeshTriangles + 2 * i] = t0;
-          surface3D.Cells[numMeshTriangles + 2 * i + 1] = t1;
+          _surface3D.Cells[numMeshTriangles + 2 * i] = t0;
+          _surface3D.Cells[numMeshTriangles + 2 * i + 1] = t1;
         }
 
         // Add surface
-        surfaces.push_back(surface3D);
+        surfaces.push_back(_surface3D);
       }
 
       return surfaces;
