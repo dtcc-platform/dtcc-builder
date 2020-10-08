@@ -50,12 +50,12 @@ public:
 
     // Open directory
     DIR *dirp = opendir(directory.c_str());
-    if (dirp == NULL)
+    if (dirp == nullptr)
       return fileNames;
 
     // Read directory
     struct dirent *dp;
-    while ((dp = readdir(dirp)) != NULL)
+    while ((dp = readdir(dirp)) != nullptr)
       fileNames.push_back(std::string(dp->d_name));
 
     // Close directorys

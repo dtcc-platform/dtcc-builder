@@ -46,7 +46,7 @@ public:
     double y = p.y;
 
     // Compute transformation
-    pj_transform(pjU, pjV, 1, 1, &x, &y, NULL);
+    pj_transform(pjU, pjV, 1, 1, &x, &y, nullptr);
 
     // Set output coordinates
     Vector2D q(x, y);

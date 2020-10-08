@@ -781,29 +781,29 @@ namespace DTCC
     {
       struct triangulateio io;
 
-      io.pointlist = 0;
-      io.pointmarkerlist = 0;
-      io.pointmarkerlist = 0;
-      io.numberofpoints = 0;
-      io.numberofpointattributes = 0;
-      io.trianglelist = 0;
-      io.triangleattributelist = 0;
-      io.trianglearealist = 0;
-      io.neighborlist = 0;
-      io.numberoftriangles = 0;
-      io.numberofcorners = 0;
+      io.pointlist                  = nullptr;
+      io.pointmarkerlist            = nullptr;
+      io.pointmarkerlist            = nullptr;
+      io.numberofpoints             = 0;
+      io.numberofpointattributes    = 0;
+      io.trianglelist               = nullptr;
+      io.triangleattributelist      = nullptr;
+      io.trianglearealist           = nullptr;
+      io.neighborlist               = nullptr;
+      io.numberoftriangles          = 0;
+      io.numberofcorners            = 0;
       io.numberoftriangleattributes = 0;
-      io.segmentlist = 0;
-      io.segmentmarkerlist = 0;
-      io.numberofsegments = 0;
-      io.holelist = 0;
-      io.numberofholes = 0;
-      io.regionlist = 0;
-      io.numberofregions = 0;
-      io.edgelist = 0;
-      io.edgemarkerlist = 0;
-      io.normlist = 0;
-      io.numberofedges = 0;
+      io.segmentlist                = nullptr;
+      io.segmentmarkerlist          = nullptr;
+      io.numberofsegments           = 0;
+      io.holelist                   = nullptr;
+      io.numberofholes              = 0;
+      io.regionlist                 = nullptr;
+      io.numberofregions            = 0;
+      io.edgelist                   = nullptr;
+      io.edgemarkerlist             = nullptr;
+      io.normlist                   = nullptr;
+      io.numberofedges              = 0;
 
       return io;
     }

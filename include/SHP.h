@@ -29,7 +29,7 @@ public:
 
     // Get info
     int numEntities, shapeType;
-    SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
+    SHPGetInfo(handle, &numEntities, &shapeType, nullptr, nullptr);
     Info("SHP: " + str(numEntities) + " entities");
     switch (shapeType)
     {
