@@ -78,8 +78,8 @@ namespace DTCC
     {
       const size_t ix = i % XSize;
       const size_t iy = i / XSize;
-      return Point2D(BoundingBox.P.x + ix * XStep,
-                     BoundingBox.P.y + iy * YStep);
+      return {BoundingBox.P.x + ix * XStep,
+                     BoundingBox.P.y + iy * YStep};
     }
 
     /// Map vertex index to (at most) 4 neighoring vertex indices.
@@ -256,9 +256,9 @@ namespace DTCC
       const size_t ix = i % XSize;
       const size_t iy = (i / XSize) % YSize;
       const size_t iz = i / (XSize * YSize);
-      return Point3D(BoundingBox.P.x + ix * XStep,
+      return {BoundingBox.P.x + ix * XStep,
                      BoundingBox.P.y + iy * YStep,
-                     BoundingBox.P.z + iz * ZStep);
+                     BoundingBox.P.z + iz * ZStep};
     }
 
     /// Map point to index of closest vertex.

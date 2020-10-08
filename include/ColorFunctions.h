@@ -25,7 +25,7 @@ public:
     r = c1.R*(1-d)+c2.R*(d);
     g = c1.G*(1-d)+c2.G*(d);
     b = c1.B*(1-d)+c2.B*(d);
-    return Color(r,g,b);
+    return {r,g,b};
   }
 };
 

@@ -238,7 +238,7 @@ namespace DTCC
   /// @return Translated point
   Point2D operator+(const Point2D &p, const Vector2D &v)
   {
-    return Point2D(p.x + v.x, p.y + v.y);
+    return {p.x + v.x, p.y + v.y};
   }
 
   /// Translate point by negative of given vector.
@@ -248,7 +248,7 @@ namespace DTCC
   /// @return Translated point
   Point2D operator-(const Point2D &p, const Vector2D &v)
   {
-    return Point2D(p.x - v.x, p.y - v.y);
+    return {p.x - v.x, p.y - v.y};
   }
 
   /// Translate point by given vector.
@@ -282,7 +282,7 @@ namespace DTCC
   /// @return Translated point
   Point3D operator+(const Point3D &p, const Vector3D &v)
   {
-    return Point3D(p.x + v.x, p.y + v.y, p.z + v.z);
+    return {p.x + v.x, p.y + v.y, p.z + v.z};
   }
 
   /// Translate point by negative of given vector.
@@ -292,7 +292,7 @@ namespace DTCC
   /// @return Translated point
   Point3D operator-(const Point3D &p, const Vector3D &v)
   {
-    return Point3D(p.x - v.x, p.y - v.y, p.z - v.z);
+    return {p.x - v.x, p.y - v.y, p.z - v.z};
   }
 
   /// Translate point by given vector.
