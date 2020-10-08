@@ -8,6 +8,7 @@
 #include <iostream>
 #include <liblas/liblas.hpp>
 #include <string>
+#include <utility>
 
 #include "Color.h"
 #include "BoundingBox.h"
@@ -46,7 +47,7 @@ public:
   {
     std::vector<liblas::FilterPtr> filters;
     filters.push_back(MakeClassFilter(classifications));
-    _Read(pointCloud, fileName, filters);
+    _Read(pointCloud, std::move(fileName), filters);
   }
 
   // Read point cloud from LAS file only if they have the defined classification and are within the BoundingBox

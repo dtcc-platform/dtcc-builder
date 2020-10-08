@@ -19,8 +19,8 @@ public:
   /// Create timer. By default the clock starts when the timer
   /// is constructed and the elapsed time is reported when timer
   /// goes out of scope.
-  Timer(std::string name, bool autoStart = true)
-      : Name(name), autoStart(autoStart)
+  explicit Timer(std::string name, bool autoStart = true)
+      : Name(std::move(name)), autoStart(autoStart)
   {
     if (autoStart)
       Start();
