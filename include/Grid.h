@@ -117,7 +117,7 @@ namespace DTCC
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Point2D& p)
+    size_t Point2Index(const Point2D& p) const
     {
       const double _x = p.x - BoundingBox.P.x;
       const double _y = p.y - BoundingBox.P.y;
@@ -265,7 +265,7 @@ namespace DTCC
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Point3D& p)
+    size_t Point2Index(const Point3D& p) const
     {
       const double _x = p.x - BoundingBox.P.x;
       const double _y = p.y - BoundingBox.P.y;

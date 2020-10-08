@@ -65,7 +65,7 @@ public:
   }
 
   // Print elapsed time
-  void Print()
+  void Print() const
   {
     Info("Elapsed time (CPU): " + str(Time()) + " (" + Name + ")");
   }
