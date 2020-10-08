@@ -21,7 +21,7 @@ class OSM
 {
 public:
   // Read polygons from OSM file
-  static void Read(std::vector<Polygon> polygons, std::string fileName)
+  static void Read(std::vector<Polygon> polygons, const std::string& fileName)
   {
     Info("OSM: Reading polygons from file " + fileName);
 

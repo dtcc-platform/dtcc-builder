@@ -71,7 +71,7 @@ public:
   }
 
   // Print report (summary of all timers)
-  static void Report(std::string title)
+  static void Report(const std::string& title)
   {
     // Create columns
     std::vector<std::vector<std::string>> cols(4);

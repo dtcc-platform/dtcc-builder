@@ -23,7 +23,7 @@ public:
   // Read point cloud from LAS file. Note that points will be added
   // to the given point cloud, enabling reading data from several
   // LAS files into the same point cloud.
-  static void Read(PointCloud &pointCloud, std::string fileName)
+  static void Read(PointCloud &pointCloud, const std::string& fileName)
   {
     Info(str("LAS: ") + str("Reading point cloud from file ") + fileName);
     std::vector<liblas::FilterPtr> filters;
@@ -31,7 +31,7 @@ public:
   }
 
   // Read point cloud from LAS file only if they are within the BoundingBox
-  static void Read(PointCloud &pointCloud, std::string fileName, BoundingBox2D bbox )
+  static void Read(PointCloud &pointCloud, const std::string& fileName, const BoundingBox2D& bbox )
   {
     Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
 
@@ -50,7 +50,7 @@ public:
   }
 
   // Read point cloud from LAS file only if they have the defined classification and are within the BoundingBox
-  static void Read(PointCloud &pointCloud, std::string fileName, const std::vector<int> &classifications,BoundingBox2D bbox) 
+  static void Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<int> &classifications, const BoundingBox2D& bbox)
   {
     Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
 
@@ -61,7 +61,7 @@ public:
     _Read(pointCloud, fileName, filters);
   }
 
-  static void Write(const PointCloud &pointCloud, std::string fileName) {
+  static void Write(const PointCloud &pointCloud, const std::string& fileName) {
     Info("LAS: Writing " + str(pointCloud.Points.size()) + " points to " + fileName);
 
     std::ofstream ofs;
@@ -106,7 +106,7 @@ private:
     return class_filter;
   }
 
-  static liblas::FilterPtr MakeBoundsFilter(BoundingBox2D bbox)
+  static liblas::FilterPtr MakeBoundsFilter(const BoundingBox2D& bbox)
   {
     liblas::Bounds<double> bounds;
     bounds = liblas::Bounds<double>(bbox.P.x,bbox.P.y,bbox.Q.x,bbox.Q.y);
@@ -116,7 +116,7 @@ private:
     return bounds_filter;
   }
 
-  static void _Read(PointCloud &pointCloud, std::string fileName,std::vector<liblas::FilterPtr> filters) 
+  static void _Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<liblas::FilterPtr>& filters)
   {
     // Open file
     std::ifstream f;

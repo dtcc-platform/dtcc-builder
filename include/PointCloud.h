@@ -30,7 +30,7 @@ namespace DTCC
     PointCloud() = default;
 
     // set a default color to all points
-    void InitColors(Color c) 
+    void InitColors(const Color &c)
     {
       for (size_t i = 0; i < Points.size(); i++)
       {

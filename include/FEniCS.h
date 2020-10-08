@@ -137,21 +137,21 @@ public:
   }
 
   // Write FEniCS mesh to file
-  static void Write(const dolfin::Mesh &mesh, std::string fileName)
+  static void Write(const dolfin::Mesh &mesh, const std::string& fileName)
   {
     Info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << mesh;
   }
 
   // Write FEniCS boundary mesh to file
-  static void Write(const dolfin::BoundaryMesh &boundary, std::string fileName)
+  static void Write(const dolfin::BoundaryMesh &boundary, const std::string& fileName)
   {
     Info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << boundary;
   }
 
   // Write FEniCS function to file
-  static void Write(const dolfin::Function &function, std::string fileName)
+  static void Write(const dolfin::Function &function, const std::string& fileName)
   {
     Info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << function;

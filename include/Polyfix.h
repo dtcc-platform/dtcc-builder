@@ -481,7 +481,7 @@ private:
   }
 
   // Remove vertices from polygon (indices for removal assumed to be ordered)
-  static void RemoveVertices(Polygon &polygon, const std::vector<size_t> remove)
+  static void RemoveVertices(Polygon &polygon, const std::vector<size_t>& remove)
   {
     // Copy vertices to be kept to new vector
     std::vector<Point2D> vertices(polygon.Vertices.size() - remove.size());

@@ -26,7 +26,7 @@ public:
   // https://proj4.org/development/migration.html
 
   // Transform point from between coordinate systems U and V
-  static Vector2D Transform(const Vector2D &p, std::string U, std::string V)
+  static Vector2D Transform(const Vector2D &p, const std::string& U, const std::string& V)
   {
     // Set up projections
     const std::string s;

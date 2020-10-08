@@ -16,7 +16,7 @@ namespace DTCC
 class CommandLine
 {
 public:
-  static bool HasOption(std::string option, int argc, char *argv[])
+  static bool HasOption(const std::string& option, int argc, char *argv[])
   {
     for (int i = 1; i < argc; i++)
       if (option == argv[i])
@@ -24,14 +24,14 @@ public:
     return false;
   }
 
-  static bool EndsWith(const std::string string, const std::string &ending)
+  static bool EndsWith(const std::string& string, const std::string &ending)
   {
     if (ending.size() > string.size())
       return false;
     return std::equal(ending.rbegin(), ending.rend(), string.rbegin());
   }
 
-  static std::string GetOption(std::string option, int argc, char *argv[])
+  static std::string GetOption(const std::string& option, int argc, char *argv[])
   {
     for (int i = 1; i < argc; i++)
       if (option == argv[i])
@@ -39,12 +39,12 @@ public:
     return "";
   }
 
-  static int GetIntOption(std::string option, int argc, char *argv[])
+  static int GetIntOption(const std::string& option, int argc, char *argv[])
   {
     return atoi(GetOption(option, argc, argv).c_str());
   }
 
-  static std::vector<std::string> ListDirectory(std::string directory)
+  static std::vector<std::string> ListDirectory(const std::string& directory)
   {
     std::vector<std::string> fileNames;
 

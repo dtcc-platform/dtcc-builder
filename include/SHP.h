@@ -21,7 +21,7 @@ class SHP
 public:
   // Read polygons from SHP file. Note that the corresponding
   // .shx and .dbf files must also be present in the same directory.
-  static void Read(std::vector<Polygon> &polygons, std::string fileName)
+  static void Read(std::vector<Polygon> &polygons, const std::string& fileName)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
