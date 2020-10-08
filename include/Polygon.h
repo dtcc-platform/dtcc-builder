@@ -20,7 +20,7 @@ public:
   std::vector<Point2D> Vertices{};
 
   // Create empty polygon
-  Polygon() {}
+  Polygon() = default;
 
   /// Pretty-print
   std::string __str__() const

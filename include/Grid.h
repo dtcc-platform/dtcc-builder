@@ -36,7 +36,7 @@ namespace DTCC
     double YStep{};
 
     /// Create empty grid
-    Grid2D() {}
+    Grid2D() = default;
 
     /// Create grid for given bounding box and size.
     ///
@@ -210,7 +210,7 @@ namespace DTCC
     double ZStep{};
 
     /// Create empty grid
-    Grid3D() {}
+    Grid3D() = default;
 
     /// Create grid for given bounding box and size.
     ///

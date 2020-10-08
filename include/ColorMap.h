@@ -25,7 +25,7 @@ public:
     ColorMapType mapType;
     std::vector<colorMapEntry> Colors{};
 
-    ColorMap(ColorMapType type = ColorMapType::Linear): mapType(type) {}
+    explicit ColorMap(ColorMapType type = ColorMapType::Linear): mapType(type) {}
 
     void InsertColor(float startPoint, Color c)
     {

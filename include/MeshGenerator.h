@@ -876,7 +876,7 @@ namespace DTCC
       {
         // Find building containg midpoint of cell (if any)
         const Point2D c = mesh.MidPoint(i);
-        const int marker = cityModel.FindBuilding(c);
+        const int marker = cityModel.FindBuilding(Vector2D(c));
 
         // Get triangle
         const Simplex2D &T = mesh.Cells[i];
@@ -896,11 +896,11 @@ namespace DTCC
         // Check if individual vertices are inside a building
         // (not only midpoint). Necessary for when generating
         // visualization meshes that are not boundary-fitted.
-        if (cityModel.FindBuilding(mesh.Vertices[T.v0]) >= 0)
+        if (cityModel.FindBuilding(Vector2D(mesh.Vertices[T.v0])) >= 0)
           isBuildingVertex[T.v0] = true;
-        if (cityModel.FindBuilding(mesh.Vertices[T.v1]) >= 0)
+        if (cityModel.FindBuilding(Vector2D(mesh.Vertices[T.v1])) >= 0)
           isBuildingVertex[T.v1] = true;
-        if (cityModel.FindBuilding(mesh.Vertices[T.v2]) >= 0)
+        if (cityModel.FindBuilding(Vector2D(mesh.Vertices[T.v2])) >= 0)
           isBuildingVertex[T.v2] = true;
       }
 

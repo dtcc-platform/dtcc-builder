@@ -25,7 +25,7 @@ namespace DTCC
     double y{};
 
     /// Create zero vector
-    Vector2D() {}
+    Vector2D() = default;
 
     /// Create vector with given components.
     ///
@@ -36,7 +36,7 @@ namespace DTCC
     /// Create vector between origin and point (conversion from point).
     ///
     /// @param p The point
-    Vector2D(const Point2D &p) : x(p.x), y(p.y) {}
+    explicit Vector2D(const Point2D &p) : x(p.x), y(p.y) {}
 
     /// Create vector between points.
     ///
@@ -129,7 +129,7 @@ namespace DTCC
     double z{};
 
     /// Create zero vector
-    Vector3D() {}
+    Vector3D() = default;
 
     /// Create vector with given components.
     ///
@@ -141,7 +141,7 @@ namespace DTCC
     /// Create vector between origin and point (conversion from point).
     ///
     /// @param p The point
-    Vector3D(const Point3D &p) : x(p.x), y(p.y), z(p.z) {}
+    explicit Vector3D(const Point3D &p) : x(p.x), y(p.y), z(p.z) {}
 
     /// Create vector between points.
     ///

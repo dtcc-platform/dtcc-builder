@@ -21,7 +21,7 @@ namespace DTCC
     double y{};
 
     /// Create point at origin
-    Point2D() {}
+    Point2D() = default;
 
     /// Create point with given coordinates.
     ///
@@ -52,7 +52,7 @@ namespace DTCC
     double z{};
 
     /// Create point at origin
-    Point3D() {}
+    Point3D() = default;
 
     /// Create point with given coordinates.
     ///

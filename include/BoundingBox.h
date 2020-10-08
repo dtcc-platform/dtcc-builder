@@ -26,7 +26,7 @@ namespace DTCC
     Point2D Q;
 
     /// Create empty bounding box
-    BoundingBox2D() {}
+    BoundingBox2D() = default;
 
     /// Create bounding box for given points.
     ///
@@ -41,7 +41,7 @@ namespace DTCC
     /// Create bounding box of polygon.
     ///
     /// @param polygon Polygon
-    BoundingBox2D(const Polygon& polygon)
+    explicit BoundingBox2D(const Polygon& polygon)
     {
       constexpr double max = std::numeric_limits<double>::max();
       P.x = P.y = max;
@@ -77,7 +77,7 @@ namespace DTCC
     Point3D Q{};
 
     /// Create empty bounding box
-    BoundingBox3D() {}
+    BoundingBox3D() = default;
 
     /// Create bounding box defined by given points.
     ///

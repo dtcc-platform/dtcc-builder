@@ -7,6 +7,7 @@
 #include "JSON.h"
 #include "Point.h"
 #include "Logging.h"
+#include <utility>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
@@ -140,7 +141,7 @@ public:
   /// Create city object with given ID
   ///
   /// @param newID the id of this object
-  CityObject(std::string newId) : ID(newId) {};
+  explicit CityObject(std::string newId) : ID(std::move(newId)) {};
 
   /// Pretty-print
   virtual std::string __str__() const

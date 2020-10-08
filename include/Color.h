@@ -28,7 +28,7 @@ public:
   double A{};
 
   /// Empty constructor
-  Color() {}
+  Color() = default;
 
   Color(double r, double g, double b) : R(r), G(g), B(b), A(1.0) {}
   Color(double r, double g, double b, double a) : R(r), G(g), B(b), A(a) {}

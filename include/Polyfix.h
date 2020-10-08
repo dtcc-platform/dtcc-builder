@@ -28,12 +28,12 @@ public:
     const double tol2 = tol * tol;
 
     // Check each vertex against first vertex
-    const Vector2D &p0 = polygon.Vertices[0];
+    const Vector2D p0(polygon.Vertices[0]);
     size_t end = 0;
     for (size_t i = 1; i < polygon.Vertices.size() && end == 0; i++)
     {
       // Compute distance to first vertex
-      const Vector2D &p = polygon.Vertices[i];
+      const Vector2D p(polygon.Vertices[i]);
       const double d2 = Geometry::SquaredDistance2D(p, p0);
 
       // Remove if distance is small
@@ -90,8 +90,8 @@ public:
     for (size_t i = 1; i < numVertices; i++)
     {
       // Get current vertex
-      const Vector2D &p0 = polygon.Vertices[i0];
-      const Vector2D &p = polygon.Vertices[i];
+      const Vector2D p0(polygon.Vertices[i0]);
+      const Vector2D p(polygon.Vertices[i]);
 
       // Compute distance
       const double d2 = Geometry::SquaredDistance2D(p0, p);
@@ -131,10 +131,10 @@ public:
     for (size_t i = 0; i < numVertices; i++)
     {
       // Get previous, current and next points
-      const Vector2D &p0 =
-          polygon.Vertices[(i + numVertices - 1) % numVertices];
-      const Vector2D &p1 = polygon.Vertices[i];
-      const Vector2D &p2 = polygon.Vertices[(i + 1) % numVertices];
+      const Vector2D p0(
+          polygon.Vertices[(i + numVertices - 1) % numVertices]);
+      const Vector2D p1(polygon.Vertices[i]);
+      const Vector2D p2(polygon.Vertices[(i + 1) % numVertices]);
 
       // Compute edges and dot products
       const Vector2D u = p1 - p0;

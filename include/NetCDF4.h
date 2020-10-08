@@ -29,7 +29,7 @@ public:
   std::vector<size_t> CoordinateDimensions;
   // std::unique_ptr<T[]> Pointer;
   // T *Vector;
-  NetCDF4(size_t size)
+  explicit NetCDF4(size_t size)
   {
     Info("Creating new NetCDF4 with known size " + str(size));
     // Vector = new T[size];

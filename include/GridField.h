@@ -28,12 +28,12 @@ namespace DTCC
     std::vector<double> Values{};
 
     /// Create empty field
-    GridField2D() {}
+    GridField2D() = default;
 
     /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    GridField2D(const Grid2D& grid) : Grid(grid)
+    explicit GridField2D(const Grid2D& grid) : Grid(grid)
     {
       // Initialize values to zero
       Values.resize(grid.NumVertices());
@@ -120,12 +120,12 @@ namespace DTCC
     std::vector<double> Values{};
 
     /// Create empty field
-    GridField3D() {}
+    GridField3D() = default;
 
     /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    GridField3D(const Grid3D& grid) : Grid(grid)
+    explicit GridField3D(const Grid3D& grid) : Grid(grid)
     {
       // Initialize values to zero
       Values.resize(grid.NumVertices());

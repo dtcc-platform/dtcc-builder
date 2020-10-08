@@ -70,7 +70,7 @@ public:
 
     // Write points
     for (auto const &p : mesh.Vertices)
-      Write(p, fp);
+      Write(Vector2D(p), fp);
 
     // Write triangles
     for (auto const &t : mesh.Cells)
@@ -100,7 +100,7 @@ public:
 
     // Write points
     for (auto const &p : mesh.Vertices)
-      Write(p, fp);
+      Write(Vector3D(p), fp);
 
     // Write triangles
     for (auto const &t : mesh.Cells)
