@@ -76,7 +76,7 @@ public:
     std::string __str__() const
     {
         std::string out = "Colormap: \n";
-        for (auto c: Colors) 
+        for (const auto& c: Colors)
         {
             out += (str(c.first) + ": ");   
             out += str(c.second);
