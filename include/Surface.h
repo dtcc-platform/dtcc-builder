@@ -24,7 +24,7 @@ namespace DTCC
     std::vector<Simplex1D> Cells;
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "2D surface (mesh boundary) with "
         + str(Vertices.size()) + " vertices and "
@@ -44,7 +44,7 @@ namespace DTCC
     std::vector<Simplex2D> Cells;
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "3D surface (mesh boundary) with "
         + str(Vertices.size()) + " vertices and "

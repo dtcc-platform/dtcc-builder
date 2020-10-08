@@ -82,7 +82,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "2D vector field on " + str(Grid);
     }
@@ -119,7 +119,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Vector3D operator()(const Point3D& p) const
+    Vector3D operator()(const Point3D& p) const override
     {
       // Map point to cell
       size_t i{};
@@ -177,7 +177,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "3D vector field on " + str(Grid);
     }

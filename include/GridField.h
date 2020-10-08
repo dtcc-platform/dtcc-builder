@@ -44,7 +44,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    double operator()(const Point2D& p) const
+    double operator()(const Point2D& p) const override
     {
       // Map point to cell
       size_t i{};
@@ -99,7 +99,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "2D field on " + str(Grid);
     }
@@ -136,7 +136,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    double operator()(const Point3D& p) const
+    double operator()(const Point3D& p) const override
     {
       // Map point to cell
       size_t i{};
@@ -195,7 +195,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "3D field on " + str(Grid);
     }

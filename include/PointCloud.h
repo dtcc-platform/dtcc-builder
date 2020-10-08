@@ -39,7 +39,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "Point cloud on " + str(BoundingBox) + " with " +
              str(Points.size()) + " points ";

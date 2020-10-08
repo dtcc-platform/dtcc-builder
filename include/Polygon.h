@@ -23,7 +23,7 @@ public:
   Polygon() = default;
 
   /// Pretty-print
-  std::string __str__() const
+  std::string __str__() const override
   {
     std::string s = "[";
     for (size_t i = 0; i < Vertices.size(); i++)
