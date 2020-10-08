@@ -78,7 +78,7 @@ public:
         std::string boundariesStr;
         for(auto it=boundary.BoundariesIDs.begin();it!=boundary.BoundariesIDs.end();++it)
         {
-            boundariesStr.append(*it +",");
+            boundariesStr.append(str(*it) + ",");
         }
         return os << boundariesStr;
       }
