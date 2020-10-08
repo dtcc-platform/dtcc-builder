@@ -397,7 +397,7 @@ public:
 
     // Solve linear system
     const double k = (d * e - b * f) / det;
-    const Point2D p = p0 + v * k;
+    Point2D p = p0 + v * k;
 
     return p;
   }
