@@ -49,7 +49,7 @@ namespace DTCC
       Nodes.clear();
 
       // Skip if there is no data
-      if (bboxes.size() == 0)
+      if (bboxes.empty())
         return;
 
       // Initialize indices of bounding boxes to be sorted

@@ -127,7 +127,7 @@ private:
     liblas::ReaderFactory factory;
     liblas::Reader reader = factory.CreateWithStream(f);
 
-    if (filters.size() > 0) {
+    if (!filters.empty()) {
       reader.SetFilters(filters);
     }
     // Read header
@@ -155,7 +155,7 @@ private:
       const Color c(color.GetRed()/65535.0,color.GetGreen()/65535.0,color.GetBlue()/65535.0);
 
       // Update bounding box dimensions
-      if (pointCloud.Points.size() == 0)
+      if (pointCloud.Points.empty())
       {
         pointCloud.BoundingBox.P.x = p.x;
         pointCloud.BoundingBox.P.y = p.y;

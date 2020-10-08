@@ -104,7 +104,7 @@ public:
     }
 
     // Return if no vertices should be removed
-    if (remove.size() == 0)
+    if (remove.empty())
       return 0;
 
     // Remove vertices
@@ -149,7 +149,7 @@ public:
     }
 
     // Return if no vertices should be removed
-    if (remove.size() == 0)
+    if (remove.empty())
       return 0;
 
     // Remove vertices
@@ -292,7 +292,7 @@ public:
     for (size_t i = 0; i < m + n; i++)
     {
       // Skip if no outgoing edges
-      if (edges[i].size() == 0)
+      if (edges[i].empty())
         continue;
 
       // Get the edge
@@ -359,7 +359,7 @@ public:
       const std::vector<size_t> &edge = edges[currentVertex];
 
       // Find next vertex
-      assert(edge.size() > 0);
+      assert(!edge.empty());
       if (edge.size() == 1)
       {
         // If we only have one edge then follow it
@@ -407,7 +407,7 @@ public:
         }
 
         // If we have no more vertices to visit, take a step back
-        if (candidates.size() == 0)
+        if (candidates.empty())
         {
           polygon.pop_back();
           continue;

@@ -38,7 +38,7 @@ public:
     Timer("GenerateHeightMap");
 
     // Check for empty data
-    if (pointCloud.Points.size() == 0)
+    if (pointCloud.Points.empty())
       Error("HeightMapGenerator: Empty point cloud");
 
     // Shortcut
