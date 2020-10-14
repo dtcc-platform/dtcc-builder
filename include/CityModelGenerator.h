@@ -37,15 +37,15 @@ public:
   {
     Info("CityModelGenerator: Generating city model...");
     Timer("GenerateCityModel");
-    std::cout << UUIDs.size() << std::endl;
+
     // Clear old data
     cityModel.Buildings.clear();
-    int i = 0;
+
     // Add buildings
-    for (const auto &footprint : footprints)
+    for (size_t i = 0; i < footprints.size(); i++)
     {
       // Create transformed footprint
-      Polygon transformedFootprint = footprint;
+      Polygon transformedFootprint = footprints[i];
       Polyfix::Transform(transformedFootprint, origin);
 
       // Add if inside bounding box
@@ -54,9 +54,7 @@ public:
         Building building;
         building.Footprint = transformedFootprint;
         building.UUID = UUIDs[i];
-        std::cout << UUIDs[i] << std::endl;
         cityModel.Buildings.push_back(building);
-        i++;
       }
     }
 
