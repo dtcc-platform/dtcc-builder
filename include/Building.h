@@ -20,6 +20,7 @@ public:
 
   // Building UUID
   std::string UUID;
+  std::int debugID;
 
   // Building height (above ground)
   double Height{};

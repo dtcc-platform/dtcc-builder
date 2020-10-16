@@ -54,6 +54,7 @@ public:
         Building building;
         building.Footprint = transformedFootprint;
         building.UUID = UUIDs[i];
+        building.debugID = i;
         cityModel.Buildings.push_back(building);
       }
     }
