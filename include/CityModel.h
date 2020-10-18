@@ -99,7 +99,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "CityModel with " + str(Buildings.size()) + " buildings";
     }

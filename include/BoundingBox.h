@@ -56,7 +56,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return
         "[" + str(P.x) + ", " + str(Q.x) + "] x " +
@@ -91,7 +91,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return
         "[" + str(P.x) + ", " + str(Q.x) + "] x " +

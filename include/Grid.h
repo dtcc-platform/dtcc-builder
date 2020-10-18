@@ -174,7 +174,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "2D grid on " + str(BoundingBox) + " of dimension " +
         str(XSize) + " x " + str(YSize);
@@ -340,7 +340,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "3D grid on " + str(BoundingBox) + " of dimension " +
         str(XSize) + " x " + str(YSize) + " x " + str(YSize);

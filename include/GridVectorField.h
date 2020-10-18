@@ -42,7 +42,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Vector2D operator()(const Point2D& p) const
+    Vector2D operator()(const Point2D& p) const override
     {
       // Map point to cell
       size_t i{};
