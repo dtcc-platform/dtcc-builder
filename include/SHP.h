@@ -90,7 +90,6 @@ public:
         // For multipatch polygons only get the first polygon
         // TODO: handle donut and multipatch polygons correctly
 
-        Polygon polygon;
         int start;
         int end;
         for (int part = 0; part < object->nParts; part++)
