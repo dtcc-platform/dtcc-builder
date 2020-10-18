@@ -43,11 +43,11 @@ public:
   }
 
   // Read point cloud from LAS file only if they have the defined classification
-  static void Read(PointCloud &pointCloud, std::string fileName, const std::vector<int> &classifications) 
+  static void Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<int> &classifications)
   {
     std::vector<liblas::FilterPtr> filters;
     filters.push_back(MakeClassFilter(classifications));
-    _Read(pointCloud, std::move(fileName), filters);
+    _Read(pointCloud, fileName, filters);
   }
 
   // Read point cloud from LAS file only if they have the defined classification and are within the BoundingBox

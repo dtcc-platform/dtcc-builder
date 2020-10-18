@@ -24,7 +24,7 @@ public:
 
   // Read geo reference from WLD file
   static void
-  Read(GeoReference &geoReference, std::string fileName, size_t stride = 1)
+  Read(GeoReference &geoReference, const std::string& fileName, size_t stride = 1)
   {
     Info("WLD: Reading geo reference from file " + fileName);
 
@@ -47,7 +47,7 @@ public:
   };
 
   // Write geo reference to WLD file
-  static void Write(GeoReference &geoReference, std::string fileName)
+  static void Write(GeoReference &geoReference, const std::string& fileName)
   {
     Info("WLD: Writing geo reference to file " + fileName);
 
