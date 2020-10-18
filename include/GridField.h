@@ -4,7 +4,7 @@
 #ifndef DTCC_GRID_FIELD_H
 #define DTCC_GRID_FIELD_H
 
-#include <assert.h>
+#include <cassert>
 
 #include "Grid.h"
 #include "Field.h"

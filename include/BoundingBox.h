@@ -4,7 +4,7 @@
 #ifndef DTCC_BOUNDING_BOX_H
 #define DTCC_BOUNDING_BOX_H
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 
 #include "Point.h"

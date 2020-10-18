@@ -4,7 +4,7 @@
 #ifndef DTCC_GRID_H
 #define DTCC_GRID_H
 
-#include <assert.h>
+#include <cassert>
 
 #include "BoundingBox.h"
 #include "Geometry.h"
