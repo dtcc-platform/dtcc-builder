@@ -3,6 +3,8 @@
 
 #define CATCH_CONFIG_MAIN
 
+#include "catch.hpp"
+
 #include "Color.h"
 #include "ColorMap.h"
 #include "ColorMapIO.h"
@@ -14,7 +16,6 @@
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
-#include "catch.hpp"
 #include <XMLParser.h>
 #include <deque>
 #include <nlohmann/json.hpp>
@@ -262,12 +263,12 @@ TEST_CASE("XMLParser")
 TEST_CASE("COLORMAPS")
 {
   ColorMap cm;
-  cm.InsertColor(1,Color(1.0,1.0,1.0));
-  cm.InsertColor(0,Color(0.0,0.0,0.0));
+  cm.InsertColor(1, Color(1.0, 1.0, 1.0));
+  cm.InsertColor(0, Color(0.0, 0.0, 0.0));
 
   ColorMap cm2;
-  cm2.InsertColor(0.8,Color(0.0,0.0,0.0));
-  cm2.InsertColor(0.9,Color(1.0,0.0,0.0));
+  cm2.InsertColor(0.8, Color(0.0, 0.0, 0.0));
+  cm2.InsertColor(0.9, Color(1.0, 0.0, 0.0));
 
   SECTION("Insert")
   {
@@ -277,7 +278,7 @@ TEST_CASE("COLORMAPS")
   }
   SECTION("Interpolate")
   {
-
+    
     REQUIRE(cm(0).R == 0.0);
     REQUIRE(cm(0).G == 0.0);
     REQUIRE(cm(0).B == 0.0);
@@ -300,30 +301,29 @@ TEST_CASE("COLORMAPS")
   }
 
   SECTION("Load PNG")
-  {
+  { 
     ColorMap cm3;
     ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
-    REQUIRE(cm3.size()==256);
+    REQUIRE(cm3.size() == 256);
 
-    REQUIRE(cm3(0).R==Approx(127/255.0).margin(0.0001));
-    REQUIRE(cm3(0).G==Approx(0).margin(0.0001));
-    REQUIRE(cm3(0).B==Approx(0).margin(0.0001));
+    REQUIRE(cm3(0).R == Approx(127 / 255.0).margin(0.0001));
+    REQUIRE(cm3(0).G == Approx(0).margin(0.0001));
+    REQUIRE(cm3(0).B == Approx(0).margin(0.0001));
 
-    REQUIRE(cm3(0.5).R==Approx(121/255.0).margin(0.0001));
-    REQUIRE(cm3(0.5).G==Approx(255/255.0).margin(0.0001));
-    REQUIRE(cm3(0.5).B==Approx(124.5/255.0).margin(0.0001));
+    REQUIRE(cm3(0.5).R == Approx(121 / 255.0).margin(0.0001));
+    REQUIRE(cm3(0.5).G == Approx(255 / 255.0).margin(0.0001));
+    REQUIRE(cm3(0.5).B == Approx(124.5 / 255.0).margin(0.0001));
 
-    REQUIRE(cm3(1).R==Approx(0).margin(0.0001));
-    REQUIRE(cm3(1).G==Approx(0).margin(0.0001));
-    REQUIRE(cm3(1).B==Approx(127/255.0).margin(0.0001));
-
+    REQUIRE(cm3(1).R == Approx(0).margin(0.0001));
+    REQUIRE(cm3(1).G == Approx(0).margin(0.0001));
+    REQUIRE(cm3(1).B == Approx(127 / 255.0).margin(0.0001));
   }
 
-  SECTION("Write PNG")
+  SECTION("Write PNG") 
   {
     ColorMapIO::WritePNG(cm, "testmap.png");
     ColorMap cm4;
-    ColorMapIO::ReadPNG(cm4,  "testmap.png");
+    ColorMapIO::ReadPNG(cm4, "testmap.png");
     REQUIRE(cm4(0.3).R == Approx(0.3).margin(0.0001));
     REQUIRE(cm4(0.3).G == Approx(0.3).margin(0.0001));
     REQUIRE(cm4(0.3).B == Approx(0.3).margin(0.0001));
@@ -333,45 +333,84 @@ TEST_CASE("COLORMAPS")
   SECTION("Read cpt")
   {
     ColorMap cm6;
-    ColorMapIO::ReadCPT(cm6,"../unittests/data/inferno.cpt");
-    REQUIRE(cm6.size()==255*2);
-    REQUIRE(cm6(125/255.0).R == Approx(183/255.0).margin(0.0001) );
-    REQUIRE(cm6(125/255.0).G == Approx(53/255.0).margin(0.0001) );
-    REQUIRE(cm6(125/255.0).B == Approx(87/255.0).margin(0.0001) );
+    ColorMapIO::ReadCPT(cm6, "../unittests/data/inferno.cpt");
+    REQUIRE(cm6.size() == 255 * 2);
+    REQUIRE(cm6(125 / 255.0).R == Approx(183 / 255.0).margin(0.0001));
+    REQUIRE(cm6(125 / 255.0).G == Approx(53 / 255.0).margin(0.0001));
+    REQUIRE(cm6(125 / 255.0).B == Approx(87 / 255.0).margin(0.0001));
 
     ColorMap cm7;
-    ColorMapIO::ReadCPT(cm7,"../unittests/data/BrBG_11.cpt");
-    REQUIRE(cm7(0.5).R == Approx(245/255.0).margin(0.0001));
-    REQUIRE(cm7(0.5).G == Approx(245/255.0).margin(0.0001));
-    REQUIRE(cm7(0.5).B == Approx(245/255.0).margin(0.0001));
-
+    ColorMapIO::ReadCPT(cm7, "../unittests/data/BrBG_11.cpt");
+    REQUIRE(cm7(0.5).R == Approx(245 / 255.0).margin(0.0001));
+    REQUIRE(cm7(0.5).G == Approx(245 / 255.0).margin(0.0001));
+    REQUIRE(cm7(0.5).B == Approx(245 / 255.0).margin(0.0001));
   }
 
   SECTION("Serialize JSON")
   {
     ColorMap cm3;
     ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
-    JSON::Write(cm3,"testmap.json");
+    JSON::Write(cm3, "testmap.json");
     ColorMap cm5;
-    JSON::Read(cm5,"testmap.json");
+    JSON::Read(cm5, "testmap.json");
 
-    REQUIRE(cm5.size()==256);
+    REQUIRE(cm5.size() == 256);
 
-    REQUIRE(cm5(0).R==Approx(127/255.0).margin(0.0001));
-    REQUIRE(cm5(0).G==Approx(0).margin(0.0001));
-    REQUIRE(cm5(0).B==Approx(0).margin(0.0001));
+    REQUIRE(cm5(0).R == Approx(127 / 255.0).margin(0.0001));
+    REQUIRE(cm5(0).G == Approx(0).margin(0.0001));
+    REQUIRE(cm5(0).B == Approx(0).margin(0.0001));
 
-    REQUIRE(cm5(0.5).R==Approx(121/255.0).margin(0.0001));
-    REQUIRE(cm5(0.5).G==Approx(255/255.0).margin(0.0001));
-    REQUIRE(cm5(0.5).B==Approx(124.5/255.0).margin(0.0001));
+    REQUIRE(cm5(0.5).R == Approx(121 / 255.0).margin(0.0001));
+    REQUIRE(cm5(0.5).G == Approx(255 / 255.0).margin(0.0001));
+    REQUIRE(cm5(0.5).B == Approx(124.5 / 255.0).margin(0.0001));
 
-    REQUIRE(cm5(1).R==Approx(0).margin(0.0001));
-    REQUIRE(cm5(1).G==Approx(0).margin(0.0001));
-    REQUIRE(cm5(1).B==Approx(127/255.0).margin(0.0001));
+    REQUIRE(cm5(1).R == Approx(0).margin(0.0001));
+    REQUIRE(cm5(1).G == Approx(0).margin(0.0001));
+    REQUIRE(cm5(1).B == Approx(127 / 255.0).margin(0.0001));
     // remove("testmap.json");
+  }
+}
 
+TEST_CASE("Property")
+{
+  Property property1;
+  Building building1, building2, building3;
+
+  building1.Height = 15;
+  building1.Footprint.Vertices = {Point2D(5, 7.5), Point2D(9, 7.5),
+                                  Point2D(9, 1), Point2D(5, 1)};
+  building2.Height = 10.5;
+  building2.Footprint.Vertices = {Point2D(11, 7.5), Point2D(19, 7.5),
+                                  Point2D(19, 1), Point2D(11, 1)};
+
+  property1.Footprint.Vertices = {Point2D(3, 7.5), Point2D(19, 7.5),
+                                  Point2D(19, 1), Point2D(3, 1)};
+  property1.Buildings.push_back(building1);
+  property1.Buildings.push_back(building2);
+
+  nlohmann::json json;
+  const char *FileName = "propertyTest.json";
+  JSON::Write(property1, FileName);
+  Property property2;
+  JSON::Read(property2, FileName);
+
+  SECTION("Footprint")
+  {
+    REQUIRE(property2.Footprint.Vertices.size() == 4);
+    REQUIRE(property2.Footprint.Vertices[2].x == 19.0);
+    REQUIRE(property2.Footprint.Vertices[0].y == 7.5);
   }
 
+  SECTION("Buildings")
+  {
+    REQUIRE(property2.Buildings[0].Height == 15);
+    REQUIRE(property2.Buildings[1].Footprint.Vertices.size() == 4);
+    REQUIRE(property2.Buildings[1].Footprint.Vertices[0].x == 11.0);
+    REQUIRE(property2.Buildings[1].Footprint.Vertices[0].y == 7.5);
+    REQUIRE(property2.Buildings[1].Footprint.Vertices[3].y == 1.0);
+  }
+
+  remove(FileName);
 }
 
 TEST_CASE("Hashing")

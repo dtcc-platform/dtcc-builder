@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_JSON_H
@@ -8,18 +8,19 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "Parameters.h"
 #include "BoundingBox.h"
-#include "Grid.h"
-#include "Mesh.h"
-#include "Surface.h"
-#include "GridField.h"
-#include "GridVectorField.h"
-#include "CityModel.h"
 #include "CityJSON.h"
+#include "CityModel.h"
 #include "Color.h"
 #include "ColorMap.h"
+#include "Grid.h"
+#include "GridField.h"
+#include "GridVectorField.h"
+#include "Mesh.h"
+#include "Parameters.h"
+#include "Property.h"
 #include "Road.h"
+#include "Surface.h"
 
 namespace DTCC
 {
@@ -843,6 +844,68 @@ namespace DTCC
       json["RoadNetwork"] = jsonRoadNetwork;
       // Add Type parameter
       json["Type"] = "RoadNetwork";
+    }
+
+    /// Deserialize a footprint.
+    static void DeserializeFootprint(Polygon &footprint,
+                                     const nlohmann::json &json)
+    {
+      for (const auto &jsonVertex : json["footprint"])
+      {
+        Point2D vertex;
+        vertex.x = jsonVertex["x"];
+        vertex.y = jsonVertex["y"];
+        footprint.Vertices.push_back(vertex);
+      }
+    }
+
+    /// Deserialize Property.
+    static void Deserialize(Property &property, const nlohmann::json &json)
+    {
+      /// Deserialize Property's footprint.
+      DeserializeFootprint(property.Footprint, json);
+
+      /// Deserialize buildings.
+      for (const auto &jsonBuilding : json["buildings"])
+      {
+        Building building;
+        building.Height = jsonBuilding["height"];
+        DeserializeFootprint(building.Footprint, jsonBuilding);
+        property.Buildings.push_back(building);
+      }
+    }
+
+    /// Serialize a footprint.
+    static void SerializeFootprint(const Polygon &footprint,
+                                   nlohmann::json &json)
+    {
+      auto jsonFootprint = nlohmann::json::array();
+      for (const auto &point : footprint.Vertices)
+      {
+        nlohmann::json vertex;
+        vertex["x"] = point.x;
+        vertex["y"] = point.y;
+        jsonFootprint.push_back(vertex);
+      }
+      json["footprint"] = jsonFootprint;
+    }
+
+    /// Serialize Property.
+    static void Serialize(const Property &property, nlohmann::json &json)
+    {
+      /// Serialize Property's footprint.
+      SerializeFootprint(property.Footprint, json);
+
+      /// Serialize buildings.
+      auto jsonBuildings = nlohmann::json::array();
+      for (const auto &building : property.Buildings)
+      {
+        nlohmann::json jsonBuilding;
+        jsonBuilding["height"] = building.Height;
+        SerializeFootprint(building.Footprint, jsonBuilding);
+        jsonBuildings.push_back(jsonBuilding);
+      }
+      json["buildings"] = jsonBuildings;
     }
   };
 
