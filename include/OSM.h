@@ -103,7 +103,7 @@ public:
         Vector2D p = n->second;
 
         // Add to polygon
-        polygon.Points.push_back(p);
+        polygon.Points.push_back(p); // TODO: No Points in Polygon
       }
 
       // Add polygon

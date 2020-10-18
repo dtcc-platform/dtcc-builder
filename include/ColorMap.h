@@ -73,7 +73,7 @@ public:
         }
     }
 
-    std::string __str__() const
+    std::string __str__() const // TODO: Should ColorMap inherit printable?
     {
         std::string out = "Colormap: \n";
         for (const auto& c: Colors)
