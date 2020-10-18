@@ -27,7 +27,7 @@ public:
 
     explicit ColorMap(ColorMapType type = ColorMapType::Linear): mapType(type) {}
 
-    void InsertColor(float startPoint, Color c)
+    void InsertColor(float startPoint, const Color& c)
     {
         if (startPoint<0 || startPoint>1)
         {
@@ -52,7 +52,7 @@ public:
         if (d>Colors.back().first)
             return Colors.back().second;
         // inside the range of the color map 
-        for (auto c: Colors) {
+        for (const auto& c: Colors) {
             if (d == c.first)
                 return c.second;
             if (d > c.first)
@@ -90,7 +90,7 @@ private:
     {
         std::sort(std::begin(Colors), 
               std::end(Colors), 
-              [](colorMapEntry a, colorMapEntry b ) {return a.first < b.first; });
+              [](const colorMapEntry& a, const colorMapEntry& b ) {return a.first < b.first; });
     }
 };
 }
