@@ -119,7 +119,7 @@ public:
     // iVector.push_back(tempvector);
 
     Progress("Got em all");
-    delete tempvector;
+    delete[] tempvector;
     tempvector = nullptr;
   }
   void getOrigin(NcVar &iData)
