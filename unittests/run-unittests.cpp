@@ -299,6 +299,12 @@ TEST_CASE("COLORMAPS")
     REQUIRE(cm6(125/255.0).G == Approx(53/255.0).margin(0.0001) );
     REQUIRE(cm6(125/255.0).B == Approx(87/255.0).margin(0.0001) );
 
+    ColorMap cm7;
+    ColorMapIO::ReadCPT(cm7,"../unittests/data/BrBG_11.cpt");
+    REQUIRE(cm7(0.5).R == Approx(245/255.0).margin(0.0001));
+    REQUIRE(cm7(0.5).G == Approx(245/255.0).margin(0.0001));
+    REQUIRE(cm7(0.5).B == Approx(245/255.0).margin(0.0001));
+
   }
 
   SECTION("Serialize JSON")
@@ -322,7 +328,7 @@ TEST_CASE("COLORMAPS")
     REQUIRE(cm5(1).R==Approx(0).margin(0.0001));
     REQUIRE(cm5(1).G==Approx(0).margin(0.0001));
     REQUIRE(cm5(1).B==Approx(127/255.0).margin(0.0001));
-    remove("testmap.json");
+    // remove("testmap.json");
 
   }
 }

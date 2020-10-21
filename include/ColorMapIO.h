@@ -100,7 +100,7 @@ public:
     d1 = (firstEntry.first - dStart) / dRange;
     d2 = (secondEntry.first - dStart) / dRange;
     colorMap.InsertColor(d1, firstEntry.second);
-    colorMap.InsertColor(d1, secondEntry.second);
+    colorMap.InsertColor(d2, secondEntry.second);
     while (entries.size() > 0)
     {
       firstEntry = entries.front();
@@ -111,7 +111,7 @@ public:
       d2 = (secondEntry.first - dStart) / dRange;
       d1 = std::nextafter(d1, d2);
       colorMap.InsertColor(d1, firstEntry.second);
-      colorMap.InsertColor(d1, secondEntry.second);
+      colorMap.InsertColor(d2, secondEntry.second);
     }
   }
 };
