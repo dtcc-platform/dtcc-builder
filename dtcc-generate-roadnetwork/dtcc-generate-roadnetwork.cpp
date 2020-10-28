@@ -6,12 +6,14 @@
 #include <Polygon.h>
 #include <SHP.h>
 #include <iostream>
+#include <json.hpp>
+#include <map>
 
 using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-roadnetwork [data directory]" << std::endl;
+  std::cerr << "Usage: vc-generate-roadnetwork fileName.shp" << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -29,8 +31,9 @@ int main(int argc, char *argv[])
   Info(shpFilename);
 
   // Read road network data
-  std::vector<Polygon> roads;
-  SHP::Read(roads, shpFilename);
+  std::vector<Polygon> roadNetwork;
+  nlohmann::json attributes;
+  SHP::Read(roadNetwork, shpFilename, &attributes);
 
   return 0;
 }

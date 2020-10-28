@@ -6,12 +6,15 @@
 #define DTCC_SHP_H
 
 #include <iostream>
+#include <json.hpp>
 #include <shapefil.h>
 #include <vector>
 
-#include "Polygon.h"
 #include "Geometry.h"
 #include "Logging.h"
+#include "Polygon.h"
+
+using namespace nlohmann;
 
 namespace DTCC
 {
@@ -19,13 +22,19 @@ namespace DTCC
 class SHP
 {
 public:
-  // Read polygons from SHP file. Note that the corresponding
+  // Read polygons and attributes from SHP file. Note that the corresponding
   // .shx and .dbf files must also be present in the same directory.
-  static void Read(std::vector<Polygon> &polygons, std::string fileName)
+  static void Read(std::vector<Polygon> &polygons,
+                   const std::string &fileName,
+                   basic_json<> *attributes)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
+
+    DBFHandle dbfHandle = nullptr;
+    if (attributes != nullptr)
+      dbfHandle = getDBFHandle(fileName);
 
     // Get info
     int numEntities, shapeType;
@@ -63,67 +72,103 @@ public:
         shapeType != SHPT_POLYGONM && shapeType != SHPT_ARC)
       throw std::runtime_error("Shapefile not of relevant type.");
 
-    // Read footprints
-    for (int i = 0; i < numEntities; i++)
-    {
-      ReadPolygon(polygons, handle, i);
-    }
+    ReadPolygons(polygons, handle, numEntities, dbfHandle, attributes);
+  }
+
+private:
+  static DBFHandle getDBFHandle(const std::string &fileName)
+  {
+    DBFHandle dbfHandle;
+    std::string dbfName = fileName;
+    dbfName.replace(fileName.length() - 3, 3, "dbf");
+    dbfHandle = DBFOpen(dbfName.c_str(), "rb");
+    return dbfHandle;
   }
 
   static void
-  ReadPolygon(std::vector<Polygon> &polygons, SHPInfo *handle, int i)
-  { // Get object
-    SHPObject *object = SHPReadObject(handle, i);
+  ReadAttributes(DBFHandle handle, basic_json<> *attributes, int shapeIndex)
+  {
+    static int codeFieldIndex, categoryFieldIndex = -1;
+    if (codeFieldIndex < 0)
+      codeFieldIndex = DBFGetFieldIndex(handle, "KKOD");
+    int code = DBFReadIntegerAttribute(handle, shapeIndex, codeFieldIndex);
+    if (categoryFieldIndex < 0)
+      categoryFieldIndex = DBFGetFieldIndex(handle, "KATEGORI");
+    std::string category = std::string(
+        DBFReadStringAttribute(handle, shapeIndex, categoryFieldIndex));
+    json shapeAttr = json({});
+    shapeAttr["KKOD"] = code;
+    shapeAttr["KATEGORI"] = category;
+    attributes->push_back(shapeAttr);
+  }
 
-    // Get vertices
-    if (object->nParts == 1)
+  static void ReadPolygons(std::vector<Polygon> &polygons,
+                           SHPInfo *handle,
+                           int numEntities,
+                           DBFHandle dbfHandle,
+                           basic_json<> *attributes)
+  {
+    for (int i = 0; i < numEntities; i++)
     {
-      // Create empty polygon
-      Polygon polygon;
-
-      for (int j = 0; j < object->nVertices; j++)
+      if (dbfHandle != nullptr && attributes != nullptr)
       {
-        const double x = object->padfX[j];
-        const double y = object->padfY[j];
-        Vector2D p(x, y);
-        polygon.Vertices.push_back(p);
+        ReadAttributes(dbfHandle, attributes, i);
       }
 
-      // Add polygon
-      polygons.push_back(polygon);
-    }
-    else
-    {
-      // For donut polygons only get the outer hull
-      // For multipatch polygons only get the first polygon
-      // TODO: handle donut and multipatch polygons correctly
+      // Read vertices
+      // Get object
+      SHPObject *object = SHPReadObject(handle, i);
 
-      Polygon polygon;
-      int start;
-      int end;
-      for (int part = 0; part < object->nParts; part++)
+      // Get vertices
+      if (object->nParts == 1)
       {
+        // Create empty polygon
         Polygon polygon;
-        start = object->panPartStart[part];
-        if (part + 1 == object->nParts)
-        {
-          end = object->nVertices;
-        }
-        else
-        {
-          end = object->panPartStart[part + 1];
-        }
 
-        for (int j = start; j < end; j++)
+        for (int j = 0; j < object->nVertices; j++)
         {
           const double x = object->padfX[j];
           const double y = object->padfY[j];
           Vector2D p(x, y);
           polygon.Vertices.push_back(p);
         }
-        if (Geometry::PolygonOrientation2D(polygon) == 1)
+
+        // Add polygon
+        polygons.push_back(polygon);
+      }
+      else
+      {
+        // For donut polygons only get the outer hull
+        // For multipatch polygons only get the first polygon
+        // TODO: handle donut and multipatch polygons correctly
+
+        Polygon polygon;
+        int start;
+        int end;
+        for (int part = 0; part < object->nParts; part++)
         {
-          polygons.push_back(polygon);
+          Polygon polygon;
+          start = object->panPartStart[part];
+          if (part + 1 == object->nParts)
+          {
+            end = object->nVertices;
+          }
+          else
+          {
+            end = object->panPartStart[part + 1];
+          }
+
+          for (int j = start; j < end; j++)
+          {
+            const double x = object->padfX[j];
+            const double y = object->padfY[j];
+            Vector2D p(x, y);
+            polygon.Vertices.push_back(p);
+          }
+          if (Geometry::PolygonOrientation2D(polygon) == 1)
+          {
+            polygons.push_back(polygon);
+          }
         }
       }
     }
