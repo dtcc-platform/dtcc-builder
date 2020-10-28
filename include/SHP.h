@@ -21,7 +21,7 @@ class SHP
 public:
   // Read polygons from SHP file. Note that the corresponding
   // .shx and .dbf files must also be present in the same directory.
-  static void Read(std::vector<Polygon> &polygons, const std::string& fileName)
+  static void Read(std::vector<Polygon> &polygons, std::string fileName)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
@@ -29,7 +29,7 @@ public:
 
     // Get info
     int numEntities, shapeType;
-    SHPGetInfo(handle, &numEntities, &shapeType, nullptr, nullptr);
+    SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
     Info("SHP: " + str(numEntities) + " entities");
     switch (shapeType)
     {
@@ -57,65 +57,73 @@ public:
       Info("SHP: unknown type");
     }
 
-    // Check that we have polygon type
-    if (shapeType != SHPT_POLYGON && shapeType != SHPT_POLYGONZ && shapeType != SHPT_POLYGONM)
-      throw std::runtime_error("Shapefile not of polygon type.");
+    // Check that we have polygon or arc type.
+    // TODO: Include SHPT_ARCZ & SHPT_ARCM as well?
+    if (shapeType != SHPT_POLYGON && shapeType != SHPT_POLYGONZ &&
+        shapeType != SHPT_POLYGONM && shapeType != SHPT_ARC)
+      throw std::runtime_error("Shapefile not of relevant type.");
 
     // Read footprints
     for (int i = 0; i < numEntities; i++)
     {
-      // Get object
-      SHPObject *object = SHPReadObject(handle, i);
+      ReadPolygon(polygons, handle, i);
+    }
+  }
 
-      // Get vertices
-      if (object->nParts == 1)
+  static void
+  ReadPolygon(std::vector<Polygon> &polygons, SHPInfo *handle, int i)
+  { // Get object
+    SHPObject *object = SHPReadObject(handle, i);
+
+    // Get vertices
+    if (object->nParts == 1)
+    {
+      // Create empty polygon
+      Polygon polygon;
+
+      for (int j = 0; j < object->nVertices; j++)
       {
-        // Create empty polygon
-        Polygon polygon;
+        const double x = object->padfX[j];
+        const double y = object->padfY[j];
+        Vector2D p(x, y);
+        polygon.Vertices.push_back(p);
+      }
 
-        for (int j = 0; j < object->nVertices; j++)
+      // Add polygon
+      polygons.push_back(polygon);
+    }
+    else
+    {
+      // For donut polygons only get the outer hull
+      // For multipatch polygons only get the first polygon
+      // TODO: handle donut and multipatch polygons correctly
+
+      Polygon polygon;
+      int start;
+      int end;
+      for (int part = 0; part < object->nParts; part++)
+      {
+        Polygon polygon;
+        start = object->panPartStart[part];
+        if (part + 1 == object->nParts)
+        {
+          end = object->nVertices;
+        }
+        else
+        {
+          end = object->panPartStart[part + 1];
+        }
+
+        for (int j = start; j < end; j++)
         {
           const double x = object->padfX[j];
           const double y = object->padfY[j];
           Vector2D p(x, y);
           polygon.Vertices.push_back(p);
         }
-
-        // Add polygon
-        polygons.push_back(polygon);
-      }
-      else
-      {
-        // For donut polygons only get the outer hull
-        // For multipatch polygons only get the first polygon
-        // TODO: handle donut and multipatch polygons correctly
-
-        int start;
-        int end;
-        for (int part = 0; part < object->nParts; part++)
+        if (Geometry::PolygonOrientation2D(polygon) == 1)
         {
-          Polygon polygon;
-          start = object->panPartStart[part];
-          if (part + 1 == object->nParts)
-          {
-            end = object->nVertices;
-          }
-          else
-          {
-            end =  object->panPartStart[part + 1];
-          }
-
-          for (int j = start; j < end; j++)
-          {
-            const double x = object->padfX[j];
-            const double y = object->padfY[j];
-            Vector2D p(x, y);
-            polygon.Vertices.push_back(p);
-          }
-          if  (Geometry::PolygonOrientation2D(polygon) == 1)
-          {
-            polygons.push_back(polygon);
-          }
+          polygons.push_back(polygon);
         }
       }
     }
