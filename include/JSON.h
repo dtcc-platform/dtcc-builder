@@ -8,18 +8,18 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "Parameters.h"
 #include "BoundingBox.h"
-#include "Grid.h"
-#include "Mesh.h"
-#include "Surface.h"
-#include "GridField.h"
-#include "GridVectorField.h"
-#include "CityModel.h"
 #include "CityJSON.h"
+#include "CityModel.h"
 #include "Color.h"
 #include "ColorMap.h"
-#include "Road.h"
+#include "Grid.h"
+#include "GridField.h"
+#include "GridVectorField.h"
+#include "Mesh.h"
+#include "Parameters.h"
+#include "RoadNetwork.h"
+#include "Surface.h"
 
 namespace DTCC
 {
@@ -752,8 +752,8 @@ namespace DTCC
 
     }
 
-    /// Deserialize Road
-    static void Deserialize(Road &road, const nlohmann::json& json)
+    /// Deserialize RoadNetwork
+    static void Deserialize(RoadNetwork &road, const nlohmann::json &json)
     {
       CheckType("RoadNetwork", json);
       auto jsonRoadNetwork = json["RoadNetwork"];
@@ -796,8 +796,8 @@ namespace DTCC
       }
     }
 
-    /// Serialize Road
-    static void Serialize(const Road &road, nlohmann::json& json)
+    /// Serialize RoadNetwork
+    static void Serialize(const RoadNetwork &road, nlohmann::json &json)
     {
       auto jsonRoadNetwork = nlohmann::json::object();
       // Serialize attributes

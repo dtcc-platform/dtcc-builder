@@ -5,7 +5,7 @@
 #include "Logging.h"
 #include <JSON.h>
 #include <Polygon.h>
-#include <Road.h>
+#include <RoadNetwork.h>
 #include <SHP.h>
 #include <iostream>
 #include <json.hpp>
@@ -18,10 +18,10 @@ void Help()
   std::cerr << "Usage: vc-generate-roadnetwork fileName.shp" << std::endl;
 }
 
-std::vector<Road> GetRoadObjects(const std::vector<Polygon> &polygons,
-                                 const json &attributes);
+std::vector<RoadNetwork> GetRoadObjects(const std::vector<Polygon> &polygons,
+                                        const json &attributes);
 
-json GetJSONObjects(const std::vector<Road> &roads);
+json GetJSONObjects(const std::vector<RoadNetwork> &roads);
 std::string GetDataDirectory(const std::string &filename);
 
 int main(int argc, char *argv[])
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
   if (attributes.size() != roadNetwork.size())
     throw std::runtime_error("Differing number of roads and attribute sets.");
-  std::vector<Road> roads = GetRoadObjects(roadNetwork, attributes);
+  std::vector<RoadNetwork> roads = GetRoadObjects(roadNetwork, attributes);
 
   std::string dataDirectory = GetDataDirectory(shpFilename);
   json jsonNetwork = GetJSONObjects(roads);
@@ -59,7 +59,7 @@ std::string GetDataDirectory(const std::string &filename)
   return filename.substr(0, endPos + 1);
 }
 
-json GetJSONObjects(const std::vector<Road> &roads)
+json GetJSONObjects(const std::vector<RoadNetwork> &roads)
 {
   json jsonNetwork = json::array();
   for (const auto &road : roads)
@@ -71,13 +71,13 @@ json GetJSONObjects(const std::vector<Road> &roads)
   return jsonNetwork;
 }
 
-std::vector<Road> GetRoadObjects(const std::vector<Polygon> &polygons,
-                                 const json &attributes)
+std::vector<RoadNetwork> GetRoadObjects(const std::vector<Polygon> &polygons,
+                                        const json &attributes)
 {
-  std::vector<Road> roads;
+  std::vector<RoadNetwork> roads;
   for (size_t i = 0; i < polygons.size(); ++i)
   {
-    Road road;
+    RoadNetwork road;
     road.Code = attributes[i]["KKOD"];
     road.Category = attributes[i]["KATEGORI"];
     road.Vertices = polygons[i].Vertices;
