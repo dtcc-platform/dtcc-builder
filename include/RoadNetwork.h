@@ -11,14 +11,14 @@
 
 namespace DTCC
 {
-class Road : public Printable
+class RoadNetwork : public Printable
 {
 public:
   int Code;
 
   std::string Category;
 
-  /** Holds the road vertex positions. */
+  /** Holds the network's vertex positions. */
   std::vector<Point2D> Vertices;
 
   /** Holds the vertex indices indicating the road edges. */
@@ -32,7 +32,7 @@ public:
 
   std::string __str__() const override
   {
-    return "Road with " + std::string("code ") + std::to_string(Code) +
+    return "RoadNetwork with " + std::string("code ") + std::to_string(Code) +
            std::string(", category ") + Category + ", " + str(Vertices.size()) +
            " vertices, " + str(Edges.size() / 2) + " edges, " +
            str(VertexValues.size()) + " vertex value arrays, and " +
