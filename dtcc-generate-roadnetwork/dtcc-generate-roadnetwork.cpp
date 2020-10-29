@@ -3,6 +3,7 @@
 
 #include "CommandLine.h"
 #include "Logging.h"
+#include <JSON.h>
 #include <Polygon.h>
 #include <Road.h>
 #include <SHP.h>
@@ -17,8 +18,11 @@ void Help()
   std::cerr << "Usage: vc-generate-roadnetwork fileName.shp" << std::endl;
 }
 
-std::vector<Road> MakeRoadObjects(const std::vector<Polygon> &polygons,
-                                  const json &attributes);
+std::vector<Road> GetRoadObjects(const std::vector<Polygon> &polygons,
+                                 const json &attributes);
+
+json GetJSONObjects(const std::vector<Road> &roads);
+std::string GetDataDirectory(const std::string &filename);
 
 int main(int argc, char *argv[])
 {
@@ -39,13 +43,36 @@ int main(int argc, char *argv[])
   SHP::Read(roadNetwork, shpFilename, &attributes);
 
   if (attributes.size() != roadNetwork.size())
-    throw std::runtime_error("Different number of roads and attribute sets.");
-  std::vector<Road> roads = MakeRoadObjects(roadNetwork, attributes);
+    throw std::runtime_error("Differing number of roads and attribute sets.");
+  std::vector<Road> roads = GetRoadObjects(roadNetwork, attributes);
+
+  std::string dataDirectory = GetDataDirectory(shpFilename);
+  json jsonNetwork = GetJSONObjects(roads);
+  Info(jsonNetwork.dump(4));
+  // JSON::Write(jsonNetwork, "RoadNetwork.json");
 
   return 0;
 }
-std::vector<Road> MakeRoadObjects(const std::vector<Polygon> &polygons,
-                                  const json &attributes)
+std::string GetDataDirectory(const std::string &filename)
+{
+  int endPos = filename.find_last_of('/');
+  return filename.substr(0, endPos + 1);
+}
+
+json GetJSONObjects(const std::vector<Road> &roads)
+{
+  json jsonNetwork = json::array();
+  for (const auto &road : roads)
+  {
+    json jsonRoad = json({});
+    JSON::Serialize(road, jsonRoad);
+    jsonNetwork.push_back(jsonRoad);
+  }
+  return jsonNetwork;
+}
+
+std::vector<Road> GetRoadObjects(const std::vector<Polygon> &polygons,
+                                 const json &attributes)
 {
   std::vector<Road> roads;
   for (size_t i = 0; i < polygons.size(); ++i)

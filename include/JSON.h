@@ -800,6 +800,9 @@ namespace DTCC
     static void Serialize(const Road &road, nlohmann::json& json)
     {
       auto jsonRoadNetwork = nlohmann::json::object();
+      // Serialize attributes
+      jsonRoadNetwork["Code"] = road.Code;
+      jsonRoadNetwork["Category"] = road.Category;
       // Serialize Vertices
       auto jsonVertices = nlohmann::json::array();
       for (const auto p: road.Vertices)
