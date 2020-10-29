@@ -33,10 +33,6 @@ public:
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
 
-    DBFHandle dbfHandle = nullptr;
-    if (attributes != nullptr)
-      dbfHandle = getDBFHandle(fileName);
-
     // Get info
     int numEntities, shapeType;
     SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
@@ -73,7 +69,9 @@ public:
         shapeType != SHPT_POLYGONM && shapeType != SHPT_ARC)
       throw std::runtime_error("Shapefile not of relevant type.");
 
-    ReadPolygons(polygons, handle, numEntities, dbfHandle, attributes);
+    if (attributes != nullptr)
+      ReadAttributes(fileName, numEntities, attributes);
+    ReadPolygons(polygons, handle, numEntities);
   }
 
 private:
@@ -86,36 +84,32 @@ private:
     return dbfHandle;
   }
 
-  static void
-  ReadAttributes(DBFHandle handle, basic_json<> *attributes, int shapeIndex)
+  static void ReadAttributes(const std::string &fileName,
+                             int numEntities,
+                             basic_json<> *attributes)
   {
-    static int codeFieldIndex, categoryFieldIndex = -1;
-    if (codeFieldIndex < 0)
-      codeFieldIndex = DBFGetFieldIndex(handle, "KKOD");
-    int code = DBFReadIntegerAttribute(handle, shapeIndex, codeFieldIndex);
-    if (categoryFieldIndex < 0)
-      categoryFieldIndex = DBFGetFieldIndex(handle, "KATEGORI");
-    std::string category = std::string(
-        DBFReadStringAttribute(handle, shapeIndex, categoryFieldIndex));
-    json shapeAttr = json({});
-    shapeAttr["KKOD"] = code;
-    shapeAttr["KATEGORI"] = category;
-    attributes->push_back(shapeAttr);
+    DBFHandle handle = getDBFHandle(fileName);
+    int codeFieldIndex = DBFGetFieldIndex(handle, "KKOD");
+    int categoryFieldIndex = DBFGetFieldIndex(handle, "KATEGORI");
+
+    for (int i = 0; i < numEntities; ++i)
+    {
+      int code = DBFReadIntegerAttribute(handle, i, codeFieldIndex);
+
+      std::string category =
+          std::string(DBFReadStringAttribute(handle, i, categoryFieldIndex));
+      json shapeAttr = json({});
+      shapeAttr["KKOD"] = code;
+      shapeAttr["KATEGORI"] = category;
+      attributes->push_back(shapeAttr);
+    }
   }
 
-  static void ReadPolygons(std::vector<Polygon> &polygons,
-                           SHPInfo *handle,
-                           int numEntities,
-                           DBFHandle dbfHandle,
-                           basic_json<> *attributes)
+  static void
+  ReadPolygons(std::vector<Polygon> &polygons, SHPInfo *handle, int numEntities)
   {
     for (int i = 0; i < numEntities; i++)
     {
-      if (dbfHandle != nullptr && attributes != nullptr)
-      {
-        ReadAttributes(dbfHandle, attributes, i);
-      }
-
       // Read vertices
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
