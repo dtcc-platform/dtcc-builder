@@ -22,8 +22,9 @@ namespace DTCC
 class SHP
 {
 public:
-  // Read polygons and attributes from SHP file. Note that the corresponding
-  // .shx and .dbf files must also be present in the same directory.
+  // Read polygons and (possibly) attributes from SHP file. Note that the
+  // corresponding .shx and .dbf files must also be present in the same
+  // directory.
   static void Read(std::vector<Polygon> &polygons,
                    const std::string &fileName,
                    basic_json<> *attributes)
