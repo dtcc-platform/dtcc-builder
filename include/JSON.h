@@ -800,9 +800,7 @@ namespace DTCC
     static void Serialize(const RoadNetwork &road, nlohmann::json &json)
     {
       auto jsonRoadNetwork = nlohmann::json::object();
-      // Serialize attributes
-      /*jsonRoadNetwork["Code"] = road.Code;
-      jsonRoadNetwork["Category"] = road.Category;*/
+
       // Serialize Vertices
       auto jsonVertices = nlohmann::json::array();
       for (const auto p: road.Vertices)
@@ -811,13 +809,18 @@ namespace DTCC
         jsonVertices.push_back(p.y);
       }
       jsonRoadNetwork["Vertices"] = jsonVertices;
+
       // Serialize Edges
-      /*auto jsonEdges = nlohmann::json::array();
-      for (const auto e: road.Edges)
+      auto jsonEdges = nlohmann::json::array();
+      for (const auto &e : road.Edges)
       {
-        jsonEdges.push_back(e);
+        nlohmann::json jsonEdge;
+        jsonEdge.push_back(e.first);
+        jsonEdge.push_back(e.second);
+        jsonEdges.push_back(jsonEdge);
       }
-      jsonRoadNetwork["Edges"] = jsonEdges;*/
+      jsonRoadNetwork["Edges"] = jsonEdges;
+
       // Serialize VertexValues
       auto jsonVertexValues = nlohmann::json::object();
       for (auto it = road.VertexValues.begin(); it != road.VertexValues.end(); it++)
@@ -830,6 +833,7 @@ namespace DTCC
         jsonVertexValues[it->first] = jsonVertexValuesArray;
       }
       jsonRoadNetwork["VertexValues"] = jsonVertexValues;
+
       // Serialize EdgeValues
       auto jsonEdgeValues = nlohmann::json::object();
       for (auto it = road.EdgeValues.begin(); it != road.EdgeValues.end(); it++)
@@ -842,10 +846,28 @@ namespace DTCC
         jsonEdgeValues[it->first] = jsonEdgeValuesArray;
       }
       jsonRoadNetwork["EdgeValues"] = jsonEdgeValues;
+
+      jsonRoadNetwork["VertexProperties"] =
+          getJsonRoadProps(road.VertexProperties);
+      jsonRoadNetwork["EdgeProperties"] = getJsonRoadProps(road.EdgeProperties);
+
       // Add to RoadNetwork object
       json["RoadNetwork"] = jsonRoadNetwork;
       // Add Type parameter
       json["Type"] = "RoadNetwork";
+    }
+
+    static nlohmann::json getJsonRoadProps(
+        const std::unordered_map<std::string, std::vector<std::string>>
+            &properties)
+    {
+      auto jsonProps = nlohmann::json::object();
+      for (const auto &prop : properties)
+      {
+        nlohmann::json j_vec(prop.second);
+        jsonProps[prop.first] = j_vec;
+      }
+      return jsonProps;
     }
   };
 
