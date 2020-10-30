@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<city name="Johanneberg">
+    <base_grid_size x="8.0" y="6.0" z="6.0"/>
+    <number_of_base_cells x="100" y="100" z="40"/>
+    <lower_corner x="1500.0" y="-780.0" z="0.0"/>
+    <inlet_velocity x="10.0" y="0.0" z="0.0"/>
+    <geometry file_name = "Mesh/Buildings.vtk">
+        <refinement_level value="2"/>
+        <refinement_length value="10.0"/> <!-- m -->
+        <post_process value="0"/>
+    </geometry>
+    <geometry file_name = "Mesh/GroundFine.vtk">
+        <refinement_level value="2"/>
+        <refinement_length value="10.0"/> <!-- m -->
+        <post_process value="0"/>
+    </geometry>
+    <geometry file_name = "Mesh/GroundFine.vtk">
+        <displacement x="0.0" y="0.0" z="2.0"/>
+        <post_process value="1"/>
+    </geometry>
+</city>
