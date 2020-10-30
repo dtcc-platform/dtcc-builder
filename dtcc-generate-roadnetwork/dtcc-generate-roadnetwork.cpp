@@ -19,11 +19,12 @@ void Help()
 }
 
 RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
-                           const json &attributes);
+                           json &attributes);
 
 std::string GetDataDirectory(const std::string &filename);
 std::string GetHash(const Point2D &vertex);
 
+void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum);
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
@@ -46,9 +47,10 @@ int main(int argc, char *argv[])
     throw std::runtime_error("Differing number of roads and attribute sets.");
   RoadNetwork network = GetRoadNetwork(vertices, attributes);
 
-  /*std::string dataDirectory = GetDataDirectory(shpFilename);
-  json jsonNetwork = GetJSONObjects(roads);
-  Info(jsonNetwork.dump(4));*/
+  std::string dataDirectory = GetDataDirectory(shpFilename);
+  json jsonNetwork;
+  JSON::Serialize(network, jsonNetwork);
+  Info(jsonNetwork.dump(4));
   // JSON::Write(jsonNetwork, "RoadNetwork.json");
 
   return 0;
@@ -61,35 +63,47 @@ std::string GetDataDirectory(const std::string &filename)
 }
 
 RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
-                           const json &attributes)
+                           json &attributes)
 {
   RoadNetwork network;
   std::unordered_map<std::string, size_t> hashToVertexIndex;
   size_t vertexIndex = 0;
-  for (const auto &polygon : polygons)
+  for (size_t i = 0; i < polygons.size(); i++)
   {
-    size_t numVertices = polygon.Vertices.size();
-    for (size_t j = 0; j < polygon.Vertices.size(); j++)
+    size_t numVertices = polygons[i].Vertices.size();
+    for (size_t j = 0; j < polygons[i].Vertices.size(); j++)
     {
-      std::string hash = GetHash(polygon.Vertices[j]);
+      std::string hash = GetHash(polygons[i].Vertices[j]);
 
       size_t uniqueVertexIndex = network.Vertices.size();
       if (hashToVertexIndex.count(hash) > 0)
         uniqueVertexIndex = hashToVertexIndex[hash];
       else
-        network.Vertices.push_back(polygon.Vertices[j]);
+        network.Vertices.push_back(polygons[i].Vertices[j]);
       hashToVertexIndex.insert(std::make_pair(hash, uniqueVertexIndex));
 
       if (j > 0)
         network.Edges.back().second = uniqueVertexIndex;
       if (j < numVertices - 1)
         network.Edges.emplace_back(uniqueVertexIndex, -1);
+      AddEdgeProperties(network, attributes, i);
       vertexIndex++;
     }
   }
-
   return network;
 }
+void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum)
+{
+  for (json::iterator elem = attributes[polyNum].begin();
+       elem != attributes[polyNum].end(); ++elem)
+  {
+    std::string value = elem.value().is_string()
+                            ? elem.value().get<std::string>()
+                            : elem.value().dump();
+    network.EdgeProperties[elem.key()].push_back(value);
+  }
+}
+
 std::string GetHash(const Point2D &vertex)
 {
   // return std::hash<std::string>{}(vertex.__str__());
