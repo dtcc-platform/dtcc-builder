@@ -18,11 +18,11 @@ void Help()
   std::cerr << "Usage: vc-generate-roadnetwork fileName.shp" << std::endl;
 }
 
-std::vector<RoadNetwork> GetRoadObjects(const std::vector<Polygon> &polygons,
-                                        const json &attributes);
+RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
+                           const json &attributes);
 
-json GetJSONObjects(const std::vector<RoadNetwork> &roads);
 std::string GetDataDirectory(const std::string &filename);
+std::string GetHash(const Point2D &vertex);
 
 int main(int argc, char *argv[])
 {
@@ -38,50 +38,60 @@ int main(int argc, char *argv[])
   Info(shpFilename);
 
   // Read road network data
-  std::vector<Polygon> roadNetwork;
+  std::vector<Polygon> vertices;
   nlohmann::json attributes;
-  SHP::Read(roadNetwork, shpFilename, &attributes);
+  SHP::Read(vertices, shpFilename, &attributes);
 
-  if (attributes.size() != roadNetwork.size())
+  if (attributes.size() != vertices.size())
     throw std::runtime_error("Differing number of roads and attribute sets.");
-  std::vector<RoadNetwork> roads = GetRoadObjects(roadNetwork, attributes);
+  RoadNetwork network = GetRoadNetwork(vertices, attributes);
 
-  std::string dataDirectory = GetDataDirectory(shpFilename);
+  /*std::string dataDirectory = GetDataDirectory(shpFilename);
   json jsonNetwork = GetJSONObjects(roads);
-  Info(jsonNetwork.dump(4));
+  Info(jsonNetwork.dump(4));*/
   // JSON::Write(jsonNetwork, "RoadNetwork.json");
 
   return 0;
 }
+
 std::string GetDataDirectory(const std::string &filename)
 {
   int endPos = filename.find_last_of('/');
   return filename.substr(0, endPos + 1);
 }
 
-json GetJSONObjects(const std::vector<RoadNetwork> &roads)
+RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
+                           const json &attributes)
 {
-  json jsonNetwork = json::array();
-  for (const auto &road : roads)
+  RoadNetwork network;
+  std::unordered_map<std::string, size_t> hashToVertexIndex;
+  size_t vertexIndex = 0;
+  for (const auto &polygon : polygons)
   {
-    json jsonRoad = json({});
-    JSON::Serialize(road, jsonRoad);
-    jsonNetwork.push_back(jsonRoad);
-  }
-  return jsonNetwork;
-}
+    size_t numVertices = polygon.Vertices.size();
+    for (size_t j = 0; j < polygon.Vertices.size(); j++)
+    {
+      std::string hash = GetHash(polygon.Vertices[j]);
 
-std::vector<RoadNetwork> GetRoadObjects(const std::vector<Polygon> &polygons,
-                                        const json &attributes)
-{
-  std::vector<RoadNetwork> roads;
-  for (size_t i = 0; i < polygons.size(); ++i)
-  {
-    RoadNetwork road;
-    road.Code = attributes[i]["KKOD"];
-    road.Category = attributes[i]["KATEGORI"];
-    road.Vertices = polygons[i].Vertices;
-    roads.push_back(road);
+      size_t uniqueVertexIndex = network.Vertices.size();
+      if (hashToVertexIndex.count(hash) > 0)
+        uniqueVertexIndex = hashToVertexIndex[hash];
+      else
+        network.Vertices.push_back(polygon.Vertices[j]);
+      hashToVertexIndex.insert(std::make_pair(hash, uniqueVertexIndex));
+
+      if (j > 0)
+        network.Edges.back().second = uniqueVertexIndex;
+      if (j < numVertices - 1)
+        network.Edges.emplace_back(uniqueVertexIndex, -1);
+      vertexIndex++;
+    }
   }
-  return roads;
+
+  return network;
+}
+std::string GetHash(const Point2D &vertex)
+{
+  // return std::hash<std::string>{}(vertex.__str__());
+  return vertex.__str__();
 }

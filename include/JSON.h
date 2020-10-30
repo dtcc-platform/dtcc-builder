@@ -766,12 +766,12 @@ namespace DTCC
         road.Vertices[i].y = jsonVertices[i * 2 + 1];
       }
       // Read edge indices
-      const auto jsonEdges = jsonRoadNetwork["Edges"];
+      /*const auto jsonEdges = jsonRoadNetwork["Edges"];
       road.Edges.resize(jsonEdges.size());
       for (size_t i = 0; i < road.Edges.size(); i++)
       {
         road.Edges[i] = jsonEdges[i];
-      }
+      }*/
       // Read additional vertex values
       const auto jsonVertexValues = jsonRoadNetwork["VertexValues"];
       for (auto it = jsonVertexValues.begin(); it != jsonVertexValues.end(); it++)
@@ -801,8 +801,8 @@ namespace DTCC
     {
       auto jsonRoadNetwork = nlohmann::json::object();
       // Serialize attributes
-      jsonRoadNetwork["Code"] = road.Code;
-      jsonRoadNetwork["Category"] = road.Category;
+      /*jsonRoadNetwork["Code"] = road.Code;
+      jsonRoadNetwork["Category"] = road.Category;*/
       // Serialize Vertices
       auto jsonVertices = nlohmann::json::array();
       for (const auto p: road.Vertices)
@@ -812,12 +812,12 @@ namespace DTCC
       }
       jsonRoadNetwork["Vertices"] = jsonVertices;
       // Serialize Edges
-      auto jsonEdges = nlohmann::json::array();
+      /*auto jsonEdges = nlohmann::json::array();
       for (const auto e: road.Edges)
       {
         jsonEdges.push_back(e);
       }
-      jsonRoadNetwork["Edges"] = jsonEdges;
+      jsonRoadNetwork["Edges"] = jsonEdges;*/
       // Serialize VertexValues
       auto jsonVertexValues = nlohmann::json::object();
       for (auto it = road.VertexValues.begin(); it != road.VertexValues.end(); it++)
