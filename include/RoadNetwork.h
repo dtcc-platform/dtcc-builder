@@ -14,15 +14,13 @@ namespace DTCC
 class RoadNetwork : public Printable
 {
 public:
-  int Code;
-
-  std::string Category;
 
   /** Holds the network's vertex positions. */
   std::vector<Point2D> Vertices;
 
   /** Holds the vertex indices indicating the road edges. */
-  std::vector<unsigned int> Edges;
+  // std::vector<unsigned int> Edges;
+  std::vector<std::pair<size_t, size_t>> Edges;
 
   /** Holds vectors of additional vertex values.  */
   std::unordered_map<std::string, std::vector<double>> VertexValues;
@@ -30,11 +28,13 @@ public:
   /** Holds vectors of additional edge values. */
   std::unordered_map<std::string, std::vector<double>> EdgeValues;
 
+  std::unordered_map<std::string, std::vector<std::string>> VertexProperties;
+
+  std::unordered_map<std::string, std::vector<std::string>> EdgeProperties;
+
   std::string __str__() const override
   {
-    return "RoadNetwork with " + std::string("code ") + std::to_string(Code) +
-           std::string(", category ") + Category + ", " + str(Vertices.size()) +
-           " vertices, " + str(Edges.size() / 2) + " edges, " +
+    return "RoadNetwork with " + str(Edges.size() / 2) + " edges, " +
            str(VertexValues.size()) + " vertex value arrays, and " +
            str(EdgeValues.size()) + " edge value arrays";
   }
