@@ -34,7 +34,7 @@ public:
 
   std::string __str__() const override
   {
-    return "RoadNetwork with " + str(Edges.size() / 2) + " edges, " +
+    return "RoadNetwork with " + str(Edges.size()) + " edges, " +
            str(VertexValues.size()) + " vertex value arrays, and " +
            str(EdgeValues.size()) + " edge value arrays";
   }
