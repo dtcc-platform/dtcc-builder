@@ -51,6 +51,9 @@ int main(int argc, char *argv[])
   json jsonNetwork;
   JSON::Serialize(network, jsonNetwork);
   Info(jsonNetwork.dump(4));
+
+  RoadNetwork network2;
+  JSON::Deserialize(network2, jsonNetwork);
   // JSON::Write(jsonNetwork, "RoadNetwork.json");
 
   return 0;

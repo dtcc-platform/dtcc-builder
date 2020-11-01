@@ -766,12 +766,10 @@ namespace DTCC
         road.Vertices[i].y = jsonVertices[i * 2 + 1];
       }
       // Read edge indices
-      /*const auto jsonEdges = jsonRoadNetwork["Edges"];
+      const auto jsonEdges = jsonRoadNetwork["Edges"];
       road.Edges.resize(jsonEdges.size());
       for (size_t i = 0; i < road.Edges.size(); i++)
-      {
-        road.Edges[i] = jsonEdges[i];
-      }*/
+        road.Edges[i] = std::make_pair(jsonEdges[i][0], jsonEdges[i][1]);
       // Read additional vertex values
       const auto jsonVertexValues = jsonRoadNetwork["VertexValues"];
       for (auto it = jsonVertexValues.begin(); it != jsonVertexValues.end(); it++)
