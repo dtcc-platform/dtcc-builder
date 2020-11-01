@@ -52,8 +52,7 @@ int main(int argc, char *argv[])
   JSON::Serialize(network, jsonNetwork);
   Info(jsonNetwork.dump(4));
 
-  JSON::Write(jsonNetwork,
-              "/home/dtcc/core/data/roadNetworkSample/RoadNetwork.json");
+  JSON::Write(jsonNetwork, dataDirectory + "RoadNetwork.json");
 
   return 0;
 }
@@ -94,6 +93,7 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
   }
   return network;
 }
+
 void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum)
 {
   for (json::iterator elem = attributes[polyNum].begin();
@@ -106,8 +106,8 @@ void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum)
   }
 }
 
+// TODO: Use Point2D/3D hash function
 std::string GetHash(const Point2D &vertex)
 {
-  // return std::hash<std::string>{}(vertex.__str__());
   return vertex.__str__();
 }

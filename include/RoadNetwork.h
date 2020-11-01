@@ -19,7 +19,6 @@ public:
   std::vector<Point2D> Vertices;
 
   /** Holds the vertex indices indicating the road edges. */
-  // std::vector<unsigned int> Edges;
   std::vector<std::pair<size_t, size_t>> Edges;
 
   /** Holds vectors of additional vertex values.  */
