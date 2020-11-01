@@ -52,9 +52,8 @@ int main(int argc, char *argv[])
   JSON::Serialize(network, jsonNetwork);
   Info(jsonNetwork.dump(4));
 
-  RoadNetwork network2;
-  JSON::Deserialize(network2, jsonNetwork);
-  // JSON::Write(jsonNetwork, "RoadNetwork.json");
+  JSON::Write(jsonNetwork,
+              "/home/dtcc/core/data/roadNetworkSample/RoadNetwork.json");
 
   return 0;
 }
