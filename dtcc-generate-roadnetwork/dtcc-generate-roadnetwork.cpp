@@ -3,6 +3,7 @@
 
 #include "CommandLine.h"
 #include "Logging.h"
+#include <Hashing.h>
 #include <JSON.h>
 #include <Polygon.h>
 #include <RoadNetwork.h>
@@ -22,7 +23,6 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
                            json &attributes);
 
 std::string GetDataDirectory(const std::string &filename);
-std::string GetHash(const Point2D &vertex);
 
 void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum);
 int main(int argc, char *argv[])
@@ -67,15 +67,14 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
                            json &attributes)
 {
   RoadNetwork network;
-  std::unordered_map<std::string, size_t> hashToVertexIndex;
+  std::unordered_map<size_t, size_t> hashToVertexIndex;
   size_t vertexIndex = 0;
   for (size_t i = 0; i < polygons.size(); i++)
   {
     size_t numVertices = polygons[i].Vertices.size();
     for (size_t j = 0; j < polygons[i].Vertices.size(); j++)
     {
-      std::string hash = GetHash(polygons[i].Vertices[j]);
-
+      size_t hash = Hashing::Hash(polygons[i].Vertices[j]);
       size_t uniqueVertexIndex = network.Vertices.size();
       if (hashToVertexIndex.count(hash) > 0)
         uniqueVertexIndex = hashToVertexIndex[hash];
@@ -104,10 +103,4 @@ void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum)
                             : elem.value().dump();
     network.EdgeProperties[elem.key()].push_back(value);
   }
-}
-
-// TODO: Use Point2D/3D hash function
-std::string GetHash(const Point2D &vertex)
-{
-  return vertex.__str__();
 }
