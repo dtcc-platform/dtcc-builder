@@ -16,6 +16,7 @@
 #include "MeshVectorField.h"
 #include "catch.hpp"
 #include <XMLParser.h>
+#include <deque>
 #include <nlohmann/json.hpp>
 
 using namespace DTCC;
@@ -373,7 +374,7 @@ TEST_CASE("COLORMAPS")
 
 }
 
-TEST_CASE("Hashinge")
+TEST_CASE("Hashing")
 {
   SECTION("Hash Point2D")
   {

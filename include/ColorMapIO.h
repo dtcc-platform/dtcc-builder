@@ -4,6 +4,8 @@
 #ifndef DTCC_COLOR_MAP_IO_FIELD_H
 #define DTCC_COLOR_MAP_IO_FIELD_H
 
+#include <cmath>
+#include <deque>
 #include <fstream>
 #include <png++/png.hpp>
 

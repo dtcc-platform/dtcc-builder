@@ -1,6 +1,7 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
+#include <deque>
 #include <dolfin.h>
 #include <iostream>
 #include <string>
