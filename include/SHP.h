@@ -70,7 +70,7 @@ public:
       throw std::runtime_error("Shapefile not of relevant type.");
 
     if (attributes != nullptr)
-      ReadAttributes(fileName, numEntities, attributes);
+      readAttributes(fileName, numEntities, attributes);
     ReadPolygons(polygons, handle, numEntities);
   }
 
@@ -84,23 +84,31 @@ private:
     return dbfHandle;
   }
 
-  static void ReadAttributes(const std::string &fileName,
+  static std::vector<std::string> getFieldNames(DBFHandle handle, int numFields)
+  {
+    std::vector<std::string> fieldNames;
+    for (int i = 0; i < numFields; ++i)
+    {
+      char fieldName[12];
+      DBFGetFieldInfo(handle, i, fieldName, nullptr, nullptr);
+      fieldNames.emplace_back(fieldName);
+    }
+    return fieldNames;
+  }
+
+  static void readAttributes(const std::string &fileName,
                              int numEntities,
                              basic_json<> *attributes)
   {
     DBFHandle handle = getDBFHandle(fileName);
-    int codeFieldIndex = DBFGetFieldIndex(handle, "KKOD");
-    int categoryFieldIndex = DBFGetFieldIndex(handle, "KATEGORI");
+    int numFields = DBFGetFieldCount(handle);
+    std::vector<std::string> fieldNames = getFieldNames(handle, numFields);
 
     for (int i = 0; i < numEntities; ++i)
     {
-      int code = DBFReadIntegerAttribute(handle, i, codeFieldIndex);
-
-      std::string category =
-          std::string(DBFReadStringAttribute(handle, i, categoryFieldIndex));
       json shapeAttr = json({});
-      shapeAttr["KKOD"] = code;
-      shapeAttr["KATEGORI"] = category;
+      for (int j = 0; j < numFields; ++j)
+        shapeAttr[fieldNames[j]] = DBFReadStringAttribute(handle, i, j);
       attributes->push_back(shapeAttr);
     }
   }
