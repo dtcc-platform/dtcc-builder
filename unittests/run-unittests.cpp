@@ -3,17 +3,18 @@
 
 #define CATCH_CONFIG_MAIN
 
-#include "catch.hpp"
 #include "Color.h"
 #include "ColorMap.h"
 #include "ColorMapIO.h"
 #include "Grid.h"
 #include "GridField.h"
 #include "GridVectorField.h"
+#include "Hashing.h"
 #include "JSON.h"
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
+#include "catch.hpp"
 #include <XMLParser.h>
 #include <nlohmann/json.hpp>
 
@@ -275,7 +276,7 @@ TEST_CASE("COLORMAPS")
   }
   SECTION("Interpolate")
   {
-    
+
     REQUIRE(cm(0).R == 0.0);
     REQUIRE(cm(0).G == 0.0);
     REQUIRE(cm(0).B == 0.0);
@@ -298,11 +299,11 @@ TEST_CASE("COLORMAPS")
   }
 
   SECTION("Load PNG")
-  { 
+  {
     ColorMap cm3;
     ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
     REQUIRE(cm3.size()==256);
-    
+
     REQUIRE(cm3(0).R==Approx(127/255.0).margin(0.0001));
     REQUIRE(cm3(0).G==Approx(0).margin(0.0001));
     REQUIRE(cm3(0).B==Approx(0).margin(0.0001));
@@ -317,7 +318,7 @@ TEST_CASE("COLORMAPS")
 
   }
 
-  SECTION("Write PNG") 
+  SECTION("Write PNG")
   {
     ColorMapIO::WritePNG(cm, "testmap.png");
     ColorMap cm4;
@@ -354,7 +355,7 @@ TEST_CASE("COLORMAPS")
     JSON::Read(cm5,"testmap.json");
 
     REQUIRE(cm5.size()==256);
-    
+
     REQUIRE(cm5(0).R==Approx(127/255.0).margin(0.0001));
     REQUIRE(cm5(0).G==Approx(0).margin(0.0001));
     REQUIRE(cm5(0).B==Approx(0).margin(0.0001));
@@ -370,4 +371,19 @@ TEST_CASE("COLORMAPS")
 
   }
 
+}
+
+TEST_CASE("Hashinge")
+{
+  SECTION("Hash Point2D")
+  {
+    Point2D p(1, 2);
+    Info(Hashing::Hex(Hashing::Hash(p)));
+  }
+
+  SECTION("Hash Point3D")
+  {
+    Point3D p(1, 2, 3);
+    Info(Hashing::Hex(Hashing::Hash(p)));
+  }
 }
