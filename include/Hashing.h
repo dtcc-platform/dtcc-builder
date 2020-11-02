@@ -4,6 +4,7 @@
 #ifndef DTCC_HASHING_H
 #define DTCC_HASHING_H
 
+#include "Point.h"
 #include <iomanip>
 #include <sstream>
 
