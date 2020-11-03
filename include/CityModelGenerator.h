@@ -256,7 +256,7 @@ private:
     Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
   }
 
-  // Merge the two polygonspolygon
+  // Merge the two polygons
   static Polygon MergePolygons(const Polygon &polygon0, const Polygon &polygon1)
   {
     // For now, we just compute the convex hull, consider
