@@ -23,7 +23,7 @@ public:
   double Height{};
 
   // Create empty building
-  Building() {}
+  Building() = default;
 };
 
 } // namespace DTCC

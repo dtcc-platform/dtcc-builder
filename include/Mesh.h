@@ -38,7 +38,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "2D triangular mesh with "
         + str(Vertices.size()) + " vertices and "
@@ -73,7 +73,7 @@ namespace DTCC
     }
 
     // Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "3D tetrahedral mesh with "
         + str(Vertices.size()) + " vertices and "

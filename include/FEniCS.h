@@ -29,7 +29,7 @@ public:
     meshEditor.init_vertices(mesh2D.Vertices.size());
     for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
     {
-      const Vector2D &p = mesh2D.Vertices[i];
+      const Vector2D &p = Vector2D(mesh2D.Vertices[i]);
       meshEditor.add_vertex(i, p.x, p.y);
     }
 
@@ -58,7 +58,7 @@ public:
     meshEditor.init_vertices(mesh3D.Vertices.size());
     for (size_t i = 0; i < mesh3D.Vertices.size(); i++)
     {
-      const Vector3D &p = mesh3D.Vertices[i];
+      const Vector3D &p = Vector3D(mesh3D.Vertices[i]);
       meshEditor.add_vertex(i, p.x, p.y, p.z);
     }
 
@@ -110,7 +110,7 @@ public:
       {
         for (size_t i = 0; i < surface.Vertices.size(); i++)
         {
-          const Vector3D &p = surface.Vertices[i];
+          const Vector3D &p = Vector3D(surface.Vertices[i]);
           meshEditor.add_vertex(k++, p.x, p.y, p.z);
         }
       }
@@ -137,21 +137,21 @@ public:
   }
 
   // Write FEniCS mesh to file
-  static void Write(const dolfin::Mesh &mesh, std::string fileName)
+  static void Write(const dolfin::Mesh &mesh, const std::string& fileName)
   {
     Info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << mesh;
   }
 
   // Write FEniCS boundary mesh to file
-  static void Write(const dolfin::BoundaryMesh &boundary, std::string fileName)
+  static void Write(const dolfin::BoundaryMesh &boundary, const std::string& fileName)
   {
     Info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << boundary;
   }
 
   // Write FEniCS function to file
-  static void Write(const dolfin::Function &function, std::string fileName)
+  static void Write(const dolfin::Function &function, const std::string& fileName)
   {
     Info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << function;

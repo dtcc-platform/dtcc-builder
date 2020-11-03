@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-#
-# VirtualCity@Chalmers: vc-generate-citymodel
-# Anders Logg 2019
-# Licensed under the MIT License
+# dtcc-plot
+# // Copyright (C) 2020 Anders Logg
+# // Licensed under the MIT License
 
 import sys, numpy, json, pylab
 

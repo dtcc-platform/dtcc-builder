@@ -7,13 +7,12 @@ stages:
   - test
 
 before_script:
-  - sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get -y install locales sudo && sudo apt-get update && sudo apt-get install -y nlohmann-json-dev libshp-dev liblas-dev liblas-c-dev libpugixml-dev libproj-dev libtriangle-dev libnetcdf-c++4-dev clang-format clang-tidy && 
-     sudo add-apt-repository ppa:fenics-packages/fenics &&
-      sudo apt-get update && sudo apt-get install -y fenics && sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update && sudo apt-get install -y gdal-bin libgdal-dev
+    - echo "Skipping since we are using Gitlab's Docker image registry"
 
 build:
   stage: build
   script:
+    - sudo apt-get install libpng++-dev -y # add extra (outside of registered Docker file) dependencies here
     - pwd && mkdir build && cd build && cmake .. && make all && make install
   artifacts:
     paths:

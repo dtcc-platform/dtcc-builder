@@ -201,7 +201,7 @@ private:
 
     // Process queue until empty
     size_t numMerged = 0;
-    while (indices.size() > 0)
+    while (!indices.empty())
     {
       // Pop index of next building to check
       const size_t i = indices.front();
@@ -215,7 +215,7 @@ private:
           continue;
 
         // Skip if merged with other building (size set to 0)
-        if (buildings[j].Footprint.Vertices.size() == 0)
+        if (buildings[j].Footprint.Vertices.empty())
           continue;
 
         // Compute squared distance between polygons
@@ -246,7 +246,7 @@ private:
     std::vector<Building> mergedBuildings;
     for (const auto &building : buildings)
     {
-      if (building.Footprint.Vertices.size() > 0)
+      if (!building.Footprint.Vertices.empty())
         mergedBuildings.push_back(building);
     }
 
@@ -256,7 +256,7 @@ private:
     Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
   }
 
-  // Merge the two polygonspolygon
+  // Merge the two polygons
   static Polygon MergePolygons(const Polygon &polygon0, const Polygon &polygon1)
   {
     // For now, we just compute the convex hull, consider

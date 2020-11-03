@@ -50,7 +50,7 @@ public:
   {
     const size_t ix = i % SizeX;
     const size_t iy = i / SizeX;
-    return Vector2D(ix * Resolution, iy * Resolution);
+    return {ix * Resolution, iy * Resolution};
   }
 };
 
