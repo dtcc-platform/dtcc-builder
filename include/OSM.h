@@ -21,7 +21,7 @@ class OSM
 {
 public:
   // Read polygons from OSM file
-  static void Read(std::vector<Polygon> polygons, std::string fileName)
+  static void Read(std::vector<Polygon> polygons, const std::string& fileName)
   {
     Info("OSM: Reading polygons from file " + fileName);
 
@@ -103,7 +103,7 @@ public:
         Vector2D p = n->second;
 
         // Add to polygon
-        polygon.Points.push_back(p);
+        polygon.Points.push_back(p); // TODO: No Points in Polygon
       }
 
       // Add polygon

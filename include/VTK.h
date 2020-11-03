@@ -23,7 +23,7 @@ class VTK
 public:
 
   // Write 2D mesh to VTK file
-  static void Write(const Mesh2D &mesh, std::string fileName)
+  static void Write(const Mesh2D &mesh, const std::string& fileName)
   {
     Info("VTK: Writing 2D mesh to file " + fileName);
 
@@ -78,7 +78,7 @@ public:
   }
 
   // Write 3D mesh to VTK file
-  static void Write(const Mesh3D &mesh, std::string fileName)
+  static void Write(const Mesh3D &mesh, const std::string& fileName)
   {
     Info("VTK: Writing 3D mesh to file " + fileName);
 
@@ -133,7 +133,7 @@ public:
   }
 
   // Write 3D surface to VTK file
-  static void Write(const Surface3D &surface, std::string fileName)
+  static void Write(const Surface3D &surface, const std::string& fileName)
   {
     Info("VTK: Writing 3D surface to file " + fileName);
 

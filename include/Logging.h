@@ -107,7 +107,7 @@ namespace DTCC
   }
 
   // Set log file
-  void SetLogFile(std::string fileName, bool append=false)
+  void SetLogFile(const std::string& fileName, bool append=false)
   {
     if (append)
       logFile.open(fileName, std::ofstream::out | std::ofstream::app);

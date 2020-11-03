@@ -26,12 +26,12 @@ namespace DTCC
     std::vector<double> Values{};
 
     /// Create empty field
-    GridVectorField2D() {}
+    GridVectorField2D() = default;
 
     /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    GridVectorField2D(const Grid2D& grid) : Grid(grid)
+    explicit GridVectorField2D(const Grid2D& grid) : Grid(grid)
     {
       // Initialize values to zero
       Values.resize(2*grid.NumVertices());
@@ -42,7 +42,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Vector2D operator()(const Point2D& p) const
+    Vector2D operator()(const Point2D& p) const override
     {
       // Map point to cell
       size_t i{};
@@ -61,8 +61,8 @@ namespace DTCC
 
       // Compute value by bilinear interpolation
       Vector2D v{};
-      v.x = Grid.Interpolate(x, y, v00x, v10x, v01x, v11x);
-      v.y = Grid.Interpolate(x, y, v00y, v10y, v01y, v11y);
+      v.x = DTCC::Grid2D::Interpolate(x, y, v00x, v10x, v01x, v11x);
+      v.y = DTCC::Grid2D::Interpolate(x, y, v00y, v10y, v01y, v11y);
 
       return v;
     }
@@ -82,7 +82,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "2D vector field on " + str(Grid);
     }
@@ -103,12 +103,12 @@ namespace DTCC
     std::vector<double> Values{};
 
     /// Create empty field
-    GridVectorField3D() {}
+    GridVectorField3D() = default;
 
     /// Create zero field on given grid.
     ///
     /// @param grid The grid
-    GridVectorField3D(const Grid3D& grid) : Grid(grid)
+    explicit GridVectorField3D(const Grid3D& grid) : Grid(grid)
     {
       // Initialize values to zero
       Values.resize(3*grid.NumVertices());
@@ -119,7 +119,7 @@ namespace DTCC
     ///
     /// @param p The point
     /// @return Value at point
-    Vector3D operator()(const Point3D& p) const
+    Vector3D operator()(const Point3D& p) const override
     {
       // Map point to cell
       size_t i{};
@@ -154,9 +154,9 @@ namespace DTCC
 
       // Compute value by trilinear interpolation
       Vector3D v;
-      v.x = Grid.Interpolate(x, y, z, v000x, v100x, v010x, v110x, v001x, v101x, v011x, v111x);
-      v.y = Grid.Interpolate(x, y, z, v000y, v100y, v010y, v110y, v001y, v101y, v011y, v111y);
-      v.z = Grid.Interpolate(x, y, z, v000z, v100z, v010z, v110z, v001z, v101z, v011z, v111z);
+      v.x = DTCC::Grid3D::Interpolate(x, y, z, v000x, v100x, v010x, v110x, v001x, v101x, v011x, v111x);
+      v.y = DTCC::Grid3D::Interpolate(x, y, z, v000y, v100y, v010y, v110y, v001y, v101y, v011y, v111y);
+      v.z = DTCC::Grid3D::Interpolate(x, y, z, v000z, v100z, v010z, v110z, v001z, v101z, v011z, v111z);
 
       return v;
     }
@@ -177,7 +177,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "3D vector field on " + str(Grid);
     }

@@ -25,7 +25,7 @@ public:
   // Wrap for rapidcsv CSV container
   rapidcsv::Document Document;
   // Write 2D point set to CSV file
-  static void Write(const std::vector<Vector2D> &Points, std::string fileName)
+  static void Write(const std::vector<Vector2D> &Points, const std::string& fileName)
   {
     Info("CSV: Writing 2D point set to file " + fileName);
 
@@ -48,7 +48,7 @@ public:
   }
 
   // Write 2D mesh to CSV files (.csv will be appended)
-  static void Write(const Mesh2D &mesh, std::string prefix)
+  static void Write(const Mesh2D &mesh, const std::string& prefix)
   {
     Info("CSV: Writing 2D mesh to file " + prefix);
 
@@ -70,7 +70,7 @@ public:
 
     // Write points
     for (auto const &p : mesh.Vertices)
-      Write(p, fp);
+      Write(Vector2D(p), fp);
 
     // Write triangles
     for (auto const &t : mesh.Cells)
@@ -82,7 +82,7 @@ public:
   }
 
   // Write 3D mesh to CSV files
-  static void Write(const Mesh3D &mesh, std::string prefix)
+  static void Write(const Mesh3D &mesh, const std::string& prefix)
   {
     Info("CSV: Writing 3D mesh to file " + prefix);
 
@@ -100,7 +100,7 @@ public:
 
     // Write points
     for (auto const &p : mesh.Vertices)
-      Write(p, fp);
+      Write(Vector3D(p), fp);
 
     // Write triangles
     for (auto const &t : mesh.Cells)
@@ -111,7 +111,7 @@ public:
     ft.close();
   }
   // Read CSV file and store it in rapidcsv
-  void Read(std::string iFilename, bool verbose = false)
+  void Read(const std::string& iFilename, bool verbose = false)
   {
     // Open file and check
     try

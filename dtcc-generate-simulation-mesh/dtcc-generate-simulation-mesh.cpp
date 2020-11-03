@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
   // Read height map data
   GridField2D heightMap;
-  JSON::Read(heightMap, dataDirectory + "HeightMap.json");
+  JSON::Read(heightMap, dataDirectory + "GroundMap.json");
   Info(heightMap);
 
   // Smooth height map

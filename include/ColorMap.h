@@ -25,9 +25,9 @@ public:
     ColorMapType mapType;
     std::vector<colorMapEntry> Colors{};
 
-    ColorMap(ColorMapType type = ColorMapType::Linear): mapType(type) {}
+    explicit ColorMap(ColorMapType type = ColorMapType::Linear): mapType(type) {}
 
-    void InsertColor(float startPoint, Color c)
+    void InsertColor(float startPoint, const Color& c)
     {
         if (startPoint<0 || startPoint>1)
         {
@@ -37,7 +37,7 @@ public:
         sortColormap();
     }
 
-    size_t size() {
+    size_t size() const {
         return Colors.size();
     }
 
@@ -52,7 +52,7 @@ public:
         if (d>Colors.back().first)
             return Colors.back().second;
         // inside the range of the color map 
-        for (auto c: Colors) {
+        for (const auto& c: Colors) {
             if (d == c.first)
                 return c.second;
             if (d > c.first)
@@ -73,10 +73,10 @@ public:
         }
     }
 
-    std::string __str__() const
+    std::string __str__() const // TODO: Should ColorMap inherit printable?
     {
         std::string out = "Colormap: \n";
-        for (auto c: Colors) 
+        for (const auto& c: Colors)
         {
             out += (str(c.first) + ": ");   
             out += str(c.second);
@@ -90,7 +90,7 @@ private:
     {
         std::sort(std::begin(Colors), 
               std::end(Colors), 
-              [](colorMapEntry a, colorMapEntry b ) {return a.first < b.first; });
+              [](const colorMapEntry& a, const colorMapEntry& b ) {return a.first < b.first; });
     }
 };
 }

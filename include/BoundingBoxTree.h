@@ -49,7 +49,7 @@ namespace DTCC
       Nodes.clear();
 
       // Skip if there is no data
-      if (bboxes.size() == 0)
+      if (bboxes.empty())
         return;
 
       // Initialize indices of bounding boxes to be sorted
@@ -84,7 +84,7 @@ namespace DTCC
     struct LessThanX
     {
       const std::vector<BoundingBox2D>& bboxes;
-      LessThanX(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
+      explicit LessThanX(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
       bool operator()(size_t i, size_t j)
       {
         return bboxes[i].P.x + bboxes[i].Q.x < bboxes[j].P.x + bboxes[j].Q.x;
@@ -95,7 +95,7 @@ namespace DTCC
     struct LessThanY
     {
       const std::vector<BoundingBox2D>& bboxes;
-      LessThanY(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
+      explicit LessThanY(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
       bool operator()(size_t i, size_t j)
       {
         return bboxes[i].P.y + bboxes[i].Q.y < bboxes[j].P.y + bboxes[j].Q.y;

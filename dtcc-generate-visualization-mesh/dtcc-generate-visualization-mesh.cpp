@@ -1,6 +1,7 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
+#include <deque>
 #include <dolfin.h>
 #include <iostream>
 #include <string>
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
 
   // Read height map data
   GridField2D heightMap;
-  JSON::Read(heightMap, dataDirectory + "HeightMap.json");
+  JSON::Read(heightMap, dataDirectory + "GroundMap.json");
   Info(heightMap);
 
   // Generate 3D surfaces

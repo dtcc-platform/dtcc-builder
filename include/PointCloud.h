@@ -27,23 +27,29 @@ namespace DTCC
     BoundingBox2D BoundingBox{};
 
     // Create empty point cloud
-  PointCloud() {}
+    PointCloud() = default;
+
     // set a default color to all points
-    void InitColors(Color c) 
+    void InitColors(const Color &c)
     {
-      for (size_t i = 0; i < Points.size(); i++) {
+      for (size_t i = 0; i < Points.size(); i++)
+      {
         Colors.push_back(c);
       }
     }
-
-    /// Pretty-print
-    std::string __str__() const
+  
+  void clear() 
     {
-      return "Point cloud on " + str(BoundingBox) + " with " + str(Points.size()) + " points ";
+      Points.clear();
+      Colors.clear();
     }
 
-    
-
+    /// Pretty-print
+    std::string __str__() const override
+    {
+      return "Point cloud on " + str(BoundingBox) + " with " +
+             str(Points.size()) + " points ";
+    }
   };
 
 } // namespace DTCC

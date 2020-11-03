@@ -4,7 +4,7 @@
 #ifndef DTCC_GRID_H
 #define DTCC_GRID_H
 
-#include <assert.h>
+#include <cassert>
 
 #include "BoundingBox.h"
 #include "Geometry.h"
@@ -36,7 +36,7 @@ namespace DTCC
     double YStep{};
 
     /// Create empty grid
-    Grid2D() {}
+    Grid2D() = default;
 
     /// Create grid for given bounding box and size.
     ///
@@ -78,8 +78,8 @@ namespace DTCC
     {
       const size_t ix = i % XSize;
       const size_t iy = i / XSize;
-      return Point2D(BoundingBox.P.x + ix * XStep,
-                     BoundingBox.P.y + iy * YStep);
+      return {BoundingBox.P.x + ix * XStep,
+                     BoundingBox.P.y + iy * YStep};
     }
 
     /// Map vertex index to (at most) 4 neighoring vertex indices.
@@ -117,7 +117,7 @@ namespace DTCC
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Point2D& p)
+    size_t Point2Index(const Point2D& p) const
     {
       const double _x = p.x - BoundingBox.P.x;
       const double _y = p.y - BoundingBox.P.y;
@@ -174,7 +174,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "2D grid on " + str(BoundingBox) + " of dimension " +
         str(XSize) + " x " + str(YSize);
@@ -210,7 +210,7 @@ namespace DTCC
     double ZStep{};
 
     /// Create empty grid
-    Grid3D() {}
+    Grid3D() = default;
 
     /// Create grid for given bounding box and size.
     ///
@@ -256,16 +256,16 @@ namespace DTCC
       const size_t ix = i % XSize;
       const size_t iy = (i / XSize) % YSize;
       const size_t iz = i / (XSize * YSize);
-      return Point3D(BoundingBox.P.x + ix * XStep,
+      return {BoundingBox.P.x + ix * XStep,
                      BoundingBox.P.y + iy * YStep,
-                     BoundingBox.P.z + iz * ZStep);
+                     BoundingBox.P.z + iz * ZStep};
     }
 
     /// Map point to index of closest vertex.
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Point3D& p)
+    size_t Point2Index(const Point3D& p) const
     {
       const double _x = p.x - BoundingBox.P.x;
       const double _y = p.y - BoundingBox.P.y;
@@ -340,7 +340,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "3D grid on " + str(BoundingBox) + " of dimension " +
         str(XSize) + " x " + str(YSize) + " x " + str(YSize);

@@ -45,7 +45,7 @@ namespace DTCC
     int FindBuilding(const Vector2D &p) const
     {
       // Check that search tree has been created
-      if (bbtree.Nodes.size() == 0)
+      if (bbtree.Nodes.empty())
       {
         Warning("Warning: Missing search tree; call BuildSearchTree()");
         return -1;
@@ -99,7 +99,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return "CityModel with " + str(Buildings.size()) + " buildings";
     }

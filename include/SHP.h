@@ -21,7 +21,7 @@ class SHP
 public:
   // Read polygons from SHP file. Note that the corresponding
   // .shx and .dbf files must also be present in the same directory.
-  static void Read(std::vector<Polygon> &polygons, std::string fileName)
+  static void Read(std::vector<Polygon> &polygons, const std::string& fileName)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
@@ -29,7 +29,7 @@ public:
 
     // Get info
     int numEntities, shapeType;
-    SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
+    SHPGetInfo(handle, &numEntities, &shapeType, nullptr, nullptr);
     Info("SHP: " + str(numEntities) + " entities");
     switch (shapeType)
     {
@@ -90,7 +90,6 @@ public:
         // For multipatch polygons only get the first polygon
         // TODO: handle donut and multipatch polygons correctly
 
-        Polygon polygon;
         int start;
         int end;
         for (int part = 0; part < object->nParts; part++)
