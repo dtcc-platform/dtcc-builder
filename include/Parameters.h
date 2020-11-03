@@ -70,7 +70,7 @@ namespace DTCC
     static constexpr double PointCloudOutlierThreshold = 150.0;
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return str("Parameters:") +
              "\n  DataDirectory           = " + DataDirectory +

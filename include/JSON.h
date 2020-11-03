@@ -6,7 +6,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include "Parameters.h"
 #include "BoundingBox.h"

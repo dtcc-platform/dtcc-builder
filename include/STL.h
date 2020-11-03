@@ -20,7 +20,7 @@ class STL
 public:
   // Read (binary) STL file and return triangles as a flattened
   // list of vertex coordinates (3 x 3 = 9 numbers per triangle).
-  static std::vector<float> Read(std::string filename)
+  static std::vector<float> Read(const std::string& filename)
   {
     Info("STL file:   " + filename);
 

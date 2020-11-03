@@ -29,7 +29,7 @@ public:
   std::vector<size_t> CoordinateDimensions;
   // std::unique_ptr<T[]> Pointer;
   // T *Vector;
-  NetCDF4(size_t size)
+  explicit NetCDF4(size_t size)
   {
     Info("Creating new NetCDF4 with known size " + str(size));
     // Vector = new T[size];
@@ -119,7 +119,7 @@ public:
     // iVector.push_back(tempvector);
 
     Progress("Got em all");
-    delete tempvector;
+    delete[] tempvector;
     tempvector = nullptr;
   }
   void getOrigin(NcVar &iData)
