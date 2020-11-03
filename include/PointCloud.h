@@ -37,6 +37,12 @@ namespace DTCC
         Colors.push_back(c);
       }
     }
+  
+  void clear() 
+    {
+      Points.clear();
+      Colors.clear();
+    }
 
     /// Pretty-print
     std::string __str__() const override
