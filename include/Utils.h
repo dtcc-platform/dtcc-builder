@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_UTILS_H
@@ -28,8 +28,25 @@ namespace DTCC
       return x < 0 ? 0 : (x + k >= n ? n - 1 - k : x);
     }
 
+    /// Convert string encoded with ISO 8859-1 to UTF-8.
+    /// \param str The ISO 8859-1 string to convert
+    /// \return The string converted to UTF-8
+    static std::string Iso88591ToUtf8(std::string &str)
+    {
+      std::string strOut;
+      for (uint8_t ch : str)
+      {
+        if (ch < 0x80)
+          strOut.push_back(ch);
+        else
+        {
+          strOut.push_back(0xc0 | ch >> 6);
+          strOut.push_back(0x80 | (ch & 0x3f));
+        }
+      }
+      return strOut;
+    }
   };
-
 }
 
 #endif

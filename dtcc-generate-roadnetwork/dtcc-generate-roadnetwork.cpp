@@ -16,7 +16,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-roadnetwork fileName.shp" << std::endl;
+  std::cerr << "Usage: dtcc-generate-roadnetwork fileName.shp" << std::endl;
 }
 
 RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
@@ -25,6 +25,7 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
 std::string GetDataDirectory(const std::string &filename);
 
 void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum);
+
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
@@ -47,11 +48,10 @@ int main(int argc, char *argv[])
     throw std::runtime_error("Differing number of roads and attribute sets.");
   RoadNetwork network = GetRoadNetwork(vertices, attributes);
 
+  // Serialize and write JSON file
   std::string dataDirectory = GetDataDirectory(shpFilename);
   json jsonNetwork;
   JSON::Serialize(network, jsonNetwork);
-  Info(jsonNetwork.dump(4));
-
   JSON::Write(jsonNetwork, dataDirectory + "RoadNetwork.json");
 
   return 0;

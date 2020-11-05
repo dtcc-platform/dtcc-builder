@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
+#include "SHP.h"
 #include "catch.hpp"
 #include <XMLParser.h>
 #include <deque>
@@ -387,4 +388,10 @@ TEST_CASE("Hashing")
     Point3D p(1, 2, 3);
     Info(Hashing::Hex(Hashing::Hash(p)));
   }
+}
+
+TEST_CASE("ISO 8559-1 to UTF-8")
+{
+  std::string testStr("G\345ngv\344g");
+  REQUIRE(Utils::Iso88591ToUtf8(testStr) == "Gångväg");
 }
