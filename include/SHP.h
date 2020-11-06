@@ -131,9 +131,10 @@ private:
     std::transform(codePage.begin(), codePage.end(), codePage.begin(),
                    ::toupper);
     if (codePage == "ISO88591")
-      Info("DBF attributes encoded as ISO-8859-1, converting to UTF-8...");
+      Info("SHP: DBF attributes encoded as ISO-8859-1, converting to UTF-8...");
     else if (codePage != "UTF8")
-      Info("Unknown or unrecognized encoding of DBF attributes, characters may "
+      Info("SHP: Unknown or unrecognized encoding of DBF attributes, "
+           "characters may "
            "not be "
            "displayed correctly");
 

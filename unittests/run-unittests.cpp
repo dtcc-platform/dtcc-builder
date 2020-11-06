@@ -395,3 +395,24 @@ TEST_CASE("ISO 8559-1 to UTF-8")
   std::string testStr("G\345ngv\344g");
   REQUIRE(Utils::Iso88591ToUtf8(testStr) == "Gångväg");
 }
+
+TEST_CASE("SHP Extraction")
+{
+  SECTION("Road data extraction")
+  {
+    std::vector<Polygon> roads;
+    nlohmann::json attributes;
+    SHP::Read(roads, "data/roadNetwork/vl_riks.shp", &attributes);
+    REQUIRE(roads.size() == 7);
+    REQUIRE(roads[0].Vertices.size() == 13);
+    Point2D v = roads[0].Vertices[0];
+    REQUIRE(v.x == Approx(306234.751));
+    REQUIRE(v.y == Approx(6401785.2819999997));
+
+    REQUIRE(attributes.size() == 7);
+    nlohmann::json firstAttr = attributes[0];
+    REQUIRE(firstAttr.size() == 2);
+    REQUIRE(firstAttr["KATEGORI"] == "Bilväg");
+    REQUIRE(firstAttr["KKOD"] == "5071");
+  }
+}
