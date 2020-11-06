@@ -402,7 +402,7 @@ TEST_CASE("SHP Extraction")
   {
     std::vector<Polygon> roads;
     nlohmann::json attributes;
-    SHP::Read(roads, "data/roadNetwork/vl_riks.shp", &attributes);
+    SHP::Read(roads, "./data/roadNetwork/vl_riks.shp", &attributes);
     REQUIRE(roads.size() == 7);
     REQUIRE(roads[0].Vertices.size() == 13);
     Point2D v = roads[0].Vertices[0];
