@@ -1,5 +1,5 @@
 // SHP I/O
-// Anders Logg 2019
+// Copyright (C) Anders Logg 2019, Anton J Olsson 2020
 // Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
@@ -18,6 +18,7 @@ using namespace nlohmann;
 namespace DTCC
 {
 
+/// Cl
 class SHP
 {
 public:
@@ -81,8 +82,9 @@ public:
 
 private:
   /// Remove characters from string.
+  ///
   /// \param str String to cleanse
-  /// \param chars String where all characters to remove should be put
+  /// \param chars String with all characters to remove
   /// \return The cleansed string
   static std::string removeChars(std::string &str, const std::string &chars)
   {
@@ -95,6 +97,7 @@ private:
   }
 
   /// Get all field/attribute names.
+  ///
   /// \param handle The DBF handle.
   /// \param numFields Number of fields in the DBF file
   /// \param codePage The encoding of the DBF file
@@ -116,6 +119,7 @@ private:
   }
 
   /// Read and store all attributes/fields.
+  ///
   /// \param fileName The SHP filename
   /// \param numEntities Number of polygons
   /// \param attributes JSON object to store the attributes in
@@ -156,7 +160,8 @@ private:
     }
   }
 
-  /// Returns DBF handle.
+  /// Return DBF handle.
+  ///
   /// \param fileName SHP filename.
   /// \return The DBF handle.
   static DBFHandle getDBFHandle(const std::string &fileName)
@@ -168,7 +173,8 @@ private:
     return dbfHandle;
   }
 
-  /// Reads and stores polygons/edges.
+  /// Read and store polygons/edges.
+  ///
   /// \param polygons Vector for polygon storage
   /// \param handle SHP handle
   /// \param numEntities Number of polygons

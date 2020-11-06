@@ -63,6 +63,7 @@ std::string GetDataDirectory(const std::string &filename)
   return filename.substr(0, endPos + 1);
 }
 
+// Construct unique vertices and edges with indices to the vertices
 RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
                            json &attributes)
 {
