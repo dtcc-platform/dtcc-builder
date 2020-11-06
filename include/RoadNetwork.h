@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_ROAD_H
