@@ -18,7 +18,6 @@ using namespace nlohmann;
 namespace DTCC
 {
 
-/// Cl
 class SHP
 {
 public:
