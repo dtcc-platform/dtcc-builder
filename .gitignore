@@ -4,6 +4,3 @@
 !/data/testCase/
 !/data/sampleCityJSON/
 
-/docker/Dockerfile
-/docker/docker-compose.yml
-/docker/OldDockerfile
