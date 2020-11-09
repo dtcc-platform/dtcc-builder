@@ -12,6 +12,7 @@
 #include "GridField.h"
 #include "JSON.h"
 #include "LaplacianSmoother.h"
+#include "Logging.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
 #include "Parameters.h"

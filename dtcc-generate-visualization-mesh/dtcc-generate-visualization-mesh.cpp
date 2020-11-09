@@ -21,8 +21,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-visualization-mesh Parameters.json"
-            << std::endl;
+  Error("Usage: dtcc-generate-visualization-mesh Parameters.json");
 }
 
 int main(int argc, char *argv[])

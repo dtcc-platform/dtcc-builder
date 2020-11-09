@@ -12,7 +12,7 @@ using namespace DTCC;
 
 void Help()
 {
-  Error("Usage: vc-info Data.[json,las]");
+  Error("Usage: dtcc-info Data.[json,las]");
 }
 
 template <class T> void Info(nlohmann::json json)

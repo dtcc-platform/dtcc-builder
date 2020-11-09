@@ -5,6 +5,7 @@
 #include "Parameters.h"
 #include "PostProcessParameters.h"
 #include "Logging.h"
+
 #include <iostream>
 #include <memory>
 #include <netcdf>
@@ -14,10 +15,10 @@ using namespace std;
 using namespace netCDF;
 using namespace netCDF::exceptions;
 using namespace DTCC;
+
 void Help()
 {
-  std::cerr << "Usage: vc-read-netcdf filein.nc fileout.json variable"
-            << std::endl;
+  Error("Usage: vc-read-netcdf filein.nc fileout.json variable");
 }
 
 void unflatted(int height, int width, int depth, int index)

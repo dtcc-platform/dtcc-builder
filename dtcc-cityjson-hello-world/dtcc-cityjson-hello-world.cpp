@@ -17,7 +17,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-heightmap Parameters.json" << std::endl;
+  Error("Usage: dtcc-generate-heightmap Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -55,4 +55,3 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-

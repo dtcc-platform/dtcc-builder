@@ -44,7 +44,8 @@ namespace DTCC
       parameters.YMax = ToDouble("YMax", json);
       parameters.AutoDomain =ToBool("AutoDomain", json);
       parameters.DomainHeight = ToDouble("DomainHeight", json);
-      parameters.HeightMapResolution = ToDouble("HeightMapResolution", json);
+      parameters.ElevationModelResolution =
+          ToDouble("ElevationModelResolution", json);
       parameters.MeshResolution = ToDouble("MeshResolution", json);
       parameters.MinimalBuildingDistance = ToDouble("MinimalBuildingDistance", json);
       parameters.MinimalVertexDistance =
@@ -68,7 +69,7 @@ namespace DTCC
       json["YMax"] = parameters.YMax;
       json["AutoDomain"] = parameters.AutoDomain;
       json["DomainHeight"] = parameters.DomainHeight;
-      json["HeightMapResolution"] = parameters.HeightMapResolution;
+      json["ElevationModelResolution"] = parameters.ElevationModelResolution;
       json["MeshResolution"] = parameters.MeshResolution;
       json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
       json["MinimalVertexDistance"] = parameters.MinimalVertexDistance;
@@ -551,7 +552,7 @@ namespace DTCC
 
             for(auto const& boundary : cityObject.ObjectGeometry.Boundaries)
             {
-              auto boundariesInternalArray = nlohmann::json::array();  
+              auto boundariesInternalArray = nlohmann::json::array();
               auto boundariesArray = nlohmann::json::array();
               for(auto const& id: boundary.BoundariesIDs)
               {
@@ -560,12 +561,11 @@ namespace DTCC
               boundariesInternalArray.push_back(boundariesArray);
               externalArray.push_back(boundariesInternalArray);
             }
-            
+
             geometryObj["boundaries"] = externalArray;
             geometryArray.push_back(geometryObj);
             json["CityObjects"][id]["geometry"] = geometryArray;
         }
-        
       }
 
       //Serializing vertices
@@ -631,7 +631,7 @@ namespace DTCC
           //attributes = attributesField["measuredHeight"];
           attributes.MeasuredHeight = jsonCityObj["attributes"]["measuredHeight"];
         }
-        
+
         NewObj.ObjectAttributes=attributes;
 
         // Storing geometry
@@ -699,9 +699,7 @@ namespace DTCC
             NewObj.ObjectGeometry.Boundaries.push_back(newBoundary);
           }
         }
-        
 
-        
         // Getting type
         // TODO: move this whole impl to cityobj class function
         auto objectType = jsonCityObj.find("type");
@@ -714,7 +712,7 @@ namespace DTCC
 
     }
 
-    static void Serialize(const ColorMap &colorMap, nlohmann::json &json) 
+    static void Serialize(const ColorMap &colorMap, nlohmann::json &json)
     {
       auto jsonColorMap = nlohmann::json::array();
       json["Type"] = "ColorMap";
@@ -722,7 +720,7 @@ namespace DTCC
         json["colorMapType"] = "Linear";
       else
         json["colorMapType"] = "Discrete";
-      for (const auto c: colorMap.Colors) 
+      for (const auto c : colorMap.Colors)
       {
         auto jsonColorMapEntry = nlohmann::json::array();
         jsonColorMapEntry.push_back(c.first);
@@ -743,7 +741,7 @@ namespace DTCC
       else
         colorMap.mapType = Discrete;
       const auto colorMapEntries = json["map"];
-      for (auto c: colorMapEntries) 
+      for (auto c : colorMapEntries)
       {
         colorMap.InsertColor((double)c[0],Color((double)c[1],(double)c[2],(double)c[3]));
       }

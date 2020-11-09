@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "CommandLine.h"
-#include "HeightMapGenerator.h"
+#include "ElevationModelGenerator.h"
 #include "JSON.h"
 #include "LAS.h"
 #include "Logging.h"
@@ -14,10 +14,7 @@
 
 using namespace DTCC;
 
-void Help()
-{
-  std::cerr << "Usage: vc-generate-heightmap Parameters.json" << std::endl;
-}
+void Help() { Error("Usage: dtcc-generate-elevation-models Parameters.json"); }
 
 int main(int argc, char *argv[])
 {
@@ -56,10 +53,14 @@ int main(int argc, char *argv[])
     yMin = pointCloud.BoundingBox.P.y - parameters.Y0;
     xMax = pointCloud.BoundingBox.Q.x - parameters.X0;
     yMax = pointCloud.BoundingBox.Q.y - parameters.Y0;
-    Progress("  XMin: " + str(pointCloud.BoundingBox.P.x) + " --> " + str(xMin));
-    Progress("  YMin: " + str(pointCloud.BoundingBox.P.y) + " --> " + str(yMin));
-    Progress("  XMax: " + str(pointCloud.BoundingBox.Q.x) + " --> " + str(xMax));
-    Progress("  YMax: " + str(pointCloud.BoundingBox.Q.y) + " --> " + str(yMax));
+    Progress("  XMin: " + str(pointCloud.BoundingBox.P.x) + " --> " +
+             str(xMin));
+    Progress("  YMin: " + str(pointCloud.BoundingBox.P.y) + " --> " +
+             str(yMin));
+    Progress("  XMax: " + str(pointCloud.BoundingBox.Q.x) + " --> " +
+             str(xMax));
+    Progress("  YMax: " + str(pointCloud.BoundingBox.Q.y) + " --> " +
+             str(yMax));
   }
   else
   {
@@ -69,40 +70,38 @@ int main(int argc, char *argv[])
     yMax = parameters.YMax;
   }
 
-  // Generate height map
-  GridField2D heightMap;
-  HeightMapGenerator::GenerateHeightMap(heightMap, pointCloud,
-                                        parameters.X0, parameters.Y0,
-                                        xMin, yMin, xMax, yMax,
-                                        parameters.HeightMapResolution);
-  Info(heightMap);
+  // Generate DSM (including buildings and other objects)
+  GridField2D dsm{};
+  ElevationModelGenerator::GenerateElevationModel(
+      dsm, pointCloud, parameters.X0, parameters.Y0, xMin, yMin, xMax, yMax,
+      parameters.ElevationModelResolution);
+  Info(dsm);
+  JSON::Write(dsm, dataDirectory + "DSM.json");
 
-  // Write height map data
-  JSON::Write(heightMap, dataDirectory + "HeightMap.json");
+  // FIXME: We should be able to filter the point cloud (not read again).
 
-  // read in only ground points
+  // Read in only ground points
   pointCloud.clear();
   for (auto const &f : CommandLine::ListDirectory(dataDirectory))
   {
     if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
     {
-      // read only ground and water points
-      LAS::Read(pointCloud, dataDirectory + f, {2,9});
+      LAS::Read(pointCloud, dataDirectory + f,
+                {2, 9}); // only ground and water points
+      Info(pointCloud);
     }
   }
-  GridField2D groundMap;
-  HeightMapGenerator::GenerateHeightMap(groundMap, pointCloud,
-                                        parameters.X0, parameters.Y0,
-                                        xMin, yMin, xMax, yMax,
-                                        parameters.HeightMapResolution);
 
-  Info(groundMap);
-
-  // Write height map data
-  JSON::Write(groundMap, dataDirectory + "GroundMap.json");
+  // Generate DTM (excluding buildings and other objects)
+  GridField2D dtm{};
+  ElevationModelGenerator::GenerateElevationModel(
+      dtm, pointCloud, parameters.X0, parameters.Y0, xMin, yMin, xMax, yMax,
+      parameters.ElevationModelResolution);
+  Info(dtm);
+  JSON::Write(dtm, dataDirectory + "DTM.json");
 
   // Report timings
-  Timer::Report("dtcc-generate-heightmap");
+  Timer::Report("dtcc-generate-elevation-models");
 
   return 0;
 }

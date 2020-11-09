@@ -18,7 +18,7 @@
 
 using namespace DTCC;
 
-void Help() { Error("Usage: vc-generate-citymodel Parameters.json"); }
+void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 
 int main(int argc, char *argv[])
 {

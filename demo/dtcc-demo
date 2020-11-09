@@ -11,8 +11,8 @@ PARAMETERS=Hammarkullen.json
 # Exit on errors
 set -e
 
-# Generate height map
-../bin/dtcc-generate-heightmap $PARAMETERS
+# Generate elevation models
+../bin/dtcc-generate-elevation-models $PARAMETERS
 
 # Generate city model
 ../bin/dtcc-generate-citymodel $PARAMETERS

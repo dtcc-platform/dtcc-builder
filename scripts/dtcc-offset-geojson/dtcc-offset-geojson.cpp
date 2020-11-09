@@ -2,8 +2,11 @@
 // Anders Logg 2019
 // Vasilis Naserentin 2019
 // Offset in EPSG:3006 used in UE -148000 -6398600 (meters)
+
 #include "GeoJSON.h"
 #include "JSON.h"
+#include "Logging.h"
+
 #include <iostream>
 #include <netcdf>
 #include <string>
@@ -11,8 +14,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-offset-geojson filein.geojson fileout.geojson x y "
-            << std::endl;
+  Error("Usage: dtcc-offset-geojson filein.geojson fileout.geojson x y");
 }
 
 /*

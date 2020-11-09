@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "CommandLine.h"
-#include "HeightMapGenerator.h"
 #include "JSON.h"
 #include "LAS.h"
 #include "Parameters.h"
@@ -27,7 +26,8 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-heightmap Parameters.json" << std::endl;
+  std::cerr << "Usage: dtcc-generate-cityjson-from-mesh Parameters.json"
+            << std::endl;
 }
 
 std::vector<aiVector3D> getMeshVertices(const aiMesh &mesh)
@@ -133,4 +133,3 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-

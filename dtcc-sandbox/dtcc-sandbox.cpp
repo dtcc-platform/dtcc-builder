@@ -4,12 +4,16 @@
 // Licensed under the MIT License
 
 #include "CSV.h"
-#include "JSON.h"
 #include "CityJSON.h"
+#include "JSON.h"
+#include "Logging.h"
+
 #include <iostream>
 using namespace std;
 using namespace DTCC;
-void Help() { std::cerr << "Usage: vc-sandbox" << std::endl; }
+
+void Help() { Error("Usage: dtcc-sandbox"); }
+
 int main(int argc, char *argv[])
 {
   if (argc > 4)

@@ -39,7 +39,7 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 # Add subdirectories
 add_subdirectory(dtcc-info)
 add_subdirectory(dtcc-plot)
-add_subdirectory(dtcc-generate-heightmap)
+add_subdirectory(dtcc-generate-elevation-models)
 add_subdirectory(dtcc-generate-citymodel)
 add_subdirectory(dtcc-generate-simulation-mesh)
 add_subdirectory(dtcc-generate-visualization-mesh)

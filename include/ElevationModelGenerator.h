@@ -1,64 +1,66 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
-#ifndef DTCC_HEIGHT_MAP_GENERATOR_H
-#define DTCC_HEIGHT_MAP_GENERATOR_H
+#ifndef DTCC_ELEVATION_MODEL_GENERATOR_H
+#define DTCC_ELEVATION_MODEL_GENERATOR_H
 
 #include <iomanip>
 #include <iostream>
-#include <vector>
 #include <stack>
+#include <vector>
 
-#include "Vector.h"
-#include "PointCloud.h"
-#include "GridField.h"
 #include "Geometry.h"
-#include "Timer.h"
+#include "GridField.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "PointCloud.h"
+#include "Timer.h"
+#include "Vector.h"
 
 namespace DTCC
 {
 
-class HeightMapGenerator
+class ElevationModelGenerator
 {
 public:
-  // Generate height map from point cloud
-  static void GenerateHeightMap(GridField2D &heightMap,
-                                const PointCloud &pointCloud,
-                                double x0,
-                                double y0,
-                                double xMin,
-                                double yMin,
-                                double xMax,
-                                double yMax,
-                                double heightMapResolution)
+  // Generate digital elevation model (DEM) from point cloud
+  static void GenerateElevationModel(GridField2D &dem,
+                                     const PointCloud &pointCloud,
+                                     double x0,
+                                     double y0,
+                                     double xMin,
+                                     double yMin,
+                                     double xMax,
+                                     double yMax,
+                                     double resolution)
   {
-    Info("HeightMapGenerator: Generating heightmap from point cloud...");
-    Timer("GenerateHeightMap");
+    Info("ElevationModelGenerator: Generating digital elevation model (DEM) "
+         "from point cloud...");
+    Timer("GenerateElevationModel");
 
     // Check for empty data
     if (pointCloud.Points.empty())
-      Error("HeightMapGenerator: Empty point cloud");
-
-    // Shortcut
-    GridField2D& hm = heightMap;
+      Error("ElevationModelGenerator: Empty point cloud");
 
     // Initialize grid dimensions
-    hm.Grid.BoundingBox.P.x = xMin;
-    hm.Grid.BoundingBox.P.y = yMin;
-    hm.Grid.BoundingBox.Q.x = xMax;
-    hm.Grid.BoundingBox.Q.y = yMax;
+    dem.Grid.BoundingBox.P.x = xMin;
+    dem.Grid.BoundingBox.P.y = yMin;
+    dem.Grid.BoundingBox.Q.x = xMax;
+    dem.Grid.BoundingBox.Q.y = yMax;
 
     // Initialize grid data
-    hm.Grid.XSize = (hm.Grid.BoundingBox.Q.x - hm.Grid.BoundingBox.P.x) / heightMapResolution + 1;
-    hm.Grid.YSize = (hm.Grid.BoundingBox.Q.y - hm.Grid.BoundingBox.P.y) / heightMapResolution + 1;
-    hm.Values.resize(hm.Grid.XSize * hm.Grid.YSize);
-    std::fill(hm.Values.begin(), hm.Values.end(), 0.0);
-    hm.Grid.XStep = (hm.Grid.BoundingBox.Q.x - hm.Grid.BoundingBox.P.x) / (hm.Grid.XSize - 1);
-    hm.Grid.YStep = (hm.Grid.BoundingBox.Q.y - hm.Grid.BoundingBox.P.y) / (hm.Grid.YSize - 1);
+    dem.Grid.XSize =
+        (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) / resolution + 1;
+    dem.Grid.YSize =
+        (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) / resolution + 1;
+    dem.Values.resize(dem.Grid.XSize * dem.Grid.YSize);
+    std::fill(dem.Values.begin(), dem.Values.end(), 0.0);
+    dem.Grid.XStep = (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) /
+                     (dem.Grid.XSize - 1);
+    dem.Grid.YStep = (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) /
+                     (dem.Grid.YSize - 1);
 
-    Progress("HeightMapGenerator: Computing mean elevation");
+    Progress("ElevationModelGenerator: Computing mean elevation");
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
@@ -67,11 +69,11 @@ public:
     meanElevationRaw /= pointCloud.Points.size();
 
     // Initialize counters for number of points for local mean
-    size_t numGridPoints = hm.Values.size();
+    size_t numGridPoints = dem.Values.size();
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
-    Progress("HeightMapGenerator: Extracting point cloud data");
+    Progress("ElevationModelGenerator: Extracting point cloud data");
 
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
@@ -95,12 +97,12 @@ public:
 
       // Iterate over closest stencil (including center of stencil)
       neighborIndices.clear();
-      const size_t i = hm.Grid.Point2Index(q2D);
+      const size_t i = dem.Grid.Point2Index(q2D);
       neighborIndices.push_back(i);
-      hm.Grid.Index2Boundary(i, neighborIndices);
+      dem.Grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
-        hm.Values[j] += q3D.z;
+        dem.Values[j] += q3D.z;
         numLocalPoints[j] += 1;
       }
     }
@@ -108,14 +110,14 @@ public:
     // Compute mean elevation
     meanElevation /= pointCloud.Points.size() - numOutliers;
 
-    Progress("HeightMapGenerator: Computing local mean elevation");
+    Progress("ElevationModelGenerator: Computing local mean elevation");
 
     // Compute mean of elevations for each grid point
     std::vector<size_t> missingIndices;
     for (size_t i = 0; i < numGridPoints; i++)
     {
       if (numLocalPoints[i] > 0)
-        hm.Values[i] /= numLocalPoints[i];
+        dem.Values[i] /= numLocalPoints[i];
       else
         missingIndices.push_back(i);
     }
@@ -129,7 +131,8 @@ public:
     // closest existing value around each missing grid point.
     // It might be more efficient to do a flood fill.
 
-    Progress("HeightMapGenerator: Filling in missing grid points (" + str(numMissing) + "/" + str(numGridPoints) + ")");
+    Progress("ElevationModelGenerator: Filling in missing grid points (" +
+             str(numMissing) + "/" + str(numGridPoints) + ")");
 
     // Reuse vector numLocalPoints to indicate which points have been
     // visited: 0 = empty, 1 = boundary, 2 = filled
@@ -145,7 +148,7 @@ public:
     for (size_t i : missingIndices)
     {
       neighborIndices.clear();
-      hm.Grid.Index2Boundary(i, neighborIndices);
+      dem.Grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 2)
@@ -166,12 +169,12 @@ public:
 
       // Propagate values to neighbors and add neighbor to stack
       neighborIndices.clear();
-      hm.Grid.Index2Boundary(i, neighborIndices);
+      dem.Grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 0)
         {
-          hm.Values[j] = hm.Values[i];
+          dem.Values[j] = dem.Values[i];
           boundaryIndices.push(j);
           numLocalPoints[j] = 1;
           numFound++;
@@ -186,22 +189,24 @@ public:
     // Print some stats
     const double percentMissing =
         100.0 * static_cast<double>(numMissing) / numGridPoints;
-    Info("HeightMapGenerator: " + str(numOutliers) + " outliers ignored");
-    Info("HeightMapGenerator: Mean elevation is " + str(meanElevation, 4) + "m");
-    Info("HeightMapGenerator: " + str(numGridPoints) + " grid points");
-    Info("HeightMapGenerator: " + str(numMissing) + " missing grid points ("  + str(percentMissing, 3) + "%)");
-    //    std::cout << "HeightMapGenerator: "
+    Info("ElevationModelGenerator: " + str(numOutliers) + " outliers ignored");
+    Info("ElevationModelGenerator: Mean elevation is " + str(meanElevation, 4) +
+         "m");
+    Info("ElevationModelGenerator: " + str(numGridPoints) + " grid points");
+    Info("ElevationModelGenerator: " + str(numMissing) +
+         " missing grid points (" + str(percentMissing, 3) + "%)");
+    //    std::cout << "ElevationModelGenerator: "
     //        << "Maximum search distance is " << maxStep << std::endl;
 
     // Test data for verifying orientation, bump in lower left corner
-    // for (size_t i = 0; i < heightMap.Values.size(); i++)
+    // for (size_t i = 0; i < dem.Values.size(); i++)
     // {
-    //     Vector2D p = heightMap.Index2Coordinate(i);
-    //     const double dx = heightMap.XMax - heightMap.XMin;
-    //     const double dy = heightMap.YMax - heightMap.YMin;
-    //     const double x = (p.x - heightMap.XMin) / dx;
-    //     const double y = (p.y - heightMap.YMin) / dy;
-    //     heightMap.Values[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 -
+    //     Vector2D p = dem.Index2Coordinate(i);
+    //     const double dx = dem.XMax - dem.XMin;
+    //     const double dy = dem.YMax - dem.YMin;
+    //     const double x = (p.x - dem.XMin) / dx;
+    //     const double y = (p.y - dem.YMin) / dy;
+    //     dem.Values[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 -
     //     y);
     // }
   }
