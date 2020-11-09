@@ -448,6 +448,8 @@ namespace DTCC
       json["Values"] = field.Values;
     }
 
+    // FIXME: Add separate serialize/deserialize for Building and use here.
+
     /// Serialize CityModel
     static void Deserialize(CityModel &cityModel, const nlohmann::json& json)
     {
@@ -465,6 +467,7 @@ namespace DTCC
           cityModel.Buildings[i].Footprint.Vertices[j].y = jsonFootprint[j]["y"];
         }
         cityModel.Buildings[i].Height = jsonBuilding["Height"];
+        cityModel.Buildings[i].GroundHeight = jsonBuilding["GroundHeight"];
       }
     }
 
@@ -484,6 +487,7 @@ namespace DTCC
           jsonBuilding["Footprint"].push_back(jsonPoint);
         }
         jsonBuilding["Height"] = building.Height;
+        jsonBuilding["GroundHeight"] = building.GroundHeight;
         jsonBuildings.push_back(jsonBuilding);
       }
       json["Type"] = "CityModel";

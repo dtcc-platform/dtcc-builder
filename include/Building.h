@@ -19,8 +19,11 @@ public:
   // Building footprint (polygon)
   Polygon Footprint{};
 
-  // Building height (above ground)
+  // Building height (relative to ground)
   double Height{};
+
+  // Ground height (absolute)
+  double GroundHeight{};
 
   // Create empty building
   Building() = default;
