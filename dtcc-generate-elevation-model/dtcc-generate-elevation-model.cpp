@@ -14,7 +14,7 @@
 
 using namespace DTCC;
 
-void Help() { Error("Usage: dtcc-generate-elevation-models Parameters.json"); }
+void Help() { Error("Usage: dtcc-generate-elevation-model Parameters.json"); }
 
 int main(int argc, char *argv[])
 {

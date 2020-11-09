@@ -120,9 +120,11 @@ public:
   /// Compute heights of buildings from height map.
   ///
   /// @param cityModel The city model
-  /// @param heightMap The height map
+  /// @param dsm       Digital Surface Model (including buildings)
+  /// @param dtm       Digital Terrain Model (excluding buildings)
   static void ComputeBuildingHeights(CityModel &cityModel,
-                                     const GridField2D &heightMap)
+                                     const GridField2D &dsm,
+                                     const GridField2D &dtm)
   {
     Info("CityModelGenerator: Computing building heights...");
     Timer("ComputeBuildingHeights");
@@ -163,7 +165,7 @@ public:
       {
         if (Geometry::PolygonContains2D(building.Footprint, p))
         {
-          z += heightMap(p);
+          z += dsm(p);
           numInside += 1;
         }
       }
