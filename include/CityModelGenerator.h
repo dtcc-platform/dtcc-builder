@@ -159,13 +159,15 @@ public:
       }
 
       // Compute mean height at points inside footprint
-      double z = 0.0;
+      double h0 = 0.0;
+      double h1 = 0.0;
       size_t numInside = 0;
       for (auto const &p : samplePoints)
       {
         if (Geometry::PolygonContains2D(building.Footprint, p))
         {
-          z += dsm(p);
+          h0 += dtm(p);
+          h1 += dsm(p);
           numInside += 1;
         }
       }
@@ -178,8 +180,13 @@ public:
         numInside = 1;
       }
 
-      // Set building height
-      building.Height = z / static_cast<double>(numInside);
+      // Compute mean
+      h0 /= static_cast<double>(numInside);
+      h1 /= static_cast<double>(numInside);
+
+      // Set building height(s)
+      building.Height = h1 - h0;
+      building.GroundHeight = h0;
     }
   }
 

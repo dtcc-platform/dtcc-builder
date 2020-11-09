@@ -46,19 +46,16 @@ int main(int argc, char *argv[])
   JSON::Read(cityModel, dataDirectory + "CityModel.json");
   Info(cityModel);
 
-  // Read height map data
-  GridField2D heightMap;
-  JSON::Read(heightMap, dataDirectory + "GroundMap.json");
-  Info(heightMap);
+  // Read terrain model
+  GridField2D dtm{};
+  JSON::Read(dtm, dataDirectory + "DTM.json");
+  Info(dtm);
 
   // Generate 3D surfaces
-  std::vector<Surface3D> surfaces
-    = MeshGenerator::GenerateSurfaces3D(cityModel, heightMap,
-                                        heightMap.Grid.BoundingBox.P.x,
-                                        heightMap.Grid.BoundingBox.P.y,
-                                        heightMap.Grid.BoundingBox.Q.x,
-                                        heightMap.Grid.BoundingBox.Q.y,
-                                        parameters.MeshResolution, parameters.FlatGround);
+  std::vector<Surface3D> surfaces = MeshGenerator::GenerateSurfaces3D(
+      cityModel, dtm, dtm.Grid.BoundingBox.P.x, dtm.Grid.BoundingBox.P.y,
+      dtm.Grid.BoundingBox.Q.x, dtm.Grid.BoundingBox.Q.y,
+      parameters.MeshResolution, parameters.FlatGround);
 
   // Extract ground surface
   Surface3D groundSurface = surfaces[0];

@@ -27,6 +27,12 @@ public:
 
   // Create empty building
   Building() = default;
+
+  // Return minimum absolute height of building
+  double MinHeight() const { return GroundHeight; }
+
+  // Return maximum absolute height of building
+  double MaxHeight() const { return GroundHeight + Height; }
 };
 
 } // namespace DTCC
