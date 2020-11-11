@@ -73,9 +73,9 @@ int main(int argc, char *argv[])
   {
     dolfin::Mesh _mesh2D;
     FEniCS::ConvertMesh(mesh2D, _mesh2D);
-    auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, dtm);
+    auto z = LaplacianSmoother::GenerateElevationFunction(_mesh2D, dtm);
     FEniCS::Write(_mesh2D, dataDirectory + "Mesh2D.pvd");
-    FEniCS::Write(*z, dataDirectory + "HeightMap.pvd");
+    FEniCS::Write(*z, dataDirectory + "Elevation.pvd");
   }
 
   // Generate 3D mesh
