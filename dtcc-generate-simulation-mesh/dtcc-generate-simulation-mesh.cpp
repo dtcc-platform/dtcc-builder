@@ -22,7 +22,7 @@ using namespace DTCC;
 
 void Help()
 {
-  Error("Usage: vc-generate-simulation-mesh Parameters.json");
+  Error("Usage: dtcc-generate-simulation-mesh Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -47,29 +47,33 @@ int main(int argc, char *argv[])
   JSON::Read(cityModel, dataDirectory + "CityModelSimple.json");
   Info(cityModel);
 
-  // Read height map data
-  GridField2D heightMap;
-  JSON::Read(heightMap, dataDirectory + "GroundMap.json");
-  Info(heightMap);
+  // Read terrain model
+  GridField2D dtm;
+  JSON::Read(dtm, dataDirectory + "DTM.json");
+  Info(dtm);
 
-  // Smooth height map
-  VertexSmoother::SmoothField(heightMap, parameters.GroundSmoothing);
+  // Smooth terrain model
+  VertexSmoother::SmoothField(dtm, parameters.GroundSmoothing);
 
   // Compute absolute height of top of domain
-  const double topHeight = heightMap.Mean() + parameters.DomainHeight;
+  const double topHeight = dtm.Mean() + parameters.DomainHeight;
 
   // Generate 2D mesh
   Mesh2D mesh2D;
-  MeshGenerator::GenerateMesh2D(mesh2D, cityModel, heightMap.Grid.BoundingBox,
+  MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox,
                                 parameters.MeshResolution);
   Info(mesh2D);
+
+  // FIXME: Write also DSM for reference
+  // FIXME: Change name of DTM output file
+  // FIXME: Use native VTK output instead of going through FEniCS
 
   // Write mesh for debugging
   if (parameters.Debug)
   {
     dolfin::Mesh _mesh2D;
     FEniCS::ConvertMesh(mesh2D, _mesh2D);
-    auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, heightMap);
+    auto z = LaplacianSmoother::GenerateHeightMapFunction(_mesh2D, dtm);
     FEniCS::Write(_mesh2D, dataDirectory + "Mesh2D.pvd");
     FEniCS::Write(*z, dataDirectory + "HeightMap.pvd");
   }
@@ -91,7 +95,7 @@ int main(int argc, char *argv[])
   }
 
   // Apply mesh smoothing to ground
-  LaplacianSmoother::SmoothMesh(mesh3D, cityModel, heightMap, topHeight, false);
+  LaplacianSmoother::SmoothMesh(mesh3D, cityModel, dtm, topHeight, false);
   Info(mesh3D);
 
   // Uncomment to write to file for debugging
@@ -119,7 +123,7 @@ int main(int argc, char *argv[])
   }
 
   // Apply mesh smoothing to ground and buildings
-  LaplacianSmoother::SmoothMesh(mesh3D, cityModel, heightMap, topHeight, true);
+  LaplacianSmoother::SmoothMesh(mesh3D, cityModel, dtm, topHeight, true);
 
   // Uncomment to write to file for debugging
   if (parameters.Debug)
@@ -137,7 +141,7 @@ int main(int argc, char *argv[])
   FEniCS::ConvertMesh(mesh3D, _mesh3D);
 
   // Write to files
-  Info("vc-generate-simulation-mesh: Writing to files...");
+  Info("dtcc-generate-simulation-mesh: Writing to files...");
   JSON::Write(mesh2D, dataDirectory + "Mesh2D.json");
   JSON::Write(mesh3D, dataDirectory + "Mesh3D.json");
 

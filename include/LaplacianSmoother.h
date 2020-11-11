@@ -184,7 +184,7 @@ namespace DTCC
       {
         // Get building height
         const size_t i = domainMarkers[ufc_cell.index];
-        const double z = cityModel.Buildings[i].Height;
+        const double z = cityModel.Buildings[i].MaxHeight();
 
         // Set height of building
         values[0] = z;
