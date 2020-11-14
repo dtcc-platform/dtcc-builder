@@ -73,7 +73,7 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
   for (size_t i = 0; i < polygons.size(); i++)
   {
     size_t numVertices = polygons[i].Vertices.size();
-    for (size_t j = 0; j < polygons[i].Vertices.size(); j++)
+    for (size_t j = 0; j < numVertices; j++)
     {
       size_t hash = Hashing::Hash(polygons[i].Vertices[j]);
       size_t uniqueVertexIndex = network.Vertices.size();
@@ -86,8 +86,10 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
       if (j > 0)
         network.Edges.back().second = uniqueVertexIndex;
       if (j < numVertices - 1)
+      {
         network.Edges.emplace_back(uniqueVertexIndex, -1);
-      AddEdgeProperties(network, attributes, i);
+        AddEdgeProperties(network, attributes, i);
+      }
       vertexIndex++;
     }
   }
