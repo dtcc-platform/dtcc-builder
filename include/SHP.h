@@ -1,5 +1,5 @@
 // SHP I/O
-// Copyright (C) Anders Logg 2019, Anton J Olsson 2020
+// Copyright (C) 2019, 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
