@@ -30,7 +30,7 @@ public:
   /// \param attributes A JSON object to put possible attributes in
   static void Read(std::vector<Polygon> &polygons,
                    const std::string &fileName,
-                   basic_json<> *attributes)
+                   basic_json<> *attributes = nullptr)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
@@ -38,7 +38,7 @@ public:
 
     // Get info
     int numEntities, shapeType;
-    SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
+    SHPGetInfo(handle, &numEntities, &shapeType, nullptr, nullptr);
     Info("SHP: " + str(numEntities) + " entities");
     switch (shapeType)
     {
