@@ -14,6 +14,10 @@ namespace DTCC
 class Property : public Printable
 {
 public:
+  std::string UUID;
+
+  size_t FNR;
+
   /// The property's total footprint.
   Polygon Footprint;
   /// The buildings belonging to the property.
