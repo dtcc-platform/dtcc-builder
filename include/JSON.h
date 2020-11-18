@@ -10,17 +10,18 @@
 
 #include "BoundingBox.h"
 #include "CityJSON.h"
+#include "CityModel.h"
 #include "Color.h"
 #include "ColorMap.h"
+#include "District.h"
 #include "Grid.h"
 #include "GridField.h"
 #include "GridVectorField.h"
 #include "Mesh.h"
 #include "Parameters.h"
+#include "Property.h"
 #include "Road.h"
 #include "Surface.h"
-#include "citymodel/CityModel.h"
-#include "citymodel/Property.h"
 
 namespace DTCC
 {

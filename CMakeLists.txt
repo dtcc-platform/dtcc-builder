@@ -31,6 +31,7 @@ include(${DOLFIN_USE_FILE})
 
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 
 # Set installation directory
