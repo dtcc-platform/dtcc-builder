@@ -16,10 +16,10 @@ namespace DTCC
 class Building
 {
 public:
+  std::string UUID;
+
   // Building footprint (polygon)
   Polygon Footprint{};
-
-  std::string UUID;
 
   std::string PropertyUUID;
 

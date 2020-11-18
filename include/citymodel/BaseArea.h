@@ -12,6 +12,8 @@ namespace DTCC
 class BaseArea
 {
 public:
+  size_t AreaID;
+  size_t PrimaryAreaID;
   std::vector<Property> Properties;
   std::vector<Building> Buildings;
 };

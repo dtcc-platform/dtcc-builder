@@ -371,6 +371,18 @@ TEST_CASE("COLORMAPS")
   }
 }
 
+TEST_CASE("citymodel/")
+{
+  const char *fileName = "data/CityModelExampleData.json";
+
+  SECTION("Building")
+  {
+    Building building;
+    nlohmann::json json;
+    JSON::Read(json, fileName);
+  }
+}
+
 TEST_CASE("Property")
 {
   Property property1;
