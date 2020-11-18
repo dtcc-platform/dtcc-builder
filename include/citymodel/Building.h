@@ -19,6 +19,14 @@ public:
   // Building footprint (polygon)
   Polygon Footprint{};
 
+  std::string UUID;
+
+  std::string PropertyUUID;
+
+  size_t FNR{};
+
+  size_t BaseAreaID{};
+
   // Building height (relative to ground)
   double Height{};
 
