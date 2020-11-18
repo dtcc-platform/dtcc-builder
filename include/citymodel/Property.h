@@ -4,8 +4,8 @@
 #ifndef DTCC_PROPERTY_H
 #define DTCC_PROPERTY_H
 
-#include "Building.h"
 #include "Utils.h"
+#include "citymodel/Building.h"
 #include <utility>
 
 namespace DTCC

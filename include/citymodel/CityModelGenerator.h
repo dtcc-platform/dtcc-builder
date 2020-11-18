@@ -8,12 +8,12 @@
 #include <queue>
 #include <vector>
 
-#include "CityModel.h"
 #include "GridField.h"
 #include "Polyfix.h"
 #include "Polygon.h"
 #include "Timer.h"
 #include "Vector.h"
+#include "citymodel/CityModel.h"
 
 namespace DTCC
 {

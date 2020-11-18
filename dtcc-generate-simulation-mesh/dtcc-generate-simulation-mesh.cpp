@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#include "CityModel.h"
 #include "CommandLine.h"
 #include "FEniCS.h"
 #include "GridField.h"
@@ -17,6 +16,7 @@
 #include "MeshGenerator.h"
 #include "Parameters.h"
 #include "VertexSmoother.h"
+#include "citymodel/CityModel.h"
 
 using namespace DTCC;
 

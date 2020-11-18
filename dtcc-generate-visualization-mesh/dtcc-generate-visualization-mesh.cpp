@@ -7,15 +7,15 @@
 #include <string>
 #include <vector>
 
-#include "CityModel.h"
 #include "CommandLine.h"
 #include "GridField.h"
 #include "JSON.h"
-#include "VTK.h"
+#include "Logging.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
 #include "Parameters.h"
-#include "Logging.h"
+#include "VTK.h"
+#include "citymodel/CityModel.h"
 
 using namespace DTCC;
 

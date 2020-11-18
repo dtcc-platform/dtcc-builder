@@ -7,11 +7,11 @@
 #include <string>
 #include <vector>
 
-#include "Building.h"
-#include "CityModel.h"
 #include "JSON.h"
-#include "Vector.h"
 #include "Logging.h"
+#include "Vector.h"
+#include "citymodel/Building.h"
+#include "citymodel/CityModel.h"
 
 // Assimp includes
 #include <assimp/Exporter.hpp>
