@@ -10,7 +10,7 @@
 #include <vector>
 namespace DTCC
 {
-class PrimaryArea : public Printable
+class PrimaryArea
 {
   size_t AreaID;
   size_t DistrictAreaID;

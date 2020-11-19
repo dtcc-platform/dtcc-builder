@@ -17,6 +17,11 @@ public:
   std::string Name;
   size_t AreaID;
   std::vector<PrimaryArea> PrimaryAreas;
+
+  std::string __str__() const override
+  {
+    return std::__cxx11::string(); // TODO: fix
+  }
 };
 
 } // namespace DTCC

@@ -371,15 +371,22 @@ TEST_CASE("COLORMAPS")
   }
 }
 
-TEST_CASE("citymodel/")
+TEST_CASE("citymodel")
 {
   const char *fileName = "data/CityModelExampleData.json";
 
-  SECTION("Building")
+  SECTION("District")
   {
-    Building building;
+    District district;
     nlohmann::json json;
     JSON::Read(json, fileName);
+    JSON::Deserialize(district, json["Districts"][0][0]);
+
+    REQUIRE(district.AreaID == 606);
+    REQUIRE(district.Name == "Hammarkullen");
+    REQUIRE(district.Footprint.Vertices[0].x == -446.4952344278572);
+    REQUIRE(district.Footprint.Vertices[0].y == 150.96198354940861);
+    REQUIRE(district.PrimaryAreas.size() == 1);
   }
 }
 

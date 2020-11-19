@@ -849,9 +849,10 @@ namespace DTCC
 
     /// Deserialize a footprint.
     static void DeserializeFootprint(Polygon &footprint,
-                                     const nlohmann::json &json)
+                                     const nlohmann::json &json,
+                                     const std::string &key = "footprint")
     {
-      for (const auto &jsonVertex : json["footprint"])
+      for (const auto &jsonVertex : json[key])
       {
         Point2D vertex;
         vertex.x = jsonVertex["x"];
@@ -907,6 +908,31 @@ namespace DTCC
         jsonBuildings.push_back(jsonBuilding);
       }
       json["buildings"] = jsonBuildings;
+    }
+
+    /// Deserialize PrimaryArea.
+    static void Deserialize(PrimaryArea &primaryArea,
+                            const nlohmann::json &json)
+    {
+    }
+
+    /// Deserialize District.
+    static void Deserialize(District &district, nlohmann::json &json)
+    {
+      Info(json.dump(4));
+      std::string areaId = json["area_id"];
+      district.AreaID = std::stoi(areaId);
+      district.Name = json["name"];
+      Polygon footprint;
+      DeserializeFootprint(footprint, json, "Footprint");
+      district.Footprint = footprint;
+      nlohmann::json jsonPrimAreas = json["contains"];
+      for (const nlohmann::json &jsonPrimArea : jsonPrimAreas)
+      {
+        PrimaryArea primaryArea;
+        Deserialize(primaryArea, jsonPrimArea);
+        district.PrimaryAreas.push_back(primaryArea);
+      }
     }
   };
 
