@@ -910,19 +910,38 @@ namespace DTCC
       json["buildings"] = jsonBuildings;
     }
 
+    /// Deserialize BaseArea.
+    static void Deserialize(BaseArea &baseArea,
+                            const nlohmann::json &jsonCityModel,
+                            int index)
+    {
+    }
+
     /// Deserialize PrimaryArea.
     static void Deserialize(PrimaryArea &primaryArea,
                             const nlohmann::json &jsonCityModel,
                             int index)
     {
-      Info(jsonCityModel.dump(4));
       nlohmann::json jsonPrimaryArea = jsonCityModel["PrimaryAreas"][0][index];
-      std::string areaId = jsonPrimaryArea["area_id"];
-      primaryArea.AreaID = std::stoi(areaId);
-      primaryArea.Name = jsonPrimaryArea["name"];
+      DeserializeArea(primaryArea, jsonPrimaryArea);
+      nlohmann::json jsonBaseAreas = jsonPrimaryArea["contains"];
+      for (size_t i = 0; i < jsonBaseAreas.size(); ++i)
+      {
+        BaseArea baseArea;
+        Deserialize(baseArea, jsonCityModel, i);
+        primaryArea.BaseAreas.push_back(baseArea);
+      }
+    }
+
+    template <typename T>
+    static void DeserializeArea(T &subdivision, nlohmann::json &jsonArea)
+    {
+      std::string areaId = jsonArea["area_id"];
+      subdivision.AreaID = std::stoi(areaId);
+      subdivision.Name = jsonArea["name"];
       Polygon footprint;
-      DeserializeFootprint(footprint, jsonPrimaryArea, "Footprint");
-      primaryArea.Footprint = footprint;
+      DeserializeFootprint(footprint, jsonArea, "Footprint");
+      subdivision.Footprint = footprint;
     }
 
     /// Deserialize District.
@@ -930,12 +949,7 @@ namespace DTCC
     Deserialize(District &district, nlohmann::json &jsonCityModel, int index)
     {
       nlohmann::json jsonDistrict = jsonCityModel["Districts"][0][index];
-      std::string areaId = jsonDistrict["area_id"];
-      district.AreaID = std::stoi(areaId);
-      district.Name = jsonDistrict["name"];
-      Polygon footprint;
-      DeserializeFootprint(footprint, jsonDistrict, "Footprint");
-      district.Footprint = footprint;
+      DeserializeArea(district, jsonDistrict);
       nlohmann::json jsonPrimAreas = jsonDistrict["contains"];
       for (size_t i = 0; i < jsonPrimAreas.size(); ++i)
       {
