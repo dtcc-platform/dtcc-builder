@@ -27,9 +27,9 @@ public:
   /// \return Pretty-print string.
   std::string __str__() const override
   {
-    std::string prettyString = "Property with " +
-                               std::to_string(Buildings.size()) +
-                               " building(s).\n Footprint: ";
+    std::string prettyString = "Property with UUID " + UUID + ", FNR " +
+                               str(FNR) + " and " + str(Buildings.size()) +
+                               " building(s).\nFootprint: ";
     for (size_t i = 0; i < Footprint.Vertices.size(); ++i)
     {
       prettyString += Footprint.Vertices[i].__str__();

@@ -20,7 +20,14 @@ public:
 
   std::string __str__() const override
   {
-    return std::__cxx11::string(); // TODO: fix
+    std::string primAreaIDs;
+    for (size_t i = 0; i < PrimaryAreas.size(); ++i)
+    {
+      primAreaIDs +=
+          (i == 0 ? "" : ", ") + std::to_string(PrimaryAreas[i].AreaID);
+    }
+    return "District with name " + Name + ", area ID " +
+           std::to_string(AreaID) + " and primary areas " + primAreaIDs;
   }
 };
 

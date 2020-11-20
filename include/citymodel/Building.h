@@ -13,17 +13,17 @@
 namespace DTCC
 {
 
-class Building
+class Building : public Printable
 {
 public:
   std::string UUID;
 
-  // Building footprint (polygon)
-  Polygon Footprint{};
+  size_t PropertyFNR{};
 
   std::string PropertyUUID;
 
-  size_t FNR{};
+  // Building footprint (polygon)
+  Polygon Footprint{};
 
   size_t BaseAreaID{};
 
@@ -41,6 +41,18 @@ public:
 
   // Return maximum absolute height of building
   double MaxHeight() const { return GroundHeight + Height; }
+
+  std::string __str__() const override
+  {
+    return "Building\n"
+           "UUID: " +
+           UUID + "\nProperty FNR: " + str(PropertyFNR) +
+           "\nProperty UUID: " + PropertyUUID +
+           "\nBase area ID: " + str(BaseAreaID) +
+           "\nMin height: " + std::to_string(MinHeight()) +
+           "\nMax height: " + std::to_string(MaxHeight()) +
+           "\nFootprint: " + Footprint.__str__();
+  }
 };
 
 } // namespace DTCC

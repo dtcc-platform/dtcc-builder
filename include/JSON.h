@@ -927,9 +927,9 @@ namespace DTCC
       nlohmann::json jsonBaseAreas = jsonPrimaryArea["contains"];
       for (size_t i = 0; i < jsonBaseAreas.size(); ++i)
       {
-        BaseArea baseArea;
+        /*BaseArea baseArea;
         Deserialize(baseArea, jsonCityModel, i);
-        primaryArea.BaseAreas.push_back(baseArea);
+        primaryArea.BaseAreas.push_back(baseArea);*/
       }
     }
 
