@@ -373,7 +373,7 @@ TEST_CASE("COLORMAPS")
 
 TEST_CASE("citymodel")
 {
-  const char *fileName = "data/CityModelExampleData.json";
+  const char *fileName = "../unittests/data/CityModelExampleData.json";
   District district;
   nlohmann::json json;
   JSON::Read(json, fileName);
