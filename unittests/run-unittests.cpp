@@ -374,19 +374,27 @@ TEST_CASE("COLORMAPS")
 TEST_CASE("citymodel")
 {
   const char *fileName = "data/CityModelExampleData.json";
+  District district;
+  nlohmann::json json;
+  JSON::Read(json, fileName);
+  JSON::Deserialize(district, json, 0);
 
   SECTION("District")
   {
-    District district;
-    nlohmann::json json;
-    JSON::Read(json, fileName);
-    JSON::Deserialize(district, json["Districts"][0][0]);
-
     REQUIRE(district.AreaID == 606);
     REQUIRE(district.Name == "Hammarkullen");
     REQUIRE(district.Footprint.Vertices[0].x == -446.4952344278572);
     REQUIRE(district.Footprint.Vertices[0].y == 150.96198354940861);
     REQUIRE(district.PrimaryAreas.size() == 1);
+  }
+
+  SECTION("PrimaryArea")
+  {
+    PrimaryArea primaryArea = district.PrimaryAreas[0];
+    REQUIRE(primaryArea.AreaID == 606);
+    REQUIRE(primaryArea.Name == "Hammarkullen");
+    REQUIRE(primaryArea.Footprint.Vertices[0].x == -446.4952344278572);
+    REQUIRE(primaryArea.Footprint.Vertices[0].y == 150.96198354940861);
   }
 }
 

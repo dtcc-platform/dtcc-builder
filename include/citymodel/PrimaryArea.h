@@ -12,11 +12,12 @@ namespace DTCC
 {
 class PrimaryArea
 {
-  size_t AreaID;
+public:
   size_t DistrictAreaID;
   std::string Name;
   std::vector<BaseArea> BaseAreas;
-  std::vector<Polygon> Footprint;
+  Polygon Footprint;
+  size_t AreaID;
 };
 } // namespace DTCC
 
