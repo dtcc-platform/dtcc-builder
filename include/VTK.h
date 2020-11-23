@@ -1,5 +1,6 @@
 // VTK I/O
 // Anders Logg 2020
+// Licensed under the MIT License
 
 #ifndef DTCC_VTK_H
 #define DTCC_VTK_H
@@ -12,6 +13,7 @@
 #include "Surface.h"
 #include "Vector.h"
 #include "Simplex.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -21,9 +23,9 @@ class VTK
 public:
 
   // Write 2D mesh to VTK file
-  static void Write(const Mesh2D &mesh, std::string fileName)
+  static void Write(const Mesh2D &mesh, const std::string& fileName)
   {
-    std::cout << "VTK: Writing 2D mesh to file " << fileName << std::endl;
+    Info("VTK: Writing 2D mesh to file " + fileName);
 
     // Open file
     std::ofstream f(fileName.c_str());
@@ -76,9 +78,9 @@ public:
   }
 
   // Write 3D mesh to VTK file
-  static void Write(const Mesh3D &mesh, std::string fileName)
+  static void Write(const Mesh3D &mesh, const std::string& fileName)
   {
-    std::cout << "VTK: Writing 3D mesh to file " << fileName << std::endl;
+    Info("VTK: Writing 3D mesh to file " + fileName);
 
     // Open file
     std::ofstream f(fileName.c_str());
@@ -131,9 +133,9 @@ public:
   }
 
   // Write 3D surface to VTK file
-  static void Write(const Surface3D &surface, std::string fileName)
+  static void Write(const Surface3D &surface, const std::string& fileName)
   {
-    std::cout << "VTK: Writing 3D surface to file " << fileName << std::endl;
+    Info("VTK: Writing 3D surface to file " + fileName);
 
     // Open file
     std::ofstream f(fileName.c_str());

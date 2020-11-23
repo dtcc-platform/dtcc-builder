@@ -1,15 +1,19 @@
 // dtcc-sandbox
 // Just a sandbox code for users to experiment with different API calls for
 // VCCore Vasilis Naserentin 2019
+// Licensed under the MIT License
 
 #include "CSV.h"
+#include "CityJSON.h"
 #include "JSON.h"
 #include "SHP.h"
 #include <iostream>
 
+#include <iostream>
 using namespace std;
+using namespace DTCC;
 
-void Help() { std::cerr << "Usage: vc-sandbox" << std::endl; }
+void Help() { Error("Usage: dtcc-sandbox"); }
 
 int main(int argc, char *argv[])
 {

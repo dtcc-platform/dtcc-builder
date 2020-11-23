@@ -1,5 +1,6 @@
 // SHP I/O
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
 #define DTCC_SHP_H
@@ -97,7 +98,6 @@ public:
         // For multipatch polygons only get the first polygon
         // TODO: handle donut and multipatch polygons correctly
 
-        //Polygon polygon;
         int start;
         int end;
         for (int part = 0; part < object->nParts; part++)

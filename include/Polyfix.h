@@ -7,6 +7,7 @@
 #include "Geometry.h"
 #include "Polygon.h"
 #include "Timer.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -27,12 +28,12 @@ public:
     const double tol2 = tol * tol;
 
     // Check each vertex against first vertex
-    const Vector2D &p0 = polygon.Vertices[0];
+    const Vector2D &p0 = Vector2D(polygon.Vertices[0]);
     size_t end = 0;
     for (size_t i = 1; i < polygon.Vertices.size() && end == 0; i++)
     {
       // Compute distance to first vertex
-      const Vector2D &p = polygon.Vertices[i];
+      const Vector2D &p = Vector2D(polygon.Vertices[i]);
       const double d2 = Geometry::SquaredDistance2D(p, p0);
 
       // Remove if distance is small
@@ -89,8 +90,8 @@ public:
     for (size_t i = 1; i < numVertices; i++)
     {
       // Get current vertex
-      const Vector2D &p0 = polygon.Vertices[i0];
-      const Vector2D &p = polygon.Vertices[i];
+      const Vector2D &p0 = Vector2D(polygon.Vertices[i0]);
+      const Vector2D &p = Vector2D(polygon.Vertices[i]);
 
       // Compute distance
       const double d2 = Geometry::SquaredDistance2D(p0, p);
@@ -103,7 +104,7 @@ public:
     }
 
     // Return if no vertices should be removed
-    if (remove.size() == 0)
+    if (remove.empty())
       return 0;
 
     // Remove vertices
@@ -130,10 +131,10 @@ public:
     for (size_t i = 0; i < numVertices; i++)
     {
       // Get previous, current and next points
-      const Vector2D &p0 =
-          polygon.Vertices[(i + numVertices - 1) % numVertices];
-      const Vector2D &p1 = polygon.Vertices[i];
-      const Vector2D &p2 = polygon.Vertices[(i + 1) % numVertices];
+      const Vector2D &p0 = Vector2D(
+          polygon.Vertices[(i + numVertices - 1) % numVertices]);
+      const Vector2D &p1 = Vector2D(polygon.Vertices[i]);
+      const Vector2D &p2 = Vector2D(polygon.Vertices[(i + 1) % numVertices]);
 
       // Compute edges and dot products
       const Vector2D u = p1 - p0;
@@ -148,7 +149,7 @@ public:
     }
 
     // Return if no vertices should be removed
-    if (remove.size() == 0)
+    if (remove.empty())
       return 0;
 
     // Remove vertices
@@ -291,7 +292,7 @@ public:
     for (size_t i = 0; i < m + n; i++)
     {
       // Skip if no outgoing edges
-      if (edges[i].size() == 0)
+      if (edges[i].empty())
         continue;
 
       // Get the edge
@@ -358,7 +359,7 @@ public:
       const std::vector<size_t> &edge = edges[currentVertex];
 
       // Find next vertex
-      assert(edge.size() > 0);
+      assert(!edge.empty());
       if (edge.size() == 1)
       {
         // If we only have one edge then follow it
@@ -406,7 +407,7 @@ public:
         }
 
         // If we have no more vertices to visit, take a step back
-        if (candidates.size() == 0)
+        if (candidates.empty())
         {
           polygon.pop_back();
           continue;
@@ -480,7 +481,7 @@ private:
   }
 
   // Remove vertices from polygon (indices for removal assumed to be ordered)
-  static void RemoveVertices(Polygon &polygon, const std::vector<size_t> remove)
+  static void RemoveVertices(Polygon &polygon, const std::vector<size_t>& remove)
   {
     // Copy vertices to be kept to new vector
     std::vector<Point2D> vertices(polygon.Vertices.size() - remove.size());
@@ -625,34 +626,38 @@ private:
   // Used for debugging
   static void PrintEdges(const std::vector<std::vector<size_t>> &edges)
   {
-    std::cout << "Edges: [";
+    std::stringstream stringBuilder{};
+    stringBuilder << "Edges: [";
     for (size_t i = 0; i < edges.size(); i++)
     {
       if (i > 0)
-        std::cout << ", ";
-      std::cout << "[";
+        stringBuilder << ", ";
+      stringBuilder << "[";
       for (size_t j = 0; j < edges[i].size(); j++)
       {
         if (j > 0)
-          std::cout << ", ";
-        std::cout << edges[i][j];
+          stringBuilder << ", ";
+        stringBuilder << edges[i][j];
       }
-      std::cout << "]";
+      stringBuilder << "]";
     }
-    std::cout << "]" << std::endl;
+    stringBuilder << "]" << std::endl;
+    Info(stringBuilder.str());
   }
 
   // Used for debugging
   static void PrintPolygon(const std::vector<size_t> &polygon)
   {
-    std::cout << "Polygon: [";
+    std::stringstream stringBuilder{};
+    stringBuilder << "Polygon: [";
     for (size_t i = 0; i < polygon.size(); i++)
     {
       if (i > 0)
-        std::cout << ", ";
-      std::cout << polygon[i];
+        stringBuilder << ", ";
+      stringBuilder << polygon[i];
     }
-    std::cout << "]" << std::endl;
+    stringBuilder << "]" << std::endl;
+    Info(stringBuilder.str());
   }
 };
 

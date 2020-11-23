@@ -14,6 +14,8 @@
 #include "Parameters.h"
 #include "Vector.h"
 #include "Simplex.h"
+#include "PointCloud.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -24,10 +26,9 @@ public:
   // Wrap for rapidcsv CSV container
   rapidcsv::Document Document;
   // Write 2D point set to CSV file
-  static void Write(const std::vector<Vector2D> &Points, std::string fileName)
+  static void Write(const std::vector<Vector2D> &Points, const std::string& fileName)
   {
-    std::cout << "CSV: "
-              << "Writing 2D point set to file " << fileName << std::endl;
+    Info("CSV: Writing 2D point set to file " + fileName);
 
     // Open file
     std::ofstream f(fileName.c_str());
@@ -48,10 +49,9 @@ public:
   }
 
   // Write 2D mesh to CSV files (.csv will be appended)
-  static void Write(const Mesh2D &mesh, std::string prefix)
+  static void Write(const Mesh2D &mesh, const std::string& prefix)
   {
-    std::cout << "CSV: "
-              << "Writing 2D mesh to file " << prefix << std::endl;
+    Info("CSV: Writing 2D mesh to file " + prefix);
 
     // Open files
     std::string fileNamePoints = prefix + "Points.csv";
@@ -71,7 +71,7 @@ public:
 
     // Write points
     for (auto const &p : mesh.Vertices)
-      Write(p, fp);
+      Write(Vector2D(p), fp);
 
     // Write triangles
     for (auto const &t : mesh.Cells)
@@ -83,10 +83,9 @@ public:
   }
 
   // Write 3D mesh to CSV files
-  static void Write(const Mesh3D &mesh, std::string prefix)
+  static void Write(const Mesh3D &mesh, const std::string& prefix)
   {
-    std::cout << "CSV: "
-              << "Writing 3D mesh to file " << prefix << std::endl;
+    Info("CSV: Writing 3D mesh to file " + prefix);
 
     // Open files
     std::string fileNamePoints = prefix + "Points.csv";
@@ -102,7 +101,7 @@ public:
 
     // Write points
     for (auto const &p : mesh.Vertices)
-      Write(p, fp);
+      Write(Vector3D(p), fp);
 
     // Write triangles
     for (auto const &t : mesh.Cells)
@@ -112,8 +111,47 @@ public:
     fp.close();
     ft.close();
   }
+  
+  static void Write(const PointCloud &pointCloud, std::string fileName)
+  {
+    std::cout << "CSV: "
+              << "Writing pointcloud to file " << fileName << std::endl;
+
+    // Open file
+    std::ofstream f(fileName.c_str());
+
+    // Check file
+    if (!f)
+      throw std::runtime_error("Unable to write to file: " + fileName);
+
+    // Set precision
+    f << std::setprecision(Parameters::Precision);
+
+    // Write points 
+    if (pointCloud.Points.size() == pointCloud.Colors.size())
+    {
+      for (size_t i = 0;i<pointCloud.Points.size();i++) 
+      {
+        f << pointCloud.Points[i].x << "," << pointCloud.Points[i].y << "," << pointCloud.Points[i].z << ","
+          << pointCloud.Colors[i].R << "," << pointCloud.Colors[i].G << "," << pointCloud.Colors[i].G << std::endl;
+      }
+    } else 
+    {
+       for (auto const &p : pointCloud.Points) 
+       {
+         f << p.x << "," << p.y << "," << p.z << std::endl;
+       }
+    }
+    
+    
+
+    // Close file
+    f.close();
+    
+  }
+
   // Read CSV file and store it in rapidcsv
-  void Read(std::string iFilename, bool verbose = false)
+  void Read(const std::string& iFilename, bool verbose = false)
   {
     // Open file and check
     try
@@ -127,11 +165,8 @@ public:
 
     if (verbose)
     {
-      std::cout << "Read " << Document.GetColumnCount() + 1
-                << " columns" // seems to be 0-indexed counts
-                << std::endl;
-      std::cout << "Read " << Document.GetRowCount() + 1 << " rows"
-                << std::endl;
+      Info("Read " + str(Document.GetColumnCount() + 1) + " columns"); // Columns seems to be 0-indexed counts
+      Info("Read " + str(Document.GetRowCount() + 1) + " rows");
     }
   }
 

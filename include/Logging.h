@@ -107,7 +107,7 @@ namespace DTCC
   }
 
   // Set log file
-  void SetLogFile(std::string fileName, bool append=false)
+  void SetLogFile(const std::string& fileName, bool append=false)
   {
     if (append)
       logFile.open(fileName, std::ofstream::out | std::ofstream::app);
@@ -138,11 +138,14 @@ namespace DTCC
   // Convert unsigned integer to string
   std::string str(size_t x) { return std::to_string(x); }
 
+  // Convert unsigned integer to string
+  std::string str(uint x) {return std::to_string(x); }
+
   // Convert double to string
-  std::string str(double x)
+  std::string str(double x, std::streamsize precision = 6)
   {
     std::ostringstream out;
-    out.precision(6);
+    out.precision(precision);
     out << std::scientific << x;
     return out.str();
   }

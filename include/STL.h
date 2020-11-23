@@ -1,5 +1,6 @@
 // STL I/O
 // Anders Logg 2018
+// Licensed under the MIT License
 
 #ifndef DTCC_STL_H
 #define DTCC_STL_H
@@ -9,6 +10,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "Logging.h"
+
 namespace DTCC
 {
 
@@ -17,9 +20,9 @@ class STL
 public:
   // Read (binary) STL file and return triangles as a flattened
   // list of vertex coordinates (3 x 3 = 9 numbers per triangle).
-  static std::vector<float> Read(std::string filename)
+  static std::vector<float> Read(const std::string& filename)
   {
-    std::cout << "STL file:   " << filename << std::endl;
+    Info("STL file:   " + filename);
 
     // Open file
     std::ifstream f(filename.c_str(), std::ios::in | std::ios::binary);
@@ -31,8 +34,8 @@ public:
     // Parse header and number of triangles
     std::string InfoHeader = ParseHeader(f);
     unsigned long NumTriangles = ParseUnsignedLong(f);
-    std::cout << "STL header: " << InfoHeader << std::endl;
-    std::cout << "STL size::  " << NumTriangles << " triangles" << std::endl;
+    Info("STL header: " + InfoHeader);
+    Info("STL size:  " + str(NumTriangles) + " triangles");
 
     // Initialize mesh data
     std::vector<float> Triangles(9 * NumTriangles);

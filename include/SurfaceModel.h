@@ -1,5 +1,6 @@
 // Digital Surface Model (DSM) for elevation (including buildings).
 // Copyright (C) 2019 Anders Logg.
+// Licensed under the MIT License
 
 #ifndef DTCC_SURFACE_MODEL_H
 #define DTCC_SURFACE_MODEL_H
@@ -49,7 +50,7 @@ public:
   {
     const size_t ix = i % SizeX;
     const size_t iy = i / SizeX;
-    return Vector2D(ix * Resolution, iy * Resolution);
+    return {ix * Resolution, iy * Resolution};
   }
 };
 

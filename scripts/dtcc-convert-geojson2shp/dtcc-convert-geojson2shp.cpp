@@ -7,12 +7,14 @@
 /// tmp/PropertyMap.shp /tmp/PropertyMap.geojson
 
 #include "JSON.h"
+#include "Logging.h"
+
 #include <iostream>
 #include <string>
 
 void Help()
 {
-  std::cerr << "Usage: vc-convert-geojson2shp in.geojson out.shp" << std::endl;
+  Error("Usage: dtcc-convert-geojson2shp in.geojson out.shp");
 }
 
 int main(int argc, char *argv[])

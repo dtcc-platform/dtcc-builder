@@ -4,12 +4,13 @@
 #ifndef DTCC_CITY_JSON_H
 #define DTCC_CITY_JSON_H
 
-#include "JSON.h"
-#include "Point.h"
-#include "Logging.h"
+#include <utility>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
+
+#include "Logging.h"
+#include "Point.h"
 
 namespace DTCC
 {
@@ -27,15 +28,16 @@ public:
     // TODO: Add all the City Object types from CityJson's documentation
   };
 
-  /// Various attributes of the CityObject. 
+  /// Various attributes of the CityObject.
   /// Currently not all fields are parsed from the json format.
-  /// More info available at the official docs: https://portal.opengeospatial.org/files/?artifact_id=47842
+  /// More info available at the official docs:
+  /// https://portal.opengeospatial.org/files/?artifact_id=47842
   struct Attributes
   {
     /// Retrieved measured height
     double MeasuredHeight;
 
-    /// Retrieved roof type 
+    /// Retrieved roof type
     std::string RoofType;
 
     /// Stories above ground
@@ -72,12 +74,13 @@ public:
       /// Contains all IDs for the current Boundary
       std::vector<uint> BoundariesIDs;
 
-      friend std::ostream& operator<<(std::ostream& os, const Boundary& boundary) 
+      friend std::ostream &operator<<(std::ostream &os,
+                                      const Boundary &boundary)
       {
         std::string boundariesStr;
         for(auto it=boundary.BoundariesIDs.begin();it!=boundary.BoundariesIDs.end();++it)
         {
-            boundariesStr.append(*it +",");
+            boundariesStr.append(str(*it) + ",");
         }
         return os << boundariesStr;
       }
@@ -101,7 +104,7 @@ public:
               {"GeometryInstance", GeometryType::GeometryInstance},
               {"MultiSurface",GeometryType::MultiSurface}};*/
 
-    static std::string GeometryTypeToString(GeometryType typeToConvert) 
+    static std::string GeometryTypeToString(GeometryType typeToConvert)
     {
       switch (typeToConvert)
       {
@@ -140,7 +143,7 @@ public:
   /// Create city object with given ID
   ///
   /// @param newID the id of this object
-  CityObject(std::string newId) : ID(newId) {};
+  explicit CityObject(std::string newId) : ID(std::move(newId)) {};
 
   /// Pretty-print
   virtual std::string __str__() const
@@ -170,7 +173,7 @@ public:
     return BuildingStr;
   }
 
-  friend std::ostream &operator<<(std::ostream &os, const CityObject &obj) 
+  friend std::ostream &operator<<(std::ostream &os, const CityObject &obj)
   {
     return os << obj.__str__() << std::endl;
   }
@@ -199,7 +202,6 @@ public:
 
     /// Create Empty CityJSON
     CityJSON() : Type("CityJSON"), Version("1.0") {}
-    
 };
 
 } // namespace DTCC

@@ -1,5 +1,6 @@
 // Representation of a 2.5D building.
 // Copyright (C) 2019 Anders Logg.
+// Licensed under the MIT License
 
 #ifndef DTCC_BUILDING_H
 #define DTCC_BUILDING_H

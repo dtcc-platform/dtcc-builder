@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for i in by*.*
+do
+ending=`echo $i|cut -d "." -f2`
+echo $i
+cp $i PropertyMap.$ending
+done

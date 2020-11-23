@@ -1,6 +1,7 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
+#include <deque>
 #include <dolfin.h>
 #include <iostream>
 #include <string>
@@ -14,13 +15,13 @@
 #include "Mesh.h"
 #include "MeshGenerator.h"
 #include "Parameters.h"
+#include "Logging.h"
 
 using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-visualization-mesh Parameters.json"
-            << std::endl;
+  Error("Usage: dtcc-generate-visualization-mesh Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -45,26 +46,23 @@ int main(int argc, char *argv[])
   JSON::Read(cityModel, dataDirectory + "CityModel.json");
   Info(cityModel);
 
-  // Read height map data
-  GridField2D heightMap;
-  JSON::Read(heightMap, dataDirectory + "HeightMap.json");
-  Info(heightMap);
+  // Read terrain model
+  GridField2D dtm{};
+  JSON::Read(dtm, dataDirectory + "DTM.json");
+  Info(dtm);
 
   // Generate 3D surfaces
-  std::vector<Surface3D> surfaces
-    = MeshGenerator::GenerateSurfaces3D(cityModel, heightMap,
-                                        heightMap.Grid.BoundingBox.P.x,
-                                        heightMap.Grid.BoundingBox.P.y,
-                                        heightMap.Grid.BoundingBox.Q.x,
-                                        heightMap.Grid.BoundingBox.Q.y,
-                                        parameters.MeshResolution, parameters.FlatGround);
+  std::vector<Surface3D> surfaces = MeshGenerator::GenerateSurfaces3D(
+      cityModel, dtm, dtm.Grid.BoundingBox.P.x, dtm.Grid.BoundingBox.P.y,
+      dtm.Grid.BoundingBox.Q.x, dtm.Grid.BoundingBox.Q.y,
+      parameters.MeshResolution, parameters.FlatGround);
 
   // Extract ground surface
   Surface3D groundSurface = surfaces[0];
 
   // FIXME: Consider moving this somewhere else as a utility for merging surfaces
   // Extract building surface as one common surface
-  std::cout << "Merging building meshes..." << std::endl;
+  Progress("Merging building meshes...");
   Surface3D buildingSurface;
   size_t numPoints = 0;
   size_t numCells = 0;

@@ -15,7 +15,7 @@ using namespace DTCC;
 
 void Help()
 {
-  Error("Usage: vc-smooth-surface-mesh Parameters.json");
+  Error("Usage: dtcc-smooth-surface-mesh Parameters.json");
 }
 
 int main(int argc, char *argv[])

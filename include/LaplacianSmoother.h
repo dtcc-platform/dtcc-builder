@@ -28,7 +28,7 @@ namespace DTCC
     // Smooth mesh using Laplacian smoothing
     static void SmoothMesh(Mesh3D &mesh3D,
                            const CityModel &cityModel,
-                           const GridField2D &heightMap,
+                           const GridField2D &dem,
                            double topHeight,
                            bool fixBuildings)
     {
@@ -64,8 +64,8 @@ namespace DTCC
       // Create expressions for boundary values (heights)
       const auto h0 =
           std::make_shared<BuildingsExpression>(cityModel, mesh3D.Markers);
-      const auto h1 = std::make_shared<HaloExpression>(heightMap, _mesh3D);
-      const auto h2 = std::make_shared<GroundExpression>(heightMap);
+      const auto h1 = std::make_shared<HaloExpression>(dem, _mesh3D);
+      const auto h2 = std::make_shared<GroundExpression>(dem);
       const auto h3 = std::make_shared<TopExpression>(topHeight);
 
       // Create boundary conditions
@@ -111,18 +111,18 @@ namespace DTCC
 
     // Smooth mesh using elastic smoothing
     static void SmoothMeshElastic(dolfin::Mesh &mesh,
-                                  const GridField2D &heightMap,
+                                  const GridField2D &dem,
                                   const CityModel &cityModel,
                                   const std::vector<int> &domainMarkers,
                                   double h)
     {
-      std::cout << "Elastic smoothing not (yet) implemented." << std::endl;
+      Warning("Elastic smoothing not (yet) implemented.");
     }
 
-    // Generate height map function (used only for testing/visualization)
+    // Generate elevation function (used only for testing/visualization)
     static std::shared_ptr<dolfin::Function>
-    GenerateHeightMapFunction(const dolfin::Mesh &mesh,
-                              const GridField2D &heightMap)
+    GenerateElevationFunction(const dolfin::Mesh &mesh,
+                              const GridField2D &elevation)
     {
       // Create function space
       auto m = std::make_shared<dolfin::Mesh>(mesh);
@@ -130,8 +130,8 @@ namespace DTCC
 
       // Create boundary condition
       auto bcz = std::make_shared<dolfin::DirichletBC>(
-                                                       V, std::make_shared<GroundExpression>(heightMap),
-                                                       std::make_shared<EntireDomain>());
+          V, std::make_shared<GroundExpression>(elevation),
+          std::make_shared<EntireDomain>());
 
       // Create function and apply boundary condition
       auto z = std::make_shared<dolfin::Function>(V);
@@ -153,7 +153,7 @@ namespace DTCC
 
     // A note on subtracting z-coordinate in Expressions below: Since
     // we solve for the z-displacement, we need to subtract the z-coordinate
-    // but since the expressions are also used by GenerateHeightMapFunction()
+    // but since the expressions are also used by GenerateElevationFunction()
     // to generate a 2D height map with absolute height values, the
     // subtraction should only be done in the 3D case.
 
@@ -184,7 +184,7 @@ namespace DTCC
       {
         // Get building height
         const size_t i = domainMarkers[ufc_cell.index];
-        const double z = cityModel.Buildings[i].Height;
+        const double z = cityModel.Buildings[i].MaxHeight();
 
         // Set height of building
         values[0] = z;
@@ -199,15 +199,15 @@ namespace DTCC
     class HaloExpression : public dolfin::Expression
     {
     public:
-      // Reference to height map
-      const GridField2D &heightMap;
+      // Reference to elevation
+      const GridField2D &elevation;
 
       // Reference to mesh
       const dolfin::Mesh &mesh;
 
       // Constructor
-      HaloExpression(const GridField2D &heightMap, const dolfin::Mesh &mesh)
-        : Expression(), heightMap(heightMap), mesh(mesh)
+      HaloExpression(const GridField2D &elevation, const dolfin::Mesh &mesh)
+          : Expression(), elevation(elevation), mesh(mesh)
       {
       }
 
@@ -224,7 +224,7 @@ namespace DTCC
         for (dolfin::VertexIterator vertex(cell); !vertex.end(); ++vertex)
         {
           const dolfin::Point p = vertex->point();
-          const double z = heightMap(Vector2D(p.x(), p.y()));
+          const double z = elevation(Vector2D(p.x(), p.y()));
           zmin = std::min(zmin, z);
         }
 
@@ -241,12 +241,12 @@ namespace DTCC
     class GroundExpression : public dolfin::Expression
     {
     public:
-      // Reference to height map
-      const GridField2D &heightMap;
+      // Reference to elevation
+      const GridField2D &elevation;
 
       // Constructor
-      GroundExpression(const GridField2D &heightMap)
-        : Expression(), heightMap(heightMap)
+      GroundExpression(const GridField2D &elevation)
+          : Expression(), elevation(elevation)
       {
       }
 
@@ -255,7 +255,7 @@ namespace DTCC
                 const dolfin::Array<double> &x) const
       {
         // Evaluate height map
-        values[0] = heightMap(Vector2D(x[0], x[1]));
+        values[0] = elevation(Vector2D(x[0], x[1]));
 
         // See note above on subtracting z-coordinate
         if (x.size() == 3)

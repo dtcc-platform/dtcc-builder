@@ -180,7 +180,7 @@ public:
   {
     const Vector2D v(p0, p1);
     double l{}, d0{}, d1{};
-    if (std::abs(v.x > v.y))
+    if (std::abs(v.x > v.y)) // TODO: Taking absolute value of boolean?
     {
       l = std::abs(v.x);
       d0 = std::abs(p0.x - q.x);
@@ -397,7 +397,7 @@ public:
 
     // Solve linear system
     const double k = (d * e - b * f) / det;
-    const Point2D p = p0 + v * k;
+    Point2D p = p0 + v * k;
 
     return p;
   }

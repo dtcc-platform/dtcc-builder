@@ -4,7 +4,7 @@
 #ifndef DTCC_BOUNDING_BOX_H
 #define DTCC_BOUNDING_BOX_H
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 
 #include "Point.h"
@@ -26,7 +26,7 @@ namespace DTCC
     Point2D Q;
 
     /// Create empty bounding box
-    BoundingBox2D() {}
+    BoundingBox2D() = default;
 
     /// Create bounding box for given points.
     ///
@@ -41,7 +41,7 @@ namespace DTCC
     /// Create bounding box of polygon.
     ///
     /// @param polygon Polygon
-    BoundingBox2D(const Polygon& polygon)
+    explicit BoundingBox2D(const Polygon& polygon)
     {
       constexpr double max = std::numeric_limits<double>::max();
       P.x = P.y = max;
@@ -56,7 +56,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return
         "[" + str(P.x) + ", " + str(Q.x) + "] x " +
@@ -77,7 +77,7 @@ namespace DTCC
     Point3D Q{};
 
     /// Create empty bounding box
-    BoundingBox3D() {}
+    BoundingBox3D() = default;
 
     /// Create bounding box defined by given points.
     ///
@@ -91,7 +91,7 @@ namespace DTCC
     }
 
     /// Pretty-print
-    std::string __str__() const
+    std::string __str__() const override
     {
       return
         "[" + str(P.x) + ", " + str(Q.x) + "] x " +

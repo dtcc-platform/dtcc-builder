@@ -1,5 +1,6 @@
 // WLD I/O
 // Anders Logg 2019
+// Licensed under the MIT License
 
 #ifndef DTCC_WLD_H
 #define DTCC_WLD_H
@@ -11,6 +12,7 @@
 
 #include "GeoReference.h"
 #include "Parameters.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -22,10 +24,9 @@ public:
 
   // Read geo reference from WLD file
   static void
-  Read(GeoReference &geoReference, std::string fileName, size_t stride = 1)
+  Read(GeoReference &geoReference, const std::string& fileName, size_t stride = 1)
   {
-    std::cout << "WLD: "
-              << "Reading geo reference from file " << fileName << std::endl;
+    Info("WLD: Reading geo reference from file " + fileName);
 
     std::ifstream f(fileName);
     std::string A, D, B, E, C, F;
@@ -46,10 +47,9 @@ public:
   };
 
   // Write geo reference to WLD file
-  static void Write(GeoReference &geoReference, std::string fileName)
+  static void Write(GeoReference &geoReference, const std::string& fileName)
   {
-    std::cout << "WLD: "
-              << "Writing geo reference to file " << fileName << std::endl;
+    Info("WLD: Writing geo reference to file " + fileName);
 
     std::ofstream f(fileName);
     f << std::setprecision(Parameters::Precision);

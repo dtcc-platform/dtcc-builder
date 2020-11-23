@@ -1,5 +1,6 @@
 // Axis-aligned bounding box tree (AABB tree)
 // Copyright (C) 2020 Anders Logg
+// Licensed under the MIT License
 
 #ifndef DTCC_BOUNDING_BOX_TREE_H
 #define DTCC_BOUNDING_BOX_TREE_H
@@ -8,6 +9,7 @@
 #include <limits>
 
 #include "BoundingBox.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -17,7 +19,7 @@ namespace DTCC
   // and simpler design (separate 2D and 3D implementations).
 
   // Axis-aligned bouding box tree (2D).
-  class BoundingBoxTree2D
+  class BoundingBoxTree2D : public Printable
   {
   public:
 
@@ -42,13 +44,12 @@ namespace DTCC
     // Build bounding box tree for objects (defined by their bounding boxes)
     void Build(const std::vector<BoundingBox2D>& bboxes)
     {
-      std::cout << "BoundingTree: Building 2D bounding box tree for " << bboxes.size() << " objects..." << std::endl;
-
+      Info("BoundingTree: Building 2D bounding box tree for " + str(bboxes.size()) + " objects...");
       // Clear tree if built before
       Nodes.clear();
 
       // Skip if there is no data
-      if (bboxes.size() == 0)
+      if (bboxes.empty())
         return;
 
       // Initialize indices of bounding boxes to be sorted
@@ -72,13 +73,18 @@ namespace DTCC
       return indices;
     }
 
+    std::string __str__() const override
+    {
+      return "2D bounding box tree with " + str(Nodes.size()) + " nodes";
+    }
+
   private:
 
     /// Comparison for partial sorting of bounding boxes along x-axis
     struct LessThanX
     {
       const std::vector<BoundingBox2D>& bboxes;
-      LessThanX(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
+      explicit LessThanX(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
       bool operator()(size_t i, size_t j)
       {
         return bboxes[i].P.x + bboxes[i].Q.x < bboxes[j].P.x + bboxes[j].Q.x;
@@ -89,7 +95,7 @@ namespace DTCC
     struct LessThanY
     {
       const std::vector<BoundingBox2D>& bboxes;
-      LessThanY(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
+      explicit LessThanY(const std::vector<BoundingBox2D>& bboxes): bboxes(bboxes) {}
       bool operator()(size_t i, size_t j)
       {
         return bboxes[i].P.y + bboxes[i].Q.y < bboxes[j].P.y + bboxes[j].Q.y;
@@ -210,6 +216,8 @@ namespace DTCC
     stream << "2D bounding box tree with " << bbtree.Nodes.size() << " nodes";
     return stream;
   }
+
+
 
 }
 

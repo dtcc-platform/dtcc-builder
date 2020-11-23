@@ -17,7 +17,7 @@ using namespace DTCC;
 
 void Help()
 {
-  std::cerr << "Usage: vc-generate-heightmap Parameters.json" << std::endl;
+  Error("Usage: dtcc-generate-heightmap Parameters.json");
 }
 
 int main(int argc, char *argv[])
@@ -42,12 +42,12 @@ int main(int argc, char *argv[])
   // Debug Printing in case you want to access parsed data
   for(auto it:cityJson.CityObjects)
   {
-    std::cout<<it<<std::endl;
+    Progress(str(it));
   }
 
   for(auto it:cityJson.Vertices)
   {
-    std::cout<<it.__str__()<<std::endl;
+    Progress(it.__str__());
   }
 
   //Testing Serialization to json
@@ -55,4 +55,3 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-
