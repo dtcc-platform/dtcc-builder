@@ -373,16 +373,16 @@ TEST_CASE("COLORMAPS")
 
 TEST_CASE("citymodel")
 {
-  const char *fileName1 = "../unittests/data/CityModelExample1.json";
+  const char *fileName1 = "../unittests/data/CityModelExample.json";
   const char *fileName2 = "../unittests/data/CityModelExample2.json";
   District district;
   nlohmann::json json;
   JSON::Read(json, fileName1);
   JSON::Deserialize(district, json, "606");
 
-  json.clear();
+  /*json.clear();
   JSON::Serialize(district, json);
-  JSON::Write(json, fileName2);
+  JSON::Write(json, fileName2);*/
 
   SECTION("District")
   {

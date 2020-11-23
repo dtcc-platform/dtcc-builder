@@ -850,26 +850,28 @@ namespace DTCC
 
     /// Deserialize Property.
     static void Deserialize(Property &property,
-                            const nlohmann::json &jsonCityModel,
+                            const nlohmann::json &json,
                             std::string uuid)
     {
-      CheckType("CityModel", jsonCityModel);
-      /*auto jsonProperties = jsonCityModel["Properties"][index];
+      nlohmann::json jsonProperty =
+          GetObject("UUID", std::move(uuid), json["Properties"]);
+      CheckType("Property", jsonProperty);
       /// Deserialize Property's footprint.
-      DeserializeFootprint(property.Footprint, jsonProperties, "Footprint");
-      property.FNR = jsonProperties["FNR"];
-      property.UUID = jsonProperties["UUID"];
+      DeserializeFootprint(property.Footprint, jsonProperty, "Footprint");
+      property.FNR = jsonProperty["FNR"];
+      property.UUID = jsonProperty["UUID"];
       /// Deserialize buildings.
       if (!property.Buildings.empty())
         return;
-      auto jsonBuildings = jsonProperties["contains"];
-      property.Buildings.resize(jsonBuildings.size());*/
-      /*for (size_t i = 0; i < jsonBuildings.size(); ++i)
-        Deserialize(property.Buildings[i], jsonCityModel, i);*/
+      auto jsonBuildings = jsonProperty["contains"];
+      property.Buildings.resize(jsonBuildings.size());
+      for (size_t i = 0; i < jsonBuildings.size(); ++i)
+        Deserialize(property.Buildings[i], json, jsonBuildings[i]["UUID"]);
     }
 
     /// Serialize Property.
-    static void Serialize(const Property &property, nlohmann::json &json)
+    static void
+    Serialize(const Property &property, nlohmann::json &json, size_t fnr)
     {
       /// Serialize Property's footprint.
       SerializeFootprint(property.Footprint, json);
@@ -888,20 +890,19 @@ namespace DTCC
 
     /// Deserialize Building.
     static void Deserialize(Building &building,
-                            const nlohmann::json &jsonCityModel,
+                            const nlohmann::json &json,
                             const std::string &uuid)
     {
-      /*CheckType("CityModel", jsonCityModel);
-      auto jsonBuilding = jsonCityModel["Buildings"][index];
+      nlohmann::json jsonBuilding = GetObject("UUID", uuid, json["Buildings"]);
+      CheckType("Building", jsonBuilding);
       building.UUID = jsonBuilding["UUID"];
       building.PropertyUUID = jsonBuilding["PropertyUUID"];
       building.PropertyFNR = jsonBuilding["PropertyFNR"].get<int>();
-      building.BaseAreaID =
-          std::stoi(jsonBuilding["BaseAreaID"].get<std::string>());
+      building.BaseAreaID = jsonBuilding["BaseAreaID"].get<std::string>();
       building.Height = jsonBuilding["Height"].get<double>();
       building.GroundHeight = jsonBuilding["GroundHeight"].get<double>();
 
-      DeserializeFootprint(building.Footprint, jsonBuilding, "Footprint");*/
+      DeserializeFootprint(building.Footprint, jsonBuilding, "Footprint");
     }
 
     /// Serialize BaseArea.
@@ -912,27 +913,31 @@ namespace DTCC
 
     /// Deserialize BaseArea.
     static void Deserialize(BaseArea &baseArea,
-                            const nlohmann::json &jsonBaseArea)
+                            const nlohmann::json &json,
+                            std::string &areaID)
     {
+      nlohmann::json jsonBaseArea =
+          GetObject("area_id", std::move(areaID), json["BaseAreas"]);
       CheckType("BaseArea", jsonBaseArea);
       baseArea.PrimaryAreaID = jsonBaseArea["parent_id"];
       DeserializeArea(baseArea, jsonBaseArea);
       nlohmann::json jsonBuildings = jsonBaseArea["contains"]["Buildings"];
       baseArea.Buildings.resize(jsonBuildings.size());
-      /*for (size_t i = 0; i < jsonBuildings.size(); ++i)
-        Deserialize(baseArea.Buildings[i], jsonBaseArea, i);*/
+      for (size_t i = 0; i < jsonBuildings.size(); ++i)
+        Deserialize(baseArea.Buildings[i], json,
+                    jsonBuildings[i].get<std::string>());
       nlohmann::json jsonProperties = jsonBaseArea["contains"]["Properties"];
       baseArea.Properties.resize(jsonProperties.size());
       for (size_t i = 0; i < jsonProperties.size(); ++i)
       {
-        std::string buildingUUID = jsonProperties[i]["UUID"];
+        std::string propertyUUID = jsonProperties[i]["UUID"];
         for (auto &building : baseArea.Buildings)
-          if (building.UUID == buildingUUID)
+          if (building.PropertyUUID == propertyUUID)
           {
             baseArea.Properties[i].Buildings.push_back(building);
             break;
           }
-        /*Deserialize(baseArea.Properties[i], jsonBaseArea, i);*/
+        Deserialize(baseArea.Properties[i], json, propertyUUID);
       }
     }
 
@@ -951,9 +956,11 @@ namespace DTCC
 
     /// Deserialize PrimaryArea.
     static void Deserialize(PrimaryArea &primaryArea,
-                            const nlohmann::json &jsonPrimArea,
+                            const nlohmann::json &json,
                             std::string areaID)
     {
+      nlohmann::json jsonPrimArea =
+          GetObject("area_id", std::move(areaID), json["PrimaryAreas"]);
       CheckType("PrimaryArea", jsonPrimArea);
       primaryArea.DistrictAreaID = jsonPrimArea["parent_id"];
       DeserializeArea(primaryArea, jsonPrimArea);
@@ -962,7 +969,8 @@ namespace DTCC
       for (auto &jsonBaseArea : jsonBaseAreas)
       {
         BaseArea baseArea;
-        Deserialize(baseArea, jsonBaseArea);
+        std::string baseAreaID = jsonBaseArea.get<std::string>();
+        Deserialize(baseArea, json, baseAreaID);
         primaryArea.BaseAreas.push_back(baseArea);
       }
     }
@@ -980,7 +988,7 @@ namespace DTCC
       for (auto &jsonPrimArea : jsonPrimAreas)
       {
         PrimaryArea primaryArea;
-        Deserialize(primaryArea, json, jsonPrimArea);
+        Deserialize(primaryArea, json, jsonPrimArea.get<std::string>());
         district.PrimaryAreas.push_back(primaryArea);
       }
     }

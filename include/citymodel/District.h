@@ -23,8 +23,7 @@ public:
     std::string primAreaIDs;
     for (size_t i = 0; i < PrimaryAreas.size(); ++i)
     {
-      primAreaIDs +=
-          (i == 0 ? "" : ", ") + std::to_string(PrimaryAreas[i].AreaID);
+      primAreaIDs += (i == 0 ? "" : ", ") + PrimaryAreas[i].AreaID;
     }
     return "District with name " + Name + ", area ID " + AreaID +
            " and primary areas " + primAreaIDs;
