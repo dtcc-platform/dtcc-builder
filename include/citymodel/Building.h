@@ -25,7 +25,7 @@ public:
   // Building footprint (polygon)
   Polygon Footprint{};
 
-  size_t BaseAreaID{};
+  std::string BaseAreaID{};
 
   // Building height (relative to ground)
   double Height{};
@@ -48,7 +48,7 @@ public:
            "UUID: " +
            UUID + "\nProperty FNR: " + str(PropertyFNR) +
            "\nProperty UUID: " + PropertyUUID +
-           "\nBase area ID: " + str(BaseAreaID) +
+           "\nBase area ID: " + BaseAreaID +
            "\nMin height: " + std::to_string(MinHeight()) +
            "\nMax height: " + std::to_string(MaxHeight()) +
            "\nFootprint: " + Footprint.__str__();

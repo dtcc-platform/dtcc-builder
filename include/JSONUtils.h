@@ -106,3 +106,14 @@ static std::string ToString(std::string key, const nlohmann::json &json)
     Error("Missing field '" + key + "' in JSON file.");
   return json[key];
 }
+
+template <typename T>
+static nlohmann::json
+GetObject(const std::string key, T value, const nlohmann::json &json)
+{
+  for (const auto &jsonObj : json)
+    if (jsonObj[key] == value)
+      return jsonObj;
+  Error("No object with key " + key + "and value " + value + "in JSON file");
+  return nullptr;
+}

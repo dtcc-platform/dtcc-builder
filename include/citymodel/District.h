@@ -15,7 +15,7 @@ class District : public Printable
 public:
   Polygon Footprint;
   std::string Name;
-  size_t AreaID;
+  std::string AreaID;
   std::vector<PrimaryArea> PrimaryAreas;
 
   std::string __str__() const override
@@ -26,8 +26,8 @@ public:
       primAreaIDs +=
           (i == 0 ? "" : ", ") + std::to_string(PrimaryAreas[i].AreaID);
     }
-    return "District with name " + Name + ", area ID " +
-           std::to_string(AreaID) + " and primary areas " + primAreaIDs;
+    return "District with name " + Name + ", area ID " + AreaID +
+           " and primary areas " + primAreaIDs;
   }
 };
 

@@ -13,20 +13,20 @@ namespace DTCC
 class PrimaryArea : public Printable
 {
 public:
-  size_t DistrictAreaID;
+  std::string DistrictAreaID;
   std::string Name;
   std::vector<BaseArea> BaseAreas;
   Polygon Footprint;
-  size_t AreaID;
+  std::string AreaID;
 
   std::string __str__() const override
   {
     std::string baseAreaIDs;
     for (size_t i = 0; i < BaseAreas.size(); ++i)
-      baseAreaIDs += (i == 0 ? "" : ", ") + str(BaseAreas[i].AreaID);
-    return "Primary area with name " + Name + ", area ID " + str(AreaID) +
-           ", district area ID " + std::to_string(DistrictAreaID) +
-           " and base area(s) " + baseAreaIDs;
+      baseAreaIDs += (i == 0 ? "" : ", ") + BaseAreas[i].AreaID;
+    return "Primary area with name " + Name + ", area ID " + AreaID +
+           ", district area ID " + DistrictAreaID + " and base area(s) " +
+           baseAreaIDs;
   }
 };
 
