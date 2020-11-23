@@ -42,10 +42,10 @@ public:
     cityModel.Buildings.clear();
 
     // Add buildings
-    for (size_t i = 0; i < footprints.size(); i++)
+    for (const auto &footprint : footprints)
     {
       // Create transformed footprint
-      Polygon transformedFootprint = footprints[i];
+      Polygon transformedFootprint = footprint;
       Polyfix::Transform(transformedFootprint, origin);
 
       // Add if inside bounding box
@@ -123,9 +123,11 @@ public:
   /// Compute heights of buildings from height map.
   ///
   /// @param cityModel The city model
-  /// @param heightMap The height map
+  /// @param dsm       Digital Surface Model (including buildings)
+  /// @param dtm       Digital Terrain Model (excluding buildings)
   static void ComputeBuildingHeights(CityModel &cityModel,
-                                     const GridField2D &heightMap)
+                                     const GridField2D &dsm,
+                                     const GridField2D &dtm)
   {
     Info("CityModelGenerator: Computing building heights...");
     Timer("ComputeBuildingHeights");
@@ -160,13 +162,15 @@ public:
       }
 
       // Compute mean height at points inside footprint
-      double z = 0.0;
+      double h0 = 0.0;
+      double h1 = 0.0;
       size_t numInside = 0;
       for (auto const &p : samplePoints)
       {
         if (Geometry::PolygonContains2D(building.Footprint, p))
         {
-          z += heightMap(p);
+          h0 += dtm(p);
+          h1 += dsm(p);
           numInside += 1;
         }
       }
@@ -179,8 +183,13 @@ public:
         numInside = 1;
       }
 
-      // Set building height
-      building.Height = z / static_cast<double>(numInside);
+      // Compute mean
+      h0 /= static_cast<double>(numInside);
+      h1 /= static_cast<double>(numInside);
+
+      // Set building height(s)
+      building.Height = h1 - h0;
+      building.GroundHeight = h0;
     }
   }
 
@@ -204,7 +213,7 @@ private:
 
     // Process queue until empty
     size_t numMerged = 0;
-    while (indices.size() > 0)
+    while (!indices.empty())
     {
       // Pop index of next building to check
       const size_t i = indices.front();
@@ -218,7 +227,7 @@ private:
           continue;
 
         // Skip if merged with other building (size set to 0)
-        if (buildings[j].Footprint.Vertices.size() == 0)
+        if (buildings[j].Footprint.Vertices.empty())
           continue;
 
         // Compute squared distance between polygons
@@ -249,7 +258,7 @@ private:
     std::vector<Building> mergedBuildings;
     for (const auto &building : buildings)
     {
-      if (building.Footprint.Vertices.size() > 0)
+      if (!building.Footprint.Vertices.empty())
         mergedBuildings.push_back(building);
     }
 
@@ -259,7 +268,7 @@ private:
     Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
   }
 
-  // Merge the two polygonspolygon
+  // Merge the two polygons
   static Polygon MergePolygons(const Polygon &polygon0, const Polygon &polygon1)
   {
     // For now, we just compute the convex hull, consider
