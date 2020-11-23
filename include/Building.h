@@ -15,18 +15,28 @@ namespace DTCC
 class Building
 {
 public:
-  // Building footprint (polygon)
-  Polygon Footprint{};
 
   // Building UUID
   std::string UUID;
   int debugID;
 
-  // Building height (above ground)
+  // Building footprint (polygon)
+  Polygon Footprint{};
+
+  // Building height (relative to ground)
   double Height{};
 
+  // Ground height (absolute)
+  double GroundHeight{};
+
   // Create empty building
-  Building() {}
+  Building() = default;
+
+  // Return minimum absolute height of building
+  double MinHeight() const { return GroundHeight; }
+
+  // Return maximum absolute height of building
+  double MaxHeight() const { return GroundHeight + Height; }
 };
 
 } // namespace DTCC

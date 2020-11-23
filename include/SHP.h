@@ -10,6 +10,7 @@
 
 #include "Polygon.h"
 #include "Geometry.h"
+#include "Logging.h"
 
 namespace DTCC
 {
@@ -23,41 +24,39 @@ public:
                    std::vector<std::string> &UUIDs,
                    std::string fileName)
   {
-    std::cout << "SHP: "
-              << "Reading polygons from file " << fileName << std::endl;
-
+    Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
     DBFHandle handleD = DBFOpen(fileName.c_str(), "r");
 
     // Get info
     int numEntities, shapeType;
-    SHPGetInfo(handle, &numEntities, &shapeType, NULL, NULL);
-    std::cout << "SHP: " << numEntities << " entities" << std::endl;
+    SHPGetInfo(handle, &numEntities, &shapeType, nullptr, nullptr);
+    Info("SHP: " + str(numEntities) + " entities");
     switch (shapeType)
     {
     case SHPT_POINT:
     case SHPT_POINTZ:
     case SHPT_POINTM:
-      std::cout << "SHP: point type" << std::endl;
+      Info("SHP: point type");
       break;
     case SHPT_ARC:
     case SHPT_ARCZ:
     case SHPT_ARCM:
-      std::cout << "SHP: arc type" << std::endl;
+      Info("SHP: arc type");
       break;
     case SHPT_POLYGON:
     case SHPT_POLYGONZ:
     case SHPT_POLYGONM:
-      std::cout << "SHP: polygon type" << std::endl;
+      Info("SHP: polygon type");
       break;
     case SHPT_MULTIPOINT:
     case SHPT_MULTIPOINTZ:
     case SHPT_MULTIPOINTM:
-      std::cout << "SHP: multipoint type" << std::endl;
+      Info("SHP: multipoint type");
       break;
     default:
-      std::cout << "SHP: unkown type" << std::endl;
+      Info("SHP: unknown type");
     }
 
     // Check that we have polygon type
@@ -98,7 +97,7 @@ public:
         // For multipatch polygons only get the first polygon
         // TODO: handle donut and multipatch polygons correctly
 
-        Polygon polygon;
+        //Polygon polygon;
         int start;
         int end;
         for (int part = 0; part < object->nParts; part++)
