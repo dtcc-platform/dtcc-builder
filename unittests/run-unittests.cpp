@@ -373,39 +373,16 @@ TEST_CASE("COLORMAPS")
 
 TEST_CASE("citymodel")
 {
-  const char *fileName = "../unittests/data/CityModelExampleData.json";
+  const char *fileName1 = "../unittests/data/CityModelExample1.json";
+  const char *fileName2 = "../unittests/data/CityModelExample2.json";
   District district;
   nlohmann::json json;
-  JSON::Read(json, fileName);
+  JSON::Read(json, fileName1);
   JSON::Deserialize(district, json, 0);
 
-  BaseArea baseArea;
-  baseArea.PrimaryAreaID = 605;
-  baseArea.AreaID = 60567;
-  Building building;
-  baseArea.Buildings.push_back(building);
-  Property property;
-  baseArea.Properties.push_back(property);
-  Info(baseArea.__str__());
-  std::cout << std::endl;
-
-  building.BaseAreaID = baseArea.PrimaryAreaID;
-  building.PropertyUUID = "c8374e11-2767-4f0a-91fd-71d7f89b6681";
-  building.UUID = "c8374e11-2767-4f0a-91fd-71d7f89b6681";
-  building.PropertyFNR = 140029233;
-  building.GroundHeight = 22.7;
-  building.Height = 68.9;
-  building.Footprint.Vertices = {Point2D(46.8, 79.3), Point2D(32.8, 24.9),
-                                 Point2D(66.0, 45.9)};
-  Info(building.__str__());
-  std::cout << std::endl;
-
-  property.FNR = 140029233;
-  property.UUID = "c8374e11-2767-4f0a-91fd-71d7f89b6681";
-  property.Footprint = building.Footprint;
-  property.Buildings.push_back(building);
-  Info(property.__str__());
-  std::cout << std::endl;
+  json.clear();
+  JSON::Serialize(district, json);
+  JSON::Write(json, fileName2);
 
   SECTION("District")
   {
@@ -416,28 +393,56 @@ TEST_CASE("citymodel")
     REQUIRE(district.PrimaryAreas.size() == 1);
   }
 
-  Info(district.__str__());
-  std::cout << std::endl;
-
   PrimaryArea primaryArea = district.PrimaryAreas[0];
 
   SECTION("PrimaryArea")
   {
-    primaryArea.DistrictAreaID = 606;
-    baseArea.AreaID = 60605;
-    primaryArea.BaseAreas.push_back(baseArea);
-    Info(primaryArea.__str__());
     REQUIRE(primaryArea.AreaID == 606);
     REQUIRE(primaryArea.Name == "Hammarkullen");
+    REQUIRE(primaryArea.DistrictAreaID == 606);
     REQUIRE(primaryArea.Footprint.Vertices[0].x == -446.4952344278572);
     REQUIRE(primaryArea.Footprint.Vertices[0].y == 150.96198354940861);
   }
 
-  Info(primaryArea.__str__());
-  std::cout << std::endl;
+  BaseArea baseArea = primaryArea.BaseAreas[0];
+
+  SECTION("BaseArea")
+  {
+    REQUIRE(baseArea.AreaID == 60605);
+    REQUIRE(baseArea.PrimaryAreaID == 606);
+    REQUIRE(baseArea.Footprint.Vertices[0].x == 214.59035302355187);
+    REQUIRE(baseArea.Footprint.Vertices[0].y == 189.76460300106555);
+    REQUIRE(baseArea.Buildings.size() == 1);
+    REQUIRE(baseArea.Properties.size() == 1);
+  }
+
+  Property property = baseArea.Properties[0];
+
+  SECTION("Property")
+  {
+    REQUIRE(property.FNR == 140029233);
+    REQUIRE(property.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
+    REQUIRE(property.Buildings.size() == 1);
+    REQUIRE(property.Footprint.Vertices[0].x == 529.5);
+    REQUIRE(property.Footprint.Vertices[0].y == 59.0230000000447);
+  }
+
+  Building building = baseArea.Buildings[0];
+
+  SECTION("Building")
+  {
+    REQUIRE(building.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
+    REQUIRE(building.PropertyUUID == building.UUID);
+    REQUIRE(building.PropertyFNR == 140029233);
+    REQUIRE(building.BaseAreaID == 60605);
+    REQUIRE(building.GroundHeight == 34.865);
+    REQUIRE(building.Height == 107.574735807257);
+    REQUIRE(building.Footprint.Vertices[0].x == 551.020999965025);
+    REQUIRE(building.Footprint.Vertices[0].y == 57.5619951048866);
+  }
 }
 
-TEST_CASE("Property")
+/*TEST_CASE("Property")
 {
   Property property1;
   Building building1, building2, building3;
@@ -477,7 +482,7 @@ TEST_CASE("Property")
   }
 
   remove(FileName);
-}
+}*/
 
 TEST_CASE("Hashing")
 {

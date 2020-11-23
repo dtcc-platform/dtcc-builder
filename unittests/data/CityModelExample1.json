@@ -1,4 +1,5 @@
 {
+  "Type": "CityModel",
   "Buildings": [
     {
       "Footprint": [
@@ -28,7 +29,11 @@
         }
       ],
       "Height": 107.574735807257,
+      "GroundHeight": 34.865,
       "UUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681",
+      "PropertyUUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681",
+      "PropertyFNR": 140029233,
+      "BaseAreaID": "60605",
       "attributes": {
         "heatedFloorArea": 5739.0,
         "finalEnergy": 405288.7621092857,
@@ -39,9 +44,9 @@
     }
   ],
   "Properties": [
-    [
       {
         "FNR": 140029233,
+        "UUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681",
         "contains": [
           "c8374e11-2767-4f0a-91fd-71d7f89b6681"
         ],
@@ -76,15 +81,22 @@
           }
         ]
       }
-    ]
   ],
   "BaseAreas": [
-    [
       {
         "area_id": "60605",
-        "contains": [
-          "c8374e11-2767-4f0a-91fd-71d7f89b6681"
-        ],
+        "contains": {
+          "Buildings": [
+            "c8374e11-2767-4f0a-91fd-71d7f89b6681"
+          ],
+          "Properties": [
+            {
+              "UUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681",
+              "FNR": 140029233
+            }
+          ]
+        },
+        "parent_id": 606,
         "Footprint": [
           {
             "x": 214.59035302355187,
@@ -196,16 +208,15 @@
           }
         ]
       }
-    ]
   ],
   "PrimaryAreas": [
-    [
       {
         "area_id": "606",
         "name": "Hammarkullen",
         "contains": [
           "60605"
         ],
+        "parent_id": 606,
         "Footprint": [
           {
             "x": -446.4952344278572,
@@ -2117,10 +2128,8 @@
           }
         ]
       }
-    ]
   ],
   "Districts": [
-    [
       {
         "area_id": "606",
         "name": "Hammarkullen",
@@ -4039,5 +4048,4 @@
         ]
       }
     ]
-  ]
 }
