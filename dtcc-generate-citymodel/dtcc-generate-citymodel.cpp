@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
   // Generate city model and transform to new origin
   CityModel cityModel{};
-  CityModelGenerator::GenerateCityModel(cityModel, footprints, origin,
+  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, origin,
                                         dsm.Grid.BoundingBox);
   Info(cityModel);
   JSON::Write(cityModel, parameters.DataDirectory + "/CityModelRaw.json");

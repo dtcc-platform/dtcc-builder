@@ -43,20 +43,21 @@ public:
 
     // Add buildings
     for (const auto &footprint : footprints)
-    {
-      // Create transformed footprint
-      Polygon transformedFootprint = footprint;
-      Polyfix::Transform(transformedFootprint, origin);
-
-      // Add if inside bounding box
-      if (Geometry::BoundingBoxContains2D(bbox, transformedFootprint))
+      for (size_t i = 0; i < footprints.size(); i++)
       {
-        Building building;
-        building.Footprint = transformedFootprint;
-        building.UUID = UUIDs[i];
-        building.debugID = i;
-        cityModel.Buildings.push_back(building);
-      }
+        // Create transformed footprint
+        Polygon transformedFootprint = footprint;
+        Polyfix::Transform(transformedFootprint, origin);
+
+        // Add if inside bounding box
+        if (Geometry::BoundingBoxContains2D(bbox, transformedFootprint))
+        {
+          Building building;
+          building.Footprint = transformedFootprint;
+          building.UUID = UUIDs[i];
+          building.debugID = i;
+          cityModel.Buildings.push_back(building);
+        }
     }
 
     Info("CityModelGenerator: Found " + str(cityModel.Buildings.size()) + "/" +
