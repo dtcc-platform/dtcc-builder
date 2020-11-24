@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
                                      parameters.MinimalVertexDistance);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dsm, dtm);
   Info(cityModel);
-  JSON::Write(cityModel, parameters.DataDirectory + "/CityModel.json");
+  JSON::Write(cityModel, parameters.DataDirectory + "/CityModelClean.json");
 
   // Simplify city model and add building heights
   CityModelGenerator::SimplifyCityModel(cityModel,
