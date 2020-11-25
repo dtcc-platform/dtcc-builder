@@ -421,7 +421,7 @@ TEST_CASE("citymodel")
   json.clear();
   JSON::Serialize(district, json);
   Info(json.dump(4));
-  JSON::Write(json, fileName2);
+  JSON::Write(json, fileName2, 4);
 }
 
 /*TEST_CASE("Property")

@@ -11,14 +11,15 @@ static void Read(nlohmann::json& json, std::string fileName)
   f >> json;
 }
 
-/// Write JSON data to file
-static void Write(const nlohmann::json& json, std::string fileName)
+/// Write JSON data to file. indent: number of spaces in indent (-1 = no indent)
+static void
+Write(const nlohmann::json &json, std::string fileName, int indent = -1)
 {
   Info("JSON: Writing to file " + fileName + "...");
   std::ofstream f(fileName);
   if (!f)
     Error("Unable to write to file " + fileName);
-  f << json;
+  f << json.dump(indent);
 }
 
 /// Read object from file
