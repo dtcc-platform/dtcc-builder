@@ -109,7 +109,7 @@ static std::string ToString(std::string key, const nlohmann::json &json)
 
 template <typename T>
 static nlohmann::json
-GetObject(const std::string key, T value, const nlohmann::json &json)
+GetObjectByAttribute(const std::string key, T value, const nlohmann::json &json)
 {
   for (const auto &jsonObj : json)
     if (jsonObj[key] == value)

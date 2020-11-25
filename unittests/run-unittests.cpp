@@ -380,66 +380,48 @@ TEST_CASE("citymodel")
   JSON::Read(json, fileName1);
   JSON::Deserialize(district, json, "606");
 
-  /*json.clear();
-  JSON::Serialize(district, json);
-  JSON::Write(json, fileName2);*/
-
-  SECTION("District")
-  {
-    REQUIRE(district.AreaID == "606");
-    REQUIRE(district.Name == "Hammarkullen");
-    REQUIRE(district.Footprint.Vertices[0].x == -446.4952344278572);
-    REQUIRE(district.Footprint.Vertices[0].y == 150.96198354940861);
-    REQUIRE(district.PrimaryAreas.size() == 1);
-  }
+  REQUIRE(district.AreaID == "606");
+  REQUIRE(district.Name == "Hammarkullen");
+  REQUIRE(district.Footprint.Vertices[0].x == -446.4952344278572);
+  REQUIRE(district.Footprint.Vertices[0].y == 150.96198354940861);
+  REQUIRE(district.PrimaryAreas.size() == 1);
 
   PrimaryArea primaryArea = district.PrimaryAreas[0];
-
-  SECTION("PrimaryArea")
-  {
-    REQUIRE(primaryArea.AreaID == "606");
-    REQUIRE(primaryArea.Name == "Hammarkullen");
-    REQUIRE(primaryArea.DistrictAreaID == "606");
-    REQUIRE(primaryArea.Footprint.Vertices[0].x == -446.4952344278572);
-    REQUIRE(primaryArea.Footprint.Vertices[0].y == 150.96198354940861);
-  }
+  REQUIRE(primaryArea.AreaID == "606");
+  REQUIRE(primaryArea.Name == "Hammarkullen");
+  REQUIRE(primaryArea.DistrictAreaID == "606");
+  REQUIRE(primaryArea.Footprint.Vertices[0].x == -446.4952344278572);
+  REQUIRE(primaryArea.Footprint.Vertices[0].y == 150.96198354940861);
 
   BaseArea baseArea = primaryArea.BaseAreas[0];
-
-  SECTION("BaseArea")
-  {
-    REQUIRE(baseArea.AreaID == "60605");
-    REQUIRE(baseArea.PrimaryAreaID == "606");
-    REQUIRE(baseArea.Footprint.Vertices[0].x == 214.59035302355187);
-    REQUIRE(baseArea.Footprint.Vertices[0].y == 189.76460300106555);
-    REQUIRE(baseArea.Buildings.size() == 1);
-    REQUIRE(baseArea.Properties.size() == 1);
-  }
+  REQUIRE(baseArea.AreaID == "60605");
+  REQUIRE(baseArea.PrimaryAreaID == "606");
+  REQUIRE(baseArea.Footprint.Vertices[0].x == 214.59035302355187);
+  REQUIRE(baseArea.Footprint.Vertices[0].y == 189.76460300106555);
+  REQUIRE(baseArea.Buildings.size() == 1);
+  REQUIRE(baseArea.Properties.size() == 1);
 
   Property property = baseArea.Properties[0];
-
-  SECTION("Property")
-  {
-    REQUIRE(property.FNR == 140029233);
-    REQUIRE(property.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
-    REQUIRE(property.Buildings.size() == 1);
-    REQUIRE(property.Footprint.Vertices[0].x == 529.5);
-    REQUIRE(property.Footprint.Vertices[0].y == 59.0230000000447);
-  }
+  REQUIRE(property.FNR == 140029233);
+  REQUIRE(property.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
+  REQUIRE(property.Buildings.size() == 1);
+  REQUIRE(property.Footprint.Vertices[0].x == 529.5);
+  REQUIRE(property.Footprint.Vertices[0].y == 59.0230000000447);
 
   Building building = baseArea.Buildings[0];
+  REQUIRE(building.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
+  REQUIRE(building.PropertyUUID == building.UUID);
+  REQUIRE(building.PropertyFNR == 140029233);
+  REQUIRE(building.BaseAreaID == "60605");
+  REQUIRE(building.GroundHeight == 34.865);
+  REQUIRE(building.Height == 107.574735807257);
+  REQUIRE(building.Footprint.Vertices[0].x == 551.020999965025);
+  REQUIRE(building.Footprint.Vertices[0].y == 57.5619951048866);
 
-  SECTION("Building")
-  {
-    REQUIRE(building.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
-    REQUIRE(building.PropertyUUID == building.UUID);
-    REQUIRE(building.PropertyFNR == 140029233);
-    REQUIRE(building.BaseAreaID == "60605");
-    REQUIRE(building.GroundHeight == 34.865);
-    REQUIRE(building.Height == 107.574735807257);
-    REQUIRE(building.Footprint.Vertices[0].x == 551.020999965025);
-    REQUIRE(building.Footprint.Vertices[0].y == 57.5619951048866);
-  }
+  json.clear();
+  JSON::Serialize(district, json);
+  Info(json.dump(4));
+  JSON::Write(json, fileName2);
 }
 
 /*TEST_CASE("Property")
