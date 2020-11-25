@@ -38,8 +38,11 @@ int main(int argc, char *argv[])
   // Read property map data
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
-  SHP::Read(footprints, UUIDs, parameters.DataDirectory + "/PropertyMap.shp");
-
+  std::vector<int> entityIDs;
+  SHP::Read(footprints, UUIDs, entityIDs,
+            parameters.DataDirectory + "/PropertyMap.shp");
+  std::cout << "UUIDs !! size" << UUIDs.size() << std::endl;
+  std::cout << "Entity !! size" << entityIDs.size() << std::endl;
   // Read elevation models
   GridField2D dsm{};
   GridField2D dtm{};
@@ -50,8 +53,8 @@ int main(int argc, char *argv[])
 
   // Generate city model and transform to new origin
   CityModel cityModel{};
-  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, origin,
-                                        dsm.Grid.BoundingBox);
+  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
+                                        origin, dsm.Grid.BoundingBox);
   Info(cityModel);
   JSON::Write(cityModel, parameters.DataDirectory + "/CityModelRaw.json");
 

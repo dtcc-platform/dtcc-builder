@@ -20,6 +20,7 @@ public:
   // Building UUID
   std::string UUID;
   int debugID;
+  int entityID;
 
   // Building footprint (polygon)
   Polygon Footprint{};

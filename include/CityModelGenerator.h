@@ -32,6 +32,7 @@ public:
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
                                 const std::vector<std::string> &UUIDs,
+                                const std::vector<int> &entityIDs,
                                 const Point2D &origin,
                                 const BoundingBox2D &bbox)
   {
@@ -55,7 +56,8 @@ public:
         Building building;
         building.Footprint = transformedFootprint;
         building.UUID = UUIDs[i];
-        building.debugID = i;
+        building.debugID = i + 1;
+        building.entityID = entityIDs[i];
         cityModel.Buildings.push_back(building);
       }
     }

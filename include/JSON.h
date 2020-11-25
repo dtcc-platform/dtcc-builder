@@ -491,6 +491,7 @@ namespace DTCC
         jsonBuilding["GroundHeight"] = building.GroundHeight;
         jsonBuilding["UUID"] = building.UUID;
         jsonBuilding["debugID"] = building.debugID;
+        jsonBuilding["entityID"] = building.entityID;
         jsonBuildings.push_back(jsonBuilding);
       }
       json["Type"] = "CityModel";

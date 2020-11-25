@@ -23,6 +23,7 @@ public:
   // .shx and .dbf files must also be present in the same directory.
   static void Read(std::vector<Polygon> &polygons,
                    std::vector<std::string> &UUIDs,
+                   std::vector<int> &entityID,
                    std::string fileName)
   {
     Info("SHP: Reading polygons from file " + fileName);
@@ -67,9 +68,11 @@ public:
     // Read footprints
     for (int i = 0; i < numEntities; i++)
     {
+      //     std::cout<<"polygons "<<polygons.size()<<std::endl;
       // Get UUID
       const char *test = DBFReadStringAttribute(handleD, i, 0);
-      UUIDs.push_back(test);
+      // UUIDs.push_back(test);
+      // std::cout<<"@@@@@"<<numEntities<<" "<<i<<std::endl;
       // std::cout<<UUIDs[i]<<std::endl;
 
       // Get object
@@ -91,6 +94,8 @@ public:
 
         // Add polygon
         polygons.push_back(polygon);
+        UUIDs.push_back(test);
+        entityID.push_back(i + 1);
       }
       else
       {
@@ -123,10 +128,13 @@ public:
           if  (Geometry::PolygonOrientation2D(polygon) == 1)
           {
             polygons.push_back(polygon);
+            UUIDs.push_back(test);
+            entityID.push_back(i + 1);
           }
         }
       }
     }
+    //     std::cout<<"polygons "<<polygons.size()<<std::endl;
   }
 };
 
