@@ -1,5 +1,5 @@
 // SHP I/O
-// Anders Logg 2019
+// Anders Logg, Vasilis Naserentin 2019
 // Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
@@ -68,13 +68,10 @@ public:
     // Read footprints
     for (int i = 0; i < numEntities; i++)
     {
-      //     std::cout<<"polygons "<<polygons.size()<<std::endl;
-      // Get UUID
+      
+      // Open DFB to read UUID
       const char *test = DBFReadStringAttribute(handleD, i, 0);
-      // UUIDs.push_back(test);
-      // std::cout<<"@@@@@"<<numEntities<<" "<<i<<std::endl;
-      // std::cout<<UUIDs[i]<<std::endl;
-
+      
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
 
@@ -94,8 +91,9 @@ public:
 
         // Add polygon
         polygons.push_back(polygon);
+        // Add entityID and UUID
         UUIDs.push_back(test);
-        entityID.push_back(i + 1);
+        entityID.push_back(i + 1); //1-based index
       }
       else
       {
@@ -134,7 +132,6 @@ public:
         }
       }
     }
-    //     std::cout<<"polygons "<<polygons.size()<<std::endl;
   }
 };
 
