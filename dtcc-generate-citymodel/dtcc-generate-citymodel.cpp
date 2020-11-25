@@ -41,8 +41,6 @@ int main(int argc, char *argv[])
   std::vector<int> entityIDs;
   SHP::Read(footprints, UUIDs, entityIDs,
             parameters.DataDirectory + "/PropertyMap.shp");
-  std::cout << "UUIDs !! size" << UUIDs.size() << std::endl;
-  std::cout << "Entity !! size" << entityIDs.size() << std::endl;
   // Read elevation models
   GridField2D dsm{};
   GridField2D dtm{};

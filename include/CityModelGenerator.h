@@ -56,7 +56,9 @@ public:
         Building building;
         building.Footprint = transformedFootprint;
         building.UUID = UUIDs[i];
-        building.debugID = i + 1;
+        // Uncomment for debugging
+        // building.debugID = i + 1;
+        // Add SHP file entityID
         building.entityID = entityIDs[i];
         cityModel.Buildings.push_back(building);
       }

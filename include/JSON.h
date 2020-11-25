@@ -469,6 +469,7 @@ namespace DTCC
         cityModel.Buildings[i].Height = jsonBuilding["Height"];
         cityModel.Buildings[i].GroundHeight = jsonBuilding["GroundHeight"];
        cityModel.Buildings[i].UUID = jsonBuilding["UUID"];
+       cityModel.Buildings[i].entityID = jsonBuilding["entityID"];
       }
     }
 
@@ -490,7 +491,8 @@ namespace DTCC
         jsonBuilding["Height"] = building.Height;
         jsonBuilding["GroundHeight"] = building.GroundHeight;
         jsonBuilding["UUID"] = building.UUID;
-        jsonBuilding["debugID"] = building.debugID;
+        // Uncomment for debugging
+        // jsonBuilding["debugID"] = building.debugID;
         jsonBuilding["entityID"] = building.entityID;
         jsonBuildings.push_back(jsonBuilding);
       }
