@@ -375,96 +375,61 @@ TEST_CASE("citymodel")
 {
   const char *fileName1 = "../unittests/data/CityModelExample.json";
   const char *fileName2 = "../unittests/data/CityModelExample2.json";
-  District district;
-  nlohmann::json json;
-  JSON::Read(json, fileName1);
-  JSON::Deserialize(district, json, "606");
 
-  REQUIRE(district.AreaID == "606");
-  REQUIRE(district.Name == "Hammarkullen");
-  REQUIRE(district.Footprint.Vertices[0].x == -446.4952344278572);
-  REQUIRE(district.Footprint.Vertices[0].y == 150.96198354940861);
-  REQUIRE(district.PrimaryAreas.size() == 1);
+  for (bool firstRun : {true, false})
+  {
+    District district;
+    nlohmann::json json;
 
-  PrimaryArea primaryArea = district.PrimaryAreas[0];
-  REQUIRE(primaryArea.AreaID == "606");
-  REQUIRE(primaryArea.Name == "Hammarkullen");
-  REQUIRE(primaryArea.DistrictAreaID == "606");
-  REQUIRE(primaryArea.Footprint.Vertices[0].x == -446.4952344278572);
-  REQUIRE(primaryArea.Footprint.Vertices[0].y == 150.96198354940861);
+    JSON::Read(json, firstRun ? fileName1 : fileName2);
+    JSON::Deserialize(district, json, "606");
 
-  BaseArea baseArea = primaryArea.BaseAreas[0];
-  REQUIRE(baseArea.AreaID == "60605");
-  REQUIRE(baseArea.PrimaryAreaID == "606");
-  REQUIRE(baseArea.Footprint.Vertices[0].x == 214.59035302355187);
-  REQUIRE(baseArea.Footprint.Vertices[0].y == 189.76460300106555);
-  REQUIRE(baseArea.Buildings.size() == 1);
-  REQUIRE(baseArea.Properties.size() == 1);
+    REQUIRE(district.AreaID == "606");
+    REQUIRE(district.Name == "Hammarkullen");
+    REQUIRE(district.Footprint.Vertices[0].x == Approx(-446.4952344278572));
+    REQUIRE(district.Footprint.Vertices[0].y == Approx(150.96198354940861));
+    REQUIRE(district.PrimaryAreas.size() == 1);
 
-  Property property = baseArea.Properties[0];
-  REQUIRE(property.FNR == 140029233);
-  REQUIRE(property.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
-  REQUIRE(property.Buildings.size() == 1);
-  REQUIRE(property.Footprint.Vertices[0].x == 529.5);
-  REQUIRE(property.Footprint.Vertices[0].y == 59.0230000000447);
+    PrimaryArea primaryArea = district.PrimaryAreas[0];
+    REQUIRE(primaryArea.AreaID == "606");
+    REQUIRE(primaryArea.Name == "Hammarkullen");
+    REQUIRE(primaryArea.DistrictAreaID == "606");
+    REQUIRE(primaryArea.Footprint.Vertices[0].x == Approx(-446.4952344278572));
+    REQUIRE(primaryArea.Footprint.Vertices[0].y == Approx(150.96198354940861));
 
-  Building building = baseArea.Buildings[0];
-  REQUIRE(building.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
-  REQUIRE(building.PropertyUUID == building.UUID);
-  REQUIRE(building.PropertyFNR == 140029233);
-  REQUIRE(building.BaseAreaID == "60605");
-  REQUIRE(building.GroundHeight == 34.865);
-  REQUIRE(building.Height == 107.574735807257);
-  REQUIRE(building.Footprint.Vertices[0].x == 551.020999965025);
-  REQUIRE(building.Footprint.Vertices[0].y == 57.5619951048866);
+    BaseArea baseArea = primaryArea.BaseAreas[0];
+    REQUIRE(baseArea.AreaID == "60605");
+    REQUIRE(baseArea.PrimaryAreaID == "606");
+    REQUIRE(baseArea.Footprint.Vertices[0].x == Approx(214.59035302355187));
+    REQUIRE(baseArea.Footprint.Vertices[0].y == Approx(189.76460300106555));
+    REQUIRE(baseArea.Buildings.size() == 1);
+    REQUIRE(baseArea.Properties.size() == 1);
 
-  json.clear();
-  JSON::Serialize(district, json);
-  Info(json.dump(4));
-  JSON::Write(json, fileName2, 4);
+    Property property = baseArea.Properties[0];
+    REQUIRE(property.FNR == 140029233);
+    REQUIRE(property.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
+    REQUIRE(property.Buildings.size() == 1);
+    REQUIRE(property.Footprint.Vertices[0].x == Approx(529.5));
+    REQUIRE(property.Footprint.Vertices[0].y == Approx(59.0230000000447));
+
+    Building building = baseArea.Buildings[0];
+    REQUIRE(building.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
+    REQUIRE(building.PropertyUUID == building.UUID);
+    REQUIRE(building.PropertyFNR == 140029233);
+    REQUIRE(building.BaseAreaID == "60605");
+    REQUIRE(building.GroundHeight == Approx(34.865));
+    REQUIRE(building.Height == Approx(107.574735807257));
+    REQUIRE(building.Footprint.Vertices[0].x == Approx(551.020999965025));
+    REQUIRE(building.Footprint.Vertices[0].y == Approx(57.5619951048866));
+
+    if (firstRun)
+    {
+      json.clear();
+      JSON::Serialize(district, json);
+      JSON::Write(json, fileName2, 4);
+    }
+  }
 }
-
-/*TEST_CASE("Property")
-{
-  Property property1;
-  Building building1, building2, building3;
-
-  building1.Height = 15;
-  building1.Footprint.Vertices = {Point2D(5, 7.5), Point2D(9, 7.5),
-                                  Point2D(9, 1), Point2D(5, 1)};
-  building2.Height = 10.5;
-  building2.Footprint.Vertices = {Point2D(11, 7.5), Point2D(19, 7.5),
-                                  Point2D(19, 1), Point2D(11, 1)};
-
-  property1.Footprint.Vertices = {Point2D(3, 7.5), Point2D(19, 7.5),
-                                  Point2D(19, 1), Point2D(3, 1)};
-  property1.Buildings.push_back(building1);
-  property1.Buildings.push_back(building2);
-
-  nlohmann::json json;
-  const char *FileName = "propertyTest.json";
-  JSON::Write(property1, FileName);
-  Property property2;
-  JSON::Read(property2, FileName);
-
-  SECTION("Footprint")
-  {
-    REQUIRE(property2.Footprint.Vertices.size() == 4);
-    REQUIRE(property2.Footprint.Vertices[2].x == 19.0);
-    REQUIRE(property2.Footprint.Vertices[0].y == 7.5);
-  }
-
-  SECTION("Buildings")
-  {
-    REQUIRE(property2.Buildings[0].Height == 15);
-    REQUIRE(property2.Buildings[1].Footprint.Vertices.size() == 4);
-    REQUIRE(property2.Buildings[1].Footprint.Vertices[0].x == 11.0);
-    REQUIRE(property2.Buildings[1].Footprint.Vertices[0].y == 7.5);
-    REQUIRE(property2.Buildings[1].Footprint.Vertices[3].y == 1.0);
-  }
-
-  remove(FileName);
-}*/
 
 TEST_CASE("Hashing")
 {

@@ -853,8 +853,11 @@ namespace DTCC
                             const nlohmann::json &json,
                             std::string uuid)
     {
+      bool isProperty = json["Type"] == "Property";
       nlohmann::json jsonProperty =
-          GetObjectByAttribute("UUID", std::move(uuid), json["Properties"]);
+          isProperty ? json
+                     : GetObjectByAttribute("UUID", std::move(uuid),
+                                            json["Properties"]);
       CheckType("Property", jsonProperty);
       /// Deserialize Property's footprint.
       DeserializeFootprint(property.Footprint, jsonProperty, "Footprint");
@@ -907,8 +910,10 @@ namespace DTCC
                             const nlohmann::json &json,
                             const std::string &uuid)
     {
+      bool isBuilding = json["Type"] == "PrimaryArea";
       nlohmann::json jsonBuilding =
-          GetObjectByAttribute("UUID", uuid, json["Buildings"]);
+          isBuilding ? json
+                     : GetObjectByAttribute("UUID", uuid, json["Buildings"]);
       CheckType("Building", jsonBuilding);
       building.UUID = jsonBuilding["UUID"];
       building.PropertyUUID = jsonBuilding["PropertyUUID"];
@@ -930,8 +935,10 @@ namespace DTCC
       jsonBaseArea["parent_id"] = baseArea.PrimaryAreaID;
       for (const auto &property : baseArea.Properties)
       {
-        jsonBaseArea["contains"]["Properties"]["UUID"] = property.UUID;
-        jsonBaseArea["contains"]["Properties"]["FNR"] = property.FNR;
+        nlohmann::json jsonProperty;
+        jsonProperty["UUID"] = property.UUID;
+        jsonProperty["FNR"] = property.FNR;
+        jsonBaseArea["contains"]["Properties"].push_back(jsonProperty);
         Serialize(property, json, false, false);
       }
       for (const auto &building : baseArea.Buildings)
@@ -947,8 +954,11 @@ namespace DTCC
                             const nlohmann::json &json,
                             std::string &areaID)
     {
+      bool isBaseArea = json["Type"] == "BaseArea";
       nlohmann::json jsonBaseArea =
-          GetObjectByAttribute("area_id", std::move(areaID), json["BaseAreas"]);
+          isBaseArea ? json
+                     : GetObjectByAttribute("area_id", std::move(areaID),
+                                            json["BaseAreas"]);
       CheckType("BaseArea", jsonBaseArea);
       baseArea.PrimaryAreaID = jsonBaseArea["parent_id"];
       DeserializeArea(baseArea, jsonBaseArea);
@@ -994,8 +1004,11 @@ namespace DTCC
                             const nlohmann::json &json,
                             std::string areaID)
     {
-      nlohmann::json jsonPrimArea = GetObjectByAttribute(
-          "area_id", std::move(areaID), json["PrimaryAreas"]);
+      bool isPrimArea = json["Type"] == "PrimaryArea";
+      nlohmann::json jsonPrimArea =
+          isPrimArea ? json
+                     : GetObjectByAttribute("area_id", std::move(areaID),
+                                            json["PrimaryAreas"]);
       CheckType("PrimaryArea", jsonPrimArea);
       primaryArea.DistrictAreaID = jsonPrimArea["parent_id"];
       DeserializeArea(primaryArea, jsonPrimArea);
@@ -1014,8 +1027,11 @@ namespace DTCC
     static void
     Deserialize(District &district, nlohmann::json &json, std::string areaID)
     {
+      bool isDistrict = json["Type"] == "District";
       nlohmann::json jsonDistrict =
-          GetObjectByAttribute("area_id", std::move(areaID), json["Districts"]);
+          isDistrict ? json
+                     : GetObjectByAttribute("area_id", std::move(areaID),
+                                            json["Districts"]);
       CheckType("District", jsonDistrict);
       DeserializeArea(district, jsonDistrict);
       district.Name = jsonDistrict["name"];
