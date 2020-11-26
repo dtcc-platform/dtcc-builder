@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #define CATCH_CONFIG_MAIN
@@ -379,38 +379,48 @@ TEST_CASE("citymodel")
   for (bool firstRun : {true, false})
   {
     District district;
+    BaseArea baseArea;
     nlohmann::json json;
 
     JSON::Read(json, firstRun ? fileName1 : fileName2);
-    JSON::Deserialize(district, json, "606");
 
-    REQUIRE(district.AreaID == "606");
-    REQUIRE(district.Name == "Hammarkullen");
-    REQUIRE(district.Footprint.Vertices[0].x == Approx(-446.4952344278572));
-    REQUIRE(district.Footprint.Vertices[0].y == Approx(150.96198354940861));
-    REQUIRE(district.PrimaryAreas.size() == 1);
+    if (firstRun)
+    {
+      JSON::Deserialize(district, json, "606");
 
-    PrimaryArea primaryArea = district.PrimaryAreas[0];
-    REQUIRE(primaryArea.AreaID == "606");
-    REQUIRE(primaryArea.Name == "Hammarkullen");
-    REQUIRE(primaryArea.DistrictAreaID == "606");
-    REQUIRE(primaryArea.Footprint.Vertices[0].x == Approx(-446.4952344278572));
-    REQUIRE(primaryArea.Footprint.Vertices[0].y == Approx(150.96198354940861));
+      REQUIRE(district.AreaID == "606");
+      REQUIRE(district.Name == "Hammarkullen");
+      REQUIRE(district.Footprint.Vertices[0].x == Approx(-446.4952344278572));
+      REQUIRE(district.Footprint.Vertices[0].y == Approx(150.96198354940861));
+      REQUIRE(district.PrimaryAreas.size() == 1);
 
-    BaseArea baseArea = primaryArea.BaseAreas[0];
+      PrimaryArea primaryArea = district.PrimaryAreas[0];
+      REQUIRE(primaryArea.AreaID == "606");
+      REQUIRE(primaryArea.Name == "Hammarkullen");
+      REQUIRE(primaryArea.DistrictAreaID == "606");
+      REQUIRE(primaryArea.Footprint.Vertices[0].x ==
+              Approx(-446.4952344278572));
+      REQUIRE(primaryArea.Footprint.Vertices[0].y ==
+              Approx(150.96198354940861));
+
+      baseArea = primaryArea.BaseAreas[0];
+    }
+    else
+      JSON::Deserialize(baseArea, json, "60605");
+
     REQUIRE(baseArea.AreaID == "60605");
     REQUIRE(baseArea.PrimaryAreaID == "606");
     REQUIRE(baseArea.Footprint.Vertices[0].x == Approx(214.59035302355187));
     REQUIRE(baseArea.Footprint.Vertices[0].y == Approx(189.76460300106555));
     REQUIRE(baseArea.Buildings.size() == 1);
-    REQUIRE(baseArea.Properties.size() == 1);
+    REQUIRE(baseArea.Properties.size() == 2);
 
-    Property property = baseArea.Properties[0];
-    REQUIRE(property.FNR == 140029233);
-    REQUIRE(property.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");
-    REQUIRE(property.Buildings.size() == 1);
-    REQUIRE(property.Footprint.Vertices[0].x == Approx(529.5));
-    REQUIRE(property.Footprint.Vertices[0].y == Approx(59.0230000000447));
+    Property property = baseArea.Properties[1];
+    REQUIRE(property.FNR == 140127538);
+    REQUIRE(property.UUID == "b8574e12-4618-4f1e-91fd-71e2f89b2375");
+    REQUIRE(property.Buildings.empty());
+    REQUIRE(property.Footprint.Vertices[0].x == Approx(539.78));
+    REQUIRE(property.Footprint.Vertices[0].y == Approx(60.7778956));
 
     Building building = baseArea.Buildings[0];
     REQUIRE(building.UUID == "c8374e11-2767-4f0a-91fd-71d7f89b6681");

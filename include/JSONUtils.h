@@ -1,5 +1,8 @@
-// Copyright (C) 2020 ReSpace AB
+// Copyright (C) 2020 ReSpace AB, Anton J Olsson
 // Licensed under the MIT License
+
+#include <Logging.h>
+#include <nlohmann/json.hpp>
 
 /// Read JSON data from file
 static void Read(nlohmann::json& json, std::string fileName)
@@ -108,11 +111,18 @@ static std::string ToString(std::string key, const nlohmann::json &json)
   return json[key];
 }
 
+/// Get JSON object in JSON array by key/value pair in object.
+/// \tparam T value's type
+/// \param key key in key/value/pair
+/// \param value value in key/value/pair
+/// \param jsonArray JSON array containing object
+/// \return JSON object, if found
 template <typename T>
-static nlohmann::json
-GetObjectByAttribute(const std::string key, T value, const nlohmann::json &json)
+static nlohmann::json GetObjectByAttribute(const std::string key,
+                                           T value,
+                                           const nlohmann::json &jsonArray)
 {
-  for (const auto &jsonObj : json)
+  for (const auto &jsonObj : jsonArray)
     if (jsonObj[key] == value)
       return jsonObj;
   Error("No object with key " + key + " and value " + value + " in JSON array");

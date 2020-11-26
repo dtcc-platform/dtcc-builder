@@ -10,14 +10,21 @@
 namespace DTCC
 {
 
+/// Representation of a city district
 class District : public Printable
 {
 public:
+  /// District's footprint
   Polygon Footprint;
+  /// District's name
   std::string Name;
+  /// District's area ID
   std::string AreaID;
+  /// Primary areas constituting the district
   std::vector<PrimaryArea> PrimaryAreas;
 
+  /// Pretty-print district.
+  /// \return Pretty-print string.
   std::string __str__() const override
   {
     std::string primAreaIDs;

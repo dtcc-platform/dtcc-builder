@@ -10,20 +10,22 @@
 
 namespace DTCC
 {
-
+/// Representation of a property.
 class Property : public Printable
 {
 public:
+  /// Property's UUID
   std::string UUID;
 
+  /// Property's FNR
   size_t FNR;
 
-  /// The property's total footprint.
+  /// The property's total footprint
   Polygon Footprint;
-  /// The buildings belonging to the property.
+  /// The buildings belonging to the property
   std::vector<Building> Buildings;
 
-  /// Pretty-print.
+  /// Pretty-print Property.
   /// \return Pretty-print string.
   std::string __str__() const override
   {
