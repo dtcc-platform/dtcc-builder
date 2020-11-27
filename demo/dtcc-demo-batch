@@ -10,8 +10,6 @@ PARAMETERS=$j.json
 #PARAMETERS=Orebro.json
 #PARAMETERS=Test.json
 
-# Generate height map
-
 dir=`echo $PARAMETERS|cut -d "." -f1`
 echo $dir
 mkdir -p $dir
