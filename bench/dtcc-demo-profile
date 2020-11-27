@@ -19,7 +19,7 @@ else
   git clone https://github.com/jrfonseca/gprof2dot.git
 fi
 sleep 5
-for j in Kungsholmen #Hammarkullen #Johanneberg Kungsholmen Orebro
+for j in Hammarkullen #Johanneberg Kungsholmen Orebro
 do
 PARAMETERS=$j.json
 #PARAMETERS=Hammarkullen.json
@@ -34,13 +34,13 @@ dir=`echo $PARAMETERS|cut -d "." -f1`
 echo $dir
 mkdir -p $dir
 
-for i in generate-heightmap generate-citymodel simplify-citymodel generate-visualization-mesh
+for i in generate-elevation-model generate-citymodel generate-visualization-mesh generate-simulation-mesh
 do
 echo "Running dtcc-$i..."
 ../bin/dtcc-$i $PARAMETERS&&
 mv gmon.out $dir/dtcc-$i\.gmon.out
 gprof ../bin/dtcc-$i $dir/dtcc-$i\.gmon.out > $dir/dtcc-$i\.analysis.txt
-gprof ../bin/dtcc-$i ./Hammarkullen/dtcc-$i\.gmon.out|./gprof2dot/gprof2dot.py|dot -Tpng -o $i\.png
+gprof ../bin/dtcc-$i ./Hammarkullen/dtcc-$i\.gmon.out|./gprof2dot/gprof2dot.py -n 5 -e 5|dot -Tpng -o $i\.png
 mv $i\.png $dir/
 done
 done
