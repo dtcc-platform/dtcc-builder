@@ -16,7 +16,8 @@ dir=`echo $PARAMETERS|cut -d "." -f1`
 echo $dir
 mkdir -p $dir
 
-for i in generate-heightmap generate-citymodel simplify-citymodel generate-visualization-mesh
+for i in generate-elevation-model generate-citymodel generate-visualization-mesh generate-simulation-mesh
+
 do
 echo "Running dtcc-$i..."
 ../bin/dtcc-$i $PARAMETERS
