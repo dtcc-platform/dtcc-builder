@@ -16,7 +16,6 @@ namespace DTCC
 class Building
 {
 public:
-
   // Building UUID
   std::string UUID;
   int debugID;
