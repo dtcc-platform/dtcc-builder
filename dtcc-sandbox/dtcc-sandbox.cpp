@@ -1,6 +1,6 @@
-// vc-sandbox
+// dtcc-sandbox
 // Just a sandbox code for users to experiment with different API calls for
-// VCCore Vasilis Naserentin 2019
+// core Vasilis Naserentin 2019
 // Licensed under the MIT License
 
 #include "CSV.h"
