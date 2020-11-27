@@ -18,7 +18,8 @@ class Building
 public:
   // Building UUID
   std::string UUID;
-  int debugID;
+  // Uncomment for debugging
+  // int debugID;
   int entityID;
 
   // Building footprint (polygon)
