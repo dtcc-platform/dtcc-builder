@@ -469,7 +469,7 @@ namespace DTCC
         cityModel.Buildings[i].Height = jsonBuilding["Height"];
         cityModel.Buildings[i].GroundHeight = jsonBuilding["GroundHeight"];
        cityModel.Buildings[i].UUID = jsonBuilding["UUID"];
-       cityModel.Buildings[i].entityID = jsonBuilding["entityID"];
+       cityModel.Buildings[i].SHPFileID = jsonBuilding["SHPFileID"];
       }
     }
 

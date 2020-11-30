@@ -20,7 +20,7 @@ public:
   std::string UUID;
   // Uncomment for debugging
   // int debugID;
-  int entityID;
+  int SHPFileID;
 
   // Building footprint (polygon)
   Polygon Footprint{};

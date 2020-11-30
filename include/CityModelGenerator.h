@@ -59,7 +59,7 @@ public:
         // Uncomment for debugging
         // building.debugID = i + 1;
         // Add SHP file entityID
-        building.entityID = entityIDs[i];
+        building.SHPFileID = entityIDs[i];
         cityModel.Buildings.push_back(building);
       }
     }
