@@ -22,7 +22,9 @@ void Help()
 RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
                            json &attributes);
 std::string GetDataDirectory(const std::string &filename);
-void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum);
+void AddEdgeProperties(RoadNetwork &network,
+                       json &attributes,
+                       size_t attributeIndex);
 
 int main(int argc, char *argv[])
 {
@@ -40,7 +42,7 @@ int main(int argc, char *argv[])
   // Read road network data
   std::vector<Polygon> polygons;
   nlohmann::json attributes;
-  SHP::Read(polygons, shpFilename, &attributes);
+  SHP::Read(polygons, shpFilename, nullptr, nullptr, &attributes);
 
   if (attributes["polyToAttribute"].size() != polygons.size())
     throw std::runtime_error("Differing number of roads and attribute sets.");

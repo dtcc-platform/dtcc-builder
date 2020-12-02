@@ -1,5 +1,6 @@
 // SHP I/O
 // Copyright (C) 2019, 2020 Anders Logg, Anton J Olsson
+// Anders Logg, Vasilis Naserentin 2019
 // Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
@@ -30,11 +31,14 @@ public:
   /// \param attributes A JSON object to put possible attributes in
   static void Read(std::vector<Polygon> &polygons,
                    const std::string &fileName,
+                   std::vector<std::string> *UUIDs = nullptr,
+                   std::vector<int> *entityID = nullptr,
                    json *attributes = nullptr)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
+    DBFHandle handleD = DBFOpen(fileName.c_str(), "r");
 
     // Get info
     int numEntities, shapeType;
@@ -76,7 +80,8 @@ public:
     if (attributes != nullptr)
       readAttributes(fileName, numEntities, attributes);
 
-    ReadPolygons(polygons, handle, numEntities, shapeType, attributes);
+    ReadPolygons(polygons, handle, numEntities, shapeType, attributes, handleD,
+                 UUIDs, entityID);
   }
 
 private:
@@ -181,11 +186,21 @@ private:
                            SHPInfo *handle,
                            int numEntities,
                            int shapeType,
-                           json *attributes)
+                           json *attributes,
+                           DBFHandle handleD,
+                           std::vector<std::string> *UUIDs,
+                           std::vector<int> *entityID)
   {
     for (int i = 0; i < numEntities; i++)
     {
       // Read vertices
+
+      // Open DFB to read UUID
+
+      const char *test;
+      if (UUIDs != nullptr)
+        test = DBFReadStringAttribute(handleD, i, 0);
+
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
 
@@ -213,6 +228,12 @@ private:
 
         // Add polygon
         polygons.push_back(polygon);
+        // Add entityID and UUID
+        if (UUIDs != nullptr)
+        {
+          UUIDs->push_back(test);
+          entityID->push_back(i + 1); // 1-based index}
+        }
       }
       else
       {
@@ -224,7 +245,6 @@ private:
         int end;
         for (int part = 0; part < object->nParts; part++)
         {
-          Polygon polygon;
           start = object->panPartStart[part];
           if (part + 1 == object->nParts)
           {
@@ -246,11 +266,16 @@ private:
               shapeType == SHPT_ARC)
           {
             polygons.push_back(polygon);
+            if (UUIDs != nullptr)
+            {
+              UUIDs->push_back(test);
+              entityID->push_back(i + 1);
+            }
+          }
           }
         }
       }
     }
-  }
 };
 
 } // namespace DTCC
