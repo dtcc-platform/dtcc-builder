@@ -402,7 +402,8 @@ TEST_CASE("SHP Extraction")
   {
     std::vector<Polygon> roads;
     nlohmann::json attributes;
-    SHP::Read(roads, "../unittests/data/roadNetwork/vl_riks.shp", &attributes);
+    SHP::Read(roads, "../unittests/data/roadnetwork-torslanda/vl_riks.shp",
+              &attributes);
     REQUIRE(roads.size() == 7);
     REQUIRE(roads[0].Vertices.size() == 13);
     Point2D v = roads[0].Vertices[0];
@@ -415,5 +416,10 @@ TEST_CASE("SHP Extraction")
     REQUIRE(firstAttr.size() == 2);
     REQUIRE(firstAttr["KATEGORI"] == "Bilväg");
     REQUIRE(firstAttr["KKOD"] == "5071");
+
+    /// Check correct number of attributes in case of multi-part roads
+    SHP::Read(roads, "../unittests/data/roadnetwork-central-gbg/vl_riks.shp",
+              &attributes);
+    REQUIRE(attributes["polyToAttribute"].size() == roads.size());
   }
 }
