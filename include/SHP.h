@@ -194,9 +194,7 @@ private:
     for (int i = 0; i < numEntities; i++)
     {
       // Read vertices
-
       // Open DFB to read UUID
-
       const char *test;
       if (UUIDs != nullptr)
         test = DBFReadStringAttribute(handleD, i, 0);
@@ -272,10 +270,10 @@ private:
               entityID->push_back(i + 1);
             }
           }
-          }
         }
       }
     }
+  }
 };
 
 } // namespace DTCC
