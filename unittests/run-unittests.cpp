@@ -409,8 +409,9 @@ TEST_CASE("SHP Extraction")
     REQUIRE(v.x == Approx(306234.751));
     REQUIRE(v.y == Approx(6401785.2819999997));
 
-    REQUIRE(attributes.size() == 7);
-    nlohmann::json firstAttr = attributes[0];
+    json jsonAttrib = attributes["attributes"];
+    REQUIRE(jsonAttrib.size() == 7);
+    nlohmann::json firstAttr = jsonAttrib[0];
     REQUIRE(firstAttr.size() == 2);
     REQUIRE(firstAttr["KATEGORI"] == "Bilväg");
     REQUIRE(firstAttr["KKOD"] == "5071");

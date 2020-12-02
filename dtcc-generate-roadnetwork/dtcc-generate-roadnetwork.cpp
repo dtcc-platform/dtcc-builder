@@ -21,9 +21,7 @@ void Help()
 
 RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
                            json &attributes);
-
 std::string GetDataDirectory(const std::string &filename);
-
 void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum);
 
 int main(int argc, char *argv[])
@@ -40,13 +38,13 @@ int main(int argc, char *argv[])
   Info(shpFilename);
 
   // Read road network data
-  std::vector<Polygon> vertices;
+  std::vector<Polygon> polygons;
   nlohmann::json attributes;
-  SHP::Read(vertices, shpFilename, &attributes);
+  SHP::Read(polygons, shpFilename, &attributes);
 
-  if (attributes.size() != vertices.size())
+  if (attributes["polyToAttribute"].size() != polygons.size())
     throw std::runtime_error("Differing number of roads and attribute sets.");
-  RoadNetwork network = GetRoadNetwork(vertices, attributes);
+  RoadNetwork network = GetRoadNetwork(polygons, attributes);
 
   // Serialize and write JSON file
   std::string dataDirectory = GetDataDirectory(shpFilename);
@@ -88,7 +86,8 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
       if (j < numVertices - 1)
       {
         network.Edges.emplace_back(uniqueVertexIndex, -1);
-        AddEdgeProperties(network, attributes, i);
+        AddEdgeProperties(network, attributes,
+                          attributes["polyToAttribute"][i]);
       }
       vertexIndex++;
     }
@@ -96,11 +95,15 @@ RoadNetwork GetRoadNetwork(const std::vector<Polygon> &polygons,
   return network;
 }
 
-void AddEdgeProperties(RoadNetwork &network, json &attributes, size_t polyNum)
+void AddEdgeProperties(RoadNetwork &network,
+                       json &attributes,
+                       size_t attributeIndex)
 {
-  for (json::iterator elem = attributes[polyNum].begin();
-       elem != attributes[polyNum].end(); ++elem)
+  json jasonAttributes = attributes["attributes"][attributeIndex];
+  for (json::iterator elem = jasonAttributes.begin();
+       elem != jasonAttributes.end(); ++elem)
   {
+    std::string key = elem.key();
     std::string value = elem.value().is_string()
                             ? elem.value().get<std::string>()
                             : elem.value().dump();

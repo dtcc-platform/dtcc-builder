@@ -30,7 +30,7 @@ public:
   /// \param attributes A JSON object to put possible attributes in
   static void Read(std::vector<Polygon> &polygons,
                    const std::string &fileName,
-                   basic_json<> *attributes = nullptr)
+                   json *attributes = nullptr)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
@@ -76,7 +76,7 @@ public:
     if (attributes != nullptr)
       readAttributes(fileName, numEntities, attributes);
 
-    ReadPolygons(polygons, handle, numEntities);
+    ReadPolygons(polygons, handle, numEntities, shapeType, attributes);
   }
 
 private:
@@ -155,7 +155,7 @@ private:
           attribute = Utils::Iso88591ToUtf8(attribute);
         shapeAttr[fieldNames[j]] = attribute;
       }
-      attributes->push_back(shapeAttr);
+      (*attributes)["attributes"].push_back(shapeAttr);
     }
   }
 
@@ -177,14 +177,25 @@ private:
   /// \param polygons Vector for polygon storage
   /// \param handle SHP handle
   /// \param numEntities Number of polygons
-  static void
-  ReadPolygons(std::vector<Polygon> &polygons, SHPInfo *handle, int numEntities)
+  static void ReadPolygons(std::vector<Polygon> &polygons,
+                           SHPInfo *handle,
+                           int numEntities,
+                           int shapeType,
+                           json *attributes)
   {
     for (int i = 0; i < numEntities; i++)
     {
       // Read vertices
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
+
+      if (attributes != nullptr)
+      {
+        for (int j = 0; j < object->nParts; ++j)
+        {
+          (*attributes)["polyToAttribute"].push_back(i);
+        }
+      }
 
       // Get vertices
       if (object->nParts == 1)
@@ -208,7 +219,6 @@ private:
         // For donut polygons only get the outer hull
         // For multipatch polygons only get the first polygon
         // TODO: handle donut and multipatch polygons correctly
-
         Polygon polygon;
         int start;
         int end;
@@ -232,7 +242,8 @@ private:
             Vector2D p(x, y);
             polygon.Vertices.push_back(p);
           }
-          if (Geometry::PolygonOrientation2D(polygon) == 1)
+          if (Geometry::PolygonOrientation2D(polygon) == 1 ||
+              shapeType == SHPT_ARC)
           {
             polygons.push_back(polygon);
           }

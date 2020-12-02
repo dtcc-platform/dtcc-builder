@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
 
   // Read property map data
   std::vector<Polygon> footprints;
-  SHP::Read(footprints, parameters.DataDirectory + "/PropertyMap.shp");
+  SHP::Read(footprints, parameters.DataDirectory + "/PropertyMap.shp", nullptr,
+            std::unordered_map<size_t, size_t>());
 
   // Read elevation models
   GridField2D dsm{};

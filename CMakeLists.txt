@@ -4,7 +4,7 @@ project(Core)
 set(CMAKE_BUILD_TYPE Debug)
 
 # Set build flags
-set (CMAKE_CXX_FLAGS "-Wall -Werror")
+# set (CMAKE_CXX_FLAGS "-Wall -Werror")
 #-Wno-sign-compare")
 
 # Add path to local CMake scripts
