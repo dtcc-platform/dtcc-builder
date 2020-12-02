@@ -4,7 +4,7 @@ project(Core)
 set(CMAKE_BUILD_TYPE Debug)
 
 # Set build flags
-# set (CMAKE_CXX_FLAGS "-Wall -Werror")
+set (CMAKE_CXX_FLAGS "-Wall -Werror")
 #-Wno-sign-compare")
 
 # Add path to local CMake scripts
@@ -40,7 +40,6 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 add_subdirectory(dtcc-info)
 add_subdirectory(dtcc-plot)
 add_subdirectory(dtcc-generate-elevation-model)
-add_subdirectory(dtcc-generate-roadnetwork)
 add_subdirectory(dtcc-generate-citymodel)
 add_subdirectory(dtcc-generate-simulation-mesh)
 add_subdirectory(dtcc-generate-visualization-mesh)

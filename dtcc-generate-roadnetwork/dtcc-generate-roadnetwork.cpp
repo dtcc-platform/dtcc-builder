@@ -99,9 +99,9 @@ void AddEdgeProperties(RoadNetwork &network,
                        json &attributes,
                        size_t attributeIndex)
 {
-  json jasonAttributes = attributes["attributes"][attributeIndex];
-  for (json::iterator elem = jasonAttributes.begin();
-       elem != jasonAttributes.end(); ++elem)
+  json jsonAttributes = attributes["attributes"][attributeIndex];
+  for (json::iterator elem = jsonAttributes.begin();
+       elem != jsonAttributes.end(); ++elem)
   {
     std::string key = elem.key();
     std::string value = elem.value().is_string()
