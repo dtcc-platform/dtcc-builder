@@ -1,5 +1,5 @@
 // SHP I/O
-// Anders Logg 2019
+// Anders Logg, Vasilis Naserentin 2019
 // Licensed under the MIT License
 
 #ifndef DTCC_SHP_H
@@ -21,11 +21,15 @@ class SHP
 public:
   // Read polygons from SHP file. Note that the corresponding
   // .shx and .dbf files must also be present in the same directory.
-  static void Read(std::vector<Polygon> &polygons, const std::string& fileName)
+  static void Read(std::vector<Polygon> &polygons,
+                   std::vector<std::string> &UUIDs,
+                   std::vector<int> &entityID,
+                   std::string fileName)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
+    DBFHandle handleD = DBFOpen(fileName.c_str(), "r");
 
     // Get info
     int numEntities, shapeType;
@@ -64,6 +68,10 @@ public:
     // Read footprints
     for (int i = 0; i < numEntities; i++)
     {
+      
+      // Open DFB to read UUID
+      const char *test = DBFReadStringAttribute(handleD, i, 0);
+      
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
 
@@ -83,6 +91,9 @@ public:
 
         // Add polygon
         polygons.push_back(polygon);
+        // Add entityID and UUID
+        UUIDs.push_back(test);
+        entityID.push_back(i + 1); //1-based index
       }
       else
       {
@@ -115,6 +126,8 @@ public:
           if  (Geometry::PolygonOrientation2D(polygon) == 1)
           {
             polygons.push_back(polygon);
+            UUIDs.push_back(test);
+            entityID.push_back(i + 1);
           }
         }
       }

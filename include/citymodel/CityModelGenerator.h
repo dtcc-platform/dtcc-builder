@@ -31,6 +31,8 @@ public:
   /// @param bbox Bounding box of domain
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
+                                const std::vector<std::string> &UUIDs,
+                                const std::vector<int> &entityIDs,
                                 const Point2D &origin,
                                 const BoundingBox2D &bbox)
   {
@@ -41,10 +43,11 @@ public:
     cityModel.Buildings.clear();
 
     // Add buildings
-    for (const auto &footprint : footprints)
+    // for (const auto &footprint : footprints)
+    for (size_t i = 0; i < footprints.size(); i++)
     {
       // Create transformed footprint
-      Polygon transformedFootprint = footprint;
+      Polygon transformedFootprint = footprints[i];
       Polyfix::Transform(transformedFootprint, origin);
 
       // Add if inside bounding box
@@ -52,6 +55,11 @@ public:
       {
         Building building;
         building.Footprint = transformedFootprint;
+        building.UUID = UUIDs[i];
+        // Uncomment for debugging
+        // building.debugID = i + 1;
+        // Add SHP file entityID
+        building.SHPFileID = entityIDs[i];
         cityModel.Buildings.push_back(building);
       }
     }
