@@ -18,6 +18,9 @@ class Building : public Printable
 public:
   /// Building's UUID
   std::string UUID;
+  // Uncomment for debugging
+  // int debugID;
+  int SHPFileID;
 
   /// FNR of property containing building
   size_t PropertyFNR{};
