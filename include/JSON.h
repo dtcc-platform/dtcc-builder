@@ -4,6 +4,8 @@
 #ifndef DTCC_JSON_H
 #define DTCC_JSON_H
 
+#include <CityModel.h>
+#include <District.h>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -11,16 +13,13 @@
 
 #include "BoundingBox.h"
 #include "CityJSON.h"
-#include "CityModel.h"
 #include "Color.h"
 #include "ColorMap.h"
-#include "District.h"
 #include "Grid.h"
 #include "GridField.h"
 #include "GridVectorField.h"
 #include "Mesh.h"
 #include "Parameters.h"
-#include "Property.h"
 #include "RoadNetwork.h"
 #include "Surface.h"
 
