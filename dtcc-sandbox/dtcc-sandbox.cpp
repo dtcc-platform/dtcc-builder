@@ -7,19 +7,7 @@
 #include "CityJSON.h"
 #include "JSON.h"
 #include "Logging.h"
-#include <vtkCellArray.h>
-#include <vtkSmartPointer.h>
-#include <vtkTetra.h>
-#include <vtkTriangle.h>
-#include <vtkXMLUnstructuredGridReader.h>
-//#include <vtkDataSetMapper.h>
-//#include <vtkActor.h>
-//#include <vtkRenderer.h>
-//#include <vtkRenderWindow.h>
-//#include <vtkRenderWindowInteractor.h>
-#include <vtkPointData.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkXMLUnstructuredGridWriter.h>
+#include "VTK.h"
 
 #include <iostream>
 using namespace std;
@@ -69,66 +57,8 @@ int main(int argc, char *argv[])
   // JSON::Read(cityobj,"test.json");
   // std::cout<<cityobj.CityObjects[0]<<std::endl;
 
-  std::string filename = "test3D.vtu";
-
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-
-  for (uint i = 0; i < mesh3D.Vertices.size(); i++)
-  {
-    points->InsertNextPoint(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y,
-                            mesh3D.Vertices[i].z);
-  }
-
-  vtkSmartPointer<vtkTetra> tetra = vtkSmartPointer<vtkTetra>::New();
-
-  vtkSmartPointer<vtkCellArray> cellArray =
-      vtkSmartPointer<vtkCellArray>::New();
-
-  // vtkSmartPointer<vtkTriangle> triangle2 =
-  // vtkSmartPointer<vtkTriangle>::New();
-  for (uint i = 0; i < mesh3D.Cells.size(); i++)
-  // for (uint i = 0; i < 100; i++)
-
-  {
-    tetra->GetPointIds()->SetId(0, mesh3D.Cells[i].v0);
-    tetra->GetPointIds()->SetId(1, mesh3D.Cells[i].v1);
-    tetra->GetPointIds()->SetId(2, mesh3D.Cells[i].v2);
-    tetra->GetPointIds()->SetId(3, mesh3D.Cells[i].v3);
-    cellArray->InsertNextCell(tetra);
-    //  triangle->Reset();
-  }
-
-  //  triangle2->GetPointIds()->SetId(0, mesh2D.Cells[1].v0);
-  //  triangle2->GetPointIds()->SetId(1, mesh2D.Cells[1].v1);
-  //  triangle2->GetPointIds()->SetId(2, mesh2D.Cells[1].v2);
-
-  /*
-    for (uint i = 0; i<3;i++)
-    {
-    points->InsertNextPoint(mesh2D.Vertices[i].x, mesh2D.Vertices[i].y,0);
-    }
-  */
-  // Find first triangle
-  //   points->InsertNextPoint(mesh2D.Vertices[0].x, mesh2D.Vertices[0].y, 0);
-  ///   points->InsertNextPoint(mesh2D.Vertices[1].x, mesh2D.Vertices[1].y, 0);
-  //  points->InsertNextPoint(mesh2D.Vertices[2].x, mesh2D.Vertices[2].y, 0);
-
-  // points->InsertNextPoint(1, 0, 0);
-  // points->InsertNextPoint(1, 1, 0);
-  // points->InsertNextPoint(0, 1, 1);
-
-
-  vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
-      vtkSmartPointer<vtkUnstructuredGrid>::New();
-  unstructuredGrid->SetPoints(points);
-  unstructuredGrid->SetCells(VTK_TETRA, cellArray);
-
-  // Write file
-  vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
-      vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
-  writer->SetFileName(filename.c_str());
-  writer->SetInputData(unstructuredGrid);
-  writer->Write();
+  VTK::Write2(mesh2D, "TEST2D.vtu");
+  VTK::Write3(mesh3D, "TEST3D.vtu");
 
   //DTCC::CityJSON::Read("HI");
 }
