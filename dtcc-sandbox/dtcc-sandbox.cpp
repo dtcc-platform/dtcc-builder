@@ -41,8 +41,12 @@ int main(int argc, char *argv[])
   // in.read_header(io::ignore_extra_column, "vendor", "size", "speed");
   // std::string vendor; int size; double speed;
   Mesh2D mesh2D;
+  Mesh3D mesh3D;
+
   // JSON::Read(mesh2D, dataDirectory + "Mesh2D.json");
   JSON::Read(mesh2D, "/home/dtcc/core/build/Mesh2D.json");
+  JSON::Read(mesh3D, "/home/dtcc/core/build/Mesh3D.json");
+
   std::cout << mesh2D.Cells[0] << std::endl;
   std::cout << mesh2D.Cells[1] << std::endl;
   std::cout << mesh2D.Cells.size() << std::endl;
@@ -65,7 +69,7 @@ int main(int argc, char *argv[])
   // JSON::Read(cityobj,"test.json");
   // std::cout<<cityobj.CityObjects[0]<<std::endl;
 
-  std::string filename = "test.vtu";
+  std::string filename = "test2D.vtu";
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
@@ -76,15 +80,26 @@ int main(int argc, char *argv[])
 
   vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
 
-  vtkSmartPointer<vtkTriangle> triangle2 = vtkSmartPointer<vtkTriangle>::New();
+  vtkSmartPointer<vtkCellArray> cellArray =
+      vtkSmartPointer<vtkCellArray>::New();
 
-  triangle->GetPointIds()->SetId(0, mesh2D.Cells[0].v0);
-  triangle->GetPointIds()->SetId(1, mesh2D.Cells[0].v1);
-  triangle->GetPointIds()->SetId(2, mesh2D.Cells[0].v2);
+  // vtkSmartPointer<vtkTriangle> triangle2 =
+  // vtkSmartPointer<vtkTriangle>::New();
+  for (uint i = 0; i < mesh2D.Cells.size(); i++)
+  // for (uint i = 0; i < 100; i++)
 
-  triangle2->GetPointIds()->SetId(0, mesh2D.Cells[1].v0);
-  triangle2->GetPointIds()->SetId(1, mesh2D.Cells[1].v1);
-  triangle2->GetPointIds()->SetId(2, mesh2D.Cells[1].v2);
+  {
+    triangle->GetPointIds()->SetId(0, mesh2D.Cells[i].v0);
+    triangle->GetPointIds()->SetId(1, mesh2D.Cells[i].v1);
+    triangle->GetPointIds()->SetId(2, mesh2D.Cells[i].v2);
+
+    cellArray->InsertNextCell(triangle);
+    //  triangle->Reset();
+  }
+
+  //  triangle2->GetPointIds()->SetId(0, mesh2D.Cells[1].v0);
+  //  triangle2->GetPointIds()->SetId(1, mesh2D.Cells[1].v1);
+  //  triangle2->GetPointIds()->SetId(2, mesh2D.Cells[1].v2);
 
   /*
     for (uint i = 0; i<3;i++)
@@ -101,10 +116,6 @@ int main(int argc, char *argv[])
   // points->InsertNextPoint(1, 1, 0);
   // points->InsertNextPoint(0, 1, 1);
 
-  vtkSmartPointer<vtkCellArray> cellArray =
-      vtkSmartPointer<vtkCellArray>::New();
-  cellArray->InsertNextCell(triangle);
-  cellArray->InsertNextCell(triangle2);
 
   vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
       vtkSmartPointer<vtkUnstructuredGrid>::New();
