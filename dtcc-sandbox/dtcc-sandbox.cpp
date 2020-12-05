@@ -69,31 +69,32 @@ int main(int argc, char *argv[])
   // JSON::Read(cityobj,"test.json");
   // std::cout<<cityobj.CityObjects[0]<<std::endl;
 
-  std::string filename = "test2D.vtu";
+  std::string filename = "test3D.vtu";
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
-  for (uint i = 0; i < mesh2D.Vertices.size(); i++)
+  for (uint i = 0; i < mesh3D.Vertices.size(); i++)
   {
-    points->InsertNextPoint(mesh2D.Vertices[i].x, mesh2D.Vertices[i].y, 0);
+    points->InsertNextPoint(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y,
+                            mesh3D.Vertices[i].z);
   }
 
-  vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+  vtkSmartPointer<vtkTetra> tetra = vtkSmartPointer<vtkTetra>::New();
 
   vtkSmartPointer<vtkCellArray> cellArray =
       vtkSmartPointer<vtkCellArray>::New();
 
   // vtkSmartPointer<vtkTriangle> triangle2 =
   // vtkSmartPointer<vtkTriangle>::New();
-  for (uint i = 0; i < mesh2D.Cells.size(); i++)
+  for (uint i = 0; i < mesh3D.Cells.size(); i++)
   // for (uint i = 0; i < 100; i++)
 
   {
-    triangle->GetPointIds()->SetId(0, mesh2D.Cells[i].v0);
-    triangle->GetPointIds()->SetId(1, mesh2D.Cells[i].v1);
-    triangle->GetPointIds()->SetId(2, mesh2D.Cells[i].v2);
-
-    cellArray->InsertNextCell(triangle);
+    tetra->GetPointIds()->SetId(0, mesh3D.Cells[i].v0);
+    tetra->GetPointIds()->SetId(1, mesh3D.Cells[i].v1);
+    tetra->GetPointIds()->SetId(2, mesh3D.Cells[i].v2);
+    tetra->GetPointIds()->SetId(3, mesh3D.Cells[i].v3);
+    cellArray->InsertNextCell(tetra);
     //  triangle->Reset();
   }
 
@@ -120,7 +121,7 @@ int main(int argc, char *argv[])
   vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
       vtkSmartPointer<vtkUnstructuredGrid>::New();
   unstructuredGrid->SetPoints(points);
-  unstructuredGrid->SetCells(VTK_TRIANGLE, cellArray);
+  unstructuredGrid->SetCells(VTK_TETRA, cellArray);
 
   // Write file
   vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =

@@ -9,6 +9,14 @@
 #include <iostream>
 #include <vector>
 
+#include <vtkCellArray.h>
+#include <vtkPointData.h>
+#include <vtkSmartPointer.h>
+#include <vtkTetra.h>
+#include <vtkTriangle.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+
 #include "Mesh.h"
 #include "Surface.h"
 #include "Vector.h"
@@ -21,6 +29,43 @@ namespace DTCC
 class VTK
 {
 public:
+  static void Write(const Mesh3D &mesh3D, std::string fileName)
+  {
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+
+    for (uint i = 0; i < mesh3D.Vertices.size(); i++)
+    {
+      points->InsertNextPoint(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y,
+                              mesh3D.Vertices[i].z);
+    }
+
+    vtkSmartPointer<vtkTetra> tetra = vtkSmartPointer<vtkTetra>::New();
+
+    vtkSmartPointer<vtkCellArray> cellArray =
+        vtkSmartPointer<vtkCellArray>::New();
+
+    for (uint i = 0; i < mesh3D.Cells.size(); i++)
+
+    {
+      tetra->GetPointIds()->SetId(0, mesh3D.Cells[i].v0);
+      tetra->GetPointIds()->SetId(1, mesh3D.Cells[i].v1);
+      tetra->GetPointIds()->SetId(2, mesh3D.Cells[i].v2);
+      tetra->GetPointIds()->SetId(3, mesh3D.Cells[i].v3);
+      cellArray->InsertNextCell(tetra);
+    }
+
+    vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
+        vtkSmartPointer<vtkUnstructuredGrid>::New();
+    unstructuredGrid->SetPoints(points);
+    unstructuredGrid->SetCells(VTK_TETRA, cellArray);
+
+    // Write file
+    vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
+        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(unstructuredGrid);
+    writer->Write();
+  }
 
   // Write 2D mesh to VTK file
   static void Write(const Mesh2D &mesh, const std::string& fileName)
