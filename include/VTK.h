@@ -1,5 +1,4 @@
-// VTK I/O
-// Anders Logg 2020
+// Copyright (C) 2020 Anders Logg and Vasilis Naserentin
 // Licensed under the MIT License
 
 #ifndef DTCC_VTK_H
@@ -29,22 +28,26 @@ namespace DTCC
 class VTK
 {
 public:
+  /// Write 3D mesh to VTK (.vtu) file.
+  ///
+  /// @param mesh3D The 3D mesh
+  /// @parame fileName Filename (path)
   static void Write(const Mesh3D &mesh3D, std::string fileName)
   {
     Info("VTK: Writing 3D mesh to file " + fileName);
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
+    // Set vertex data
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
     for (uint i = 0; i < mesh3D.Vertices.size(); i++)
     {
       points->InsertNextPoint(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y,
                               mesh3D.Vertices[i].z);
     }
 
+    // Set cell data
     vtkSmartPointer<vtkTetra> tetra = vtkSmartPointer<vtkTetra>::New();
-
     vtkSmartPointer<vtkCellArray> cellArray =
         vtkSmartPointer<vtkCellArray>::New();
-
     for (uint i = 0; i < mesh3D.Cells.size(); i++)
 
     {
@@ -55,6 +58,7 @@ public:
       cellArray->InsertNextCell(tetra);
     }
 
+    // Set grid data
     vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
         vtkSmartPointer<vtkUnstructuredGrid>::New();
     unstructuredGrid->SetPoints(points);
@@ -68,23 +72,26 @@ public:
     writer->Write();
   }
 
+  /// Write 2D mesh to VTK (.vtu) file.
+  ///
+  /// @param mesh2D The 2D mesh
+  /// @parame fileName Filename (path)
   static void Write(const Mesh2D &mesh2D, std::string fileName)
   {
     Info("VTK: Writing 2D mesh to file " + fileName);
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
+    // Set vertex data
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
     for (uint i = 0; i < mesh2D.Vertices.size(); i++)
     {
       points->InsertNextPoint(mesh2D.Vertices[i].x, mesh2D.Vertices[i].y, 0);
     }
 
+    // Set cell data
     vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
-
     vtkSmartPointer<vtkCellArray> cellArray =
         vtkSmartPointer<vtkCellArray>::New();
-
     for (uint i = 0; i < mesh2D.Cells.size(); i++)
-
     {
       triangle->GetPointIds()->SetId(0, mesh2D.Cells[i].v0);
       triangle->GetPointIds()->SetId(1, mesh2D.Cells[i].v1);
@@ -92,6 +99,7 @@ public:
       cellArray->InsertNextCell(triangle);
     }
 
+    // Set grid data
     vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
         vtkSmartPointer<vtkUnstructuredGrid>::New();
     unstructuredGrid->SetPoints(points);
@@ -105,22 +113,26 @@ public:
     writer->Write();
   }
 
+  /// Write 3D surface to VTK (.vtu) file.
+  ///
+  /// @param surface3D The 3D surface
+  /// @parame fileName Filename (path)
   static void Write(const Surface3D &surface3D, std::string fileName)
   {
     Info("VTK: Writing 3D Surface mesh to file " + fileName);
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
+    // Set vertex data
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
     for (uint i = 0; i < surface3D.Vertices.size(); i++)
     {
       points->InsertNextPoint(surface3D.Vertices[i].x, surface3D.Vertices[i].y,
                               surface3D.Vertices[i].z);
     }
 
+    // Set cell data
     vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
-
     vtkSmartPointer<vtkCellArray> cellArray =
         vtkSmartPointer<vtkCellArray>::New();
-
     for (uint i = 0; i < surface3D.Cells.size(); i++)
 
     {
@@ -130,6 +142,7 @@ public:
       cellArray->InsertNextCell(triangle);
     }
 
+    // Set grid data
     vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
         vtkSmartPointer<vtkUnstructuredGrid>::New();
     unstructuredGrid->SetPoints(points);
@@ -142,179 +155,6 @@ public:
     writer->SetInputData(unstructuredGrid);
     writer->Write();
   }
-
-  /*
-    // Write 2D mesh to VTK file
-    static void Write(const Mesh2D &mesh, const std::string& fileName)
-    {
-      Info("VTK: Writing 2D mesh to file " + fileName);
-
-      // Open file
-      std::ofstream f(fileName.c_str());
-
-      // Check file
-      if (!f)
-        throw std::runtime_error("Unable to write to file: " + fileName);
-
-      // Set precision
-      f << std::setprecision(Parameters::Precision);
-
-      // Write header
-      f << "<?xml version=\"1.0\"?>\n";
-      f << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\">\n";
-      f << "<UnstructuredGrid>\n";
-      f << "<Piece NumberOfPoints=\"" << mesh.Vertices.size() << "\""
-        << " NumberOfCells=\"" << mesh.Cells.size() << "\">" << "\n";
-
-      // Write points
-      f << "<Points>\n";
-      f << "<DataArray  type=\"Float64\" NumberOfComponents=\"2\"
-    format=\"ascii\">";
-      for (const auto& p: mesh.Vertices)
-        f << p.x << " " << p.y << " ";
-      f << "\n</DataArray>\n";
-      f << "</Points>\n";
-
-      // Write cells
-      f << "<Cells>\n";
-      f << "<DataArray type=\"UInt32\" Name=\"connectivity\"
-    format=\"ascii\">\n";
-      for (const auto& c: mesh.Cells)
-        f << c.v0 << " " << c.v1 << " " << c.v2 << " ";
-      f << "\n</DataArray>\n";
-      f << "<DataArray type=\"UInt32\" Name=\"offsets\" format=\"ascii\">\n";
-      for (size_t i = 0; i < mesh.Cells.size(); i++)
-        f << 3*(i + 1) << " ";
-      f << "\n</DataArray>\n";
-      f << "<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n";
-      for (size_t i = 0; i < mesh.Cells.size(); i++)
-        f << "5 ";
-      f << "\n</DataArray>\n";
-      f << "</Cells>\n";
-
-      // Write footer
-      f << "</Piece>\n";
-      f << "</UnstructuredGrid>\n";
-      f << "</VTKFile>\n";
-
-      // Close file
-      f.close();
-    }
-
-    // Write 3D mesh to VTK file
-    static void Write(const Mesh3D &mesh, const std::string& fileName)
-    {
-      Info("VTK: Writing 3D mesh to file " + fileName);
-
-      // Open file
-      std::ofstream f(fileName.c_str());
-
-      // Check file
-      if (!f)
-        throw std::runtime_error("Unable to write to file: " + fileName);
-
-      // Set precision
-      f << std::setprecision(Parameters::Precision);
-
-      // Write header
-      f << "<?xml version=\"1.0\"?>\n";
-      f << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\">\n";
-      f << "<UnstructuredGrid>\n";
-      f << "<Piece NumberOfPoints=\"" << mesh.Vertices.size() << "\""
-        << " NumberOfCells=\"" << mesh.Cells.size() << "\">\n";
-
-      // Write points
-      f << "<Points>\n";
-      f << "<DataArray type=\"Float64\" NumberOfComponents=\"3\"
-    format=\"ascii\">\n";
-      for (const auto& p: mesh.Vertices)
-        f << p.x << " " << p.y << " " << p.z << " ";
-      f << "\n</DataArray>\n";
-      f << "</Points>\n";
-
-      // Write cells
-      f << "<Cells>\n";
-      f << "<DataArray type=\"UInt32\" Name=\"connectivity\"
-    format=\"ascii\">\n";
-      for (const auto& c: mesh.Cells)
-        f << c.v0 << " " << c.v1 << " " << c.v2 << " " << c.v3 << " ";
-      f << "\n</DataArray>\n";
-      f << "<DataArray type=\"UInt32\" Name=\"offsets\" format=\"ascii\">\n";
-      for (size_t i = 0; i < mesh.Cells.size(); i++)
-        f << 4*(i + 1) << " ";
-      f << "\n</DataArray>\n";
-      f << "<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n";
-      for (size_t i = 0; i < mesh.Cells.size(); i++)
-        f << "10 ";
-      f << "\n</DataArray>\n";
-      f << "</Cells>\n";
-
-      // Write footer
-      f << "</Piece>\n";
-      f << "</UnstructuredGrid>\n";
-      f << "</VTKFile>\n";
-
-      // Close file
-      f.close();
-    }
-
-    // Write 3D surface to VTK file
-    static void Write(const Surface3D &surface, const std::string& fileName)
-    {
-      Info("VTK: Writing 3D surface to file " + fileName);
-
-      // Open file
-      std::ofstream f(fileName.c_str());
-
-      // Check file
-      if (!f)
-        throw std::runtime_error("Unable to write to file: " + fileName);
-
-      // Set precision
-      f << std::setprecision(Parameters::Precision);
-
-      // Write header
-      f << "<?xml version=\"1.0\"?>\n";
-      f << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\">\n";
-      f << "<UnstructuredGrid>\n";
-      f << "<Piece NumberOfPoints=\"" << surface.Vertices.size() << "\""
-        << " NumberOfCells=\"" << surface.Cells.size() << "\">\n";
-
-      // Write points
-      f << "<Points>\n";
-      f << "<DataArray type=\"Float64\" NumberOfComponents=\"3\"
-    format=\"ascii\">\n";
-      for (const auto& p: surface.Vertices)
-        f << p.x << " " << p.y << " " << p.z << " ";
-      f << "\n</DataArray>\n";
-      f << "</Points>\n";
-
-      // Write cells
-      f << "<Cells>\n";
-      f << "<DataArray type=\"UInt32\" Name=\"connectivity\"
-    format=\"ascii\">\n";
-      for (const auto& c: surface.Cells)
-        f << c.v0 << " " << c.v1 << " " << c.v2 << " ";
-      f << "\n</DataArray>\n";
-      f << "<DataArray type=\"UInt32\" Name=\"offsets\" format=\"ascii\">\n";
-      for (size_t i = 0; i < surface.Cells.size(); i++)
-        f << 3*(i + 1) << " ";
-      f << "\n</DataArray>\n";
-      f << "<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n";
-      for (size_t i = 0; i < surface.Cells.size(); i++)
-        f << "5 ";
-      f << "\n</DataArray>\n";
-      f << "</Cells>\n";
-
-      // Write footer
-      f << "</Piece>\n";
-      f << "</UnstructuredGrid>\n";
-      f << "</VTKFile>\n";
-
-      // Close file
-      f.close();
-    }
-  */
 };
 
 } // namespace DTCC
