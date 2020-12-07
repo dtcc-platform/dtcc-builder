@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
+#include "SHP.h"
 #include "catch.hpp"
 #include <XMLParser.h>
 #include <deque>
@@ -386,5 +387,39 @@ TEST_CASE("Hashing")
   {
     Point3D p(1, 2, 3);
     Info(Hashing::Hex(Hashing::Hash(p)));
+  }
+}
+
+TEST_CASE("ISO 8559-1 to UTF-8")
+{
+  std::string testStr("G\345ngv\344g");
+  REQUIRE(Utils::Iso88591ToUtf8(testStr) == "Gångväg");
+}
+
+TEST_CASE("SHP Extraction")
+{
+  SECTION("Road data extraction")
+  {
+    std::vector<Polygon> roads;
+    nlohmann::json attributes;
+    SHP::Read(roads, "../unittests/data/roadnetwork-torslanda/vl_riks.shp",
+              nullptr, nullptr, &attributes);
+    REQUIRE(roads.size() == 7);
+    REQUIRE(roads[0].Vertices.size() == 13);
+    Point2D v = roads[0].Vertices[0];
+    REQUIRE(v.x == Approx(306234.751));
+    REQUIRE(v.y == Approx(6401785.2819999997));
+
+    json jsonAttrib = attributes["attributes"];
+    REQUIRE(jsonAttrib.size() == 7);
+    nlohmann::json firstAttr = jsonAttrib[0];
+    REQUIRE(firstAttr.size() == 2);
+    REQUIRE(firstAttr["KATEGORI"] == "Bilväg");
+    REQUIRE(firstAttr["KKOD"] == "5071");
+
+    /// Check correct number of attributes in case of multi-part roads
+    SHP::Read(roads, "../unittests/data/roadnetwork-central-gbg/vl_riks.shp",
+              nullptr, nullptr, &attributes);
+    REQUIRE(attributes["polyToAttribute"].size() == roads.size());
   }
 }

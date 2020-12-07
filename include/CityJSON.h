@@ -4,13 +4,13 @@
 #ifndef DTCC_CITY_JSON_H
 #define DTCC_CITY_JSON_H
 
+//#include "JSON.h"
+#include "Point.h"
+#include "Logging.h"
 #include <utility>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
-
-#include "Logging.h"
-#include "Point.h"
 
 namespace DTCC
 {
