@@ -1,4 +1,6 @@
 set(PROGRAM dtcc-sandbox)
+include(${VTK_USE_FILE})
+link_directories(/usr/local/lib)
 add_executable(${PROGRAM} ${PROGRAM}.cpp)
-target_link_libraries(${PROGRAM})
+target_link_libraries(${PROGRAM} ${VTK_LIBRARIES})
 install(TARGETS ${PROGRAM} DESTINATION bin)

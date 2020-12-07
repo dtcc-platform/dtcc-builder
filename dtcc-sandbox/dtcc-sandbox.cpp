@@ -7,6 +7,7 @@
 #include "CityJSON.h"
 #include "JSON.h"
 #include "Logging.h"
+#include "VTK.h"
 
 #include <iostream>
 using namespace std;
@@ -27,10 +28,39 @@ int main(int argc, char *argv[])
   // nlohmann::json json;
   // in.read_header(io::ignore_extra_column, "vendor", "size", "speed");
   // std::string vendor; int size; double speed;
-  CSV csv;
-  //csv.Read("test.csv", true);
-  CityJSON cityobj;
-  JSON::Read(cityobj,"test.json");
-  std::cout<<cityobj.CityObjects[0]<<std::endl;
+  Mesh2D mesh2D;
+  Mesh3D mesh3D;
+  Surface3D surface3D;
+
+  // JSON::Read(mesh2D, dataDirectory + "Mesh2D.json");
+  JSON::Read(mesh2D, "/home/dtcc/core/build/Mesh2D.json");
+  JSON::Read(mesh3D, "/home/dtcc/core/build/Mesh3D.json");
+  JSON::Read(surface3D, "/home/dtcc/core/build/SmoothedGroundMesh.json");
+
+  std::cout << mesh2D.Cells[0] << std::endl;
+  std::cout << mesh2D.Cells[1] << std::endl;
+  std::cout << mesh2D.Cells.size() << std::endl;
+  std::cout << mesh2D.Vertices.size() << std::endl;
+  // std::cout<<mesh2D.Cells[0].size()<<std::endl;
+  // std::cout<<mesh2D.Vertices[0].size()<<std::endl;
+
+  /*
+  Mesh3D mesh;
+  mesh.Vertices.push_back(Point3D(0, 0, 0));
+  mesh.Vertices.push_back(Point3D(1, 0, 0));
+  mesh.Vertices.push_back(Point3D(0, 1, 0));
+  mesh.Vertices.push_back(Point3D(0.5, 0.5, 1));
+  mesh.Cells.push_back(Simplex3D(0, 1, 2, 3));
+    std::cout<<mesh.Vertices[0].x<<std::endl;
+  */
+  // CSV csv;
+  // csv.Read("test.csv", true);
+  // CityJSON cityobj;
+  // JSON::Read(cityobj,"test.json");
+  // std::cout<<cityobj.CityObjects[0]<<std::endl;
+  VTK::Write(surface3D, "surfaceTEST3D.vtu");
+  VTK::Write(mesh2D, "TEST2D.vtu");
+  VTK::Write(mesh3D, "TEST3D.vtu");
+
   //DTCC::CityJSON::Read("HI");
 }
