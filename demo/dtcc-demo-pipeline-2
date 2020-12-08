@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 #
-# Demo of the mesh generation pipeline
+# Demo of pipeline for visualization mesh generation.
 
 PARAMETERS=Hammarkullen.json
-#PARAMETERS=Johanneberg.json
-#PARAMETERS=Orebro.json
-#PARAMETERS=Kungsholmen.json
-#PARAMETERS=Test.json
 
 # Exit on errors
 set -e
@@ -19,9 +15,6 @@ set -e
 
 # Generate visualization mesh
 ../bin/dtcc-generate-visualization-mesh $PARAMETERS
-
-# Generate simulation mesh
-../bin/dtcc-generate-simulation-mesh $PARAMETERS
 
 # Smooth ground mesh
 ../bin/dtcc-smooth-ground-mesh $PARAMETERS
