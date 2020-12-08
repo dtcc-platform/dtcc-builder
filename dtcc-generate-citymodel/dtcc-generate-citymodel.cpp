@@ -1,7 +1,6 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -33,35 +32,38 @@ int main(int argc, char *argv[])
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
   Info(parameters);
-  Vector2D origin(parameters.X0, parameters.Y0);
+
+  // Get parameters
+  const std::string dataDirectory = parameters.DataDirectory + "/";
+  const Vector2D p0{parameters.X0, parameters.Y0};
 
   // Read property map data
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
-  SHP::Read(footprints, parameters.DataDirectory + "/PropertyMap.shp", &UUIDs,
-            &entityIDs);
+  SHP::Read(footprints, dataDirectory + "/PropertyMap.shp", &UUIDs, &entityIDs);
+
   // Read elevation models
-  GridField2D dsm{};
-  GridField2D dtm{};
-  JSON::Read(dsm, parameters.DataDirectory + "/DSM.json");
-  JSON::Read(dtm, parameters.DataDirectory + "/DTM.json");
+  GridField2D dsm;
+  GridField2D dtm;
+  JSON::Read(dsm, dataDirectory + "/DSM.json");
+  JSON::Read(dtm, dataDirectory + "/DTM.json");
   Info(dsm);
   Info(dtm);
 
   // Generate city model and transform to new origin
-  CityModel cityModel{};
+  CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        origin, dsm.Grid.BoundingBox);
+                                        p0, dsm.Grid.BoundingBox);
   Info(cityModel);
-  JSON::Write(cityModel, parameters.DataDirectory + "/CityModelRaw.json");
+  JSON::Write(cityModel, dataDirectory + "/CityModelRaw.json");
 
   // Clean city model and add building heights
   CityModelGenerator::CleanCityModel(cityModel,
                                      parameters.MinimalVertexDistance);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dsm, dtm);
   Info(cityModel);
-  JSON::Write(cityModel, parameters.DataDirectory + "/CityModelClean.json");
+  JSON::Write(cityModel, dataDirectory + "/CityModelClean.json");
 
   // Simplify city model and add building heights
   CityModelGenerator::SimplifyCityModel(cityModel,
@@ -69,7 +71,7 @@ int main(int argc, char *argv[])
                                         parameters.MinimalVertexDistance);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dsm, dtm);
   Info(cityModel);
-  JSON::Write(cityModel, parameters.DataDirectory + "/CityModelSimple.json");
+  JSON::Write(cityModel, dataDirectory + "/CityModelSimple.json");
 
   // Report timings
   Timer::Report("dtcc-generate-citymodel");

@@ -9,7 +9,6 @@
 #include <stack>
 #include <vector>
 
-#include "Geometry.h"
 #include "GridField.h"
 #include "Logging.h"
 #include "Parameters.h"

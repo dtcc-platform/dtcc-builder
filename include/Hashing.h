@@ -5,6 +5,7 @@
 #define DTCC_HASHING_H
 
 #include "Point.h"
+#include "Simplex.h"
 #include <iomanip>
 #include <sstream>
 
@@ -14,11 +15,44 @@ namespace DTCC
 class Hashing
 {
 public:
+  /// Return hash of unsigned integer
+  ///
+  /// @param x Unsigned integer value
+  /// @return Integer hash
+  static size_t Hash(size_t x) { return std::hash<size_t>{}(x); }
+
   /// Return hash of double
   ///
   /// @param x Double value
   /// @return Integer hash
   static size_t Hash(double x) { return std::hash<double>{}(x); }
+
+  /// Return hash of 2D simplex
+  ///
+  /// @param simplex Simplex2D
+  /// @return Integer hash
+  static size_t Hash(const Simplex2D &simplex)
+  {
+    Simplex2D s(simplex.v0, simplex.v1, simplex.v2, true);
+    const size_t h0 = Hashing::Hash(s.v0);
+    const size_t h1 = Hashing::Hash(s.v1);
+    const size_t h2 = Hashing::Hash(s.v2);
+    return Hash(h0, h1, h2);
+  }
+
+  /// Return hash of 3D simplex
+  ///
+  /// @param simplex Simplex3D
+  /// @return Integer hash
+  static size_t Hash(const Simplex3D &simplex)
+  {
+    Simplex3D s(simplex.v0, simplex.v1, simplex.v2, simplex.v3, true);
+    const size_t h0 = Hashing::Hash(s.v0);
+    const size_t h1 = Hashing::Hash(s.v1);
+    const size_t h2 = Hashing::Hash(s.v2);
+    const size_t h3 = Hashing::Hash(s.v3);
+    return Hash(h0, h1, h2, h3);
+  }
 
   /// Return hash of 2D point
   ///
@@ -59,6 +93,18 @@ public:
   static size_t Hash(size_t h0, size_t h1, size_t h2)
   {
     return Hash(h0, Hash(h1, h2));
+  }
+
+  /// Combine 4 hashes
+  ///
+  /// @param h0 First hash
+  /// @param h1 Second hash
+  /// @param h2 Third hash
+  /// @param h3 Fourth hash
+  /// @return Combined hash
+  static size_t Hash(size_t h0, size_t h1, size_t h2, size_t h3)
+  {
+    return Hash(h0, Hash(h1, Hash(h2, h3)));
   }
 
   /// Convert integer hash to hexadecimal string
