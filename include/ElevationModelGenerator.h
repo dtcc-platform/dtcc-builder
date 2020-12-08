@@ -26,12 +26,8 @@ public:
   // Generate digital elevation model (DEM) from point cloud
   static void GenerateElevationModel(GridField2D &dem,
                                      const PointCloud &pointCloud,
-                                     double x0,
-                                     double y0,
-                                     double xMin,
-                                     double yMin,
-                                     double xMax,
-                                     double yMax,
+                                     const Point2D &origin,
+                                     const BoundingBox2D &boundingBox,
                                      double resolution)
   {
     Info("ElevationModelGenerator: Generating digital elevation model (DEM) "
@@ -42,11 +38,8 @@ public:
     if (pointCloud.Points.empty())
       Error("ElevationModelGenerator: Empty point cloud");
 
-    // Initialize grid dimensions
-    dem.Grid.BoundingBox.P.x = xMin;
-    dem.Grid.BoundingBox.P.y = yMin;
-    dem.Grid.BoundingBox.Q.x = xMax;
-    dem.Grid.BoundingBox.Q.y = yMax;
+    // Initialize grid bounding box
+    dem.Grid.BoundingBox = boundingBox;
 
     // Initialize grid data
     dem.Grid.XSize =
@@ -90,7 +83,7 @@ public:
       }
 
       // Get 2D point and subtract origin
-      const Vector2D q2D(q3D.x - x0, q3D.y - y0);
+      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
 
       // Recompute mean elevation (excluding outliers)
       meanElevation += q3D.z;
