@@ -2,7 +2,7 @@
 #
 # Demo of pipeline for simulation mesh generation.
 
-PARAMETERS=Hammarkullen.json
+PARAMETERS=Hammarkullen2020.json
 
 # Exit on errors
 set -e
