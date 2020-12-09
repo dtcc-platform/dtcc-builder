@@ -200,6 +200,51 @@ public:
     writer->SetInputData(structuredGrid);
     writer->Write();
   }
+
+  /// Write 3D gridfield to VTK (.vts) file.
+  ///
+  /// @param gridfield3D The 3D gridfield
+  /// @parame fileName Filename (path)
+  static void Write(const GridField3D &gridField3D, std::string fileName)
+  {
+    Info("VTK: Writing 3D gridfield to file " + fileName);
+
+    // Set vertex data
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+
+    vtkSmartPointer<vtkStructuredGrid> structuredGrid =
+        vtkSmartPointer<vtkStructuredGrid>::New();
+
+    structuredGrid->SetDimensions(
+        gridField3D.Grid.XSize, gridField3D.Grid.YSize, gridField3D.Grid.ZSize);
+
+    for (uint i = 0; i < gridField3D.Grid.XSize; ++i)
+      for (uint j = 0; j < gridField3D.Grid.YSize; ++j)
+        for (uint k = 0; k < gridField3D.Grid.YSize; ++k)
+        {
+          {
+            {
+              points->InsertNextPoint(i * gridField3D.Grid.XStep,
+                                      j * gridField3D.Grid.YStep,
+                                      k * gridField3D.Grid.ZStep);
+            }
+          }
+        }
+    structuredGrid->SetPoints(points);
+
+    vtkFloatArray *Values = vtkFloatArray::New();
+    Values->SetName("Values");
+    for (uint i = 0; i < gridField3D.Values.size(); i++)
+      Values->InsertTuple1(i, gridField3D.Values[i]);
+    structuredGrid->GetPointData()->SetScalars(Values);
+
+    // Write file
+    vtkSmartPointer<vtkXMLStructuredGridWriter> writer =
+        vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(structuredGrid);
+    writer->Write();
+  }
 };
 
 } // namespace DTCC
