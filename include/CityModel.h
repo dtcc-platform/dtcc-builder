@@ -36,7 +36,6 @@ namespace DTCC
 
       // Build bounding box tree
       bbtree.Build(bboxes);
-      std::cout << bbtree << std::endl;
       Progress(str(bbtree));
     }
 

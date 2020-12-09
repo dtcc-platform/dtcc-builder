@@ -37,10 +37,6 @@ int main(int argc, char *argv[])
   JSON::Read(mesh3D, "/home/dtcc/core/build/Mesh3D.json");
   JSON::Read(surface3D, "/home/dtcc/core/build/SmoothedGroundMesh.json");
 
-  std::cout << mesh2D.Cells[0] << std::endl;
-  std::cout << mesh2D.Cells[1] << std::endl;
-  std::cout << mesh2D.Cells.size() << std::endl;
-  std::cout << mesh2D.Vertices.size() << std::endl;
   // std::cout<<mesh2D.Cells[0].size()<<std::endl;
   // std::cout<<mesh2D.Vertices[0].size()<<std::endl;
 

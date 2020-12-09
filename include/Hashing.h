@@ -33,10 +33,9 @@ public:
   /// @return Integer hash
   static size_t Hash(const Simplex2D &simplex)
   {
-    Simplex2D s(simplex.v0, simplex.v1, simplex.v2, true);
-    const size_t h0 = Hashing::Hash(s.v0);
-    const size_t h1 = Hashing::Hash(s.v1);
-    const size_t h2 = Hashing::Hash(s.v2);
+    const size_t h0 = Hashing::Hash(simplex.v0);
+    const size_t h1 = Hashing::Hash(simplex.v1);
+    const size_t h2 = Hashing::Hash(simplex.v2);
     return Hash(h0, h1, h2);
   }
 
@@ -46,11 +45,10 @@ public:
   /// @return Integer hash
   static size_t Hash(const Simplex3D &simplex)
   {
-    Simplex3D s(simplex.v0, simplex.v1, simplex.v2, simplex.v3, true);
-    const size_t h0 = Hashing::Hash(s.v0);
-    const size_t h1 = Hashing::Hash(s.v1);
-    const size_t h2 = Hashing::Hash(s.v2);
-    const size_t h3 = Hashing::Hash(s.v3);
+    const size_t h0 = Hashing::Hash(simplex.v0);
+    const size_t h1 = Hashing::Hash(simplex.v1);
+    const size_t h2 = Hashing::Hash(simplex.v2);
+    const size_t h3 = Hashing::Hash(simplex.v3);
     return Hash(h0, h1, h2, h3);
   }
 
@@ -82,7 +80,13 @@ public:
   /// @param h0 First hash
   /// @param h1 Second hash
   /// @return Combined hash
-  static size_t Hash(size_t h0, size_t h1) { return h0 ^ (h1 << 1); }
+  static size_t Hash(size_t h0, size_t h1)
+  {
+    size_t seed = 0;
+    HashCombine(seed, h0);
+    HashCombine(seed, h1);
+    return seed;
+  }
 
   /// Combine 3 hashes
   ///
@@ -92,7 +96,11 @@ public:
   /// @return Combined hash
   static size_t Hash(size_t h0, size_t h1, size_t h2)
   {
-    return Hash(h0, Hash(h1, h2));
+    size_t seed = 0;
+    HashCombine(seed, h0);
+    HashCombine(seed, h1);
+    HashCombine(seed, h2);
+    return seed;
   }
 
   /// Combine 4 hashes
@@ -104,7 +112,18 @@ public:
   /// @return Combined hash
   static size_t Hash(size_t h0, size_t h1, size_t h2, size_t h3)
   {
-    return Hash(h0, Hash(h1, Hash(h2, h3)));
+    size_t seed = 0;
+    HashCombine(seed, h0);
+    HashCombine(seed, h1);
+    HashCombine(seed, h2);
+    HashCombine(seed, h3);
+    return seed;
+  }
+
+  /// Combine hashes (same as boost::hash_combine)
+  static void HashCombine(size_t &seed, size_t hash)
+  {
+    seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
 
   /// Convert integer hash to hexadecimal string
