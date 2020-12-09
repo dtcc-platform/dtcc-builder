@@ -9,11 +9,14 @@
 #include <vector>
 
 #include <vtkCellArray.h>
+#include <vtkFloatArray.h>
 #include <vtkPointData.h>
 #include <vtkSmartPointer.h>
+#include <vtkStructuredGrid.h>
 #include <vtkTetra.h>
 #include <vtkTriangle.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkXMLStructuredGridWriter.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
 #include "Mesh.h"
@@ -153,6 +156,48 @@ public:
         vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
     writer->SetFileName(fileName.c_str());
     writer->SetInputData(unstructuredGrid);
+    writer->Write();
+  }
+
+  /// Write 2D gridfield to VTK (.vts) file.
+  ///
+  /// @param gridfield2D The 2D gridfield
+  /// @parame fileName Filename (path)
+  static void Write(const GridField2D &gridField2D, std::string fileName)
+  {
+    Info("VTK: Writing 2D gridfield to file " + fileName);
+
+    // Set vertex data
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+
+    vtkSmartPointer<vtkStructuredGrid> structuredGrid =
+        vtkSmartPointer<vtkStructuredGrid>::New();
+
+    structuredGrid->SetDimensions(gridField2D.Grid.XSize,
+                                  gridField2D.Grid.YSize, 1);
+
+    for (uint i = 0; i < gridField2D.Grid.XSize; ++i)
+      for (uint j = 0; j < gridField2D.Grid.YSize; ++j)
+      {
+        {
+          points->InsertNextPoint(i * gridField2D.Grid.XStep,
+                                  j * gridField2D.Grid.YStep, 0);
+        }
+      }
+
+    structuredGrid->SetPoints(points);
+
+    vtkFloatArray *Values = vtkFloatArray::New();
+    Values->SetName("Values");
+    for (uint i = 0; i < gridField2D.Values.size(); i++)
+      Values->InsertTuple1(i, gridField2D.Values[i]);
+    structuredGrid->GetPointData()->SetScalars(Values);
+
+    // Write file
+    vtkSmartPointer<vtkXMLStructuredGridWriter> writer =
+        vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(structuredGrid);
     writer->Write();
   }
 };
