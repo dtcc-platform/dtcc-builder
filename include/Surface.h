@@ -20,8 +20,11 @@ namespace DTCC
     // Array of vertices
     std::vector<Point2D> Vertices;
 
-    // List of cells (segments)
+    // Array of cells (segments)
     std::vector<Simplex1D> Cells;
+
+    // Array of normals
+    std::vector<Vector2D> Normals;
 
     /// Pretty-print
     std::string __str__() const override
@@ -40,8 +43,11 @@ namespace DTCC
     // Array of vertices
     std::vector<Point3D> Vertices;
 
-    // List of cells (triangles)
+    // Array of cells (triangles)
     std::vector<Simplex2D> Cells;
+
+    // Array of normal
+    std::vector<Vector3D> Normals;
 
     /// Pretty-print
     std::string __str__() const override

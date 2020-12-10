@@ -30,17 +30,19 @@ public:
     // Clear surface
     surface3D.Vertices.clear();
     surface3D.Cells.clear();
+    surface3D.Normals.clear();
 
-    // Map from face --> number of cell neighbors
-    std::map<Simplex2D, size_t, CompareSimplex2D> faceMap;
+    // Map from face --> (num cell neighbors, cell index)
+    std::map<Simplex2D, std::pair<size_t, size_t>, CompareSimplex2D> faceMap;
 
     // Iterate over cells and count cell neighbors of faces
-    for (const auto &cell : mesh3D.Cells)
+    for (size_t i = 0; i < mesh3D.Cells.size(); i++)
     {
-      CountFace(faceMap, cell.v0, cell.v1, cell.v2);
-      CountFace(faceMap, cell.v0, cell.v1, cell.v3);
-      CountFace(faceMap, cell.v0, cell.v2, cell.v3);
-      CountFace(faceMap, cell.v1, cell.v2, cell.v3);
+      const Simplex3D &cell = mesh3D.Cells[i];
+      CountFace(faceMap, cell.v0, cell.v1, cell.v2, i);
+      CountFace(faceMap, cell.v0, cell.v1, cell.v3, i);
+      CountFace(faceMap, cell.v0, cell.v2, cell.v3, i);
+      CountFace(faceMap, cell.v1, cell.v2, cell.v3, i);
     }
 
     // Map from old vertex index --> new vertex index
@@ -50,19 +52,35 @@ public:
     for (const auto &it : faceMap)
     {
       // Skip if not on boundary
-      if (it.second != 1)
+      if (it.second.first != 1)
         continue;
 
-      // Get face
-      const Simplex2D &simplex = it.first;
+      // Get face and neighboring cell
+      const Simplex2D &face = it.first;
+      const Simplex3D &cell = mesh3D.Cells[it.second.second];
 
       // Count vertices (assign new vertex indices)
-      const size_t v0 = CountVertex(vertexMap, simplex.v0);
-      const size_t v1 = CountVertex(vertexMap, simplex.v1);
-      const size_t v2 = CountVertex(vertexMap, simplex.v2);
+      const size_t v0 = CountVertex(vertexMap, face.v0);
+      const size_t v1 = CountVertex(vertexMap, face.v1);
+      const size_t v2 = CountVertex(vertexMap, face.v2);
 
-      // Add face
-      surface3D.Cells.push_back(Simplex2D{v0, v1, v2});
+      // Compute face normal and orientation
+      Vector3D n = Geometry::FaceNormal3D(face, mesh3D);
+      const Point3D c = Geometry::CellCenter3D(cell, mesh3D);
+      const Vector3D w = Vector3D(mesh3D.Vertices[face.v0]) - Vector3D(c);
+      const int orientation = (Geometry::Dot3D(n, w) > 0.0 ? 1 : -1);
+
+      // Add face and normal
+      if (orientation == 1)
+      {
+        surface3D.Cells.push_back(Simplex2D{v0, v1, v2});
+        surface3D.Normals.push_back(n);
+      }
+      else
+      {
+        surface3D.Cells.push_back(Simplex2D{v0, v2, v1});
+        surface3D.Normals.push_back(-n);
+      }
     }
 
     // Add vertices
@@ -77,10 +95,12 @@ public:
 
 private:
   // Count face (number of cell neighbors)
-  static void CountFace(std::map<Simplex2D, size_t, CompareSimplex2D> &faceMap,
-                        size_t v0,
-                        size_t v1,
-                        size_t v2)
+  static void CountFace(
+      std::map<Simplex2D, std::pair<size_t, size_t>, CompareSimplex2D> &faceMap,
+      size_t v0,
+      size_t v1,
+      size_t v2,
+      size_t cellIndex)
   {
     // Create ordered simplex
     const Simplex2D simplex(v0, v1, v2, true);
@@ -90,9 +110,9 @@ private:
 
     // Add to map or add to counter
     if (it == faceMap.end())
-      faceMap[simplex] = 1;
-    else if (it->second == 1)
-      it->second++;
+      faceMap[simplex] = std::make_pair(1, cellIndex);
+    else if (it->second.first == 1)
+      it->second.first++;
     else
     {
       Error("Found face with more than 2 cell neighbors.");

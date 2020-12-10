@@ -66,9 +66,10 @@ namespace DTCC
 
     Vector2D operator-(const Vector2D &p) const
     {
-      Vector2D q(x - p.x, y - p.y);
-      return q;
+      return Vector2D{x - p.x, y - p.y};
     }
+
+    Vector2D operator-() const { return Vector2D(-x, -y); }
 
     Vector2D operator-=(const Vector2D &p)
     {
@@ -175,9 +176,10 @@ namespace DTCC
 
     Vector3D operator-(const Vector3D &p) const
     {
-      Vector3D q(x - p.x, y - p.y, z - p.z);
-      return q;
+      return Vector3D{x - p.x, y - p.y, z - p.z};
     }
+
+    Vector3D operator-() const { return Vector3D{-x, -y, -z}; }
 
     Vector3D operator-=(const Vector3D &p)
     {
