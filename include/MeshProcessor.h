@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "Hashing.h"
+#include "Logging.h"
 #include "Mesh.h"
 #include "Surface.h"
 
@@ -30,8 +31,8 @@ public:
     surface3D.Vertices.clear();
     surface3D.Cells.clear();
 
-    // Map from face hash --> face and number of cell neighbors
-    std::unordered_map<size_t, std::pair<size_t, Simplex2D>> faceMap;
+    // Map from face --> number of cell neighbors
+    std::map<Simplex2D, size_t, CompareSimplex2D> faceMap;
 
     // Iterate over cells and count cell neighbors of faces
     for (const auto &cell : mesh3D.Cells)
@@ -49,11 +50,11 @@ public:
     for (const auto &it : faceMap)
     {
       // Skip if not on boundary
-      if (it.second.first != 1)
+      if (it.second != 1)
         continue;
 
       // Get face
-      const Simplex2D &simplex = it.second.second;
+      const Simplex2D &simplex = it.first;
 
       // Count vertices (assign new vertex indices)
       const size_t v0 = CountVertex(vertexMap, simplex.v0);
@@ -76,24 +77,26 @@ public:
 
 private:
   // Count face (number of cell neighbors)
-  static void
-  CountFace(std::unordered_map<size_t, std::pair<size_t, Simplex2D>> &faceMap,
-            size_t v0,
-            size_t v1,
-            size_t v2)
+  static void CountFace(std::map<Simplex2D, size_t, CompareSimplex2D> &faceMap,
+                        size_t v0,
+                        size_t v1,
+                        size_t v2)
   {
-    // Create simplex and hash
-    const Simplex2D simplex(v0, v1, v2);
-    const size_t hash = Hashing::Hash(simplex);
+    // Create ordered simplex
+    const Simplex2D simplex(v0, v1, v2, true);
 
     // Check if already added
-    auto it = faceMap.find(hash);
+    auto it = faceMap.find(simplex);
 
     // Add to map or add to counter
     if (it == faceMap.end())
-      faceMap[hash] = std::make_pair(0, simplex);
+      faceMap[simplex] = 1;
+    else if (it->second == 1)
+      it->second++;
     else
-      it->second.first++;
+    {
+      Error("Found face with more than 2 cell neighbors.");
+    }
   }
 
   // Count vertex (assign new vertex indices)

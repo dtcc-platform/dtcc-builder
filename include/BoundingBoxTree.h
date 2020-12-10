@@ -211,14 +211,6 @@ namespace DTCC
     // FIXME: Not yet implemented
   };
 
-  std::ostream &operator<<(std::ostream &stream, const BoundingBoxTree2D& bbtree)
-  {
-    stream << "2D bounding box tree with " << bbtree.Nodes.size() << " nodes";
-    return stream;
-  }
-
-
-
 }
 
 #endif
