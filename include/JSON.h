@@ -280,7 +280,7 @@ namespace DTCC
       json["Markers"] = mesh.Markers;
     }
 
-    /// Deserialize Surface3D
+    /// Deserialize Surface2D
     static void Deserialize(Surface2D &surface, const nlohmann::json& json)
     {
       CheckType("Surface3D", json);
@@ -298,9 +298,16 @@ namespace DTCC
         surface.Cells[i].v0 = jsonCells[2*i];
         surface.Cells[i].v1 = jsonCells[2*i + 1];
       }
+      const auto jsonNormals = json["Normals"];
+      surface.Normals.resize(jsonNormals.size() / 2);
+      for (size_t i = 0; i < surface.Normals.size(); i++)
+      {
+        surface.Normals[i].x = jsonNormals[2 * i];
+        surface.Normals[i].y = jsonNormals[2 * i + 1];
+      }
     }
 
-    /// Serialize Surface3D
+    /// Serialize Surface2D
     static void Serialize(const Surface2D& surface, nlohmann::json& json)
     {
       auto jsonVertices = nlohmann::json::array();
@@ -315,9 +322,16 @@ namespace DTCC
         jsonCells.push_back(T.v0);
         jsonCells.push_back(T.v1);
       }
+      auto jsonNormals = nlohmann::json::array();
+      for (const auto p : surface.Normals)
+      {
+        jsonNormals.push_back(p.x);
+        jsonNormals.push_back(p.y);
+      }
       json["Type"] = "Surface2D";
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
+      json["Normals"] = jsonNormals;
     }
 
     /// Deserialize Surface3D
@@ -340,6 +354,14 @@ namespace DTCC
         surface.Cells[i].v1 = jsonCells[3*i + 1];
         surface.Cells[i].v2 = jsonCells[3*i + 2];
       }
+      const auto jsonNormals = json["Normals"];
+      surface.Normals.resize(jsonNormals.size() / 3);
+      for (size_t i = 0; i < surface.Normals.size(); i++)
+      {
+        surface.Normals[i].x = jsonNormals[3 * i];
+        surface.Normals[i].y = jsonNormals[3 * i + 1];
+        surface.Normals[i].z = jsonNormals[3 * i + 2];
+      }
     }
 
     /// Serialize Surface3D
@@ -359,9 +381,17 @@ namespace DTCC
         jsonCells.push_back(T.v1);
         jsonCells.push_back(T.v2);
       }
+      auto jsonNormals = nlohmann::json::array();
+      for (const auto p : surface.Normals)
+      {
+        jsonNormals.push_back(p.x);
+        jsonNormals.push_back(p.y);
+        jsonNormals.push_back(p.z);
+      }
       json["Type"] = "Surface3D";
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
+      json["Normals"] = jsonNormals;
     }
 
     /// Deserialize GridField2D
