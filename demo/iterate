@@ -1,7 +1,7 @@
-
+#!/bin/bash
 name=ElevationModelResolution
 for i in 5 10 15 20
 do
 value=$i
-jq --argjson key1  "$value" --arg name "$name" '.[$name] = $key1' Hammarkullen2020.json
+jq --argjson key1  "$value" --arg name "$name" '.[$name] = $key1' Hammarkullen2020.json|sponge test.json
 done
