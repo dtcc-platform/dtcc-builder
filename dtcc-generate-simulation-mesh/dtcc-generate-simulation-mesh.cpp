@@ -13,6 +13,7 @@
 #include "Mesh.h"
 #include "MeshGenerator.h"
 #include "MeshProcessor.h"
+#include "OBJ.h"
 #include "Parameters.h"
 #include "VTK.h"
 #include "VertexSmoother.h"
@@ -66,53 +67,62 @@ int main(int argc, char *argv[])
   }
 
   // Step 3.2: Generate 3D mesh (full)
-  Mesh3D mesh3D;
-  const size_t numLayers = MeshGenerator::GenerateMesh3D(mesh3D, mesh2D, H, h);
-  Info(mesh3D);
+  Mesh3D mesh;
+  const size_t numLayers = MeshGenerator::GenerateMesh3D(mesh, mesh2D, H, h);
+  Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf3D;
-    MeshProcessor::ExtractBoundary3D(surf3D, mesh3D);
-    VTK::Write(mesh3D, dataDirectory + "Step32Mesh.vtu");
-    VTK::Write(surf3D, dataDirectory + "Step32Surf.vtu");
+    Surface3D surf;
+    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    VTK::Write(mesh, dataDirectory + "Step32Mesh.vtu");
+    VTK::Write(surf, dataDirectory + "Step32Surf.vtu");
   };
 
   // Step 3.3: Smooth 3D mesh (apply DTM to groundf)
   const double topHeight = dtm.Mean() + H;
-  LaplacianSmoother::SmoothMesh3D(mesh3D, cityModel, dtm, topHeight, false);
-  Info(mesh3D);
+  LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
+  Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf3D;
-    MeshProcessor::ExtractBoundary3D(surf3D, mesh3D);
-    VTK::Write(mesh3D, dataDirectory + "Step33Mesh.vtu");
-    VTK::Write(surf3D, dataDirectory + "Step33Surf.vtu");
+    Surface3D surf;
+    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    VTK::Write(mesh, dataDirectory + "Step33Mesh.vtu");
+    VTK::Write(surf, dataDirectory + "Step33Surf.vtu");
   }
 
   // Step 3.4: Trim 3D mesh (remove tets inside buildings)
-  MeshGenerator::TrimMesh3D(mesh3D, mesh2D, cityModel, numLayers);
-  Info(mesh3D);
+  MeshGenerator::TrimMesh3D(mesh, mesh2D, cityModel, numLayers);
+  Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf3D;
-    MeshProcessor::ExtractBoundary3D(surf3D, mesh3D);
-    VTK::Write(mesh3D, dataDirectory + "Step34Mesh.vtu");
-    VTK::Write(surf3D, dataDirectory + "Step34Surf.vtu");
+    Surface3D surf;
+    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    VTK::Write(mesh, dataDirectory + "Step34Mesh.vtu");
+    VTK::Write(surf, dataDirectory + "Step34Surf.vtu");
   }
 
   // Step 3.5: Smooth 3D mesh (apply DTM to ground)
-  LaplacianSmoother::SmoothMesh3D(mesh3D, cityModel, dtm, topHeight, true);
-  Info(mesh3D);
+  LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true);
+  Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf3D;
-    MeshProcessor::ExtractBoundary3D(surf3D, mesh3D);
-    VTK::Write(mesh3D, dataDirectory + "Step35Mesh.vtu");
-    VTK::Write(surf3D, dataDirectory + "Step35Surf.vtu");
+    Surface3D surf;
+    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    VTK::Write(mesh, dataDirectory + "Step35Mesh.vtu");
+    VTK::Write(surf, dataDirectory + "Step35Surf.vtu");
   }
 
-  // Write final 3D mesh
-  JSON::Write(mesh3D, dataDirectory + "Mesh3D.json");
+  // Extract surface of final mesh
+  Surface3D surface;
+  MeshProcessor::ExtractBoundary3D(surface, mesh);
+  if (parameters.Debug)
+  {
+    OBJ::Write(surface, dataDirectory + "Surface.obj");
+  }
+
+  // Write final mesh and surface
+  JSON::Write(mesh, dataDirectory + "Mesh.json");
+  JSON::Write(surface, dataDirectory + "Surface.json");
 
   // Report timings
   Timer::Report("dtcc-generate-simulation-mesh");

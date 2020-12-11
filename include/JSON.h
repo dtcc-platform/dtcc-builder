@@ -291,12 +291,12 @@ namespace DTCC
         surface.Vertices[i].x = jsonVertices[2*i];
         surface.Vertices[i].y = jsonVertices[2*i + 1];
       }
-      const auto jsonCells = json["Cells"];
-      surface.Cells.resize(jsonCells.size() / 2);
-      for (size_t i = 0; i < surface.Cells.size(); i++)
+      const auto jsonEdges = json["Edges"];
+      surface.Edges.resize(jsonEdges.size() / 2);
+      for (size_t i = 0; i < surface.Edges.size(); i++)
       {
-        surface.Cells[i].v0 = jsonCells[2*i];
-        surface.Cells[i].v1 = jsonCells[2*i + 1];
+        surface.Edges[i].v0 = jsonEdges[2 * i];
+        surface.Edges[i].v1 = jsonEdges[2 * i + 1];
       }
       const auto jsonNormals = json["Normals"];
       surface.Normals.resize(jsonNormals.size() / 2);
@@ -316,11 +316,11 @@ namespace DTCC
         jsonVertices.push_back(p.x);
         jsonVertices.push_back(p.y);
       }
-      auto jsonCells = nlohmann::json::array();
-      for (const auto T: surface.Cells)
+      auto jsonEdges = nlohmann::json::array();
+      for (const auto T : surface.Edges)
       {
-        jsonCells.push_back(T.v0);
-        jsonCells.push_back(T.v1);
+        jsonEdges.push_back(T.v0);
+        jsonEdges.push_back(T.v1);
       }
       auto jsonNormals = nlohmann::json::array();
       for (const auto p : surface.Normals)
@@ -330,7 +330,7 @@ namespace DTCC
       }
       json["Type"] = "Surface2D";
       json["Vertices"] = jsonVertices;
-      json["Cells"] = jsonCells;
+      json["Edges"] = jsonEdges;
       json["Normals"] = jsonNormals;
     }
 
@@ -346,13 +346,13 @@ namespace DTCC
         surface.Vertices[i].y = jsonVertices[3*i + 1];
         surface.Vertices[i].z = jsonVertices[3*i + 2];
       }
-      const auto jsonCells = json["Cells"];
-      surface.Cells.resize(jsonCells.size() / 3);
-      for (size_t i = 0; i < surface.Cells.size(); i++)
+      const auto jsonFaces = json["Faces"];
+      surface.Faces.resize(jsonFaces.size() / 3);
+      for (size_t i = 0; i < surface.Faces.size(); i++)
       {
-        surface.Cells[i].v0 = jsonCells[3*i];
-        surface.Cells[i].v1 = jsonCells[3*i + 1];
-        surface.Cells[i].v2 = jsonCells[3*i + 2];
+        surface.Faces[i].v0 = jsonFaces[3 * i];
+        surface.Faces[i].v1 = jsonFaces[3 * i + 1];
+        surface.Faces[i].v2 = jsonFaces[3 * i + 2];
       }
       const auto jsonNormals = json["Normals"];
       surface.Normals.resize(jsonNormals.size() / 3);
@@ -374,12 +374,12 @@ namespace DTCC
         jsonVertices.push_back(p.y);
         jsonVertices.push_back(p.z);
       }
-      auto jsonCells = nlohmann::json::array();
-      for (const auto T: surface.Cells)
+      auto jsonFaces = nlohmann::json::array();
+      for (const auto T : surface.Faces)
       {
-        jsonCells.push_back(T.v0);
-        jsonCells.push_back(T.v1);
-        jsonCells.push_back(T.v2);
+        jsonFaces.push_back(T.v0);
+        jsonFaces.push_back(T.v1);
+        jsonFaces.push_back(T.v2);
       }
       auto jsonNormals = nlohmann::json::array();
       for (const auto p : surface.Normals)
@@ -390,7 +390,7 @@ namespace DTCC
       }
       json["Type"] = "Surface3D";
       json["Vertices"] = jsonVertices;
-      json["Cells"] = jsonCells;
+      json["Faces"] = jsonFaces;
       json["Normals"] = jsonNormals;
     }
 

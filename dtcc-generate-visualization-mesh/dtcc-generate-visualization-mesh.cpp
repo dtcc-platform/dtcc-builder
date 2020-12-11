@@ -69,21 +69,21 @@ int main(int argc, char *argv[])
   for (size_t i = 1; i < surfaces.size(); i++)
   {
     numPoints += surfaces[i].Vertices.size();
-    numCells += surfaces[i].Cells.size();
+    numCells += surfaces[i].Faces.size();
   }
   buildingSurface.Vertices.resize(numPoints);
-  buildingSurface.Cells.resize(numCells);
+  buildingSurface.Faces.resize(numCells);
   size_t k = 0;
   size_t l = 0;
   for (size_t i = 1; i < surfaces.size(); i++)
   {
-    for (size_t j = 0; j < surfaces[i].Cells.size(); j++)
+    for (size_t j = 0; j < surfaces[i].Faces.size(); j++)
     {
-      Simplex2D c = surfaces[i].Cells[j];
+      Simplex2D c = surfaces[i].Faces[j];
       c.v0 += k;
       c.v1 += k;
       c.v2 += k;
-      buildingSurface.Cells[l++] = c;
+      buildingSurface.Faces[l++] = c;
     }
     for (size_t j = 0; j < surfaces[i].Vertices.size(); j++)
       buildingSurface.Vertices[k++] = surfaces[i].Vertices[j];

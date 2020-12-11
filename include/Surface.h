@@ -20,8 +20,8 @@ namespace DTCC
     // Array of vertices
     std::vector<Point2D> Vertices;
 
-    // Array of cells (segments)
-    std::vector<Simplex1D> Cells;
+    // Array of edges
+    std::vector<Simplex1D> Edges;
 
     // Array of normals
     std::vector<Vector2D> Normals;
@@ -29,9 +29,8 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const override
     {
-      return "2D surface (mesh boundary) with "
-        + str(Vertices.size()) + " vertices and "
-        + str(Cells.size()) + " edges";
+      return "2D surface (mesh boundary) with " + str(Vertices.size()) +
+             " vertices and " + str(Edges.size()) + " edges";
     }
 
   };
@@ -43,8 +42,8 @@ namespace DTCC
     // Array of vertices
     std::vector<Point3D> Vertices;
 
-    // Array of cells (triangles)
-    std::vector<Simplex2D> Cells;
+    // Array of faces
+    std::vector<Simplex2D> Faces;
 
     // Array of normal
     std::vector<Vector3D> Normals;
@@ -52,9 +51,8 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const override
     {
-      return "3D surface (mesh boundary) with "
-        + str(Vertices.size()) + " vertices and "
-        + str(Cells.size()) + " faces";
+      return "3D surface (mesh boundary) with " + str(Vertices.size()) +
+             " vertices and " + str(Faces.size()) + " faces";
     }
 
   };

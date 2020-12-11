@@ -29,7 +29,7 @@ public:
 
     // Clear surface
     surface3D.Vertices.clear();
-    surface3D.Cells.clear();
+    surface3D.Faces.clear();
     surface3D.Normals.clear();
 
     // Map from face --> (num cell neighbors, cell index)
@@ -73,12 +73,12 @@ public:
       // Add face and normal
       if (orientation == 1)
       {
-        surface3D.Cells.push_back(Simplex2D{v0, v1, v2});
+        surface3D.Faces.push_back(Simplex2D{v0, v1, v2});
         surface3D.Normals.push_back(n);
       }
       else
       {
-        surface3D.Cells.push_back(Simplex2D{v0, v2, v1});
+        surface3D.Faces.push_back(Simplex2D{v0, v2, v1});
         surface3D.Normals.push_back(-n);
       }
     }

@@ -133,12 +133,12 @@ public:
     vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
     vtkSmartPointer<vtkCellArray> cellArray =
         vtkSmartPointer<vtkCellArray>::New();
-    for (uint i = 0; i < surface3D.Cells.size(); i++)
+    for (uint i = 0; i < surface3D.Faces.size(); i++)
 
     {
-      triangle->GetPointIds()->SetId(0, surface3D.Cells[i].v0);
-      triangle->GetPointIds()->SetId(1, surface3D.Cells[i].v1);
-      triangle->GetPointIds()->SetId(2, surface3D.Cells[i].v2);
+      triangle->GetPointIds()->SetId(0, surface3D.Faces[i].v0);
+      triangle->GetPointIds()->SetId(1, surface3D.Faces[i].v1);
+      triangle->GetPointIds()->SetId(2, surface3D.Faces[i].v2);
       cellArray->InsertNextCell(triangle);
     }
 
