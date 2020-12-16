@@ -11,6 +11,7 @@
 #include "LAS.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "PointCloudProcessor.h"
 #include "VTK.h"
 
 using namespace DTCC;
@@ -68,22 +69,13 @@ int main(int argc, char *argv[])
   // FIXME: Not implemented
   // VTK::Write(dsm, dataDirectory + "DSM.vtu");
 
-  // FIXME: We should be able to filter the point cloud (not read again).
-
-  // Read in only ground and water points (color 2 and 9)
+  // Filter only ground and water points (color 2 and 9)
+  PointCloud groundPoints = PointCloudProcessor::ClassificationFilter(pointCloud,{2,9});
   pointCloud.clear();
-  for (auto const &f : CommandLine::ListDirectory(dataDirectory))
-  {
-    if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
-    {
-      LAS::Read(pointCloud, dataDirectory + f, {2, 9});
-      Info(pointCloud);
-    }
-  }
-
+  
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
-  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, p0, bbox, h);
+  ElevationModelGenerator::GenerateElevationModel(dtm, groundPoints, p0, bbox, h);
   Info(dtm);
   JSON::Write(dtm, dataDirectory + "DTM.json");
   // FIXME: Not implemented
