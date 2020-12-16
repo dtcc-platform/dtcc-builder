@@ -90,9 +90,13 @@ int main(int argc, char *argv[])
   }
 
   // Write to files
-  JSON::Write(groundSurface, dataDirectory + "VisualizationGroundMesh.json");
-  VTK::Write(groundSurface, dataDirectory + "VisualizationGroundMesh.vtu");
-  VTK::Write(buildingSurface, dataDirectory + "VisualizationBuildingMesh.vtu");
+  JSON::Write(groundSurface, dataDirectory + "GroundMesh.json");
+  JSON::Write(buildingSurface, dataDirectory + "GroundMesh.json");
+  if (parameters.Debug)
+  {
+    VTK::Write(groundSurface, dataDirectory + "GroundMesh.vtu");
+    VTK::Write(buildingSurface, dataDirectory + "BuildingMesh.vtu");
+  }
 
   // Report timings
   Timer::Report("dtcc-generate-visualization-mesh");

@@ -72,10 +72,10 @@ int main(int argc, char *argv[])
   Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf;
-    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    Surface3D boundary;
+    MeshProcessor::ExtractBoundary3D(boundary, mesh);
     VTK::Write(mesh, dataDirectory + "Step32Mesh.vtu");
-    VTK::Write(surf, dataDirectory + "Step32Surf.vtu");
+    VTK::Write(boundary, dataDirectory + "Step32Boundary.vtu");
   };
 
   // Step 3.3: Smooth 3D mesh (apply DTM to groundf)
@@ -84,10 +84,10 @@ int main(int argc, char *argv[])
   Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf;
-    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    Surface3D boundary;
+    MeshProcessor::ExtractBoundary3D(boundary, mesh);
     VTK::Write(mesh, dataDirectory + "Step33Mesh.vtu");
-    VTK::Write(surf, dataDirectory + "Step33Surf.vtu");
+    VTK::Write(boundary, dataDirectory + "Step33Boundary.vtu");
   }
 
   // Step 3.4: Trim 3D mesh (remove tets inside buildings)
@@ -95,10 +95,10 @@ int main(int argc, char *argv[])
   Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf;
-    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    Surface3D boundary;
+    MeshProcessor::ExtractBoundary3D(boundary, mesh);
     VTK::Write(mesh, dataDirectory + "Step34Mesh.vtu");
-    VTK::Write(surf, dataDirectory + "Step34Surf.vtu");
+    VTK::Write(boundary, dataDirectory + "Step34Boundary.vtu");
   }
 
   // Step 3.5: Smooth 3D mesh (apply DTM to ground)
@@ -106,23 +106,19 @@ int main(int argc, char *argv[])
   Info(mesh);
   if (parameters.Debug)
   {
-    Surface3D surf;
-    MeshProcessor::ExtractBoundary3D(surf, mesh);
+    Surface3D boundary;
+    MeshProcessor::ExtractBoundary3D(boundary, mesh);
     VTK::Write(mesh, dataDirectory + "Step35Mesh.vtu");
-    VTK::Write(surf, dataDirectory + "Step35Surf.vtu");
+    VTK::Write(boundary, dataDirectory + "Step35Boundary.vtu");
   }
 
-  // Extract surface of final mesh
-  Surface3D surface;
-  MeshProcessor::ExtractBoundary3D(surface, mesh);
-  if (parameters.Debug)
-  {
-    OBJ::Write(surface, dataDirectory + "SimulationSurface.obj");
-  }
+  // Extract boundary of final mesh
+  Surface3D boundary;
+  MeshProcessor::ExtractBoundary3D(boundary, mesh);
 
-  // Write final mesh and surface
+  // Write final mesh and boundary
   JSON::Write(mesh, dataDirectory + "SimulationMesh.json");
-  JSON::Write(surface, dataDirectory + "SimulationSurface.json");
+  JSON::Write(boundary, dataDirectory + "SimulationBoundary.json");
 
   // Report timings
   Timer::Report("dtcc-generate-simulation-mesh");
