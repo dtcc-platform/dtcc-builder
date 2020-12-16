@@ -44,8 +44,9 @@ int main(int argc, char *argv[])
   VertexSmoother::SmoothSurface(groundMesh, parameters.GroundSmoothing);
 
   // Write to file
-  JSON::Write(groundMesh, dataDirectory + "SmoothedGroundMesh.json");
-  VTK::Write(groundMesh, dataDirectory + "SmoothedGroundMesh.vtu");
+  JSON::Write(groundMesh,
+              dataDirectory + "VisualizationSmoothedGroundMesh.json");
+  VTK::Write(groundMesh, dataDirectory + "VisualizationSmoothedGroundMesh.vtu");
 
   // Report timings
   Timer::Report("dtcc-smooth-ground-mesh");
