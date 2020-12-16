@@ -174,9 +174,9 @@ public:
     structuredGrid->SetDimensions(gridField2D.Grid.XSize,
                                   gridField2D.Grid.YSize, 1);
     const Point2D &P = gridField2D.Grid.BoundingBox.P;
-    for (uint i = 0; i < gridField2D.Grid.XSize; ++i)
+    for (uint j = 0; j < gridField2D.Grid.YSize; ++j)
     {
-      for (uint j = 0; j < gridField2D.Grid.YSize; ++j)
+      for (uint i = 0; i < gridField2D.Grid.XSize; ++i)
       {
         points->InsertNextPoint(P.x + i * gridField2D.Grid.XStep,
                                 P.y + j * gridField2D.Grid.YStep, 0);
@@ -214,11 +214,11 @@ public:
     structuredGrid->SetDimensions(
         gridField3D.Grid.XSize, gridField3D.Grid.YSize, gridField3D.Grid.ZSize);
     const Point3D &P = gridField3D.Grid.BoundingBox.P;
-    for (uint i = 0; i < gridField3D.Grid.XSize; ++i)
+    for (uint k = 0; k < gridField3D.Grid.ZSize; ++k)
     {
       for (uint j = 0; j < gridField3D.Grid.YSize; ++j)
       {
-        for (uint k = 0; k < gridField3D.Grid.YSize; ++k)
+        for (uint i = 0; i < gridField3D.Grid.XSize; ++i)
         {
           points->InsertNextPoint(P.x + i * gridField3D.Grid.XStep,
                                   P.y + j * gridField3D.Grid.YStep,

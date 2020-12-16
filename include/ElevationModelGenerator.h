@@ -119,10 +119,6 @@ public:
     if (numMissing == numGridPoints)
       throw std::runtime_error("No points inside height map domain.");
 
-    // Note: We fill in missing point by searching for the
-    // closest existing value around each missing grid point.
-    // It might be more efficient to do a flood fill.
-
     Progress("ElevationModelGenerator: Filling in missing grid points (" +
              str(numMissing) + "/" + str(numGridPoints) + ")");
 
