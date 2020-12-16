@@ -151,6 +151,8 @@ private:
       const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
       
       liblas::Color const& color = _p.GetColor();
+      liblas::Classification const& cls = _p.GetClassification();
+
       // colors seem to be 16-bit in las spec.
       const Color c(color.GetRed()/65535.0,color.GetGreen()/65535.0,color.GetBlue()/65535.0);
 
@@ -173,6 +175,7 @@ private:
       // Add point to point cloud
       pointCloud.Points.push_back(p);
       pointCloud.Colors.push_back(c);
+      pointCloud.Classification.push_back(cls.GetClass());
       readPoints++;
     }
   }

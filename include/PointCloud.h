@@ -23,6 +23,8 @@ namespace DTCC
 
     std::vector<Color> Colors{};
 
+    std::vector<uint8_t> Classification{};
+
     /// Bounding box
     BoundingBox2D BoundingBox{};
 
@@ -32,16 +34,30 @@ namespace DTCC
     // set a default color to all points
     void InitColors(const Color &c)
     {
+      Colors.clear();
       for (size_t i = 0; i < Points.size(); i++)
       {
         Colors.push_back(c);
       }
     }
+
+    // set a default color to all points
+    void InitClassification(uint8_t c)
+    {
+      Classification.clear();
+      for (size_t i = 0; i < Points.size(); i++)
+      {
+        Classification.push_back(c);
+      }
+
+    }
+
   
   void clear() 
     {
       Points.clear();
       Colors.clear();
+      Classification.clear();
     }
 
     /// Pretty-print

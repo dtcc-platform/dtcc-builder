@@ -11,9 +11,12 @@
 #include "GridVectorField.h"
 #include "Hashing.h"
 #include "JSON.h"
+#include "LAS.h"
 #include "Mesh.h"
 #include "MeshField.h"
 #include "MeshVectorField.h"
+#include "PointCloud.h"
+#include "PointCloudProcessor.h"
 #include "SHP.h"
 #include "catch.hpp"
 #include <XMLParser.h>
@@ -421,5 +424,38 @@ TEST_CASE("SHP Extraction")
     SHP::Read(roads, "../unittests/data/roadnetwork-central-gbg/vl_riks.shp",
               nullptr, nullptr, &attributes);
     REQUIRE(attributes["polyToAttribute"].size() == roads.size());
+  }
+}
+
+TEST_CASE("POINT_CLOUD")
+{
+  SECTION("READ LAS")
+  {
+    PointCloud pc;
+    LAS::Read(pc,"../unittests/data/minimal_las.las");
+
+    REQUIRE(pc.Points.size()==10);
+    for (size_t i = 0; i < pc.Points.size(); i++)
+    {
+      REQUIRE(pc.Classification[i]==Approx(pc.Points[i].x).margin(1e-6));
+    }
+  }
+  
+  SECTION("ClassificationFilter")
+  {
+    PointCloud pc;
+    pc.Points.push_back(Vector3D(0,0,0));
+    pc.Classification.push_back(0);
+    pc.Points.push_back(Vector3D(1,0,0));
+    pc.Classification.push_back(1);
+    pc.Points.push_back(Vector3D(2,0,0));
+    pc.Classification.push_back(2);
+
+    PointCloud out_pc = PointCloudProcessor::ClassificationFilter(pc,{1,2});
+    REQUIRE(out_pc.Points.size()==2);
+    REQUIRE(out_pc.Classification.size()==2);
+    REQUIRE(out_pc.Points[0].x==1);
+    REQUIRE(out_pc.Points[1].x==2);
+
   }
 }
