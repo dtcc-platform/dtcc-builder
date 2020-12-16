@@ -66,20 +66,20 @@ int main(int argc, char *argv[])
   ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, p0, bbox, h);
   Info(dsm);
   JSON::Write(dsm, dataDirectory + "DSM.json");
-  // FIXME: Not implemented
-  // VTK::Write(dsm, dataDirectory + "DSM.vtu");
+  if (parameters.Debug)
+    VTK::Write(dsm, dataDirectory + "DSM.vts");
 
   // Filter only ground and water points (color 2 and 9)
   PointCloud groundPoints = PointCloudProcessor::ClassificationFilter(pointCloud,{2,9});
   pointCloud.clear();
-  
+
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
   ElevationModelGenerator::GenerateElevationModel(dtm, groundPoints, p0, bbox, h);
   Info(dtm);
   JSON::Write(dtm, dataDirectory + "DTM.json");
-  // FIXME: Not implemented
-  // VTK::Write(dtm, dataDirectory + "DTM.vtu");
+  if (parameters.Debug)
+    VTK::Write(dtm, dataDirectory + "DTM.vts");
 
   // Report timings
   Timer::Report("dtcc-generate-elevation-models");

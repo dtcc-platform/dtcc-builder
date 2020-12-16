@@ -15,6 +15,3 @@ set -e
 
 # Generate visualization mesh
 ../bin/dtcc-generate-visualization-mesh $PARAMETERS
-
-# Smooth ground mesh
-../bin/dtcc-smooth-ground-mesh $PARAMETERS
