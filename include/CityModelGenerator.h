@@ -61,6 +61,7 @@ public:
         // Add SHP file entityID
         building.SHPFileID = entityIDs[i];
         cityModel.Buildings.push_back(building);
+        Info(building);
       }
     }
 
