@@ -47,7 +47,8 @@ public:
   /// Pretty-print
   std::string __str__() const override
   {
-    return "Building with UUID " + UUID + " and height" + str(Height);
+    return "Building with UUID " + UUID + " and height " + str(Height) +
+           " and ground height " + str(GroundHeight);
   }
 };
 

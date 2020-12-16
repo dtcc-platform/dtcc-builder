@@ -8,7 +8,7 @@ PARAMETERS=Hammarkullen2020.json
 set -e
 
 # Generate elevation model
-../bin/dtcc-generate-elevation-model $PARAMETERS
+#../bin/dtcc-generate-elevation-model $PARAMETERS
 
 # Generate city model
 ../bin/dtcc-generate-citymodel $PARAMETERS

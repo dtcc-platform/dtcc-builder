@@ -146,7 +146,8 @@ namespace DTCC
   {
     std::ostringstream out;
     out.precision(precision);
-    out << std::scientific << x;
+    // out << std::scientific << x;
+    out << std::defaultfloat << x;
     return out.str();
   }
 

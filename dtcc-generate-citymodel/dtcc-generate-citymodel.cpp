@@ -58,14 +58,14 @@ int main(int argc, char *argv[])
   Info(cityModel);
   JSON::Write(cityModel, dataDirectory + "/CityModelRaw.json");
 
-  // Clean city model and add building heights
+  // Clean city model and compute building heights
   CityModelGenerator::CleanCityModel(cityModel,
                                      parameters.MinimalVertexDistance);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dsm, dtm);
   Info(cityModel);
   JSON::Write(cityModel, dataDirectory + "/CityModelClean.json");
 
-  // Simplify city model and add building heights
+  // Simplify city model and compute building heights
   CityModelGenerator::SimplifyCityModel(cityModel,
                                         parameters.MinimalBuildingDistance,
                                         parameters.MinimalVertexDistance);

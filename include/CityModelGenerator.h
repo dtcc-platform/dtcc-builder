@@ -61,7 +61,8 @@ public:
         // Add SHP file entityID
         building.SHPFileID = entityIDs[i];
         cityModel.Buildings.push_back(building);
-        Info(building);
+        // std::cout << "i = " << i << " entityID = " << entityIDs[i] << " UUID
+        // = " << UUIDs[i] << std::endl;
       }
     }
 
