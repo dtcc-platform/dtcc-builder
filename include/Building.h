@@ -1,26 +1,30 @@
-// Representation of a 2.5D building.
-// Copyright (C) 2019 Anders Logg.
+// Copyright (C) 2019 Anders Logg
 // Licensed under the MIT License
 
 #ifndef DTCC_BUILDING_H
 #define DTCC_BUILDING_H
 
+#include <string>
 #include <vector>
 
-#include "Vector.h"
+#include "Logging.h"
 #include "Polygon.h"
+#include "Vector.h"
 
 namespace DTCC
 {
 
-class Building
+class Building : public Printable
 {
 public:
   // Building UUID
   std::string UUID;
+
+  // Shapefile ID
+  int SHPFileID{};
+
   // Uncomment for debugging
   // int debugID;
-  int SHPFileID;
 
   // Building footprint (polygon)
   Polygon Footprint{};
@@ -39,6 +43,12 @@ public:
 
   // Return maximum absolute height of building
   double MaxHeight() const { return GroundHeight + Height; }
+
+  /// Pretty-print
+  std::string __str__() const override
+  {
+    return "Building with UUID " + UUID + " and height" + str(Height);
+  }
 };
 
 } // namespace DTCC
