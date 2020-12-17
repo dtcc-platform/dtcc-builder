@@ -56,9 +56,21 @@ public:
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
+    size_t numInside = 0;
     for (auto const &q3D : pointCloud.Points)
+    {
+      // Get 2D point and subtract origin
+      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
+
+      // Skip if outside of domain
+      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))
+        continue;
+
+      // Sum up elevation
       meanElevationRaw += q3D.z;
-    meanElevationRaw /= pointCloud.Points.size();
+      numInside++;
+    }
+    meanElevationRaw /= static_cast<double>(numInside);
 
     // Initialize counters for number of points for local mean
     size_t numGridPoints = dem.Values.size();
@@ -70,10 +82,18 @@ public:
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
     double meanElevation = 0.0;
+    numInside = 0;
     std::vector<size_t> neighborIndices;
     neighborIndices.reserve(5);
     for (auto const &q3D : pointCloud.Points)
     {
+      // Get 2D point and subtract origin
+      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
+
+      // Skip if outside of domain
+      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))
+        continue;
+
       // Ignore outliers
       if (q3D.z - meanElevationRaw > Parameters::PointCloudOutlierThreshold)
       {
@@ -81,11 +101,9 @@ public:
         continue;
       }
 
-      // Get 2D point and subtract origin
-      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
-
-      // Recompute mean elevation (excluding outliers)
+      // Sum up elevation
       meanElevation += q3D.z;
+      numInside++;
 
       // Iterate over closest stencil (including center of stencil)
       neighborIndices.clear();
@@ -100,7 +118,7 @@ public:
     }
 
     // Compute mean elevation
-    meanElevation /= pointCloud.Points.size() - numOutliers;
+    meanElevation /= static_cast<double>(numInside);
 
     Progress("ElevationModelGenerator: Computing local mean elevation");
 
