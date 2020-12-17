@@ -117,8 +117,8 @@ int main(int argc, char *argv[])
   MeshProcessor::ExtractBoundary3D(boundary, mesh);
 
   // Write final mesh and boundary
-  JSON::Write(mesh, dataDirectory + "SimulationMesh.json");
-  JSON::Write(boundary, dataDirectory + "SimulationBoundary.json");
+  JSON::Write(mesh, dataDirectory + "Mesh.json");
+  JSON::Write(boundary, dataDirectory + "Boundary.json");
 
   // Report timings
   Timer::Report("dtcc-generate-simulation-mesh");
