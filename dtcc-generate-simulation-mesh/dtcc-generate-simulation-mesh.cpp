@@ -62,9 +62,7 @@ int main(int argc, char *argv[])
   MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox, h);
   Info(mesh2D);
   if (parameters.Debug)
-  {
     VTK::Write(mesh2D, dataDirectory + "Step31Mesh.vtu");
-  }
 
   // Step 3.2: Generate 3D mesh (full)
   Mesh3D mesh;
@@ -78,7 +76,7 @@ int main(int argc, char *argv[])
     VTK::Write(boundary, dataDirectory + "Step32Boundary.vtu");
   };
 
-  // Step 3.3: Smooth 3D mesh (apply DTM to groundf)
+  // Step 3.3: Smooth 3D mesh (apply DTM to ground)
   const double topHeight = dtm.Mean() + H;
   LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
   Info(mesh);
