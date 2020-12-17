@@ -15,5 +15,6 @@
     "MinimalVertexDistance": 1.0,
     "FlatGround": false,
     "GroundSmoothing": 2,
+    "NumRandomBuildings": 1000,
     "Debug": true
 }

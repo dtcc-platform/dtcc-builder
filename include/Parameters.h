@@ -49,8 +49,11 @@ namespace DTCC
     // Keep ground flat (ignore elevation model)
     bool FlatGround = false;
 
-    // Number of smoothing iterations for extra ground mesh
+    // Number of smoothing iterations DTM
     int GroundSmoothing = 5;
+
+    // Number of buildings in random city model
+    int NumRandomBuildings = 25;
 
     // Write extra data for debugging
     bool Debug = false;

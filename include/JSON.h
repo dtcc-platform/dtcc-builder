@@ -52,6 +52,7 @@ namespace DTCC
           ToDouble("MinimalVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
       parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
+      parameters.NumRandomBuildings = ToInt("NumRandomBuildings", json);
       parameters.Debug = ToBool("Debug", json);
     };
 
@@ -75,6 +76,7 @@ namespace DTCC
       json["MinimalVertexDistance"] = parameters.MinimalVertexDistance;
       json["FlatGround"] = parameters.FlatGround;
       json["GroundSmoothing"] = parameters.GroundSmoothing;
+      json["NumRandomBuildings"] = parameters.NumRandomBuildings;
       json["Debug"] = parameters.Debug;
     }
 
