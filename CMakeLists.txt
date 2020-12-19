@@ -33,6 +33,8 @@ include(${DOLFIN_USE_FILE})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include(${VTK_USE_FILE})
+link_directories(/usr/local/lib) #Equivalent of ldconfig /usr/local/lib in Dockerfile
+
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
