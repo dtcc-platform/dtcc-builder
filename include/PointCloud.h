@@ -49,8 +49,10 @@ namespace DTCC
       {
         Classification.push_back(c);
       }
+
     }
 
+  
   void clear() 
     {
       Points.clear();

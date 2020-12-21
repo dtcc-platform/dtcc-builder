@@ -44,37 +44,35 @@ public:
 
   }
 
-  static PointCloud
-  ClassificationFilter(const PointCloud &pointCloud,
-                       const std::vector<int> &classifications)
+  static PointCloud ClassificationFilter(const PointCloud &pointCloud, const std::vector<int> &classifications)
   {
     PointCloud outCloud;
     size_t pointCount = pointCloud.Points.size();
     bool has_color = (pointCount == pointCloud.Colors.size());
 
-    if (pointCount != pointCloud.Classification.size())
-    {
+    if (pointCount != pointCloud.Classification.size()) {
       throw std::runtime_error("Point cloud isn't classified");
     }
 
     for (size_t i = 0; i < pointCount; i++)
     {
-      for (auto c : classifications)
+      for(auto c : classifications)
       {
         if (pointCloud.Classification[i] == c)
         {
           outCloud.Points.push_back(pointCloud.Points[i]);
-          if (has_color)
+          if (has_color) 
           {
             outCloud.Colors.push_back(pointCloud.Colors[i]);
           }
           outCloud.Classification.push_back(pointCloud.Classification[i]);
           break;
         }
-      }
+      } 
     }
     return outCloud;
   }
+
 };
 
 } // namespace DTCC

@@ -84,6 +84,6 @@ public:
     f.close();
   }
 };
-} // namespace DTCC
+}
 
 #endif
