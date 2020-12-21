@@ -102,7 +102,7 @@ namespace DTCC
       Info("VertexSmoother: Building vertex connectivity");
       const size_t numVertices = surface.Vertices.size();
       std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
-      for (const auto& T: surface.Cells)
+      for (const auto &T : surface.Faces)
       {
         vertexNeighbors[T.v0].insert(T.v1);
         vertexNeighbors[T.v0].insert(T.v2);

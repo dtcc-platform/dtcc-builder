@@ -61,6 +61,8 @@ public:
         // Add SHP file entityID
         building.SHPFileID = entityIDs[i];
         cityModel.Buildings.push_back(building);
+        // std::cout << "i = " << i << " entityID = " << entityIDs[i] << " UUID
+        // = " << UUIDs[i] << std::endl;
       }
     }
 
@@ -198,6 +200,87 @@ public:
     }
   }
 
+  /// Generate a random city model. Used for benchmarking.
+  ///
+  /// @param cityModel The city model
+  /// @param dtm Digital Terrian Map
+  /// @param numBuildings Number of buildings
+  static void RandomizeCityModel(CityModel &cityModel,
+                                 const GridField2D &dtm,
+                                 size_t numBuildings)
+  {
+    Info("CityModelGenerator: Randomizing city model...");
+
+    // Some hard-coded building dimensions
+    const double A = 20.0;  // Maximum building side length
+    const double H = 10.0;  // Maximum building height
+    const double N = 10000; // Maximum number of attempts
+
+    // Get bounding box of domain
+    const BoundingBox2D &bbox = dtm.Grid.BoundingBox;
+    const double dx = bbox.Q.x - bbox.P.x;
+    const double dy = bbox.Q.y - bbox.P.y;
+
+    // Iterate over the number of buildings to generate
+    std::vector<Point2D> centers;
+    for (size_t i = 0; i < numBuildings; i++)
+    {
+      // Keep trying until we find an empty spot
+      size_t counter = 0;
+      while (true)
+      {
+        // Check number of attempts
+        if (++counter > N)
+        {
+          Info("Try setting a smaller number of random buildings.");
+          Error("Unable to randomize city model; reached maximum number of "
+                "attempts.");
+        }
+
+        // Randomize center of building
+        Point2D c(bbox.P.x + Utils::Random() * dx,
+                  bbox.P.y + Utils::Random() * dy);
+
+        // Check that we are not too close to other buildings, but
+        // note that buildings may actually overlap slightly which may
+        // also happen with real-world data.
+        bool ok = true;
+        for (auto const &p : centers)
+        {
+          const double d = Geometry::Distance2D(p, c);
+          if (d < 0.5 * A)
+          {
+            ok = false;
+            break;
+          }
+        }
+        if (!ok)
+          continue;
+
+        // Check that we are not close to the domain boundary
+        if ((c.x - bbox.P.x < 2.0 * A) || (bbox.Q.x - c.x < 2.0 * A) ||
+            (c.y - bbox.P.y < 2.0 * A) || (bbox.Q.y - c.y < 2.0 * A))
+          continue;
+
+        // Randomize dimension
+        const double a = (0.05 + 0.95 * Utils::Random()) * A;
+        const double b = (0.05 + 0.95 * Utils::Random()) * A;
+        const double h = (0.25 + 0.75 * Utils::Random()) * H;
+
+        // Generate building
+        Building building = GenerateBuilding(c, a, b, h, dtm(c));
+
+        // Add building
+        cityModel.Buildings.push_back(building);
+        centers.push_back(c);
+
+        Info("Creating random building " + str(i + 1) + "/" +
+             str(numBuildings) + " at c = " + str(c));
+        break;
+      }
+    }
+  }
+
 private:
   // Merge all buildings closer than a given distance
   static void MergeBuildings(CityModel &cityModel,
@@ -309,6 +392,24 @@ private:
 
     // Compute convex hull
     return Geometry::ConvexHull2D(uniquePoints);
+  }
+
+  // Generate building with given dimensions
+  static Building GenerateBuilding(
+      const Point2D &c, double a, double b, double height, double groundHeight)
+  {
+    Building building;
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x - 0.5 * a, c.y - 0.5 * b});
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x + 0.5 * a, c.y - 0.5 * b});
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x + 0.5 * a, c.y + 0.5 * b});
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x - 0.5 * a, c.y + 0.5 * b});
+    building.Height = height;
+    building.GroundHeight = groundHeight;
+    return building;
   }
 };
 

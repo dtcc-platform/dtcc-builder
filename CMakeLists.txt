@@ -33,6 +33,9 @@ include(${DOLFIN_USE_FILE})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
+include(${VTK_USE_FILE})
+link_directories(/usr/local/lib) #Equivalent of ldconfig /usr/local/lib in Dockerfile
+
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
@@ -45,6 +48,7 @@ add_subdirectory(dtcc-generate-citymodel)
 add_subdirectory(dtcc-generate-simulation-mesh)
 add_subdirectory(dtcc-generate-visualization-mesh)
 add_subdirectory(dtcc-generate-roadnetwork)
+add_subdirectory(dtcc-randomize-citymodel)
 add_subdirectory(dtcc-smooth-ground-mesh)
 add_subdirectory(dtcc-color-pointcloud)
 #add_subdirectory(dtcc-convert-shp2geojson)

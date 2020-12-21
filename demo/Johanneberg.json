@@ -13,5 +13,5 @@
     "AutoDomain": true,
     "MinimalBuildingDistance": 1.0,
     "FlatGround": false,
-    "GroundSmoothing": 25
+    "GroundSmoothing": 25,
 }

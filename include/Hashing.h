@@ -5,6 +5,7 @@
 #define DTCC_HASHING_H
 
 #include "Point.h"
+#include "Simplex.h"
 #include <iomanip>
 #include <sstream>
 
@@ -14,11 +15,42 @@ namespace DTCC
 class Hashing
 {
 public:
+  /// Return hash of unsigned integer
+  ///
+  /// @param x Unsigned integer value
+  /// @return Integer hash
+  static size_t Hash(size_t x) { return std::hash<size_t>{}(x); }
+
   /// Return hash of double
   ///
   /// @param x Double value
   /// @return Integer hash
   static size_t Hash(double x) { return std::hash<double>{}(x); }
+
+  /// Return hash of 2D simplex
+  ///
+  /// @param simplex Simplex2D
+  /// @return Integer hash
+  static size_t Hash(const Simplex2D &simplex)
+  {
+    const size_t h0 = Hashing::Hash(simplex.v0);
+    const size_t h1 = Hashing::Hash(simplex.v1);
+    const size_t h2 = Hashing::Hash(simplex.v2);
+    return Hash(h0, h1, h2);
+  }
+
+  /// Return hash of 3D simplex
+  ///
+  /// @param simplex Simplex3D
+  /// @return Integer hash
+  static size_t Hash(const Simplex3D &simplex)
+  {
+    const size_t h0 = Hashing::Hash(simplex.v0);
+    const size_t h1 = Hashing::Hash(simplex.v1);
+    const size_t h2 = Hashing::Hash(simplex.v2);
+    const size_t h3 = Hashing::Hash(simplex.v3);
+    return Hash(h0, h1, h2, h3);
+  }
 
   /// Return hash of 2D point
   ///
@@ -48,7 +80,13 @@ public:
   /// @param h0 First hash
   /// @param h1 Second hash
   /// @return Combined hash
-  static size_t Hash(size_t h0, size_t h1) { return h0 ^ (h1 << 1); }
+  static size_t Hash(size_t h0, size_t h1)
+  {
+    size_t seed = 0;
+    HashCombine(seed, h0);
+    HashCombine(seed, h1);
+    return seed;
+  }
 
   /// Combine 3 hashes
   ///
@@ -58,7 +96,34 @@ public:
   /// @return Combined hash
   static size_t Hash(size_t h0, size_t h1, size_t h2)
   {
-    return Hash(h0, Hash(h1, h2));
+    size_t seed = 0;
+    HashCombine(seed, h0);
+    HashCombine(seed, h1);
+    HashCombine(seed, h2);
+    return seed;
+  }
+
+  /// Combine 4 hashes
+  ///
+  /// @param h0 First hash
+  /// @param h1 Second hash
+  /// @param h2 Third hash
+  /// @param h3 Fourth hash
+  /// @return Combined hash
+  static size_t Hash(size_t h0, size_t h1, size_t h2, size_t h3)
+  {
+    size_t seed = 0;
+    HashCombine(seed, h0);
+    HashCombine(seed, h1);
+    HashCombine(seed, h2);
+    HashCombine(seed, h3);
+    return seed;
+  }
+
+  /// Combine hashes (same as boost::hash_combine)
+  static void HashCombine(size_t &seed, size_t hash)
+  {
+    seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
 
   /// Convert integer hash to hexadecimal string

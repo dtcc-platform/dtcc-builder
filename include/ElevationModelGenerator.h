@@ -9,7 +9,6 @@
 #include <stack>
 #include <vector>
 
-#include "Geometry.h"
 #include "GridField.h"
 #include "Logging.h"
 #include "Parameters.h"
@@ -26,12 +25,8 @@ public:
   // Generate digital elevation model (DEM) from point cloud
   static void GenerateElevationModel(GridField2D &dem,
                                      const PointCloud &pointCloud,
-                                     double x0,
-                                     double y0,
-                                     double xMin,
-                                     double yMin,
-                                     double xMax,
-                                     double yMax,
+                                     const Point2D &origin,
+                                     const BoundingBox2D &boundingBox,
                                      double resolution)
   {
     Info("ElevationModelGenerator: Generating digital elevation model (DEM) "
@@ -42,11 +37,8 @@ public:
     if (pointCloud.Points.empty())
       Error("ElevationModelGenerator: Empty point cloud");
 
-    // Initialize grid dimensions
-    dem.Grid.BoundingBox.P.x = xMin;
-    dem.Grid.BoundingBox.P.y = yMin;
-    dem.Grid.BoundingBox.Q.x = xMax;
-    dem.Grid.BoundingBox.Q.y = yMax;
+    // Initialize grid bounding box
+    dem.Grid.BoundingBox = boundingBox;
 
     // Initialize grid data
     dem.Grid.XSize =
@@ -64,9 +56,21 @@ public:
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
+    size_t numInside = 0;
     for (auto const &q3D : pointCloud.Points)
+    {
+      // Get 2D point and subtract origin
+      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
+
+      // Skip if outside of domain
+      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))
+        continue;
+
+      // Sum up elevation
       meanElevationRaw += q3D.z;
-    meanElevationRaw /= pointCloud.Points.size();
+      numInside++;
+    }
+    meanElevationRaw /= static_cast<double>(numInside);
 
     // Initialize counters for number of points for local mean
     size_t numGridPoints = dem.Values.size();
@@ -78,10 +82,18 @@ public:
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
     double meanElevation = 0.0;
+    numInside = 0;
     std::vector<size_t> neighborIndices;
     neighborIndices.reserve(5);
     for (auto const &q3D : pointCloud.Points)
     {
+      // Get 2D point and subtract origin
+      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
+
+      // Skip if outside of domain
+      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))
+        continue;
+
       // Ignore outliers
       if (q3D.z - meanElevationRaw > Parameters::PointCloudOutlierThreshold)
       {
@@ -89,11 +101,9 @@ public:
         continue;
       }
 
-      // Get 2D point and subtract origin
-      const Vector2D q2D(q3D.x - x0, q3D.y - y0);
-
-      // Recompute mean elevation (excluding outliers)
+      // Sum up elevation
       meanElevation += q3D.z;
+      numInside++;
 
       // Iterate over closest stencil (including center of stencil)
       neighborIndices.clear();
@@ -108,7 +118,7 @@ public:
     }
 
     // Compute mean elevation
-    meanElevation /= pointCloud.Points.size() - numOutliers;
+    meanElevation /= static_cast<double>(numInside);
 
     Progress("ElevationModelGenerator: Computing local mean elevation");
 
@@ -126,10 +136,6 @@ public:
     const size_t numMissing = missingIndices.size();
     if (numMissing == numGridPoints)
       throw std::runtime_error("No points inside height map domain.");
-
-    // Note: We fill in missing point by searching for the
-    // closest existing value around each missing grid point.
-    // It might be more efficient to do a flood fill.
 
     Progress("ElevationModelGenerator: Filling in missing grid points (" +
              str(numMissing) + "/" + str(numGridPoints) + ")");

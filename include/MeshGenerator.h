@@ -336,7 +336,7 @@ namespace DTCC
 
       // Create ground surface with zero height
       Surface3D surface3D;
-      surface3D.Cells = mesh2D.Cells;
+      surface3D.Faces = mesh2D.Cells;
       surface3D.Vertices.resize(mesh2D.Vertices.size());
       for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
       {
@@ -431,7 +431,7 @@ namespace DTCC
         // Set total number of triangles
         const size_t numMeshTriangles = _mesh2D.Cells.size();
         const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
-        _surface3D.Cells.resize(numMeshTriangles + numBoundaryTriangles);
+        _surface3D.Faces.resize(numMeshTriangles + numBoundaryTriangles);
 
         // Add points at top
         for (size_t i = 0; i < numMeshPoints; i++)
@@ -451,7 +451,7 @@ namespace DTCC
 
         // Add triangles on top
         for (size_t i = 0; i < numMeshTriangles; i++)
-          _surface3D.Cells[i] = _mesh2D.Cells[i];
+          _surface3D.Faces[i] = _mesh2D.Cells[i];
 
         // Add triangles on boundary
         for (size_t i = 0; i < numBoundaryPoints; i++)
@@ -462,8 +462,8 @@ namespace DTCC
           const size_t v3 = v1 + numMeshPoints;
           Simplex2D t0(v0, v2, v1); // Outward-pointing normal
           Simplex2D t1(v1, v2, v3); // Outward-pointing normal
-          _surface3D.Cells[numMeshTriangles + 2 * i] = t0;
-          _surface3D.Cells[numMeshTriangles + 2 * i + 1] = t1;
+          _surface3D.Faces[numMeshTriangles + 2 * i] = t0;
+          _surface3D.Faces[numMeshTriangles + 2 * i + 1] = t1;
         }
 
         // Add surface

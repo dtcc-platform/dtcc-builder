@@ -1,6 +1,8 @@
 // Copyright (C) 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
+#include <random>
+
 #ifndef DTCC_UTILS_H
 #define DTCC_UTILS_H
 
@@ -46,6 +48,9 @@ namespace DTCC
       }
       return strOut;
     }
+
+    /// Return random number between 0 and 1
+    static double Random() { return std::rand() / double(RAND_MAX); }
   };
 }
 

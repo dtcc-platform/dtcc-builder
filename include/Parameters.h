@@ -49,8 +49,11 @@ namespace DTCC
     // Keep ground flat (ignore elevation model)
     bool FlatGround = false;
 
-    // Number of smoothing iterations for extra ground mesh
+    // Number of smoothing iterations DTM
     int GroundSmoothing = 5;
+
+    // Number of buildings in random city model
+    int NumRandomBuildings = 25;
 
     // Write extra data for debugging
     bool Debug = false;
@@ -68,6 +71,9 @@ namespace DTCC
 
     // Threshold for filtering outliers (clouds?) from point cloud
     static constexpr double PointCloudOutlierThreshold = 150.0;
+
+    // Number of digits of precision used when writing files
+    static constexpr double OutputPrecision = 3;
 
     /// Pretty-print
     std::string __str__() const override

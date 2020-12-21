@@ -12,9 +12,11 @@
 #include <vector>
 
 #include "BoundingBox.h"
+#include "Mesh.h"
 #include "Parameters.h"
 #include "Point.h"
 #include "Polygon.h"
+#include "Simplex.h"
 #include "Vector.h"
 
 namespace DTCC
@@ -54,6 +56,13 @@ public:
   static double Dot3D(const Vector3D &u, const Vector3D &v)
   {
     return u.x * v.x + u.y * v.y + u.z * v.z;
+  }
+
+  // Compute cross product (3D)
+  static Vector3D Cross3D(const Vector3D &u, const Vector3D &v)
+  {
+    return Vector3D(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z,
+                    u.x * v.y - u.y * v.x);
   }
 
   // Compute distance between points (2D)
@@ -255,6 +264,31 @@ public:
   static int QuadrantAngle2D(const Point2D &p, const Point2D &q)
   {
     return ((p.x > q.x) ? ((p.y > q.y) ? 0 : 3) : ((p.y > q.y) ? 1 : 2));
+  }
+
+  // Compute face normal
+  static Vector3D FaceNormal3D(const Simplex2D &face, const Mesh3D &mesh3D)
+  {
+    const Vector3D p0{mesh3D.Vertices[face.v0]};
+    const Vector3D p1{mesh3D.Vertices[face.v1]};
+    const Vector3D p2{mesh3D.Vertices[face.v2]};
+    const Vector3D u = p1 - p0;
+    const Vector3D v = p2 - p0;
+    Vector3D n = Cross3D(u, v);
+    n /= Geometry::Norm3D(n);
+    return n;
+  }
+
+  // Compute cell center
+  static Point3D CellCenter3D(const Simplex3D &cell, const Mesh3D &mesh3D)
+  {
+    Vector3D c{};
+    c += Vector3D(mesh3D.Vertices[cell.v0]);
+    c += Vector3D(mesh3D.Vertices[cell.v1]);
+    c += Vector3D(mesh3D.Vertices[cell.v2]);
+    c += Vector3D(mesh3D.Vertices[cell.v3]);
+    c /= 4.0;
+    return c;
   }
 
   // Compute signed determinant of polygon (2D)

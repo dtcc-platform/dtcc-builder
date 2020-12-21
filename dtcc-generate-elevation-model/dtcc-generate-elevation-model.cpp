@@ -11,6 +11,8 @@
 #include "LAS.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "PointCloudProcessor.h"
+#include "VTK.h"
 
 using namespace DTCC;
 
@@ -30,10 +32,15 @@ int main(int argc, char *argv[])
   JSON::Read(parameters, argv[1]);
   Info(parameters);
 
-  // Get data directory (add trailing slash just in case)
+  // Get parameters
   const std::string dataDirectory = parameters.DataDirectory + "/";
+  const Point2D p{parameters.XMin, parameters.YMin};
+  const Point2D q{parameters.XMax, parameters.YMax};
+  const Point2D p0{parameters.X0, parameters.Y0};
+  BoundingBox2D bbox{p, q};
+  const double h{parameters.ElevationModelResolution};
 
-  // Read point cloud data
+  // Read point cloud data (all *.las and *.laz files in data directory)
   PointCloud pointCloud;
   for (auto const &f : CommandLine::ListDirectory(dataDirectory))
   {
@@ -44,61 +51,37 @@ int main(int argc, char *argv[])
     }
   }
 
-  // Set domain size
-  double xMin{}, yMin{}, xMax{}, yMax{};
+  // Automatically determine domain size if auto
   if (parameters.AutoDomain)
   {
-    Progress("Automatically determining domain size:");
-    xMin = pointCloud.BoundingBox.P.x - parameters.X0;
-    yMin = pointCloud.BoundingBox.P.y - parameters.Y0;
-    xMax = pointCloud.BoundingBox.Q.x - parameters.X0;
-    yMax = pointCloud.BoundingBox.Q.y - parameters.Y0;
-    Progress("  XMin: " + str(pointCloud.BoundingBox.P.x) + " --> " +
-             str(xMin));
-    Progress("  YMin: " + str(pointCloud.BoundingBox.P.y) + " --> " +
-             str(yMin));
-    Progress("  XMax: " + str(pointCloud.BoundingBox.Q.x) + " --> " +
-             str(xMax));
-    Progress("  YMax: " + str(pointCloud.BoundingBox.Q.y) + " --> " +
-             str(yMax));
+    Progress("Automatically determining domain size");
+    bbox = pointCloud.BoundingBox;
+    bbox.P -= Vector2D{p0};
+    bbox.Q -= Vector2D{p0};
   }
-  else
-  {
-    xMin = parameters.XMin;
-    yMin = parameters.YMin;
-    xMax = parameters.XMax;
-    yMax = parameters.YMax;
-  }
+  Progress("Domain bounding box: " + str(bbox));
 
   // Generate DSM (including buildings and other objects)
-  GridField2D dsm{};
-  ElevationModelGenerator::GenerateElevationModel(
-      dsm, pointCloud, parameters.X0, parameters.Y0, xMin, yMin, xMax, yMax,
-      parameters.ElevationModelResolution);
+  GridField2D dsm;
+  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, p0, bbox, h);
   Info(dsm);
   JSON::Write(dsm, dataDirectory + "DSM.json");
+  if (parameters.Debug)
+    VTK::Write(dsm, dataDirectory + "DSM.vts");
 
-  // FIXME: We should be able to filter the point cloud (not read again).
-
-  // Read in only ground points
+  // Filter only ground and water points (color 2 and 9)
+  PointCloud groundPoints =
+      PointCloudProcessor::ClassificationFilter(pointCloud, {2, 9});
   pointCloud.clear();
-  for (auto const &f : CommandLine::ListDirectory(dataDirectory))
-  {
-    if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
-    {
-      LAS::Read(pointCloud, dataDirectory + f,
-                {2, 9}); // only ground and water points
-      Info(pointCloud);
-    }
-  }
 
   // Generate DTM (excluding buildings and other objects)
-  GridField2D dtm{};
-  ElevationModelGenerator::GenerateElevationModel(
-      dtm, pointCloud, parameters.X0, parameters.Y0, xMin, yMin, xMax, yMax,
-      parameters.ElevationModelResolution);
+  GridField2D dtm;
+  ElevationModelGenerator::GenerateElevationModel(dtm, groundPoints, p0, bbox,
+                                                  h);
   Info(dtm);
   JSON::Write(dtm, dataDirectory + "DTM.json");
+  if (parameters.Debug)
+    VTK::Write(dtm, dataDirectory + "DTM.vts");
 
   // Report timings
   Timer::Report("dtcc-generate-elevation-models");

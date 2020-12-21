@@ -26,11 +26,11 @@ namespace DTCC
   public:
 
     // Smooth mesh using Laplacian smoothing
-    static void SmoothMesh(Mesh3D &mesh3D,
-                           const CityModel &cityModel,
-                           const GridField2D &dem,
-                           double topHeight,
-                           bool fixBuildings)
+    static void SmoothMesh3D(Mesh3D &mesh3D,
+                             const CityModel &cityModel,
+                             const GridField2D &dem,
+                             double topHeight,
+                             bool fixBuildings)
     {
       Info("Smoothing mesh (Laplacian smoothing)...");
       Timer("SmoothMesh");

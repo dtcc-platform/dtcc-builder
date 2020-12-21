@@ -99,7 +99,7 @@ public:
     for (auto const &surface : surfaces)
     {
       numVertices += surface.Vertices.size();
-      numTriangles += surface.Cells.size();
+      numTriangles += surface.Faces.size();
     }
 
     // Add vertices
@@ -123,9 +123,9 @@ public:
       size_t offset = 0;
       for (auto const &surface : surfaces)
       {
-        for (size_t i = 0; i < surface.Cells.size(); i++)
+        for (size_t i = 0; i < surface.Faces.size(); i++)
         {
-          const Simplex2D &c = surface.Cells[i];
+          const Simplex2D &c = surface.Faces[i];
           meshEditor.add_cell(k++, c.v0 + offset, c.v1 + offset, c.v2 + offset);
         }
         offset += surface.Vertices.size();

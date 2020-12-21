@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Demo of pipeline for simulation mesh generation for random city model
+
+PARAMETERS=Hammarkullen2020.json
+
+# Exit on errors
+set -e
+
+# Generate elevation model
+../bin/dtcc-generate-elevation-model $PARAMETERS
+
+# Generate city model
+../bin/dtcc-randomize-citymodel $PARAMETERS
+
+# Generate simulation mesh
+../bin/dtcc-generate-simulation-mesh $PARAMETERS

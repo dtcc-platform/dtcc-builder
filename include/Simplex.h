@@ -5,8 +5,9 @@
 #ifndef DTCC_SIMPLEX_H
 #define DTCC_SIMPLEX_H
 
-#include <vector>
 #include <algorithm>
+#include <tuple>
+#include <vector>
 
 namespace DTCC
 {
@@ -109,17 +110,32 @@ public:
   }
 };
 
-std::ostream &operator<<(std::ostream &stream, const Simplex2D &t)
+// Comparison function for Simplex1D (for use in e.g. maps)
+struct CompareSimplex1D
 {
-  stream << "(" << t.v0 << ", " << t.v1 << ", " << t.v2 << ")";
-  return stream;
-}
+  bool operator()(const Simplex1D &s, const Simplex1D &t) const
+  {
+    return std::tie(s.v0, s.v1) < std::tie(t.v0, t.v1);
+  }
+};
 
-std::ostream &operator<<(std::ostream &stream, const Simplex3D &t)
+// Comparison function for Simplex2D (for use in e.g. maps)
+struct CompareSimplex2D
 {
-  stream << "(" << t.v0 << ", " << t.v1 << ", " << t.v2 << ", " << t.v3 << ")";
-  return stream;
-}
+  bool operator()(const Simplex2D &s, const Simplex2D &t) const
+  {
+    return std::tie(s.v0, s.v1, s.v2) < std::tie(t.v0, t.v1, t.v2);
+  }
+};
+
+// Comparison function for Simplex3D (for use in e.g. maps)
+struct CompareSimplex3D
+{
+  bool operator()(const Simplex3D &s, const Simplex3D &t) const
+  {
+    return std::tie(s.v0, s.v1, s.v2, s.v3) < std::tie(t.v0, t.v1, t.v2, t.v3);
+  }
+};
 
 } // namespace DTCC
 
