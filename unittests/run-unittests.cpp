@@ -401,6 +401,12 @@ TEST_CASE("ISO 8559-1 to UTF-8")
 
 TEST_CASE("SHP Extraction")
 {
+  SECTION("Load polygons")
+  {
+    std::vector<Polygon> buildings;
+    SHP::Read(buildings, "../unittests/data/buildings/test_buildings.shp");
+    REQUIRE(buildings.size() == 5);
+  }
   SECTION("Road data extraction")
   {
     std::vector<Polygon> roads;

@@ -236,13 +236,14 @@ private:
       else
       {
         // For donut polygons only get the outer hull
-        // For multipatch polygons only get the first polygon
+        // For multipatch polygons save each part as its own polygon
         // TODO: handle donut and multipatch polygons correctly
-        Polygon polygon;
+
         int start;
         int end;
         for (int part = 0; part < object->nParts; part++)
         {
+          Polygon polygon;
           start = object->panPartStart[part];
           if (part + 1 == object->nParts)
           {
