@@ -40,6 +40,11 @@ public:
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
     DBFHandle handleD = DBFOpen(fileName.c_str(), "r");
 
+    if (UUIDs != nullptr && entityID == nullptr)
+    {
+      Error("entityID can't be null if reading UUIDs");
+    }
+
     // Get info
     int numEntities, shapeType;
     SHPGetInfo(handle, &numEntities, &shapeType, nullptr, nullptr);

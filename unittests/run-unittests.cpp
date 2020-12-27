@@ -404,8 +404,13 @@ TEST_CASE("SHP Extraction")
   SECTION("Load polygons")
   {
     std::vector<Polygon> buildings;
-    SHP::Read(buildings, "../unittests/data/buildings/test_buildings.shp");
+    std::vector<std::string> uuids;
+    std::vector<int> entityID;
+    SHP::Read(buildings, "../unittests/data/buildings/test_buildings.shp",
+              &uuids, &entityID);
     REQUIRE(buildings.size() == 5);
+    REQUIRE(uuids.size() == buildings.size());
+    REQUIRE(entityID.size() == buildings.size());
   }
   SECTION("Road data extraction")
   {
