@@ -229,6 +229,8 @@ The Digital Twin Cities Platform uses [CalVer](https://calver.org/) for versioni
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
 * [Dag Wästerberg](http://www.ramboll.se)
 * [Orfeas Eleutheriou](http://orfeasel.com/)
+* [Anton Olsson](mailto:anton.j.olsson@bredband.net)
+* [Anton Annlöv](mailto:annlova@student.chalmers.se)
 
 Part of this code is contributed by ReSpace AB under the MIT License.
 
