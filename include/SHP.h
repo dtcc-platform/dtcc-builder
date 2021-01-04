@@ -6,13 +6,14 @@
 #ifndef DTCC_SHP_H
 #define DTCC_SHP_H
 
+#include "Geometry.h"
+#include "Logging.h"
+#include "Polygon.h"
+#include "Utils.h"
 #include <iostream>
 #include <json.hpp>
 #include <shapefil.h>
 #include <vector>
-#include "Geometry.h"
-#include "Logging.h"
-#include "Polygon.h"
 
 using namespace nlohmann;
 
