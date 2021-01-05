@@ -170,7 +170,7 @@ def GetColorCoding():
     if dataType != 'RoadNetwork':
         return 'random'
     c = next((arg for arg in sys.argv if arg.startswith('--color-by=')), 'random')
-    return pylab.re.sub('.+=', '', c)
+    return c.removeprefix('--color-by=')
 
 
 if __name__ == "__main__":
