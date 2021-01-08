@@ -119,6 +119,7 @@ The Digital Twin Cities Platform makes use of the following data sources:
 
 * Point clouds (Lantmäteriet:Laserdata vektor; EPSG:3006)
 * Property maps (Lantmäteriet:Fastighetskartan bebyggelse vektor; EPSG:3006)
+* Road maps (WIP: Add road data source)
 
 Chalmers has a license for downloading data from `http://zeus.slu.se`.
 
@@ -129,6 +130,13 @@ Point cloud data comes in the form of a number square grids large enough to cove
 This will create the file 09B008_64050_3225_25.las. The lower left corner will in this example be at EPSG:3006 coordinates (6405000, 322500).
 
 Property map data comes in the form of SHP files (with corresponding SHX, DBF and PRJ files). The files of interest are the ones named `by_get.*`.
+
+### Road network data
+Like property maps, road maps also use the SHP format (as well as same formats for corresponding files). By using the program `dtcc-generate-roadnetwork`, shapefiles can be converted into JSON format. From the `bin` directory, the following command is then used: 
+
+    ./dtcc-generate-roadnetwork <path to SHP file>
+
+To view the created JSON file, the program `dtcc-plot` can be used. For usage, see the source file (`dtcc-plot/dtcc-plot`). Plotting must be done outside the container, using your native system. The Python package `matplotlib` needs to be installed: `pip3 install matplotlib` on Mac and Windows.
 
 ### Data formats
 
