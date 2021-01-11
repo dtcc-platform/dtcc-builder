@@ -183,6 +183,20 @@ private:
     return dbfHandle;
   }
 
+  static std::string
+  getUUID(DBFHandle handleD, const std::vector<std::string> *UUIDs, int index)
+  {
+    // Open DFB to read UUID
+    std::string test;
+    if (UUIDs != nullptr)
+    {
+      test = DBFReadStringAttribute(handleD, index, 0);
+      if (test.empty())
+        test = Utils::CreateUUID() + "::DTCCGenerated";
+    }
+    return test;
+  }
+
   /// Read and store polygons/edges.
   ///
   /// \param polygons Vector for polygon storage
@@ -200,10 +214,7 @@ private:
     for (int i = 0; i < numEntities; i++)
     {
       // Read vertices
-      // Open DFB to read UUID
-      const char *test;
-      if (UUIDs != nullptr)
-        test = DBFReadStringAttribute(handleD, i, 0);
+      std::string test = getUUID(handleD, UUIDs, i);
 
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
