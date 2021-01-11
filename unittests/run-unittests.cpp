@@ -439,6 +439,30 @@ TEST_CASE("RoadNetwork generation")
   REQUIRE(roadNetwork.EdgeProperties["KKOD"][0] == firstAttr["KKOD"]);
 }
 
+TEST_CASE("Create own UUIDs")
+{
+  // Create regex matching UUIDs
+  std::string hx = "[[:xdigit:]]";
+  std::string uuidRegex(hx + "{8}-" + hx + "{4}-" + hx + "{4}-" + hx + "{4}-" +
+                        hx + "{12}");
+
+  // Test utility function
+  std::string uuid = Utils::CreateUUID();
+  REQUIRE(std::regex_match(uuid, std::regex(uuidRegex)));
+
+  // Test property map sample files
+  std::vector<Polygon> polygons;
+  std::vector<std::string> uuids;
+  std::vector<int> entityIDs;
+  std::string filename =
+      "../unittests/data/create-uuid-propertymap/PropertyMap.shp";
+  SHP::Read(polygons, filename, &uuids, &entityIDs);
+
+  REQUIRE(uuids[0] == "0d1a05a7-c188-42ab-adad-35b359f1b920");
+  REQUIRE(
+      std::regex_match(uuids[1], std::regex(uuidRegex + "::DTCCGenerated")));
+}
+
 TEST_CASE("POINT_CLOUD")
 {
   SECTION("READ LAS")

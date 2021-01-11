@@ -34,7 +34,8 @@ RUN apt-get update && apt-get install -y \
     doxygen graphviz\
     libgeotiff-dev\
     automake\
-    colordiff
+    colordiff\
+    libuuid1
 
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics

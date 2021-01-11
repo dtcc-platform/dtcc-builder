@@ -6,6 +6,7 @@
 #ifndef DTCC_UTILS_H
 #define DTCC_UTILS_H
 
+#include <uuid/uuid.h>
 namespace DTCC
 {
 
@@ -33,7 +34,7 @@ namespace DTCC
     /// Convert string encoded with ISO 8859-1 to UTF-8.
     /// \param str The ISO 8859-1 string to convert
     /// \return The string converted to UTF-8
-    static std::string Iso88591ToUtf8(std::string &str)
+    static std::string Iso88591ToUtf8(std::basic_string<char> str)
     {
       std::string strOut;
       for (uint8_t ch : str)
@@ -47,6 +48,18 @@ namespace DTCC
         }
       }
       return strOut;
+    }
+
+    /// Create and return a UUID string, using libuuid.
+    /// \return UUID string of format 1b4e28ba-2fa1-11d2-883f-0016d3cca427. Case
+    /// is dependent on system local default.
+    static std::string CreateUUID()
+    {
+      uuid_t uuidRaw;
+      uuid_generate(uuidRaw);
+      char uuid[36];
+      uuid_unparse(uuidRaw, uuid);
+      return std::string(uuid);
     }
 
     /// Return random number between 0 and 1
