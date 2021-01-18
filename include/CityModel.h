@@ -17,96 +17,105 @@
 namespace DTCC
 {
 
-  class CityModel : public Printable
+/// CityModel model represents a collection of Buildings.
+class CityModel : public Printable
+{
+public:
+  /// Array of buildings
+  std::vector<Building> Buildings;
+
+  /// Build search tree (bounding box tree), required for search queries.
+  ///
+  /// @param rebuild Force rebuild of existing tree if set
+  void BuildSearchTree(bool rebuild = false) const
   {
-  public:
-    // List of buildings
-    std::vector<Building> Buildings;
-
-    // Build search tree
-    void BuildSearchTree() const
+    // Skip if already built or force rebuild
+    if (!bbtree.Empty() && !rebuild)
     {
-      // Create bounding boxes for all building footprints
-      std::vector<BoundingBox2D> bboxes;
-      for (const auto& building: Buildings)
-      {
-        BoundingBox2D bbox(building.Footprint);
-        bboxes.push_back(bbox);
-      }
-
-      // Build bounding box tree
-      bbtree.Build(bboxes);
-      Progress(str(bbtree));
+      Info("Search tree already built; set rebuild flag to force rebuild.");
+      return;
     }
 
-    // Find building containing point (inside footprint), returning -1
-    // if the point is not inside any building.
-    int FindBuilding(const Vector2D &p) const
+    // Create bounding boxes for all building footprints
+    std::vector<BoundingBox2D> bboxes;
+    for (const auto &building : Buildings)
     {
-      // Check that search tree has been created
-      if (bbtree.Nodes.empty())
-      {
-        Warning("Warning: Missing search tree; call BuildSearchTree()");
-        return -1;
-      }
+      BoundingBox2D bbox(building.Footprint);
+      bboxes.push_back(bbox);
+    }
 
-      // Find candidate buildings from search tree
-      std::vector<size_t> indices = bbtree.Find(p);
+    // Build bounding box tree
+    bbtree.Build(bboxes);
+    Progress(str(bbtree));
+  }
 
-      // Check candidate buildings
-      for (const auto index: indices)
-      {
-        if (Geometry::PolygonContains2D(Buildings[index].Footprint, p))
-          return index;
-      }
-
-      // Point not inside a building
+  // Find building containing point (inside footprint), returning -1
+  // if the point is not inside any building.
+  int FindBuilding(const Vector2D &p) const
+  {
+    // Check that search tree has been created
+    if (bbtree.Empty())
+    {
+      Warning("Warning: Empty search tree; call BuildSearchTree()");
       return -1;
     }
 
-    // Compute center of city model
-    Point2D Center() const
+    // Find candidate buildings from search tree
+    std::vector<size_t> indices = bbtree.Find(p);
+
+    // Check candidate buildings
+    for (const auto index : indices)
     {
-      Vector2D c{};
-      size_t numPoints = 0;
-      for (auto const &building : Buildings)
+      if (Geometry::PolygonContains2D(Buildings[index].Footprint, p))
+        return index;
+    }
+
+    // Point not inside a building
+    return -1;
+  }
+
+  // Compute center of city model
+  Point2D Center() const
+  {
+    Vector2D c{};
+    size_t numPoints = 0;
+    for (auto const &building : Buildings)
+    {
+      for (auto const &p : building.Footprint.Vertices)
       {
-        for (auto const &p : building.Footprint.Vertices)
-        {
-          c += Vector2D(p);
-          numPoints += 1;
-        }
+        c += Vector2D(p);
+        numPoints += 1;
       }
-      c /= static_cast<double>(numPoints);
-      return c;
     }
+    c /= static_cast<double>(numPoints);
+    return c;
+  }
 
-    // Compute radius of city model (relative to center)
-    double Radius(const Vector2D &center) const
+  // Compute radius of city model (relative to center)
+  double Radius(const Vector2D &center) const
+  {
+    double r2max = 0.0;
+    for (auto const &building : Buildings)
     {
-      double r2max = 0.0;
-      for (auto const &building : Buildings)
+      for (auto const &p : building.Footprint.Vertices)
       {
-        for (auto const &p : building.Footprint.Vertices)
-        {
-          const double r2 = Geometry::SquaredDistance2D(p, center);
-          if (r2 > r2max)
-            r2max = r2;
-        }
+        const double r2 = Geometry::SquaredDistance2D(p, center);
+        if (r2 > r2max)
+          r2max = r2;
       }
-      return std::sqrt(r2max);
     }
+    return std::sqrt(r2max);
+  }
 
-    /// Pretty-print
-    std::string __str__() const override
-    {
-      return "CityModel with " + str(Buildings.size()) + " buildings";
-    }
+  /// Pretty-print
+  std::string __str__() const override
+  {
+    return "CityModel with " + str(Buildings.size()) + " buildings";
+  }
 
-  private:
-
-    // Bounding box tree (used by find building)
-    mutable BoundingBoxTree2D bbtree;
+private:
+  // Bounding box tree used for search queries
+  mutable BoundingBoxTree2D bbtree;
 
   };
 

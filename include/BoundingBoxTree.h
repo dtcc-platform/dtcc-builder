@@ -73,6 +73,10 @@ namespace DTCC
       return indices;
     }
 
+    /// Check if bounding box is empty
+    bool Empty() const { return Nodes.empty(); }
+
+    /// Pretty-print
     std::string __str__() const override
     {
       return "2D bounding box tree with " + str(Nodes.size()) + " nodes";
