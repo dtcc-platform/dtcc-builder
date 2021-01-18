@@ -23,18 +23,20 @@ namespace DTCC
 class CityModelGenerator
 {
 public:
-  /// Generate city model from building footprints. The given origin is
-  /// subtracted from all coordinates and only buildings completely inside
-  /// the given bounding box (after coordinate transformation) are included.
+  /// Generate city model from building footprints, including only building
+  /// inside the given bounding box. Note that this does not generated any
+  /// building heights, only flat 2D buildings.
   ///
   /// @param cityModel The city model
-  /// @param footprints Building footprints (polygons)
-  /// @param origin Origin to be subtracted
+  /// @param footprints Footprints of buildings (polygons)
+  /// @param UUIDs UUIDs of buildings
+  /// @param entityIDs Indices of buildings (in shapefile)
   /// @param bbox Bounding box of domain
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
                                 const std::vector<std::string> &UUIDs,
-                                const std::vector<int> &entityIDs)
+                                const std::vector<int> &entityIDs,
+                                const BoundingBox2D &bbox)
   {
     Info("CityModelGenerator: Generating city model...");
     Timer("GenerateCityModel");
@@ -45,12 +47,20 @@ public:
     // Add buildings
     for (size_t i = 0; i < footprints.size(); i++)
     {
+      // Skip if not inside  bounding box
+      if (!Geometry::BoundingBoxContains2D(bbox, footprints[i]))
+        continue;
+
+      // Add building
       Building building;
       building.Footprint = footprints[i];
       building.UUID = UUIDs[i];
       building.SHPFileID = entityIDs[i];
       cityModel.Buildings.push_back(building);
     }
+
+    Info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
+         str(footprints.size()) + " inside bounding box");
   }
 
   /// Clean city model by making sure that all building footprints

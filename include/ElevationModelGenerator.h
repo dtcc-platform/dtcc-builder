@@ -25,12 +25,11 @@ public:
   // Generate digital elevation model (DEM) from point cloud
   static void GenerateElevationModel(GridField2D &dem,
                                      const PointCloud &pointCloud,
-                                     const Point2D &origin,
-                                     const BoundingBox2D &boundingBox,
-                                     double resolution)
+                                     double resolution,
+                                     std::string type = "DEM")
   {
-    Info("ElevationModelGenerator: Generating digital elevation model (DEM) "
-         "from point cloud...");
+    Info("ElevationModelGenerator: Generating digital elevation model (" +
+         type + ") from point cloud...");
     Timer("GenerateElevationModel");
 
     // Check for empty data
@@ -38,7 +37,7 @@ public:
       Error("ElevationModelGenerator: Empty point cloud");
 
     // Initialize grid bounding box
-    dem.Grid.BoundingBox = boundingBox;
+    dem.Grid.BoundingBox = pointCloud.BoundingBox;
 
     // Initialize grid data
     dem.Grid.XSize =
@@ -59,8 +58,8 @@ public:
     size_t numInside = 0;
     for (auto const &q3D : pointCloud.Points)
     {
-      // Get 2D point and subtract origin
-      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
+      // Get 2D point
+      const Vector2D q2D(q3D.x, q3D.y);
 
       // Skip if outside of domain
       if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))
@@ -87,8 +86,8 @@ public:
     neighborIndices.reserve(5);
     for (auto const &q3D : pointCloud.Points)
     {
-      // Get 2D point and subtract origin
-      const Vector2D q2D(q3D.x - origin.x, q3D.y - origin.y);
+      // Get 2D point
+      const Vector2D q2D(q3D.x, q3D.y);
 
       // Skip if outside of domain
       if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))

@@ -34,29 +34,26 @@ int main(int argc, char *argv[])
 
   // Get parameters
   const std::string dataDirectory = parameters.DataDirectory + "/";
-  const Point2D p{parameters.XMin, parameters.YMin};
-  const Point2D q{parameters.XMax, parameters.YMax};
-  const Point2D p0{parameters.X0, parameters.Y0};
-  BoundingBox2D bbox{p, q};
   const double h{parameters.ElevationModelResolution};
+  const Point2D origin{parameters.X0, parameters.Y0};
+  Point2D p{parameters.XMin, parameters.YMin};
+  Point2D q{parameters.XMax, parameters.YMax};
+
+  // Set bounding box
+  p += Vector2D(origin);
+  q += Vector2D(origin);
+  const BoundingBox2D bbox{p, q};
+  Info("Bounding box: " + str(bbox));
 
   // Read point cloud
   PointCloud pointCloud;
-  LAS::ReadDirectory(pointCloud, dataDirectory);
-
-  // Automatically determine domain size if auto
-  if (parameters.AutoDomain)
-  {
-    Progress("Automatically determining domain size");
-    bbox = pointCloud.BoundingBox;
-    bbox.P -= Vector2D{p0};
-    bbox.Q -= Vector2D{p0};
-  }
-  Progress("Domain bounding box: " + str(bbox));
+  LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
+  pointCloud.SetOrigin(origin);
+  Info(pointCloud);
 
   // Generate DSM (including buildings and other objects)
   GridField2D dsm;
-  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, p0, bbox, h);
+  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, h, "DSM");
   Info(dsm);
   JSON::Write(dsm, dataDirectory + "DSM.json");
   if (parameters.Debug)
@@ -64,10 +61,11 @@ int main(int argc, char *argv[])
 
   // Filter only ground and water points (color 2 and 9)
   pointCloud = PointCloudProcessor::ClassificationFilter(pointCloud, {2, 9});
+  Info(pointCloud);
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
-  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, p0, bbox, h);
+  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, h, "DTM");
   Info(dtm);
   JSON::Write(dtm, dataDirectory + "DTM.json");
   if (parameters.Debug)

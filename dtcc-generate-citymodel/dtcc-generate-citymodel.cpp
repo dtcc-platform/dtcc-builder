@@ -36,8 +36,22 @@ int main(int argc, char *argv[])
 
   // Get parameters
   const std::string dataDirectory{parameters.DataDirectory + "/"};
-  const Point2D origin{parameters.X0, parameters.Y0};
   const double minVertexDistance{parameters.MinVertexDistance};
+  const Point2D origin{parameters.X0, parameters.Y0};
+  Point2D p{parameters.XMin, parameters.YMin};
+  Point2D q{parameters.XMax, parameters.YMax};
+
+  // Set bounding box
+  p += Vector2D(origin);
+  q += Vector2D(origin);
+  const BoundingBox2D bbox{p, q};
+  Info("Bounding box: " + str(bbox));
+
+  // Read point cloud
+  PointCloud pointCloud;
+  LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
+  pointCloud.SetOrigin(origin);
+  Info(pointCloud);
 
   // Read property map
   std::vector<Polygon> footprints;
@@ -45,19 +59,14 @@ int main(int argc, char *argv[])
   std::vector<int> entityIDs;
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
 
-  // Read point cloud
-  PointCloud pointCloud;
-  LAS::ReadDirectory(pointCloud, dataDirectory);
-  pointCloud.SetOrigin(origin);
-
   // Read elevation model
   GridField2D dtm;
   JSON::Read(dtm, dataDirectory + "/DTM.json");
 
   // Generate city model (raw)
   CityModel cityModel;
-  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs,
-                                        entityIDs);
+  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
+                                        bbox);
   cityModel.SetOrigin(origin);
   JSON::Write(cityModel, dataDirectory + "CityModelRaw.json");
 

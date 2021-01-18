@@ -16,11 +16,11 @@ class PointCloudProcessor
 public:
   // Georaster is assumed to have at least 3 bands where 1,2,3 are R,G,B
   // and in range 0-255
-  static void ColorFromImage(PointCloud &pointCloud, const GeoRaster &raster )  
+  static void ColorFromImage(PointCloud &pointCloud, const GeoRaster &raster)
   {
       double r,g,b;
       pointCloud.Colors.clear();
-      
+
       for (auto p: pointCloud.Points) {
         Point2D p2d = Point2D(p.x,p.y);
         try
@@ -38,7 +38,7 @@ public:
           g = 0.0;
           b = 0.0;
         }
-        
+
         pointCloud.Colors.push_back(Color(r,g,b));
       }
 
@@ -61,21 +61,24 @@ public:
         if (pointCloud.Classification[i] == c)
         {
           outCloud.Points.push_back(pointCloud.Points[i]);
-          if (has_color) 
+          if (has_color)
           {
             outCloud.Colors.push_back(pointCloud.Colors[i]);
           }
           outCloud.Classification.push_back(pointCloud.Classification[i]);
           break;
         }
-      } 
+      }
     }
+
+    // Set bounding box
+    outCloud.BoundingBox = pointCloud.BoundingBox;
+
     return outCloud;
   }
 
 };
 
 } // namespace DTCC
-
 
 #endif

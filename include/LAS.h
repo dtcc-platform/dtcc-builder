@@ -70,7 +70,7 @@ public:
                             const std::string &directoryName)
   {
     std::string dir{directoryName};
-    if (CommandLine::EndsWith(dir, "/"))
+    if (!CommandLine::EndsWith(dir, "/"))
       dir += "/";
     Info("Reading all .las and .laz files from directory " + dir + "...");
     for (auto const &f : CommandLine::ListDirectory(dir))
@@ -85,7 +85,7 @@ public:
                             const BoundingBox2D &bbox)
   {
     std::string dir{directoryName};
-    if (CommandLine::EndsWith(dir, "/"))
+    if (!CommandLine::EndsWith(dir, "/"))
       dir += "/";
     Info("Reading all .las and .laz files from directory " + dir + "...");
     for (auto const &f : CommandLine::ListDirectory(dir))
@@ -143,7 +143,7 @@ private:
   static liblas::FilterPtr MakeBoundsFilter(const BoundingBox2D& bbox)
   {
     liblas::Bounds<double> bounds;
-    bounds = liblas::Bounds<double>(bbox.P.x,bbox.P.y,bbox.Q.x,bbox.Q.y);
+    bounds = liblas::Bounds<double>(bbox.P.x, bbox.P.y, bbox.Q.x, bbox.Q.y);
     liblas::FilterPtr bounds_filter = liblas::FilterPtr(new liblas::BoundsFilter(bounds));
     bounds_filter->SetType(liblas::FilterI::eInclusion);
 
@@ -183,7 +183,7 @@ private:
       liblas::Color const& color = _p.GetColor();
       liblas::Classification const& cls = _p.GetClassification();
 
-      // colors seem to be 16-bit in las spec.
+      // Colors seem to be 16-bit in las spec.
       const Color c(color.GetRed()/65535.0,color.GetGreen()/65535.0,color.GetBlue()/65535.0);
 
       // Update bounding box dimensions
@@ -208,6 +208,8 @@ private:
       pointCloud.Classification.push_back(cls.GetClass());
       readPoints++;
     }
+
+    Info("LAS: Found " + str(readPoints) + " points matching given filters");
   }
 };
 } // namespace DTCC

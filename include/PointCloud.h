@@ -45,11 +45,12 @@ namespace DTCC
     void SetOrigin(const Point2D &origin)
     {
       Info("PointCloud: Setting new origin to " + str(origin));
+      const Vector2D v2D{origin.x, origin.y};
+      const Vector3D v3D{origin.x, origin.y, 0.0};
       for (auto &p : Points)
-      {
-        p.x -= origin.x;
-        p.y -= origin.y;
-      }
+        p -= v3D;
+      BoundingBox.P -= v2D;
+      BoundingBox.Q -= v2D;
     }
 
     /// set a default color to all points
