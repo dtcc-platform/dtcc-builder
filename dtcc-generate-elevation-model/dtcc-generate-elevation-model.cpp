@@ -42,14 +42,7 @@ int main(int argc, char *argv[])
 
   // Read point cloud data (all *.las and *.laz files in data directory)
   PointCloud pointCloud;
-  for (auto const &f : CommandLine::ListDirectory(dataDirectory))
-  {
-    if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
-    {
-      LAS::Read(pointCloud, dataDirectory + f);
-      Info(pointCloud);
-    }
-  }
+  LAS::ReadDirectory(pointCloud, dataDirectory);
 
   // Automatically determine domain size if auto
   if (parameters.AutoDomain)

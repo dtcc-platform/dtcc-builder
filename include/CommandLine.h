@@ -1,4 +1,3 @@
-// JSON I/O
 // Anders Logg 2019
 // Licensed under the MIT License
 
@@ -13,6 +12,7 @@
 namespace DTCC
 {
 
+/// Simple utilities for command-line parsing
 class CommandLine
 {
 public:
