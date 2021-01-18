@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
   // Filter only ground and water points (color 2 and 9)
   PointCloud groundPoints = PointCloudProcessor::ClassificationFilter(pointCloud,{2,9});
-  pointCloud.clear();
+  pointCloud.Clear();
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;

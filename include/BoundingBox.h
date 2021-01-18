@@ -55,6 +55,9 @@ namespace DTCC
       }
     }
 
+    /// Return area of bounding box
+    double Area() const { return (Q.x - P.x) * (Q.y - P.y); }
+
     /// Pretty-print
     std::string __str__() const override
     {
@@ -89,6 +92,9 @@ namespace DTCC
       assert(p.y < q.y);
       assert(p.z < q.z);
     }
+
+    /// Return volume of bounding box
+    double Volume() const { return (Q.x - P.x) * (Q.y - P.y) * (Q.z - P.z); }
 
     /// Pretty-print
     std::string __str__() const override

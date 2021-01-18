@@ -21,17 +21,25 @@ namespace DTCC
     /// Array of points
     std::vector<Vector3D> Points{};
 
+    /// Array of colors (one per point)
     std::vector<Color> Colors{};
 
+    /// Array of classifications (one per point)
     std::vector<uint8_t> Classification{};
 
     /// Bounding box
     BoundingBox2D BoundingBox{};
 
-    // Create empty point cloud
+    /// Create empty point cloud
     PointCloud() = default;
 
-    // set a default color to all points
+    /// Return density of point cloud (points per square meter)
+    double Density() const
+    {
+      return static_cast<double>(Points.size()) / BoundingBox.Area();
+    }
+
+    /// set a default color to all points
     void InitColors(const Color &c)
     {
       Colors.clear();
@@ -41,7 +49,7 @@ namespace DTCC
       }
     }
 
-    // set a default color to all points
+    /// Set a default color to all points
     void InitClassification(uint8_t c)
     {
       Classification.clear();
@@ -52,8 +60,8 @@ namespace DTCC
 
     }
 
-  
-  void clear() 
+    /// Clear all data
+    void Clear()
     {
       Points.clear();
       Colors.clear();
@@ -64,7 +72,8 @@ namespace DTCC
     std::string __str__() const override
     {
       return "Point cloud on " + str(BoundingBox) + " with " +
-             str(Points.size()) + " points ";
+             str(Points.size()) + " points and density " + str(Density()) +
+             " m^-2";
     }
   };
 
