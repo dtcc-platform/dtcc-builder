@@ -122,15 +122,16 @@ public:
 
   /// Extract roof points for buildings from a point cloud.
   /// The roof points of a building are defined as all points
-  /// that fall within the footprint of a building.
+  /// that fall within the footprint of a building. The points
+  /// are ordered by increasing height (z-coordinate).
   ///
   /// @param cityModel The city model
   /// @param pointCloud Point cloud
   static void ExtractRoofPoints(CityModel &cityModel,
                                 const PointCloud &pointCloud)
   {
-    Info("CityModelGenerator: Computing building heights...");
-    Timer("ComputeBuildingHeights");
+    Info("CityModelGenerator: Extracting roof points...");
+    Timer("ExtractRoofPoints");
 
     // Build search trees
     pointCloud.BuildSearchTree();
@@ -157,6 +158,15 @@ public:
       const Point2D p2D{point.x, point.y};
       if (Geometry::PolygonContains2D(building.Footprint, p2D))
         building.RoofPoints.push_back(point);
+    }
+
+    // Sort building points by height
+    for (auto &building : cityModel.Buildings)
+    {
+      std::vector<Point3D> &points{building.RoofPoints};
+      std::sort(
+          points.begin(), points.end(),
+          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
     }
 
     // Uncomment for debugging (plot footprints and points)
@@ -202,12 +212,40 @@ public:
   /// heights from the DSM.
   ///
   /// @param cityModel The city model
-  /// @param dtm       Digital Terrain Model (excluding buildings)
+  /// @param dtm Digital Terrain Model (excluding buildings)
+  /// @param heightPercentile Percentile to use for setting building height
   static void ComputeBuildingHeights(CityModel &cityModel,
-                                     const GridField2D &dtm)
+                                     const GridField2D &dtm,
+                                     double heightPercentile)
   {
     Info("CityModelGenerator: Computing building heights...");
     Timer("ComputeBuildingHeights");
+
+    // Iterate over buildings
+    for (auto &building : cityModel.Buildings)
+    {
+      // Skip if missing points
+      std::vector<Point3D> &points{building.RoofPoints};
+      if (points.empty())
+      {
+        Warning("Missing roof points for building " + building.UUID);
+        continue;
+      }
+
+      // Compute absolute height of building from roof points
+      size_t index = std::max(0.0, heightPercentile * points.size());
+      index = std::min(points.size(), index);
+      const double h0 = points[index].z;
+
+      // Compute absolute height of ground from DTM (sample at center of
+      // building)
+      const Point2D center = Geometry::PolygonCenter2D(building.Footprint);
+      const double h1 = dtm(center);
+
+      // Set building height(s)
+      building.Height = h1 - h0;
+      building.GroundHeight = h0;
+    }
   }
 
   /// Compute heights of buildings from DSM data.

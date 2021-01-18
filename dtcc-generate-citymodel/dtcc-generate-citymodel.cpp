@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
   // Get parameters
   const std::string dataDirectory{parameters.DataDirectory + "/"};
   const double minVertexDistance{parameters.MinVertexDistance};
+  const double heightPercentile{parameters.HeightPercentile};
   const Point2D origin{parameters.X0, parameters.Y0};
   Point2D p{parameters.XMin, parameters.YMin};
   Point2D q{parameters.XMax, parameters.YMax};
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
   const BoundingBox2D bbox{p, q};
   Info("Bounding box: " + str(bbox));
 
-  // Read point cloud
+  // Read point cloud (only points inside bounding box)
   PointCloud pointCloud;
   LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
   pointCloud.SetOrigin(origin);
@@ -63,17 +64,17 @@ int main(int argc, char *argv[])
   GridField2D dtm;
   JSON::Read(dtm, dataDirectory + "/DTM.json");
 
-  // Generate city model (raw)
+  // Generate raw city model
   CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
                                         bbox);
   cityModel.SetOrigin(origin);
   JSON::Write(cityModel, dataDirectory + "CityModelRaw.json");
 
-  // Clean city model and set heights
+  // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
   CityModelGenerator::ExtractRoofPoints(cityModel, pointCloud);
-  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm);
+  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, heightPercentile);
   JSON::Write(cityModel, dataDirectory + "CityModelClean.json");
 
   // Report timings

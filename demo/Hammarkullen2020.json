@@ -12,6 +12,7 @@
     "YMax": 1000,
     "MinBuildingDistance": 1.0,
     "MinVertexDistance": 1.0,
+    "HeightPercentile": 0.9,
     "FlatGround": false,
     "GroundSmoothing": 2,
     "NumRandomBuildings": 1000,

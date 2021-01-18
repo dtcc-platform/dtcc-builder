@@ -47,6 +47,7 @@ namespace DTCC
       parameters.ElevationModelResolution =
           ToDouble("ElevationModelResolution", json);
       parameters.MeshResolution = ToDouble("MeshResolution", json);
+      parameters.HeightPercentile = ToDouble("HeightPercentile", json);
       parameters.MinBuildingDistance = ToDouble("MinBuildingDistance", json);
       parameters.MinVertexDistance = ToDouble("MinVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
@@ -70,6 +71,7 @@ namespace DTCC
       json["DomainHeight"] = parameters.DomainHeight;
       json["ElevationModelResolution"] = parameters.ElevationModelResolution;
       json["MeshResolution"] = parameters.MeshResolution;
+      json["HeightPercentile"] = parameters.HeightPercentile;
       json["MinBuildingDistance"] = parameters.MinBuildingDistance;
       json["MinVertexDistance"] = parameters.MinVertexDistance;
       json["FlatGround"] = parameters.FlatGround;

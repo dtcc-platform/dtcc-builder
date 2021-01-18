@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   Info(parameters);
 
   // Get parameters
-  const std::string dataDirectory = parameters.DataDirectory + "/";
+  const std::string dataDirectory{parameters.DataDirectory + "/"};
   const double h{parameters.ElevationModelResolution};
   const Point2D origin{parameters.X0, parameters.Y0};
   Point2D p{parameters.XMin, parameters.YMin};
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   const BoundingBox2D bbox{p, q};
   Info("Bounding box: " + str(bbox));
 
-  // Read point cloud
+  // Read point cloud (only points inside bounding box)
   PointCloud pointCloud;
   LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
   pointCloud.SetOrigin(origin);

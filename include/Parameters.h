@@ -28,10 +28,7 @@ namespace DTCC
     double XMax = 0.0;
     double YMax = 0.0;
 
-    // Automatically determine domain size
-    bool AutoDomain = true;
-
-    // Elevation model resolution
+    // Elevation model resolution [m]
     double ElevationModelResolution = 1.0;
 
     // Minimal building distance (merged if closer)
@@ -40,20 +37,23 @@ namespace DTCC
     // Minimal vertex distance (merged if closer)
     double MinVertexDistance = 1.0;
 
-    // Height of computational domain
+    // Height of computational domain [m]
     double DomainHeight = 100.0;
 
     // Maximum mesh size used for mesh generation [m]
     double MeshResolution = 10.0;
 
-    // Keep ground flat (ignore elevation model)
-    bool FlatGround = false;
+    // Percentile used for building height computation [0, 1]
+    double HeightPercentile = 0.9;
 
     // Number of smoothing iterations DTM
     int GroundSmoothing = 5;
 
     // Number of buildings in random city model
     int NumRandomBuildings = 25;
+
+    // Keep ground flat (ignore elevation model)
+    bool FlatGround = false;
 
     // Write extra data for debugging
     bool Debug = false;
@@ -87,9 +87,14 @@ namespace DTCC
              "\n  YMax                     = " + str(YMax) +
              "\n  ElevationModelResolution = " + str(ElevationModelResolution) +
              "\n  MinBuildingDistance      = " + str(MinBuildingDistance) +
+             "\n  MinVertexDistance        = " + str(MinVertexDistance) +
              "\n  DomainHeight             = " + str(DomainHeight) +
              "\n  MeshResolution           = " + str(MeshResolution) +
-             "\n  FlatGround               = " + str(FlatGround);
+             "\n  HeightPercentile         = " + str(HeightPercentile) +
+             "\n  GroundSmoothing          = " + str(GroundSmoothing) +
+             "\n  NumRandomBuildings       = " + str(NumRandomBuildings) +
+             "\n  FlatGround               = " + str(FlatGround) +
+             "\n  Debug                    = " + str(Debug);
     }
   };
 
