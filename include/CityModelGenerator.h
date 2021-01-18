@@ -10,6 +10,7 @@
 
 #include "CityModel.h"
 #include "GridField.h"
+#include "Plotting.h"
 #include "PointCloud.h"
 #include "Polyfix.h"
 #include "Polygon.h"
@@ -142,13 +143,27 @@ public:
       const Point3D &point = pointCloud.Points[index.first];
       Building &building = cityModel.Buildings[index.second];
 
-      std::cout << index.first << " " << index.second << std::endl;
-
       // Check if point is inside building footprint
       const Point2D p2D{point.x, point.y};
       if (Geometry::PolygonContains2D(building.Footprint, p2D))
         building.RoofPoints.push_back(point);
     }
+
+    // Uncomment for debugging (plot footprints and points)
+    /*
+    Plotting::Init();
+    for (size_t i = 0; i < cityModel.Buildings.size(); i++)
+    {
+      const auto building = cityModel.Buildings[i];
+      const auto points = building.RoofPoints;
+      Info("Building " + str(i) + ": n = " + str(points.size()));
+      if (points.size() > 0)
+      {
+        Plotting::Plot(building);
+        Plotting::Plot(points);
+      }
+    }
+    */
 
     // Compute some statistics
     size_t min = std::numeric_limits<size_t>::max();
