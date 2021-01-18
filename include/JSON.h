@@ -43,7 +43,6 @@ namespace DTCC
       parameters.YMin = ToDouble("YMin", json);
       parameters.XMax = ToDouble("XMax", json);
       parameters.YMax = ToDouble("YMax", json);
-      parameters.AutoDomain =ToBool("AutoDomain", json);
       parameters.DomainHeight = ToDouble("DomainHeight", json);
       parameters.ElevationModelResolution =
           ToDouble("ElevationModelResolution", json);
@@ -68,7 +67,6 @@ namespace DTCC
       json["YMin"] = parameters.YMin;
       json["XMax"] = parameters.XMax;
       json["YMax"] = parameters.YMax;
-      json["AutoDomain"] = parameters.AutoDomain;
       json["DomainHeight"] = parameters.DomainHeight;
       json["ElevationModelResolution"] = parameters.ElevationModelResolution;
       json["MeshResolution"] = parameters.MeshResolution;

@@ -32,8 +32,10 @@ public:
     _Read(pointCloud, fileName, filters);
   }
 
-  /// Read point cloud from LAS file only if they are within the BoundingBox
-  static void Read(PointCloud &pointCloud, const std::string& fileName, const BoundingBox2D& bbox )
+  /// Read point cloud from LAS file and filter by bounding box.
+  static void Read(PointCloud &pointCloud,
+                   const std::string &fileName,
+                   const BoundingBox2D &bbox)
   {
     Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
 
@@ -43,8 +45,7 @@ public:
     _Read(pointCloud, fileName, filters);
   }
 
-  /// Read point cloud from LAS file only if they have the defined
-  /// classification
+  /// Read point cloud from LAS file and filter by classification.
   static void Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<int> &classifications)
   {
     std::vector<liblas::FilterPtr> filters;
@@ -52,8 +53,8 @@ public:
     _Read(pointCloud, fileName, filters);
   }
 
-  /// Read point cloud from LAS file only if they have the defined
-  /// classification and are within the BoundingBox
+  /// Read point cloud from LAS file and filter by classification and bounding
+  /// box.
   static void Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<int> &classifications, const BoundingBox2D& bbox)
   {
 
@@ -64,22 +65,32 @@ public:
     _Read(pointCloud, fileName, filters);
   }
 
-  /// Read all point cloud data files (.las and .laz) from a directory into a
-  /// single point cloud
+  /// Read point cloud from directory of LAS files (.las and .laz).
   static void ReadDirectory(PointCloud &pointCloud,
                             const std::string &directoryName)
   {
-    Info("Reading all .las and .laz files from directory " + directoryName +
-         "...");
-    std::string dir =
-        (CommandLine::EndsWith(directoryName, "/") ? directoryName
-                                                   : directoryName + "/");
+    std::string dir{directoryName};
+    if (CommandLine::EndsWith(dir, "/"))
+      dir += "/";
+    Info("Reading all .las and .laz files from directory " + dir + "...");
     for (auto const &f : CommandLine::ListDirectory(dir))
-    {
       if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
         Read(pointCloud, dir + f);
-    }
-    Info(pointCloud);
+  }
+
+  /// Read point cloud from directory of LAS files (.las and .laz) and filter by
+  /// bounding box
+  static void ReadDirectory(PointCloud &pointCloud,
+                            const std::string &directoryName,
+                            const BoundingBox2D &bbox)
+  {
+    std::string dir{directoryName};
+    if (CommandLine::EndsWith(dir, "/"))
+      dir += "/";
+    Info("Reading all .las and .laz files from directory " + dir + "...");
+    for (auto const &f : CommandLine::ListDirectory(dir))
+      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
+        Read(pointCloud, dir + f, bbox);
   }
 
   /// Write point cloud to file

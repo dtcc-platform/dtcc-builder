@@ -85,7 +85,6 @@ namespace DTCC
              "\n  YMin                     = " + str(YMin) +
              "\n  XMax                     = " + str(XMax) +
              "\n  YMax                     = " + str(YMax) +
-             "\n  AutoDomain               = " + str(AutoDomain) +
              "\n  ElevationModelResolution = " + str(ElevationModelResolution) +
              "\n  MinBuildingDistance      = " + str(MinBuildingDistance) +
              "\n  DomainHeight             = " + str(DomainHeight) +

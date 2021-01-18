@@ -10,7 +10,6 @@
     "YMin": 0,
     "XMax": 1000,
     "YMax": 1000,
-    "AutoDomain": false,
     "MinBuildingDistance": 1.0,
     "MinVertexDistance": 1.0,
     "FlatGround": false,
