@@ -11,7 +11,7 @@ set -e
 ../bin/dtcc-generate-elevation-model $PARAMETERS
 
 # Generate city model
-../bin/dtcc-generate-citymodel $PARAMETERS
+#../bin/dtcc-generate-citymodel $PARAMETERS
 
 # Generate simulation mesh
-../bin/dtcc-generate-simulation-mesh $PARAMETERS
+#../bin/dtcc-generate-simulation-mesh $PARAMETERS

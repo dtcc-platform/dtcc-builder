@@ -18,6 +18,7 @@
 #include "GridVectorField.h"
 #include "Mesh.h"
 #include "Parameters.h"
+#include "PointCloud.h"
 #include "RoadNetwork.h"
 #include "Surface.h"
 
@@ -130,6 +131,35 @@ namespace DTCC
       json["Type"] = "BoundingBox3D";
       json["P"] = jsonP;
       json["Q"] = jsonQ;
+    }
+
+    /// Deserialize PointCloud (not including colors and classification)
+    static void Deserialize(PointCloud &pointCloud, const nlohmann::json &json)
+    {
+      CheckType("PointCloud", json);
+      Deserialize(pointCloud.BoundingBox, json["BoundingBox"]);
+      const auto jsonPoints = json["Points"];
+      pointCloud.Points.resize(jsonPoints.size() / 3);
+      for (size_t i = 0; i < pointCloud.Points.size(); i++)
+      {
+        pointCloud.Points[i].x = jsonPoints[3 * i];
+        pointCloud.Points[i].y = jsonPoints[3 * i + 1];
+        pointCloud.Points[i].z = jsonPoints[3 * i + 2];
+      }
+    }
+
+    /// Serialize PointCloud
+    static void Serialize(const PointCloud &pointCloud, nlohmann::json &json)
+    {
+      json["Type"] = "PointCloud";
+      auto jsonPoints = nlohmann::json::array();
+      for (const auto p : pointCloud.Points)
+      {
+        jsonPoints.push_back(p.x);
+        jsonPoints.push_back(p.y);
+        jsonPoints.push_back(p.z);
+      }
+      json["Points"] = jsonPoints;
     }
 
     /// Deserialize Grid2D

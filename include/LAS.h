@@ -71,20 +71,21 @@ public:
     liblas::Writer writer(ofs, header);
     if (pointCloud.Points.size() == pointCloud.Colors.size())
     {
-      for (size_t i = 0;i<pointCloud.Points.size();i++) 
+      for (size_t i = 0; i < pointCloud.Points.size(); i++)
       {
         liblas::Point point(&header);
         point.SetCoordinates(pointCloud.Points[i].x, pointCloud.Points[i].y, pointCloud.Points[i].z);
         point.SetColor(liblas::Color(pointCloud.Colors[i].R * 65535, pointCloud.Colors[i].G * 65535, pointCloud.Colors[i].B * 65535 ))  ;
         writer.WritePoint(point);
       }
-    } else 
+    }
+    else
     {
-       for (auto const &p : pointCloud.Points) 
-       {
-         liblas::Point point(&header);
-         point.SetCoordinates(p.x,p.y,p.z);
-         writer.WritePoint(point);
+      for (auto const &p : pointCloud.Points)
+      {
+        liblas::Point point(&header);
+        point.SetCoordinates(p.x, p.y, p.z);
+        writer.WritePoint(point);
        }
     }
 
@@ -96,7 +97,7 @@ private:
   static liblas::FilterPtr MakeClassFilter(const std::vector<int> &classifications)
   {
     std::vector<liblas::Classification> classes;
-    for (int c: classifications ) 
+    for (int c : classifications)
     {
       classes.push_back(liblas::Classification(c));
     }
@@ -121,7 +122,6 @@ private:
     // Open file
     std::ifstream f;
     f.open(fileName, std::ios::in | std::ios::binary);
-    
 
     // Create reader
     liblas::ReaderFactory factory;
@@ -141,7 +141,7 @@ private:
     else
       Info("LAS: Uncompressed");
     Info("LAS: " + signature);
-    Info("LAS: contains " + str(numPoints) + " points");
+    Info("LAS: Contains " + str(numPoints) + " points");
 
     // Iterate over points
     while (reader.ReadNextPoint())
@@ -149,7 +149,7 @@ private:
       // Get point
       liblas::Point const &_p = reader.GetPoint();
       const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
-      
+
       liblas::Color const& color = _p.GetColor();
       liblas::Classification const& cls = _p.GetClassification();
 

@@ -70,12 +70,11 @@ int main(int argc, char *argv[])
     VTK::Write(dsm, dataDirectory + "DSM.vts");
 
   // Filter only ground and water points (color 2 and 9)
-  PointCloud groundPoints = PointCloudProcessor::ClassificationFilter(pointCloud,{2,9});
-  pointCloud.Clear();
+  pointCloud = PointCloudProcessor::ClassificationFilter(pointCloud, {2, 9});
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
-  ElevationModelGenerator::GenerateElevationModel(dtm, groundPoints, p0, bbox, h);
+  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, p0, bbox, h);
   Info(dtm);
   JSON::Write(dtm, dataDirectory + "DTM.json");
   if (parameters.Debug)

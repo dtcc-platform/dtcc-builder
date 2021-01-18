@@ -22,7 +22,7 @@ namespace DTCC
 class BoundingBoxTree2D : public Printable
 {
 public:
-  // Tree node data structure. Each has two children (unless it is a
+  // Tree node data structure. Each node has two children (unless it is a
   // leaf node) and a bounding box defining the region of the node.
   struct Node
   {
