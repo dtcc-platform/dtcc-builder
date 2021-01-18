@@ -34,8 +34,8 @@ namespace DTCC
     /// @param q Second ("upper right") corner
     BoundingBox2D(const Point2D& p, const Point2D& q) : P(p), Q(q)
     {
-      assert(p.x < q.x);
-      assert(p.y < q.y);
+      assert(p.x <= q.x);
+      assert(p.y <= q.y);
     }
 
     /// Create bounding box of polygon.
@@ -88,9 +88,9 @@ namespace DTCC
     /// @param q Second ("upper right") corner
     BoundingBox3D(const Point3D& p, const Point3D& q) : P(p), Q(q)
     {
-      assert(p.x < q.x);
-      assert(p.y < q.y);
-      assert(p.z < q.z);
+      assert(p.x <= q.x);
+      assert(p.y <= q.y);
+      assert(p.z <= q.z);
     }
 
     /// Return volume of bounding box

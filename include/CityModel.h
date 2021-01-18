@@ -36,7 +36,7 @@ public:
       return;
     }
 
-    // Create bounding boxes for all building footprints
+    // Create 2D bounding boxes for all building footprints
     std::vector<BoundingBox2D> bboxes;
     for (const auto &building : Buildings)
     {

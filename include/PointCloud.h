@@ -6,10 +6,11 @@
 
 #include <vector>
 
-#include "Color.h"
-#include "Vector.h"
 #include "BoundingBox.h"
+#include "BoundingBoxTree.h"
+#include "Color.h"
 #include "Logging.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -60,12 +61,39 @@ namespace DTCC
 
     }
 
+    /// Build search tree (bounding box tree), required for search queries.
+    ///
+    /// @param rebuild Force rebuild of existing tree if set
+    void BuildSearchTree(bool rebuild = false) const
+    {
+      // Skip if already built or force rebuild
+      if (!bbtree.Empty() && !rebuild)
+      {
+        Info("Search tree already built; set rebuild flag to force rebuild.");
+        return;
+      }
+
+      // Create 2D bounding boxes for all points
+      std::vector<BoundingBox2D> bboxes;
+      for (const auto &p3D : Points)
+      {
+        const Point2D p2D(p3D.x, p3D.y);
+        BoundingBox2D bbox(p2D, p2D);
+        bboxes.push_back(bbox);
+      }
+
+      // Build bounding box tree
+      bbtree.Build(bboxes);
+      Progress(str(bbtree));
+    }
+
     /// Clear all data
     void Clear()
     {
       Points.clear();
       Colors.clear();
       Classification.clear();
+      bbtree.Clear();
     }
 
     /// Pretty-print
@@ -75,6 +103,10 @@ namespace DTCC
              str(Points.size()) + " points and density " + str(Density()) +
              " m^-2";
     }
+
+  private:
+    // Bounding box tree used for search queries
+    mutable BoundingBoxTree2D bbtree;
   };
 
 } // namespace DTCC
