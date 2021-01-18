@@ -340,6 +340,8 @@ public:
     return std::sqrt(r2max);
   }
 
+  // FIXME: Cleanup Contains vs Intersects vs Collide. What should we name it?
+
   // Check whether edge (p0, p1) contains point q. It is assumed that the
   // point is located on the line defined by the edge.
   static bool EdgeContains2D(const Point2D &p0,
@@ -397,6 +399,14 @@ public:
   {
     return (Orient2D(p0, p1, q0) * Orient2D(p0, p1, q1) <= 0.0 &&
             Orient2D(q0, q1, p0) * Orient2D(q0, q1, p1) <= 0.0);
+  }
+
+  // Check wheter bounding boxes intersect (2D)
+  static bool Intersect2D(const BoundingBox2D &bboxA,
+                          const BoundingBox2D &bboxB)
+  {
+    return (bboxA.P.x <= bboxB.Q.x && bboxB.P.x <= bboxA.Q.x &&
+            bboxA.P.y <= bboxB.Q.y && bboxB.P.y <= bboxA.Q.y);
   }
 
   // Compute intersection between edges p0 - p1 and q0 - q1 (2D)

@@ -10,6 +10,7 @@
 
 #include "CityModel.h"
 #include "GridField.h"
+#include "PointCloud.h"
 #include "Polyfix.h"
 #include "Polygon.h"
 #include "Timer.h"
@@ -32,42 +33,23 @@ public:
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
                                 const std::vector<std::string> &UUIDs,
-                                const std::vector<int> &entityIDs,
-                                const Point2D &origin,
-                                const BoundingBox2D &bbox)
+                                const std::vector<int> &entityIDs)
   {
     Info("CityModelGenerator: Generating city model...");
     Timer("GenerateCityModel");
 
-    // Clear old data
+    // Clear data
     cityModel.Buildings.clear();
 
     // Add buildings
-    // for (const auto &footprint : footprints)
     for (size_t i = 0; i < footprints.size(); i++)
     {
-      // Create transformed footprint
-      Polygon transformedFootprint = footprints[i];
-      Polyfix::Transform(transformedFootprint, origin);
-
-      // Add if inside bounding box
-      if (Geometry::BoundingBoxContains2D(bbox, transformedFootprint))
-      {
-        Building building;
-        building.Footprint = transformedFootprint;
-        building.UUID = UUIDs[i];
-        // Uncomment for debugging
-        // building.debugID = i + 1;
-        // Add SHP file entityID
-        building.SHPFileID = entityIDs[i];
-        cityModel.Buildings.push_back(building);
-        // std::cout << "i = " << i << " entityID = " << entityIDs[i] << " UUID
-        // = " << UUIDs[i] << std::endl;
-      }
+      Building building;
+      building.Footprint = footprints[i];
+      building.UUID = UUIDs[i];
+      building.SHPFileID = entityIDs[i];
+      cityModel.Buildings.push_back(building);
     }
-
-    Info("CityModelGenerator: Found " + str(cityModel.Buildings.size()) + "/" +
-         str(footprints.size()) + " buildings inside domain");
   }
 
   /// Clean city model by making sure that all building footprints
@@ -127,7 +109,83 @@ public:
     CleanCityModel(cityModel, minimalVertexDistance);
   }
 
-  /// Compute heights of buildings from height map.
+  /// Extract roof points for buildings from a point cloud.
+  /// The roof points of a building are defined as all points
+  /// that fall within the footprint of a building.
+  ///
+  /// @param cityModel The city model
+  /// @param pointCloud Point cloud
+  static void ExtractRoofPoints(CityModel &cityModel,
+                                const PointCloud &pointCloud)
+  {
+    Info("CityModelGenerator: Computing building heights...");
+    Timer("ComputeBuildingHeights");
+
+    // Build search trees
+    pointCloud.BuildSearchTree();
+    cityModel.BuildSearchTree();
+
+    // Compute bounding box tree collisions
+    const auto collisions = pointCloud.bbtree.Find(cityModel.bbtree);
+
+    // Clear previous roof points (if any)
+    for (auto &building : cityModel.Buildings)
+      building.RoofPoints.clear();
+
+    // Add points to buildings. Note that we only which points
+    // belong to the bounding boxes of the buildings so we need
+    // to check for each point whether it belongs to the footprint
+    // of the building.
+    for (auto &index : collisions)
+    {
+      // Get point and building
+      const Point3D &point = pointCloud.Points[index.first];
+      Building &building = cityModel.Buildings[index.second];
+
+      std::cout << index.first << " " << index.second << std::endl;
+
+      // Check if point is inside building footprint
+      const Point2D p2D{point.x, point.y};
+      if (Geometry::PolygonContains2D(building.Footprint, p2D))
+        building.RoofPoints.push_back(point);
+    }
+
+    // Compute some statistics
+    size_t min = std::numeric_limits<size_t>::max();
+    size_t max = 0;
+    size_t sum = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      const size_t n = building.RoofPoints.size();
+      min = std::min(min, n);
+      max = std::max(max, n);
+      sum += n;
+    }
+    const double mean = static_cast<double>(sum) /
+                        static_cast<double>(cityModel.Buildings.size());
+
+    Info("CityModelGenerator: min/mean/max number of points per building is " +
+         str(min) + "/" + str(mean) + "/" + str(max));
+  }
+
+  /// Compute heights of buildings from roof points. This requires
+  /// that ExtractRoofPoints() has been called to extract roof points
+  /// from point cloud data.
+  ///
+  /// This version produces building heights of better quality since
+  /// it avoids smoothing effect that is introduced when computing
+  /// heights from the DSM.
+  ///
+  /// @param cityModel The city model
+  /// @param dtm       Digital Terrain Model (excluding buildings)
+  static void ComputeBuildingHeights(CityModel &cityModel,
+                                     const GridField2D &dtm)
+  {
+    Info("CityModelGenerator: Computing building heights...");
+    Timer("ComputeBuildingHeights");
+  }
+
+  /// Compute heights of buildings from DSM data.
   ///
   /// @param cityModel The city model
   /// @param dsm       Digital Surface Model (including buildings)

@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   BoundingBox2D bbox{p, q};
   const double h{parameters.ElevationModelResolution};
 
-  // Read point cloud data (all *.las and *.laz files in data directory)
+  // Read point cloud
   PointCloud pointCloud;
   LAS::ReadDirectory(pointCloud, dataDirectory);
 

@@ -35,10 +35,10 @@ namespace DTCC
     double ElevationModelResolution = 1.0;
 
     // Minimal building distance (merged if closer)
-    double MinimalBuildingDistance = 1.0;
+    double MinBuildingDistance = 1.0;
 
     // Minimal vertex distance (merged if closer)
-    double MinimalVertexDistance = 1.0;
+    double MinVertexDistance = 1.0;
 
     // Height of computational domain
     double DomainHeight = 100.0;
@@ -87,7 +87,7 @@ namespace DTCC
              "\n  YMax                     = " + str(YMax) +
              "\n  AutoDomain               = " + str(AutoDomain) +
              "\n  ElevationModelResolution = " + str(ElevationModelResolution) +
-             "\n  MinimalBuildingDistance  = " + str(MinimalBuildingDistance) +
+             "\n  MinBuildingDistance      = " + str(MinBuildingDistance) +
              "\n  DomainHeight             = " + str(DomainHeight) +
              "\n  MeshResolution           = " + str(MeshResolution) +
              "\n  FlatGround               = " + str(FlatGround);

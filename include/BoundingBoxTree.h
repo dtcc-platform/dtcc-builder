@@ -32,6 +32,9 @@ public:
     // Index to second child node / object index for leaf nodes
     int second{};
 
+    // Check if node is leaf
+    bool IsLeaf() const { return first == -1; }
+
     // Bounding box of node
     BoundingBox2D bbox;
   };
@@ -62,14 +65,35 @@ public:
     BuildRecursive(bboxes, indices.begin(), indices.end());
   }
 
-  // Find indices of bounding boxes containing point
+  /// Find indices of bounding boxes containing given point.
+  ///
+  /// @param point The point
+  /// @return Array of bounding box indices
   std::vector<size_t> Find(const Point2D &point) const
   {
     // Create empty list of bounding box indices
     std::vector<size_t> indices;
 
     // Recursively search bounding box tree for collisions
-    FindRecursive(indices, point, Nodes.size() - 1);
+    FindRecursive(indices, *this, point, Nodes.size() - 1);
+
+    return indices;
+  }
+
+  /// Find indices of bounding box collisions between this
+  /// tree and given tree.
+  ///
+  /// @param tree The other tree
+  /// @return Array of pairwise collisions
+  std::vector<std::pair<size_t, size_t>>
+  Find(const BoundingBoxTree2D &tree) const
+  {
+    // Create empty list of bounding box indices
+    std::vector<std::pair<size_t, size_t>> indices;
+
+    // Recursively search bounding box tree for collisions
+    FindRecursive(indices, *this, tree, Nodes.size() - 1,
+                  tree.Nodes.size() - 1);
 
     return indices;
   }
@@ -160,27 +184,78 @@ private:
     return Nodes.size() - 1;
   }
 
-  // Findcollisions (recursive call)
-  void FindRecursive(std::vector<size_t> &indices,
-                     const Point2D &point,
-                     size_t nodeIndex) const
+  // Find collisions between tree and point (recursive call)
+  static void FindRecursive(std::vector<size_t> &indices,
+                            const BoundingBoxTree2D &tree,
+                            const Point2D &point,
+                            size_t nodeIndex)
   {
     // Get current node
-    const Node &node = Nodes[nodeIndex];
+    const Node &node = tree.Nodes[nodeIndex];
 
-    // Check if node contains point (do nothing if not contained)
+    // Check if node and point collide (if not, do nothing)
     if (Geometry::BoundingBoxContains2D(node.bbox, point))
     {
-      if (node.first == -1)
+      // Check if leaf
+      if (node.IsLeaf())
       {
-        // Leaf node containing point so add it
+        // Add node index (we know that node collides with point)
         indices.push_back(node.second);
       }
       else
       {
         // Not a leaf node so check child nodes
-        FindRecursive(indices, point, node.first);
-        FindRecursive(indices, point, node.second);
+        FindRecursive(indices, tree, point, node.first);
+        FindRecursive(indices, tree, point, node.second);
+      }
+    }
+  }
+
+  // Find collisions between tree A and tree B (recursive call)
+  static void FindRecursive(std::vector<std::pair<size_t, size_t>> &indices,
+                            const BoundingBoxTree2D &treeA,
+                            const BoundingBoxTree2D &treeB,
+                            size_t nodeIndexA,
+                            size_t nodeIndexB)
+  {
+    // Get current nodes
+    const Node &nodeA = treeA.Nodes[nodeIndexA];
+    const Node &nodeB = treeB.Nodes[nodeIndexB];
+
+    // Check if nodes collide (if not, do nothing)
+    if (Geometry::Intersect2D(nodeA.bbox, nodeB.bbox))
+    {
+      // Check if both nodes are leaves
+      if (nodeA.IsLeaf() && nodeB.IsLeaf())
+      {
+        // Add node indices (we know that the nodes collide)
+        indices.push_back(std::make_pair(nodeA.second, nodeB.second));
+      }
+      else if (nodeA.IsLeaf())
+      {
+        // If A is leaf, then descend B
+        FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.first);
+        FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.second);
+      }
+      else if (nodeB.IsLeaf())
+      {
+        // If B is leaf, then descend A
+        FindRecursive(indices, treeA, treeB, nodeA.first, nodeIndexB);
+        FindRecursive(indices, treeA, treeB, nodeA.second, nodeIndexB);
+      }
+      else
+      {
+        // If neither node is a leaf, traverse largest subtree
+        if (nodeIndexA > nodeIndexB)
+        {
+          FindRecursive(indices, treeA, treeB, nodeA.first, nodeIndexB);
+          FindRecursive(indices, treeA, treeB, nodeA.second, nodeIndexB);
+        }
+        else
+        {
+          FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.first);
+          FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.second);
+        }
       }
     }
   }

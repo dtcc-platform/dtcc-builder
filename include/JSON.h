@@ -48,9 +48,8 @@ namespace DTCC
       parameters.ElevationModelResolution =
           ToDouble("ElevationModelResolution", json);
       parameters.MeshResolution = ToDouble("MeshResolution", json);
-      parameters.MinimalBuildingDistance = ToDouble("MinimalBuildingDistance", json);
-      parameters.MinimalVertexDistance =
-          ToDouble("MinimalVertexDistance", json);
+      parameters.MinBuildingDistance = ToDouble("MinBuildingDistance", json);
+      parameters.MinVertexDistance = ToDouble("MinVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
       parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
       parameters.NumRandomBuildings = ToInt("NumRandomBuildings", json);
@@ -73,8 +72,8 @@ namespace DTCC
       json["DomainHeight"] = parameters.DomainHeight;
       json["ElevationModelResolution"] = parameters.ElevationModelResolution;
       json["MeshResolution"] = parameters.MeshResolution;
-      json["MinimalBuildingDistance"] = parameters.MinimalBuildingDistance;
-      json["MinimalVertexDistance"] = parameters.MinimalVertexDistance;
+      json["MinBuildingDistance"] = parameters.MinBuildingDistance;
+      json["MinVertexDistance"] = parameters.MinVertexDistance;
       json["FlatGround"] = parameters.FlatGround;
       json["GroundSmoothing"] = parameters.GroundSmoothing;
       json["NumRandomBuildings"] = parameters.NumRandomBuildings;
@@ -521,12 +520,21 @@ namespace DTCC
       for (size_t i = 0; i < jsonBuildings.size(); i++)
       {
         auto jsonBuilding = jsonBuildings[i];
+
         auto jsonFootprint = jsonBuilding["Footprint"];
         cityModel.Buildings[i].Footprint.Vertices.resize(jsonFootprint.size());
         for (size_t j = 0; j < jsonFootprint.size(); j++)
         {
           cityModel.Buildings[i].Footprint.Vertices[j].x = jsonFootprint[j]["x"];
           cityModel.Buildings[i].Footprint.Vertices[j].y = jsonFootprint[j]["y"];
+        }
+        auto jsonRoofPoints = jsonBuilding["RoofPoints"];
+        cityModel.Buildings[i].RoofPoints.resize(jsonRoofPoints.size());
+        for (size_t j = 0; j < jsonRoofPoints.size(); j++)
+        {
+          cityModel.Buildings[i].RoofPoints[j].x = jsonRoofPoints[j]["x"];
+          cityModel.Buildings[i].RoofPoints[j].y = jsonRoofPoints[j]["y"];
+          cityModel.Buildings[i].RoofPoints[j].z = jsonRoofPoints[j]["z"];
         }
         cityModel.Buildings[i].Height = jsonBuilding["Height"];
         cityModel.Buildings[i].GroundHeight = jsonBuilding["GroundHeight"];
@@ -549,6 +557,16 @@ namespace DTCC
           jsonPoint["x"] = point.x;
           jsonPoint["y"] = point.y;
           jsonBuilding["Footprint"].push_back(jsonPoint);
+        }
+
+        jsonBuilding["RoofPoints"] = nlohmann::json::array();
+        for (auto const &point : building.RoofPoints)
+        {
+          auto jsonPoint = nlohmann::json::object();
+          jsonPoint["x"] = point.x;
+          jsonPoint["y"] = point.y;
+          jsonPoint["z"] = point.z;
+          jsonBuilding["RoofPoints"].push_back(jsonPoint);
         }
         jsonBuilding["Height"] = building.Height;
         jsonBuilding["GroundHeight"] = building.GroundHeight;

@@ -148,24 +148,21 @@ private:
     // Create reader
     liblas::ReaderFactory factory;
     liblas::Reader reader = factory.CreateWithStream(f);
-
-    if (!filters.empty()) {
+    if (!filters.empty())
       reader.SetFilters(filters);
-    }
+
     // Read header
     liblas::Header const &header = reader.GetHeader();
     const bool isCompressed = header.Compressed();
     const std::string signature = header.GetFileSignature();
     const size_t numPoints = header.GetPointRecordsCount();
-    size_t readPoints = 0;
-    if (isCompressed)
-      Info("LAS: Compressed");
-    else
-      Info("LAS: Uncompressed");
-    Info("LAS: " + signature);
-    Info("LAS: Contains " + str(numPoints) + " points");
+    const std::string compression =
+        (isCompressed ? "Compressed" : "Uncompressed");
+    Info("LAS: " + compression + ", " + signature + ", " + str(numPoints) +
+         " points");
 
     // Iterate over points
+    size_t readPoints = 0;
     while (reader.ReadNextPoint())
     {
       // Get point

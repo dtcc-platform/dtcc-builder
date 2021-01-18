@@ -40,6 +40,18 @@ namespace DTCC
       return static_cast<double>(Points.size()) / BoundingBox.Area();
     }
 
+    /// Set new origin (subtract offset). Note that this only
+    /// affects the x and y coordinates (z unaffected).
+    void SetOrigin(const Point2D &origin)
+    {
+      Info("PointCloud: Setting new origin to " + str(origin));
+      for (auto &p : Points)
+      {
+        p.x -= origin.x;
+        p.y -= origin.y;
+      }
+    }
+
     /// set a default color to all points
     void InitColors(const Color &c)
     {
@@ -105,6 +117,8 @@ namespace DTCC
     }
 
   private:
+    friend class CityModelGenerator;
+
     // Bounding box tree used for search queries
     mutable BoundingBoxTree2D bbtree;
   };

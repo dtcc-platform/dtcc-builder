@@ -44,6 +44,9 @@ public:
   // Uncomment for debugging
   // int debugID;
 
+  /// Set new origin (subtract offset)
+  void SetOrigin(const Point2D &origin) { Footprint.SetOrigin(origin); }
+
   /// Return minimum absolute height of building (equal to ground height).
   ///
   /// @return Minimum absolute height of building

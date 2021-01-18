@@ -24,6 +24,14 @@ public:
   /// Array of buildings
   std::vector<Building> Buildings;
 
+  /// Set new origin (subtract offset)
+  void SetOrigin(const Point2D &origin)
+  {
+    Info("CityModel: Setting new origin to " + str(origin));
+    for (auto &building : Buildings)
+      building.SetOrigin(origin);
+  }
+
   /// Build search tree (bounding box tree), required for search queries.
   ///
   /// @param rebuild Force rebuild of existing tree if set
@@ -114,6 +122,8 @@ public:
   }
 
 private:
+  friend class CityModelGenerator;
+
   // Bounding box tree used for search queries
   mutable BoundingBoxTree2D bbtree;
 

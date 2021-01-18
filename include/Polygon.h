@@ -22,6 +22,16 @@ public:
   // Create empty polygon
   Polygon() = default;
 
+  /// Set new origin (subtract offset)
+  void SetOrigin(const Point2D &origin)
+  {
+    for (auto &p : Vertices)
+    {
+      p.x -= origin.x;
+      p.y -= origin.y;
+    }
+  }
+
   /// Pretty-print
   std::string __str__() const override
   {

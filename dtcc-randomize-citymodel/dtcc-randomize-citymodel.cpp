@@ -34,7 +34,10 @@ int main(int argc, char *argv[])
   Info(parameters);
 
   // Get parameters
-  const std::string dataDirectory = parameters.DataDirectory + "/";
+  const std::string dataDirectory{parameters.DataDirectory + "/"};
+  const double minBuildingDistance{parameters.MinBuildingDistance};
+  const double minVertexDistance{parameters.MinVertexDistance};
+  const size_t numRandomBuildings = parameters.NumRandomBuildings;
 
   // Read elevation model
   GridField2D dtm;
@@ -43,20 +46,17 @@ int main(int argc, char *argv[])
 
   // Randomize city model
   CityModel cityModel;
-  CityModelGenerator::RandomizeCityModel(cityModel, dtm,
-                                         parameters.NumRandomBuildings);
+  CityModelGenerator::RandomizeCityModel(cityModel, dtm, numRandomBuildings);
   Info(cityModel);
   JSON::Write(cityModel, dataDirectory + "/CityModelRandom.json");
 
   // Clean city model
-  CityModelGenerator::CleanCityModel(cityModel,
-                                     parameters.MinimalVertexDistance);
+  CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
   JSON::Write(cityModel, dataDirectory + "/CityModelClean.json");
 
   // Simplify city model
-  CityModelGenerator::SimplifyCityModel(cityModel,
-                                        parameters.MinimalBuildingDistance,
-                                        parameters.MinimalVertexDistance);
+  CityModelGenerator::SimplifyCityModel(cityModel, minBuildingDistance,
+                                        minVertexDistance);
   JSON::Write(cityModel, dataDirectory + "/CityModelSimple.json");
 
   return 0;
