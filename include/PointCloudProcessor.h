@@ -56,7 +56,7 @@ public:
 
     for (size_t i = 0; i < pointCount; i++)
     {
-      for(auto c : classifications)
+      for (auto c : classifications)
       {
         if (pointCloud.Classification[i] == c)
         {

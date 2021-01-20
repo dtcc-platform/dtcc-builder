@@ -35,7 +35,8 @@ public:
   /// Build search tree (bounding box tree), required for search queries.
   ///
   /// @param rebuild Force rebuild of existing tree if set
-  void BuildSearchTree(bool rebuild = false) const
+  /// @param margin Margin to use for bounding boxes around buildings
+  void BuildSearchTree(bool rebuild = false, double margin = 0.0) const
   {
     // Skip if already built or force rebuild
     if (!bbtree.Empty() && !rebuild)
@@ -48,7 +49,7 @@ public:
     std::vector<BoundingBox2D> bboxes;
     for (const auto &building : Buildings)
     {
-      BoundingBox2D bbox(building.Footprint);
+      BoundingBox2D bbox(building.Footprint, margin);
       bboxes.push_back(bbox);
     }
 

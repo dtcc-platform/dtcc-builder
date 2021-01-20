@@ -38,6 +38,9 @@ public:
   /// Array of roof points (from point cloud) inside building footprint
   std::vector<Point3D> RoofPoints{};
 
+  /// Array of ground points (from point cloud) inside building footprint
+  std::vector<Point3D> GroundPoints{};
+
   /// Create empty building
   Building() = default;
 

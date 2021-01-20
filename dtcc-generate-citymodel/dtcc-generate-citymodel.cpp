@@ -37,7 +37,9 @@ int main(int argc, char *argv[])
   // Get parameters
   const std::string dataDirectory{parameters.DataDirectory + "/"};
   const double minVertexDistance{parameters.MinVertexDistance};
-  const double heightPercentile{parameters.HeightPercentile};
+  const double groundMargin{parameters.GroundMargin};
+  const double groundPercentile{parameters.GroundPercentile};
+  const double roofPercentile{parameters.RoofPercentile};
   const Point2D origin{parameters.X0, parameters.Y0};
   Point2D p{parameters.XMin, parameters.YMin};
   Point2D q{parameters.XMax, parameters.YMax};
@@ -60,10 +62,6 @@ int main(int argc, char *argv[])
   std::vector<int> entityIDs;
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
 
-  // Read elevation model
-  GridField2D dtm;
-  JSON::Read(dtm, dataDirectory + "/DTM.json");
-
   // Generate raw city model
   CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
@@ -73,8 +71,10 @@ int main(int argc, char *argv[])
 
   // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
-  CityModelGenerator::ExtractRoofPoints(cityModel, pointCloud);
-  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, heightPercentile);
+  CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud,
+                                            groundMargin);
+  CityModelGenerator::ComputeBuildingHeights(cityModel, groundPercentile,
+                                             roofPercentile);
   JSON::Write(cityModel, dataDirectory + "CityModelClean.json");
 
   // Report timings

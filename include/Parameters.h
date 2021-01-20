@@ -43,8 +43,14 @@ namespace DTCC
     // Maximum mesh size used for mesh generation [m]
     double MeshResolution = 10.0;
 
-    // Percentile used for building height computation [0, 1]
-    double HeightPercentile = 0.9;
+    // Margin around building for detecting ground points
+    double GroundMargin = 1.0;
+
+    // Percentile used for computing building ground height [0, 1]
+    double GroundPercentile = 0.1;
+
+    // Percentile used for computing building roof height [0, 1]
+    double RoofPercentile = 0.9;
 
     // Number of smoothing iterations DTM
     int GroundSmoothing = 5;
@@ -90,7 +96,9 @@ namespace DTCC
              "\n  MinVertexDistance        = " + str(MinVertexDistance) +
              "\n  DomainHeight             = " + str(DomainHeight) +
              "\n  MeshResolution           = " + str(MeshResolution) +
-             "\n  HeightPercentile         = " + str(HeightPercentile) +
+             "\n  GroundMargin             = " + str(GroundMargin) +
+             "\n  GroundPercentile         = " + str(GroundPercentile) +
+             "\n  RoofPercentile           = " + str(RoofPercentile) +
              "\n  GroundSmoothing          = " + str(GroundSmoothing) +
              "\n  NumRandomBuildings       = " + str(NumRandomBuildings) +
              "\n  FlatGround               = " + str(FlatGround) +

@@ -41,7 +41,8 @@ namespace DTCC
     /// Create bounding box of polygon.
     ///
     /// @param polygon Polygon
-    explicit BoundingBox2D(const Polygon& polygon)
+    /// @param margin Margin to use for bounding box
+    explicit BoundingBox2D(const Polygon &polygon, double margin = 0.0)
     {
       constexpr double max = std::numeric_limits<double>::max();
       P.x = P.y = max;
@@ -53,6 +54,10 @@ namespace DTCC
         Q.x = std::max(Q.x, p.x);
         Q.y = std::max(Q.y, p.y);
       }
+      P.x -= margin;
+      P.y -= margin;
+      Q.x += margin;
+      Q.y += margin;
     }
 
     /// Return area of bounding box

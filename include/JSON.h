@@ -47,7 +47,9 @@ namespace DTCC
       parameters.ElevationModelResolution =
           ToDouble("ElevationModelResolution", json);
       parameters.MeshResolution = ToDouble("MeshResolution", json);
-      parameters.HeightPercentile = ToDouble("HeightPercentile", json);
+      parameters.GroundMargin = ToDouble("GroundMargin", json);
+      parameters.GroundPercentile = ToDouble("GroundPercentile", json);
+      parameters.RoofPercentile = ToDouble("RoofPercentile", json);
       parameters.MinBuildingDistance = ToDouble("MinBuildingDistance", json);
       parameters.MinVertexDistance = ToDouble("MinVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
@@ -71,7 +73,9 @@ namespace DTCC
       json["DomainHeight"] = parameters.DomainHeight;
       json["ElevationModelResolution"] = parameters.ElevationModelResolution;
       json["MeshResolution"] = parameters.MeshResolution;
-      json["HeightPercentile"] = parameters.HeightPercentile;
+      json["GroundMargin"] = parameters.GroundMargin;
+      json["GroundPercentile"] = parameters.GroundPercentile;
+      json["RoofPercentile"] = parameters.RoofPercentile;
       json["MinBuildingDistance"] = parameters.MinBuildingDistance;
       json["MinVertexDistance"] = parameters.MinVertexDistance;
       json["FlatGround"] = parameters.FlatGround;
@@ -536,6 +540,14 @@ namespace DTCC
           cityModel.Buildings[i].RoofPoints[j].y = jsonRoofPoints[j]["y"];
           cityModel.Buildings[i].RoofPoints[j].z = jsonRoofPoints[j]["z"];
         }
+        auto jsonGroundPoints = jsonBuilding["GroundPoints"];
+        cityModel.Buildings[i].GroundPoints.resize(jsonGroundPoints.size());
+        for (size_t j = 0; j < jsonGroundPoints.size(); j++)
+        {
+          cityModel.Buildings[i].GroundPoints[j].x = jsonGroundPoints[j]["x"];
+          cityModel.Buildings[i].GroundPoints[j].y = jsonGroundPoints[j]["y"];
+          cityModel.Buildings[i].GroundPoints[j].z = jsonGroundPoints[j]["z"];
+        }
         cityModel.Buildings[i].Height = jsonBuilding["Height"];
         cityModel.Buildings[i].GroundHeight = jsonBuilding["GroundHeight"];
         cityModel.Buildings[i].UUID = jsonBuilding["UUID"];
@@ -558,7 +570,6 @@ namespace DTCC
           jsonPoint["y"] = point.y;
           jsonBuilding["Footprint"].push_back(jsonPoint);
         }
-
         jsonBuilding["RoofPoints"] = nlohmann::json::array();
         for (auto const &point : building.RoofPoints)
         {
@@ -567,6 +578,15 @@ namespace DTCC
           jsonPoint["y"] = point.y;
           jsonPoint["z"] = point.z;
           jsonBuilding["RoofPoints"].push_back(jsonPoint);
+        }
+        jsonBuilding["GroundPoints"] = nlohmann::json::array();
+        for (auto const &point : building.GroundPoints)
+        {
+          auto jsonPoint = nlohmann::json::object();
+          jsonPoint["x"] = point.x;
+          jsonPoint["y"] = point.y;
+          jsonPoint["z"] = point.z;
+          jsonBuilding["GroundPoints"].push_back(jsonPoint);
         }
         jsonBuilding["Height"] = building.Height;
         jsonBuilding["GroundHeight"] = building.GroundHeight;

@@ -68,10 +68,7 @@ namespace DTCC
     {
       Classification.clear();
       for (size_t i = 0; i < Points.size(); i++)
-      {
         Classification.push_back(c);
-      }
-
     }
 
     /// Build search tree (bounding box tree), required for search queries.
