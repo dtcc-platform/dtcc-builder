@@ -61,7 +61,7 @@ public:
     }
 
     Info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
-         str(footprints.size()) + " inside bounding box");
+         str(footprints.size()) + " buildings inside bounding box");
   }
 
   /// Clean city model by making sure that all building footprints
@@ -131,7 +131,7 @@ public:
   /// of class 6 (Building) that fall within the building
   /// footprint. However, since that classification seems to
   /// be missing in the data from LM, we are currently using
-  /// all points except for class 2 and 9.
+  /// all points (except class 2 and 9).
   ///
   /// @param cityModel The city model
   /// @param pointCloud Point cloud (unfiltered)
@@ -270,19 +270,19 @@ public:
       // Check that h0 < h1
       if (!(h0 < h1))
       {
-        Warning("Building height lower than ground height for building " +
+        Warning("Roof height lower than ground height for building " +
                 building.UUID);
-        Info("CityModelGenerator: Setting building height to 3m");
-
-        building.GroundHeight = h0;
-        std::cout << "h0 = " << h0 << " h1 = " << h1 << std::endl;
-        Plotting::Plot(building);
+        h1 = h0;
+        continue;
       }
 
       // Set building height(s)
       building.Height = h1 - h0;
       building.GroundHeight = h0;
       numSuccess++;
+
+      // Uncomment for debugging
+      Plotting::Plot(building);
     }
 
     // Report number of failed buildings

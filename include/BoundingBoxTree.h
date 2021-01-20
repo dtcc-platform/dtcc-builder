@@ -46,7 +46,7 @@ public:
   // Build bounding box tree for objects (defined by their bounding boxes)
   void Build(const std::vector<BoundingBox2D> &bboxes)
   {
-    Info("BoundingTree: Building 2D bounding box tree for " +
+    Info("BoundingBoxTree: Building 2D bounding box tree for " +
          str(bboxes.size()) + " objects...");
 
     // Clear tree if built before

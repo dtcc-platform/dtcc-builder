@@ -45,7 +45,7 @@ public:
   }
 
   /// Plot building
-  static void Plot(const Building &building)
+  static void Plot(const Building &building, bool plotUUID = false)
   {
     // Build 3D points from footprint and ground height
     std::vector<Point3D> points;
@@ -78,8 +78,9 @@ public:
     Info("ax.plot(" + x + ", " + y + ", " + z + ")");
     Info("ax.scatter(" + gx + ", " + gy + ", " + gz + ", marker='o')");
     Info("ax.scatter(" + rx + ", " + ry + ", " + rz + ", marker='.')");
-    Info("ax.text(" + str(c3D.x) + "," + str(c3D.y) + "," + str(c3D.z) + ",'" +
-         building.UUID + "')");
+    if (plotUUID)
+      Info("ax.text(" + str(c3D.x) + "," + str(c3D.y) + "," + str(c3D.z) +
+           ",'" + building.UUID + "')");
   }
 
 private:
