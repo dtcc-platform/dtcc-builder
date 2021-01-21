@@ -320,7 +320,7 @@ public:
          str(numMissingGroundPoints) + "/" + str(n) + " building(s)");
     Info("CityModelGenerator: Missing roof points for " +
          str(numMissingRoofPoints) + "/" + str(n) + " building(s)");
-    Info("CityModelGenerator: Height to small (adjusted) for " +
+    Info("CityModelGenerator: Height too small (adjusted) for " +
          str(numSmallHeights) + "/" + str(n) + " building(s)");
   }
 
