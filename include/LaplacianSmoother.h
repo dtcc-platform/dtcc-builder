@@ -64,7 +64,7 @@ namespace DTCC
       // Create expressions for boundary values (heights)
       const auto h0 =
           std::make_shared<BuildingsExpression>(cityModel, mesh3D.Markers);
-      const auto h1 = std::make_shared<HaloExpression>(dem, _mesh3D);
+      const auto h1 = std::make_shared<HaloExpressionDEM>(dem, _mesh3D);
       const auto h2 = std::make_shared<GroundExpression>(dem);
       const auto h3 = std::make_shared<TopExpression>(topHeight);
 
@@ -199,6 +199,45 @@ namespace DTCC
     class HaloExpression : public dolfin::Expression
     {
     public:
+      // Reference to city model
+      const CityModel &cityModel;
+
+      // Reference to domain markers
+      const std::vector<int> &domainMarkers;
+
+      // Building heights (absolute z-coordinates of roofs)
+      std::vector<double> buildingHeights;
+
+      // Constructor
+      HaloExpression(const CityModel &cityModel,
+                     const std::vector<int> &domainMarkers)
+          : cityModel(cityModel), domainMarkers(domainMarkers)
+      {
+      }
+
+      // Evaluation of z-displacement
+      void eval(dolfin::Array<double> &values,
+                const dolfin::Array<double> &x,
+                const ufc::cell &ufc_cell) const
+      {
+        // Get building height
+        const size_t i =
+            domainMarkers[ufc_cell.index]; // FIXME: How to get building index?
+        const double z = cityModel.Buildings[i].MinHeight();
+
+        // Set height of building
+        values[0] = z;
+
+        // See note above on subtracting z-coordinate
+        if (x.size() == 3)
+          values[0] -= x[2];
+      }
+    };
+
+    // Boundary value for building halos based on DEM (2D)
+    class HaloExpressionDEM : public dolfin::Expression
+    {
+    public:
       // Reference to elevation
       const GridField2D &elevation;
 
@@ -206,7 +245,7 @@ namespace DTCC
       const dolfin::Mesh &mesh;
 
       // Constructor
-      HaloExpression(const GridField2D &elevation, const dolfin::Mesh &mesh)
+      HaloExpressionDEM(const GridField2D &elevation, const dolfin::Mesh &mesh)
           : Expression(), elevation(elevation), mesh(mesh)
       {
       }

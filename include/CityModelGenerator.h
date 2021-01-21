@@ -239,56 +239,89 @@ public:
   /// the points from point cloud data.
   ///
   /// @param cityModel The city model
+  /// @param dtm Digital Terrain Map, used for ground height if points are
+  /// missing
   /// @param groundPercentile Percentile used for setting ground height
   /// @param roofPercentile Percentile used for setting roof height
   static void ComputeBuildingHeights(CityModel &cityModel,
+                                     const GridField2D &dtm,
                                      double groundPercentile,
                                      double roofPercentile)
   {
     Info("CityModelGenerator: Computing building heights...");
     Timer("ComputeBuildingHeights");
 
-    Plotting::Init();
+    // FIXME: Make this a parameter
+    const double minBuildingHeight{2.5};
 
-    // Count the number of successful buildings
-    size_t numSuccess = 0;
+    // Uncomment for debugging
+    // Plotting::Init();
+
+    // Count missing or bad data
+    size_t numMissingGroundPoints = 0;
+    size_t numMissingRoofPoints = 0;
+    size_t numSmallHeights = 0;
 
     // Iterate over buildings
     for (auto &building : cityModel.Buildings)
     {
-      // Skip if missing points
-      if (building.GroundPoints.empty() || building.RoofPoints.empty())
+      // Compute ground height h0
+      double h0{0};
+      if (building.GroundPoints.empty())
       {
-        Warning("Missing points for building " + building.UUID);
-        continue;
+        Warning("Missing ground points for building " + building.UUID);
+        Info("CityModelGenerator: Setting ground height from DTM");
+        h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
+        numMissingGroundPoints++;
+      }
+      else
+      {
+        // Pick percentile from ground points
+        h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
       }
 
-      // Compute heights
-      double h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
-      double h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
+      // Compute roof height h1
+      double h1{0};
+      if (building.RoofPoints.empty())
+      {
+        Warning("Missing roof points for building " + building.UUID);
+        Info("CityModelGenerator: Setting building height to " +
+             str(minBuildingHeight) + "m");
+        h1 = h0 + minBuildingHeight;
+        numMissingRoofPoints++;
+      }
+      else
+      {
+        // Pick percentile from ground points
+        h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
+      }
 
       // Check that h0 < h1
-      if (!(h0 < h1))
+      if (h1 < h0 + minBuildingHeight)
       {
-        Warning("Roof height lower than ground height for building " +
-                building.UUID);
-        h1 = h0;
-        continue;
+        Warning("Height too small for building " + building.UUID);
+        Info("CitModelGenerator: Setting building height to " +
+             str(minBuildingHeight));
+        h1 = h0 + minBuildingHeight;
+        numSmallHeights++;
       }
 
       // Set building height(s)
       building.Height = h1 - h0;
       building.GroundHeight = h0;
-      numSuccess++;
 
       // Uncomment for debugging
-      Plotting::Plot(building);
+      // Plotting::Plot(building);
     }
 
-    // Report number of failed buildings
-    const size_t numFail = cityModel.Buildings.size() - numSuccess;
-    Info("CityModelGenerator: Height computation failed for " + str(numFail) +
-         "/" + str(cityModel.Buildings.size()) + " buildings");
+    // Print some statistics
+    const size_t n = cityModel.Buildings.size();
+    Info("CityModelGenerator: Missing ground points for " +
+         str(numMissingGroundPoints) + "/" + str(n) + " building(s)");
+    Info("CityModelGenerator: Missing roof points for " +
+         str(numMissingRoofPoints) + "/" + str(n) + " building(s)");
+    Info("CityModelGenerator: Height to small (adjusted) for " +
+         str(numSmallHeights) + "/" + str(n) + " building(s)");
   }
 
   // Generate a random city model. Used for benchmarking.

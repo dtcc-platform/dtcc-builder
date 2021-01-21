@@ -62,6 +62,10 @@ int main(int argc, char *argv[])
   std::vector<int> entityIDs;
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
 
+  // Read DTM
+  GridField2D dtm;
+  JSON::Read(dtm, dataDirectory + "DTM.json");
+
   // Generate raw city model
   CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
@@ -73,7 +77,7 @@ int main(int argc, char *argv[])
   CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
   CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud,
                                             groundMargin);
-  CityModelGenerator::ComputeBuildingHeights(cityModel, groundPercentile,
+  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, groundPercentile,
                                              roofPercentile);
   JSON::Write(cityModel, dataDirectory + "CityModelClean.json");
 
