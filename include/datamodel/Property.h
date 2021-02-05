@@ -5,7 +5,7 @@
 #define DTCC_PROPERTY_H
 
 #include "Utils.h"
-#include "citymodel/Building.h"
+#include "datamodel/Building.h"
 #include <utility>
 
 namespace DTCC

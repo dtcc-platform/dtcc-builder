@@ -13,7 +13,7 @@
 #include "Polygon.h"
 #include "Timer.h"
 #include "Vector.h"
-#include "citymodel/CityModel.h"
+#include "datamodel/CityModel.h"
 
 namespace DTCC
 {
