@@ -9,9 +9,9 @@
 #include "HeightMapGenerator.h"
 #include "JSON.h"
 #include "LAS.h"
-#include "Parameters.h"
-#include "CityJSON.h"
 #include "Logging.h"
+#include "Parameters.h"
+#include "cityjson/CityJSON.h"
 
 using namespace DTCC;
 

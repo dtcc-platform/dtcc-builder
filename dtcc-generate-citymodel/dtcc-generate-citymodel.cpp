@@ -12,8 +12,8 @@
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
-#include "citymodel/CityModel.h"
-#include "citymodel/CityModelGenerator.h"
+#include "datamodel//CityModelGenerator.h"
+#include "datamodel/CityModel.h"
 
 using namespace DTCC;
 

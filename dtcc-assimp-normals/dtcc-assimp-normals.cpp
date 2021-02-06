@@ -10,8 +10,8 @@
 #include "JSON.h"
 #include "Logging.h"
 #include "Vector.h"
-#include "citymodel/Building.h"
-#include "citymodel/CityModel.h"
+#include "datamodel/Building.h"
+#include "datamodel/CityModel.h"
 
 // Assimp includes
 #include <assimp/Exporter.hpp>

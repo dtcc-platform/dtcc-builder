@@ -4,15 +4,14 @@
 #ifndef DTCC_JSON_H
 #define DTCC_JSON_H
 
-#include <CityModel.h>
-#include <District.h>
+#include <datamodel/CityModel.h>
+#include <datamodel/District.h>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <utility>
 
 #include "BoundingBox.h"
-#include "CityJSON.h"
 #include "Color.h"
 #include "ColorMap.h"
 #include "Grid.h"
@@ -20,8 +19,9 @@
 #include "GridVectorField.h"
 #include "Mesh.h"
 #include "Parameters.h"
-#include "RoadNetwork.h"
 #include "Surface.h"
+#include "cityjson/CityJSON.h"
+#include "datamodel/RoadNetwork.h"
 
 namespace DTCC
 {

@@ -16,7 +16,7 @@
 #include "Parameters.h"
 #include "VTK.h"
 #include "VertexSmoother.h"
-#include "citymodel/CityModel.h"
+#include "datamodel/CityModel.h"
 
 using namespace DTCC;
 

@@ -6,8 +6,8 @@
 #include <Hashing.h>
 #include <JSON.h>
 #include <Polygon.h>
-#include <RoadNetwork.h>
 #include <SHP.h>
+#include <datamodel/RoadNetwork.h>
 #include <iostream>
 #include <json.hpp>
 #include <map>

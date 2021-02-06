@@ -374,7 +374,7 @@ TEST_CASE("COLORMAPS")
   }
 }
 
-TEST_CASE("citymodel")
+TEST_CASE("datamodel")
 {
   const char *fileName1 = "../unittests/data/CityModelExample.json";
   const char *fileName2 = "../unittests/data/CityModelExample2.json";
