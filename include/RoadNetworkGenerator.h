@@ -6,8 +6,8 @@
 
 #include "Hashing.h"
 #include "Polygon.h"
-#include "RoadNetwork.h"
 #include "SHP.h"
+#include "datamodel/RoadNetwork.h"
 #include <nlohmann/json.hpp>
 
 using namespace nlohmann;

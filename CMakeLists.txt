@@ -11,7 +11,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
 # Set build flags
-set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
+set(CMAKE_CXX_FLAGS_ "-Wall -Werror -Wno-unused-variable")
 set(CMAKE_CXX_FLAGS_DEBUG "-pg")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #-Wno-sign-compare")
