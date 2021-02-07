@@ -6,13 +6,14 @@
 #ifndef DTCC_SHP_H
 #define DTCC_SHP_H
 
+#include "Geometry.h"
+#include "Logging.h"
+#include "Polygon.h"
+#include "Utils.h"
 #include <iostream>
 #include <json.hpp>
 #include <shapefil.h>
 #include <vector>
-#include "Geometry.h"
-#include "Logging.h"
-#include "Polygon.h"
 
 using namespace nlohmann;
 
@@ -39,6 +40,11 @@ public:
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
     DBFHandle handleD = DBFOpen(fileName.c_str(), "r");
+
+    if (UUIDs != nullptr && entityID == nullptr)
+    {
+      Error("entityID can't be null if reading UUIDs");
+    }
 
     // Get info
     int numEntities, shapeType;
@@ -177,6 +183,20 @@ private:
     return dbfHandle;
   }
 
+  static std::string
+  getUUID(DBFHandle handleD, const std::vector<std::string> *UUIDs, int index)
+  {
+    // Open DFB to read UUID
+    std::string test;
+    if (UUIDs != nullptr)
+    {
+      test = DBFReadStringAttribute(handleD, index, 0);
+      if (test.empty())
+        test = Utils::CreateUUID() + "::DTCCGenerated";
+    }
+    return test;
+  }
+
   /// Read and store polygons/edges.
   ///
   /// \param polygons Vector for polygon storage
@@ -194,10 +214,7 @@ private:
     for (int i = 0; i < numEntities; i++)
     {
       // Read vertices
-      // Open DFB to read UUID
-      const char *test;
-      if (UUIDs != nullptr)
-        test = DBFReadStringAttribute(handleD, i, 0);
+      std::string test = getUUID(handleD, UUIDs, i);
 
       // Get object
       SHPObject *object = SHPReadObject(handle, i);
@@ -236,13 +253,14 @@ private:
       else
       {
         // For donut polygons only get the outer hull
-        // For multipatch polygons only get the first polygon
+        // For multipatch polygons save each part as its own polygon
         // TODO: handle donut and multipatch polygons correctly
-        Polygon polygon;
+
         int start;
         int end;
         for (int part = 0; part < object->nParts; part++)
         {
+          Polygon polygon;
           start = object->panPartStart[part];
           if (part + 1 == object->nParts)
           {

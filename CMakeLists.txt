@@ -1,10 +1,19 @@
 # Project configuration
 cmake_minimum_required(VERSION 3.5)
 project(Core)
-set(CMAKE_BUILD_TYPE Debug)
+#Set default build type to Release, disabled, can be overwritten by DCMAKE_BUILD_TYPE=Debug or Release 
+#set(CMAKE_BUILD_TYPE Release)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release")
+  message(STATUS "Build type not specified: Use Release by default")
+endif(NOT CMAKE_BUILD_TYPE)
+message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
 # Set build flags
-set (CMAKE_CXX_FLAGS "-Wall -Werror")
+set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
+set(CMAKE_CXX_FLAGS_DEBUG "-pg")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #-Wno-sign-compare")
 
 # Add path to local CMake scripts
