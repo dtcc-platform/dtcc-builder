@@ -71,15 +71,18 @@ int main(int argc, char *argv[])
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
                                         bbox);
   cityModel.SetOrigin(origin);
-  JSON::Write(cityModel, dataDirectory + "CityModelRaw.json");
 
-  // Clean city model and compute heights
+  // Clean city model
   CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
+
+  // Compute heights
   CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud,
                                             groundMargin);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, groundPercentile,
                                              roofPercentile);
-  JSON::Write(cityModel, dataDirectory + "CityModelClean.json");
+
+  // Write to file
+  JSON::Write(cityModel, dataDirectory + "CityModel.json");
 
   // Report timings
   Timer::Report("dtcc-generate-citymodel");
