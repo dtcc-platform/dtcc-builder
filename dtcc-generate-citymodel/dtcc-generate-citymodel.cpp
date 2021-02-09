@@ -7,6 +7,7 @@
 #include "CityModel.h"
 #include "CityModelGenerator.h"
 #include "CommandLine.h"
+#include "ElevationModelGenerator.h"
 #include "GridField.h"
 #include "JSON.h"
 #include "LAS.h"
@@ -15,6 +16,7 @@
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
+#include "VTK.h"
 
 using namespace DTCC;
 
@@ -36,6 +38,7 @@ int main(int argc, char *argv[])
 
   // Get parameters
   const std::string dataDirectory{parameters.DataDirectory + "/"};
+  const double h{parameters.ElevationModelResolution};
   const double minVertexDistance{parameters.MinVertexDistance};
   const double groundMargin{parameters.GroundMargin};
   const double groundPercentile{parameters.GroundPercentile};
@@ -56,33 +59,45 @@ int main(int argc, char *argv[])
   pointCloud.SetOrigin(origin);
   Info(pointCloud);
 
+  // Generate DTM (excluding buildings and other objects)
+  GridField2D dtm;
+  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, {2, 9}, h);
+  Info(dtm);
+
+  // Generate DSM (including buildings and other objects)
+  GridField2D dsm;
+  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, {}, h);
+  Info(dsm);
+
   // Read property map
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
 
-  // Read DTM
-  GridField2D dtm;
-  JSON::Read(dtm, dataDirectory + "DTM.json");
-
   // Generate raw city model
   CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
                                         bbox);
   cityModel.SetOrigin(origin);
+  Info(cityModel);
 
-  // Clean city model
+  // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
-
-  // Compute heights
   CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud,
                                             groundMargin);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, groundPercentile,
                                              roofPercentile);
 
   // Write to file
+  JSON::Write(dtm, dataDirectory + "DTM.json");
+  JSON::Write(dsm, dataDirectory + "DSM.json");
   JSON::Write(cityModel, dataDirectory + "CityModel.json");
+  if (parameters.Debug)
+  {
+    VTK::Write(dtm, dataDirectory + "DTM.vts");
+    VTK::Write(dsm, dataDirectory + "DSM.vts");
+  }
 
   // Report timings
   Timer::Report("dtcc-generate-citymodel");

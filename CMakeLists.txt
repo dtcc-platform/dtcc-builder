@@ -1,7 +1,7 @@
 # Project configuration
 cmake_minimum_required(VERSION 3.5)
 project(Core)
-#Set default build type to Release, disabled, can be overwritten by DCMAKE_BUILD_TYPE=Debug or Release 
+#Set default build type to Release, disabled, can be overwritten by DCMAKE_BUILD_TYPE=Debug or Release
 #set(CMAKE_BUILD_TYPE Release)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -51,7 +51,6 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 # Add subdirectories
 add_subdirectory(dtcc-info)
 add_subdirectory(dtcc-plot)
-add_subdirectory(dtcc-generate-elevation-model)
 add_subdirectory(dtcc-generate-citymodel)
 add_subdirectory(dtcc-generate-simulation-mesh)
 add_subdirectory(dtcc-generate-visualization-mesh)
