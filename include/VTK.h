@@ -19,11 +19,12 @@
 #include <vtkXMLStructuredGridWriter.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
+#include "GridField.h"
+#include "Logging.h"
 #include "Mesh.h"
+#include "Simplex.h"
 #include "Surface.h"
 #include "Vector.h"
-#include "Simplex.h"
-#include "Logging.h"
 
 namespace DTCC
 {

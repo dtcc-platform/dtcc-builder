@@ -4,6 +4,11 @@
 #include <string>
 #include <vector>
 
+// Needs to come before JSON (nlohmann) include because of sloppy
+// namespacing in VTK (typedef detail)...
+#include "VTK.h"
+
+// DTCC includes
 #include "CityModel.h"
 #include "CityModelGenerator.h"
 #include "CommandLine.h"
@@ -16,7 +21,6 @@
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
-#include "VTK.h"
 
 using namespace DTCC;
 
