@@ -12,6 +12,7 @@
 #include <dolfin.h>
 #include <iostream>
 
+#include "FEniCS.h"
 #include "Laplacian.h"
 #include "LinearSpace2D.h"
 #include "Logging.h"
