@@ -1,17 +1,11 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
-#include <iostream>
-#include <string>
-#include <vector>
-
-#include "CommandLine.h"
 #include "ElevationModelGenerator.h"
 #include "JSON.h"
 #include "LAS.h"
 #include "Logging.h"
 #include "Parameters.h"
-#include "PointCloudProcessor.h"
 #include "VTK.h"
 
 using namespace DTCC;
@@ -53,26 +47,22 @@ int main(int argc, char *argv[])
 
   // Generate DSM (including buildings and other objects)
   GridField2D dsm;
-  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, h, "DSM");
+  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, {}, h);
   Info(dsm);
   JSON::Write(dsm, dataDirectory + "DSM.json");
   if (parameters.Debug)
     VTK::Write(dsm, dataDirectory + "DSM.vts");
 
-  // Filter only ground and water points (color 2 and 9)
-  pointCloud = PointCloudProcessor::ClassificationFilter(pointCloud, {2, 9});
-  Info(pointCloud);
-
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
-  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, h, "DTM");
+  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, {2, 9}, h);
   Info(dtm);
   JSON::Write(dtm, dataDirectory + "DTM.json");
   if (parameters.Debug)
     VTK::Write(dtm, dataDirectory + "DTM.vts");
 
   // Report timings
-  Timer::Report("dtcc-generate-elevation-models");
+  Timer::Report("dtcc-generate-elevation-model");
 
   return 0;
 }

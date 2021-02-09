@@ -22,19 +22,47 @@ namespace DTCC
 class ElevationModelGenerator
 {
 public:
-  // Generate digital elevation model (DEM) from point cloud
+  /// Generate digital elevation model (DEM) from point cloud.
+  /// Only points matching the given classification(s) are used.
+  /// If the classifications are empty, then all points are used.
+  ///
+  /// @param dem The digital elevation model (DEM)
+  /// @param pointCloud Point cloud (unfiltered)
+  /// @param classifications Classifications to be considered
+  /// @param resolution Resolution (grid size) of digital elevation model
   static void GenerateElevationModel(GridField2D &dem,
                                      const PointCloud &pointCloud,
-                                     double resolution,
-                                     std::string type = "DEM")
+                                     const std::vector<int> &classifications,
+                                     double resolution)
   {
-    Info("ElevationModelGenerator: Generating digital elevation model (" +
-         type + ") from point cloud...");
+    Info("ElevationModelGenerator: Generating digital elevation model from "
+         "point cloud...");
     Timer("GenerateElevationModel");
 
-    // Check for empty data
+    // Check that point cloud is not empty
     if (pointCloud.Points.empty())
-      Error("ElevationModelGenerator: Empty point cloud");
+      Error("Empty point cloud");
+
+    // Check that point cloud has classifications
+    if (pointCloud.Points.size() != pointCloud.Classification.size())
+      Error("Missing classifications for point cloud");
+
+    // Print classifications
+    if (classifications.size() > 0)
+    {
+      std::string msg{"ElevationModelGenerator: Using classifications "};
+      for (size_t i = 0; i < classifications.size(); i++)
+      {
+        msg += str(classifications[i]);
+        if (i + 1 < classifications.size())
+          msg += ", ";
+      }
+      Info(msg);
+    }
+    else
+    {
+      Info("ElevationModelGenerator: Using all classifications");
+    }
 
     // Initialize grid bounding box
     dem.Grid.BoundingBox = pointCloud.BoundingBox;
@@ -56,17 +84,17 @@ public:
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
     size_t numInside = 0;
-    for (auto const &q3D : pointCloud.Points)
+    for (auto const &p3D : pointCloud.Points)
     {
       // Get 2D point
-      const Vector2D q2D(q3D.x, q3D.y);
+      const Point2D p2D{p3D.x, p3D.y};
 
       // Skip if outside of domain
-      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))
+      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, p2D))
         continue;
 
       // Sum up elevation
-      meanElevationRaw += q3D.z;
+      meanElevationRaw += p3D.z;
       numInside++;
     }
     meanElevationRaw /= static_cast<double>(numInside);
@@ -84,35 +112,58 @@ public:
     numInside = 0;
     std::vector<size_t> neighborIndices;
     neighborIndices.reserve(5);
-    for (auto const &q3D : pointCloud.Points)
+    for (size_t i = 0; i < pointCloud.Points.size(); i++)
     {
-      // Get 2D point
-      const Vector2D q2D(q3D.x, q3D.y);
+      // Get point and classification
+      const Point3D &p3D{pointCloud.Points[i]};
+      const uint8_t clf{pointCloud.Classification[i]};
 
-      // Skip if outside of domain
-      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, q2D))
+      // Get 2D Point
+      const Point2D p2D{p3D.x, p3D.y};
+
+      // Check classification (accept all classifications if empty list)
+      bool match = true;
+      if (classifications.size() > 0)
+      {
+        match = false;
+        for (const auto c : classifications)
+        {
+          if (clf == c)
+          {
+            match = true;
+            break;
+          }
+        }
+      }
+
+      // Skip if not matching classification
+      if (!match)
         continue;
 
-      // Ignore outliers
-      if (q3D.z - meanElevationRaw > Parameters::PointCloudOutlierThreshold)
+      // Skip if outside of domain
+      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, p2D))
+        continue;
+
+      // Skip if outlier
+      if (p3D.z - meanElevationRaw > Parameters::PointCloudOutlierThreshold)
       {
         numOutliers += 1;
         continue;
       }
 
       // Sum up elevation
-      meanElevation += q3D.z;
+      meanElevation += p3D.z;
       numInside++;
 
       // Iterate over closest stencil (including center of stencil)
       neighborIndices.clear();
-      const size_t i = dem.Grid.Point2Index(q2D);
-      neighborIndices.push_back(i);
-      dem.Grid.Index2Boundary(i, neighborIndices);
-      for (size_t j : neighborIndices)
+      const size_t j = dem.Grid.Point2Index(p2D);
+      neighborIndices.push_back(j);
+      dem.Grid.Index2Boundary(j, neighborIndices);
+      for (size_t k : neighborIndices)
       {
-        dem.Values[j] += q3D.z;
-        numLocalPoints[j] += 1;
+        dem.Values[k] += p3D.z;
+        numLocalPoints[k] += 1;
       }
     }
 
@@ -194,7 +245,8 @@ public:
     // Print some stats
     const double percentMissing =
         100.0 * static_cast<double>(numMissing) / numGridPoints;
-    Info("ElevationModelGenerator: " + str(numOutliers) + " outliers ignored");
+    Info("ElevationModelGenerator: " + str(numOutliers) +
+         " outlier(s) ignored");
     Info("ElevationModelGenerator: Mean elevation is " + str(meanElevation, 4) +
          "m");
     Info("ElevationModelGenerator: " + str(numGridPoints) + " grid points");
