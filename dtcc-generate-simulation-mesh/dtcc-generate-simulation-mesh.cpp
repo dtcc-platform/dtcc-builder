@@ -4,6 +4,7 @@
 #include <dolfin.h>
 
 #include "CityModel.h"
+#include "CityModelGenerator.h"
 #include "CommandLine.h"
 #include "GridField.h"
 #include "JSON.h"
@@ -41,6 +42,10 @@ int main(int argc, char *argv[])
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};
 
+  // Step 1: Generate elevation model an city model.
+  // This step is handled by dtcc-generate-citymodel and
+  // we assume that the data has already been generated.
+
   // Read elevation model (only DTM is used)
   GridField2D dtm;
   JSON::Read(dtm, dataDirectory + "DTM.json");
@@ -48,7 +53,12 @@ int main(int argc, char *argv[])
 
   // Read city model
   CityModel cityModel;
-  JSON::Read(cityModel, dataDirectory + "CityModelSimple.json");
+  JSON::Read(cityModel, dataDirectory + "CityModel.json");
+  Info(cityModel);
+
+  // Step 2: Simplify city model (merge buildings)
+  CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
+                                        p.MinVertexDistance);
   Info(cityModel);
 
   // Step 3.1: Generate 2D mesh
@@ -56,14 +66,20 @@ int main(int argc, char *argv[])
   MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox,
                                 p.MeshResolution);
   Info(mesh2D);
+
+  // Write data for debugging and visualization
   if (p.Debug)
+  {
     VTK::Write(mesh2D, dataDirectory + "Step31Mesh.vtu");
+  }
 
   // Step 3.2: Generate 3D mesh (full)
   Mesh3D mesh;
   const size_t numLayers = MeshGenerator::GenerateMesh3D(
       mesh, mesh2D, p.DomainHeight, p.MeshResolution);
   Info(mesh);
+
+  // Write data for debugging and visualization
   if (p.Debug)
   {
     Surface3D boundary;
@@ -76,6 +92,8 @@ int main(int argc, char *argv[])
   const double topHeight = dtm.Mean() + p.DomainHeight;
   LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
   Info(mesh);
+
+  // Write data for debugging and visualization
   if (p.Debug)
   {
     Surface3D boundary;
@@ -87,6 +105,8 @@ int main(int argc, char *argv[])
   // Step 3.4: Trim 3D mesh (remove tets inside buildings)
   MeshGenerator::TrimMesh3D(mesh, mesh2D, cityModel, numLayers);
   Info(mesh);
+
+  // Write data for debugging and visualization
   if (p.Debug)
   {
     Surface3D boundary;
@@ -98,6 +118,8 @@ int main(int argc, char *argv[])
   // Step 3.5: Smooth 3D mesh (apply DTM to ground)
   LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true);
   Info(mesh);
+
+  // Write data for debugging and visualization
   if (p.Debug)
   {
     Surface3D boundary;
