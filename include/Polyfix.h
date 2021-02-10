@@ -567,15 +567,15 @@ private:
                               std::vector<std::vector<size_t>> &edges,
                               double tol)
   {
-    // Get vertices
+    // Get vertices (don't use references since vector might increase in size)
     assert(i0 < vertices.size());
     assert(i1 < vertices.size());
     assert(j0 < vertices.size());
     assert(j1 < vertices.size());
-    const Point2D &p0 = vertices[i0];
-    const Point2D &p1 = vertices[i1];
-    const Point2D &q0 = vertices[j0];
-    const Point2D &q1 = vertices[j1];
+    const Point2D p0 = vertices[i0];
+    const Point2D p1 = vertices[i1];
+    const Point2D q0 = vertices[j0];
+    const Point2D q1 = vertices[j1];
 
     // Don't look for intersection if almost parallel
     const Vector2D u(p0, p1);

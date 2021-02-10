@@ -179,6 +179,8 @@ namespace DTCC
       // Create markers for all buildings that should be kept in current layer
       std::vector<bool> keepBuilding(cityModel.Buildings.size());
 
+      std::cout << "Phase 1" << std::endl;
+
       // Phase 1: Mark which cells that should be kept. This requires some
       // care since we want to mark all cells in a layer that belong to
       // the same building in the same way.
@@ -242,6 +244,8 @@ namespace DTCC
         }
       }
 
+      std::cout << "Phase 2" << std::endl;
+
       // Phase 2: Extract new mesh for all cells that should be kept
 
       // Renumber vertices and cells
@@ -271,12 +275,16 @@ namespace DTCC
         }
       }
 
+      std::cout << "Init data" << std::endl;
+
       // Initialize new mesh data
       const size_t numVertices = vertexMap.size();
       const size_t numCells = cellMap.size();
       std::vector<Point3D> vertices(numVertices);
       std::vector<Simplex3D> cells(numCells);
       std::vector<int> markers(numCells);
+
+      std::cout << "Set data" << std::endl;
 
       // Set new mesh data
       for (const auto v : vertexMap)
@@ -301,33 +309,31 @@ namespace DTCC
     // building footprints. Note that meshes are non-conforming; the ground
     // and building meshes are non-matching and the building meshes may
     // contain hanging nodes.
-    static std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
-                                                     const GridField2D &dtm,
-                                                     double xMin,
-                                                     double yMin,
-                                                     double xMax,
-                                                     double yMax,
-                                                     double resolution,
-                                                     bool flatGround)
+    static void GenerateSurfaces3D(Surface3D &groundSurface,
+                                   std::vector<Surface3D> &buildingSurfaces,
+                                   const CityModel &cityModel,
+                                   const GridField2D &dtm,
+                                   double resolution,
+                                   bool flatGround)
     {
       Info("MeshGenerator: Generating 3D surface meshes...");
       Timer("GenerateSurfaces3D");
 
-      // Create empty list of surfaces
-      std::vector<Surface3D> surfaces;
-
-      // Generate empty subdomains for Triangle mesh generation
+      // Create empty subdomains for Triangle mesh generation
       std::vector<std::vector<Point2D>> subDomains;
+
+      // Get bounding box
+      const BoundingBox2D &bbox = dtm.Grid.BoundingBox;
 
       // Generate boundary for Triangle mesh generation
       std::vector<Point2D> boundary;
-      boundary.push_back(Point2D(xMin, yMin));
-      boundary.push_back(Point2D(xMax, yMin));
-      boundary.push_back(Point2D(xMax, yMax));
-      boundary.push_back(Point2D(xMin, yMax));
+      boundary.push_back(bbox.P);
+      boundary.push_back(Point2D(bbox.Q.x, bbox.P.y));
+      boundary.push_back(bbox.Q);
+      boundary.push_back(Point2D(bbox.P.x, bbox.Q.y));
 
       // Generate 2D mesh of domain
-      Info("MeshGenerator: Generating ground mesh");
+      Info("MeshGenerator: Generating ground surface");
       Mesh2D mesh2D;
       CallTriangle(mesh2D, boundary, subDomains, resolution);
 
@@ -335,24 +341,23 @@ namespace DTCC
       ComputeDomainMarkers(mesh2D, cityModel);
 
       // Create ground surface with zero height
-      Surface3D surface3D;
-      surface3D.Faces = mesh2D.Cells;
-      surface3D.Vertices.resize(mesh2D.Vertices.size());
+      groundSurface.Faces = mesh2D.Cells;
+      groundSurface.Vertices.resize(mesh2D.Vertices.size());
       for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
       {
         const Point2D &p2D = mesh2D.Vertices[i];
         Vector3D p3D(p2D.x, p2D.y, 0.0);
-        surface3D.Vertices[i] = p3D;
+        groundSurface.Vertices[i] = p3D;
       }
 
       // Displace ground surface
-      Info("MeshGenerator: Displacing ground mesh");
+      Info("MeshGenerator: Displacing ground surface");
       if (flatGround)
       {
         // If ground is flat, just iterate over vertices and set height
         const double z = dtm.Min();
         for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
-          surface3D.Vertices[i].z = z;
+          groundSurface.Vertices[i].z = z;
       }
       else
       {
@@ -361,7 +366,7 @@ namespace DTCC
         // each point may be visited multiple times.
         const double zMax = dtm.Max();
         for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
-          surface3D.Vertices[i].z = zMax;
+          groundSurface.Vertices[i].z = zMax;
 
         // If ground is not float, iterate over the triangles
         for (size_t i = 0; i < mesh2D.Cells.size(); i++)
@@ -382,28 +387,25 @@ namespace DTCC
             zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v2]));
 
             // Set minimum height for all vertices
-            setMin(surface3D.Vertices[T.v0].z, zMin);
-            setMin(surface3D.Vertices[T.v1].z, zMin);
-            setMin(surface3D.Vertices[T.v2].z, zMin);
+            setMin(groundSurface.Vertices[T.v0].z, zMin);
+            setMin(groundSurface.Vertices[T.v1].z, zMin);
+            setMin(groundSurface.Vertices[T.v2].z, zMin);
           }
           else
           {
             // Sample height map at vertex position for all vertices
-            setMin(surface3D.Vertices[T.v0].z, dtm(mesh2D.Vertices[T.v0]));
-            setMin(surface3D.Vertices[T.v1].z, dtm(mesh2D.Vertices[T.v1]));
-            setMin(surface3D.Vertices[T.v2].z, dtm(mesh2D.Vertices[T.v2]));
+            setMin(groundSurface.Vertices[T.v0].z, dtm(mesh2D.Vertices[T.v0]));
+            setMin(groundSurface.Vertices[T.v1].z, dtm(mesh2D.Vertices[T.v1]));
+            setMin(groundSurface.Vertices[T.v2].z, dtm(mesh2D.Vertices[T.v2]));
           }
         }
       }
-
-      // Add ground surface to array of surfaces
-      surfaces.push_back(surface3D);
 
       // Get ground height (minimum)
       const double groundHeight = dtm.Min();
 
       // Iterate over buildings to generate surfaces
-      Info("MeshGenerator: Generating building meshes");
+      Info("MeshGenerator: Generating building surfaces");
       for (auto const &building : cityModel.Buildings)
       {
         // Generate 2D mesh of building footprint
@@ -467,10 +469,8 @@ namespace DTCC
         }
 
         // Add surface
-        surfaces.push_back(_surface3D);
+        buildingSurfaces.push_back(_surface3D);
       }
-
-      return surfaces;
     }
 
   private:

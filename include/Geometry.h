@@ -187,17 +187,16 @@ public:
   // -1 --- (p0) --- 0 --- (p1) --- +1
   static int EdgeSign2D(const Point2D &p0, const Point2D &p1, const Point2D &q)
   {
-    const Vector2D v(p0, p1);
     double l{}, d0{}, d1{};
-    if (std::abs(v.x > v.y)) // TODO: Taking absolute value of boolean?
+    if (std::abs(p0.x - p1.x) > std::abs(p0.y - p1.y))
     {
-      l = std::abs(v.x);
+      l = std::abs(p0.x - p1.x);
       d0 = std::abs(p0.x - q.x);
       d1 = std::abs(p1.x - q.x);
     }
     else
     {
-      l = std::abs(v.y);
+      l = std::abs(p0.y - p1.y);
       d0 = std::abs(p0.y - q.y);
       d1 = std::abs(p1.y - q.y);
     }

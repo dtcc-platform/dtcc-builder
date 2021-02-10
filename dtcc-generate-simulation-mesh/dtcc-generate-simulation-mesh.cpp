@@ -25,36 +25,47 @@ void Help()
   Error("Usage: dtcc-generate-simulation-mesh Parameters.json");
 }
 
-int main(int argc, char *argv[])
+// Generate surface meshes (non-matching, used for visualization)
+void GenerateSurfaceMeshes(const CityModel &cityModel,
+                           const GridField2D &dtm,
+                           const Parameters &p)
 {
-  // Check command-line arguments
-  if (argc != 2)
-  {
-    Help();
-    return 1;
-  }
-
-  // Read parameters
-  Parameters p;
-  JSON::Read(p, argv[1]);
-  Info(p);
-
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};
 
-  // Step 1: Generate elevation model an city model.
+  // Generate mesh for ground and buildings
+  Surface3D groundSurface;
+  std::vector<Surface3D> buildingSurfaces;
+  MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
+                                    dtm, p.MeshResolution, p.FlatGround);
+
+  // Merge building surfaces
+  Surface3D buildingSurface;
+  MeshProcessor::MergeSurfaces3D(buildingSurface, buildingSurfaces);
+
+  // Write data for debugging and visualization
+  if (p.Debug)
+  {
+    VTK::Write(groundSurface, dataDirectory + "GroundSurface.vtu");
+    VTK::Write(buildingSurface, dataDirectory + "BuildingSurface.vtu");
+  }
+
+  // Write to file
+  JSON::Write(groundSurface, dataDirectory + "GroundSurface.json");
+  JSON::Write(buildingSurface, dataDirectory + "BuildingSurface.json");
+}
+
+// Generate volume meshes (matching, used for simulation)
+void GenerateVolumeMeshes(CityModel &cityModel,
+                          const GridField2D &dtm,
+                          const Parameters &p)
+{
+  // Set data directory
+  const std::string dataDirectory{p.DataDirectory + "/"};
+
+  // Step 1: Generate city model (and elevation model).
   // This step is handled by dtcc-generate-citymodel and
   // we assume that the data has already been generated.
-
-  // Read elevation model (only DTM is used)
-  GridField2D dtm;
-  JSON::Read(dtm, dataDirectory + "DTM.json");
-  Info(dtm);
-
-  // Read city model
-  CityModel cityModel;
-  JSON::Read(cityModel, dataDirectory + "CityModel.json");
-  Info(cityModel);
 
   // Step 2: Simplify city model (merge buildings)
   CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
@@ -132,9 +143,47 @@ int main(int argc, char *argv[])
   Surface3D boundary;
   MeshProcessor::ExtractBoundary3D(boundary, mesh);
 
-  // Write final mesh and boundary
-  JSON::Write(mesh, dataDirectory + "Mesh.json");
-  JSON::Write(boundary, dataDirectory + "Boundary.json");
+  // Extract surface excluding top and sides
+  Surface3D surface;
+  MeshProcessor::ExtractOpenSurface3D(surface, boundary);
+
+  // Write to file
+  JSON::Write(mesh, dataDirectory + "CityMesh.json");
+  JSON::Write(surface, dataDirectory + "CitySurface.json");
+}
+
+int main(int argc, char *argv[])
+{
+  // Check command-line arguments
+  if (argc != 2)
+  {
+    Help();
+    return 1;
+  }
+
+  // Read parameters
+  Parameters p;
+  JSON::Read(p, argv[1]);
+  Info(p);
+
+  // Set data directory
+  const std::string dataDirectory{p.DataDirectory + "/"};
+
+  // Read city model
+  CityModel cityModel;
+  JSON::Read(cityModel, dataDirectory + "CityModel.json");
+  Info(cityModel);
+
+  // Read elevation model (only DTM is used)
+  GridField2D dtm;
+  JSON::Read(dtm, dataDirectory + "DTM.json");
+  Info(dtm);
+
+  // Generate surface meshes (non-matching, used for visualization)
+  // GenerateSurfaceMeshes(cityModel, dtm, p);
+
+  // Generate volume meshes (matching, used for simulation)
+  GenerateVolumeMeshes(cityModel, dtm, p);
 
   // Report timings
   Timer::Report("dtcc-generate-simulation-mesh");

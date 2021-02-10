@@ -49,7 +49,7 @@ public:
     std::vector<BoundingBox2D> bboxes;
     for (const auto &building : Buildings)
     {
-      BoundingBox2D bbox(building.Footprint, margin);
+      BoundingBox2D bbox(building.Footprint.Vertices, margin);
       bboxes.push_back(bbox);
     }
 

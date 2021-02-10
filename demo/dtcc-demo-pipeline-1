@@ -7,11 +7,8 @@ PARAMETERS=Hammarkullen2020.json
 # Exit on errors
 set -e
 
-# Generate elevation model
-../bin/dtcc-generate-elevation-model $PARAMETERS
-
 # Generate city model
-../bin/dtcc-generate-citymodel $PARAMETERS
+#../bin/dtcc-generate-citymodel $PARAMETERS
 
 # Generate simulation mesh
-#../bin/dtcc-generate-simulation-mesh $PARAMETERS
+../bin/dtcc-generate-simulation-mesh $PARAMETERS
