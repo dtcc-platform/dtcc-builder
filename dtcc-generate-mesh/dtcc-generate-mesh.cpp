@@ -39,8 +39,6 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
                                     dtm, p.MeshResolution, p.FlatGround);
 
-  return;
-
   // Merge building surfaces
   Surface3D buildingSurface;
   MeshProcessor::MergeSurfaces3D(buildingSurface, buildingSurfaces);
@@ -154,6 +152,13 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Write to file
   JSON::Write(mesh, dataDirectory + "CityMesh.json");
   JSON::Write(surface, dataDirectory + "CitySurface.json");
+
+  // Write data for debugging and visualization
+  if (p.Debug)
+  {
+    VTK::Write(mesh, dataDirectory + "CityMesh.vtu");
+    VTK::Write(surface, dataDirectory + "CitySurface.vtu");
+  }
 }
 
 int main(int argc, char *argv[])
