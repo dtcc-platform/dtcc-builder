@@ -1,14 +1,15 @@
-// Copyright (C) 2020 Anders Logg and Vasilis Naserentin
+// Copyright (C) 2020-2021 Anders Logg, Vasilis Naserentin, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_CSV_H
 #define DTCC_CSV_H
 
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <vector>
 #include "rapidcsv.h"
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <regex>
+#include <vector>
 
 #include "Mesh.h"
 #include "Parameters.h"
@@ -111,8 +112,11 @@ public:
     fp.close();
     ft.close();
   }
-  
-  static void Write(const PointCloud &pointCloud, std::string fileName)
+
+  /// Write PointCloud to CSV file.
+  /// \param pointCloud PointCloud to read from
+  /// \param fileName Name of file to write to
+  static void Write(const PointCloud &pointCloud, const std::string &fileName)
   {
     std::cout << "CSV: "
               << "Writing pointcloud to file " << fileName << std::endl;
@@ -132,8 +136,10 @@ public:
     {
       for (size_t i = 0;i<pointCloud.Points.size();i++) 
       {
-        f << pointCloud.Points[i].x << "," << pointCloud.Points[i].y << "," << pointCloud.Points[i].z << ","
-          << pointCloud.Colors[i].R << "," << pointCloud.Colors[i].G << "," << pointCloud.Colors[i].G << std::endl;
+        f << pointCloud.Points[i].x << "," << pointCloud.Points[i].y << ","
+          << pointCloud.Points[i].z << "," << pointCloud.Colors[i].R << ","
+          << pointCloud.Colors[i].G << "," << pointCloud.Colors[i].B << ","
+          << pointCloud.Classification[i] << std::endl;
       }
     } else 
     {
@@ -142,8 +148,6 @@ public:
          f << p.x << "," << p.y << "," << p.z << std::endl;
        }
     }
-    
-    
 
     // Close file
     f.close();
@@ -151,12 +155,14 @@ public:
   }
 
   // Read CSV file and store it in rapidcsv
-  void Read(const std::string& iFilename, bool verbose = false)
+  void Read(const std::string &iFilename,
+            rapidcsv::Document &doc,
+            bool verbose = false)
   {
     // Open file and check
     try
     {
-      Document.Load(iFilename);
+      doc.Load(iFilename);
     }
     catch (...)
     {
@@ -165,12 +171,147 @@ public:
 
     if (verbose)
     {
-      Info("Read " + str(Document.GetColumnCount() + 1) + " columns"); // Columns seems to be 0-indexed counts
-      Info("Read " + str(Document.GetRowCount() + 1) + " rows");
+      Info("Read " + str(doc.GetColumnCount() + 1) +
+           " columns"); // Columns seems to be 0-indexed counts
+      Info("Read " + str(doc.GetRowCount() + 1) + " rows");
     }
   }
 
+  /// Read point cloud from CSV file. Note that points will be added
+  /// to the given point cloud, enabling reading data from several
+  /// CSV files into the same point cloud.
+  /// \param pointCloud PointCloud to write to
+  /// \param fileName CSV filename. First row is assumed to be labels and order
+  /// of cols are assumed to be xyzrgbc (c = classification).
+  static void Read(PointCloud &pointCloud, const std::string &fileName)
+  {
+    Info(str("CSV: ") + str("Reading point cloud from file ") + fileName);
+    Read_(pointCloud, fileName);
+  }
+
+  /// Read point cloud from CSV file only if they are within the BoundingBox.
+  /// \param pointCloud PointCloud to write to
+  /// \param fileName CSV filename. First row is assumed to be labels and order
+  /// of cols are assumed to be xyzrgbc (c = classification).
+  /// \param bbox BoundingBox2D of which the points must lie within
+  static void Read(PointCloud &pointCloud,
+                   const std::string &fileName,
+                   const BoundingBox2D &bbox)
+  {
+    Info("CSV: Reading point cloud from file: " + fileName + " bounded by " +
+         str(bbox));
+    Read_(pointCloud, fileName, &bbox);
+  }
+
+  /// Read point cloud from CSV file only if they have the defined
+  /// classification
+  /// \param pointCloud PointCloud to write to
+  /// \param fileName CSV filename. First row is assumed to be labels and order
+  /// of cols are assumed to be xyzrgbc (c = classification).
+  /// \param classifications Vector of allowed classifications
+  static void Read(PointCloud &pointCloud,
+                   const std::string &fileName,
+                   const std::vector<int> &classifications)
+  {
+    Info("CSV: Reading point cloud from file: " + fileName +
+         " with classifications " + GetClassString(classifications));
+    Read_(pointCloud, fileName, nullptr, &classifications);
+  }
+
+  /// Read point cloud from CSV file only if they have the defined
+  /// classification and are within the BoundingBox.
+  /// \param pointCloud PointCloud to write to
+  /// \param fileName CSV filename. First row is assumed to be labels and order
+  /// of cols are assumed to be xyzrgbc (c = classification).
+  /// \param classifications Vector of allowed classifications \param bbox
+  /// BoundingBox2D of which the points must lie within
+  static void Read(PointCloud &pointCloud,
+                   const std::string &fileName,
+                   const std::vector<int> &classifications,
+                   const BoundingBox2D &bbox)
+  {
+    Info("CSV: Reading point cloud from file: " + fileName + " bounded by " +
+         str(bbox) + ", with classifications" +
+         GetClassString(classifications));
+    Read_(pointCloud, fileName, &bbox, &classifications);
+  }
+
 private:
+  /// Construct string of allowed classifications.
+  /// \param classifications Allowed classifications
+  /// \return String of allowed classifications
+  static std::string GetClassString(const std::vector<int> &classifications)
+  {
+    std::string classString;
+    for (int i = 0; i < classifications.size(); ++i)
+    {
+      classString += std::to_string(classifications[i]) +
+                     (i < classifications.size() - 1 ? ", " : "");
+    }
+    return classString;
+  }
+
+  /// Check if vector's x and y values are inside bounding box.
+  /// \param bbox The 2D bounding box
+  /// \param p The vector
+  /// \return Whether the vector is inside bounding box
+  static bool InsideBBox(const BoundingBox2D &bbox, const Vector3D &p)
+  {
+    return p.x >= bbox.P.x && p.x <= bbox.Q.x && p.y >= bbox.P.y &&
+           p.y <= bbox.Q.y;
+    }
+
+    /// Check if point type/classification belongs to allowed classifications.
+    /// \param classifications The allowed classifications
+    /// \param type The point's type/classification
+    /// \return Whether the point type/classification belongs to allowed
+    /// classifications
+    static bool HasRightClassification(const std::vector<int> &classifications,
+                                       int type)
+    {
+      return std::find(classifications.begin(), classifications.end(), type) !=
+             classifications.end();
+    }
+
+    /// Read points into PointCloud, possibly depending on certain constraints.
+    /// \param pointCloud PointCloud to write to
+    /// \param fileName CSV filename. First row is assumed to be labels and
+    /// order of cols are assumed to be xyzrgbc (c = classification). \param
+    /// bboxP BoundingBox2D of which the points must lie within \param classP
+    /// The allowed point classifications
+    static void Read_(PointCloud &pointCloud,
+                      const std::string &fileName,
+                      const BoundingBox2D *bboxP = nullptr,
+                      const std::vector<int> *classP = nullptr)
+    {
+      std::regex numRe(".*\\d*");
+      rapidcsv::Document doc(fileName, rapidcsv::LabelParams(-1, -1));
+
+      for (int i = 1; i < doc.GetRowCount(); ++i)
+      {
+        Vector3D point;
+        point.x = doc.GetCell<double>(0, i);
+        point.y = doc.GetCell<double>(1, i);
+        point.z = doc.GetCell<double>(2, i);
+
+        int type = doc.GetCell<int>(6, i);
+
+        // If point doesn't match some supplied constraint, continue iteration
+        if (bboxP && !InsideBBox(*bboxP, point) ||
+            classP && !HasRightClassification(*classP, type))
+          continue;
+
+        pointCloud.Points.push_back(point);
+        pointCloud.Classification.push_back(type);
+
+        Color color;
+        color.R = doc.GetCell<double>(3, i);
+        color.G = doc.GetCell<double>(4, i);
+        color.B = doc.GetCell<double>(5, i);
+        pointCloud.Colors.push_back(color);
+      }
+    }
+
   // Write 2D point to file
   static void Write(const Vector2D &p, std::ofstream &f)
   {
