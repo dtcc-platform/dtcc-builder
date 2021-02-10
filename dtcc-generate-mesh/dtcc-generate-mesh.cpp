@@ -70,9 +70,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Step 2: Simplify city model (merge buildings)
   CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
                                         p.MinVertexDistance);
+  Info(cityModel);
+
+  // Recompute building heights (seems better not to recompute heights).
+  // If we recompute the heights, then we tend to get a height that is too low.
   CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, p.GroundPercentile,
                                              p.RoofPercentile);
-  Info(cityModel);
 
   // Step 3.1: Generate 2D mesh
   Mesh2D mesh2D;

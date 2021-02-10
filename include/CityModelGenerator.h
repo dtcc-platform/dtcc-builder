@@ -112,9 +112,7 @@ public:
   /// Simplify city model by merging all buildings that are closer than
   /// a given distance. When merging buildings, the number of buildings
   /// will decrease. Ground points and roof points are also merged and
-  /// heights are set to min/max values of the merged buildings but it
-  /// is recommended to recompute heights (without recomputing the
-  /// the points) after simplification of the city model.
+  /// heights are set to min/max values of the merged buildings.
   static void SimplifyCityModel(CityModel &cityModel,
                                 double minimalBuildingDistance,
                                 double minimalVertexDistance)
