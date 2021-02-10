@@ -1,6 +1,7 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
+#include <CSV.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -47,8 +48,12 @@ int main(int argc, char *argv[])
     if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
     {
       LAS::Read(pointCloud, dataDirectory + f);
-      Info(pointCloud);
     }
+    else if (CommandLine::EndsWith(f, ".csv"))
+    {
+      CSV::Read(pointCloud, dataDirectory + f);
+    }
+    Info(pointCloud);
   }
 
   // Automatically determine domain size if auto
