@@ -39,6 +39,8 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
                                     dtm, p.MeshResolution, p.FlatGround);
 
+  return;
+
   // Merge building surfaces
   Surface3D buildingSurface;
   MeshProcessor::MergeSurfaces3D(buildingSurface, buildingSurfaces);
@@ -70,6 +72,8 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Step 2: Simplify city model (merge buildings)
   CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
                                         p.MinVertexDistance);
+  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, p.GroundPercentile,
+                                             p.RoofPercentile);
   Info(cityModel);
 
   // Step 3.1: Generate 2D mesh
@@ -180,7 +184,7 @@ int main(int argc, char *argv[])
   Info(dtm);
 
   // Generate surface meshes (non-matching, used for visualization)
-  // GenerateSurfaceMeshes(cityModel, dtm, p);
+  GenerateSurfaceMeshes(cityModel, dtm, p);
 
   // Generate volume meshes (matching, used for simulation)
   GenerateVolumeMeshes(cityModel, dtm, p);

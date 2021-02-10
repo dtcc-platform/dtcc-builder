@@ -25,7 +25,7 @@ class CityModelGenerator
 {
 public:
   /// Generate city model from building footprints, including only building
-  /// inside the given bounding box. Note that this does not generated any
+  /// inside the given bounding box. Note that this does not generate any
   /// building heights, only flat 2D buildings.
   ///
   /// @param cityModel The city model
@@ -74,6 +74,9 @@ public:
     Info("CityModelGenerator: Cleaning city model...");
     Timer("CleanCityModel");
 
+    // Clear search tree (since it might become invalid)
+    cityModel.bbtree.Clear();
+
     // Iterate over buildings
     size_t numClosed = 0;
     size_t numOriented = 0;
@@ -106,7 +109,12 @@ public:
          str(cityModel.Buildings.size()) + " polygons");
   }
 
-  // Simplify city model (simplify and merge polygons)
+  /// Simplify city model by merging all buildings that are closer than
+  /// a given distance. When merging buildings, the number of buildings
+  /// will decrease. Ground points and roof points are also merged and
+  /// heights are set to min/max values of the merged buildings but it
+  /// is recommended to recompute heights (without recomputing the
+  /// the points) after simplification of the city model.
   static void SimplifyCityModel(CityModel &cityModel,
                                 double minimalBuildingDistance,
                                 double minimalVertexDistance)
@@ -114,8 +122,11 @@ public:
     Info("CityModelGenerator: Simplifying city model...");
     Timer("SimplifyCityModel");
 
+    // Clear search tree (since it might become invalid)
+    cityModel.bbtree.Clear();
+
     // Merge buildings if too close
-    MergeBuildings(cityModel, minimalBuildingDistance);
+    MergeCityModel(cityModel, minimalBuildingDistance);
 
     // Clean after merge
     CleanCityModel(cityModel, minimalVertexDistance);
@@ -416,7 +427,7 @@ private:
   }
 
   // Merge all buildings closer than a given distance
-  static void MergeBuildings(CityModel &cityModel,
+  static void MergeCityModel(CityModel &cityModel,
                              double minimalBuildingDistance)
   {
     Info("CityModelGenerator: Merging buildings...");
@@ -448,7 +459,7 @@ private:
           continue;
 
         // Skip if merged with other building (size set to 0)
-        if (buildings[j].Footprint.Vertices.empty())
+        if (buildings[j].Empty())
           continue;
 
         // Compute squared distance between polygons
@@ -456,30 +467,27 @@ private:
         const Polygon &Pj = buildings[j].Footprint;
         const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
 
-        // Check if distance is smaller than the tolerance
+        // Merge if distance is small
         if (d2 < tol2)
         {
           Progress("CityModelGenerator: Buildings " + str(i) + " and " +
                    str(j) + " are too close, merging");
 
-          // Compute merged polygon
-          Polygon mergedPolygon =
-              Polyfix::MergePolygons(Pi, Pj, minimalBuildingDistance);
+          // Merge buildings
+          MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
           numMerged++;
 
-          // Replace Pi, erase Pj and add Pi to queue
-          buildings[i].Footprint = mergedPolygon;
-          buildings[j].Footprint.Vertices.clear();
+          // Add building i to queue
           indices.push(i);
         }
       }
     }
 
-    // Extract non-empty polygons
+    // Extract non-empty polygons (might be done more efficiently)
     std::vector<Building> mergedBuildings;
     for (const auto &building : buildings)
     {
-      if (!building.Footprint.Vertices.empty())
+      if (!building.Empty())
         mergedBuildings.push_back(building);
     }
 
@@ -487,6 +495,35 @@ private:
     cityModel.Buildings = mergedBuildings;
 
     Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
+  }
+
+  // Merge two buildings, replacing the first building and clearing the second.
+  // Note that we don't yet handle UUID and ID (using value for first building).
+  static void MergeBuildings(Building &building0,
+                             Building &building1,
+                             double minimalBuildingDistance)
+  {
+    // Compute merged polygon
+    Polygon mergedPolygon = Polyfix::MergePolygons(
+        building0.Footprint, building1.Footprint, minimalBuildingDistance);
+
+    // Set merged polygon
+    building0.Footprint = mergedPolygon;
+
+    // Set merged ground and roof points (just append)
+    for (const auto &p : building1.GroundPoints)
+      building0.GroundPoints.push_back(p);
+    for (const auto &p : building1.RoofPoints)
+      building0.RoofPoints.push_back(p);
+
+    // Set merged heights (use min and max)
+    const double h0 = std::min(building0.MinHeight(), building1.MinHeight());
+    const double h1 = std::max(building0.MaxHeight(), building1.MaxHeight());
+    building0.GroundHeight = h0;
+    building0.Height = h1 - h0;
+
+    // Erase second building
+    building1.Clear();
   }
 
   // Merge the two polygons

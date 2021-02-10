@@ -35,11 +35,11 @@ public:
   /// Height of ground at site of building
   double GroundHeight{};
 
+  /// Array of ground points (from point cloud) close to building footprint
+  std::vector<Point3D> GroundPoints{};
+
   /// Array of roof points (from point cloud) inside building footprint
   std::vector<Point3D> RoofPoints{};
-
-  /// Array of ground points (from point cloud) inside building footprint
-  std::vector<Point3D> GroundPoints{};
 
   /// Create empty building
   Building() = default;
@@ -59,6 +59,21 @@ public:
   ///
   /// @return Maximum absolute height of building
   double MaxHeight() const { return GroundHeight + Height; }
+
+  /// Check if building is empty
+  bool Empty() const { return Footprint.Vertices.empty(); }
+
+  /// Clear all data
+  void Clear()
+  {
+    UUID = "";
+    SHPFileID = 0;
+    Footprint.Vertices.clear();
+    Height = 0.0;
+    GroundHeight = 0.0;
+    GroundPoints.clear();
+    RoofPoints.clear();
+  }
 
   /// Pretty-print
   std::string __str__() const override
