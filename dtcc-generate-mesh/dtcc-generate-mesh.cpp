@@ -43,16 +43,16 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   Surface3D buildingSurface;
   MeshProcessor::MergeSurfaces3D(buildingSurface, buildingSurfaces);
 
+  // Write to file
+  JSON::Write(groundSurface, dataDirectory + "GroundSurface.json");
+  JSON::Write(buildingSurface, dataDirectory + "BuildingSurface.json");
+
   // Write data for debugging and visualization
   if (p.Debug)
   {
     VTK::Write(groundSurface, dataDirectory + "GroundSurface.vtu");
     VTK::Write(buildingSurface, dataDirectory + "BuildingSurface.vtu");
   }
-
-  // Write to file
-  JSON::Write(groundSurface, dataDirectory + "GroundSurface.json");
-  JSON::Write(buildingSurface, dataDirectory + "BuildingSurface.json");
 }
 
 // Generate volume meshes (matching, used for simulation)

@@ -564,7 +564,7 @@ TEST_CASE("Read from CSV instead of LAS/LAZ")
 
   SECTION("Read points only within bounding box")
   {
-    pointCloud.clear();
+    pointCloud.Clear();
     BoundingBox2D bbox(Point2D(315500, 6397510), Point2D(317000, 6399000));
     CSV::Read(pointCloud, filename, bbox);
     for (const auto &p : pointCloud.Points)
@@ -578,7 +578,7 @@ TEST_CASE("Read from CSV instead of LAS/LAZ")
 
   SECTION("Read only points of certain classification")
   {
-    pointCloud.clear();
+    pointCloud.Clear();
     std::vector<int> groundWaterPts{2, 9};
     CSV::Read(pointCloud, filename, groundWaterPts);
     // 1 is only other present classification
