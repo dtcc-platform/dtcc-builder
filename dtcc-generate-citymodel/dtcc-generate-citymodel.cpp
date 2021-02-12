@@ -4,16 +4,24 @@
 #include <string>
 #include <vector>
 
+// Needs to come before JSON (nlohmann) include because of sloppy
+// namespacing in VTK (typedef detail)...
+#include "VTK.h"
+
+// DTCC includes
 #include "CommandLine.h"
+#include "ElevationModelGenerator.h"
 #include "GridField.h"
 #include "JSON.h"
+#include "LAS.h"
 #include "Logging.h"
 #include "Parameters.h"
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
-#include "datamodel//CityModelGenerator.h"
+#include "VertexSmoother.h"
 #include "datamodel/CityModel.h"
+#include "datamodel/CityModelGenerator.h"
 
 using namespace DTCC;
 
@@ -29,49 +37,70 @@ int main(int argc, char *argv[])
   }
 
   // Read parameters
-  Parameters parameters;
-  JSON::Read(parameters, argv[1]);
-  Info(parameters);
+  Parameters p;
+  JSON::Read(p, argv[1]);
+  Info(p);
 
-  // Get parameters
-  const std::string dataDirectory = parameters.DataDirectory + "/";
-  const Vector2D p0{parameters.X0, parameters.Y0};
+  // Set data directory
+  const std::string dataDirectory{p.DataDirectory + "/"};
 
-  // Read property map data
+  // Set bounding box
+  const Point2D O{p.X0, p.Y0};
+  const Point2D P{p.XMin + p.X0, p.YMin + p.Y0};
+  const Point2D Q{p.XMax + p.X0, p.YMax + p.Y0};
+  const BoundingBox2D bbox{P, Q};
+  Info("Bounding box: " + str(bbox));
+
+  // Read point cloud (only points inside bounding box)
+  PointCloud pointCloud;
+  LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
+  pointCloud.SetOrigin(O);
+  Info(pointCloud);
+
+  // Generate DTM (excluding buildings and other objects)
+  GridField2D dtm;
+  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, {2, 9},
+                                                  p.ElevationModelResolution);
+  Info(dtm);
+
+  // Generate DSM (including buildings and other objects)
+  GridField2D dsm;
+  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, {},
+                                                  p.ElevationModelResolution);
+  Info(dsm);
+
+  // Smooth elevation model (only done for DTM)
+  VertexSmoother::SmoothField(dtm, p.GroundSmoothing);
+
+  // Read property map
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
-  SHP::Read(footprints, dataDirectory + "/PropertyMap.shp", &UUIDs, &entityIDs);
+  SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
 
-  // Read elevation models
-  GridField2D dsm;
-  GridField2D dtm;
-  JSON::Read(dsm, dataDirectory + "/DSM.json");
-  JSON::Read(dtm, dataDirectory + "/DTM.json");
-  Info(dsm);
-  Info(dtm);
-
-  // Generate city model and transform to new origin
+  // Generate raw city model
   CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        p0, dsm.Grid.BoundingBox);
+                                        bbox);
+  cityModel.SetOrigin(O);
   Info(cityModel);
-  JSON::Write(cityModel, dataDirectory + "/CityModelRaw.json");
 
-  // Clean city model and compute building heights
-  CityModelGenerator::CleanCityModel(cityModel,
-                                     parameters.MinimalVertexDistance);
-  CityModelGenerator::ComputeBuildingHeights(cityModel, dsm, dtm);
-  Info(cityModel);
-  JSON::Write(cityModel, dataDirectory + "/CityModelClean.json");
+  // Clean city model and compute heights
+  CityModelGenerator::CleanCityModel(cityModel, p.MinVertexDistance);
+  CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud,
+                                            p.GroundMargin);
+  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, p.GroundPercentile,
+                                             p.RoofPercentile);
 
-  // Simplify city model and compute building heights
-  CityModelGenerator::SimplifyCityModel(cityModel,
-                                        parameters.MinimalBuildingDistance,
-                                        parameters.MinimalVertexDistance);
-  CityModelGenerator::ComputeBuildingHeights(cityModel, dsm, dtm);
-  Info(cityModel);
-  JSON::Write(cityModel, dataDirectory + "/CityModelSimple.json");
+  // Write to file
+  JSON::Write(dtm, dataDirectory + "DTM.json");
+  JSON::Write(dsm, dataDirectory + "DSM.json");
+  JSON::Write(cityModel, dataDirectory + "CityModel.json");
+  if (p.Debug)
+  {
+    VTK::Write(dtm, dataDirectory + "DTM.vts");
+    VTK::Write(dsm, dataDirectory + "DSM.vts");
+  }
 
   // Report timings
   Timer::Report("dtcc-generate-citymodel");

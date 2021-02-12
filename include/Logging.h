@@ -86,17 +86,19 @@ namespace DTCC
   // Print warning message
   void Warning(const std::string& message)
   {
+    const std::string msg = "Warning: " + message;
     if (LogLevel <= WARNING)
-      __print__(message);
-    __print_logfile__(message);
+      __print__(msg);
+    __print_logfile__(msg);
   }
 
   // Print error message and throw exception
   void Error(const std::string& message)
   {
+    const std::string msg = "Error: " + message;
     if (LogLevel <= ERROR)
-      __print__(message);
-    __print_logfile__(message, true);
+      __print__(msg);
+    __print_logfile__(msg, true);
     throw std::runtime_error(message);
   }
 

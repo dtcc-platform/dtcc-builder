@@ -5,24 +5,26 @@
 #ifndef DTCC_BUILDING_H
 #define DTCC_BUILDING_H
 
+#include <string>
 #include <vector>
 
-#include "Vector.h"
+#include "Logging.h"
+#include "Point.h"
 #include "Polygon.h"
+#include "Vector.h"
 
 namespace DTCC
 {
 
+/// Building represents a building defined by a footprint and a height.
+/// This means that a Building is currently an LOD1 representation.
 class Building : public Printable
 {
 public:
-  /// Building's UUID
-  std::string UUID;
+  /// Universally unique identifier of building
+  std::string UUID{};
 
-  // Uncomment for debugging
-  // int debugID;
-
-  /// Shapefile ID
+  /// ID (index) of building when parsed from shapefile
   int SHPFileID{};
 
   /// FNR of property containing building
@@ -31,26 +33,57 @@ public:
   /// UUID of property containing building
   std::string PropertyUUID;
 
-  /// Building footprint (polygon)
+  /// Footprint of building (a 2D polygon)
   Polygon Footprint{};
 
   /// UUID of property containing building
   std::string BaseAreaID{};
 
-  /// Building height (relative to ground)
+  /// Height of building relative to ground height
   double Height{};
 
-  /// Ground height (absolute)
+  /// Height of ground at site of building
   double GroundHeight{};
 
-  /// Create empty building.
+  /// Array of ground points (from point cloud) close to building footprint
+  std::vector<Point3D> GroundPoints{};
+
+  /// Array of roof points (from point cloud) inside building footprint
+  std::vector<Point3D> RoofPoints{};
+
+  /// Create empty building
   Building() = default;
 
-  /// Return minimum absolute height of building.
+  // Uncomment for debugging
+  // int debugID;
+
+  /// Set new origin (subtract offset)
+  void SetOrigin(const Point2D &origin) { Footprint.SetOrigin(origin); }
+
+  /// Return minimum absolute height of building (equal to ground height).
+  ///
+  /// @return Minimum absolute height of building
   double MinHeight() const { return GroundHeight; }
 
-  /// Return maximum absolute height of building.
+  /// Return maximum absolute height of building
+  ///
+  /// @return Maximum absolute height of building
   double MaxHeight() const { return GroundHeight + Height; }
+
+  /// Check if building is empty
+  bool Empty() const { return Footprint.Vertices.empty(); }
+
+  /// Clear all data
+  void Clear()
+  {
+    UUID = "";
+    SHPFileID = 0;
+    Footprint.Vertices.clear();
+    Height = 0.0;
+    GroundHeight = 0.0;
+    GroundPoints.clear();
+    RoofPoints.clear();
+  }
 
   /// Pretty-print Building.
   /// \return Pretty-print string

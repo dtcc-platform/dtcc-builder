@@ -3,6 +3,7 @@
 
 #define CATCH_CONFIG_MAIN
 
+#include "CSV.h"
 #include "Color.h"
 #include "ColorMap.h"
 #include "ColorMapIO.h"
@@ -597,4 +598,57 @@ TEST_CASE("Convert GeoJSON to RoadNetwork")
   REQUIRE(roadNetwork.Vertices[0].x == 101003.3176);
   REQUIRE(roadNetwork.EdgeValues["AI_w5km"][0] == Approx(0.89656978845596313));
   REQUIRE(roadNetwork.EdgeValues["AI_w2k_h"][2] == Approx(743.246826171875));
+}
+
+TEST_CASE("Read from CSV instead of LAS/LAZ")
+{
+  std::string filename =
+      "../unittests/data/read-from-csv-instead-of-laz/PointCloudTest.csv";
+  PointCloud pointCloud;
+  CSV::Read(pointCloud, filename);
+
+  SECTION("PointCloud vertices")
+  {
+    Vector3D v1 = pointCloud.Points[0];
+    REQUIRE(v1.x == 317228.73);
+    REQUIRE(v1.y == 6397500.00);
+    REQUIRE(v1.z == 26.16);
+  }
+
+  SECTION("PointCloud colors")
+  {
+    Color c1 = pointCloud.Colors[0];
+    for (double ch : {c1.R, c1.G, c1.B})
+      REQUIRE(ch == 0);
+  }
+
+  SECTION("PointCloud classification")
+  {
+    auto classification = pointCloud.Classification[0];
+    REQUIRE(classification == 1);
+  }
+
+  SECTION("Read points only within bounding box")
+  {
+    pointCloud.Clear();
+    BoundingBox2D bbox(Point2D(315500, 6397510), Point2D(317000, 6399000));
+    CSV::Read(pointCloud, filename, bbox);
+    for (const auto &p : pointCloud.Points)
+    {
+      REQUIRE(p.x >= bbox.P.x);
+      REQUIRE(p.y >= bbox.P.y);
+      REQUIRE(p.x <= bbox.Q.x);
+      REQUIRE(p.y <= bbox.Q.y);
+    }
+  }
+
+  SECTION("Read only points of certain classification")
+  {
+    pointCloud.Clear();
+    std::vector<int> groundWaterPts{2, 9};
+    CSV::Read(pointCloud, filename, groundWaterPts);
+    // 1 is only other present classification
+    for (const auto &c : pointCloud.Classification)
+      REQUIRE(c != 1);
+  }
 }

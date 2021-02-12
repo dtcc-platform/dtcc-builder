@@ -42,7 +42,10 @@ namespace DTCC
     ///
     /// @param p First point
     /// @param q Second point
-    Vector2D(const Point2D &p, const Point2D &q) : x(q.x - p.x), y(q.y - p.y) {}
+    explicit Vector2D(const Point2D &p, const Point2D &q)
+        : x(q.x - p.x), y(q.y - p.y)
+    {
+    }
 
     /// Return point at origin + vector (conversion to point).
     ///
@@ -69,7 +72,7 @@ namespace DTCC
       return Vector2D{x - p.x, y - p.y};
     }
 
-    Vector2D operator-() const { return Vector2D(-x, -y); }
+    Vector2D operator-() const { return Vector2D{-x, -y}; }
 
     Vector2D operator-=(const Vector2D &p)
     {

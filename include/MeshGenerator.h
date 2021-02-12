@@ -301,33 +301,31 @@ namespace DTCC
     // building footprints. Note that meshes are non-conforming; the ground
     // and building meshes are non-matching and the building meshes may
     // contain hanging nodes.
-    static std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
-                                                     const GridField2D &dtm,
-                                                     double xMin,
-                                                     double yMin,
-                                                     double xMax,
-                                                     double yMax,
-                                                     double resolution,
-                                                     bool flatGround)
+    static void GenerateSurfaces3D(Surface3D &groundSurface,
+                                   std::vector<Surface3D> &buildingSurfaces,
+                                   const CityModel &cityModel,
+                                   const GridField2D &dtm,
+                                   double resolution,
+                                   bool flatGround)
     {
       Info("MeshGenerator: Generating 3D surface meshes...");
       Timer("GenerateSurfaces3D");
 
-      // Create empty list of surfaces
-      std::vector<Surface3D> surfaces;
-
-      // Generate empty subdomains for Triangle mesh generation
+      // Create empty subdomains for Triangle mesh generation
       std::vector<std::vector<Point2D>> subDomains;
+
+      // Get bounding box
+      const BoundingBox2D &bbox = dtm.Grid.BoundingBox;
 
       // Generate boundary for Triangle mesh generation
       std::vector<Point2D> boundary;
-      boundary.push_back(Point2D(xMin, yMin));
-      boundary.push_back(Point2D(xMax, yMin));
-      boundary.push_back(Point2D(xMax, yMax));
-      boundary.push_back(Point2D(xMin, yMax));
+      boundary.push_back(bbox.P);
+      boundary.push_back(Point2D(bbox.Q.x, bbox.P.y));
+      boundary.push_back(bbox.Q);
+      boundary.push_back(Point2D(bbox.P.x, bbox.Q.y));
 
       // Generate 2D mesh of domain
-      Info("MeshGenerator: Generating ground mesh");
+      Info("MeshGenerator: Generating ground surface");
       Mesh2D mesh2D;
       CallTriangle(mesh2D, boundary, subDomains, resolution);
 
@@ -335,24 +333,23 @@ namespace DTCC
       ComputeDomainMarkers(mesh2D, cityModel);
 
       // Create ground surface with zero height
-      Surface3D surface3D;
-      surface3D.Faces = mesh2D.Cells;
-      surface3D.Vertices.resize(mesh2D.Vertices.size());
+      groundSurface.Faces = mesh2D.Cells;
+      groundSurface.Vertices.resize(mesh2D.Vertices.size());
       for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
       {
         const Point2D &p2D = mesh2D.Vertices[i];
         Vector3D p3D(p2D.x, p2D.y, 0.0);
-        surface3D.Vertices[i] = p3D;
+        groundSurface.Vertices[i] = p3D;
       }
 
       // Displace ground surface
-      Info("MeshGenerator: Displacing ground mesh");
+      Info("MeshGenerator: Displacing ground surface");
       if (flatGround)
       {
         // If ground is flat, just iterate over vertices and set height
         const double z = dtm.Min();
         for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
-          surface3D.Vertices[i].z = z;
+          groundSurface.Vertices[i].z = z;
       }
       else
       {
@@ -361,7 +358,7 @@ namespace DTCC
         // each point may be visited multiple times.
         const double zMax = dtm.Max();
         for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
-          surface3D.Vertices[i].z = zMax;
+          groundSurface.Vertices[i].z = zMax;
 
         // If ground is not float, iterate over the triangles
         for (size_t i = 0; i < mesh2D.Cells.size(); i++)
@@ -382,28 +379,25 @@ namespace DTCC
             zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v2]));
 
             // Set minimum height for all vertices
-            setMin(surface3D.Vertices[T.v0].z, zMin);
-            setMin(surface3D.Vertices[T.v1].z, zMin);
-            setMin(surface3D.Vertices[T.v2].z, zMin);
+            setMin(groundSurface.Vertices[T.v0].z, zMin);
+            setMin(groundSurface.Vertices[T.v1].z, zMin);
+            setMin(groundSurface.Vertices[T.v2].z, zMin);
           }
           else
           {
             // Sample height map at vertex position for all vertices
-            setMin(surface3D.Vertices[T.v0].z, dtm(mesh2D.Vertices[T.v0]));
-            setMin(surface3D.Vertices[T.v1].z, dtm(mesh2D.Vertices[T.v1]));
-            setMin(surface3D.Vertices[T.v2].z, dtm(mesh2D.Vertices[T.v2]));
+            setMin(groundSurface.Vertices[T.v0].z, dtm(mesh2D.Vertices[T.v0]));
+            setMin(groundSurface.Vertices[T.v1].z, dtm(mesh2D.Vertices[T.v1]));
+            setMin(groundSurface.Vertices[T.v2].z, dtm(mesh2D.Vertices[T.v2]));
           }
         }
       }
-
-      // Add ground surface to array of surfaces
-      surfaces.push_back(surface3D);
 
       // Get ground height (minimum)
       const double groundHeight = dtm.Min();
 
       // Iterate over buildings to generate surfaces
-      Info("MeshGenerator: Generating building meshes");
+      Info("MeshGenerator: Generating building surfaces");
       for (auto const &building : cityModel.Buildings)
       {
         // Generate 2D mesh of building footprint
@@ -411,8 +405,8 @@ namespace DTCC
         CallTriangle(_mesh2D, building.Footprint.Vertices, subDomains,
                      resolution);
 
-        // Create empty 3D surface
-        Surface3D _surface3D;
+        // Create empty building surface
+        Surface3D buildingSurface;
 
         // Note: The generated 2D mesh contains all the input boundary
         // points with the same numbers as in the footprint polygon, but
@@ -420,25 +414,25 @@ namespace DTCC
         // mesh generation. We add the top points (including any Steiner
         // points) first, then the points at the bottom (the footprint).
 
-        // Set height of building
+        // Get absolute height of building
         const double buildingHeight = building.MaxHeight();
 
         // Set total number of points
         const size_t numMeshPoints = _mesh2D.Vertices.size();
         const size_t numBoundaryPoints = building.Footprint.Vertices.size();
-        _surface3D.Vertices.resize(numMeshPoints + numBoundaryPoints);
+        buildingSurface.Vertices.resize(numMeshPoints + numBoundaryPoints);
 
         // Set total number of triangles
         const size_t numMeshTriangles = _mesh2D.Cells.size();
         const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
-        _surface3D.Faces.resize(numMeshTriangles + numBoundaryTriangles);
+        buildingSurface.Faces.resize(numMeshTriangles + numBoundaryTriangles);
 
         // Add points at top
         for (size_t i = 0; i < numMeshPoints; i++)
         {
           const Point2D &p2D = _mesh2D.Vertices[i];
           const Vector3D p3D(p2D.x, p2D.y, buildingHeight);
-          _surface3D.Vertices[i] = p3D;
+          buildingSurface.Vertices[i] = p3D;
         }
 
         // Add points at bottom
@@ -446,12 +440,12 @@ namespace DTCC
         {
           const Point2D &p2D = _mesh2D.Vertices[i];
           const Vector3D p3D(p2D.x, p2D.y, groundHeight);
-          _surface3D.Vertices[numMeshPoints + i] = p3D;
+          buildingSurface.Vertices[numMeshPoints + i] = p3D;
         }
 
         // Add triangles on top
         for (size_t i = 0; i < numMeshTriangles; i++)
-          _surface3D.Faces[i] = _mesh2D.Cells[i];
+          buildingSurface.Faces[i] = _mesh2D.Cells[i];
 
         // Add triangles on boundary
         for (size_t i = 0; i < numBoundaryPoints; i++)
@@ -462,15 +456,13 @@ namespace DTCC
           const size_t v3 = v1 + numMeshPoints;
           Simplex2D t0(v0, v2, v1); // Outward-pointing normal
           Simplex2D t1(v1, v2, v3); // Outward-pointing normal
-          _surface3D.Faces[numMeshTriangles + 2 * i] = t0;
-          _surface3D.Faces[numMeshTriangles + 2 * i + 1] = t1;
+          buildingSurface.Faces[numMeshTriangles + 2 * i] = t0;
+          buildingSurface.Faces[numMeshTriangles + 2 * i + 1] = t1;
         }
 
         // Add surface
-        surfaces.push_back(_surface3D);
+        buildingSurfaces.push_back(buildingSurface);
       }
-
-      return surfaces;
     }
 
   private:

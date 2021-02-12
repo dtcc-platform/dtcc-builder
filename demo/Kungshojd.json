@@ -1,0 +1,20 @@
+{
+  "Type": "Parameters",
+  "DataDirectory": "/home/dtcc/core/data/Kungshojd",
+  "DomainHeight": 75.0,
+  "ElevationModelResolution": 1.0,
+  "MeshResolution": 10.0,
+  "X0": 318740,
+  "Y0": 6399629,
+  "XMin": 0,
+  "YMin": 0,
+  "XMax": 120,
+  "YMax": 120,
+  "AutoDomain": false,
+  "MinimalBuildingDistance": 1.0,
+  "MinimalVertexDistance": 1.0,
+  "FlatGround": false,
+  "GroundSmoothing": 4,
+  "NumRandomBuildings": 1000,
+  "Debug": true
+}

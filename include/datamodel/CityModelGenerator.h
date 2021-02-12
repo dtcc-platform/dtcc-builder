@@ -9,6 +9,9 @@
 #include <vector>
 
 #include "GridField.h"
+#include "Plotting.h"
+#include "PointCloud.h"
+#include "PointCloudProcessor.h"
 #include "Polyfix.h"
 #include "Polygon.h"
 #include "Timer.h"
@@ -21,53 +24,44 @@ namespace DTCC
 class CityModelGenerator
 {
 public:
-  /// Generate city model from building footprints. The given origin is
-  /// subtracted from all coordinates and only buildings completely inside
-  /// the given bounding box (after coordinate transformation) are included.
+  /// Generate city model from building footprints, including only building
+  /// inside the given bounding box. Note that this does not generate any
+  /// building heights, only flat 2D buildings.
   ///
   /// @param cityModel The city model
-  /// @param footprints Building footprints (polygons)
-  /// @param origin Origin to be subtracted
+  /// @param footprints Footprints of buildings (polygons)
+  /// @param UUIDs UUIDs of buildings
+  /// @param entityIDs Indices of buildings (in shapefile)
   /// @param bbox Bounding box of domain
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
                                 const std::vector<std::string> &UUIDs,
                                 const std::vector<int> &entityIDs,
-                                const Point2D &origin,
                                 const BoundingBox2D &bbox)
   {
     Info("CityModelGenerator: Generating city model...");
     Timer("GenerateCityModel");
 
-    // Clear old data
+    // Clear data
     cityModel.Buildings.clear();
 
     // Add buildings
-    // for (const auto &footprint : footprints)
     for (size_t i = 0; i < footprints.size(); i++)
     {
-      // Create transformed footprint
-      Polygon transformedFootprint = footprints[i];
-      Polyfix::Transform(transformedFootprint, origin);
+      // Skip if not inside  bounding box
+      if (!Geometry::BoundingBoxContains2D(bbox, footprints[i]))
+        continue;
 
-      // Add if inside bounding box
-      if (Geometry::BoundingBoxContains2D(bbox, transformedFootprint))
-      {
-        Building building;
-        building.Footprint = transformedFootprint;
-        building.UUID = UUIDs[i];
-        // Uncomment for debugging
-        // building.debugID = i + 1;
-        // Add SHP file entityID
-        building.SHPFileID = entityIDs[i];
-        cityModel.Buildings.push_back(building);
-        // std::cout << "i = " << i << " entityID = " << entityIDs[i] << " UUID
-        // = " << UUIDs[i] << std::endl;
-      }
+      // Add building
+      Building building;
+      building.Footprint = footprints[i];
+      building.UUID = UUIDs[i];
+      building.SHPFileID = entityIDs[i];
+      cityModel.Buildings.push_back(building);
     }
 
-    Info("CityModelGenerator: Found " + str(cityModel.Buildings.size()) + "/" +
-         str(footprints.size()) + " buildings inside domain");
+    Info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
+         str(footprints.size()) + " buildings inside bounding box");
   }
 
   /// Clean city model by making sure that all building footprints
@@ -79,6 +73,9 @@ public:
   {
     Info("CityModelGenerator: Cleaning city model...");
     Timer("CleanCityModel");
+
+    // Clear search tree (since it might become invalid)
+    cityModel.bbtree.Clear();
 
     // Iterate over buildings
     size_t numClosed = 0;
@@ -112,7 +109,10 @@ public:
          str(cityModel.Buildings.size()) + " polygons");
   }
 
-  // Simplify city model (simplify and merge polygons)
+  /// Simplify city model by merging all buildings that are closer than
+  /// a given distance. When merging buildings, the number of buildings
+  /// will decrease. Ground points and roof points are also merged and
+  /// heights are set to min/max values of the merged buildings.
   static void SimplifyCityModel(CityModel &cityModel,
                                 double minimalBuildingDistance,
                                 double minimalVertexDistance)
@@ -120,87 +120,220 @@ public:
     Info("CityModelGenerator: Simplifying city model...");
     Timer("SimplifyCityModel");
 
+    // Clear search tree (since it might become invalid)
+    cityModel.bbtree.Clear();
+
     // Merge buildings if too close
-    MergeBuildings(cityModel, minimalBuildingDistance);
+    MergeCityModel(cityModel, minimalBuildingDistance);
 
     // Clean after merge
     CleanCityModel(cityModel, minimalVertexDistance);
   }
 
-  /// Compute heights of buildings from height map.
+  /// Extract ground and roof points from point cloud.
+  ///
+  /// The ground points of a building are defined as all points
+  /// of class 2 (Ground) or 9 (Water) that fall within a given
+  /// distance from the building footprint.
+  ///
+  /// The roof points of a building are defined as all points
+  /// of class 6 (Building) that fall within the building
+  /// footprint. However, since that classification seems to
+  /// be missing in the data from LM, we are currently using
+  /// all points (except class 2 and 9).
   ///
   /// @param cityModel The city model
-  /// @param dsm       Digital Surface Model (including buildings)
-  /// @param dtm       Digital Terrain Model (excluding buildings)
+  /// @param pointCloud Point cloud (unfiltered)
+  /// @param groundMargin Margin around building for detecting ground points
+  static void ExtractBuildingPoints(CityModel &cityModel,
+                                    const PointCloud &pointCloud,
+                                    double groundMargin)
+  {
+    Info("CityModelGenerator: Extracting building points...");
+    Timer("ExtractBuildingPoints");
+
+    // Check that point cloud is not empty
+    if (pointCloud.Points.empty())
+      Error("Empty point cloud");
+
+    // Check that point cloud has classifications
+    if (pointCloud.Points.size() != pointCloud.Classification.size())
+      Error("Missing classifications for point cloud");
+
+    // Build search trees
+    pointCloud.BuildSearchTree(true);
+    cityModel.BuildSearchTree(true, groundMargin);
+
+    // Compute bounding box tree collisions
+    const auto collisions = pointCloud.bbtree.Find(cityModel.bbtree);
+
+    // Clear old building points (if any)
+    for (auto &building : cityModel.Buildings)
+    {
+      building.GroundPoints.clear();
+      building.RoofPoints.clear();
+    }
+
+    // Squared margin for detecting ground points
+    const double d2 = groundMargin * groundMargin;
+
+    // Iterate over collisions and extract points
+    for (auto &index : collisions)
+    {
+      // Get point and building
+      const Point3D &p3D = pointCloud.Points[index.first];
+      const Point2D p2D{p3D.x, p3D.y};
+      const uint8_t clf = pointCloud.Classification[index.first];
+      Building &building = cityModel.Buildings[index.second];
+
+      // Check for ground points
+      if (clf == 2 || clf == 9)
+      {
+        if (Geometry::SquaredDistance2D(building.Footprint, p2D) < d2)
+          building.GroundPoints.push_back(p3D);
+      }
+
+      // Check for roof points
+      // else if (clf == 6)
+      else
+      {
+        if (Geometry::PolygonContains2D(building.Footprint, p2D))
+          building.RoofPoints.push_back(p3D);
+      }
+    }
+
+    // Sort points by height
+    for (auto &building : cityModel.Buildings)
+    {
+      std::sort(
+          building.GroundPoints.begin(), building.GroundPoints.end(),
+          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
+      std::sort(
+          building.RoofPoints.begin(), building.RoofPoints.end(),
+          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
+    }
+
+    // Compute some statistics
+    size_t minG{std::numeric_limits<size_t>::max()};
+    size_t minR{std::numeric_limits<size_t>::max()};
+    size_t maxG{0}, maxR{0};
+    size_t sumG{0}, sumR{0};
+    for (const auto &building : cityModel.Buildings)
+    {
+      // Ground points
+      const size_t nG = building.GroundPoints.size();
+      minG = std::min(minG, nG);
+      maxG = std::max(maxG, nG);
+      sumG += nG;
+
+      // Roof points
+      const size_t nR = building.RoofPoints.size();
+      minR = std::min(minR, nR);
+      maxR = std::max(maxR, nR);
+      sumR += nR;
+    }
+    const double meanG = static_cast<double>(sumG) / cityModel.Buildings.size();
+    const double meanR = static_cast<double>(sumR) / cityModel.Buildings.size();
+
+    Info("CityModelGenerator: min/mean/max number of ground points per "
+         "building is " +
+         str(minG) + "/" + str(meanG) + "/" + str(maxG));
+    Info("CityModelGenerator: min/mean/max number of roof points per building "
+         "is " +
+         str(minR) + "/" + str(meanR) + "/" + str(maxR));
+  }
+
+  /// Compute heights of buildings from ground and roof points. This
+  /// requires that ExtractBuildingPoints() has been called to extract
+  /// the points from point cloud data.
+  ///
+  /// @param cityModel The city model
+  /// @param dtm Digital Terrain Map, used for ground height if points are
+  /// missing
+  /// @param groundPercentile Percentile used for setting ground height
+  /// @param roofPercentile Percentile used for setting roof height
   static void ComputeBuildingHeights(CityModel &cityModel,
-                                     const GridField2D &dsm,
-                                     const GridField2D &dtm)
+                                     const GridField2D &dtm,
+                                     double groundPercentile,
+                                     double roofPercentile)
   {
     Info("CityModelGenerator: Computing building heights...");
     Timer("ComputeBuildingHeights");
 
+    // FIXME: Make this a parameter
+    const double minBuildingHeight{2.5};
+
+    // Uncomment for debugging
+    // Plotting::Init();
+
+    // Count missing or bad data
+    size_t numMissingGroundPoints = 0;
+    size_t numMissingRoofPoints = 0;
+    size_t numSmallHeights = 0;
+
     // Iterate over buildings
-    for (size_t i = 0; i < cityModel.Buildings.size(); i++)
+    for (auto &building : cityModel.Buildings)
     {
-      // Get building
-      Building &building = cityModel.Buildings[i];
-
-      // Compute center and radius of building footprint
-      const Point2D center = Geometry::PolygonCenter2D(building.Footprint);
-      const double radius =
-          Geometry::PolygonRadius2D(building.Footprint, center);
-
-      // Add points for sampling height
-      std::vector<Point2D> samplePoints;
-      samplePoints.push_back(center);
-      const size_t m = 2;
-      const size_t n = 8;
-      for (size_t k = 1; k <= m; k++)
+      // Compute ground height h0
+      double h0{0};
+      if (building.GroundPoints.empty())
       {
-        const double r =
-            static_cast<double>(k) / static_cast<double>(m) * 0.5 * radius;
-        for (size_t l = 0; l < n; l++)
-        {
-          const double theta =
-              static_cast<double>(l) / static_cast<double>(n) * 2.0 * M_PI;
-          Point2D p(center.x + r * cos(theta), center.y + r * sin(theta));
-          samplePoints.push_back(p);
-        }
+        Warning("Missing ground points for building " + building.UUID);
+        Info("CityModelGenerator: Setting ground height from DTM");
+        h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
+        numMissingGroundPoints++;
+      }
+      else
+      {
+        // Pick percentile from ground points
+        h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
       }
 
-      // Compute mean height at points inside footprint
-      double h0 = 0.0;
-      double h1 = 0.0;
-      size_t numInside = 0;
-      for (auto const &p : samplePoints)
+      // Compute roof height h1
+      double h1{0};
+      if (building.RoofPoints.empty())
       {
-        if (Geometry::PolygonContains2D(building.Footprint, p))
-        {
-          h0 += dtm(p);
-          h1 += dsm(p);
-          numInside += 1;
-        }
+        Warning("Missing roof points for building " + building.UUID);
+        Info("CityModelGenerator: Setting building height to " +
+             str(minBuildingHeight) + "m");
+        h1 = h0 + minBuildingHeight;
+        numMissingRoofPoints++;
+      }
+      else
+      {
+        // Pick percentile from ground points
+        h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
       }
 
-      // Check if we got at least one point
-      if (numInside == 0)
+      // Check that h0 < h1
+      if (h1 < h0 + minBuildingHeight)
       {
-        Info("CityModelGenerator: No sample points inside building " + str(i) +
-             ", setting height to 0");
-        numInside = 1;
+        Warning("Height too small for building " + building.UUID);
+        Info("CitModelGenerator: Setting building height to " +
+             str(minBuildingHeight));
+        h1 = h0 + minBuildingHeight;
+        numSmallHeights++;
       }
-
-      // Compute mean
-      h0 /= static_cast<double>(numInside);
-      h1 /= static_cast<double>(numInside);
 
       // Set building height(s)
       building.Height = h1 - h0;
       building.GroundHeight = h0;
+
+      // Uncomment for debugging
+      // Plotting::Plot(building);
     }
+
+    // Print some statistics
+    const size_t n = cityModel.Buildings.size();
+    Info("CityModelGenerator: Missing ground points for " +
+         str(numMissingGroundPoints) + "/" + str(n) + " building(s)");
+    Info("CityModelGenerator: Missing roof points for " +
+         str(numMissingRoofPoints) + "/" + str(n) + " building(s)");
+    Info("CityModelGenerator: Height too small (adjusted) for " +
+         str(numSmallHeights) + "/" + str(n) + " building(s)");
   }
 
-  /// Generate a random city model. Used for benchmarking.
+  // Generate a random city model. Used for benchmarking.
   ///
   /// @param cityModel The city model
   /// @param dtm Digital Terrian Map
@@ -282,8 +415,17 @@ public:
   }
 
 private:
+  // Get percentile object from array. It is assumed that the array is ordered.
+  template <class T>
+  static T GetPercentile(const std::vector<T> &array, double percentile)
+  {
+    size_t index = std::max(0.0, percentile * array.size());
+    index = std::min(index, array.size() - 1);
+    return array[index];
+  }
+
   // Merge all buildings closer than a given distance
-  static void MergeBuildings(CityModel &cityModel,
+  static void MergeCityModel(CityModel &cityModel,
                              double minimalBuildingDistance)
   {
     Info("CityModelGenerator: Merging buildings...");
@@ -315,7 +457,7 @@ private:
           continue;
 
         // Skip if merged with other building (size set to 0)
-        if (buildings[j].Footprint.Vertices.empty())
+        if (buildings[j].Empty())
           continue;
 
         // Compute squared distance between polygons
@@ -323,30 +465,27 @@ private:
         const Polygon &Pj = buildings[j].Footprint;
         const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
 
-        // Check if distance is smaller than the tolerance
+        // Merge if distance is small
         if (d2 < tol2)
         {
           Progress("CityModelGenerator: Buildings " + str(i) + " and " +
                    str(j) + " are too close, merging");
 
-          // Compute merged polygon
-          Polygon mergedPolygon =
-              Polyfix::MergePolygons(Pi, Pj, minimalBuildingDistance);
+          // Merge buildings
+          MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
           numMerged++;
 
-          // Replace Pi, erase Pj and add Pi to queue
-          buildings[i].Footprint = mergedPolygon;
-          buildings[j].Footprint.Vertices.clear();
+          // Add building i to queue
           indices.push(i);
         }
       }
     }
 
-    // Extract non-empty polygons
+    // Extract non-empty polygons (might be done more efficiently)
     std::vector<Building> mergedBuildings;
     for (const auto &building : buildings)
     {
-      if (!building.Footprint.Vertices.empty())
+      if (!building.Empty())
         mergedBuildings.push_back(building);
     }
 
@@ -354,6 +493,35 @@ private:
     cityModel.Buildings = mergedBuildings;
 
     Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
+  }
+
+  // Merge two buildings, replacing the first building and clearing the second.
+  // Note that we don't yet handle UUID and ID (using value for first building).
+  static void MergeBuildings(Building &building0,
+                             Building &building1,
+                             double minimalBuildingDistance)
+  {
+    // Compute merged polygon
+    Polygon mergedPolygon = Polyfix::MergePolygons(
+        building0.Footprint, building1.Footprint, minimalBuildingDistance);
+
+    // Set merged polygon
+    building0.Footprint = mergedPolygon;
+
+    // Set merged ground and roof points (just append)
+    for (const auto &p : building1.GroundPoints)
+      building0.GroundPoints.push_back(p);
+    for (const auto &p : building1.RoofPoints)
+      building0.RoofPoints.push_back(p);
+
+    // Set merged heights (use min and max)
+    const double h0 = std::min(building0.MinHeight(), building1.MinHeight());
+    const double h1 = std::max(building0.MaxHeight(), building1.MaxHeight());
+    building0.GroundHeight = h0;
+    building0.Height = h1 - h0;
+
+    // Erase second building
+    building1.Clear();
   }
 
   // Merge the two polygons

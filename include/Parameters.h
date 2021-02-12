@@ -28,32 +28,38 @@ namespace DTCC
     double XMax = 0.0;
     double YMax = 0.0;
 
-    // Automatically determine domain size
-    bool AutoDomain = true;
-
-    // Elevation model resolution
+    // Elevation model resolution [m]
     double ElevationModelResolution = 1.0;
 
     // Minimal building distance (merged if closer)
-    double MinimalBuildingDistance = 1.0;
+    double MinBuildingDistance = 1.0;
 
     // Minimal vertex distance (merged if closer)
-    double MinimalVertexDistance = 1.0;
+    double MinVertexDistance = 1.0;
 
-    // Height of computational domain
+    // Height of computational domain [m]
     double DomainHeight = 100.0;
 
     // Maximum mesh size used for mesh generation [m]
     double MeshResolution = 10.0;
 
-    // Keep ground flat (ignore elevation model)
-    bool FlatGround = false;
+    // Margin around building for detecting ground points
+    double GroundMargin = 1.0;
+
+    // Percentile used for computing building ground height [0, 1]
+    double GroundPercentile = 0.1;
+
+    // Percentile used for computing building roof height [0, 1]
+    double RoofPercentile = 0.9;
 
     // Number of smoothing iterations DTM
     int GroundSmoothing = 5;
 
     // Number of buildings in random city model
     int NumRandomBuildings = 25;
+
+    // Keep ground flat (ignore elevation model)
+    bool FlatGround = false;
 
     // Write extra data for debugging
     bool Debug = false;
@@ -78,19 +84,26 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const override
     {
-      return str("Parameters:") + "\n  DataDirectory            = " +
-             DataDirectory + "\n  X0                       = " + str(X0) +
+      return str("Parameters:") +
+             "\n  DataDirectory            = " + DataDirectory +
+             "\n  X0                       = " + str(X0) +
              "\n  Y0                       = " + str(Y0) +
              "\n  XMin                     = " + str(XMin) +
              "\n  YMin                     = " + str(YMin) +
              "\n  XMax                     = " + str(XMax) +
              "\n  YMax                     = " + str(YMax) +
-             "\n  AutoDomain               = " + str(AutoDomain) +
              "\n  ElevationModelResolution = " + str(ElevationModelResolution) +
-             "\n  MinimalBuildingDistance  = " + str(MinimalBuildingDistance) +
+             "\n  MinBuildingDistance      = " + str(MinBuildingDistance) +
+             "\n  MinVertexDistance        = " + str(MinVertexDistance) +
              "\n  DomainHeight             = " + str(DomainHeight) +
              "\n  MeshResolution           = " + str(MeshResolution) +
-             "\n  FlatGround               = " + str(FlatGround);
+             "\n  GroundMargin             = " + str(GroundMargin) +
+             "\n  GroundPercentile         = " + str(GroundPercentile) +
+             "\n  RoofPercentile           = " + str(RoofPercentile) +
+             "\n  GroundSmoothing          = " + str(GroundSmoothing) +
+             "\n  NumRandomBuildings       = " + str(NumRandomBuildings) +
+             "\n  FlatGround               = " + str(FlatGround) +
+             "\n  Debug                    = " + str(Debug);
     }
   };
 

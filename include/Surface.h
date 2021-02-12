@@ -26,6 +26,16 @@ namespace DTCC
     // Array of normals
     std::vector<Vector2D> Normals;
 
+    // Compute midpoint of edge
+    Point2D MidPoint(size_t edgeIndex) const
+    {
+      Vector2D c{};
+      c += Vector2D(Vertices[Edges[edgeIndex].v0]);
+      c += Vector2D(Vertices[Edges[edgeIndex].v1]);
+      c /= 2.0;
+      return c;
+    }
+
     /// Pretty-print
     std::string __str__() const override
     {
@@ -47,6 +57,17 @@ namespace DTCC
 
     // Array of normal
     std::vector<Vector3D> Normals;
+
+    // Compute midpoint of face
+    Point3D MidPoint(size_t faceIndex) const
+    {
+      Vector3D c{};
+      c += Vector3D(Vertices[Faces[faceIndex].v0]);
+      c += Vector3D(Vertices[Faces[faceIndex].v1]);
+      c += Vector3D(Vertices[Faces[faceIndex].v2]);
+      c /= 3.0;
+      return c;
+    }
 
     /// Pretty-print
     std::string __str__() const override
