@@ -3,8 +3,6 @@
 
 #include <dolfin.h>
 
-#include "CityModel.h"
-#include "CityModelGenerator.h"
 #include "CommandLine.h"
 #include "GridField.h"
 #include "JSON.h"
@@ -17,13 +15,12 @@
 #include "Parameters.h"
 #include "VTK.h"
 #include "VertexSmoother.h"
+#include "datamodel/CityModel.h"
+#include "datamodel/CityModelGenerator.h"
 
 using namespace DTCC;
 
-void Help()
-{
-  Error("Usage: dtcc-generate-simulation-mesh Parameters.json");
-}
+void Help() { Error("Usage: dtcc-generate-simulation-mesh Parameters.json"); }
 
 // Generate surface meshes (non-matching, used for visualization)
 void GenerateSurfaceMeshes(const CityModel &cityModel,

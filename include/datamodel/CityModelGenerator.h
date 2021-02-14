@@ -8,7 +8,6 @@
 #include <queue>
 #include <vector>
 
-#include "CityModel.h"
 #include "GridField.h"
 #include "Plotting.h"
 #include "PointCloud.h"
@@ -17,6 +16,7 @@
 #include "Polygon.h"
 #include "Timer.h"
 #include "Vector.h"
+#include "datamodel/CityModel.h"
 
 namespace DTCC
 {

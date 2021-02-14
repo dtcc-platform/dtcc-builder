@@ -127,8 +127,7 @@ private:
 
   // Bounding box tree used for search queries
   mutable BoundingBoxTree2D bbtree;
-
-  };
+};
 
 } // namespace DTCC
 

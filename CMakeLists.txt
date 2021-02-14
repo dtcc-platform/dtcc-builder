@@ -13,7 +13,7 @@ message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
 # Set build flags
 set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
-set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")
+#set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # Add path to local CMake scripts
@@ -55,6 +55,7 @@ include(${VTK_USE_FILE})
 
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 link_directories(/usr/local/lib) #Equivalent of ldconfig /usr/local/lib in Dockerfile
 

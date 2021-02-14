@@ -11,14 +11,14 @@
 #include <vector>
 
 #include "CSV.h"
-#include "CityModel.h"
 #include "Geometry.h"
-#include "Mesh.h"
-#include "Vector.h"
-#include "Surface.h"
 #include "GridField.h"
-#include "Timer.h"
 #include "Logging.h"
+#include "Mesh.h"
+#include "Surface.h"
+#include "Timer.h"
+#include "Vector.h"
+#include "datamodel/CityModel.h"
 
 extern "C"
 {

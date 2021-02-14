@@ -84,8 +84,9 @@ namespace DTCC
     /// Pretty-print
     std::string __str__() const override
     {
-      return str("Parameters:") + "\n  DataDirectory            = " +
-             DataDirectory + "\n  X0                       = " + str(X0) +
+      return str("Parameters:") +
+             "\n  DataDirectory            = " + DataDirectory +
+             "\n  X0                       = " + str(X0) +
              "\n  Y0                       = " + str(Y0) +
              "\n  XMin                     = " + str(XMin) +
              "\n  YMin                     = " + str(YMin) +

@@ -5,7 +5,9 @@
 #include "Logging.h"
 #include "RoadNetworkGenerator.h"
 #include <JSON.h>
-#include <RoadNetwork.h>
+#include <Polygon.h>
+#include <SHP.h>
+#include <datamodel/RoadNetwork.h>
 #include <iostream>
 
 using namespace DTCC;

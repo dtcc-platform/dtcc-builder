@@ -4,8 +4,8 @@
 #ifndef DTCC_PLOTTING_H
 #define DTCC_PLOTTING_H
 
-#include "Building.h"
 #include "Logging.h"
+#include "datamodel/Building.h"
 
 namespace DTCC
 {
@@ -137,6 +137,6 @@ private:
     return c;
   }
 };
-}
+} // namespace DTCC
 
 #endif

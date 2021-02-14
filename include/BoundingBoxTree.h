@@ -291,14 +291,13 @@ private:
     const double dy = bbox.Q.y - bbox.P.y;
     return (dx > dy ? 0 : 1);
   }
+};
 
-  };
-
-  /// BoundingBoxTree2D is a 2D axis-aligned bounding box tree (AABB tree).
-  class BoundingBoxTree3D
-  {
-    // FIXME: Not yet implemented since not needed/used but can be easily
-    // FIXME: implemented by extending the 2D version.
+/// BoundingBoxTree2D is a 2D axis-aligned bounding box tree (AABB tree).
+class BoundingBoxTree3D
+{
+  // FIXME: Not yet implemented since not needed/used but can be easily
+  // FIXME: implemented by extending the 2D version.
   };
 
 }

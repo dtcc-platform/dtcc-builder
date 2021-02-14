@@ -1,4 +1,5 @@
-// Copyright (C) 2019 Anders Logg
+// Representation of a 2.5D building.
+// Copyright (C) 2019-2020 Anders Logg, Anton J Olsson.
 // Licensed under the MIT License
 
 #ifndef DTCC_BUILDING_H
@@ -23,11 +24,20 @@ public:
   /// Universally unique identifier of building
   std::string UUID{};
 
-  /// ID (index) of bulding when parsed from shapefile
+  /// ID (index) of building when parsed from shapefile
   int SHPFileID{};
+
+  /// FNR of property containing building
+  size_t PropertyFNR{};
+
+  /// UUID of property containing building
+  std::string PropertyUUID;
 
   /// Footprint of building (a 2D polygon)
   Polygon Footprint{};
+
+  /// UUID of property containing building
+  std::string BaseAreaID{};
 
   /// Height of building relative to ground height
   double Height{};
@@ -75,11 +85,18 @@ public:
     RoofPoints.clear();
   }
 
-  /// Pretty-print
+  /// Pretty-print Building.
+  /// \return Pretty-print string
   std::string __str__() const override
   {
-    return "Building with UUID " + UUID + " and height " + str(Height) +
-           " and ground height " + str(GroundHeight);
+    return "Building\n"
+           "UUID: " +
+           UUID + "\nProperty FNR: " + str(PropertyFNR) +
+           "\nProperty UUID: " + PropertyUUID +
+           "\nBase area ID: " + BaseAreaID +
+           "\nMin height: " + std::to_string(MinHeight()) +
+           "\nMax height: " + std::to_string(MaxHeight()) +
+           "\nFootprint: " + Footprint.__str__();
   }
 };
 

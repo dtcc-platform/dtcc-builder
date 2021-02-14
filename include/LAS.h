@@ -120,9 +120,8 @@ public:
         liblas::Point point(&header);
         point.SetCoordinates(p.x, p.y, p.z);
         writer.WritePoint(point);
-       }
+      }
     }
-
   }
 
 private:

@@ -1,5 +1,8 @@
-// Copyright (C) 2020 ReSpace AB
+// Copyright (C) 2020 ReSpace AB, Anton J Olsson
 // Licensed under the MIT License
+
+#include <Logging.h>
+#include <nlohmann/json.hpp>
 
 /// Read JSON data from file
 static void Read(nlohmann::json& json, std::string fileName)
@@ -11,14 +14,15 @@ static void Read(nlohmann::json& json, std::string fileName)
   f >> json;
 }
 
-/// Write JSON data to file
-static void Write(const nlohmann::json& json, std::string fileName)
+/// Write JSON data to file. indent: number of spaces in indent (-1 = no indent)
+static void
+Write(const nlohmann::json &json, std::string fileName, int indent = -1)
 {
   Info("JSON: Writing to file " + fileName + "...");
   std::ofstream f(fileName);
   if (!f)
     Error("Unable to write to file " + fileName);
-  f << json;
+  f << json.dump(indent);
 }
 
 /// Read object from file
@@ -105,4 +109,22 @@ static std::string ToString(std::string key, const nlohmann::json &json)
   if (json.find(key) == json.end())
     Error("Missing field '" + key + "' in JSON file.");
   return json[key];
+}
+
+/// Get JSON object in JSON array by key/value pair in object.
+/// \tparam T value's type
+/// \param key key in key/value/pair
+/// \param value value in key/value/pair
+/// \param jsonArray JSON array containing object
+/// \return JSON object, if found
+template <typename T>
+static nlohmann::json GetObjectByAttribute(const std::string key,
+                                           T value,
+                                           const nlohmann::json &jsonArray)
+{
+  for (const auto &jsonObj : jsonArray)
+    if (jsonObj[key] == value)
+      return jsonObj;
+  Error("No object with key " + key + " and value " + value + " in JSON array");
+  return nullptr;
 }

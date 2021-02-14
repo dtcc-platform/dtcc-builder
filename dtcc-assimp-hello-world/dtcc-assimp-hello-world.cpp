@@ -9,10 +9,10 @@
 #include <vector>
 
 #include "JSON.h"
-#include "Building.h"
-#include "CityModel.h"
-#include "Vector.h"
 #include "Logging.h"
+#include "Vector.h"
+#include "datamodel/Building.h"
+#include "datamodel/CityModel.h"
 
 //Assimp includes
 #include <assimp/Importer.hpp>      
