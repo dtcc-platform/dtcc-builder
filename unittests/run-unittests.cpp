@@ -600,6 +600,35 @@ TEST_CASE("Convert GeoJSON to RoadNetwork")
   REQUIRE(roadNetwork.EdgeValues["AI_w2k_h"][2] == Approx(743.246826171875));
 }
 
+TEST_CASE("Add UUID-N on duplicate UUIDs")
+{
+  std::string fileName = "../unittests/data/duplicate-shp-uuids/by_14.shp";
+  std::vector<Polygon> polygons;
+  std::vector<std::string> UUIDs;
+  std::vector<int> entityID;
+
+  SECTION("Handle duplicate UUIDs")
+  {
+    SHP::Read(polygons, fileName, &UUIDs, &entityID);
+    REQUIRE(UUIDs[118] == "e5e21821-9108-4762-9caa-8e612f81febb-1");
+    REQUIRE(UUIDs[150] == "e5e21821-9108-4762-9caa-8e612f81febb-2");
+    // Only unique UUIDs
+    REQUIRE(UUIDs.size() ==
+            std::set<std::string>(UUIDs.begin(), UUIDs.end()).size());
+  }
+
+  SECTION("Allow duplicate UUIDs")
+  {
+    const int defUUIDLength = 36;
+    SHP::Read(polygons, fileName, &UUIDs, &entityID, nullptr, false);
+    // All UUIDs of default length
+    REQUIRE(
+        std::count_if(UUIDs.begin(), UUIDs.end(), [](const std::string &UUID) {
+          return UUID.length() == defUUIDLength;
+        }) == UUIDs.size());
+  }
+}
+
 TEST_CASE("Read from CSV instead of LAS/LAZ")
 {
   std::string filename =
