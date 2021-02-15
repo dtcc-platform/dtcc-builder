@@ -35,7 +35,8 @@ RUN apt-get update && apt-get install -y \
     libgeotiff-dev\
     automake\
     colordiff\
-    libuuid1
+    libuuid1 \
+    lftp
 
 # Install FEniCS
 RUN add-apt-repository ppa:fenics-packages/fenics
