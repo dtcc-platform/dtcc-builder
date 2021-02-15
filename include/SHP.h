@@ -30,16 +30,19 @@ public:
   /// \param polygons The vector to put the polygons in
   /// \param fileName The SHP filename
   /// \param attributes A JSON object to put possible attributes in
+  /// \param handleDuplicateUUIDs Append unique number to duplicate UUIDs
   static void Read(std::vector<Polygon> &polygons,
                    const std::string &fileName,
                    std::vector<std::string> *UUIDs = nullptr,
                    std::vector<int> *entityID = nullptr,
-                   json *attributes = nullptr)
+                   json *attributes = nullptr,
+                   bool handleDuplicateUUIDs = true)
   {
     Info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
-    DBFHandle handleD = DBFOpen(fileName.c_str(), "r");
+    DBFHandle handleD = DBFOpen(fileName.c_str(), "rb");
+    // DBFHandle handleD = getDBFHandle(fileName);
 
     if (UUIDs != nullptr && entityID == nullptr)
     {
@@ -87,7 +90,7 @@ public:
       readAttributes(fileName, numEntities, attributes);
 
     ReadPolygons(polygons, handle, numEntities, shapeType, attributes, handleD,
-                 UUIDs, entityID);
+                 UUIDs, entityID, handleDuplicateUUIDs);
   }
 
 private:
@@ -145,7 +148,8 @@ private:
     std::transform(codePage.begin(), codePage.end(), codePage.begin(),
                    ::toupper);
     if (codePage == "ISO88591")
-      Info("SHP: DBF attributes encoded as ISO-8859-1, converting to UTF-8...");
+      Info("SHP: DBF attributes encoded as ISO-8859-1, converting to "
+           "UTF-8...");
     else if (codePage != "UTF8")
       Info("SHP: Unknown or unrecognized encoding of DBF attributes, "
            "characters may "
@@ -183,6 +187,49 @@ private:
     return dbfHandle;
   }
 
+  /// Append -N to UUID in case of duplicates.
+  /// \param UUIDs Vector with all UUIDs fetched so far
+  /// \param UUID The UUID to compare with other UUIDs
+  /// \return Unique UUID
+  static std::string MakeUUIDUnique(const std::vector<std::string> *UUIDs,
+                                    const std::string &UUID)
+  {
+    int duplicates = 0;
+    for (const std::string &oldUUID : *UUIDs)
+    {
+      if (oldUUID.find(UUID) != std::string::npos)
+        duplicates++;
+    }
+    return UUID + (duplicates > 0 ? "-" + std::to_string(duplicates) : "");
+  }
+
+  /// Add an entity's data to corresponding containers.
+  /// \param polygons Polygon vector
+  /// \param UUIDs UUID vector
+  /// \param entityID 1-based indices vector
+  /// \param index Index of entity to be added
+  /// \param UUID UUID of entity
+  /// \param polygon Entity's polygon
+  /// \param handleDuplicateUUIDs Append unique number to duplicate UUIDs
+  static void AddData(std::vector<Polygon> &polygons,
+                      std::vector<std::string> *UUIDs,
+                      std::vector<int> *entityID,
+                      int index,
+                      const std::string &UUID,
+                      const Polygon &polygon,
+                      bool handleDuplicateUUIDs = true)
+  {
+    // Add polygon
+    polygons.push_back(polygon);
+    // Add entityID and UUID
+    if (UUIDs != nullptr)
+    {
+      UUIDs->push_back(handleDuplicateUUIDs ? MakeUUIDUnique(UUIDs, UUID)
+                                            : UUID);
+      entityID->push_back(index + 1); // 1-based index
+    }
+  }
+
   static std::string
   getUUID(DBFHandle handleD, const std::vector<std::string> *UUIDs, int index)
   {
@@ -202,6 +249,7 @@ private:
   /// \param polygons Vector for polygon storage
   /// \param handle SHP handle
   /// \param numEntities Number of polygons
+  /// \param handleDuplicateUUIDs Append unique number to duplicate UUIDs
   static void ReadPolygons(std::vector<Polygon> &polygons,
                            SHPInfo *handle,
                            int numEntities,
@@ -209,7 +257,8 @@ private:
                            json *attributes,
                            DBFHandle handleD,
                            std::vector<std::string> *UUIDs,
-                           std::vector<int> *entityID)
+                           std::vector<int> *entityID,
+                           bool handleDuplicateUUIDs = true)
   {
     for (int i = 0; i < numEntities; i++)
     {
@@ -240,15 +289,8 @@ private:
           Vector2D p(x, y);
           polygon.Vertices.push_back(p);
         }
-
-        // Add polygon
-        polygons.push_back(polygon);
-        // Add entityID and UUID
-        if (UUIDs != nullptr)
-        {
-          UUIDs->push_back(test);
-          entityID->push_back(i + 1); // 1-based index}
-        }
+        AddData(polygons, UUIDs, entityID, i, test, polygon,
+                handleDuplicateUUIDs);
       }
       else
       {
@@ -280,14 +322,8 @@ private:
           }
           if (Geometry::PolygonOrientation2D(polygon) == 1 ||
               shapeType == SHPT_ARC)
-          {
-            polygons.push_back(polygon);
-            if (UUIDs != nullptr)
-            {
-              UUIDs->push_back(test);
-              entityID->push_back(i + 1);
-            }
-          }
+            AddData(polygons, UUIDs, entityID, i, test, polygon,
+                    handleDuplicateUUIDs);
         }
       }
     }
