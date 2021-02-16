@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anton J Olsson
+// Copyright (C) 2020-2021 Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef CORE_GEOJSON_H
@@ -6,6 +6,7 @@
 
 #include "JSON.h"
 #include "Logging.h"
+#include "Polyfix.h"
 #include "RoadNetworkGenerator.h"
 #include <json.hpp>
 #include <regex>
@@ -26,9 +27,14 @@ public:
   {
     RoadNetwork roadNetwork = GetRoadNetwork(filename);
 
+    // Compute offset/origin and subtract accordingly
+    Point2D origin = BoundingBox2D(roadNetwork.Vertices).P;
+    Polyfix::Transform(roadNetwork.Vertices, origin);
+
     // Change suffix from .geojson to .json
     std::regex reEnding("\\.geo");
-    JSON::Write(roadNetwork, std::regex_replace(filename, reEnding, "."));
+    JSON::Write(roadNetwork, std::regex_replace(filename, reEnding, "."),
+                origin);
   }
 
   /// Get RoadNetwork object from GeoJSON file.

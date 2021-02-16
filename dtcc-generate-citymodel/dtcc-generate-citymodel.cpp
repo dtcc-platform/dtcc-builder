@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #include <string>
@@ -93,9 +93,9 @@ int main(int argc, char *argv[])
                                              p.RoofPercentile);
 
   // Write to file
-  JSON::Write(dtm, dataDirectory + "DTM.json");
-  JSON::Write(dsm, dataDirectory + "DSM.json");
-  JSON::Write(cityModel, dataDirectory + "CityModel.json");
+  JSON::Write(dtm, dataDirectory + "DTM.json", O);
+  JSON::Write(dsm, dataDirectory + "DSM.json", O);
+  JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
   if (p.Debug)
   {
     VTK::Write(dtm, dataDirectory + "DTM.vts");

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 ReSpace AB, Anton J Olsson
+// Copyright (C) 2020-2021 ReSpace AB, Anton J Olsson
 // Licensed under the MIT License
 
 #include <Logging.h>
@@ -40,6 +40,15 @@ static void Write(const T& t, std::string fileName)
 {
   nlohmann::json json{};
   Serialize(t, json);
+  Write(json, fileName);
+}
+
+/// Write object and origin (offset) to file
+template <class T>
+static void Write(const T &t, std::string fileName, const Point2D origin)
+{
+  nlohmann::json json{};
+  Serialize(t, json, origin);
   Write(json, fileName);
 }
 

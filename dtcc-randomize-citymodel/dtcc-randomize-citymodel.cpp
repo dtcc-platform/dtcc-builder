@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #include <string>
@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
+  const Point2D origin{parameters.X0, parameters.Y0};
   Info(parameters);
 
   // Get parameters
@@ -48,16 +49,16 @@ int main(int argc, char *argv[])
   CityModel cityModel;
   CityModelGenerator::RandomizeCityModel(cityModel, dtm, numRandomBuildings);
   Info(cityModel);
-  JSON::Write(cityModel, dataDirectory + "/CityModelRandom.json");
+  JSON::Write(cityModel, dataDirectory + "/CityModelRandom.json", origin);
 
   // Clean city model
   CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
-  JSON::Write(cityModel, dataDirectory + "/CityModelClean.json");
+  JSON::Write(cityModel, dataDirectory + "/CityModelClean.json", origin);
 
   // Simplify city model
   CityModelGenerator::SimplifyCityModel(cityModel, minBuildingDistance,
                                         minVertexDistance);
-  JSON::Write(cityModel, dataDirectory + "/CityModelSimple.json");
+  JSON::Write(cityModel, dataDirectory + "/CityModelSimple.json", origin);
 
   return 0;
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_BOUNDING_BOX_H
@@ -63,6 +63,14 @@ namespace DTCC
 
     /// Return area of bounding box
     double Area() const { return (Q.x - P.x) * (Q.y - P.y); }
+
+    /// Create bounding box of polygon.
+    ///
+    /// @param polygon Polygon
+    explicit BoundingBox2D(const Polygon &polygon)
+        : BoundingBox2D(polygon.Vertices)
+    {
+    }
 
     /// Pretty-print
     std::string __str__() const override

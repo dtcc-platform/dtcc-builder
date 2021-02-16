@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg, Anton J Olsson
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #define CATCH_CONFIG_MAIN
@@ -574,8 +574,8 @@ TEST_CASE("Convert GeoJSON to RoadNetwork")
 
   REQUIRE(jsonRoadNetwork["RoadNetwork"]["Edges"].size() == 3);
   REQUIRE(jsonRoadNetwork["RoadNetwork"]["Vertices"].size() == 8);
-  REQUIRE(jsonRoadNetwork["RoadNetwork"]["Vertices"][0] == 101003.3176);
-  REQUIRE(jsonRoadNetwork["RoadNetwork"]["Vertices"][1] == 77882.3601);
+  REQUIRE(jsonRoadNetwork["RoadNetwork"]["Vertices"][0] == 0.0);
+  REQUIRE(jsonRoadNetwork["RoadNetwork"]["Vertices"][1] == Approx(1.9268));
 
   auto jsonValues = jsonRoadNetwork["RoadNetwork"]["EdgeValues"];
   REQUIRE(jsonValues["AI_w5km"][0] == Approx(0.89656978845596313));
@@ -598,6 +598,22 @@ TEST_CASE("Convert GeoJSON to RoadNetwork")
   REQUIRE(roadNetwork.Vertices[0].x == 101003.3176);
   REQUIRE(roadNetwork.EdgeValues["AI_w5km"][0] == Approx(0.89656978845596313));
   REQUIRE(roadNetwork.EdgeValues["AI_w2k_h"][2] == Approx(743.246826171875));
+}
+
+TEST_CASE("BoundingBox2D")
+{
+  Polygon p;
+  p.Vertices = {Point2D(1, 2), Point2D(0, 3), Point2D(2, 1)};
+  BoundingBox2D bboxP(p);
+  BoundingBox2D bboxV(p.Vertices);
+
+  for (const auto &bbox : {bboxP, bboxV})
+  {
+    REQUIRE(bbox.P.x == 0);
+    REQUIRE(bbox.P.y == 1);
+    REQUIRE(bbox.Q.x == 2);
+    REQUIRE(bbox.Q.y == 3);
+  }
 }
 
 TEST_CASE("Add UUID-N on duplicate UUIDs")
@@ -679,5 +695,21 @@ TEST_CASE("Read from CSV instead of LAS/LAZ")
     // 1 is only other present classification
     for (const auto &c : pointCloud.Classification)
       REQUIRE(c != 1);
+  }
+}
+
+TEST_CASE("Subtract polygon origin")
+{
+  std::vector<Point2D> vertices = {Point2D(3, 7), Point2D(2, 4.5)};
+  Polygon p;
+  p.Vertices = vertices;
+  Polyfix::Transform(p, Point2D(1, 2));
+  Polyfix::Transform(vertices, Point2D(1, 2));
+  for (const auto &vertices2 : {vertices, p.Vertices})
+  {
+    REQUIRE(vertices2[0].x == 2);
+    REQUIRE(vertices2[0].y == 5);
+    REQUIRE(vertices2[1].x == 1);
+    REQUIRE(vertices2[1].y == 2.5);
   }
 }

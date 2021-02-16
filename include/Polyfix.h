@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_POLYFIX_H
@@ -164,9 +164,18 @@ public:
   /// @param origin The origin to be subtracted
   static void Transform(Polygon &polygon, const Point2D &origin)
   {
+    Transform(polygon.Vertices, origin);
+  }
+
+  /// Transform vertices by subtracting given origin.
+  ///
+  /// @param polygon The polygon
+  /// @param origin The origin to be subtracted
+  static void Transform(std::vector<Point2D> &vertices, const Point2D &origin)
+  {
     // Subtract origin from each vertex
     Vector2D _origin(origin);
-    for (auto &p : polygon.Vertices)
+    for (auto &p : vertices)
       p -= _origin;
   }
 
