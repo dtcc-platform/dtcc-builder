@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anton J Olsson
+// Copyright (C) 2020-2021 Anton J Olsson
 // Licensed under the MIT LicenseS
 
 #include "CommandLine.h"
@@ -7,6 +7,8 @@
 #include <JSON.h>
 #include <Polygon.h>
 #include <SHP.h>
+#include <datamodel/RoadNetwork.h>
+#include <Polyfix.h>
 #include <datamodel/RoadNetwork.h>
 #include <iostream>
 
@@ -18,6 +20,10 @@ void Help()
 }
 
 std::string GetDataDirectory(const std::string &filename);
+void OffsetCoordinates(RoadNetwork &network,
+                       const Point2D &origin,
+                       Polygon &networkPolygon);
+Polygon GetPolygon(const RoadNetwork &network);
 
 int main(int argc, char *argv[])
 {
@@ -35,13 +41,33 @@ int main(int argc, char *argv[])
   // Get RoadNetwork
   RoadNetwork network = RoadNetworkGenerator::GetRoadNetwork(shpFilename);
 
+  // Offset coordinates
+  Polygon networkPolygon = GetPolygon(network);
+  Point2D origin = BoundingBox2D(networkPolygon).P;
+  OffsetCoordinates(network, origin, networkPolygon);
+
   // Serialize and write JSON file
   std::string dataDirectory = GetDataDirectory(shpFilename);
   json jsonNetwork;
-  JSON::Serialize(network, jsonNetwork);
+  JSON::Serialize(network, jsonNetwork, origin);
   JSON::Write(jsonNetwork, dataDirectory + "RoadNetwork.json");
 
   return 0;
+}
+
+Polygon GetPolygon(const RoadNetwork &network)
+{
+  Polygon networkPolygon;
+  networkPolygon.Vertices = network.Vertices;
+  return networkPolygon;
+}
+
+void OffsetCoordinates(RoadNetwork &network,
+                       const Point2D &origin,
+                       Polygon &networkPolygon)
+{
+  networkPolygon.SetOrigin(origin);
+  network.Vertices = networkPolygon.Vertices;
 }
 
 // Get data directory given name of file located inside

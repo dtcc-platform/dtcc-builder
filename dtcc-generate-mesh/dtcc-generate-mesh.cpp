@@ -40,9 +40,12 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   Surface3D buildingSurface;
   MeshProcessor::MergeSurfaces3D(buildingSurface, buildingSurfaces);
 
+  // Get origin (for serialization purposes)
+  Point2D origin({p.X0, p.Y0});
+
   // Write to file
-  JSON::Write(groundSurface, dataDirectory + "GroundSurface.json");
-  JSON::Write(buildingSurface, dataDirectory + "BuildingSurface.json");
+  JSON::Write(groundSurface, dataDirectory + "GroundSurface.json", origin);
+  JSON::Write(buildingSurface, dataDirectory + "BuildingSurface.json", origin);
 
   // Write data for debugging and visualization
   if (p.Debug)
@@ -149,9 +152,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   Surface3D surface;
   MeshProcessor::ExtractOpenSurface3D(surface, boundary);
 
+  // Get origin (for serialization purposes)
+  Point2D origin({p.X0, p.Y0});
+
   // Write to file
-  JSON::Write(mesh, dataDirectory + "CityMesh.json");
-  JSON::Write(surface, dataDirectory + "CitySurface.json");
+  JSON::Write(mesh, dataDirectory + "CityMesh.json", origin);
+  JSON::Write(surface, dataDirectory + "CitySurface.json", origin);
 
   // Write data for debugging and visualization
   if (p.Debug)

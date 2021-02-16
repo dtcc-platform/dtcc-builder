@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg, Anton J Olsson
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #ifndef DTCC_JSON_H
@@ -244,8 +244,9 @@ namespace DTCC
         mesh.Markers[i] = jsonMarkers[i];
     }
 
-    /// Serialize Mesh2D
-    static void Serialize(const Mesh2D& mesh, nlohmann::json& json)
+    /// Serialize Mesh2D and its offset/origin
+    static void
+    Serialize(const Mesh2D &mesh, nlohmann::json &json, const Point2D &origin)
     {
       auto jsonVertices = nlohmann::json::array();
       for (const auto p: mesh.Vertices)
@@ -264,6 +265,7 @@ namespace DTCC
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
       json["Markers"] = mesh.Markers;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize Mesh3D
@@ -293,8 +295,9 @@ namespace DTCC
         mesh.Markers[i] = jsonMarkers[i];
     }
 
-    /// Serialize Mesh3D
-    static void Serialize(const Mesh3D& mesh, nlohmann::json& json)
+    /// Serialize Mesh3D and its offset/origin
+    static void
+    Serialize(const Mesh3D &mesh, nlohmann::json &json, const Point2D &origin)
     {
       auto jsonVertices = nlohmann::json::array();
       for (const auto p: mesh.Vertices)
@@ -315,6 +318,7 @@ namespace DTCC
       json["Vertices"] = jsonVertices;
       json["Cells"] = jsonCells;
       json["Markers"] = mesh.Markers;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize Surface2D
@@ -344,8 +348,10 @@ namespace DTCC
       }
     }
 
-    /// Serialize Surface2D
-    static void Serialize(const Surface2D& surface, nlohmann::json& json)
+    /// Serialize Surface2D and its offset/origin
+    static void Serialize(const Surface2D &surface,
+                          nlohmann::json &json,
+                          const Point2D &origin)
     {
       auto jsonVertices = nlohmann::json::array();
       for (const auto p: surface.Vertices)
@@ -369,6 +375,7 @@ namespace DTCC
       json["Vertices"] = jsonVertices;
       json["Edges"] = jsonEdges;
       json["Normals"] = jsonNormals;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize Surface3D
@@ -401,8 +408,10 @@ namespace DTCC
       }
     }
 
-    /// Serialize Surface3D
-    static void Serialize(const Surface3D& surface, nlohmann::json& json)
+    /// Serialize Surface3D and its offset/origin
+    static void Serialize(const Surface3D &surface,
+                          nlohmann::json &json,
+                          const Point2D &origin)
     {
       auto jsonVertices = nlohmann::json::array();
       for (const auto p: surface.Vertices)
@@ -429,6 +438,7 @@ namespace DTCC
       json["Vertices"] = jsonVertices;
       json["Faces"] = jsonFaces;
       json["Normals"] = jsonNormals;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize GridField2D
@@ -442,14 +452,17 @@ namespace DTCC
         field.Values[i] = jsonValues[i];
     }
 
-    /// Serialize GridField2D
-    static void Serialize(const GridField2D& field, nlohmann::json& json)
+    /// Serialize GridField2D and its offset/origin
+    static void Serialize(const GridField2D &field,
+                          nlohmann::json &json,
+                          const Point2D &origin)
     {
       auto jsonGrid = nlohmann::json::object();
       Serialize(field.Grid, jsonGrid);
       json["Type"] = "GridField2D";
       json["Grid"] = jsonGrid;
       json["Values"] = field.Values;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize GridField3D
@@ -463,14 +476,17 @@ namespace DTCC
         field.Values[i] = jsonValues[i];
     }
 
-    /// Serialize GridField3D
-    static void Serialize(const GridField3D& field, nlohmann::json& json)
+    /// Serialize GridField3D and its offset/origin
+    static void Serialize(const GridField3D &field,
+                          nlohmann::json &json,
+                          const Point2D &origin)
     {
       auto jsonGrid = nlohmann::json::object();
       Serialize(field.Grid, jsonGrid);
       json["Type"] = "GridField3D";
       json["Grid"] = jsonGrid;
       json["Values"] = field.Values;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize GridVectorField2D
@@ -484,14 +500,17 @@ namespace DTCC
         field.Values[i] = jsonValues[i];
     }
 
-    /// Serialize GridVectorField2D
-    static void Serialize(const GridVectorField2D& field, nlohmann::json& json)
+    /// Serialize GridVectorField2D and its offset/origin
+    static void Serialize(const GridVectorField2D &field,
+                          nlohmann::json &json,
+                          const Point2D &origin)
     {
       auto jsonGrid = nlohmann::json::object();
       Serialize(field.Grid, jsonGrid);
       json["Type"] = "GridVectorField2D";
       json["Grid"] = jsonGrid;
       json["Values"] = field.Values;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize GridVectorField3D
@@ -505,14 +524,17 @@ namespace DTCC
         field.Values[i] = jsonValues[i];
     }
 
-    /// Serialize GridVectorField3D
-    static void Serialize(const GridVectorField3D& field, nlohmann::json& json)
+    /// Serialize GridVectorField3D and its offset/origin
+    static void Serialize(const GridVectorField3D &field,
+                          nlohmann::json &json,
+                          const Point2D &origin)
     {
       auto jsonGrid = nlohmann::json::object();
       Serialize(field.Grid, jsonGrid);
       json["Type"] = "GridVectorField3D";
       json["Grid"] = jsonGrid;
       json["Values"] = field.Values;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     // FIXME: Add separate serialize/deserialize for Building and use here.
@@ -557,8 +579,10 @@ namespace DTCC
       }
     }
 
-    /// Serialize CityModel
-    static void Serialize(const CityModel &cityModel, nlohmann::json& json)
+    /// Serialize CityModel and its offset/origin
+    static void Serialize(const CityModel &cityModel,
+                          nlohmann::json &json,
+                          const Point2D &origin)
     {
       auto jsonBuildings = nlohmann::json::array();
       for (auto const &building : cityModel.Buildings)
@@ -600,6 +624,7 @@ namespace DTCC
       }
       json["Type"] = "CityModel";
       json["Buildings"] = jsonBuildings;
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Serialize CityJSON
@@ -925,8 +950,9 @@ namespace DTCC
       }
     }
 
-    /// Serialize RoadNetwork
-    static void Serialize(const RoadNetwork &road, nlohmann::json &json)
+    /// Serialize RoadNetwork and its offset/origin
+    static void
+    Serialize(const RoadNetwork &road, nlohmann::json &json, Point2D origin)
     {
       auto jsonRoadNetwork = nlohmann::json::object();
 
@@ -984,6 +1010,8 @@ namespace DTCC
       json["RoadNetwork"] = jsonRoadNetwork;
       // Add Type parameter
       json["Type"] = "RoadNetwork";
+      // Add Origin parameter
+      json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }
 
     /// Deserialize Property.

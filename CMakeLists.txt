@@ -13,7 +13,7 @@ message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
 # Set build flags
 set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
-#set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")
+set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # Add path to local CMake scripts

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anders Logg
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
 #include <iostream>
@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters parameters;
   JSON::Read(parameters, argv[1]);
+  Point2D origin(parameters.X0, parameters.Y0);
   Info(parameters);
 
   // Get data directory (add trailing slash just in case)
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 
   // Write to file
   JSON::Write(groundMesh,
-              dataDirectory + "VisualizationSmoothedGroundMesh.json");
+              dataDirectory + "VisualizationSmoothedGroundMesh.json", origin);
   VTK::Write(groundMesh, dataDirectory + "VisualizationSmoothedGroundMesh.vtu");
 
   // Report timings
