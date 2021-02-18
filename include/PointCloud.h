@@ -31,6 +31,9 @@ namespace DTCC
     /// Bounding box
     BoundingBox2D BoundingBox{};
 
+    /// Check if point cloud is empty
+    bool Empty() const { return Points.empty(); }
+
     /// Create empty point cloud
     PointCloud() = default;
 

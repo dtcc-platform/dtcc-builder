@@ -54,6 +54,12 @@ int main(int argc, char *argv[])
   // Read point cloud (only points inside bounding box)
   PointCloud pointCloud;
   LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
+
+  // Check point cloud
+  if (pointCloud.Empty())
+  Error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, Y{0,Min,Max} values in Parameters.json");
+  return 1;
+
   pointCloud.SetOrigin(O);
   Info(pointCloud);
 
