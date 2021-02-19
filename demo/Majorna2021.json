@@ -1,0 +1,22 @@
+{
+    "Type": "Parameters",
+    "DataDirectory": "/home/dtcc/core/data/Majorna2021",
+    "DomainHeight": 100.0,
+    "ElevationModelResolution": 1.0,
+    "MeshResolution": 10.0,
+    "X0": 315000,
+    "Y0": 6397500,
+    "XMin": 0,
+    "YMin": 0,
+    "XMax": 1000,
+    "YMax": 1000,
+    "MinBuildingDistance": 1.0,
+    "MinVertexDistance": 1.0,
+    "GroundMargin": 1.0,
+    "GroundPercentile": 0.1,
+    "RoofPercentile": 0.9,
+    "FlatGround": false,
+    "GroundSmoothing": 2,
+    "NumRandomBuildings": 1000,
+    "Debug": true
+}
