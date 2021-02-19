@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-PARAMETERS=Hammarkullen2020.json
+PARAMETERS=Eman2021.json
 
 ../bin/dtcc-generate-mesh $PARAMETERS
