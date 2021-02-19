@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-PARAMETERS=Eman2021.json
+PARAMETERS=Hammarkullen2020.json
 
 ../bin/dtcc-generate-citymodel $PARAMETERS

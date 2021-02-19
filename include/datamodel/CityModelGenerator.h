@@ -412,6 +412,29 @@ public:
         break;
       }
     }
+  
+  /// Generate building with given dimensions
+  /// @param Poind2D The center of the building footprint
+  /// @param a x-width of building
+  /// @param b y-width of building
+  /// @param height relative (to the ground height) height of the building
+  /// @param groundHeight ground height of the building
+  /// Note: Absolute building height = height + groundHeight
+  static Building GenerateBuilding(
+      const Point2D &c, double a, double b, double height, double groundHeight)
+  {
+    Building building;
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x - 0.5 * a, c.y - 0.5 * b});
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x + 0.5 * a, c.y - 0.5 * b});
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x + 0.5 * a, c.y + 0.5 * b});
+    building.Footprint.Vertices.push_back(
+        Point2D{c.x - 0.5 * a, c.y + 0.5 * b});
+    building.Height = height;
+    building.GroundHeight = groundHeight;
+    return building;
   }
 
 private:
@@ -561,24 +584,7 @@ private:
     // Compute convex hull
     return Geometry::ConvexHull2D(uniquePoints);
   }
-
-  // Generate building with given dimensions
-  static Building GenerateBuilding(
-      const Point2D &c, double a, double b, double height, double groundHeight)
-  {
-    Building building;
-    building.Footprint.Vertices.push_back(
-        Point2D{c.x - 0.5 * a, c.y - 0.5 * b});
-    building.Footprint.Vertices.push_back(
-        Point2D{c.x + 0.5 * a, c.y - 0.5 * b});
-    building.Footprint.Vertices.push_back(
-        Point2D{c.x + 0.5 * a, c.y + 0.5 * b});
-    building.Footprint.Vertices.push_back(
-        Point2D{c.x - 0.5 * a, c.y + 0.5 * b});
-    building.Height = height;
-    building.GroundHeight = groundHeight;
-    return building;
-  }
+ 
 };
 
 } // namespace DTCC
