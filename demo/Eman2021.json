@@ -1,0 +1,22 @@
+{
+    "Type": "Parameters",
+    "DataDirectory": "/home/dtcc/core/data/Eman2021",
+    "DomainHeight": 100.0,
+    "ElevationModelResolution": 1.0,
+    "MeshResolution": 10.0,
+    "X0": 582500,
+    "Y0": 6335000,
+    "XMin": 0,
+    "YMin": 0,
+    "XMax": 2500,
+    "YMax": 2500,
+    "MinBuildingDistance": 1.0,
+    "MinVertexDistance": 1.0,
+    "GroundMargin": 1.0,
+    "GroundPercentile": 0.1,
+    "RoofPercentile": 0.9,
+    "FlatGround": false,
+    "GroundSmoothing": 2,
+    "NumRandomBuildings": 1000,
+    "Debug": true
+}
