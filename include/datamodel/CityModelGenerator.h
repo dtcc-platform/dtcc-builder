@@ -412,7 +412,7 @@ public:
         break;
       }
     }
-  
+  }
   /// Generate building with given dimensions
   /// @param Poind2D The center of the building footprint
   /// @param a x-width of building
