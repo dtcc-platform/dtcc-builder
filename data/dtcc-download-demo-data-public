@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Trying to login to cloud.dtcc.chalmers.se FTP over TLS with anonymous login"
+
+lftp -e "set ssl:verify-certificate no;set ftp:ssl-allow true;set ftp:ssl-protect-data true;mirror -n --verbose --use-pget-n=8 -c --verbose / /home/dtcc/core/data;" -u anonymous, ftps://cloud.dtcc.chalmers.se

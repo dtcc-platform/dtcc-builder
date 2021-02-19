@@ -9,5 +9,5 @@ while [ -z "$password" ]; do
 done
 
 echo "Trying to login to cloud.dtcc.chalmers.se FTP over TLS with username $username ..."
-lftp -e "set ssl:verify-certificate no;set ftp:ssl-allow true;set ftp:ssl-protect-data true;mirror -n --verbose --use-pget-n=8 -c --verbose /Data/ .;" -u $username\,$password ftps://cloud.dtcc.chalmers.se
+lftp -e "set ssl:verify-certificate no;set ftp:ssl-allow true;set ftp:ssl-protect-data true;mirror -n --verbose --use-pget-n=8 -c --verbose /Data/ /home/dtcc/core/data;" -u $username\,$password ftps://cloud.dtcc.chalmers.se
 
