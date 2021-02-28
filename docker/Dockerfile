@@ -12,14 +12,14 @@ ENV DIR core
 #ENV TZ=Europe/Stockholm
 #RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Update and upgrade
-RUN apt-get update && apt-get upgrade -y
-
-# Install basic dependencies
-RUN apt-get -y install locales sudo
+# Add fenics and gdal repos
+RUN add-apt-repository ppa:fenics-packages/fenics
+RUN add-apt-repository ppa:ubuntugis/ppa
 
 # Install libraries used by DTCCore
 RUN apt-get update && apt-get install -y \
+    locales \
+    sudo \
     nlohmann-json-dev \
     libshp-dev \
 #    liblas-dev \   #need to build from source to support LASZip
@@ -36,18 +36,17 @@ RUN apt-get update && apt-get install -y \
     automake\
     colordiff\
     libuuid1 \
-    lftp
-
-# Install FEniCS
-RUN add-apt-repository ppa:fenics-packages/fenics
-RUN apt-get update && apt-get install -y fenics
-
-# Install GDAL
-RUN add-apt-repository ppa:ubuntugis/ppa
-RUN apt-get update && apt-get install -y gdal-bin libgdal-dev
-
-# Install git with lfs support, dos2unix, nano simple editor, rsync, wget and moreutils (sponge)
-RUN apt-get update && apt-get install -y git git-lfs dos2unix nano rsync wget moreutils
+    lftp \
+    fenics \
+    gdal-bin \
+    libgdal-dev \
+    git \
+    git-lfs \
+    dos2unix \
+    nano \
+    rsync \
+    wget \
+    moreutils
 
 # Get and compile LASZip
 RUN git clone -n https://github.com/LASzip/LASzip.git
@@ -72,6 +71,8 @@ RUN ldconfig /usr/local/lib
 # Get and compile assimp latest (27th May 2020)
 
 RUN git clone https://github.com/assimp/assimp && cd assimp && git checkout 1427e67b54906419e9f83cc8625e2207fbb0fcd5 && mkdir build && cd build && cmake .. && make all -j 4 && make install && ln -s /assimp/build/bin/libassimp.so.5 /usr/lib/x86_64-linux-gnu/
+
+#RUN apt-get update && apt-get upgrade -y
 
 # Add user and change to user
 RUN useradd -m $USER -G sudo && \
