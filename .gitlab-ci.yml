@@ -12,7 +12,7 @@ before_script:
 build:
   stage: build
   script:
-    - sudo apt-get install libpng++-dev -y # add extra (outside of registered Docker file) dependencies here
+    - sudo apt-get install libpng++-dev lftp -y # add extra (outside of registered Docker file) dependencies here
     - pwd && mkdir build && cd build && cmake .. && make all && make install
   artifacts:
     paths:
