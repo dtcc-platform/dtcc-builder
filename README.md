@@ -1,6 +1,6 @@
 # Digital Twin Cities Platform - Core
 
-_This README is under major revision (4th of January 2021)_
+_This README was revised on 3rd of March 2021_
 
 The Digital Twin Cities Platform is an open-source platform for the
 exploration of digital twins for cities. The platform is developed and
@@ -44,19 +44,22 @@ This will create a directory named `core` containing the full source code.
 
 The most convenient way to work with the Digital Twin Cities Platform
 is via the custom [Docker](https://www.docker.com/) image, which
-contains all the dependencies needed for developing, building, and running the software.
+contains all the dependencies needed for developing, building, and running the software. Thanks to Docker, `core` can be ran on Linux, MacOS or Windows operating systems. The instructions below are identical for Linux and MacOS.
 
-The first step is to download and install [Docker](https://www.docker.com/). After Docker has been installed, continue with the following steps.
+The first step is to download and install [Docker](https://www.docker.com/) and after the installation is complete, continue with the following steps.
 
-To build the Docker image, enter the `docker` directory and issue the following command:
+For Linux/MacOS users, in order to pull the Docker image from our Gitlab repository, enter the `docker` directory and issue the following command:
 
-    ./dtcc-build-image
+    ./dtcc-pull-image
 
 On Windows, you should instead enter the `Windows` subdirectory and from there use
 
-    ./dtcc-build-image.bat
+    ./dtcc-pull-image.bat
+
 
 This creates a Docker image named `dtccimage`.
+
+Note: For expert users and/or debugging purposes you can create the image from scratch by issuing `./dtcc-build-image` and `dtcc-build-image.bat` on Linux/MacOS and Windows respectivelly.
 
 Then issue the following commands to create and start a persistent container (virtual machine) in which to run the Digital Twin Cities Platform:
 
@@ -75,17 +78,19 @@ For removing the image and containers, you can use
     ./dtcc-uninstall 
     ./dtcc-uninstall.bat 
 
-in Linux and Windows respectivelly.
+in Linux/MacOS and Windows respectivelly.
 
 Note that the source tree is automatically shared into the Docker container. It is recommended that you edit the sources, run git commands, and visualize data *outside* of the Docker container (on your native operating system), while building and running the code *inside* the Docker container.
 
 ### Downloading data
 
-To download demo data, first make sure you have [Git LFS](https://git-lfs.github.com/) installed. Then enter the `data` directory and issue the following command:
+To download demo data, there is an open demo dataset (public) and one available only for development/research purposes. Enter the `data` directory and issue the following command:
 
-    ./dtcc-download-demo-data
+    ./dtcc-download-demo-data-public
 
-For the typical new user, this should be done inside the container. If using Windows, choose HTTPS instead of SSH when asked. If downloading goes as planned, you will be asked for your credentials twice.
+For the typical new user, this should be done inside the container. Obtaining the public dataset requires no credentials. 
+
+For accesing the private demo datasets you will need a set of credentials supplied by the development team. Contact us for more info.
 
 ### Building and installation
 
@@ -119,6 +124,7 @@ The Digital Twin Cities Platform makes use of the following data sources:
 
 * Point clouds (Lantmäteriet:Laserdata vektor; EPSG:3006)
 * Property maps (Lantmäteriet:Fastighetskartan bebyggelse vektor; EPSG:3006)
+* Road network maps (Lantmäteriet:Vägkartan; EPSG:3006)
 
 Chalmers has a license for downloading data from `http://zeus.slu.se`.
 
