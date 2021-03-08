@@ -134,7 +134,7 @@ Point cloud data comes in the form of a number square grids large enough to cove
 
 This will create the file 09B008_64050_3225_25.las. The lower left corner will in this example be at EPSG:3006 coordinates (6405000, 322500).
 
-Property map data comes in the form of SHP files (with corresponding SHX, DBF and PRJ files). The files of interest are the ones named `by_get.*`.
+Property map data and the road network comes in the form of SHP files (with corresponding SHX, DBF and PRJ files). The files of interest are the ones named `by_get.*` and `vl_*` respectivelly.
 
 ### Data formats
 
