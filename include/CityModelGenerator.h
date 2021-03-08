@@ -143,6 +143,9 @@ public:
     Info("CityModelGenerator: Extracting building points...");
     Timer("ExtractBuildingPoints");
 
+    // FIXME: Make this a parameter
+    const double outlierMargin{2.0};
+
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
       Error("Empty point cloud");
@@ -192,6 +195,23 @@ public:
           building.RoofPoints.push_back(p3D);
       }
     }
+
+    // Remove outliers
+    size_t numPoints = 0;
+    size_t numOutliers = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      // Count total number of points
+      numPoints += building.GroundPoints.size();
+      numPoints += building.RoofPoints.size();
+
+      // Remove outliers and count total number of outliers
+      numOutliers += RemoveOutliers(building.GroundPoints, outlierMargin);
+      numOutliers += RemoveOutliers(building.RoofPoints, outlierMargin);
+    }
+    const double outlierPercentage = (100.0 * numOutliers) / numPoints;
+    Info("CityModelGenerator: Removed outliers (" + str(outlierPercentage) +
+         "%)");
 
     // Sort points by height
     for (auto &building : cityModel.Buildings)
@@ -413,6 +433,45 @@ private:
     size_t index = std::max(0.0, percentile * array.size());
     index = std::min(index, array.size() - 1);
     return array[index];
+  }
+
+  // Remove outliers outside given number of standard deviations
+  static size_t RemoveOutliers(std::vector<Point3D> &points, double margin)
+  {
+    // Check that we have enough points
+    if (points.size() < 3)
+      return 0;
+
+    // Compute mean
+    double mean{0};
+    for (const auto p : points)
+      mean += p.z;
+    mean /= points.size();
+
+    // Compute standard deviation
+    double std{0};
+    for (const auto p : points)
+      std += (p.z - mean) * (p.z - mean);
+    std /= points.size() - 1;
+    std = std::sqrt(std);
+
+    // Remove outliers (can perhaps be implemented more efficiently)
+    std::vector<Point3D> newPoints;
+    size_t numOutliers{0};
+    for (const auto p : points)
+    {
+      if (std::abs(p.z - mean) <= margin * std)
+      {
+        newPoints.push_back(p);
+      }
+      else
+      {
+        numOutliers++;
+      }
+    }
+    points = newPoints;
+
+    return numOutliers;
   }
 
   // Merge all buildings closer than a given distance
