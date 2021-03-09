@@ -3,6 +3,7 @@
 
 #include <dolfin.h>
 
+#include "CityModelGenerator.h"
 #include "CommandLine.h"
 #include "GridField.h"
 #include "JSON.h"
@@ -15,8 +16,6 @@
 #include "Parameters.h"
 #include "VTK.h"
 #include "VertexSmoother.h"
-#include "datamodel/CityModel.h"
-#include "datamodel/CityModelGenerator.h"
 
 using namespace DTCC;
 

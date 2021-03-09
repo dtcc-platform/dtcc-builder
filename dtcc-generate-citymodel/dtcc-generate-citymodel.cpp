@@ -9,6 +9,7 @@
 #include "VTK.h"
 
 // DTCC includes
+#include "CityModelGenerator.h"
 #include "CommandLine.h"
 #include "ElevationModelGenerator.h"
 #include "GridField.h"
@@ -20,8 +21,6 @@
 #include "SHP.h"
 #include "Timer.h"
 #include "VertexSmoother.h"
-#include "datamodel/CityModel.h"
-#include "datamodel/CityModelGenerator.h"
 
 using namespace DTCC;
 

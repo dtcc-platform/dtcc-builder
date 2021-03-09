@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "CityModelGenerator.h"
 #include "CommandLine.h"
 #include "GridField.h"
 #include "JSON.h"
@@ -12,8 +13,6 @@
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
-#include "datamodel/CityModel.h"
-#include "datamodel/CityModelGenerator.h"
 
 using namespace DTCC;
 
