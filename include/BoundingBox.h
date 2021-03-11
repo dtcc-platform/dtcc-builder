@@ -61,6 +61,25 @@ namespace DTCC
       Q.y += margin;
     }
 
+    /// Create bounding box of vector of polygons.
+    ///
+    /// @param points Vector of polygons
+    /// @param margin Margin to use for bounding box
+    explicit BoundingBox2D(const std::vector<Polygon> &polygons,
+                           double margin = 0.0)
+    {
+      
+      for(auto p : polygons)
+      {
+        this->Union(BoundingBox2D(p));
+      }
+      P.x -= margin;
+      P.y -= margin;
+      Q.x += margin;
+      Q.y += margin;
+    }
+
+    
     /// expand a bounding box to the union of it 
     /// and a second bounding box
     void Union(BoundingBox2D const &other)
