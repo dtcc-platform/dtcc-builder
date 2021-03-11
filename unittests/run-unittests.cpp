@@ -714,11 +714,20 @@ TEST_CASE("Subtract polygon origin")
   }
 }
 
-TEST_CASE("Parse JSON")
+TEST_CASE("Parse Parameters")
 {
   const char *fileName = "../unittests/data/parameters/Hammarkullen2020.json";
+  const char *fileName2 = "../unittests/data/parameters/Hammarkullen2020_autodomain.json";
   nlohmann::json json;
+  nlohmann::json json2;
   JSON::Read(json, fileName);
+  JSON::Read(json2, fileName2);
   REQUIRE(JSON::HasKey("DataDirectory",json));
   REQUIRE(!JSON::HasKey("XXX",json));
+
+  Parameters p,p2;
+  JSON::Read(p, fileName);
+  JSON::Read(p2, fileName2);
+  REQUIRE(!p.AutoDomain);
+  REQUIRE(p2.AutoDomain);
 }
