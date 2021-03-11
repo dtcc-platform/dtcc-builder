@@ -39,12 +39,23 @@ namespace DTCC
     {
       CheckType("Parameters", json);
       parameters.DataDirectory = ToString("DataDirectory", json);
-      parameters.X0 = ToDouble("X0", json);
-      parameters.Y0 = ToDouble("Y0", json);
-      parameters.XMin = ToDouble("XMin", json);
-      parameters.YMin = ToDouble("YMin", json);
-      parameters.XMax = ToDouble("XMax", json);
-      parameters.YMax = ToDouble("YMax", json);
+      if (!HasKey("AutoDomain", json) || !ToBool("AutoDomain", json))
+      {
+        parameters.X0 = ToDouble("X0", json);
+        parameters.Y0 = ToDouble("Y0", json);
+        parameters.XMin = ToDouble("XMin", json);
+        parameters.YMin = ToDouble("YMin", json);
+        parameters.XMax = ToDouble("XMax", json);
+        parameters.YMax = ToDouble("YMax", json);
+      } 
+      else
+      {
+        parameters.AutoDomain = ToBool("AutoDomain", json);
+        if (HasKey("DomainMargin", json))
+        {
+          parameters.DomainMargin = ToDouble("DomainMargin", json);
+        }
+      }
       parameters.DomainHeight = ToDouble("DomainHeight", json);
       parameters.ElevationModelResolution =
           ToDouble("ElevationModelResolution", json);

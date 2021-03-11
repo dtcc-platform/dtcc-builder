@@ -713,3 +713,12 @@ TEST_CASE("Subtract polygon origin")
     REQUIRE(vertices2[1].y == 2.5);
   }
 }
+
+TEST_CASE("Parse JSON")
+{
+  const char *fileName = "../unittests/data/parameters/Hammarkullen2020.json";
+  nlohmann::json json;
+  JSON::Read(json, fileName);
+  REQUIRE(JSON::HasKey("DataDirectory",json));
+  REQUIRE(!JSON::HasKey("XXX",json));
+}
