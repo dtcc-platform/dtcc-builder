@@ -68,7 +68,9 @@ namespace DTCC
     explicit BoundingBox2D(const std::vector<Polygon> &polygons,
                            double margin = 0.0)
     {
-      
+      auto initBB = BoundingBox2D(polygons.front());
+      P = initBB.P;
+      Q = initBB.Q;
       for(auto p : polygons)
       {
         this->Union(BoundingBox2D(p));

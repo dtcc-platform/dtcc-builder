@@ -118,13 +118,23 @@ public:
     std::string dir{directoryName};
     if (!CommandLine::EndsWith(dir, "/"))
       dir += "/";
+    bool initBB = false;
     for (auto const &f : CommandLine::ListDirectory(dir))
     {
       if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
       {
         auto fileBB = BoundingBox2D();
         LAS::Bounds(fileBB, dir + f);
-        bb.Union(fileBB);
+        if (!initBB)
+        {
+          bb.P = fileBB.P;
+          bb.Q = fileBB.Q;
+          initBB = true;
+        }
+        else
+        {
+          bb.Union(fileBB);
+        }
       }
 
     }

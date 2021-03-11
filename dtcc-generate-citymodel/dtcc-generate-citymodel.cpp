@@ -56,8 +56,10 @@ int main(int argc, char *argv[])
   if (p.AutoDomain)
   { 
     bbox = BoundingBox2D(footprints, p.DomainMargin);
+    Info("Buildings Bounding box " + str(bbox) );
     BoundingBox2D lasBBox;
     LAS::BoundsDirectory(lasBBox, dataDirectory);
+    Info("LAS Bounding box " + str(lasBBox) );
     bbox.Intersect(lasBBox);
     O = bbox.P;
   }
@@ -69,7 +71,7 @@ int main(int argc, char *argv[])
     bbox = BoundingBox2D(P,Q);
   }
   
-  Info("Bounding box: " + str(bbox));
+  Info("CityModel Bounding box: " + str(bbox));
   if (bbox.Area() < 50)  
   {
     Error("Domain too small to generate a city model");
