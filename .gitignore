@@ -1,6 +1,9 @@
 /bin/
 /build/
 /data/*
+/unittests/*
+!/unittests/CMakeLists.txt
+!/unittests/run-unittests.cpp
 !/data/dtcc-*
 !/data/testCase/
 !/data/sampleCityJSON/

@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  dev:
+    build: 
+      context: ./
+      target: dev
+    container_name: dtcc
+    image: dtccimage
+    volumes:
+      - ./..:/home/dtcc/core  
+  clion:
+    build:
+      context: ./
+      target: clion
+    container_name: dtccclion
+    security_opt: # options needed for gdb debugging
+      - seccomp:unconfined
+      - apparmor:unconfined
+    image: dtccimageclion
+    volumes:
+      - ./..:/home/dtcc/core  
+    ports:
+      - "7776:22"
+      - "7777:7777"
+

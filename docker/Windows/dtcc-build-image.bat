@@ -1,2 +1,2 @@
 
-docker build -t dtccimage %~dp0..
+docker-compose build dev
