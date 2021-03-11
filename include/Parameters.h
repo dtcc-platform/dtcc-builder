@@ -19,7 +19,7 @@ namespace DTCC
     std::string DataDirectory;
 
     // AutoDomain
-    bool AutoDomain = true;
+    bool AutoDomain = false;
     double DomainMargin = 0.0;
 
     // Origin
