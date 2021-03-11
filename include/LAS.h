@@ -93,6 +93,43 @@ public:
         Read(pointCloud, dir + f, bbox);
   }
 
+  static void Bounds(BoundingBox2D &bb, const std::string& fileName)
+  {
+    // Open file
+    std::ifstream f;
+    f.open(fileName, std::ios::in | std::ios::binary);
+
+    // Create reader
+    liblas::ReaderFactory factory;
+    liblas::Reader reader = factory.CreateWithStream(f);
+    // Read header
+    liblas::Header const &header = reader.GetHeader();
+
+    auto bounds = header.GetExtent();
+    bb.P.x = bounds.minx();
+    bb.Q.x = bounds.maxx();
+    bb.P.y = bounds.miny();
+    bb.Q.y = bounds.maxy();
+  }
+
+  static void BoundsDirectory(BoundingBox2D &bb,
+                            const std::string &directoryName)
+  {
+    std::string dir{directoryName};
+    if (!CommandLine::EndsWith(dir, "/"))
+      dir += "/";
+    for (auto const &f : CommandLine::ListDirectory(dir))
+    {
+      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
+      {
+        auto fileBB = BoundingBox2D();
+        LAS::Bounds(fileBB, dir + f);
+        bb.Union(fileBB);
+      }
+
+    }
+  }
+
   /// Write point cloud to file
   static void Write(const PointCloud &pointCloud, const std::string &fileName)
   {

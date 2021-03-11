@@ -544,6 +544,15 @@ TEST_CASE("POINT_CLOUD")
     }
   }
 
+  SECTION("BOUNDS")
+  {
+    BoundingBox2D bb;
+    LAS::Bounds(bb,"../unittests/data/minimal_las.las");
+    REQUIRE(bb.P.x == 0);
+    REQUIRE(bb.Q.x == 9);
+  }
+  
+
   SECTION("ClassificationFilter")
   {
     PointCloud pc;
