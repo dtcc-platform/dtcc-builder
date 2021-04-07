@@ -62,6 +62,12 @@ int main(int argc, char *argv[])
     Info("LAS Bounding box " + str(lasBBox) );
     bbox.Intersect(lasBBox);
     O = bbox.P;
+    p.X0 = O.x;
+    p.Y0 = O.y;
+    p.XMin = 0;
+    p.YMin = 0;
+    p.XMax = bbox.Q.x - bbox.P.x;
+    p.YMax = bbox.Q.y - bbox.Q.y;
   }
   else
   {
@@ -72,7 +78,7 @@ int main(int argc, char *argv[])
   }
   
   Info("CityModel Bounding box: " + str(bbox));
-  if (bbox.Area() < 50)  
+  if (bbox.Area() < 100)  
   {
     Error("Domain too small to generate a city model");
     return 1;
