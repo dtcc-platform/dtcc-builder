@@ -61,6 +61,7 @@ link_directories(/usr/local/lib) #Equivalent of ldconfig /usr/local/lib in Docke
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
 # Add subdirectories
 add_subdirectory(dtcc-info)
