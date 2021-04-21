@@ -713,3 +713,18 @@ TEST_CASE("Subtract polygon origin")
     REQUIRE(vertices2[1].y == 2.5);
   }
 }
+
+TEST_CASE("Get Filename from path")
+{
+  std::string path = "/path/to/fileName.json";
+  std::string pathFileOnly = "fileName.json";
+  std::string pathNoFile = "/path/to/dir/";
+
+  REQUIRE(Utils::getFilename(path)=="fileName.json");
+  REQUIRE(Utils::getFilename(path, true)=="fileName");
+  REQUIRE(Utils::getFilename(pathFileOnly)=="fileName.json");
+  REQUIRE(Utils::getFilename(pathFileOnly, true)=="fileName");
+  REQUIRE(Utils::getFilename(pathNoFile)=="");
+
+}
+
