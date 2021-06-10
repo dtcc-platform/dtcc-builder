@@ -1,13 +1,13 @@
 # Digital Twin Cities Platform - Core
 
-_This README was revised on 3rd of March 2021_
+_This README was last revised on 3rd of March 2021_
 
 The Digital Twin Cities Platform is an open-source platform for the
 exploration of digital twins for cities. The platform is developed and
 maintained by the Digital Twin Cities Centre (DTCC) hosted by Chalmers
 University of Technology. The aim is to develop an open multimodal
 data, modeling, simulation and visualization platform for interactive
-planning, design, exploration, experimentation and optimization of
+planning, design, exploration, experimentation, and optimization of
 cities.
 
 This repository (Core) provides software for data processing,
@@ -16,19 +16,15 @@ modeling, and simulation.
 ![](images/hammarkullen.jpg)
 
 *The image shows a mesh of the Hammarkullen area in Gothenburg
- generated from public data from the Swedish mapping, cadastral and
- land registration authority (Lantmäteriet).*
+ generated from public data from the [Swedish mapping, cadastral and
+ land registration authority (Lantmäteriet)](https://www.lantmateriet.se/).*
 
 ## Getting started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you up and running on your local machine
+for development and testing purposes.
 
 ### Downloading the software
-
-if you are using Windows, you might first want to make sure Git does not convert Unix-style file endings on checkout. For this, issue
-```
-git config --global core.autocrlf false
-```
 
 To download the software, clone the repository by the following command:
 
@@ -40,59 +36,78 @@ Alternatively, you may want to use the SSH protocol:
 
 This will create a directory named `core` containing the full source code.
 
+**Note:** If you are using Windows, you might first want to make sure
+that Git does not convert Unix-style file endings on checkout. This
+can be accomplished by:
+
+    git config --global core.autocrlf false
+
 ### Building the Docker container
 
 The most convenient way to work with the Digital Twin Cities Platform
-is via the custom [Docker](https://www.docker.com/) image, which
-contains all the dependencies needed for developing, building, and running the software. Thanks to Docker, `core` can be ran on Linux, MacOS or Windows operating systems. The instructions below are identical for Linux and MacOS.
+is to use the custom [Docker](https://www.docker.com/) image, which
+contains all the dependencies needed for developing, building, and
+running the software.
 
-The first step is to download and install [Docker](https://www.docker.com/) and after the installation is complete, continue with the following steps.
+The first step is to download and install
+[Docker](https://www.docker.com/). After the installation is complete,
+continue with the following steps.
 
-For Linux/MacOS users, in order to pull the Docker image from our Gitlab repository, enter the `docker` directory and issue the following command:
+On Linux/MacOS, enter the `docker` directory and issue the following
+command:
 
     ./dtcc-pull-image
 
-On Windows, you should instead enter the `Windows` subdirectory and from there use
+On Windows, you should instead enter the `docker/Windows` subdirectory
+and issue the following command:
 
     ./dtcc-pull-image.bat
 
-
 This creates a Docker image named `dtccimage`.
 
-Note: For expert users and/or debugging purposes you can create the image from scratch by issuing `./dtcc-build-image` and `dtcc-build-image.bat` on Linux/MacOS and Windows respectivelly.
+**Note:** For expert users and/or debugging purposes you can create
+the image from scratch by issuing `./dtcc-build-image` and
+`dtcc-build-image.bat` on Linux/MacOS and Windows respectively.
 
-Then issue the following commands to create and start a persistent container (virtual machine) in which to run the Digital Twin Cities Platform:
+Then issue the following commands to create and start a persistent
+container (virtual machine) in which to run the Digital Twin Cities
+Platform:
 
     ./dtcc-create-container
     ./dtcc-start-container
 
-On Windows, you should instead use the following commands:
+On Windows, you should instead issue the following commands:
 
     ./dtcc-create-container.bat
     ./dtcc-start-container.bat
 
-This creates a Docker container named `dtcc` that is used for developing, building and running core.
+After completing this step, you should now be inside the Docker
+container named `dtcc` and ready to go.
 
-For removing the image and containers, you can use 
+For removing the image and containers, you can use
 
-    ./dtcc-uninstall 
-    ./dtcc-uninstall.bat 
+    ./dtcc-uninstall
+    ./dtcc-uninstall.bat
 
-in Linux/MacOS and Windows respectivelly.
+in Linux/MacOS and Windows respectively.
 
-Note that the source tree is automatically shared into the Docker container. It is recommended that you edit the sources, run git commands, and visualize data *outside* of the Docker container (on your native operating system), while building and running the code *inside* the Docker container.
+**Note:** The source tree is automatically shared into the Docker
+  container. It is recommended that you edit the sources, run Git
+  commands, and visualize data *outside* of the Docker container (on
+  your native operating system), while building and running the code
+  *inside* the Docker container.
 
-### Downloading data
+### Downloading demo data
 
 To download demo data, there is an open demo dataset (public) and one available only for development/research purposes. Enter the `data` directory and issue the following command:
 
     ./dtcc-download-demo-data-public
 
-For the typical new user, this should be done inside the container. Obtaining the public dataset requires no credentials. 
+For the typical new user, this should be done inside the container. Obtaining the public dataset requires no credentials.
 
 For accesing the private demo datasets you will need a set of credentials supplied by the development team. Contact us for more info.
 
-### Building and installation
+### Building and installing
 
 To build core, use a standard out-of-source CMake build by issuing the following commands from the top level directory:
 
@@ -111,10 +126,6 @@ To run a simple demo, enter the `demo` directory and issue the following command
     ./dtcc-demo
 
 This will generate a set of meshes for the demo data downloaded. The input data as well as the output data generated are stored in the `data` directory. To change dataset or parameters for the demo, edit the script `dtcc-demo` to select a different paremeter set. See below for a description of the parameters.
-
-## Deployment
-
-WIP: Describe how to deploy on cloud server.
 
 ## Data
 
@@ -240,7 +251,7 @@ The Digital Twin Cities Platform uses [CalVer](https://calver.org/) for versioni
 
 Part of this code is contributed by ReSpace AB under the MIT License.
 
-## Output 
+## Output
 
 - DSM.json - DSM generated from point cloud (GridField2D)
 - DTM.json - DTM generated from point cloud (GridField2D)
