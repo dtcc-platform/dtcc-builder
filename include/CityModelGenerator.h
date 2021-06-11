@@ -574,7 +574,8 @@ private:
     // Overwrite buildings
     cityModel.Buildings = mergedBuildings;
 
-    Info("CityModelGenerator: Merged " + str(numMerged) + " buildings");
+    Info("CityModelGenerator: " str(numMerged) +
+         " building pair(s) were merged");
   }
 
   // Merge two buildings, replacing the first building and clearing the second.
@@ -643,7 +644,6 @@ private:
     // Compute convex hull
     return Geometry::ConvexHull2D(uniquePoints);
   }
- 
 };
 
 } // namespace DTCC

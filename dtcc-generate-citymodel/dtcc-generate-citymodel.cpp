@@ -56,10 +56,8 @@ int main(int argc, char *argv[])
 
   // Check point cloud
   if (pointCloud.Empty())
-  {
-  Error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, Y{0,Min,Max} values in Parameters.json");
-  return 1;
-  }
+    Error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, "
+          "Y{0,Min,Max} values in Parameters.json");
   pointCloud.SetOrigin(O);
   Info(pointCloud);
 

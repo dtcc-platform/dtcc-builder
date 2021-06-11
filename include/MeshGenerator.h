@@ -47,6 +47,16 @@ namespace DTCC
       Info("MeshGenerator: Generating 2D mesh...");
       Timer("GenerateMesh2D");
 
+      // Print some stats
+      const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
+      const size_t ny = (boundingBox.Q.y - boundingBox.P.y) / resolution;
+      const size_t n = nx * ny;
+      Info("MeshGenerator: Domain bounding box is " + str(boundingBox));
+      Info("MeshGenerator: Mesh resolution is " + str(resolution));
+      Info("MeshGenerator: Estimated number of triangles is " + str(n));
+      Info("MeshGenerator: Number of subdomains (buildings) is " +
+           str(cityModel.Buildings.size()));
+
       // Extract subdomains (building footprints)
       std::vector<std::vector<Point2D>> subDomains;
       for (auto const &building : cityModel.Buildings)

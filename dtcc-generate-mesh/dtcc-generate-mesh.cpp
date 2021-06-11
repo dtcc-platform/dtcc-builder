@@ -29,6 +29,9 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};
 
+  // Get origin (for serialization purposes)
+  Point2D origin({p.X0, p.Y0});
+
   // Generate mesh for ground and buildings
   Surface3D groundSurface;
   std::vector<Surface3D> buildingSurfaces;
@@ -38,9 +41,6 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   // Merge building surfaces
   Surface3D buildingSurface;
   MeshProcessor::MergeSurfaces3D(buildingSurface, buildingSurfaces);
-
-  // Get origin (for serialization purposes)
-  Point2D origin({p.X0, p.Y0});
 
   // Write to file
   JSON::Write(groundSurface, dataDirectory + "GroundSurface.json", origin);
@@ -62,6 +62,9 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};
 
+  // Get origin (for serialization purposes)
+  Point2D origin({p.X0, p.Y0});
+
   // Step 1: Generate city model (and elevation model).
   // This step is handled by dtcc-generate-citymodel and
   // we assume that the data has already been generated.
@@ -70,6 +73,9 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
                                         p.MinVertexDistance);
   Info(cityModel);
+
+  // Write to file
+  JSON::Write(cityModel, dataDirectory + "CityModelSimple.json", origin);
 
   // Recompute building heights (seems better not to recompute heights).
   // If we recompute the heights, then we tend to get a height that is too low.
@@ -151,9 +157,6 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   Surface3D surface;
   MeshProcessor::ExtractOpenSurface3D(surface, boundary);
 
-  // Get origin (for serialization purposes)
-  Point2D origin({p.X0, p.Y0});
-
   // Write to file
   JSON::Write(mesh, dataDirectory + "CityMesh.json", origin);
   JSON::Write(surface, dataDirectory + "CitySurface.json", origin);
@@ -200,7 +203,7 @@ int main(int argc, char *argv[])
   GenerateVolumeMeshes(cityModel, dtm, p);
 
   // Report timings
-  Timer::Report("dtcc-generate-simulation-mesh");
+  Timer::Report("dtcc-generate-mesh");
 
   return 0;
 }

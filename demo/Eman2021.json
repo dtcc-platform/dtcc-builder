@@ -1,9 +1,9 @@
 {
     "Type": "Parameters",
     "DataDirectory": "/home/dtcc/core/data/Eman2021",
-    "DomainHeight": 100.0,
+    "DomainHeight": 50.0,
     "ElevationModelResolution": 1.0,
-    "MeshResolution": 10.0,
+    "MeshResolution": 20.0,
     "X0": 582500,
     "Y0": 6335000,
     "XMin": 0,
