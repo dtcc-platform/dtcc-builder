@@ -574,7 +574,7 @@ private:
     // Overwrite buildings
     cityModel.Buildings = mergedBuildings;
 
-    Info("CityModelGenerator: " str(numMerged) +
+    Info("CityModelGenerator: " + str(numMerged) +
          " building pair(s) were merged");
   }
 
