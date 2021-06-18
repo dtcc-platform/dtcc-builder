@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
-PARAMETERS=Eman2021.json
+#PARAMETERS=Eman2021.json
+PARAMETERS=Majorna2021.json
 
 ../bin/dtcc-generate-mesh $PARAMETERS

@@ -3,7 +3,7 @@
     "DataDirectory": "/home/dtcc/core/data/Majorna2021",
     "DomainHeight": 100.0,
     "ElevationModelResolution": 1.0,
-    "MeshResolution": 10.0,
+    "MeshResolution": 20.0,
     "X0": 315000,
     "Y0": 6397500,
     "XMin": 0,
