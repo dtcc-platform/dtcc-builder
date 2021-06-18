@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   // Generate raw city model
   CityModel cityModel;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        bbox);
+                                        bbox, p.MinBuildingDistance);
   cityModel.SetOrigin(O);
   Info(cityModel);
 

@@ -366,26 +366,31 @@ public:
   }
 
   // Check whether bounding box contains point (2D)
-  static bool BoundingBoxContains2D(const BoundingBox2D& bbox, const Point2D &p)
+  static bool BoundingBoxContains2D(const BoundingBox2D &bbox,
+                                    const Point2D &p,
+                                    double margin = 0.0)
   {
-    return (bbox.P.x <= p.x && p.x <= bbox.Q.x &&
-            bbox.P.y <= p.y && p.y <= bbox.Q.y);
+    return (bbox.P.x + margin <= p.x && p.x + margin <= bbox.Q.x &&
+            bbox.P.y + margin <= p.y && p.y + margin <= bbox.Q.y);
   }
 
   // Check whether bounding box contains point (3D)
-  static bool BoundingBoxContains3D(const BoundingBox3D& bbox, const Point3D &p)
+  static bool BoundingBoxContains3D(const BoundingBox3D &bbox,
+                                    const Point3D &p,
+                                    double margin = 0.0)
   {
-    return (bbox.P.x <= p.x && p.x <= bbox.Q.x &&
-            bbox.P.y <= p.y && p.y <= bbox.Q.y &&
-            bbox.P.z <= p.z && p.z <= bbox.Q.z);
+    return (bbox.P.x + margin <= p.x && p.x + margin <= bbox.Q.x &&
+            bbox.P.y + margin <= p.y && p.y + margin <= bbox.Q.y &&
+            bbox.P.z + margin <= p.z && p.z + margin <= bbox.Q.z);
   }
 
   // Check whether bounding box contains polygon (2D)
   static bool BoundingBoxContains2D(const BoundingBox2D &bbox,
-                                    const Polygon &polygon)
+                                    const Polygon &polygon,
+                                    double margin = 0.0)
   {
     for (const auto &p : polygon.Vertices)
-      if (!BoundingBoxContains2D(bbox, p))
+      if (!BoundingBoxContains2D(bbox, p, margin))
         return false;
     return true;
   }

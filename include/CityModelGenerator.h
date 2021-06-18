@@ -33,11 +33,14 @@ public:
   /// @param UUIDs UUIDs of buildings
   /// @param entityIDs Indices of buildings (in shapefile)
   /// @param bbox Bounding box of domain
+  /// @param minBuildingDistance Minimal distance from building to domain
+  /// boundary
   static void GenerateCityModel(CityModel &cityModel,
                                 const std::vector<Polygon> &footprints,
                                 const std::vector<std::string> &UUIDs,
                                 const std::vector<int> &entityIDs,
-                                const BoundingBox2D &bbox)
+                                const BoundingBox2D &bbox,
+                                double minBuildingDistance)
   {
     Info("CityModelGenerator: Generating city model...");
     Timer("GenerateCityModel");
@@ -49,8 +52,13 @@ public:
     for (size_t i = 0; i < footprints.size(); i++)
     {
       // Skip if not inside  bounding box
-      if (!Geometry::BoundingBoxContains2D(bbox, footprints[i]))
+      if (!Geometry::BoundingBoxContains2D(bbox, footprints[i],
+                                           minBuildingDistance))
+      {
+        Warning("Skipping building " + UUIDs[i] +
+                "; outside domain or too close to boundary");
         continue;
+      }
 
       // Add building
       Building building;
