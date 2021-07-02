@@ -61,6 +61,13 @@ int main(int argc, char *argv[])
   pointCloud.SetOrigin(O);
   Info(pointCloud);
 
+  // FIXME: Global outlier filtering commented out since it seems to be
+  // too agressive (removing some buildings that should not be removed)
+  // and at the same time missing some obvious outliers (spikes).
+
+  // Remove outliers from point cloud
+  // PointCloudProcessor::RemoveOutliers(pointCloud, p.OutlierMargin);
+
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
   ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, {2, 9},
@@ -92,7 +99,7 @@ int main(int argc, char *argv[])
   // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, p.MinVertexDistance);
   CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud,
-                                            p.GroundMargin);
+                                            p.GroundMargin, p.OutlierMargin);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, p.GroundPercentile,
                                              p.RoofPercentile);
 

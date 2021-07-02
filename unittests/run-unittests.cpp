@@ -540,7 +540,7 @@ TEST_CASE("POINT_CLOUD")
     REQUIRE(pc.Points.size()==10);
     for (size_t i = 0; i < pc.Points.size(); i++)
     {
-      REQUIRE(pc.Classification[i]==Approx(pc.Points[i].x).margin(1e-6));
+      REQUIRE(pc.Classifications[i] == Approx(pc.Points[i].x).margin(1e-6));
     }
   }
 
@@ -548,15 +548,15 @@ TEST_CASE("POINT_CLOUD")
   {
     PointCloud pc;
     pc.Points.push_back(Vector3D(0,0,0));
-    pc.Classification.push_back(0);
+    pc.Classifications.push_back(0);
     pc.Points.push_back(Vector3D(1,0,0));
-    pc.Classification.push_back(1);
+    pc.Classifications.push_back(1);
     pc.Points.push_back(Vector3D(2,0,0));
-    pc.Classification.push_back(2);
+    pc.Classifications.push_back(2);
 
     PointCloud out_pc = PointCloudProcessor::ClassificationFilter(pc,{1,2});
     REQUIRE(out_pc.Points.size()==2);
-    REQUIRE(out_pc.Classification.size()==2);
+    REQUIRE(out_pc.Classifications.size() == 2);
     REQUIRE(out_pc.Points[0].x==1);
     REQUIRE(out_pc.Points[1].x==2);
 
@@ -654,7 +654,7 @@ TEST_CASE("Read from CSV instead of LAS/LAZ")
 
   SECTION("PointCloud vertices")
   {
-    Vector3D v1 = pointCloud.Points[0];
+    Point3D v1 = pointCloud.Points[0];
     REQUIRE(v1.x == 317228.73);
     REQUIRE(v1.y == 6397500.00);
     REQUIRE(v1.z == 26.16);
@@ -669,7 +669,7 @@ TEST_CASE("Read from CSV instead of LAS/LAZ")
 
   SECTION("PointCloud classification")
   {
-    auto classification = pointCloud.Classification[0];
+    auto classification = pointCloud.Classifications[0];
     REQUIRE(classification == 1);
   }
 
@@ -693,7 +693,7 @@ TEST_CASE("Read from CSV instead of LAS/LAZ")
     std::vector<int> groundWaterPts{2, 9};
     CSV::Read(pointCloud, filename, groundWaterPts);
     // 1 is only other present classification
-    for (const auto &c : pointCloud.Classification)
+    for (const auto &c : pointCloud.Classifications)
       REQUIRE(c != 1);
   }
 }

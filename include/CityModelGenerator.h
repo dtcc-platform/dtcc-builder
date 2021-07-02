@@ -155,20 +155,18 @@ public:
   /// @param groundMargin Margin around building for detecting ground points
   static void ExtractBuildingPoints(CityModel &cityModel,
                                     const PointCloud &pointCloud,
-                                    double groundMargin)
+                                    double groundMargin,
+                                    double outlierMargin)
   {
     Info("CityModelGenerator: Extracting building points...");
     Timer("ExtractBuildingPoints");
-
-    // FIXME: Make this a parameter
-    const double outlierMargin{2.0};
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
       Error("Empty point cloud");
 
     // Check that point cloud has classifications
-    if (pointCloud.Points.size() != pointCloud.Classification.size())
+    if (pointCloud.Points.size() != pointCloud.Classifications.size())
       Error("Missing classifications for point cloud");
 
     // Build search trees
@@ -194,7 +192,7 @@ public:
       // Get point and building
       const Point3D &p3D = pointCloud.Points[index.first];
       const Point2D p2D{p3D.x, p3D.y};
-      const uint8_t clf = pointCloud.Classification[index.first];
+      const uint8_t clf = pointCloud.Classifications[index.first];
       Building &building = cityModel.Buildings[index.second];
 
       // Check for ground points
@@ -223,8 +221,12 @@ public:
       numPoints += building.RoofPoints.size();
 
       // Remove outliers and count total number of outliers
-      numOutliers += RemoveOutliers(building.GroundPoints, outlierMargin);
-      numOutliers += RemoveOutliers(building.RoofPoints, outlierMargin);
+      numOutliers += PointCloudProcessor::RemoveOutliers(building.GroundPoints,
+                                                         outlierMargin)
+                         .size();
+      numOutliers += PointCloudProcessor::RemoveOutliers(building.RoofPoints,
+                                                         outlierMargin)
+                         .size();
     }
     const double outlierPercentage = (100.0 * numOutliers) / numPoints;
     Info("CityModelGenerator: Removed outliers (" + str(outlierPercentage) +
@@ -473,45 +475,6 @@ private:
     size_t index = std::max(0.0, percentile * array.size());
     index = std::min(index, array.size() - 1);
     return array[index];
-  }
-
-  // Remove outliers outside given number of standard deviations
-  static size_t RemoveOutliers(std::vector<Point3D> &points, double margin)
-  {
-    // Check that we have enough points
-    if (points.size() < 3)
-      return 0;
-
-    // Compute mean
-    double mean{0};
-    for (const auto p : points)
-      mean += p.z;
-    mean /= points.size();
-
-    // Compute standard deviation
-    double std{0};
-    for (const auto p : points)
-      std += (p.z - mean) * (p.z - mean);
-    std /= points.size() - 1;
-    std = std::sqrt(std);
-
-    // Remove outliers (can perhaps be implemented more efficiently)
-    std::vector<Point3D> newPoints;
-    size_t numOutliers{0};
-    for (const auto p : points)
-    {
-      if (std::abs(p.z - mean) <= margin * std)
-      {
-        newPoints.push_back(p);
-      }
-      else
-      {
-        numOutliers++;
-      }
-    }
-    points = newPoints;
-
-    return numOutliers;
   }
 
   // Merge all buildings closer than a given distance

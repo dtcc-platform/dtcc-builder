@@ -10,6 +10,7 @@
 #include "BoundingBoxTree.h"
 #include "Color.h"
 #include "Logging.h"
+#include "Point.h"
 #include "Vector.h"
 
 namespace DTCC
@@ -20,13 +21,13 @@ namespace DTCC
   public:
 
     /// Array of points
-    std::vector<Vector3D> Points{};
+    std::vector<Point3D> Points{};
 
     /// Array of colors (one per point)
     std::vector<Color> Colors{};
 
     /// Array of classifications (one per point)
-    std::vector<uint8_t> Classification{};
+    std::vector<uint8_t> Classifications{};
 
     /// Bounding box
     BoundingBox2D BoundingBox{};
@@ -67,11 +68,11 @@ namespace DTCC
     }
 
     /// Set a default color to all points
-    void InitClassification(uint8_t c)
+    void InitClassifications(uint8_t c)
     {
-      Classification.clear();
+      Classifications.clear();
       for (size_t i = 0; i < Points.size(); i++)
-        Classification.push_back(c);
+        Classifications.push_back(c);
     }
 
     /// Build search tree (bounding box tree), required for search queries.
@@ -105,7 +106,7 @@ namespace DTCC
     {
       Points.clear();
       Colors.clear();
-      Classification.clear();
+      Classifications.clear();
       bbtree.Clear();
     }
 

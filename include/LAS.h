@@ -204,7 +204,7 @@ private:
       // Add point to point cloud
       pointCloud.Points.push_back(p);
       pointCloud.Colors.push_back(c);
-      pointCloud.Classification.push_back(cls.GetClass());
+      pointCloud.Classifications.push_back(cls.GetClass());
       readPoints++;
     }
 

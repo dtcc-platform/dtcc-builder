@@ -52,6 +52,9 @@ namespace DTCC
     // Percentile used for computing building roof height [0, 1]
     double RoofPercentile = 0.9;
 
+    // Outlier margin for point cloud processing
+    double OutlierMargin = 0.2;
+
     // Number of smoothing iterations DTM
     int GroundSmoothing = 5;
 
@@ -100,6 +103,7 @@ namespace DTCC
              "\n  GroundMargin             = " + str(GroundMargin) +
              "\n  GroundPercentile         = " + str(GroundPercentile) +
              "\n  RoofPercentile           = " + str(RoofPercentile) +
+             "\n  OutlierMargin            = " + str(OutlierMargin) +
              "\n  GroundSmoothing          = " + str(GroundSmoothing) +
              "\n  NumRandomBuildings       = " + str(NumRandomBuildings) +
              "\n  FlatGround               = " + str(FlatGround) +

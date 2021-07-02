@@ -44,7 +44,7 @@ public:
       Error("Empty point cloud");
 
     // Check that point cloud has classifications
-    if (pointCloud.Points.size() != pointCloud.Classification.size())
+    if (pointCloud.Points.size() != pointCloud.Classifications.size())
       Error("Missing classifications for point cloud");
 
     // Print classifications
@@ -116,7 +116,7 @@ public:
     {
       // Get point and classification
       const Point3D &p3D{pointCloud.Points[i]};
-      const uint8_t clf{pointCloud.Classification[i]};
+      const uint8_t clf{pointCloud.Classifications[i]};
 
       // Get 2D Point
       const Point2D p2D{p3D.x, p3D.y};

@@ -52,6 +52,7 @@ namespace DTCC
       parameters.GroundMargin = ToDouble("GroundMargin", json);
       parameters.GroundPercentile = ToDouble("GroundPercentile", json);
       parameters.RoofPercentile = ToDouble("RoofPercentile", json);
+      parameters.OutlierMargin = ToDouble("OutlierMargin", json);
       parameters.MinBuildingDistance = ToDouble("MinBuildingDistance", json);
       parameters.MinVertexDistance = ToDouble("MinVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
@@ -78,6 +79,7 @@ namespace DTCC
       json["GroundMargin"] = parameters.GroundMargin;
       json["GroundPercentile"] = parameters.GroundPercentile;
       json["RoofPercentile"] = parameters.RoofPercentile;
+      json["OutlierMargin"] = parameters.OutlierMargin;
       json["MinBuildingDistance"] = parameters.MinBuildingDistance;
       json["MinVertexDistance"] = parameters.MinVertexDistance;
       json["FlatGround"] = parameters.FlatGround;

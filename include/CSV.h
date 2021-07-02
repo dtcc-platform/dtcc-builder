@@ -131,27 +131,27 @@ public:
     // Set precision
     f << std::setprecision(Parameters::Precision);
 
-    // Write points 
+    // Write points
     if (pointCloud.Points.size() == pointCloud.Colors.size())
     {
-      for (size_t i = 0;i<pointCloud.Points.size();i++) 
+      for (size_t i = 0; i < pointCloud.Points.size(); i++)
       {
         f << pointCloud.Points[i].x << "," << pointCloud.Points[i].y << ","
           << pointCloud.Points[i].z << "," << pointCloud.Colors[i].R << ","
           << pointCloud.Colors[i].G << "," << pointCloud.Colors[i].B << ","
-          << pointCloud.Classification[i] << std::endl;
+          << pointCloud.Classifications[i] << std::endl;
       }
-    } else 
+    }
+    else
     {
-       for (auto const &p : pointCloud.Points) 
-       {
-         f << p.x << "," << p.y << "," << p.z << std::endl;
+      for (auto const &p : pointCloud.Points)
+      {
+        f << p.x << "," << p.y << "," << p.z << std::endl;
        }
     }
 
     // Close file
     f.close();
-    
   }
 
   // Read CSV file and store it in rapidcsv
@@ -302,7 +302,7 @@ private:
         continue;
 
       pointCloud.Points.push_back(point);
-      pointCloud.Classification.push_back(type);
+      pointCloud.Classifications.push_back(type);
 
       Color color;
       color.R = doc.GetCell<double>(3, i);
