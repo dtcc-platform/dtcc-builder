@@ -6,6 +6,7 @@ from pylab import *
 
 eps = 1e-6
 FootprintDistanceThreshold = 0.01
+PLOT_LABELS = False
 
 def VectorAngle(u, v):
     "Return strictly increasing function of angle of v relative to u"
@@ -19,12 +20,12 @@ def VectorAngle(u, v):
     else:
         return -a if cos > 0.0 else a - 2.0
 
-def Arrow(x0, y0, x1, y1, color='grey', rad=0.2, arrowstyle='->', size=10):
+def Arrow(x0, y0, x1, y1, color='grey', rad=0.2, arrowstyle='->', size=10, linestyle='-'):
     annotate('',
              xy=(x1, y1), xycoords='data',
              xytext=(x0, y0), textcoords='data',
              size=size, va="center", ha="center",
-             arrowprops=dict(arrowstyle=arrowstyle, color=color,
+             arrowprops=dict(arrowstyle=arrowstyle, color=color, linestyle=linestyle,
                              connectionstyle="arc3,rad=%g" % rad))
 
 def QuadrantAnglePointPoint(p, q):
@@ -529,7 +530,7 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
     print('Edges:', edges)
 
     # Write point labels (and make sure they don't overlap)
-    if plotting:
+    if plotting and PLOT_LABELS:
         H = 0.0075*max([Norm(p-q) for p in points for q in points])
         for i, p in enumerate(points):
             h = H
@@ -537,6 +538,10 @@ def MergePolygons(polygons, tol=0.5, plotting=False):
                 if Norm(p - q) < eps:
                     h += 5*H
             text(p[0] + h, p[1] + H, str(i), va='bottom', ha='left')
+
+    # Plot graph
+    if plotting:
+        PlotGraph(points, edges)
 
     # Find first vertex by looking for an original edge that is to the
     # "right" of all points
@@ -697,7 +702,7 @@ def PlotLabel(polygon, labelText):
     y = [x[1] for x in polygon]
     text(mean(x), mean(y), labelText, va='center', ha='center')
 
-def PlotPolygons(polygons, style='-o', arrows=False, labels=False):
+def PlotPolygons(polygons, style='-o', arrows=False, labels=PLOT_LABELS):
     for i, polygon in enumerate(polygons):
         x = [x[0] for x in polygon]
         y = [x[1] for x in polygon]
@@ -707,18 +712,25 @@ def PlotPolygons(polygons, style='-o', arrows=False, labels=False):
         if arrows:
             for j in range(len(x) - 1):
                 Arrow(x[j], y[j], x[j+1], y[j+1])
-        plot(x, y, style)
+        plot(x, y, style, linewidth=2)
         axis('off')
+
+def PlotGraph(points, edges):
+    for i, edge in enumerate(edges):
+        p0 = points[i]
+        for j in edge:
+            p1 = points[j]
+            Arrow(*p0, *p1, color='#aaaaaa', linestyle='dashed')
 
 def RunTestCase(polygons):
     polygons = [array(polygons[0]).astype(float),
                 array(polygons[1]).astype(float)]
     figure()
     subplot(2, 1, 1)
-    PlotPolygons(polygons)
+    PlotPolygons(polygons, labels=PLOT_LABELS)
     polygon = MergePolygons(polygons, plotting=True)
     subplot(2, 1, 2)
-    PlotPolygons([polygon], '--o', arrows=True)
+    PlotPolygons([polygon], '--o', arrows=True, labels=PLOT_LABELS)
 
 def TestCase0():
     p0 = array([(0, 0), (1, 0), (1, 1), (0, 1)])
