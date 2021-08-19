@@ -722,7 +722,7 @@ def PlotGraph(points, edges):
             p1 = points[j]
             Arrow(*p0, *p1, color='#aaaaaa', linestyle='dashed')
 
-def RunTestCase(polygons):
+def RunTestCase(polygons, number):
     polygons = [array(polygons[0]).astype(float),
                 array(polygons[1]).astype(float)]
     figure()
@@ -731,6 +731,7 @@ def RunTestCase(polygons):
     polygon = MergePolygons(polygons, plotting=True)
     subplot(2, 1, 2)
     PlotPolygons([polygon], '--o', arrows=True, labels=PLOT_LABELS)
+    #savefig('TestCase' + str(number) + '.pdf', format='pdf')
 
 def TestCase0():
     p0 = array([(0, 0), (1, 0), (1, 1), (0, 1)])
@@ -945,17 +946,18 @@ def TestCase13():
     return p0, p1
 
 if __name__ == '__main__':
-    RunTestCase(TestCase0())
-    RunTestCase(TestCase1())
-    RunTestCase(TestCase2())
-    RunTestCase(TestCase3())
-    RunTestCase(TestCase4())
-    RunTestCase(TestCase5())
-    RunTestCase(TestCase6())
-    RunTestCase(TestCase7())
-    RunTestCase(TestCase9())
-    RunTestCase(TestCase10())
-    RunTestCase(TestCase11())
-    RunTestCase(TestCase12())
-    RunTestCase(TestCase13())
+    RunTestCase(TestCase0(), 0)
+    RunTestCase(TestCase1(), 1)
+    RunTestCase(TestCase2(), 2)
+    RunTestCase(TestCase3(), 3)
+    RunTestCase(TestCase4(), 4)
+    RunTestCase(TestCase5(), 5)
+    RunTestCase(TestCase6(), 6)
+    RunTestCase(TestCase7(), 7)
+    RunTestCase(TestCase8(), 8)
+    RunTestCase(TestCase9(), 9)
+    RunTestCase(TestCase10(), 10)
+    RunTestCase(TestCase11(), 11)
+    RunTestCase(TestCase12(), 12)
+    RunTestCase(TestCase13(), 13)
     show()
