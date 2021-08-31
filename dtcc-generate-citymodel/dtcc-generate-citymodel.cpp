@@ -48,18 +48,18 @@ int main(int argc, char *argv[])
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
-  Info("loaded " + str(footprints.size()) + "building footprints");
+  Info("Loaded " + str(footprints.size()) + " building footprints");
 
   // Set bounding box
   BoundingBox2D bbox;
   Point2D O;
   if (p.AutoDomain)
-  { 
+  {
     bbox = BoundingBox2D(footprints, p.DomainMargin);
-    Info("Buildings Bounding box " + str(bbox) );
+    Info("Bounding box of footprints: " + str(bbox));
     BoundingBox2D lasBBox;
     LAS::BoundsDirectory(lasBBox, dataDirectory);
-    Info("LAS Bounding box " + str(lasBBox) );
+    Info("Bounding box of point cloud: " + str(lasBBox));
     bbox.Intersect(lasBBox);
     O = bbox.P;
     p.X0 = O.x;
@@ -74,11 +74,11 @@ int main(int argc, char *argv[])
     O = Point2D(p.X0, p.Y0);
     const Point2D P{p.XMin + p.X0, p.YMin + p.Y0};
     const Point2D Q{p.XMax + p.X0, p.YMax + p.Y0};
-    bbox = BoundingBox2D(P,Q);
+    bbox = BoundingBox2D(P, Q);
   }
-  
-  Info("CityModel Bounding box: " + str(bbox));
-  if (bbox.Area() < 100)  
+
+  Info("Bounding box of city model: " + str(bbox));
+  if (bbox.Area() < 100.0)
   {
     Error("Domain too small to generate a city model");
     return 1;
@@ -116,8 +116,6 @@ int main(int argc, char *argv[])
 
   // Smooth elevation model (only done for DTM)
   VertexSmoother::SmoothField(dtm, p.GroundSmoothing);
-
-  
 
   // Generate raw city model
   CityModel cityModel;

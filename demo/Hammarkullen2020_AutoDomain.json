@@ -17,6 +17,7 @@
     "GroundMargin": 1.0,
     "GroundPercentile": 0.1,
     "RoofPercentile": 0.9,
+    "OutlierMargin": 2.0,
     "FlatGround": false,
     "GroundSmoothing": 2,
     "NumRandomBuildings": 1000,
