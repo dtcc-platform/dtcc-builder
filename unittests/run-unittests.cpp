@@ -551,7 +551,6 @@ TEST_CASE("POINT_CLOUD")
     REQUIRE(bb.P.x == 0);
     REQUIRE(bb.Q.x == 9);
   }
-  
 
   SECTION("ClassificationFilter")
   {
@@ -783,4 +782,17 @@ TEST_CASE("Parse Parameters")
   JSON::Read(p2, fileName2);
   REQUIRE(!p.AutoDomain);
   REQUIRE(p2.AutoDomain);
+}
+
+TEST_CASE("Get Filename from path")
+{
+  std::string path = "/path/to/fileName.json";
+  std::string pathFileOnly = "fileName.json";
+  std::string pathNoFile = "/path/to/dir/";
+
+  REQUIRE(Utils::GetFilename(path) == "fileName.json");
+  REQUIRE(Utils::GetFilename(path, true) == "fileName");
+  REQUIRE(Utils::GetFilename(pathFileOnly) == "fileName.json");
+  REQUIRE(Utils::GetFilename(pathFileOnly, true) == "fileName");
+  REQUIRE(Utils::GetFilename(pathNoFile) == "");
 }

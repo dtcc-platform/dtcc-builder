@@ -64,6 +64,33 @@ namespace DTCC
 
     /// Return random number between 0 and 1
     static double Random() { return std::rand() / double(RAND_MAX); }
+
+    /// Returns the file name part of a path
+    /// \param str a string representing a path to a file
+    static std::string GetFilename(std::string fullPath,
+                                   bool removeExtension = false)
+    {
+      std::string fileName;
+      size_t lastPathSep = fullPath.find_last_of('/');
+
+      if (lastPathSep != std::string::npos)
+      {
+        fileName = fullPath.substr(lastPathSep + 1);
+      }
+      else // no directory
+      {
+        fileName = fullPath;
+      }
+      if (removeExtension)
+      {
+        size_t fileExtSep = fileName.find_last_of('.');
+        if (fileExtSep != std::string::npos)
+        {
+          fileName = fileName.substr(0, fileExtSep);
+        }
+      }
+      return fileName;
+    }
   };
 }
 

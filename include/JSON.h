@@ -556,6 +556,7 @@ namespace DTCC
     static void Deserialize(CityModel &cityModel, const nlohmann::json& json)
     {
       CheckType("CityModel", json);
+      cityModel.Name = json["Name"];
       auto jsonBuildings = json["Buildings"];
       cityModel.Buildings.resize(jsonBuildings.size());
       for (size_t i = 0; i < jsonBuildings.size(); i++)
@@ -636,6 +637,7 @@ namespace DTCC
         jsonBuildings.push_back(jsonBuilding);
       }
       json["Type"] = "CityModel";
+      json["Name"] = cityModel.Name;
       json["Buildings"] = jsonBuildings;
       json["Origin"] = {{"x", origin.x}, {"y", origin.y}};
     }

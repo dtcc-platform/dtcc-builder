@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
   Parameters p;
   JSON::Read(p, argv[1]);
   Info(p);
+  std::string modelName = Utils::GetFilename(argv[1], true);
 
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};
@@ -119,6 +120,10 @@ int main(int argc, char *argv[])
 
   // Generate raw city model
   CityModel cityModel;
+
+  // set CityModel name
+  cityModel.Name = modelName;
+
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
                                         bbox, p.MinBuildingDistance);
   cityModel.SetOrigin(O);

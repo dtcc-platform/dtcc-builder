@@ -21,6 +21,9 @@ namespace DTCC
 class CityModel : public Printable
 {
 public:
+  /// Name of the CityModel
+  std::string Name;
+
   /// Array of buildings
   std::vector<Building> Buildings;
 
@@ -119,7 +122,8 @@ public:
   /// Pretty-print
   std::string __str__() const override
   {
-    return "CityModel with " + str(Buildings.size()) + " buildings";
+    return "CityModel " + Name + " with " + str(Buildings.size()) +
+           " buildings";
   }
 
 private:
