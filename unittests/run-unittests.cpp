@@ -28,6 +28,8 @@
 
 using namespace DTCC;
 
+const std::string RootPath{"/home/dtcc/core/unittests/"};
+
 TEST_CASE("Grid2D")
 {
   Point2D p(0, 0);
@@ -230,10 +232,8 @@ TEST_CASE("GridVectorField3D")
 
 TEST_CASE("XMLParser")
 {
-  const std::string RootPath1 =
-      "/home/dtcc/core/unittests/xml-parser-test-files/";
-  const std::string RootPath2 =
-      "/builds/dtcc3d/core/unittests/xml-parser-test-files/";
+  const std::string RootPath1 = RootPath + "xml-parser-test-files/";
+  const std::string RootPath2 = RootPath + "xml-parser-test-files/";
   std::string rootPath = RootPath1;
 
   pugi::xml_document doc;
@@ -309,7 +309,7 @@ TEST_CASE("COLORMAPS")
   SECTION("Load PNG")
   {
     ColorMap cm3;
-    ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
+    ColorMapIO::ReadPNG(cm3, RootPath + "data/colormap_jet.png");
     REQUIRE(cm3.size() == 256);
 
     REQUIRE(cm3(0).R == Approx(127 / 255.0).margin(0.0001));
@@ -339,14 +339,14 @@ TEST_CASE("COLORMAPS")
   SECTION("Read cpt")
   {
     ColorMap cm6;
-    ColorMapIO::ReadCPT(cm6, "../unittests/data/inferno.cpt");
+    ColorMapIO::ReadCPT(cm6, RootPath + "data/inferno.cpt");
     REQUIRE(cm6.size() == 255 * 2);
     REQUIRE(cm6(125 / 255.0).R == Approx(183 / 255.0).margin(0.0001));
     REQUIRE(cm6(125 / 255.0).G == Approx(53 / 255.0).margin(0.0001));
     REQUIRE(cm6(125 / 255.0).B == Approx(87 / 255.0).margin(0.0001));
 
     ColorMap cm7;
-    ColorMapIO::ReadCPT(cm7, "../unittests/data/BrBG_11.cpt");
+    ColorMapIO::ReadCPT(cm7, RootPath + "data/BrBG_11.cpt");
     REQUIRE(cm7(0.5).R == Approx(245 / 255.0).margin(0.0001));
     REQUIRE(cm7(0.5).G == Approx(245 / 255.0).margin(0.0001));
     REQUIRE(cm7(0.5).B == Approx(245 / 255.0).margin(0.0001));
@@ -355,7 +355,7 @@ TEST_CASE("COLORMAPS")
   SECTION("Serialize JSON")
   {
     ColorMap cm3;
-    ColorMapIO::ReadPNG(cm3, "../unittests/data/colormap_jet.png");
+    ColorMapIO::ReadPNG(cm3, RootPath + "data/colormap_jet.png");
     JSON::Write(cm3, "testmap.json");
     ColorMap cm5;
     JSON::Read(cm5, "testmap.json");
@@ -379,8 +379,8 @@ TEST_CASE("COLORMAPS")
 
 TEST_CASE("datamodel")
 {
-  const char *fileName1 = "../unittests/data/CityModelExample.json";
-  const char *fileName2 = "../unittests/data/CityModelExample2.json";
+  const std::string fileName1 = RootPath + "data/CityModelExample.json";
+  const std::string fileName2 = RootPath + "data/CityModelExample2.json";
 
   for (bool firstRun : {true, false})
   {
@@ -470,9 +470,8 @@ TEST_CASE("ISO 8559-1 to UTF-8")
 
 TEST_CASE("RoadNetwork generation")
 {
-  std::string filename1 = "../unittests/data/roadnetwork-torslanda/vl_riks.shp";
-  std::string filename2 =
-      "../unittests/data/roadnetwork-central-gbg/vl_riks.shp";
+  std::string filename1 = RootPath + "data/roadnetwork-torslanda/vl_riks.shp";
+  std::string filename2 = RootPath + "data/roadnetwork-central-gbg/vl_riks.shp";
 
   std::vector<Polygon> roads;
   nlohmann::json attributes;
@@ -522,7 +521,7 @@ TEST_CASE("Create own UUIDs")
   std::vector<std::string> uuids;
   std::vector<int> entityIDs;
   std::string filename =
-      "../unittests/data/create-uuid-propertymap/PropertyMap.shp";
+      RootPath + "data/create-uuid-propertymap/PropertyMap.shp";
   SHP::Read(polygons, filename, &uuids, &entityIDs);
 
   REQUIRE(uuids[0] == "0d1a05a7-c188-42ab-adad-35b359f1b920");
@@ -535,7 +534,7 @@ TEST_CASE("POINT_CLOUD")
   SECTION("READ LAS")
   {
     PointCloud pc;
-    LAS::Read(pc,"../unittests/data/minimal_las.las");
+    LAS::Read(pc, RootPath + "data/minimal_las.las");
 
     REQUIRE(pc.Points.size()==10);
     for (size_t i = 0; i < pc.Points.size(); i++)
@@ -547,7 +546,7 @@ TEST_CASE("POINT_CLOUD")
   SECTION("BOUNDS")
   {
     BoundingBox2D bb;
-    LAS::Bounds(bb,"../unittests/data/minimal_las.las");
+    LAS::Bounds(bb, RootPath + "data/minimal_las.las");
     REQUIRE(bb.P.x == 0);
     REQUIRE(bb.Q.x == 9);
   }
@@ -575,7 +574,7 @@ TEST_CASE("Convert GeoJSON to RoadNetwork")
 {
   // Test writing to RoadNetwork.json
   // Smaller GeoJSON
-  std::string path = "../unittests/data/geojson-to-roadnetwork/";
+  std::string path = RootPath + "data/geojson-to-roadnetwork/";
   GeoJSON::WriteRoadNetwork(path + "RoadNetwork.geojson");
   nlohmann::json jsonRoadNetwork;
   JSON::Read(jsonRoadNetwork, path + "RoadNetwork.json");
@@ -670,7 +669,7 @@ TEST_CASE("BoundingBox2D")
 
 TEST_CASE("Add UUID-N on duplicate UUIDs")
 {
-  std::string fileName = "../unittests/data/duplicate-shp-uuids/by_14.shp";
+  std::string fileName = RootPath + "data/duplicate-shp-uuids/by_14.shp";
   std::vector<Polygon> polygons;
   std::vector<std::string> UUIDs;
   std::vector<int> entityID;
@@ -700,7 +699,7 @@ TEST_CASE("Add UUID-N on duplicate UUIDs")
 TEST_CASE("Read from CSV instead of LAS/LAZ")
 {
   std::string filename =
-      "../unittests/data/read-from-csv-instead-of-laz/PointCloudTest.csv";
+      RootPath + "data/read-from-csv-instead-of-laz/PointCloudTest.csv";
   PointCloud pointCloud;
   CSV::Read(pointCloud, filename);
 
@@ -768,13 +767,15 @@ TEST_CASE("Subtract polygon origin")
 
 TEST_CASE("Parse Parameters")
 {
-  const char *fileName = "../unittests/data/parameters/Hammarkullen2020.json";
-  const char *fileName2 = "../unittests/data/parameters/Hammarkullen2020_autodomain.json";
+  const std::string fileName =
+      RootPath + "data/parameters/Hammarkullen2020.json";
+  const std::string fileName2 =
+      RootPath + "data/parameters/Hammarkullen2020_autodomain.json";
   nlohmann::json json;
   nlohmann::json json2;
   JSON::Read(json, fileName);
   JSON::Read(json2, fileName2);
-  REQUIRE(JSON::HasKey("DataDirectory",json));
+  REQUIRE(JSON::HasKey("DataDirectory", json));
   REQUIRE(!JSON::HasKey("XXX",json));
 
   Parameters p,p2;
