@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson, Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_BOUNDING_BOX_H
@@ -59,6 +59,61 @@ namespace DTCC
       P.y -= margin;
       Q.x += margin;
       Q.y += margin;
+    }
+
+    /// Create bounding box of vector of polygons.
+    ///
+    /// @param points Vector of polygons
+    /// @param margin Margin to use for bounding box
+    explicit BoundingBox2D(const std::vector<Polygon> &polygons,
+                           double margin = 0.0)
+    {
+      auto initBB = BoundingBox2D(polygons.front());
+      P = initBB.P;
+      Q = initBB.Q;
+      for(auto p : polygons)
+      {
+        this->Union(BoundingBox2D(p));
+      }
+      P.x -= margin;
+      P.y -= margin;
+      Q.x += margin;
+      Q.y += margin;
+    }
+
+    
+    /// expand a bounding box to the union of it 
+    /// and a second bounding box
+    void Union(BoundingBox2D const &other)
+    {
+      P.x = std::min(P.x, other.P.x);
+      P.y = std::min(P.y, other.P.y);
+      Q.x = std::max(Q.x, other.Q.x);
+      Q.y = std::max(Q.y, other.Q.y);
+    }
+
+    /// intersect bounding box with a second bounding box
+    void Intersect(BoundingBox2D const &other)
+    {
+      if (
+        P.x >= other.Q.x ||
+        Q.x <= other.P.x ||
+        P.y >= other.Q.y ||
+        Q.y <= other.P.y
+      )
+      {
+        // empty BB
+        P = Point2D();
+        Q = Point2D();
+      }
+      else 
+      {
+        P.x = std::max(P.x, other.P.x);
+        Q.x = std::min(Q.x, other.Q.x);
+        P.y = std::max(P.y, other.P.y);
+        Q.y = std::min(Q.y, other.Q.y);
+      }
+
     }
 
     /// Return area of bounding box
@@ -132,6 +187,18 @@ namespace DTCC
       Q.x += margin;
       Q.y += margin;
       Q.z += margin;
+    }
+
+    /// expand a bounding box to the union of it 
+    /// and a second bounding box
+    void Union(BoundingBox3D other)
+    {
+      P.x = std::min(P.x, other.P.x);
+      P.y = std::min(P.y, other.P.y);
+      P.z = std::min(P.z, other.P.z);
+      Q.x = std::max(Q.x, other.Q.x);
+      Q.y = std::max(Q.y, other.Q.y);
+      Q.z = std::max(Q.z, other.Q.z);
     }
 
     /// Return volume of bounding box

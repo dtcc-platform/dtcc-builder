@@ -77,6 +77,12 @@ static void CheckType(std::string typeName, const nlohmann::json& json)
     Error("Unable to read JSON data; expecting type " + typeName + ".");
 }
 
+/// Check json document for key
+static bool HasKey(std::string key, const nlohmann::json &json)
+{
+  return !(json.find(key) == json.end());
+}
+
 /// Try reading boolean value
 static bool ToBool(std::string key, const nlohmann::json &json)
 {

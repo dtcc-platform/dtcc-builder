@@ -18,6 +18,10 @@ namespace DTCC
     // Directory for input/output
     std::string DataDirectory;
 
+    // AutoDomain
+    bool AutoDomain = false;
+    double DomainMargin = 0.0;
+
     // Origin
     double X0 = 0.0;
     double Y0 = 0.0;
