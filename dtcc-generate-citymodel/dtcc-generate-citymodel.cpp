@@ -96,12 +96,8 @@ int main(int argc, char *argv[])
   pointCloud.SetOrigin(O);
   Info(pointCloud);
 
-  // FIXME: Global outlier filtering commented out since it seems to be
-  // too agressive (removing some buildings that should not be removed)
-  // and at the same time missing some obvious outliers (spikes).
-
   // Remove outliers from point cloud
-  // PointCloudProcessor::RemoveOutliers(pointCloud, p.OutlierMargin);
+  PointCloudProcessor::RemoveOutliers(pointCloud, p.OutlierMargin);
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;

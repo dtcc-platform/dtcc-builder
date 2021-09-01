@@ -92,9 +92,22 @@ public:
     Info("PointCloudProcessor: Removing outliers...");
     Timer timer("RemoveOutliers");
 
+    // Write heights to file for debbuging
+    //{
+    //  std::ofstream f;
+    //  f.open ("heights.csv");
+    //  for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    //  {
+    //	  f << pointCloud.Points[i].z;
+    //	  if (i + 1 < pointCloud.Points.size())
+    //	    f << ",";
+    //  }
+    //  f.close();
+    //}
+
     // Remove outliers from points
     std::vector<size_t> outliers =
-        RemoveOutliers(pointCloud.Points, outlierMargin);
+        RemoveOutliers(pointCloud.Points, outlierMargin, true);
 
     // Initialize new colors and classifications
     std::vector<Color> newColors{};
@@ -131,11 +144,20 @@ public:
   /// @param outlierMargin Number of standard deviations
   /// @return Vector of indices for removed points
   static std::vector<size_t> RemoveOutliers(std::vector<Point3D> &points,
-                                            double outlierMargin)
+                                            double outlierMargin,
+                                            bool verbose = false)
   {
     // Check that we have enough points
     if (points.size() < 3)
       return std::vector<size_t>();
+
+    // Compute min and max
+    double min{std::numeric_limits<int>::max()};
+    for (const auto p : points)
+      min = std::min(min, p.z);
+    double max{std::numeric_limits<int>::min()};
+    for (const auto p : points)
+      max = std::max(max, p.z);
 
     // Compute mean
     double mean{0};
@@ -149,6 +171,16 @@ public:
       std += (p.z - mean) * (p.z - mean);
     std /= points.size() - 1;
     std = std::sqrt(std);
+
+    if (verbose)
+    {
+      Info("PointCloudProcessor: min height = " + str(min) +
+           " m (before filtering)");
+      Info("PointCloudProcessor: max height = " + str(max) +
+           " m (before filtering)");
+      Info("PointCloudProcessor: mean height = " + str(mean) + " m");
+      Info("PointCloudProcessor: standard deviation = " + str(std) + " m");
+    }
 
     // Remove outliers (can perhaps be implemented more efficiently)
     std::vector<Point3D> newPoints;
@@ -166,6 +198,22 @@ public:
       }
     }
     points = newPoints;
+
+    // Recompute min and max
+    min = std::numeric_limits<int>::max();
+    for (const auto p : points)
+      min = std::min(min, p.z);
+    max = std::numeric_limits<int>::min();
+    for (const auto p : points)
+      max = std::max(max, p.z);
+
+    if (verbose)
+    {
+      Info("PointCloudProcessor: min height = " + str(min) +
+           " m (after filtering)");
+      Info("PointCloudProcessor: max height = " + str(max) +
+           " m (after filtering)");
+    }
 
     return outliers;
   }
