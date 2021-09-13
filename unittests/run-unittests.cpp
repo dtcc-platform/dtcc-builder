@@ -770,7 +770,7 @@ TEST_CASE("Parse Parameters")
   const std::string fileName =
       RootPath + "data/parameters/Hammarkullen2020.json";
   const std::string fileName2 =
-      RootPath + "data/parameters/Hammarkullen2020_AutoDomainx.json";
+      RootPath + "data/parameters/Hammarkullen2020_AutoDomain.json";
   nlohmann::json json;
   nlohmann::json json2;
   JSON::Read(json, fileName);
