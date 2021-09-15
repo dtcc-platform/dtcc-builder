@@ -207,10 +207,16 @@ int main(int argc, char *argv[])
   Info(dtm);
 
   // Generate surface meshes (non-matching, used for visualization)
-  GenerateSurfaceMeshes(cityModel, dtm, p);
+  if (p.GenerateSurfaceMeshes)
+  {
+    GenerateSurfaceMeshes(cityModel, dtm, p);
+  }
 
   // Generate volume meshes (matching, used for simulation)
-  GenerateVolumeMeshes(cityModel, dtm, p);
+  if (p.GenerateVolumeMeshes)
+  {
+    GenerateVolumeMeshes(cityModel, dtm, p);
+  }
 
   // Report timings
   Timer::Report("dtcc-generate-mesh");
