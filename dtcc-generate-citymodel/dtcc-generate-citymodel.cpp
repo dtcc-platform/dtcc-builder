@@ -133,10 +133,15 @@ int main(int argc, char *argv[])
                                              p.RoofPercentile);
 
   // Write to file
-  JSON::Write(dtm, dataDirectory + "DTM.json", O);
-  JSON::Write(dsm, dataDirectory + "DSM.json", O);
-  JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
-  if (p.Debug)
+  if (p.WriteJSON)
+  {
+    JSON::Write(dtm, dataDirectory + "DTM.json", O);
+    JSON::Write(dsm, dataDirectory + "DSM.json", O);
+    JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
+  }
+
+  // Write data for debugging and visualization
+  if (p.WriteVTK)
   {
     VTK::Write(dtm, dataDirectory + "DTM.vts");
     VTK::Write(dsm, dataDirectory + "DSM.vts");

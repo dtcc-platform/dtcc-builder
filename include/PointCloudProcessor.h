@@ -93,17 +93,19 @@ public:
     Timer timer("RemoveOutliers");
 
     // Write heights to file for debbuging
-    //{
-    //  std::ofstream f;
-    //  f.open ("heights.csv");
-    //  for (size_t i = 0; i < pointCloud.Points.size(); i++)
-    //  {
-    //	  f << pointCloud.Points[i].z;
-    //	  if (i + 1 < pointCloud.Points.size())
-    //	    f << ",";
-    //  }
-    //  f.close();
-    //}
+    const bool debugOutliers = true;
+    if (debugOutliers)
+    {
+      std::ofstream f;
+      f.open("heights_before.csv");
+      for (size_t i = 0; i < pointCloud.Points.size(); i++)
+      {
+        f << pointCloud.Points[i].z;
+        if (i + 1 < pointCloud.Points.size())
+          f << ",";
+      }
+      f.close();
+    }
 
     // Remove outliers from points
     std::vector<size_t> outliers =
@@ -132,6 +134,20 @@ public:
     // Assign new to old
     pointCloud.Colors = newColors;
     pointCloud.Classifications = newClassifications;
+
+    // Write heights to file for debbuging
+    if (debugOutliers)
+    {
+      std::ofstream f;
+      f.open("heights_after.csv");
+      for (size_t i = 0; i < pointCloud.Points.size(); i++)
+      {
+        f << pointCloud.Points[i].z;
+        if (i + 1 < pointCloud.Points.size())
+          f << ",";
+      }
+      f.close();
+    }
 
     Info("PointCloudProcessor: " + str(outliers.size()) +
          " outliers removed from point cloud");

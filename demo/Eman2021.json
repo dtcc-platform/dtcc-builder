@@ -19,5 +19,9 @@
     "FlatGround": false,
     "GroundSmoothing": 2,
     "NumRandomBuildings": 1000,
+    "GenerateSurfaceMeshes": true,
+    "GenerateVolumeMeshes": true,
+    "WriteJSON": true,
+    "WriteVTK": true,
     "Debug": true
 }

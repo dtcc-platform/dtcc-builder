@@ -47,7 +47,7 @@ namespace DTCC
         parameters.YMin = ToDouble("YMin", json);
         parameters.XMax = ToDouble("XMax", json);
         parameters.YMax = ToDouble("YMax", json);
-      } 
+      }
       else
       {
         parameters.AutoDomain = ToBool("AutoDomain", json);
@@ -67,6 +67,10 @@ namespace DTCC
       parameters.MinBuildingDistance = ToDouble("MinBuildingDistance", json);
       parameters.MinVertexDistance = ToDouble("MinVertexDistance", json);
       parameters.FlatGround = ToBool("FlatGround", json);
+      parameters.GenerateSurfaceMeshes = ToBool("GenerateSurfaceMeshes", json);
+      parameters.GenerateVolumeMeshes = ToBool("GenerateVolumeMeshes", json);
+      parameters.WriteJSON = ToBool("WriteJSON", json);
+      parameters.WriteVTK = ToBool("WriteVTK", json);
       parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
       parameters.NumRandomBuildings = ToInt("NumRandomBuildings", json);
       parameters.Debug = ToBool("Debug", json);
@@ -94,6 +98,10 @@ namespace DTCC
       json["MinBuildingDistance"] = parameters.MinBuildingDistance;
       json["MinVertexDistance"] = parameters.MinVertexDistance;
       json["FlatGround"] = parameters.FlatGround;
+      json["GenerateSurfaceMeshes"] = parameters.GenerateSurfaceMeshes;
+      json["GenerateVolumeMeshes"] = parameters.GenerateVolumeMeshes;
+      json["WriteJSON"] = parameters.WriteJSON;
+      json["WriteVTK"] = parameters.WriteVTK;
       json["GroundSmoothing"] = parameters.GroundSmoothing;
       json["NumRandomBuildings"] = parameters.NumRandomBuildings;
       json["Debug"] = parameters.Debug;

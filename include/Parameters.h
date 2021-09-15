@@ -68,6 +68,18 @@ namespace DTCC
     // Keep ground flat (ignore elevation model)
     bool FlatGround = false;
 
+    // Generate surface meshes
+    bool GenerateSurfaceMeshes = true;
+
+    // Generate volume meshes
+    bool GenerateVolumeMeshes = true;
+
+    // Write JSON files
+    bool WriteJSON = true;
+
+    // Write VTK files (.vts and .vtu)
+    bool WriteVTK = true;
+
     // Write extra data for debugging
     bool Debug = false;
 
@@ -111,6 +123,10 @@ namespace DTCC
              "\n  GroundSmoothing          = " + str(GroundSmoothing) +
              "\n  NumRandomBuildings       = " + str(NumRandomBuildings) +
              "\n  FlatGround               = " + str(FlatGround) +
+             "\n  GenerateSurfaceMeshes    = " + str(GenerateSurfaceMeshes) +
+             "\n  GenerateVolumeMeshes     = " + str(GenerateVolumeMeshes) +
+             "\n  WriteJSON                = " + str(WriteJSON) +
+             "\n  WriteVTK                 = " + str(WriteVTK) +
              "\n  Debug                    = " + str(Debug);
     }
   };
