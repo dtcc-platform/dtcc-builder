@@ -4,7 +4,7 @@
 #ifndef DTCC_TIMER_H
 #define DTCC_TIMER_H
 
-#include <ctime>
+#include <chrono>
 #include <map>
 #include <utility>
 
@@ -35,16 +35,13 @@ public:
   }
 
   // Start clock
-  void Start()
-  {
-    clockStart = std::clock();
-  }
+  void Start() { t0 = std::chrono::high_resolution_clock::now(); }
 
   // Stop clock
   void Stop()
   {
     // Record current time
-    clockStop = std::clock();
+    t1 = std::chrono::high_resolution_clock::now();
 
     // Register timing
     auto it = timings.find(Name);
@@ -62,7 +59,8 @@ public:
   // Return elapsed time
   double Time() const
   {
-    return (clockStop - clockStart) / (double) CLOCKS_PER_SEC;
+    std::chrono::duration<double, std::milli> dt = t1 - t0;
+    return dt.count() / 1000.0;
   }
 
   // Print elapsed time
@@ -133,10 +131,10 @@ private:
   bool autoStart{};
 
   // Time at start
-  std::clock_t clockStart{};
+  std::chrono::high_resolution_clock::time_point t0{};
 
   // Time when stopped
-  std::clock_t clockStop{};
+  std::chrono::high_resolution_clock::time_point t1{};
 
   // Array of registered timings: Name --> (Total time, Count)
   static std::map<std::string, std::pair<double, size_t>> timings;
