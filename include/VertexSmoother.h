@@ -20,7 +20,7 @@ namespace DTCC
     static void SmoothMesh(Mesh2D &mesh, size_t numSmoothings)
     {
       Info("VertexSmoother: Smoothing mesh...");
-      Timer("SmoothMesh");
+      Timer timer("SmoothMesh");
 
       // Build vertex connectivity
       Info("VertexSmoother: Building vertex connectivity");
@@ -55,7 +55,7 @@ namespace DTCC
     static void SmoothMesh(Mesh3D &mesh, size_t numSmoothings)
     {
       Info("VertexSmoother: Smoothing mesh...");
-      Timer("SmoothMesh");
+      Timer timer("SmoothMesh");
 
       // Build vertex connectivity
       Info("VertexSmoother: Building vertex connectivity");
@@ -96,7 +96,7 @@ namespace DTCC
     static void SmoothSurface(Surface3D& surface, size_t numSmoothings)
     {
       Info("VertexSmoother: Smoothing surface...");
-      Timer("SmoothSurface");
+      Timer timer("SmoothSurface");
 
       // Build vertex connectivity
       Info("VertexSmoother: Building vertex connectivity");
@@ -131,7 +131,7 @@ namespace DTCC
     static void SmoothField(GridField2D &field, size_t numSmoothings)
     {
       Info("VertexSmoother: Smoothing grid field...");
-      Timer("SmoothField");
+      Timer timer("SmoothField");
 
       // Neighbor indices
       std::vector<size_t> indices{};

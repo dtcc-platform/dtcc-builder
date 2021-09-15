@@ -73,10 +73,28 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // This step is handled by dtcc-generate-citymodel and
   // we assume that the data has already been generated.
 
-  // Step 2: Simplify city model (merge buildings)
-  CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
-                                        p.MinVertexDistance);
-  Info(cityModel);
+  // Step 2.1: Merge building footprints
+  {
+    Timer timer("Step 2.1: Merge building footprints");
+    CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
+                                          p.MinVertexDistance);
+    Info(cityModel);
+  }
+
+  // Step 2.2: Clean building footprints
+  {
+    Timer timer("Step 2.2: Clean building footprints");
+    CityModelGenerator::CleanCityModel(cityModel, p.MinVertexDistance);
+    Info(cityModel);
+  }
+
+  // Step 2.3: Recompute building heights from building points and DTM
+  {
+    Timer timer("Step 2.2: Clean building footprints");
+    CityModelGenerator::ComputeBuildingHeights(
+        cityModel, dtm, p.GroundPercentile, p.RoofPercentile);
+    Info(cityModel);
+  }
 
   // Write to file
   if (p.WriteJSON)
@@ -84,16 +102,14 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     JSON::Write(cityModel, dataDirectory + "CityModelSimple.json", origin);
   }
 
-  // Recompute building heights (seems better not to recompute heights).
-  // If we recompute the heights, then we tend to get a height that is too low.
-  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, p.GroundPercentile,
-                                             p.RoofPercentile);
-
   // Step 3.1: Generate 2D mesh
   Mesh2D mesh2D;
-  MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox,
-                                p.MeshResolution);
-  Info(mesh2D);
+  {
+    Timer timer("Step 3.1: Generate 2D mesh");
+    MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox,
+                                  p.MeshResolution);
+    Info(mesh2D);
+  }
 
   // Write data for debugging and visualization
   if (p.WriteVTK)
@@ -101,11 +117,15 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(mesh2D, dataDirectory + "Step31Mesh.vtu");
   }
 
-  // Step 3.2: Generate 3D mesh (full)
+  // Step 3.2: Generate 3D mesh (layer 2D mesh)
+  size_t numLayers{};
   Mesh3D mesh;
-  const size_t numLayers = MeshGenerator::GenerateMesh3D(
-      mesh, mesh2D, p.DomainHeight, p.MeshResolution);
-  Info(mesh);
+  {
+    Timer timer("Step 3.2: Generate 3D mesh (layer 2D mesh)");
+    numLayers = MeshGenerator::GenerateMesh3D(mesh, mesh2D, p.DomainHeight,
+                                              p.MeshResolution);
+    Info(mesh);
+  }
 
   // Write data for debugging and visualization
   if (p.WriteVTK)
@@ -116,10 +136,14 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(boundary, dataDirectory + "Step32Boundary.vtu");
   };
 
-  // Step 3.3: Smooth 3D mesh (apply DTM to ground)
-  const double topHeight = dtm.Mean() + p.DomainHeight;
-  LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
-  Info(mesh);
+  // Step 3.3: Smooth 3D mesh (set ground height)
+  double topHeight{};
+  {
+    Timer timer("Step 3.3: Smooth 3D mesh (set ground height)");
+    topHeight = dtm.Mean() + p.DomainHeight;
+    LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
+    Info(mesh);
+  }
 
   // Write data for debugging and visualization
   if (p.WriteVTK)
@@ -130,9 +154,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(boundary, dataDirectory + "Step33Boundary.vtu");
   }
 
-  // Step 3.4: Trim 3D mesh (remove tets inside buildings)
-  MeshGenerator::TrimMesh3D(mesh, mesh2D, cityModel, numLayers);
-  Info(mesh);
+  // Step 3.4: Trim 3D mesh (remove building interiors)
+  {
+    Timer timer("Step 3.4: Trim 3D mesh (remove building interiors)");
+    MeshGenerator::TrimMesh3D(mesh, mesh2D, cityModel, numLayers);
+    Info(mesh);
+  }
 
   // Write data for debugging and visualization
   if (p.WriteVTK)
@@ -143,9 +170,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(boundary, dataDirectory + "Step34Boundary.vtu");
   }
 
-  // Step 3.5: Smooth 3D mesh (apply DTM to ground)
-  LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true);
-  Info(mesh);
+  // Step 3.5: Smooth 3D mesh (set ground and building heights)"
+  {
+    Timer timer("Step 3.5: Smooth 3D mesh (set ground and building heights)");
+    LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true);
+    Info(mesh);
+  }
 
   // Write data for debugging and visualization
   if (p.WriteVTK)

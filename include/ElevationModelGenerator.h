@@ -37,7 +37,7 @@ public:
   {
     Info("ElevationModelGenerator: Generating digital elevation model from "
          "point cloud...");
-    Timer("GenerateElevationModel");
+    Timer timer("GenerateElevationModel");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())

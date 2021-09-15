@@ -45,7 +45,7 @@ namespace DTCC
                                double resolution)
     {
       Info("MeshGenerator: Generating 2D mesh...");
-      Timer("GenerateMesh2D");
+      Timer timer("GenerateMesh2D");
 
       // Print some stats
       const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
@@ -93,7 +93,7 @@ namespace DTCC
                                  double meshResolution)
     {
       Info("MeshGenerator: Generating 3D mesh...");
-      Timer("GenerateMesh3D");
+      Timer timer("GenerateMesh3D");
 
       // Compute number of layers
       const size_t numLayers = int(std::ceil(domainHeight / meshResolution));
@@ -180,7 +180,7 @@ namespace DTCC
                            size_t numLayers)
     {
       Info("MeshGenerator: Trimming 3D mesh...");
-      Timer("TrimMesh3D");
+      Timer timer("TrimMesh3D");
 
       // Create markers for all cells that should be kept
       std::vector<bool> keepCell(mesh3D.Cells.size());
@@ -319,7 +319,7 @@ namespace DTCC
                                    bool flatGround)
     {
       Info("MeshGenerator: Generating 3D surface meshes...");
-      Timer("GenerateSurfaces3D");
+      Timer timer("GenerateSurfaces3D");
 
       // Create empty subdomains for Triangle mesh generation
       std::vector<std::vector<Point2D>> subDomains;
@@ -483,7 +483,7 @@ namespace DTCC
                  const std::vector<std::vector<Point2D>> &subDomains,
                  double h)
     {
-      Timer("CallTriangle");
+      Timer timer("CallTriangle");
 
       // Set area constraint to control mesh size
       const double maxArea = 0.5 * h * h;

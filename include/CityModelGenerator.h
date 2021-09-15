@@ -43,7 +43,7 @@ public:
                                 double minBuildingDistance)
   {
     Info("CityModelGenerator: Generating city model...");
-    Timer("GenerateCityModel");
+    Timer timer("GenerateCityModel");
 
     // Clear data
     cityModel.Buildings.clear();
@@ -80,7 +80,7 @@ public:
   static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
   {
     Info("CityModelGenerator: Cleaning city model...");
-    Timer("CleanCityModel");
+    Timer timer("CleanCityModel");
 
     // Clear search tree (since it might become invalid)
     cityModel.bbtree.Clear();
@@ -126,16 +126,13 @@ public:
                                 double minimalVertexDistance)
   {
     Info("CityModelGenerator: Simplifying city model...");
-    Timer("SimplifyCityModel");
+    Timer timer("SimplifyCityModel");
 
     // Clear search tree (since it might become invalid)
     cityModel.bbtree.Clear();
 
     // Merge buildings if too close
     MergeCityModel(cityModel, minimalBuildingDistance);
-
-    // Clean after merge
-    CleanCityModel(cityModel, minimalVertexDistance);
   }
 
   /// Extract ground and roof points from point cloud.
@@ -159,7 +156,7 @@ public:
                                     double outlierMargin)
   {
     Info("CityModelGenerator: Extracting building points...");
-    Timer("ExtractBuildingPoints");
+    Timer timer("ExtractBuildingPoints");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
@@ -288,7 +285,7 @@ public:
                                      double roofPercentile)
   {
     Info("CityModelGenerator: Computing building heights...");
-    Timer("ComputeBuildingHeights");
+    Timer timer("ComputeBuildingHeights");
 
     // FIXME: Make this a parameter
     const double minBuildingHeight{2.5};

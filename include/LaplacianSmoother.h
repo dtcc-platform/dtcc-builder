@@ -34,7 +34,7 @@ namespace DTCC
                              bool fixBuildings)
     {
       Info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing)...");
-      Timer("SmoothMesh3D");
+      Timer timer("SmoothMesh3D");
 
       // Convert to FEniCS mesh
       dolfin::Mesh _mesh3D;

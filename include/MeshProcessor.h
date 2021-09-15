@@ -25,7 +25,7 @@ public:
   static void ExtractBoundary3D(Surface3D &surface, const Mesh3D &mesh)
   {
     Info("MeshProcessor: Extracting boundary of 3D mesh...");
-    Timer("ExtractBoundary3D");
+    Timer timer("ExtractBoundary3D");
 
     // Clear surface
     surface.Vertices.clear();
@@ -101,7 +101,7 @@ public:
                                    const Surface3D &boundary)
   {
     Info("MeshProcessor: Extracting open surface from boundary...");
-    Timer("ExtractOpenSurface3D");
+    Timer timer("ExtractOpenSurface3D");
 
     // Clear surface
     surface.Vertices.clear();
@@ -159,7 +159,7 @@ public:
                               const std::vector<Surface3D> &surfaces)
   {
     Info("MeshProcessor: Merging 3D surfaces into a single surface...");
-    Timer("MergeSurfaces3D");
+    Timer timer("MergeSurfaces3D");
 
     // Count the number of vertices and cells
     size_t numVertices = 0;

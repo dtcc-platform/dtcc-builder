@@ -190,7 +190,7 @@ public:
   static Polygon
   MergePolygons(const Polygon &polygon0, const Polygon &polygon1, double tol)
   {
-    Timer("MergePolygons");
+    Timer timer("MergePolygons");
 
     // Avoid using sqrt for efficiency
     // const double tol2 = tol * tol;
