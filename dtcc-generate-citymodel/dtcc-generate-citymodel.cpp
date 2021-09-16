@@ -44,6 +44,9 @@ int main(int argc, char *argv[])
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};
 
+  // Start timer
+  Timer timer("Step 1: City model generation");
+
   // Read property map
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
@@ -131,6 +134,9 @@ int main(int argc, char *argv[])
                                             p.GroundMargin, p.OutlierMargin);
   CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, p.GroundPercentile,
                                              p.RoofPercentile);
+
+  // Stop timer
+  timer.Stop();
 
   // Write to file
   if (p.WriteJSON)
