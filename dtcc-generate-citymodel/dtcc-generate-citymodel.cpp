@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   const std::string dataDirectory{p.DataDirectory + "/"};
 
   // Start timer
-  Timer timer("Step 1: City model generation");
+  Timer timer("Step 1: Generate city model");
 
   // Read property map
   std::vector<Polygon> footprints;

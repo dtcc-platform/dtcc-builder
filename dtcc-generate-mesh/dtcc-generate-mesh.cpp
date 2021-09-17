@@ -88,9 +88,9 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Info(cityModel);
   }
 
-  // Step 2.3: Recompute building heights from building points and DTM
+  // Step 2.3: Compute building heights
   {
-    Timer timer("Step 2.3: Clean building footprints");
+    Timer timer("Step 2.3: Compute building heights");
     CityModelGenerator::ComputeBuildingHeights(
         cityModel, dtm, p.GroundPercentile, p.RoofPercentile);
     Info(cityModel);
@@ -117,11 +117,11 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(mesh2D, dataDirectory + "Step31Mesh.vtu");
   }
 
-  // Step 3.2: Generate 3D mesh (layer 2D mesh)
+  // Step 3.2: Generate 3D mesh (layer 3D mesh)
   size_t numLayers{};
   Mesh3D mesh;
   {
-    Timer timer("Step 3.2: Generate 3D mesh (layer 2D mesh)");
+    Timer timer("Step 3.2: Generate 3D mesh");
     numLayers = MeshGenerator::GenerateMesh3D(mesh, mesh2D, p.DomainHeight,
                                               p.MeshResolution);
     Info(mesh);
@@ -139,7 +139,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Step 3.3: Smooth 3D mesh (set ground height)
   double topHeight{};
   {
-    Timer timer("Step 3.3: Smooth 3D mesh (set ground height)");
+    Timer timer("Step 3.3: Smooth 3D mesh");
     topHeight = dtm.Mean() + p.DomainHeight;
     LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
     Info(mesh);
@@ -156,7 +156,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
 
   // Step 3.4: Trim 3D mesh (remove building interiors)
   {
-    Timer timer("Step 3.4: Trim 3D mesh (remove building interiors)");
+    Timer timer("Step 3.4: Trim 3D mesh");
     MeshGenerator::TrimMesh3D(mesh, mesh2D, cityModel, numLayers);
     Info(mesh);
   }
@@ -172,7 +172,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
 
   // Step 3.5: Smooth 3D mesh (set ground and building heights)"
   {
-    Timer timer("Step 3.5: Smooth 3D mesh (set ground and building heights)");
+    Timer timer("Step 3.5: Smooth 3D mesh");
     LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true);
     Info(mesh);
   }
