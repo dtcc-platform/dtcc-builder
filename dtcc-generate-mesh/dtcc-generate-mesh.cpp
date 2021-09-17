@@ -90,7 +90,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
 
   // Step 2.3: Recompute building heights from building points and DTM
   {
-    Timer timer("Step 2.2: Clean building footprints");
+    Timer timer("Step 2.3: Clean building footprints");
     CityModelGenerator::ComputeBuildingHeights(
         cityModel, dtm, p.GroundPercentile, p.RoofPercentile);
     Info(cityModel);
