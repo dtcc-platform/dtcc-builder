@@ -34,7 +34,7 @@ variable='ElevationModelResolution'
 if not variable in data:
     print(variable+" doesn't exist in "+file+", exiting!")
     quit()
-ids = [0.5, 1, 2, 4, 8, 16]
+ids = [8, 16]
 print("Variable found, running...")
 cwd=os.getcwd();
 for id in ids:
@@ -42,7 +42,7 @@ for id in ids:
     data['DataDirectory']=cwd+'/myCase'+str(id)
     with open(variable+str(id)+'.json', 'w') as outfile:
         json.dump(data, outfile)
-    createCase('myCase'+str(id), '/home/dtcc/core/data/Hammarkullen2020/')
+    createCase('myCase'+str(id), '/home/dtcc/core/data/Majorna2021/')
 
     #process = subprocess.Popen(['echo', 'More output'],
     #                 stdout=subprocess.PIPE, 
