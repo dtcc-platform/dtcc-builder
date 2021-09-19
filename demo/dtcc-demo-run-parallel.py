@@ -25,16 +25,19 @@ def checkIfProcessRunning(processName):
     return False;
 
 data = {}
-file = 'Hammarkullen2020.json'
+file = 'Majorna2021.json'
 with open(file) as f:
   data = json.load(f)
 
 print(data)
-variable='ElevationModelResolution'
+variable='MeshResolution'
 if not variable in data:
     print(variable+" doesn't exist in "+file+", exiting!")
     quit()
-ids = [8, 16]
+#ids = []
+ids = [5.66, 11.31, 22.63, 45.25, 64.00]
+#ids=[90.51, 128.00, 181.02, 256.00, 362.04, 512.00, 724.08, 1024.00, 1448.15, 2048.00, 2896.31]
+#ids=[28, 29];
 print("Variable found, running...")
 cwd=os.getcwd();
 for id in ids:
@@ -53,5 +56,5 @@ for id in ids:
     print("Spawning demo for "+variable+": "+str(id))
     with open(variable+str(id)+'.log', 'w') as f:
 #        process = subprocess.Popen(['../bin/dtcc-generate-elevation-model',string], stdout=f, stderr=f)
-        process = subprocess.Popen(['./dtcc-demo-pipeline-1arg',string], stdout=f, stderr=f)
+        process = subprocess.Popen(['./demo-generate-mesh-arg',string], stdout=f, stderr=f)
 
