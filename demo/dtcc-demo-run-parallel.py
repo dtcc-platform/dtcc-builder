@@ -35,8 +35,9 @@ if not variable in data:
     print(variable+" doesn't exist in "+file+", exiting!")
     quit()
 #ids = []
-ids = [5.66, 11.31, 22.63, 45.25, 64.00]
-#ids=[90.51, 128.00, 181.02, 256.00, 362.04, 512.00, 724.08, 1024.00, 1448.15, 2048.00, 2896.31]
+#ids = [5.66, 11.31, 22.63, 45.25, 64.00, 90.51, 128.00]; 
+ids= [4.00, 5.66, 8.00, 11.31, 16.00, 22.63, 32.00, 45.25, 64.00, 90.51, 128.00]
+#ids = [ 181.02, 256.00, 362.04, 512.00, 724.08, 1024.00, 1448.15, 2048.00, 2896.31]
 #ids=[28, 29];
 print("Variable found, running...")
 cwd=os.getcwd();
@@ -57,4 +58,5 @@ for id in ids:
     with open(variable+str(id)+'.log', 'w') as f:
 #        process = subprocess.Popen(['../bin/dtcc-generate-elevation-model',string], stdout=f, stderr=f)
         process = subprocess.Popen(['./demo-generate-mesh-arg',string], stdout=f, stderr=f)
+        process.wait()
 
