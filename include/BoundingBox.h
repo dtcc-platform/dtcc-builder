@@ -71,7 +71,7 @@ namespace DTCC
       auto initBB = BoundingBox2D(polygons.front());
       P = initBB.P;
       Q = initBB.Q;
-      for(auto p : polygons)
+      for (auto p : polygons)
       {
         this->Union(BoundingBox2D(p));
       }
@@ -81,8 +81,7 @@ namespace DTCC
       Q.y += margin;
     }
 
-    
-    /// expand a bounding box to the union of it 
+    /// expand a bounding box to the union of it
     /// and a second bounding box
     void Union(BoundingBox2D const &other)
     {
@@ -106,7 +105,7 @@ namespace DTCC
         P = Point2D();
         Q = Point2D();
       }
-      else 
+      else
       {
         P.x = std::max(P.x, other.P.x);
         Q.x = std::min(Q.x, other.Q.x);
@@ -189,7 +188,7 @@ namespace DTCC
       Q.z += margin;
     }
 
-    /// expand a bounding box to the union of it 
+    /// expand a bounding box to the union of it
     /// and a second bounding box
     void Union(BoundingBox3D other)
     {

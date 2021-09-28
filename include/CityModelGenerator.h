@@ -360,10 +360,10 @@ public:
          str(numSmallHeights) + "/" + str(n) + " building(s)");
   }
 
-  // Generate a random city model. Used for benchmarking.
+  /// Generate a random city model. Used for benchmarking.
   ///
   /// @param cityModel The city model
-  /// @param dtm Digital Terrian Map
+  /// @param dtm Digital Terrain Map
   /// @param numBuildings Number of buildings
   static void RandomizeCityModel(CityModel &cityModel,
                                  const GridField2D &dtm,
@@ -371,9 +371,9 @@ public:
   {
     Info("CityModelGenerator: Randomizing city model...");
 
-    // Some hard-coded building dimensions
+    // Some hard-coded dimensions
     const double A = 20.0;  // Maximum building side length
-    const double H = 10.0;  // Maximum building height
+    const double H = 50.0;  // Maximum building height
     const double N = 10000; // Maximum number of attempts
 
     // Get bounding box of domain
@@ -451,6 +451,8 @@ public:
       const Point2D &c, double a, double b, double height, double groundHeight)
   {
     Building building;
+
+    // Set building geometry
     building.Footprint.Vertices.push_back(
         Point2D{c.x - 0.5 * a, c.y - 0.5 * b});
     building.Footprint.Vertices.push_back(
@@ -461,6 +463,15 @@ public:
         Point2D{c.x - 0.5 * a, c.y + 0.5 * b});
     building.Height = height;
     building.GroundHeight = groundHeight;
+
+    // Create ground points and roof points
+    const size_t numPoints = 5;
+    for (size_t i = 0; i < numPoints; i++)
+    {
+      building.GroundPoints.push_back(Point3D(c.x, c.y, groundHeight));
+      building.RoofPoints.push_back(Point3D(c.x, c.y, groundHeight + height));
+    }
+
     return building;
   }
 

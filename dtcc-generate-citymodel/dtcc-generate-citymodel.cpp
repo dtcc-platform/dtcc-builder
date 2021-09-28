@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   Parameters p;
   JSON::Read(p, argv[1]);
   Info(p);
-  std::string modelName = Utils::GetFilename(argv[1], true);
+  const std::string modelName = Utils::GetFilename(argv[1], true);
 
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};
@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
     bbox = BoundingBox2D(P, Q);
   }
 
+  // Check size of bounding box
   Info("Bounding box of city model: " + str(bbox));
   if (bbox.Area() < 100.0)
   {
@@ -119,10 +120,7 @@ int main(int argc, char *argv[])
 
   // Generate raw city model
   CityModel cityModel;
-
-  // set CityModel name
   cityModel.Name = modelName;
-
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
                                         bbox, p.MinBuildingDistance);
   cityModel.SetOrigin(O);
@@ -138,7 +136,7 @@ int main(int argc, char *argv[])
   // Stop timer
   timer.Stop();
 
-  // Write to file
+  // Write JSON
   if (p.WriteJSON)
   {
     JSON::Write(dtm, dataDirectory + "DTM.json", O);
@@ -146,7 +144,7 @@ int main(int argc, char *argv[])
     JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
   }
 
-  // Write data for debugging and visualization
+  // Write VTK
   if (p.WriteVTK)
   {
     VTK::Write(dtm, dataDirectory + "DTM.vts");

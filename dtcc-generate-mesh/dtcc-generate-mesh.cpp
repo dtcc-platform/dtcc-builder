@@ -96,7 +96,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Info(cityModel);
   }
 
-  // Write to file
+  // Write JSON
   if (p.WriteJSON)
   {
     JSON::Write(cityModel, dataDirectory + "CityModelSimple.json", origin);
@@ -111,7 +111,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Info(mesh2D);
   }
 
-  // Write data for debugging and visualization
+  // Write VTK
   if (p.WriteVTK)
   {
     VTK::Write(mesh2D, dataDirectory + "Step31Mesh.vtu");
@@ -127,7 +127,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Info(mesh);
   }
 
-  // Write data for debugging and visualization
+  // Write VTK
   if (p.WriteVTK)
   {
     Surface3D boundary;
@@ -145,7 +145,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Info(mesh);
   }
 
-  // Write data for debugging and visualization
+  // Write VTK
   if (p.WriteVTK)
   {
     Surface3D boundary;
@@ -161,7 +161,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Info(mesh);
   }
 
-  // Write data for debugging and visualization
+  // Write VTK
   if (p.WriteVTK)
   {
     Surface3D boundary;
@@ -177,7 +177,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Info(mesh);
   }
 
-  // Write data for debugging and visualization
+  // Write VTK
   if (p.WriteVTK)
   {
     Surface3D boundary;
@@ -194,14 +194,14 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   Surface3D surface;
   MeshProcessor::ExtractOpenSurface3D(surface, boundary);
 
-  // Write to file
+  // Write JSON
   if (p.WriteJSON)
   {
     JSON::Write(mesh, dataDirectory + "CityMesh.json", origin);
     JSON::Write(surface, dataDirectory + "CitySurface.json", origin);
   }
 
-  // Write data for debugging and visualization
+  // Write VTK
   if (p.WriteVTK)
   {
     VTK::Write(mesh, dataDirectory + "CityMesh.vtu");
