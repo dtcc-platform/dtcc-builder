@@ -28,6 +28,14 @@ void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 
 int main(int argc, char *argv[])
 {
+
+  Parameters q;
+  q.Add("Foo", true);
+  q.Add("Bar", 1);
+  Info(q);
+
+  return 0;
+
   // Check command-line arguments
   if (argc != 2)
   {

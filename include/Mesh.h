@@ -14,38 +14,41 @@
 namespace DTCC
 {
 
-  class Mesh2D : public Printable
+/// Mesh2D represents a triangular mesh of a 2D domain.
+
+class Mesh2D : public Printable
+{
+public:
+  /// Array of vertices
+  std::vector<Point2D> Vertices{};
+
+  /// Array of cells (triangles)
+  std::vector<Simplex2D> Cells{};
+
+  /// Array of cell markers
+  std::vector<int> Markers{};
+
+  /// Compute midpoint of cell
+  Point2D MidPoint(size_t cellIndex) const
   {
-  public:
-    /// Array of vertices
-    std::vector<Point2D> Vertices{};
+    Vector2D c{};
+    c += Vector2D(Vertices[Cells[cellIndex].v0]);
+    c += Vector2D(Vertices[Cells[cellIndex].v1]);
+    c += Vector2D(Vertices[Cells[cellIndex].v2]);
+    c /= 3.0;
+    return c;
+  }
 
-    /// Array of cells (triangles)
-    std::vector<Simplex2D> Cells{};
-
-    /// Array of cell markers
-    std::vector<int> Markers{};
-
-    /// Compute midpoint of cell
-    Point2D MidPoint(size_t cellIndex) const
-    {
-      Vector2D c{};
-      c += Vector2D(Vertices[Cells[cellIndex].v0]);
-      c += Vector2D(Vertices[Cells[cellIndex].v1]);
-      c += Vector2D(Vertices[Cells[cellIndex].v2]);
-      c /= 3.0;
-      return c;
-    }
-
-    /// Pretty-print
-    std::string __str__() const override
-    {
-      return "2D triangular mesh with "
-        + str(Vertices.size()) + " vertices and "
-        + str(Cells.size()) + " faces";
-    }
+  /// Pretty-print
+  std::string __str__() const override
+  {
+    return "2D triangular mesh with " + str(Vertices.size()) +
+           " vertices and " + str(Cells.size()) + " faces";
+  }
 
   };
+
+  /// Mesh3D represents a triangular mesh of a 3D domain.
 
   class Mesh3D : public Printable
   {

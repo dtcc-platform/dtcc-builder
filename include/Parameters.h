@@ -4,131 +4,243 @@
 #ifndef DTCC_PARAMETERS_H
 #define DTCC_PARAMETERS_H
 
+#include <map>
 #include <string>
+
 #include "Logging.h"
+#include "Parameter.h"
+#include "Table.h"
 
 namespace DTCC
 {
 
-  class Parameters : public Printable
+/// Parameters holds a database of parameters (key-value pairs).
+
+class Parameters : public Printable
+{
+public:
+  // Map (dictionary) of parameters
+  std::map<std::string, Parameter> Map;
+
+  /// Create default parameter set
+  explicit Parameters() { SetDefaultParameters(); }
+
+  /// Access parameter
+  Parameter &operator[](const std::string &key)
   {
-  public:
-    //--- Run-time parameters (parsed from file) ---
+    auto it = Map.find(key);
+    if (it == Map.end())
+      Error("Unknown parameter: \"" + key + "\"");
+    return it->second;
+  }
 
-    // Directory for input/output
-    std::string DataDirectory;
+  /// Access parameter (const version)
+  const Parameter &operator[](const std::string &key) const
+  {
+    auto it = Map.find(key);
+    if (it == Map.end())
+      Error("Unknown parameter: \"" + key + "\"");
+    return it->second;
+  }
 
-    // AutoDomain
-    bool AutoDomain = false;
-    double DomainMargin = 0.0;
+  /// Check whether parameter with given key exists
+  bool HasKey(const std::string &key) const
+  {
+    return Map.find(key) != Map.end();
+  }
 
-    // Origin
-    double X0 = 0.0;
-    double Y0 = 0.0;
+  /// Add bool parameter
+  void Add(const std::string &key, bool value)
+  {
+    if (HasKey(key))
+      Error("Unable to add parameter; key \"" + key + "\" already exists");
+    Parameter p(ParameterType::Bool, key);
+    p = value;
+    Map[key] = p;
+  }
 
-    // Domain dimensions
-    double XMin = 0.0;
-    double YMin = 0.0;
-    double XMax = 0.0;
-    double YMax = 0.0;
+  /// Add int parameter
+  void Add(const std::string &key, int value)
+  {
+    if (HasKey(key))
+      Error("Unable to add parameter; key \"" + key + "\" already exists");
+    Parameter p(ParameterType::Int, key);
+    p = value;
+    Map[key] = p;
+  }
 
-    // Elevation model resolution [m]
-    double ElevationModelResolution = 1.0;
+  /// Add float parameter
+  void Add(const std::string &key, double value)
+  {
+    if (HasKey(key))
+      Error("Unable to add parameter; key \"" + key + "\" already exists");
+    Parameter p(ParameterType::Float, key);
+    p = value;
+    Map[key] = p;
+  }
 
-    // Minimal building distance (merged if closer)
-    double MinBuildingDistance = 1.0;
+  /// Add string parameter
+  void Add(const std::string &key, const std::string &value)
+  {
+    if (HasKey(key))
+      Error("Unable to add parameter; key \"" + key + "\" already exists");
+    Parameter p(ParameterType::String, key);
+    p = value;
+    Map[key] = p;
+  }
 
-    // Minimal vertex distance (merged if closer)
-    double MinVertexDistance = 1.0;
+  /// Add string parameter (handle string literals, will otherwise go to bool)
+  void Add(const std::string &key, const char *value)
+  {
+    if (HasKey(key))
+      Error("Unable to add parameter; key \"" + key + "\" already exists");
+    Parameter p(ParameterType::String, key);
+    p = std::string(value);
+    Map[key] = p;
+  }
 
-    // Height of computational domain [m]
-    double DomainHeight = 100.0;
+  /// Set default parameters (and clear all previous parameters)
+  void SetDefaultParameters()
+  {
+    Map.clear();
 
-    // Maximum mesh size used for mesh generation [m]
-    double MeshResolution = 10.0;
+    Add("AutoDomain", false);
+    Add("FlatGround", false);
+    Add("GenerateSurfaceMeshes", true);
+    Add("GenerateVolumeMeshes", true);
+    Add("WriteJSON", true);
+    Add("WriteVTK", true);
+    Add("Debug", false);
 
-    // Margin around building for detecting ground points
-    double GroundMargin = 1.0;
+    Add("GroundSmoothing", 5);
+    Add("NumRandomBuildings", 25);
 
-    // Percentile used for computing building ground height [0, 1]
-    double GroundPercentile = 0.1;
+    Add("DomainMargin", 0.0);
+    Add("X0", 0.0);
+    Add("Y0", 0.0);
+    Add("XMin", 0.0);
+    Add("YMin", 0.0);
+    Add("XMax", 0.0);
+    Add("YMax", 0.0);
+    Add("ElevationModelResolution", 1.0);
+    Add("MinBuildingDistance", 1.0);
+    Add("MinVertexDistance", 1.0);
+    Add("GroundMargin", 1.0);
+    Add("MeshResolution", 10.0);
+    Add("DomainHeight", 100.0);
+    Add("GroundPercentile", 0.1);
+    Add("RoofPercentile", 0.9);
+    Add("OutlierMargin", 0.2);
+  }
 
-    // Percentile used for computing building roof height [0, 1]
-    double RoofPercentile = 0.9;
+  //--- Run-time parameters (parsed from file) ---
 
-    // Outlier margin for point cloud processing
-    double OutlierMargin = 0.2;
+  // Directory for input/output
+  std::string DataDirectory;
 
-    // Number of smoothing iterations DTM
-    int GroundSmoothing = 5;
+  // AutoDomain
+  bool AutoDomain = false;
+  double DomainMargin = 0.0;
 
-    // Number of buildings in random city model
-    int NumRandomBuildings = 25;
+  // Origin
+  double X0 = 0.0;
+  double Y0 = 0.0;
 
-    // Keep ground flat (ignore elevation model)
-    bool FlatGround = false;
+  // Domain dimensions
+  double XMin = 0.0;
+  double YMin = 0.0;
+  double XMax = 0.0;
+  double YMax = 0.0;
 
-    // Generate surface meshes
-    bool GenerateSurfaceMeshes = true;
+  // Elevation model resolution [m]
+  double ElevationModelResolution = 1.0;
 
-    // Generate volume meshes
-    bool GenerateVolumeMeshes = true;
+  // Minimal building distance (merged if closer)
+  double MinBuildingDistance = 1.0;
 
-    // Write JSON files
-    bool WriteJSON = true;
+  // Minimal vertex distance (merged if closer)
+  double MinVertexDistance = 1.0;
 
-    // Write VTK files (.vts and .vtu)
-    bool WriteVTK = true;
+  // Height of computational domain [m]
+  double DomainHeight = 100.0;
 
-    // Write extra data for debugging
-    bool Debug = false;
+  // Maximum mesh size used for mesh generation [m]
+  double MeshResolution = 10.0;
 
-    //--- Compile-time parameters ---
+  // Margin around building for detecting ground points
+  double GroundMargin = 1.0;
 
-    // Tolerance for geometric tests
-    static constexpr double Epsilon = 1e-6;
+  // Percentile used for computing building ground height [0, 1]
+  double GroundPercentile = 0.1;
 
-    // Precision for output and printing
-    static constexpr double Precision = 16;
+  // Percentile used for computing building roof height [0, 1]
+  double RoofPercentile = 0.9;
 
-    // Threshold for filtering points with small angles in building footprints
-    static constexpr double FootprintAngleThreshold = 0.01;
+  // Outlier margin for point cloud processing
+  double OutlierMargin = 0.2;
 
-    // Threshold for filtering outliers (clouds?) from point cloud
-    static constexpr double PointCloudOutlierThreshold = 150.0;
+  // Number of smoothing iterations DTM
+  int GroundSmoothing = 5;
 
-    // Number of digits of precision used when writing files
-    static constexpr double OutputPrecision = 3;
+  // Number of buildings in random city model
+  int NumRandomBuildings = 25;
 
-    /// Pretty-print
-    std::string __str__() const override
+  // Keep ground flat (ignore elevation model)
+  bool FlatGround = false;
+
+  // Generate surface meshes
+  bool GenerateSurfaceMeshes = true;
+
+  // Generate volume meshes
+  bool GenerateVolumeMeshes = true;
+
+  // Write JSON files
+  bool WriteJSON = true;
+
+  // Write VTK files (.vts and .vtu)
+  bool WriteVTK = true;
+
+  // Write extra data for debugging
+  bool Debug = false;
+
+  // FIXME: Consider making the following proper parameters
+
+  // Tolerance for geometric tests
+  static constexpr double Epsilon = 1e-6;
+
+  // Precision for output and printing
+  static constexpr double Precision = 16;
+
+  // Threshold for filtering points with small angles in building footprints
+  static constexpr double FootprintAngleThreshold = 0.01;
+
+  // Threshold for filtering outliers (clouds?) from point cloud
+  static constexpr double PointCloudOutlierThreshold = 150.0;
+
+  // Number of digits of precision used when writing files
+  static constexpr double OutputPrecision = 3;
+
+  /// Pretty-print
+  std::string __str__() const override
+  {
+    std::string s;
+
+    // Build table
+    Table table("Parameters");
+    table.Rows.push_back({"Key", "Value", "Type", "Access"});
+    for (const auto &it : Map)
     {
-      return str("Parameters:") +
-             "\n  DataDirectory            = " + DataDirectory +
-             "\n  X0                       = " + str(X0) +
-             "\n  Y0                       = " + str(Y0) +
-             "\n  XMin                     = " + str(XMin) +
-             "\n  YMin                     = " + str(YMin) +
-             "\n  XMax                     = " + str(XMax) +
-             "\n  YMax                     = " + str(YMax) +
-             "\n  ElevationModelResolution = " + str(ElevationModelResolution) +
-             "\n  MinBuildingDistance      = " + str(MinBuildingDistance) +
-             "\n  MinVertexDistance        = " + str(MinVertexDistance) +
-             "\n  DomainHeight             = " + str(DomainHeight) +
-             "\n  MeshResolution           = " + str(MeshResolution) +
-             "\n  GroundMargin             = " + str(GroundMargin) +
-             "\n  GroundPercentile         = " + str(GroundPercentile) +
-             "\n  RoofPercentile           = " + str(RoofPercentile) +
-             "\n  OutlierMargin            = " + str(OutlierMargin) +
-             "\n  GroundSmoothing          = " + str(GroundSmoothing) +
-             "\n  NumRandomBuildings       = " + str(NumRandomBuildings) +
-             "\n  FlatGround               = " + str(FlatGround) +
-             "\n  GenerateSurfaceMeshes    = " + str(GenerateSurfaceMeshes) +
-             "\n  GenerateVolumeMeshes     = " + str(GenerateVolumeMeshes) +
-             "\n  WriteJSON                = " + str(WriteJSON) +
-             "\n  WriteVTK                 = " + str(WriteVTK) +
-             "\n  Debug                    = " + str(Debug);
+      std::vector<std::string> row;
+      row.push_back(it.first);
+      row.push_back(it.second.ValueString());
+      row.push_back(it.second.TypeString());
+      row.push_back(str(it.second.AccessCount));
+      table.Rows.push_back(row);
     }
+
+    // Return table string
+    return str(table);
+  }
   };
 
 } // namespace DTCC
