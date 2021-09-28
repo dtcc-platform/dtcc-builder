@@ -315,8 +315,7 @@ namespace DTCC
                                    std::vector<Surface3D> &buildingSurfaces,
                                    const CityModel &cityModel,
                                    const GridField2D &dtm,
-                                   double resolution,
-                                   bool flatGround)
+                                   double resolution)
     {
       Info("MeshGenerator: Generating 3D surface meshes...");
       Timer timer("GenerateSurfaces3D");
@@ -354,52 +353,43 @@ namespace DTCC
 
       // Displace ground surface
       Info("MeshGenerator: Displacing ground surface");
-      if (flatGround)
-      {
-        // If ground is flat, just iterate over vertices and set height
-        const double z = dtm.Min();
-        for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
-          groundSurface.Vertices[i].z = z;
-      }
-      else
-      {
-        // Fill all points with maximum height. This is used to
-        // always choose the smallest height for each point since
-        // each point may be visited multiple times.
-        const double zMax = dtm.Max();
-        for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
-          groundSurface.Vertices[i].z = zMax;
 
-        // If ground is not float, iterate over the triangles
-        for (size_t i = 0; i < mesh2D.Cells.size(); i++)
+      // Fill all points with maximum height. This is used to
+      // always choose the smallest height for each point since
+      // each point may be visited multiple times.
+      const double zMax = dtm.Max();
+      for (size_t i = 0; i < mesh2D.Vertices.size(); i++)
+        groundSurface.Vertices[i].z = zMax;
+
+      // If ground is not float, iterate over the triangles
+      for (size_t i = 0; i < mesh2D.Cells.size(); i++)
+      {
+        // Get cell marker
+        const int cellMarker = mesh2D.Markers[i];
+
+        // Get triangle
+        const Simplex2D &T = mesh2D.Cells[i];
+
+        // Check cell marker
+        if (cellMarker != -2) // not ground
         {
-          // Get cell marker
-          const int cellMarker = mesh2D.Markers[i];
+          // Compute minimum height of vertices
+          double zMin = std::numeric_limits<double>::max();
+          zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v0]));
+          zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v1]));
+          zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v2]));
 
-          // Get triangle
-          const Simplex2D& T = mesh2D.Cells[i];
-
-          // Check cell marker
-          if (cellMarker != -2) // not ground
-          {
-            // Compute minimum height of vertices
-            double zMin = std::numeric_limits<double>::max();
-            zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v0]));
-            zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v1]));
-            zMin = std::min(zMin, dtm(mesh2D.Vertices[T.v2]));
-
-            // Set minimum height for all vertices
-            setMin(groundSurface.Vertices[T.v0].z, zMin);
-            setMin(groundSurface.Vertices[T.v1].z, zMin);
-            setMin(groundSurface.Vertices[T.v2].z, zMin);
-          }
-          else
-          {
-            // Sample height map at vertex position for all vertices
-            setMin(groundSurface.Vertices[T.v0].z, dtm(mesh2D.Vertices[T.v0]));
-            setMin(groundSurface.Vertices[T.v1].z, dtm(mesh2D.Vertices[T.v1]));
-            setMin(groundSurface.Vertices[T.v2].z, dtm(mesh2D.Vertices[T.v2]));
-          }
+          // Set minimum height for all vertices
+          setMin(groundSurface.Vertices[T.v0].z, zMin);
+          setMin(groundSurface.Vertices[T.v1].z, zMin);
+          setMin(groundSurface.Vertices[T.v2].z, zMin);
+        }
+        else
+        {
+          // Sample height map at vertex position for all vertices
+          setMin(groundSurface.Vertices[T.v0].z, dtm(mesh2D.Vertices[T.v0]));
+          setMin(groundSurface.Vertices[T.v1].z, dtm(mesh2D.Vertices[T.v1]));
+          setMin(groundSurface.Vertices[T.v2].z, dtm(mesh2D.Vertices[T.v2]));
         }
       }
 

@@ -26,24 +26,25 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
                            const GridField2D &dtm,
                            const Parameters &p)
 {
-  // Set data directory
-  const std::string dataDirectory{p.DataDirectory + "/"};
+  // Get data directory
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
 
   // Get origin (for serialization purposes)
-  Point2D origin({p.X0, p.Y0});
+  Point2D origin({p["X0"], p["Y0"]});
 
   // Generate mesh for ground and buildings
   Surface3D groundSurface;
   std::vector<Surface3D> buildingSurfaces;
   MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
-                                    dtm, p.MeshResolution, p.FlatGround);
+                                    dtm, p["MeshResolution"]);
 
   // Merge building surfaces
   Surface3D buildingSurface;
   MeshProcessor::MergeSurfaces3D(buildingSurface, buildingSurfaces);
 
   // Write to file
-  if (p.WriteJSON)
+  if (p["WriteJSON"])
   {
     JSON::Write(groundSurface, dataDirectory + "GroundSurface.json", origin);
     JSON::Write(buildingSurface, dataDirectory + "BuildingSurface.json",
@@ -51,7 +52,7 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   }
 
   // Write data for debugging and visualization
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     VTK::Write(groundSurface, dataDirectory + "GroundSurface.vtu");
     VTK::Write(buildingSurface, dataDirectory + "BuildingSurface.vtu");
@@ -63,11 +64,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
                           const GridField2D &dtm,
                           const Parameters &p)
 {
-  // Set data directory
-  const std::string dataDirectory{p.DataDirectory + "/"};
+  // Get data directory
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
 
   // Get origin (for serialization purposes)
-  Point2D origin({p.X0, p.Y0});
+  Point2D origin({p["X0"], p["Y0"]});
 
   // Step 1: Generate city model (and elevation model).
   // This step is handled by dtcc-generate-citymodel and
@@ -76,15 +78,15 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Step 2.1: Merge building footprints
   {
     Timer timer("Step 2.1: Merge building footprints");
-    CityModelGenerator::SimplifyCityModel(cityModel, p.MinBuildingDistance,
-                                          p.MinVertexDistance);
+    CityModelGenerator::SimplifyCityModel(cityModel, p["MinBuildingDistance"],
+                                          p["MinVertexDistance"]);
     Info(cityModel);
   }
 
   // Step 2.2: Clean building footprints
   {
     Timer timer("Step 2.2: Clean building footprints");
-    CityModelGenerator::CleanCityModel(cityModel, p.MinVertexDistance);
+    CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
     Info(cityModel);
   }
 
@@ -92,12 +94,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Timer timer("Step 2.3: Compute building heights");
     CityModelGenerator::ComputeBuildingHeights(
-        cityModel, dtm, p.GroundPercentile, p.RoofPercentile);
+        cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
     Info(cityModel);
   }
 
   // Write JSON
-  if (p.WriteJSON)
+  if (p["WriteJSON"])
   {
     JSON::Write(cityModel, dataDirectory + "CityModelSimple.json", origin);
   }
@@ -107,12 +109,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Timer timer("Step 3.1: Generate 2D mesh");
     MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox,
-                                  p.MeshResolution);
+                                  p["MeshResolution"]);
     Info(mesh2D);
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     VTK::Write(mesh2D, dataDirectory + "Step31Mesh.vtu");
   }
@@ -122,13 +124,13 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   Mesh3D mesh;
   {
     Timer timer("Step 3.2: Generate 3D mesh");
-    numLayers = MeshGenerator::GenerateMesh3D(mesh, mesh2D, p.DomainHeight,
-                                              p.MeshResolution);
+    numLayers = MeshGenerator::GenerateMesh3D(mesh, mesh2D, p["DomainHeight"],
+                                              p["MeshResolution"]);
     Info(mesh);
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
@@ -140,13 +142,13 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   double topHeight{};
   {
     Timer timer("Step 3.3: Smooth 3D mesh");
-    topHeight = dtm.Mean() + p.DomainHeight;
+    topHeight = dtm.Mean() + static_cast<double>(p["DomainHeight"]);
     LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
     Info(mesh);
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
@@ -162,7 +164,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
@@ -178,7 +180,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
@@ -195,14 +197,14 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   MeshProcessor::ExtractOpenSurface3D(surface, boundary);
 
   // Write JSON
-  if (p.WriteJSON)
+  if (p["WriteJSON"])
   {
     JSON::Write(mesh, dataDirectory + "CityMesh.json", origin);
     JSON::Write(surface, dataDirectory + "CitySurface.json", origin);
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     VTK::Write(mesh, dataDirectory + "CityMesh.vtu");
     VTK::Write(surface, dataDirectory + "CitySurface.vtu");
@@ -223,8 +225,9 @@ int main(int argc, char *argv[])
   JSON::Read(p, argv[1]);
   Info(p);
 
-  // Set data directory
-  const std::string dataDirectory{p.DataDirectory + "/"};
+  // Get data directory
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
 
   // Read city model
   CityModel cityModel;
@@ -237,13 +240,13 @@ int main(int argc, char *argv[])
   Info(dtm);
 
   // Generate surface meshes (non-matching, used for visualization)
-  if (p.GenerateSurfaceMeshes)
+  if (p["GenerateSurfaceMeshes"])
   {
     GenerateSurfaceMeshes(cityModel, dtm, p);
   }
 
   // Generate volume meshes (matching, used for simulation)
-  if (p.GenerateVolumeMeshes)
+  if (p["GenerateVolumeMeshes"])
   {
     GenerateVolumeMeshes(cityModel, dtm, p);
   }

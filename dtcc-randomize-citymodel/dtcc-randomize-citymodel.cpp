@@ -31,13 +31,18 @@ int main(int argc, char *argv[])
   Info(p);
   const std::string modelName = Utils::GetFilename(argv[1], true);
 
-  // Set data directory
-  const std::string dataDirectory{p.DataDirectory + "/"};
+  // Get data directory
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
 
   // Set bounding box
   Point2D O{0.0, 0.0};
-  const Point2D P{p.XMin, p.YMin};
-  const Point2D Q{p.XMax, p.YMax};
+  const double xMin = p["XMin"];
+  const double xMax = p["XMax"];
+  const double yMin = p["YMin"];
+  const double yMax = p["YMax"];
+  const Point2D P{xMin, yMin};
+  const Point2D Q{xMax, yMax};
   BoundingBox2D bbox{P, Q};
 
   // Check size of bounding box
@@ -50,27 +55,28 @@ int main(int argc, char *argv[])
 
   // Randomize elevation model
   GridField2D dtm;
-  ElevationModelGenerator::RandomizeElevationModel(dtm, bbox,
-                                                   p.ElevationModelResolution);
+  ElevationModelGenerator::RandomizeElevationModel(
+      dtm, bbox, p["ElevationModelResolution"]);
 
   // Randomize city model
   CityModel cityModel;
   cityModel.Name = modelName;
-  CityModelGenerator::RandomizeCityModel(cityModel, dtm, p.NumRandomBuildings);
+  CityModelGenerator::RandomizeCityModel(cityModel, dtm,
+                                         p["NumRandomBuildings"]);
   Info(cityModel);
 
   // Clean city model
-  CityModelGenerator::CleanCityModel(cityModel, p.MinVertexDistance);
+  CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
 
   // Write JSON
-  if (p.WriteJSON)
+  if (p["WriteJSON"])
   {
     JSON::Write(dtm, dataDirectory + "DTM.json", O);
     JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     VTK::Write(dtm, dataDirectory + "DTM.vts");
   }

@@ -19,6 +19,41 @@ namespace DTCC
 class Parameters : public Printable
 {
 public:
+  /// Set default parameters (and clear all previous parameters)
+  void SetDefaultParameters()
+  {
+    Map.clear();
+
+    Add("AutoDomain", false);
+    Add("GenerateSurfaceMeshes", true);
+    Add("GenerateVolumeMeshes", true);
+    Add("WriteJSON", true);
+    Add("WriteVTK", true);
+    Add("Debug", false);
+
+    Add("GroundSmoothing", 5);
+    Add("NumRandomBuildings", 25);
+
+    Add("DomainMargin", 0.0);
+    Add("X0", 0.0);
+    Add("Y0", 0.0);
+    Add("XMin", 0.0);
+    Add("YMin", 0.0);
+    Add("XMax", 0.0);
+    Add("YMax", 0.0);
+    Add("ElevationModelResolution", 1.0);
+    Add("MinBuildingDistance", 1.0);
+    Add("MinVertexDistance", 1.0);
+    Add("GroundMargin", 1.0);
+    Add("MeshResolution", 10.0);
+    Add("DomainHeight", 100.0);
+    Add("GroundPercentile", 0.1);
+    Add("RoofPercentile", 0.9);
+    Add("OutlierMargin", 0.2);
+
+    Add("DataDirectory", "");
+  }
+
   // Map (dictionary) of parameters
   std::map<std::string, Parameter> Map;
 
@@ -98,112 +133,6 @@ public:
     p = std::string(value);
     Map[key] = p;
   }
-
-  /// Set default parameters (and clear all previous parameters)
-  void SetDefaultParameters()
-  {
-    Map.clear();
-
-    Add("AutoDomain", false);
-    Add("FlatGround", false);
-    Add("GenerateSurfaceMeshes", true);
-    Add("GenerateVolumeMeshes", true);
-    Add("WriteJSON", true);
-    Add("WriteVTK", true);
-    Add("Debug", false);
-
-    Add("GroundSmoothing", 5);
-    Add("NumRandomBuildings", 25);
-
-    Add("DomainMargin", 0.0);
-    Add("X0", 0.0);
-    Add("Y0", 0.0);
-    Add("XMin", 0.0);
-    Add("YMin", 0.0);
-    Add("XMax", 0.0);
-    Add("YMax", 0.0);
-    Add("ElevationModelResolution", 1.0);
-    Add("MinBuildingDistance", 1.0);
-    Add("MinVertexDistance", 1.0);
-    Add("GroundMargin", 1.0);
-    Add("MeshResolution", 10.0);
-    Add("DomainHeight", 100.0);
-    Add("GroundPercentile", 0.1);
-    Add("RoofPercentile", 0.9);
-    Add("OutlierMargin", 0.2);
-
-    Add("DataDirectory", "");
-  }
-
-  //--- Run-time parameters (parsed from file) ---
-
-  // Directory for input/output
-  std::string DataDirectory;
-
-  // AutoDomain
-  bool AutoDomain = false;
-  double DomainMargin = 0.0;
-
-  // Origin
-  double X0 = 0.0;
-  double Y0 = 0.0;
-
-  // Domain dimensions
-  double XMin = 0.0;
-  double YMin = 0.0;
-  double XMax = 0.0;
-  double YMax = 0.0;
-
-  // Elevation model resolution [m]
-  double ElevationModelResolution = 1.0;
-
-  // Minimal building distance (merged if closer)
-  double MinBuildingDistance = 1.0;
-
-  // Minimal vertex distance (merged if closer)
-  double MinVertexDistance = 1.0;
-
-  // Height of computational domain [m]
-  double DomainHeight = 100.0;
-
-  // Maximum mesh size used for mesh generation [m]
-  double MeshResolution = 10.0;
-
-  // Margin around building for detecting ground points
-  double GroundMargin = 1.0;
-
-  // Percentile used for computing building ground height [0, 1]
-  double GroundPercentile = 0.1;
-
-  // Percentile used for computing building roof height [0, 1]
-  double RoofPercentile = 0.9;
-
-  // Outlier margin for point cloud processing
-  double OutlierMargin = 0.2;
-
-  // Number of smoothing iterations DTM
-  int GroundSmoothing = 5;
-
-  // Number of buildings in random city model
-  int NumRandomBuildings = 25;
-
-  // Keep ground flat (ignore elevation model)
-  bool FlatGround = false;
-
-  // Generate surface meshes
-  bool GenerateSurfaceMeshes = true;
-
-  // Generate volume meshes
-  bool GenerateVolumeMeshes = true;
-
-  // Write JSON files
-  bool WriteJSON = true;
-
-  // Write VTK files (.vts and .vtu)
-  bool WriteVTK = true;
-
-  // Write extra data for debugging
-  bool Debug = false;
 
   // FIXME: Consider making the following proper parameters
 

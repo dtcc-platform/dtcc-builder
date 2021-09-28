@@ -100,6 +100,18 @@ public:
     return valueInt;
   }
 
+  /// Return unsigned int value
+  operator size_t() const
+  {
+    if (Type != ParameterType::Int)
+      Error("Unable to access parameter \"" + Key + "\"; not an int parameter");
+    if (valueInt < 0)
+      Error("Unable to access parameter \"" + Key +
+            "\" as unsigned int; value is negative");
+    AccessCount++;
+    return static_cast<size_t>(valueInt);
+  }
+
   /// Return float value
   operator double() const
   {

@@ -767,22 +767,13 @@ TEST_CASE("Subtract polygon origin")
 
 TEST_CASE("Parse Parameters")
 {
-  const std::string fileName =
-      RootPath + "data/parameters/Hammarkullen2020.json";
-  const std::string fileName2 =
-      RootPath + "data/parameters/Hammarkullen2020_AutoDomain.json";
-  nlohmann::json json;
-  nlohmann::json json2;
-  JSON::Read(json, fileName);
-  JSON::Read(json2, fileName2);
-  REQUIRE(JSON::HasKey("DataDirectory", json));
-  REQUIRE(!JSON::HasKey("XXX",json));
-
-  Parameters p,p2;
-  JSON::Read(p, fileName);
-  JSON::Read(p2, fileName2);
-  REQUIRE(!p.AutoDomain);
-  REQUIRE(p2.AutoDomain);
+  Parameters p;
+  p["DataDirectory"] = "359a538b-4616-4c33-b9b0-3870776fa28a";
+  JSON::Write(p, "Parameters.json");
+  Parameters q;
+  JSON::Read(q, "Parameters.json");
+  const std::string d = q["DataDirectory"];
+  REQUIRE(d == "359a538b-4616-4c33-b9b0-3870776fa28a");
 }
 
 TEST_CASE("Get Filename from path")

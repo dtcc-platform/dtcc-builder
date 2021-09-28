@@ -28,13 +28,16 @@ int main(int argc, char *argv[])
   }
 
   // Read parameters
-  Parameters parameters;
-  JSON::Read(parameters, argv[1]);
-  Point2D origin(parameters.X0, parameters.Y0);
-  Info(parameters);
+  Parameters p;
+  JSON::Read(p, argv[1]);
+  Info(p);
 
-  // Get data directory (add trailing slash just in case)
-  const std::string dataDirectory = parameters.DataDirectory + "/";
+  // Get data directory
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
+
+  // Get origin
+  Point2D origin(p["X0"], p["Y0"]);
 
   // Read ground mesh
   Surface3D groundMesh;
@@ -42,7 +45,7 @@ int main(int argc, char *argv[])
   Info(groundMesh);
 
   // Smooth ground mesh
-  VertexSmoother::SmoothSurface(groundMesh, parameters.GroundSmoothing);
+  VertexSmoother::SmoothSurface(groundMesh, p["GroundSmoothing"]);
 
   // Write to file
   JSON::Write(groundMesh,

@@ -38,42 +38,6 @@ namespace DTCC
     static void Deserialize(Parameters& parameters, const nlohmann::json& json)
     {
       CheckType("Parameters", json);
-      parameters.DataDirectory = ToString("DataDirectory", json);
-      if (!HasKey("AutoDomain", json) || !ToBool("AutoDomain", json))
-      {
-        parameters.X0 = ToDouble("X0", json);
-        parameters.Y0 = ToDouble("Y0", json);
-        parameters.XMin = ToDouble("XMin", json);
-        parameters.YMin = ToDouble("YMin", json);
-        parameters.XMax = ToDouble("XMax", json);
-        parameters.YMax = ToDouble("YMax", json);
-      }
-      else
-      {
-        parameters.AutoDomain = ToBool("AutoDomain", json);
-        if (HasKey("DomainMargin", json))
-        {
-          parameters.DomainMargin = ToDouble("DomainMargin", json);
-        }
-      }
-      parameters.DomainHeight = ToDouble("DomainHeight", json);
-      parameters.ElevationModelResolution =
-          ToDouble("ElevationModelResolution", json);
-      parameters.MeshResolution = ToDouble("MeshResolution", json);
-      parameters.GroundMargin = ToDouble("GroundMargin", json);
-      parameters.GroundPercentile = ToDouble("GroundPercentile", json);
-      parameters.RoofPercentile = ToDouble("RoofPercentile", json);
-      parameters.OutlierMargin = ToDouble("OutlierMargin", json);
-      parameters.MinBuildingDistance = ToDouble("MinBuildingDistance", json);
-      parameters.MinVertexDistance = ToDouble("MinVertexDistance", json);
-      parameters.FlatGround = ToBool("FlatGround", json);
-      parameters.GenerateSurfaceMeshes = ToBool("GenerateSurfaceMeshes", json);
-      parameters.GenerateVolumeMeshes = ToBool("GenerateVolumeMeshes", json);
-      parameters.WriteJSON = ToBool("WriteJSON", json);
-      parameters.WriteVTK = ToBool("WriteVTK", json);
-      parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
-      parameters.NumRandomBuildings = ToInt("NumRandomBuildings", json);
-      parameters.Debug = ToBool("Debug", json);
 
       // Read parameter values
       for (auto &it : parameters.Map)
@@ -114,32 +78,6 @@ namespace DTCC
     static void Serialize(const Parameters& parameters, nlohmann::json& json)
     {
       json["Type"] = "Parameters";
-      json["DataDirectory"] = parameters.DataDirectory;
-      json["X0"] = parameters.X0;
-      json["Y0"] = parameters.Y0;
-      json["YMin"] = parameters.YMin;
-      json["XMin"] = parameters.XMin;
-      json["YMin"] = parameters.YMin;
-      json["XMax"] = parameters.XMax;
-      json["YMax"] = parameters.YMax;
-      json["DomainHeight"] = parameters.DomainHeight;
-      json["ElevationModelResolution"] = parameters.ElevationModelResolution;
-      json["MeshResolution"] = parameters.MeshResolution;
-      json["GroundMargin"] = parameters.GroundMargin;
-      json["GroundPercentile"] = parameters.GroundPercentile;
-      json["RoofPercentile"] = parameters.RoofPercentile;
-      json["OutlierMargin"] = parameters.OutlierMargin;
-      json["MinBuildingDistance"] = parameters.MinBuildingDistance;
-      json["MinVertexDistance"] = parameters.MinVertexDistance;
-      json["FlatGround"] = parameters.FlatGround;
-      json["GenerateSurfaceMeshes"] = parameters.GenerateSurfaceMeshes;
-      json["GenerateVolumeMeshes"] = parameters.GenerateVolumeMeshes;
-      json["WriteJSON"] = parameters.WriteJSON;
-      json["WriteVTK"] = parameters.WriteVTK;
-      json["GroundSmoothing"] = parameters.GroundSmoothing;
-      json["NumRandomBuildings"] = parameters.NumRandomBuildings;
-      json["Debug"] = parameters.Debug;
-
       for (auto &it : parameters.Map)
       {
         switch (it.second.Type)

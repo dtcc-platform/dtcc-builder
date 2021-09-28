@@ -41,14 +41,9 @@ int main(int argc, char *argv[])
   Info(p);
   const std::string modelName = Utils::GetFilename(argv[1], true);
 
-  const double X0 = p["X0"];
-  Info(p);
-  JSON::Write(p, "TestOutput.json");
-
-  return 0;
-
-  // Set data directory
-  const std::string dataDirectory{p.DataDirectory + "/"};
+  // Get data directory
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
 
   // Start timer
   Timer timer("Step 1: Generate city model");
@@ -63,27 +58,31 @@ int main(int argc, char *argv[])
   // Set bounding box
   BoundingBox2D bbox;
   Point2D O;
-  if (p.AutoDomain)
+  if (p["AutoDomain"])
   {
-    bbox = BoundingBox2D(footprints, p.DomainMargin);
+    bbox = BoundingBox2D(footprints, p["DomainMargin"]);
     Info("Bounding box of footprints: " + str(bbox));
     BoundingBox2D lasBBox;
     LAS::BoundsDirectory(lasBBox, dataDirectory);
     Info("Bounding box of point cloud: " + str(lasBBox));
     bbox.Intersect(lasBBox);
     O = bbox.P;
-    p.X0 = O.x;
-    p.Y0 = O.y;
-    p.XMin = 0;
-    p.YMin = 0;
-    p.XMax = bbox.Q.x - bbox.P.x;
-    p.YMax = bbox.Q.y - bbox.Q.y;
+    p["X0"] = O.x;
+    p["Y0"] = O.y;
+    p["XMin"] = 0;
+    p["YMin"] = 0;
+    p["XMax"] = bbox.Q.x - bbox.P.x;
+    p["YMax"] = bbox.Q.y - bbox.Q.y;
   }
   else
   {
-    O = Point2D(p.X0, p.Y0);
-    const Point2D P{p.XMin + p.X0, p.YMin + p.Y0};
-    const Point2D Q{p.XMax + p.X0, p.YMax + p.Y0};
+    O = Point2D(p["X0"], p["Y0"]);
+    const double xMin = p["XMin"];
+    const double xMax = p["XMax"];
+    const double yMin = p["YMin"];
+    const double yMax = p["YMax"];
+    const Point2D P{O.x + xMin, O.y + yMin};
+    const Point2D Q{O.x + xMax, O.y + yMax};
     bbox = BoundingBox2D(P, Q);
   }
 
@@ -107,43 +106,43 @@ int main(int argc, char *argv[])
   Info(pointCloud);
 
   // Remove outliers from point cloud
-  PointCloudProcessor::RemoveOutliers(pointCloud, p.OutlierMargin);
+  PointCloudProcessor::RemoveOutliers(pointCloud, p["OutlierMargin"]);
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
-  ElevationModelGenerator::GenerateElevationModel(dtm, pointCloud, {2, 9},
-                                                  p.ElevationModelResolution);
+  ElevationModelGenerator::GenerateElevationModel(
+      dtm, pointCloud, {2, 9}, p["ElevationModelResolution"]);
   Info(dtm);
 
   // Generate DSM (including buildings and other objects)
   GridField2D dsm;
-  ElevationModelGenerator::GenerateElevationModel(dsm, pointCloud, {},
-                                                  p.ElevationModelResolution);
+  ElevationModelGenerator::GenerateElevationModel(
+      dsm, pointCloud, {}, p["ElevationModelResolution"]);
   Info(dsm);
 
   // Smooth elevation model (only done for DTM)
-  VertexSmoother::SmoothField(dtm, p.GroundSmoothing);
+  VertexSmoother::SmoothField(dtm, p["GroundSmoothing"]);
 
   // Generate raw city model
   CityModel cityModel;
   cityModel.Name = modelName;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        bbox, p.MinBuildingDistance);
+                                        bbox, p["MinBuildingDistance"]);
   cityModel.SetOrigin(O);
   Info(cityModel);
 
   // Clean city model and compute heights
-  CityModelGenerator::CleanCityModel(cityModel, p.MinVertexDistance);
-  CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud,
-                                            p.GroundMargin, p.OutlierMargin);
-  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, p.GroundPercentile,
-                                             p.RoofPercentile);
+  CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
+  CityModelGenerator::ExtractBuildingPoints(
+      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"]);
+  CityModelGenerator::ComputeBuildingHeights(
+      cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
 
   // Stop timer
   timer.Stop();
 
   // Write JSON
-  if (p.WriteJSON)
+  if (p["WriteJSON"])
   {
     JSON::Write(dtm, dataDirectory + "DTM.json", O);
     JSON::Write(dsm, dataDirectory + "DSM.json", O);
@@ -151,7 +150,7 @@ int main(int argc, char *argv[])
   }
 
   // Write VTK
-  if (p.WriteVTK)
+  if (p["WriteVTK"])
   {
     VTK::Write(dtm, dataDirectory + "DTM.vts");
     VTK::Write(dsm, dataDirectory + "DSM.vts");
@@ -159,6 +158,9 @@ int main(int argc, char *argv[])
 
   // Report timings
   Timer::Report("dtcc-generate-citymodel");
+
+  // Report parameters
+  Info(p);
 
   return 0;
 }
