@@ -74,6 +74,40 @@ namespace DTCC
       parameters.GroundSmoothing = ToInt("GroundSmoothing", json);
       parameters.NumRandomBuildings = ToInt("NumRandomBuildings", json);
       parameters.Debug = ToBool("Debug", json);
+
+      // Read parameter values
+      for (auto &it : parameters.Map)
+      {
+        if (!HasKey(it.first, json))
+          Warning("Missing parameter \"" + it.first +
+                  "\", using default value");
+        else
+        {
+          switch (it.second.Type)
+          {
+          case ParameterType::Bool:
+            it.second = static_cast<bool>(json[it.first]);
+            break;
+          case ParameterType::Int:
+            it.second = static_cast<int>(json[it.first]);
+            break;
+          case ParameterType::Float:
+            it.second = static_cast<double>(json[it.first]);
+            break;
+          case ParameterType::String:
+            std::string valueString = json[it.first];
+            it.second = valueString;
+            break;
+          }
+        }
+      }
+
+      // Report unknown parameters
+      for (auto it = json.begin(); it != json.end(); ++it)
+      {
+        if (!parameters.HasKey(it.key()) && it.key() != "Type")
+          Warning("Unknown parameter \"" + it.key() + "\", ignoring");
+      }
     };
 
     /// Serialize Parameters
@@ -105,6 +139,25 @@ namespace DTCC
       json["GroundSmoothing"] = parameters.GroundSmoothing;
       json["NumRandomBuildings"] = parameters.NumRandomBuildings;
       json["Debug"] = parameters.Debug;
+
+      for (auto &it : parameters.Map)
+      {
+        switch (it.second.Type)
+        {
+        case ParameterType::Bool:
+          json[it.first] = static_cast<bool>(it.second);
+          break;
+        case ParameterType::Int:
+          json[it.first] = static_cast<int>(it.second);
+          break;
+        case ParameterType::Float:
+          json[it.first] = static_cast<double>(it.second);
+          break;
+        case ParameterType::String:
+          json[it.first] = static_cast<std::string>(it.second);
+          break;
+        }
+      }
     }
 
     /// Deserialize BoundingBox2D

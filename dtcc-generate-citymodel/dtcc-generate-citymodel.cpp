@@ -28,14 +28,6 @@ void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 
 int main(int argc, char *argv[])
 {
-
-  Parameters q;
-  q.Add("Foo", true);
-  q.Add("Bar", 1);
-  Info(q);
-
-  return 0;
-
   // Check command-line arguments
   if (argc != 2)
   {
@@ -48,6 +40,12 @@ int main(int argc, char *argv[])
   JSON::Read(p, argv[1]);
   Info(p);
   const std::string modelName = Utils::GetFilename(argv[1], true);
+
+  const double X0 = p["X0"];
+  Info(p);
+  JSON::Write(p, "TestOutput.json");
+
+  return 0;
 
   // Set data directory
   const std::string dataDirectory{p.DataDirectory + "/"};

@@ -31,7 +31,7 @@ public:
   ParameterType Type{ParameterType::Bool};
 
   // Number of times the parameter has been accessed
-  size_t AccessCount{0};
+  mutable size_t AccessCount{0};
 
   /// Create empty parameter (defaults to bool)
   explicit Parameter() {}
@@ -45,7 +45,6 @@ public:
   /// Set bool value
   const Parameter &operator=(bool value)
   {
-    cout << "Assigning bool: " << Key << " = " << value << std::endl;
     if (Type != ParameterType::Bool)
       Error("Unable to set parameter \"" + Key + "\"; not a bool parameter");
     valueBool = value;
@@ -54,7 +53,6 @@ public:
   /// Set int value
   const Parameter &operator=(int value)
   {
-    cout << "Assigning int: " << Key << " = " << value << std::endl;
     if (Type != ParameterType::Int)
       Error("Unable to set parameter \"" + Key + "\"; not an int parameter");
     valueInt = value;
@@ -63,7 +61,6 @@ public:
   /// Set float value
   const Parameter &operator=(double value)
   {
-    cout << "Assigning float: " << Key << " = " << value << std::endl;
     if (Type != ParameterType::Float)
       Error("Unable to set parameter \"" + Key + "\"; not a float parameter");
     valueFloat = value;
@@ -72,10 +69,17 @@ public:
   /// Set string value
   const Parameter &operator=(const std::string &value)
   {
-    cout << "Assigning string: " << Key << " = " << value << std::endl;
     if (Type != ParameterType::String)
       Error("Unable to set parameter \"" + Key + "\"; not a string parameter");
     valueString = value;
+  }
+
+  /// Set string value (handle string literals, will otherwise go to bool)
+  const Parameter &operator=(const char *value)
+  {
+    if (Type != ParameterType::String)
+      Error("Unable to set parameter \"" + Key + "\"; not a string parameter");
+    valueString = std::string(value);
   }
 
   /// Return bool value
@@ -83,6 +87,7 @@ public:
   {
     if (Type != ParameterType::Bool)
       Error("Unable to access parameter \"" + Key + "\"; not a bool parameter");
+    AccessCount++;
     return valueBool;
   }
 
@@ -91,6 +96,7 @@ public:
   {
     if (Type != ParameterType::Int)
       Error("Unable to access parameter \"" + Key + "\"; not an int parameter");
+    AccessCount++;
     return valueInt;
   }
 
@@ -100,6 +106,7 @@ public:
     if (Type != ParameterType::Float)
       Error("Unable to access parameter \"" + Key +
             "\"; not a float parameter");
+    AccessCount++;
     return valueFloat;
   }
 
