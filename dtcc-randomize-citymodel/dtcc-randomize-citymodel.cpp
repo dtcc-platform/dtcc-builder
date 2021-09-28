@@ -6,13 +6,11 @@
 
 #include "CityModelGenerator.h"
 #include "CommandLine.h"
-#include "GridField.h"
+#include "ElevationModelGenerator.h"
 #include "JSON.h"
 #include "Logging.h"
 #include "Parameters.h"
-#include "Polygon.h"
-#include "SHP.h"
-#include "Timer.h"
+#include "VTK.h"
 
 using namespace DTCC;
 
@@ -28,36 +26,54 @@ int main(int argc, char *argv[])
   }
 
   // Read parameters
-  Parameters parameters;
-  JSON::Read(parameters, argv[1]);
-  const Point2D origin{parameters.X0, parameters.Y0};
-  Info(parameters);
+  Parameters p;
+  JSON::Read(p, argv[1]);
+  Info(p);
+  const std::string modelName = Utils::GetFilename(argv[1], true);
 
-  // Get parameters
-  const std::string dataDirectory{parameters.DataDirectory + "/"};
-  const double minBuildingDistance{parameters.MinBuildingDistance};
-  const double minVertexDistance{parameters.MinVertexDistance};
-  const size_t numRandomBuildings = parameters.NumRandomBuildings;
+  // Set data directory
+  const std::string dataDirectory{p.DataDirectory + "/"};
 
-  // Read elevation model
+  // Set bounding box
+  Point2D O{0.0, 0.0};
+  const Point2D P{p.XMin, p.YMin};
+  const Point2D Q{p.XMax, p.YMax};
+  BoundingBox2D bbox{P, Q};
+
+  // Check size of bounding box
+  Info("Bounding box of city model: " + str(bbox));
+  if (bbox.Area() < 100.0)
+  {
+    Error("Domain too small to generate a city model");
+    return 1;
+  }
+
+  // Randomize elevation model
   GridField2D dtm;
-  JSON::Read(dtm, dataDirectory + "/DTM.json");
-  Info(dtm);
+  ElevationModelGenerator::RandomizeElevationModel(dtm, bbox,
+                                                   p.ElevationModelResolution);
 
   // Randomize city model
   CityModel cityModel;
-  CityModelGenerator::RandomizeCityModel(cityModel, dtm, numRandomBuildings);
+  cityModel.Name = modelName;
+  CityModelGenerator::RandomizeCityModel(cityModel, dtm, p.NumRandomBuildings);
   Info(cityModel);
-  JSON::Write(cityModel, dataDirectory + "/CityModelRandom.json", origin);
 
   // Clean city model
-  CityModelGenerator::CleanCityModel(cityModel, minVertexDistance);
-  JSON::Write(cityModel, dataDirectory + "/CityModelClean.json", origin);
+  CityModelGenerator::CleanCityModel(cityModel, p.MinVertexDistance);
 
-  // Simplify city model
-  CityModelGenerator::SimplifyCityModel(cityModel, minBuildingDistance,
-                                        minVertexDistance);
-  JSON::Write(cityModel, dataDirectory + "/CityModelSimple.json", origin);
+  // Write JSON
+  if (p.WriteJSON)
+  {
+    JSON::Write(dtm, dataDirectory + "DTM.json", O);
+    JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
+  }
+
+  // Write VTK
+  if (p.WriteVTK)
+  {
+    VTK::Write(dtm, dataDirectory + "DTM.vts");
+  }
 
   return 0;
 }

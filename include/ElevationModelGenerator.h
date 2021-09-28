@@ -15,6 +15,7 @@
 #include "PointCloud.h"
 #include "Timer.h"
 #include "Vector.h"
+#include "VertexSmoother.h"
 
 namespace DTCC
 {
@@ -63,6 +64,10 @@ public:
     {
       Info("ElevationModelGenerator: Using all classifications");
     }
+
+    // FIXME: Add function Grid::Init(bbox) that takes care of this
+    // initialization.
+    // FIXME: Use here and also in RandomizeElevationModel() below.
 
     // Initialize grid bounding box
     dem.Grid.BoundingBox = pointCloud.BoundingBox;
@@ -266,6 +271,69 @@ public:
     //     dem.Values[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 -
     //     y);
     // }
+  }
+
+  /// Generate a random elevation model. Used for benchmarking.
+  ///
+  /// @param dem The digital elevation model (DEM)
+  /// @param bbox Bounding box of domain
+  /// @param resolution Resolution (grid size) of digital elevation model
+  static void RandomizeElevationModel(GridField2D &dem,
+                                      const BoundingBox2D &bbox,
+                                      double resolution)
+  {
+    Info("ElevationModelGenerator: Randomizing elevation model...");
+
+    // Some hard-coded building dimensions
+    const double H = 50.0;      // Maximum hill height
+    const double W0 = 50.0;     // Minimum hill width
+    const double W1 = 250.0;    // Maximum hill width
+    const size_t numHills = 30; // Number of hills (Gaussian bumps)
+
+    // Initialize grid bounding box
+    dem.Grid.BoundingBox = bbox;
+
+    // Initialize grid data
+    dem.Grid.XSize =
+        (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) / resolution + 1;
+    dem.Grid.YSize =
+        (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) / resolution + 1;
+    dem.Values.resize(dem.Grid.XSize * dem.Grid.YSize);
+    std::fill(dem.Values.begin(), dem.Values.end(), 0.0);
+    dem.Grid.XStep = (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) /
+                     (dem.Grid.XSize - 1);
+    dem.Grid.YStep = (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) /
+                     (dem.Grid.YSize - 1);
+
+    // Randomize hills
+    std::vector<double> x;
+    std::vector<double> y;
+    std::vector<double> h;
+    std::vector<double> w;
+    const double X0 = dem.Grid.BoundingBox.P.x;
+    const double Y0 = dem.Grid.BoundingBox.P.y;
+    const double dX = dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x;
+    const double dY = dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y;
+    for (size_t i = 0; i < numHills; i++)
+    {
+      x.push_back(X0 + dX * Utils::Random());
+      y.push_back(Y0 + dY * Utils::Random());
+      h.push_back(H * Utils::Random());
+      w.push_back(W0 + (W1 - W0) * Utils::Random());
+    }
+
+    // Set heights
+    std::fill(dem.Values.begin(), dem.Values.end(), 0.0);
+    for (size_t i = 0; i < dem.Values.size(); i++)
+    {
+      const Point2D p = dem.Grid.Index2Point(i);
+      for (size_t k = 0; k < numHills; k++)
+      {
+        const double dx = p.x - x[k];
+        const double dy = p.y - y[k];
+        dem.Values[i] += h[k] * exp(-0.5 * (dx * dx + dy * dy) / (w[k] * w[k]));
+      }
+    }
   }
 };
 
