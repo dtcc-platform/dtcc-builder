@@ -73,7 +73,7 @@ public:
   static void Report(const std::string& title)
   {
     // Build table
-    Table table("title");
+    Table table(title);
     table.Rows.push_back({"Task", "CPU mean", "CPU total", "Count"});
     for (const auto &it : timings)
     {

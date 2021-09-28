@@ -56,6 +56,7 @@ public:
 
     // Print title
     std::string s{};
+    s += "\n";
     for (size_t j = 0; j < width; j++)
       s += "=";
     s += "\n";
@@ -87,7 +88,6 @@ public:
     }
     for (size_t j = 0; j < width; j++)
       s += "=";
-    s += "\n";
 
     return s;
   }

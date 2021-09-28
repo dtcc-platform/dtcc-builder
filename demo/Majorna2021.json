@@ -16,7 +16,6 @@
     "GroundPercentile": 0.1,
     "RoofPercentile": 0.9,
     "OutlierMargin": 2.0,
-    "FlatGround": false,
     "GroundSmoothing": 2,
     "NumRandomBuildings": 1000,
     "GenerateSurfaceMeshes": true,
