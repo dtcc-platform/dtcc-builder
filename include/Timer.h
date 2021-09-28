@@ -72,58 +72,24 @@ public:
   // Print report (summary of all timers)
   static void Report(const std::string& title)
   {
-    // Create columns
-    std::vector<std::vector<std::string>> cols(4);
-    cols[0].push_back(title);
-    cols[1].push_back("CPU mean");
-    cols[2].push_back("CPU total");
-    cols[3].push_back("Count");
+    // Build table
+    Table table("title");
+    table.Rows.push_back({"Task", "CPU mean", "CPU total", "Count"});
     for (const auto &it : timings)
     {
-      const std::string name = it.first;
+      const std::string task = it.first;
       const double time = it.second.first;
       const size_t count = it.second.second;
-      cols[0].push_back(name);
-      cols[1].push_back(str(time / static_cast<double>(count)));
-      cols[2].push_back(str(time));
-      cols[3].push_back(str(count));
-    }
-
-    // Compute column sizes
-    const size_t tabsize = 2;
-    std::vector<size_t> colsize(cols.size());
-    std::fill(colsize.begin(), colsize.end(), 0);
-    for (size_t i = 0; i < cols[0].size(); i++)
-      for (size_t j = 0; j < cols.size(); j++)
-        colsize[j] = std::max(colsize[j], cols[j][i].size());
-    size_t width = 0;
-    for (size_t j = 0; j < cols.size(); j++)
-      width += colsize[j] + tabsize;
-    width -= tabsize;
-
-    // Generate table
-    std::string s = "\n";
-    for (size_t i = 0; i < cols[0].size(); i++)
-    {
-      s += "Timer: ";
-      for (size_t j = 0; j < cols.size(); j++)
-      {
-        s += cols[j][i];
-        for (size_t k = 0; k < colsize[j] + tabsize - cols[j][i].size(); k++)
-          s += " ";
-      }
-      s += "\n";
-      if (i == 0)
-      {
-        s += "Timer: ";
-        for (size_t k = 0; k < width; k++)
-          s += "-";
-        s += "\n";
-      }
+      std::vector<std::string> row;
+      row.push_back(task);
+      row.push_back(str(time / static_cast<double>(count)));
+      row.push_back(str(time));
+      row.push_back(str(count));
+      table.Rows.push_back(row);
     }
 
     // Print table
-    Info(s);
+    Info(table);
   }
 
 private:

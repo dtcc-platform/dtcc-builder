@@ -52,8 +52,9 @@ int main(int argc, char *argv[])
               dataDirectory + "VisualizationSmoothedGroundMesh.json", origin);
   VTK::Write(groundMesh, dataDirectory + "VisualizationSmoothedGroundMesh.vtu");
 
-  // Report timings
+  // Report timings and parameters
   Timer::Report("dtcc-smooth-ground-mesh");
+  Info(p);
 
   return 0;
 }

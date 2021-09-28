@@ -251,8 +251,9 @@ int main(int argc, char *argv[])
     GenerateVolumeMeshes(cityModel, dtm, p);
   }
 
-  // Report timings
+  // Report timings and parameters
   Timer::Report("dtcc-generate-mesh");
+  Info(p);
 
   return 0;
 }

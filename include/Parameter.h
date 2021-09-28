@@ -128,6 +128,7 @@ public:
     if (Type != ParameterType::String)
       Error("Unable to access parameter \"" + Key +
             "\"; not a string parameter");
+    AccessCount++;
     return valueString;
   }
 

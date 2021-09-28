@@ -154,8 +154,6 @@ public:
   /// Pretty-print
   std::string __str__() const override
   {
-    std::string s;
-
     // Build table
     Table table("Parameters");
     table.Rows.push_back({"Key", "Value", "Type", "Access"});

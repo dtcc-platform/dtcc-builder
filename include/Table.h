@@ -57,11 +57,11 @@ public:
     // Print title
     std::string s{};
     for (size_t j = 0; j < width; j++)
-      s += "-";
+      s += "=";
     s += "\n";
     s += Title + "\n";
     for (size_t j = 0; j < width; j++)
-      s += "-";
+      s += "=";
     s += "\n";
 
     // Print rows
@@ -85,6 +85,9 @@ public:
         s += "\n";
       }
     }
+    for (size_t j = 0; j < width; j++)
+      s += "=";
+    s += "\n";
 
     return s;
   }

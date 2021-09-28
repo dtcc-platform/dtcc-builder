@@ -81,5 +81,9 @@ int main(int argc, char *argv[])
     VTK::Write(dtm, dataDirectory + "DTM.vts");
   }
 
+  // Report timings and parameters
+  Timer::Report("dtcc-randomize-citymodel");
+  Info(p);
+
   return 0;
 }

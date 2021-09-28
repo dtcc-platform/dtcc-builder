@@ -156,10 +156,8 @@ int main(int argc, char *argv[])
     VTK::Write(dsm, dataDirectory + "DSM.vts");
   }
 
-  // Report timings
+  // Report timings and parameters
   Timer::Report("dtcc-generate-citymodel");
-
-  // Report parameters
   Info(p);
 
   return 0;
