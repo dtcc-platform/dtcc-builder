@@ -29,6 +29,6 @@ test:
     - sudo mkdir -p /home/dtcc/core/
     - sudo cp -R /builds/dtcc3d/core/unittests/ /home/dtcc/core/unittests/
     - sudo chmod a+rw /home/dtcc/core/unittests/data/*
-    - pwd && ls -alt && cd ../build/ && ./unittests/run-unittests
+    - pwd && ls -alt && cd build/ && ./unittests/run-unittests
   dependencies:
     - build
