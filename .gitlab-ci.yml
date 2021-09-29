@@ -28,7 +28,7 @@ test:
     # Fix below in order to work on Docker and CI
     - sudo mkdir -p /home/dtcc/core/
     - sudo cp -R /builds/dtcc3d/core/unittests/ /home/dtcc/core/unittests/
-    - sudo chmod a+rw /home/dtcc/core/unittests/data/*
+    - sudo chmod -R a+rw /home/dtcc/core/unittests/data/*
     - pwd && ls -alt && cd build/ && ./unittests/run-unittests
   dependencies:
     - build
