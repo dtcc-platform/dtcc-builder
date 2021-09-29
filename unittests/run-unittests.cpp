@@ -232,8 +232,8 @@ TEST_CASE("GridVectorField3D")
 
 TEST_CASE("XMLParser")
 {
-  const std::string RootPath1 = RootPath + "xml-parser-test-files/";
-  const std::string RootPath2 = RootPath + "xml-parser-test-files/";
+  const std::string RootPath1 = RootPath + "data/xml-parser-test-files/";
+  const std::string RootPath2 = RootPath + "data/xml-parser-test-files/";
   std::string rootPath = RootPath1;
 
   pugi::xml_document doc;

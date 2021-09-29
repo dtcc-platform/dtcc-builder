@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "name": "test_map",
+  "features": [
+    { "type": "Feature", "properties": { "AI_w5km": 0.89656978845596313, "AI_w2k_h": 692.353271484375 }, "geometry": { "type": "LineString", "coordinates": [ [ 101003.3176, 77882.3601 ], [ 101011.1404, 77882.1855 ] ] } },
+    { "type": "Feature", "properties": { "AI_w5km": 0.89656978845596313, "AI_w2k_h": 723.8121337890625 }, "geometry": { "type": "LineString", "coordinates": [ [ 101011.1404, 77882.1855 ], [ 101034.5638, 77881.6627 ] ] } },
+    { "type": "Feature", "properties": { "AI_w5km": 0.89656978845596313, "AI_w2k_h": 743.246826171875 }, "geometry": { "type": "LineString", "coordinates": [ [ 101034.5638, 77881.6627 ], [ 101089.6386, 77880.4333 ] ] } }
+  ]
+}
