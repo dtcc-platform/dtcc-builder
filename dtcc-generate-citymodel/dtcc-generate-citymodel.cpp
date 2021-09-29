@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   }
 
   // Report timings and parameters
-  Timer::Report("dtcc-generate-citymodel");
+  Timer::Report("dtcc-generate-citymodel", dataDirectory);
   Info(p);
 
   return 0;

@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   }
 
   // Report timings and parameters
-  Timer::Report("dtcc-randomize-citymodel");
+  Timer::Report("dtcc-randomize-citymodel", dataDirectory);
   Info(p);
 
   return 0;

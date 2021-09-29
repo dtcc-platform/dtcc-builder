@@ -8,6 +8,8 @@
 #include <map>
 #include <utility>
 
+#include "JSON.h"
+
 namespace DTCC
 {
 
@@ -70,7 +72,7 @@ public:
   }
 
   // Print report (summary of all timers)
-  static void Report(const std::string& title)
+  static void Report(const std::string &title, const std::string &dataDirectory)
   {
     // Build table
     Table table(title);
@@ -78,18 +80,22 @@ public:
     for (const auto &it : timings)
     {
       const std::string task = it.first;
-      const double time = it.second.first;
+      const double total = it.second.first;
       const size_t count = it.second.second;
+      const double mean = total / static_cast<double>(count);
       std::vector<std::string> row;
       row.push_back(task);
-      row.push_back(str(time / static_cast<double>(count)));
-      row.push_back(str(time));
+      row.push_back(str(mean));
+      row.push_back(str(total));
       row.push_back(str(count));
       table.Rows.push_back(row);
     }
 
     // Print table
     Info(table);
+
+    // Write JSON
+    JSON::Write(timings, dataDirectory + "Timings.json");
   }
 
 private:

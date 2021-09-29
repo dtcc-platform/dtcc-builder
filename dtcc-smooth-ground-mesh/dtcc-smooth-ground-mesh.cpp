@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   VTK::Write(groundMesh, dataDirectory + "VisualizationSmoothedGroundMesh.vtu");
 
   // Report timings and parameters
-  Timer::Report("dtcc-smooth-ground-mesh");
+  Timer::Report("dtcc-smooth-ground-mesh", dataDirectory);
   Info(p);
 
   return 0;

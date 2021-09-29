@@ -98,6 +98,25 @@ namespace DTCC
       }
     }
 
+    /// Serialize timings (special-case, only output supported)
+    static void
+    Serialize(std::map<std::string, std::pair<double, size_t>> timings,
+              nlohmann::json &json)
+    {
+      for (const auto &it : timings)
+      {
+        const std::string task = it.first;
+        const double total = it.second.first;
+        const size_t count = it.second.second;
+        const double mean = total / static_cast<double>(count);
+        auto jsonTiming = nlohmann::json::object();
+        jsonTiming["Total"] = total;
+        jsonTiming["Count"] = count;
+        jsonTiming["Mean"] = mean;
+        json[task] = jsonTiming;
+      }
+    }
+
     /// Deserialize BoundingBox2D
     static void Deserialize(BoundingBox2D& boundingBox, const nlohmann::json& json)
     {
