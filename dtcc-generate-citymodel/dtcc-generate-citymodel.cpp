@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
     O = bbox.P;
     p["X0"] = O.x;
     p["Y0"] = O.y;
-    p["XMin"] = 0;
-    p["YMin"] = 0;
+    p["XMin"] = 0.0;
+    p["YMin"] = 0.0;
     p["XMax"] = bbox.Q.x - bbox.P.x;
     p["YMax"] = bbox.Q.y - bbox.Q.y;
   }
