@@ -168,8 +168,8 @@ files in the `data` directory.
 
 The Digital Twin Cities Platform makes use of the following data sources:
 
-* Point clouds (Lantmäteriet:Laserdata vektor; EPSG:3006)
-* Property maps (Lantmäteriet:Fastighetskartan bebyggelse vektor; EPSG:3006)
+* Point clouds (Lantmäteriet:Laserdata NH 2019 (laz); EPSG:3006)
+* Property maps (Lantmäteriet:Fastighetskartan Bebyggelse; EPSG:3006)
 * Road network maps (Lantmäteriet:Vägkartan; EPSG:3006)
 
 Chalmers has a license for downloading data from `http://zeus.slu.se`.

@@ -148,10 +148,18 @@ namespace DTCC
       // Map coordinates to [0, 1] x [0, 1] within grid cell
       x = (_x - ix*XStep) / XStep;
       y = (_y - iy*YStep) / YStep;
-      assert(x >= 0.0);
-      assert(y >= 0.0);
-      assert(x <= 1.0);
-      assert(y <= 1.0);
+      assert(x >= 0.0 - Parameters::Epsilon);
+      assert(x <= 1.0 + Parameters::Epsilon);
+      assert(y >= 0.0 - Parameters::Epsilon);
+      assert(y <= 1.0 + Parameters::Epsilon);
+      if (x <= 0.0)
+        x = 0.0;
+      if (x >= 1.0)
+        x = 1.0;
+      if (y <= 0.0)
+        y = 0.0;
+      if (y >= 1.0)
+        y = 1.0;
     }
 
     /// Interpolate value on [0, 1] x [0, 1] using bilinear interpolation.
@@ -302,12 +310,24 @@ namespace DTCC
       x = (_x - ix * XStep) / XStep;
       y = (_y - iy * YStep) / YStep;
       z = (_z - iz * ZStep) / ZStep;
-      assert(x >= 0.0);
-      assert(y >= 0.0);
-      assert(z >= 0.0);
-      assert(x <= 1.0);
-      assert(y <= 1.0);
-      assert(z <= 1.0);
+      assert(x >= 0.0 - Parameters::Epsilon);
+      assert(x <= 1.0 + Parameters::Epsilon);
+      assert(y >= 0.0 - Parameters::Epsilon);
+      assert(y <= 1.0 + Parameters::Epsilon);
+      assert(z >= 0.0 - Parameters::Epsilon);
+      assert(z <= 1.0 + Parameters::Epsilon);
+      if (x <= 0.0)
+        x = 0.0;
+      if (x >= 1.0)
+        x = 1.0;
+      if (y <= 0.0)
+        y = 0.0;
+      if (y >= 1.0)
+        y = 1.0;
+      if (z <= 0.0)
+        z = 0.0;
+      if (z >= 1.0)
+        z = 1.0;
     }
 
     /// Interpolate value on [0, 1] x [0, 1] x [0, 1] using trilinear interpolation.
