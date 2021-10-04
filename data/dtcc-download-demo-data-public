@@ -4,4 +4,6 @@
 #echo "Trying to login to cloud.dtcc.chalmers.se FTP over TLS with anonymous login..."
 #lftp -e "set ssl:verify-certificate no;set ftp:ssl-allow true;set ftp:ssl-protect-data true;mirror -n --verbose --use-pget-n=8 -c --verbose /Eman2021/ /home/dtcc/core/data/Eman2021;mirror -n --verbose --use-pget-n=8 -c --verbose /Majorna2021/ /home/dtcc/core/data/Majorna2021;" < /dev/null -u anonymous, ftp://cloud.dtcc.chalmers.se
 echo "Trying to get public demo data from data.dtcc.chalmers.se..."
-wget http://data.dtcc.chalmers.se:5001/demo-data-public -v -O demo-data-public.tar.gz
+wget http://data.dtcc.chalmers.se:5001/demo-data-public -v -O demo-data-public.tar.gz &&
+mv demo-data-public.tar.gz /home/dtcc/core/data/ &&
+tar xvzf demo-data-public.tar.gz 
