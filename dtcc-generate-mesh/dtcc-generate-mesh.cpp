@@ -190,11 +190,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
 
   // Extract boundary of final mesh
   Surface3D boundary;
-  MeshProcessor::ExtractBoundary3D(boundary, mesh);
-
-  // Extract surface excluding top and sides
   Surface3D surface;
-  MeshProcessor::ExtractOpenSurface3D(surface, boundary);
+  if (p["WriteJSON"] || p["WriteVTK"])
+  {
+    MeshProcessor::ExtractBoundary3D(boundary, mesh);
+    MeshProcessor::ExtractOpenSurface3D(surface, boundary);
+  }
 
   // Write JSON
   if (p["WriteJSON"])
