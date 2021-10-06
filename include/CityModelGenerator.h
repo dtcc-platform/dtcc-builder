@@ -85,11 +85,13 @@ public:
     // Clear search tree (since it might become invalid)
     cityModel.bbtree.Clear();
 
-    // Iterate over buildings
+    // Count some stats
     size_t numClosed = 0;
     size_t numOriented = 0;
     size_t numVertexMerged = 0;
     size_t numEdgeMerged = 0;
+
+    // Iterate over buildings
     for (auto &building : cityModel.Buildings)
     {
       // Make closed
@@ -98,13 +100,19 @@ public:
       // Make oriented
       numOriented += Polyfix::MakeOriented(building.Footprint);
 
-      // Merge vertices
-      numVertexMerged +=
-          Polyfix::MergeVertices(building.Footprint, minimalVertexDistance);
+      // Merge vertices (but skip if only 4 vertices or less)
+      if (building.Footprint.Vertices.size() > 4)
+      {
+        numVertexMerged +=
+            Polyfix::MergeVertices(building.Footprint, minimalVertexDistance);
+      }
 
-      // Merge edges
-      numEdgeMerged += Polyfix::MergeEdges(building.Footprint,
-                                           Parameters::FootprintAngleThreshold);
+      // Merge edges(but skip if only 4 vertices or less)
+      if (building.Footprint.Vertices.size() > 4)
+      {
+        numEdgeMerged += Polyfix::MergeEdges(
+            building.Footprint, Parameters::FootprintAngleThreshold);
+      }
     }
 
     Info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
