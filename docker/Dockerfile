@@ -47,7 +47,8 @@ RUN apt-get update && apt-get install -y \
     rsync \
     wget \
     moreutils \
-    unzip
+    unzip \
+    jq
 
 # Get and compile LASZip
 RUN git clone -n https://github.com/LASzip/LASzip.git
