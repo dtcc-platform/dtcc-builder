@@ -7,9 +7,9 @@ LOGFILE="lasinfo.log"
 rm -f $LOGFILE
 
 for f in *.las; do
-    echo "--------------------------------------------------------------------------------------------------------"
-    echo "Filename: $f"
-    dtcc-info $f | tee $LOGFILE
+    echo "--------------------------------------------------------------------------------------------------------" | tee -a $LOGFILE
+    echo "Filename: $f" | tee -a $LOGFILE
+    dtcc-info $f | tee -a $LOGFILE
 done
 
 echo ""
