@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Check info (bounds) for all LAS files in current directory
+# Anders Logg 2021-10-22
+
+LOGFILE="lasinfo.log"
+
+rm -f $LOGFILE
+
+for f in *.las; do
+    echo "--------------------------------------------------------------------------------------------------------"
+    echo "Filename: $f"
+    dtcc-info $f | tee $LOGFILE
+done
+
+echo ""
+echo "Log written to $LOGFILE"
