@@ -1,7 +1,7 @@
 # This file builds the Docker image for the Digital Twin Cities Platform
 
 # Use Phusion base image (minimal Docker-friendly Ubuntu)
-FROM phusion/baseimage:master as base
+FROM phusion/baseimage:0.11 as base
 
 # Set some variables
 ENV USER dtcc
@@ -13,16 +13,14 @@ ENV DIR core
 #RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Add fenics and gdal repos
-#RUN add-apt-repository ppa:fenics-packages/fenics
+RUN add-apt-repository ppa:fenics-packages/fenics
 RUN add-apt-repository ppa:ubuntugis/ppa
 
 # Install libraries used by DTCCore
 RUN apt-get update && apt-get install -y \
     locales \
     sudo \
-	build-essential \
-	cmake\
-    nlohmann-json3-dev \
+    nlohmann-json-dev \
     libshp-dev \
 #    liblas-dev \   #need to build from source to support LASZip
 #    liblas-c-dev \
@@ -38,13 +36,13 @@ RUN apt-get update && apt-get install -y \
     automake\
     colordiff\
     libuuid1 \
-    #lftp \
+    lftp \
     fenics \
     gdal-bin \
-    libgdal-dev \ 
+    libgdal-dev \
     git \
-    #git-lfs \
-    #dos2unix \
+    git-lfs \
+    dos2unix \
     nano \
     rsync \
     wget \
@@ -74,7 +72,7 @@ RUN ldconfig /usr/local/lib
 
 # Get and compile assimp latest (27th May 2020)
 
-#RUN git clone https://github.com/assimp/assimp && cd assimp && git checkout 1427e67b54906419e9f83cc8625e2207fbb0fcd5 && mkdir build && cd build && cmake .. && make all -j 4 && make #install && ln -s /assimp/build/bin/libassimp.so.5 /usr/lib/x86_64-linux-gnu/
+RUN git clone https://github.com/assimp/assimp && cd assimp && git checkout 1427e67b54906419e9f83cc8625e2207fbb0fcd5 && mkdir build && cd build && cmake .. && make all -j 4 && make install && ln -s /assimp/build/bin/libassimp.so.5 /usr/lib/x86_64-linux-gnu/
 
 
 #RUN apt-get update && apt-get upgrade -y
