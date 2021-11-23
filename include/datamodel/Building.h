@@ -73,6 +73,9 @@ public:
   /// Check if building is empty
   bool Empty() const { return Footprint.Vertices.empty(); }
 
+  /// Check if building is valid (at least 3 vertices)
+  bool Valid() const { return Footprint.Vertices.size() >= 3; }
+
   /// Clear all data
   void Clear()
   {

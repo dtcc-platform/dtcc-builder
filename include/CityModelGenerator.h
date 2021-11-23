@@ -77,6 +77,8 @@ public:
   ///
   /// @param cityModel The city model
   /// @param minimalVertexDistance Minimal vertex distance
+  ///
+  /// Developer note: This may be optimized by avoiding copying
   static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
   {
     Info("CityModelGenerator: Cleaning city model...");
@@ -90,8 +92,9 @@ public:
     size_t numOriented = 0;
     size_t numVertexMerged = 0;
     size_t numEdgeMerged = 0;
+    size_t numRemoved = 0;
 
-    // Iterate over buildings
+    // Clean buildings
     for (auto &building : cityModel.Buildings)
     {
       // Make closed
@@ -107,12 +110,23 @@ public:
             Polyfix::MergeVertices(building.Footprint, minimalVertexDistance);
       }
 
-      // Merge edges(but skip if only 4 vertices or less)
+      // Merge edges (but skip if only 4 vertices or less)
       if (building.Footprint.Vertices.size() > 4)
       {
         numEdgeMerged += Polyfix::MergeEdges(
             building.Footprint, Parameters::FootprintAngleThreshold);
       }
+    }
+
+    // Keep only valid buildings
+    std::vector<Building> _buildings{cityModel.Buildings};
+    cityModel.Buildings.clear();
+    for (auto &building : _buildings)
+    {
+      if (building.Valid())
+        cityModel.Buildings.push_back(building);
+      else
+        numRemoved++;
     }
 
     Info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
@@ -123,6 +137,9 @@ public:
          "/" + str(cityModel.Buildings.size()) + " polygons");
     Info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
          str(cityModel.Buildings.size()) + " polygons");
+    Info("CityModelGenerator: Removed " + str(numRemoved) + "/" +
+         str(cityModel.Buildings.size()) +
+         " buildings (invalid/too small after cleaning)");
   }
 
   /// Simplify city model by merging all buildings that are closer than
@@ -554,8 +571,11 @@ private:
     std::vector<Building> mergedBuildings;
     for (const auto &building : buildings)
     {
-      if (!building.Empty())
+      if (building.Valid())
         mergedBuildings.push_back(building);
+      else if (!building.Empty())
+        Error("Building " + building.UUID +
+              " has non-empty footprint but less than 3 vertices");
     }
 
     // Overwrite buildings
