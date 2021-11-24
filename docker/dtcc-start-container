@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 docker start dtcc
-#docker exec --user "$(id -u):$(id -g)" -it dtcc bash # breaks user permissions on Mac
+docker exec --user "$(id -u):$(id -g)" -it dtcc bash # breaks user permissions on Mac
 docker attach dtcc

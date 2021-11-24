@@ -574,8 +574,8 @@ private:
       if (building.Valid())
         mergedBuildings.push_back(building);
       else if (!building.Empty())
-        Error("Building " + building.UUID +
-              " has non-empty footprint but less than 3 vertices");
+        Warning("Building " + building.UUID +
+                " has non-empty footprint but less than 3 vertices, skipping");
     }
 
     // Overwrite buildings
