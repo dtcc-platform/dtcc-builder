@@ -4,3 +4,7 @@
 !/data/dtcc-*
 !/data/testCase/
 !/data/sampleCityJSON/
+
+.idea/
+.vscode/
+cmake-build-debug/
