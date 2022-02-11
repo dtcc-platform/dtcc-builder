@@ -1,140 +1,32 @@
 #!/usr/bin/python3
-# Postprocessing script for dtcc-demo
-# The script assumes local directories
-# Vasilis Naserentin 8th September 2021
-#TODO: - Add plotting in Pylab
-#      - Formulate command line arguments
-#      - Error checking
-#      - Make json parsing consistent (depending on Kernel version there is
-#        inconsistency in the order of lines read)
+#
+# Postprocessing script for dtcc-bench-run
 
-import json
-import numpy as np
-#Using Pylab instead
-#from matplotlib import pyplot as plt
+import json, glob
 from pylab import *
-import glob
-import numpy as np
-import pickle as pkl
 
-def findCase():
-    print('Finding cases logfiles')
-    cases=[]
-    files = glob.glob('*.log*')
-#Debug
-#    print(files)
+# Get cases
+cases = [f.split('.log')[0] for f in glob.glob('bench-case-*')]
 
-    for file in files:
-       file=file.split('.log')
-#Debug
-#       print(file)
+# Get cells
+cells = [float(open('%s/bench.log' % c).read().split('3D tetrahedral')[1].split()[5]) for c in cases]
 
-       cases.append(file[0])
-    return cases
+# Sort cases and cells by number of cells
+cells, cases = zip(*sorted(zip(cells, cases)))
 
-def getCells(fileName):
-    with open(fileName,'r') as fin:
-       for line in fin:
-           if 'cells' in line:
-               line = line.split(' ')
-               noofcells=int(line[7])
-#               print(noofcells)
-    return noofcells
+# Get variables (by looking at the first case)
+variables = sorted([k for k in json.load(open('%s/Timings.json' % cases[0])).keys() if 'Step ' in k])
 
-#User defined options, perhaps and cmd ling arguments or in a Config/Parameters.json?
-basename="MeshResolution";
-basedirname="myCase";
-numberofsteps=8;
+# Get timings
+timings = {}
+for variable in variables:
+    timings[variable] = [json.load(open('%s/Timings.json' % c))[variable]['Mean'] for c in cases]
 
-#Array to store cases
-cases=[]
-cases=findCase()
-
-#Debug
-#print(basename)
-
-#Array to store pivots of basename (parameter used)
-pivots=[]
-
-#Array to store cell number
-cells=[]
-
-#Array to store values (not used)
-values=[]
-
-#Array to store variable names
-variables=[]
-
-for i in range(0,len(cases)):
-    pivots.append(float(cases[i].split(basename)[1]))
-
-pivots.sort(key = float)
-
-#Debug
-#print(len(pivots))
-#print(len(cases))
-
-#Create 2D array to hold Timings
-array = np.empty([len(pivots), numberofsteps], dtype = float)
-
-#array = np.reshape(11,8)
-
-#Loop over all logs to get cell number
-for i in range(0,len(pivots)):
-    cells.append(getCells(basename+str(pivots[i])+".log"))
-
-#Temp dict to hold parsed values
-listObj={}
-
-j=-1
-#loop over all Timings and populate 2D array
-for i in range(0,len(pivots)):
-    with open(basedirname+str(pivots[i])+"/"+"Timings.json") as fp:
-        listObj = json.load(fp)
-#Debug
-#        print(len(listObj))
-        fp.close()
-    listObj["Cells"]=getCells(basename+str(pivots[i])+".log")
-    cells.append(getCells(basename+str(pivots[i])+".log"))
-    for key in listObj:
-        if "Step" in key:
-            j=j+1
-            print(pivots[i],key,listObj[key])
-#        namesarray.append(key)
-            values.append(listObj[key]["Total"])
-            variables.append(key)
-            print(i,j,listObj[key]["Total"])
-#            array[i][j]=listObj[key]["Total"]
-#            np.insert(array, i, j, listObj[key]["Total"])
-            array[i,j]=listObj[key]["Total"];
-            if j==numberofsteps-1:
-                j=-1;
-#Debug
-#print(array)
-#print(cases)
-#print(cells)
-#print(pivots)
-
-# Plotting part
-plt.title(variables[0])
-plt.xlabel("Mesh Resolution")
-plt.ylabel("Seconds")
-plt.figure()
-plt.plot(pivots[0],array[0,0],'o',pivots[1],array[1,0],'o')
-#plt.show()
-for i in range(0,len(pivots)):
-    for j in range(0,7):
-        plt.plot(pivots[i],array[i,0], 'o', linewidth=2, markersize=3, label='label1')
-        plt.plot(pivots[i],array[i,1], 'd-', linewidth=2, markersize=3)
-        plt.plot(pivots[i],array[i,2], 'x-', linewidth=2, markersize=3)
-#print(i,j)
-#    print(pivots[i],array[i,0])
-plt.grid()
-#axis='x', color='0.95')
-plt.show()
-
-#Save to file
-fileObject = open("Timingsarray", 'wb')
-
-pkl.dump(array, fileObject)
-fileObject.close()
+# Plot timings
+for variable in variables:
+    loglog(cells, timings[variable], '-o', label=variable)
+xlabel('Number of cells')
+ylabel('CPU time')
+legend()
+grid(True)
+show()
