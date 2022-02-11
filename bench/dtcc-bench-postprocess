@@ -5,7 +5,7 @@
 #TODO: - Add plotting in Pylab
 #      - Formulate command line arguments
 #      - Error checking
-#      - Make json parsing consistent (depending on Kernel version there is 
+#      - Make json parsing consistent (depending on Kernel version there is
 #        inconsistency in the order of lines read)
 
 import json
@@ -106,32 +106,32 @@ for i in range(0,len(pivots)):
             print(i,j,listObj[key]["Total"])
 #            array[i][j]=listObj[key]["Total"]
 #            np.insert(array, i, j, listObj[key]["Total"])
-            array[i,j]=listObj[key]["Total"];            
+            array[i,j]=listObj[key]["Total"];
             if j==numberofsteps-1:
                 j=-1;
-#Debug 
+#Debug
 #print(array)
 #print(cases)
 #print(cells)
 #print(pivots)
 
 # Plotting part
-#plt.title(variables[0])
-#plt.xlabel("Mesh Resolution")
-#plt.ylabel("Seconds")
-#plt.figure()
-#plt.plot(pivots[0],array[0,0],'o',pivots[1],array[1,0],'o')
+plt.title(variables[0])
+plt.xlabel("Mesh Resolution")
+plt.ylabel("Seconds")
+plt.figure()
+plt.plot(pivots[0],array[0,0],'o',pivots[1],array[1,0],'o')
 #plt.show()
-#for i in range(0,len(pivots)):
-#    for j in range(0,7):
-#    plt.plot(pivots[i],array[i,0], 'o', linewidth=2, markersize=3, label='label1')
-#        plt.plot(pivots[i],array[i,1], 'd-', linewidth=2, markersize=3)
-#        plt.plot(pivots[i],array[i,2], 'x-', linewidth=2, markersize=3)
+for i in range(0,len(pivots)):
+    for j in range(0,7):
+        plt.plot(pivots[i],array[i,0], 'o', linewidth=2, markersize=3, label='label1')
+        plt.plot(pivots[i],array[i,1], 'd-', linewidth=2, markersize=3)
+        plt.plot(pivots[i],array[i,2], 'x-', linewidth=2, markersize=3)
 #print(i,j)
 #    print(pivots[i],array[i,0])
-#plt.grid()
+plt.grid()
 #axis='x', color='0.95')
-#plt.show()
+plt.show()
 
 #Save to file
 fileObject = open("Timingsarray", 'wb')
