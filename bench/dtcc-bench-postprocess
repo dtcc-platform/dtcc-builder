@@ -6,7 +6,7 @@
 #      - Formulate command line arguments
 #      - Error checking
 #      - Make json parsing consistent (depending on Kernel version there is 
-# inconsistency in the order of lines read)
+#        inconsistency in the order of lines read)
 
 import json
 import numpy as np
