@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-PARAMETERS=Helsingborg2021.json
+PARAMETERS=Majorna2021.json
 
 ../bin/dtcc-generate-citymodel $PARAMETERS

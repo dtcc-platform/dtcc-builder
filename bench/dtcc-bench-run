@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+#
+# Script for running benchmarks for dtcc-generate-mesh.
+
+import json, subprocess, glob, shutil, os, datetime, copy
+from math import sqrt
+
+# Parameters for mesh resolution study
+#parameterName = "MeshResolution"
+#parameterValues = reversed([int(4*sqrt(2)**n) for n in range(11)])
+#parameterFile = '../demo/Majorna2021.json'
+#binaryGenerateCityModel = '../bin/dtcc-generate-citymodel'
+#binaryGenerateMesh = '../bin/dtcc-generate-mesh'
+
+# Parameters for randomized citymodel study
+parameterName = "NumRandomBuildings"
+parameterValues = [int(4*sqrt(2)**n) for n in range(30)]
+parameterFile = '../demo/Majorna2021.json'
+binaryGenerateCityModel = '../bin/dtcc-randomize-citymodel'
+binaryGenerateMesh = '../bin/dtcc-generate-mesh'
+
+# Create directory for bench run
+timestamp = str(datetime.datetime.now()).replace(' ', '-')
+benchDirectory = 'bench-%s-%s' % (parameterName, timestamp)
+print('Creating bench directory: %s' % benchDirectory)
+os.mkdir(benchDirectory)
+
+# Read parameters
+with open(parameterFile) as f:
+  parameters = json.load(f)
+
+# Run test cases
+for parameterValue in parameterValues:
+
+    # Set case directories
+    caseDirectory = benchDirectory + '/' + str(parameterValue)
+    caseParameterFile = caseDirectory + '/' + 'Parameters.json'
+    caseLogFile = caseDirectory + '/' + 'bench.log'
+    print('')
+    print('Bench case: %s = %s' % (parameterName, parameterValue))
+    print('---------------------------------------------------------------------')
+    print('  Case directory:  %s' % caseDirectory)
+    print('  Case parameters: %s' % caseParameterFile)
+    print('  Case log file:   %s' % caseLogFile)
+
+    # Copy data to case directory
+    print('  Copying case data...')
+    shutil.copytree(parameters['DataDirectory'], caseDirectory)
+
+    # Write case parameters
+    caseParameters = copy.deepcopy(parameters)
+    caseParameters[parameterName] = parameterValue
+    caseParameters['DataDirectory'] = caseDirectory
+    caseParameters['GenerateSurfaceMeshes'] = False
+    caseParameters['WriteJSON'] = False
+    caseParameters['WriteVTK'] = False
+    with open(caseParameterFile, 'w') as f:
+        json.dump(caseParameters, f)
+
+    #Used for parallel spawnage
+    #process = subprocess.Popen(['echo', 'More output'],
+    #                 stdout=subprocess.PIPE,
+    #                 stderr=subprocess.PIPE)
+    #stdout, stderr = process.communicate()
+    #stdout, stderr
+
+    # Run case
+    print('  Spawning case run...')
+    with open(caseLogFile, 'w') as f:
+
+        # Run citymodel generation (Timings.json from this stage will be overwritten)
+        print('  Running %s' % binaryGenerateCityModel)
+        process = subprocess.Popen([binaryGenerateCityModel, caseParameterFile], stdout=f, stderr=f)
+        process.wait()
+
+        # Run mesh generation
+        print('  Running %s' % binaryGenerateMesh)
+        process = subprocess.Popen([binaryGenerateMesh, caseParameterFile], stdout=f, stderr=f)
+        process.wait()
+
+        # Cleanup case directory
+        print('  Cleaning up case directory...')
+        keep = ['Timings.json', 'bench.log', 'Parameters.json']
+        files = [f for f in glob.glob(caseDirectory + '/*') if not f.split('/')[-1] in keep]
+        for f in files:
+            #print('  Removing %s' % f)
+            os.remove(f)

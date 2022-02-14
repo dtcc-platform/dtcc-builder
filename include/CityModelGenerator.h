@@ -433,7 +433,7 @@ public:
         for (auto const &p : centers)
         {
           const double d = Geometry::Distance2D(p, c);
-          if (d < 0.5 * A)
+          if (d < 0.1 * A) // Allow big overlaps to get interesting results
           {
             ok = false;
             break;
