@@ -52,7 +52,7 @@ for parameterValue in parameterValues:
     caseParameters[parameterName] = parameterValue
     caseParameters['DataDirectory'] = caseDirectory
     caseParameters['GenerateSurfaceMeshes'] = False
-    caseParameters['WriteJSON'] = False
+    caseParameters['WriteJSON'] = True
     caseParameters['WriteVTK'] = False
     with open(caseParameterFile, 'w') as f:
         json.dump(caseParameters, f)
