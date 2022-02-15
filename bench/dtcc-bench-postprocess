@@ -63,7 +63,7 @@ for i, variable in enumerate(variables):
     loglog(x, y, '-o', label=lbl, marker=markers[2 + i])
 
 # Adjust plot
-xlabel('Number of cells')
+xlabel(_xlabel)
 ylabel('CPU time')
 legend()
 grid(True)
