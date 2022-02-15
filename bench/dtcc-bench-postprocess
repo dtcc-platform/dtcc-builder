@@ -19,7 +19,7 @@ if not len(sys.argv) == 2:
 benchDirectory = sys.argv[1]
 
 # Get cases
-cases = [f.split('.log')[0] for f in glob.glob(benchDirectory + '/*')]
+cases = [f.split('.log')[0] for f in glob.glob(benchDirectory + '/*') if not '-skip' in f]
 
 # Get parameters
 parameters = [json.load(open('%s/Parameters.json' % c)) for c in cases]
