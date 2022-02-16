@@ -67,4 +67,10 @@ xlabel(_xlabel)
 ylabel('CPU time')
 legend()
 grid(True)
+
+# Save plot
+fileName = [f for f in benchDirectory.split('/') if len(f) > 0][-1] + '.pdf'
+print('Saving plot to file %s' % fileName)
+savefig(fileName)
+
 show()
