@@ -5,6 +5,6 @@
 !/data/testCase/
 !/data/sampleCityJSON/
 
-#IDEs
-/.vscode/*
-/.idea/*
+.idea/
+.vscode/
+cmake-build-debug/
