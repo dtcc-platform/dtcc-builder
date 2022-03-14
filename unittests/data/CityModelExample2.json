@@ -165,7 +165,8 @@
             "PropertyFNR": 140029233,
             "PropertyUUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681",
             "Type": "Building",
-            "UUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681"
+            "UUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681",
+            "error": 0
         }
     ],
     "Footprint": [

@@ -1105,6 +1105,8 @@ namespace DTCC
       jsonBuilding["Height"] = building.Height;
       jsonBuilding["GroundHeight"] = building.GroundHeight;
       jsonBuilding["PropertyUUID"] = building.PropertyUUID;
+      jsonBuilding["error"] = building.error;
+
       SerializeArea(building, json, isTopObject, jsonBuilding, "Building");
     }
 
@@ -1126,6 +1128,7 @@ namespace DTCC
       building.BaseAreaID = jsonBuilding["BaseAreaID"].get<std::string>();
       building.Height = jsonBuilding["Height"].get<double>();
       building.GroundHeight = jsonBuilding["GroundHeight"].get<double>();
+      building.error = jsonBuilding["error"].get<int>();
 
       DeserializeFootprint(building.Footprint, jsonBuilding, "Footprint");
     }

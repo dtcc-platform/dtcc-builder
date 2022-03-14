@@ -50,6 +50,7 @@ public:
     Add("GroundPercentile", 0.1);
     Add("RoofPercentile", 0.9);
     Add("OutlierMargin", 0.2);
+    Add("MinBuildingSize", 10.0);
 
     Add("DataDirectory", "");
   }
