@@ -5,9 +5,9 @@ _This README was last revised on 22nd of March 2022_
 The DTCC Platform is an open-source platform for the exploration of
 digital twins for cities. The platform is developed and maintained by
 the Digital Twin Cities Centre (DTCC) hosted by Chalmers University of
-Technology. The aim is to develop an open multimodal data, modeling,
-simulation and visualisation platform for interactive planning,
-design, exploration, experimentation, and optimisation of cities.
+Technology. The aim is to develop an open modelling, simulation and
+visualisation platform for interactive planning, design, and
+exploration of cities.
 
 This repository, DTCC Builder, provides software for generation of 3D
 models (meshes) from raw data.
