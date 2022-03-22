@@ -44,10 +44,10 @@ can be accomplished by:
 
 ### Building the Docker container
 
-The most convenient way to work with the Digital Twin Cities Platform
-is to use the custom [Docker](https://www.docker.com/) image, which
-contains all the dependencies needed for developing, building, and
-running the software.
+The most convenient way to work with the DTCC Platform is to use the
+custom [Docker](https://www.docker.com/) image, which contains all the
+dependencies needed for developing, building, and running the
+software.
 
 The first step is to download and install
 [Docker](https://www.docker.com/). After the installation is complete,
@@ -70,8 +70,7 @@ the image from scratch by issuing `./dtcc-build-image` and
 `dtcc-build-image.bat` on Linux/MacOS and Windows respectively.
 
 Then issue the following commands to create and start a persistent
-container (virtual machine) in which to run the Digital Twin Cities
-Platform:
+container (virtual machine) in which to run the DTCC Platform:
 
     ./dtcc-create-container
     ./dtcc-start-container
@@ -166,7 +165,7 @@ files in the `data` directory.
 
 ### Data sources
 
-The Digital Twin Cities Platform makes use of the following data sources:
+The DTCC Platform makes use of the following data sources:
 
 * Point clouds (Lantmäteriet:Laserdata NH 2019 (laz); EPSG:3006)
 * Property maps (Lantmäteriet:Fastighetskartan Bebyggelse; EPSG:3006)
@@ -202,7 +201,7 @@ coordinate system.
 
 ## Parameters
 
-The Digital Twin Cities Platform uses the following global parameters,
+The DTCC Platform uses the following global parameters,
 controlled via a JSON file `Parameters.json`.
 
 All data files are assumed to be located in a directory determined by
@@ -324,11 +323,11 @@ parameter `Debug` is set.
 
 ### Code organization
 
-The Digital Twin Cities Platform is organized as a collection of
-independent but interoperable components. Each component may be
-implemented using different libraries, and languages (C++, Python,
-...) but follows a common naming scheme and provides a standardized
-command-line interface.
+The DTCC Platform is organized as a collection of independent but
+interoperable components. Each component may be implemented using
+different libraries, and languages (C++, Python, ...) but follows a
+common naming scheme and provides a standardized command-line
+interface.
 
 Common C++ code that is used across components is *header only* and is
 placed in the common directory `include`. The common code should have
@@ -336,8 +335,8 @@ no (or minimal) external dependencies.
 
 ### Coding style
 
-The Digital Twin Cities Platform uses Microsoft C# coding style (for
-both C++ and Python code):
+The DTCC Platform uses Microsoft C# coding style (for both C++ and
+Python code):
 
 ```
 ClassName
@@ -361,14 +360,13 @@ initialization.
 
 ### Versioning
 
-The Digital Twin Cities Platform uses [CalVer](https://calver.org/)
-for versioning.
+The DTCC Platform uses [CalVer](https://calver.org/) for versioning.
 
 ## Authors (in order of appearance)
 
 * [Anders Logg](http://anders.logg.org)
 * [Vasilis Naserentin](https://www.chalmers.se/en/Staff/Pages/vasnas.aspx)
-* [Dag Wästerberg](http://www.ramboll.se)
+* [Dag Wästerberg](https://chalmersindustriteknik.se/sv/medarbetare/dag-wastberg/)
 * [Orfeas Eleutheriou](http://orfeasel.com/)
 * [Anton Olsson](mailto:anton.j.olsson@bredband.net)
 * [Anton Annlöv](mailto:annlova@student.chalmers.se)
@@ -377,11 +375,13 @@ Part of this code is contributed by ReSpace AB under the MIT License.
 
 ## License
 
-The Digital Twin Cities Platform is licensed under the [MIT license](https://opensource.org/licenses/MIT).
-Copyright is held by the individual authors as listed at the top of each source file.
+The DTCC Platform is licensed under the [MIT
+license](https://opensource.org/licenses/MIT).
+
+Copyright is held by the individual authors as listed at the top of
+each source file.
 
 ## Acknowledgments
 
-This work is part of the Digital Twin Cities Centre supported by Sweden’s Innovation Agency VINNOVA under Grant No. XXX.
-
-WIP: Add grant number.
+This work is part of the Digital Twin Cities Centre supported by
+Sweden’s Innovation Agency Vinnova under Grant No. 2019-421 00041.
