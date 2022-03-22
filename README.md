@@ -1,17 +1,16 @@
-# Digital Twin Cities Platform - Core
+# DTCC Builder
 
-_This README was last revised on 3rd of March 2021_
+_This README was last revised on 22nd of March 2022_
 
-The Digital Twin Cities Platform is an open-source platform for the
-exploration of digital twins for cities. The platform is developed and
-maintained by the Digital Twin Cities Centre (DTCC) hosted by Chalmers
-University of Technology. The aim is to develop an open multimodal
-data, modeling, simulation and visualization platform for interactive
-planning, design, exploration, experimentation, and optimization of
-cities.
+The DTCC Platform is an open-source platform for the exploration of
+digital twins for cities. The platform is developed and maintained by
+the Digital Twin Cities Centre (DTCC) hosted by Chalmers University of
+Technology. The aim is to develop an open multimodal data, modeling,
+simulation and visualisation platform for interactive planning,
+design, exploration, experimentation, and optimisation of cities.
 
-This repository (Core) provides software for data processing,
-modeling, and simulation.
+This repository, DTCC Builder, provides software for generation of 3D
+models (meshes) from raw data.
 
 ![](images/hammarkullen.jpg)
 
@@ -28,19 +27,20 @@ for development and testing purposes.
 
 To download the software, clone the repository by the following command:
 
-    git clone https://gitlab.com/dtcc3d/core.git
+    git clone https://gitlab.com/dtcc-platform/dtcc-builder.git
 
 Alternatively, you may want to use the SSH protocol:
 
-    git clone git@gitlab.com:dtcc3d/core.git
+    git clone git@gitlab.com:dtcc-platform/dtcc-builder.git
 
-This will create a directory named `core` containing the full source code.
+This will create a directory named `dtcc-builder` containing the full
+source code.
 
 **Note:** If you are using Windows, you might first want to make sure
 that Git does not convert Unix-style file endings on checkout. This
 can be accomplished by:
 
-    git config --global core.autocrlf false
+    git config --global dtcc-builder.autocrlf false
 
 ### Building the Docker container
 
@@ -125,7 +125,7 @@ info.
 
 ### Building and installing
 
-To build core, use a standard out-of-source CMake build by issuing the
+To build, use a standard out-of-source CMake build by issuing the
 following commands from the top level directory:
 
     mkdir build
@@ -197,8 +197,8 @@ WIP: Describe CityJSON format.
 
 ### Coordinate system
 
-Core uses meters as a unit of length, relative to the SWEREF99 TM
-(EPSG:3006) coordinate system.
+The unit of length is metres relative to the SWEREF99 TM (EPSG:3006)
+coordinate system.
 
 ## Parameters
 
