@@ -50,7 +50,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     moreutils \
     unzip \
-    jq
+    jq \
+    uuid-dev
 
 # Get and compile LASZip
 RUN git clone -n https://github.com/LASzip/LASzip.git
@@ -59,10 +60,10 @@ RUN mkdir /usr/local/include/laszip/ && mv /usr/local/include/las*.hpp /usr/loca
 
 # Get and compile libLAS with LASZip suppport
 
-#RUN git clone git://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && make install
+#RUN git clone https://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && make install
 #RUN ln -s /usr/local/lib/liblas.so.3 /usr/lib && ln -s /usr/local/lib/liblaszip.so.4 /usr/lib
 #Temp fix since make install has broken since 5/5/2020
-RUN git clone git://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && cp ./bin/Release/liblas.so* /usr/lib/ && cp ../include/* /usr/local/include/ -r
+RUN git clone https://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && cp ./bin/Release/liblas.so* /usr/lib/ && cp ../include/* /usr/local/include/ -r
 
 # Get and compile VTK 7.1
 
