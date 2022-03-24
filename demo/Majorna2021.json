@@ -17,7 +17,7 @@
     "RoofPercentile": 0.9,
     "OutlierMargin": 2.0,
     "GroundSmoothing": 2,
-    "NumRandomBuildings": 1000,
+    "NumRandomBuildings": 11585,
     "GenerateSurfaceMeshes": true,
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
