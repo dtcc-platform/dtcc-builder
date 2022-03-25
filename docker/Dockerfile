@@ -13,6 +13,7 @@ ENV DIR core
 #RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Add fenics and gdal repos
+# No longer needed for Ubuntu 20.04
 #RUN add-apt-repository ppa:fenics-packages/fenics
 #RUN add-apt-repository ppa:ubuntugis/ppa
 
@@ -63,7 +64,7 @@ RUN mkdir /usr/local/include/laszip/ && mv /usr/local/include/las*.hpp /usr/loca
 #RUN git clone https://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && make install
 #RUN ln -s /usr/local/lib/liblas.so.3 /usr/lib && ln -s /usr/local/lib/liblaszip.so.4 /usr/lib
 #Temp fix for Dag's fix
-RUN git clone https://github.com/dwastberg/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && cp ./bin/Release/liblas.so* /usr/lib/ && cp ../include/* /usr/local/include/ -r
+RUN git clone https://github.com/libLAS/libLAS.git && cd libLAS && mkdir build && cd build && cmake .. -DWITH_LASZIP=TRUE && make all -j 4 && cp ./bin/Release/liblas.so* /usr/lib/ && cp ../include/* /usr/local/include/ -r
 
 # Get and compile VTK 7.1
 
