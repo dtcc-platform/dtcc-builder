@@ -16,6 +16,12 @@ COPY install_scripts/ /
 # Install libraries used by DTCCore
 RUN ./install_packages.sh
 
+# Add /usr/local/lib into LD
+RUN ldconfig /usr/local/lib
+
+# Get and compile assimp
+RUN ./install_assimp.sh
+
 # Get and compile LASZip and liblas
 RUN ./install_libLAS.sh
 

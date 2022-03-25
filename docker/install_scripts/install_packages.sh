@@ -16,6 +16,9 @@ apt-get update && apt-get install -y \
     clang-tidy \
     doxygen graphviz\
     libgeotiff-dev\
+    zlib1g \
+    zlib1g-dev \
+    zlibc \
     automake\
     colordiff\
     libuuid1 \
