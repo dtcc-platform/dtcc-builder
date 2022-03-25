@@ -14,7 +14,7 @@ ENV DIR core
 
 # Add fenics and gdal repos
 #RUN add-apt-repository ppa:fenics-packages/fenics
-RUN add-apt-repository ppa:ubuntugis/ppa
+#RUN add-apt-repository ppa:ubuntugis/ppa
 
 # Install libraries used by DTCCore
 RUN apt-get update && apt-get install -y \
