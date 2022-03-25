@@ -30,7 +30,7 @@ find_package(PROJ4 REQUIRED)
 find_package(Triangle REQUIRED)
 find_package(netCDF REQUIRED)
 find_package(nlohmann_json REQUIRED)
-#find_package(assimp REQUIRED)
+find_package(assimp REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(PNG REQUIRED)
 
