@@ -1,65 +1,165 @@
-#include "JSON.h"
-#include "Mesh.h"
-#include "MeshField.h"
+// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
+// Licensed under the MIT License
+
+#include <string>
+#include <vector>
+
+// Needs to come before JSON (nlohmann) include because of sloppy
+// namespacing in VTK (typedef detail)...
 #include "VTK.h"
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkFloatArray.h>
-#include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkSmartPointer.h>
-#include <vtkStructuredGrid.h>
-#include <vtkXMLStructuredGridWriter.h>
+
+// DTCC includes
+#include "CityModelGenerator.h"
+#include "CommandLine.h"
+#include "ElevationModelGenerator.h"
+#include "GridField.h"
+#include "JSON.h"
+#include "LAS.h"
+#include "Logging.h"
+#include "Parameters.h"
+#include "Polygon.h"
+#include "SHP.h"
+#include "Timer.h"
+#include "VertexSmoother.h"
 
 using namespace DTCC;
 
-int main(int, char *[])
+void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
+
+int main(int argc, char *argv[])
 {
-  GridField2D dtm; //, dtm;
-  JSON::Read(dtm, "/home/dtcc/core/data/DTM.json");
-  // JSON::Read(dtm, "/home/dtcc/core/data/DTM.json");
-  std::cout << dtm.Grid.XSize << std::endl;
-  std::cout << dtm.Grid.YSize << std::endl;
-  std::cout << dtm.Grid.XStep << std::endl;
-  std::cout << dtm.Grid.YStep << std::endl;
-  std::cout << dtm.Values.size() << std::endl;
+  // Check command-line arguments
+  if (argc != 2)
+  {
+    Help();
+    return 1;
+  }
 
-  vtkSmartPointer<vtkStructuredGrid> structuredGrid =
-      vtkSmartPointer<vtkStructuredGrid>::New();
+  // Read parameters
+  Parameters p;
+  JSON::Read(p, argv[1]);
+  Info(p);
+  const std::string modelName = Utils::GetFilename(argv[1], true);
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  // Get data directory
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
 
-  // structuredGrid->SetDimensions(dtm.Grid.XSize, dtm.Grid.YSize,0);
-  structuredGrid->SetDimensions(dtm.Grid.XSize, dtm.Grid.YSize, 1);
+  // Start timer
+  Timer timer("Step 1: Generate city model");
 
-  for (uint i = 0; i < dtm.Grid.XSize; ++i)
-    for (uint j = 0; j < dtm.Grid.YSize; ++j)
-    {
-      {
-        points->InsertNextPoint(i * dtm.Grid.XStep, j * dtm.Grid.YStep, 0);
-      }
-    }
+  // Read property map
+  std::vector<Polygon> footprints;
+  std::vector<std::string> UUIDs;
+  std::vector<int> entityIDs;
+  SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
+  Info("Loaded " + str(footprints.size()) + " building footprints");
 
-  std::cout << "Done doing the points" << std::endl;
+  // Set bounding box
+  BoundingBox2D bbox;
+  Point2D O;
+  if (p["AutoDomain"])
+  {
+    bbox = BoundingBox2D(footprints, p["DomainMargin"]);
+    Info("Bounding box of footprints: " + str(bbox));
+    BoundingBox2D lasBBox;
+    LAS::BoundsDirectory(lasBBox, dataDirectory);
+    Info("Bounding box of point cloud: " + str(lasBBox));
+    bbox.Intersect(lasBBox);
+    O = bbox.P;
+    p["X0"] = O.x;
+    p["Y0"] = O.y;
+    p["XMin"] = 0.0;
+    p["YMin"] = 0.0;
+    p["XMax"] = bbox.Q.x - bbox.P.x;
+    p["YMax"] = bbox.Q.y - bbox.Q.y;
+  }
+  else
+  {
+    O = Point2D(p["X0"], p["Y0"]);
+    const double xMin = p["XMin"];
+    const double xMax = p["XMax"];
+    const double yMin = p["YMin"];
+    const double yMax = p["YMax"];
+    const Point2D P{O.x + xMin, O.y + yMin};
+    const Point2D Q{O.x + xMax, O.y + yMax};
+    bbox = BoundingBox2D(P, Q);
+  }
 
-  structuredGrid->SetPoints(points);
-  std::cout << "Done copying the points" << std::endl;
+  // Check size of bounding box
+  Info("Bounding box of city model: " + str(bbox));
+  if (bbox.Area() < 100.0)
+  {
+    Error("Domain too small to generate a city model");
+    return 1;
+  }
 
-  vtkFloatArray *Values = vtkFloatArray::New();
-  Values->SetName("Values");
-  for (uint i = 0; i < dtm.Values.size(); i++)
-    Values->InsertTuple1(i, dtm.Values[i]);
-  structuredGrid->GetPointData()->SetScalars(Values);
-  std::cout << "Done with tuples" << std::endl;
+  // Read point cloud (only points inside bounding box)
+  /*
+  PointCloud pointCloud;
+  LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
 
-  // Write file
-  vtkSmartPointer<vtkXMLStructuredGridWriter> writer =
-      vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
-  writer->SetFileName("output2.vts");
-  writer->SetInputData(structuredGrid);
-  writer->Write();
+  // Check point cloud
+  if (pointCloud.Empty())
+    Error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, "
+          "Y{0,Min,Max} values in Parameters.json");
+  pointCloud.SetOrigin(O);
+  Info(pointCloud);
 
-  VTK::Write(dtm, "output_VTK.vts");
+  // Remove outliers from point cloud
+  PointCloudProcessor::RemoveOutliers(pointCloud, p["OutlierMargin"]);
 
-  return EXIT_SUCCESS;
+  // Generate DTM (excluding buildings and other objects)
+  GridField2D dtm;
+  ElevationModelGenerator::GenerateElevationModel(
+      dtm, pointCloud, {2, 9}, p["ElevationModelResolution"]);
+  Info(dtm);
+
+  // Generate DSM (including buildings and other objects)
+  GridField2D dsm;
+  ElevationModelGenerator::GenerateElevationModel(
+      dsm, pointCloud, {}, p["ElevationModelResolution"]);
+  Info(dsm);
+
+  // Smooth elevation model (only done for DTM)
+  VertexSmoother::SmoothField(dtm, p["GroundSmoothing"]);
+
+  // Generate raw city model
+  CityModel cityModel;
+  cityModel.Name = modelName;
+  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
+                                        bbox, p["MinBuildingDistance"]);
+  cityModel.SetOrigin(O);
+  Info(cityModel);
+
+  // Clean city model and compute heights
+  CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
+  CityModelGenerator::ExtractBuildingPoints(
+      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"]);
+  CityModelGenerator::ComputeBuildingHeights(
+      cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
+
+  // Stop timer
+  timer.Stop();
+
+  // Write JSON
+  if (p["WriteJSON"])
+  {
+    JSON::Write(dtm, dataDirectory + "DTM.json", O);
+    JSON::Write(dsm, dataDirectory + "DSM.json", O);
+    JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
+  }
+
+  // Write VTK
+  if (p["WriteVTK"])
+  {
+    VTK::Write(dtm, dataDirectory + "DTM.vts");
+    VTK::Write(dsm, dataDirectory + "DSM.vts");
+  }
+
+  // Report timings and parameters
+  Timer::Report("dtcc-generate-citymodel", dataDirectory);
+  Info(p);
+  */
+  return 0;
 }
