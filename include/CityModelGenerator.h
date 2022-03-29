@@ -500,6 +500,26 @@ public:
     return building;
   }
 
+  static void BuildingPointsOurlierRemover(CityModel &cityModel,
+                                           size_t neighbours,
+                                           double outlierMargin,
+                                           bool verbose = false)
+  {
+    Info("CityModelGenerator: BuildingPointsOurlierRemover");
+    Timer("BuildingPointsOurlierRemover");
+    size_t totalRemoved = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      size_t beforeFilter = building.RoofPoints.size();
+      PointCloudProcessor::StatisticalOutlierRemover(
+          building.RoofPoints, neighbours, outlierMargin, verbose);
+      totalRemoved += (beforeFilter - building.RoofPoints.size());
+    }
+    Info("BuildingPointsOutlierRemove filtered a total of " +
+         str(totalRemoved) + " points from  " +
+         str(cityModel.Buildings.size()) + " buildings");
+  }
+
 private:
   // Get percentile object from array. It is assumed that the array is ordered.
   template <class T>
