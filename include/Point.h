@@ -29,6 +29,17 @@ namespace DTCC
     /// @param y Second coordinate
     Point2D(double x, double y) : x(x), y(y) {}
 
+    double operator[](int idx) const
+    {
+      if (idx == 0)
+        return x;
+      if (idx == 1)
+        return y;
+      throw std::out_of_range("Out of bounds");
+    }
+
+    size_t size() const { return 2; }
+
     /// Pretty-print
     std::string __str__() const override
     {
@@ -60,6 +71,19 @@ namespace DTCC
     /// @param y Second coordinate
     /// @param z Third coordinate
     Point3D(double x, double y, double z) : x(x), y(y), z(z) {}
+
+    double operator[](int idx) const
+    {
+      if (idx == 0)
+        return x;
+      if (idx == 1)
+        return y;
+      if (idx == 2)
+        return z;
+      throw std::out_of_range("Out of bounds");
+    }
+
+    size_t size() const { return 3; }
 
     /// Pretty-print
     std::string __str__() const override
