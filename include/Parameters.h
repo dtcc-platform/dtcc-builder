@@ -50,6 +50,9 @@ public:
     Add("GroundPercentile", 0.1);
     Add("RoofPercentile", 0.9);
     Add("OutlierMargin", 0.2);
+    Add("BuildingRemoveOutlier", false);
+    Add("OutlierNeighbors", 6);
+    Add("OutlierSTD", 2.0);
 
     Add("DataDirectory", "");
   }

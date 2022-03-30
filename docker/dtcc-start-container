@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
 docker start dtcc
+echo $OSTYPE
+if [[ $OSTYPE == *"linux"* ]]
+then
+echo "Linux detected..."
 docker exec --user "$(id -u):$(id -g)" -it dtcc bash # breaks user permissions on Mac
+else
+echo "Non-linux (propably MacOS) detected..."
 docker attach dtcc
+fi

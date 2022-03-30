@@ -48,6 +48,7 @@ public:
     if (Type != ParameterType::Bool)
       Error("Unable to set parameter \"" + Key + "\"; not a bool parameter");
     valueBool = value;
+    return *this;
   }
 
   /// Set int value
@@ -56,6 +57,7 @@ public:
     if (Type != ParameterType::Int)
       Error("Unable to set parameter \"" + Key + "\"; not an int parameter");
     valueInt = value;
+    return *this;
   }
 
   /// Set float value
@@ -64,6 +66,7 @@ public:
     if (Type != ParameterType::Float)
       Error("Unable to set parameter \"" + Key + "\"; not a float parameter");
     valueFloat = value;
+    return *this;
   }
 
   /// Set string value
@@ -72,6 +75,7 @@ public:
     if (Type != ParameterType::String)
       Error("Unable to set parameter \"" + Key + "\"; not a string parameter");
     valueString = value;
+    return *this;
   }
 
   /// Set string value (handle string literals, will otherwise go to bool)
@@ -80,6 +84,7 @@ public:
     if (Type != ParameterType::String)
       Error("Unable to set parameter \"" + Key + "\"; not a string parameter");
     valueString = std::string(value);
+    return *this;
   }
 
   /// Return bool value
