@@ -178,7 +178,10 @@ public:
   static void ExtractBuildingPoints(CityModel &cityModel,
                                     const PointCloud &pointCloud,
                                     double groundMargin,
-                                    double outlierMargin)
+                                    double groundOutlierMargin,
+                                    size_t outlierNeighbors = 0,
+                                    double buildingOutlierThreshold = 0.0)
+
   {
     Info("CityModelGenerator: Extracting building points...");
     Timer timer("ExtractBuildingPoints");
@@ -233,36 +236,40 @@ public:
       }
     }
 
-    // Remove outliers
-    size_t numPoints = 0;
-    size_t numOutliers = 0;
+    // Remove ground outliers
+    size_t numGroundPoints = 0;
+    size_t numGroundOutliers = 0;
     for (auto &building : cityModel.Buildings)
     {
       // Count total number of points
-      numPoints += building.GroundPoints.size();
-      numPoints += building.RoofPoints.size();
+      numGroundPoints += building.GroundPoints.size();
 
       // Remove outliers and count total number of outliers
-      numOutliers += PointCloudProcessor::RemoveOutliers(building.GroundPoints,
-                                                         outlierMargin)
-                         .size();
-      numOutliers += PointCloudProcessor::RemoveOutliers(building.RoofPoints,
-                                                         outlierMargin)
-                         .size();
+      numGroundOutliers += PointCloudProcessor::RemoveOutliers(
+                               building.GroundPoints, groundOutlierMargin)
+                               .size();
     }
-    const double outlierPercentage = (100.0 * numOutliers) / numPoints;
-    Info("CityModelGenerator: Removed outliers (" + str(outlierPercentage) +
-         "%)");
+    const double outlierGroundPercentage =
+        (100.0 * numGroundOutliers) / numGroundPoints;
+    Info("CityModelGenerator: Removed ground point outliers (" +
+         str(outlierGroundPercentage) + "%)");
+
+    // Remove roof outliers
+    if (outlierNeighbors > 0)
+    {
+      CityModelGenerator::BuildingPointsOutlierRemover(
+          cityModel, outlierNeighbors, buildingOutlierThreshold);
+    }
 
     // Sort points by height
     for (auto &building : cityModel.Buildings)
     {
-      std::sort(
-          building.GroundPoints.begin(), building.GroundPoints.end(),
-          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
-      std::sort(
-          building.RoofPoints.begin(), building.RoofPoints.end(),
-          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
+      std::sort(building.GroundPoints.begin(), building.GroundPoints.end(),
+                [](const Point3D &p, const Point3D &q) -> bool
+                { return p.z < q.z; });
+      std::sort(building.RoofPoints.begin(), building.RoofPoints.end(),
+                [](const Point3D &p, const Point3D &q) -> bool
+                { return p.z < q.z; });
     }
 
     // Compute some statistics
@@ -500,13 +507,13 @@ public:
     return building;
   }
 
-  static void BuildingPointsOurlierRemover(CityModel &cityModel,
+  static void BuildingPointsOutlierRemover(CityModel &cityModel,
                                            size_t neighbours,
                                            double outlierMargin,
                                            bool verbose = false)
   {
-    Info("CityModelGenerator: BuildingPointsOurlierRemover");
-    Timer("BuildingPointsOurlierRemover");
+    Info("CityModelGenerator: BuildingPointsOutlierRemover");
+    Timer("BuildingPointsOutlierRemover");
     size_t totalRemoved = 0;
     for (auto &building : cityModel.Buildings)
     {

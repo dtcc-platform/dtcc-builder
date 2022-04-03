@@ -134,13 +134,8 @@ int main(int argc, char *argv[])
   // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
   CityModelGenerator::ExtractBuildingPoints(
-      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"]);
-
-  if (p["BuildingRemoveOutlier"])
-  {
-    CityModelGenerator::BuildingPointsOurlierRemover(
-        cityModel, p["OutlierNeighbors"], p["OutlierSTD"]);
-  }
+      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"],
+      p["OutlierNeighbors"], p["OutlierSTD"]);
 
   CityModelGenerator::ComputeBuildingHeights(
       cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
