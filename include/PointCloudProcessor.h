@@ -293,7 +293,7 @@ public:
                            double outlierMargin,
                            bool verbose = false)
   {
-    Timer("StatisticalOurlierFinder");
+    Timer("StatisticalOurtierFinder");
     // Check that we have enough points
     if (points.size() <= neighbours)
       return std::vector<size_t>();
@@ -350,7 +350,7 @@ public:
                                         double outlierMargin,
                                         bool verbose = false)
   {
-    Timer("StatisticalOurlierRemover");
+    Timer("StatisticalOurtierRemover");
     std::vector<size_t> outliers =
         StatisticalOutlierFinder(points, neighbours, outlierMargin, verbose);
     std::vector<Point3D> newPoints;
