@@ -18,7 +18,7 @@
 #include "Vector.h"
 #include "datamodel/CityModel.h"
 
-#include "external/KDTreeVectorOfVectorsAdaptor.h"
+#include "KDTreeVectorOfVectorsAdaptor.h"
 
 namespace DTCC
 {

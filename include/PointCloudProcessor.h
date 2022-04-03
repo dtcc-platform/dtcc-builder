@@ -22,33 +22,36 @@ public:
   // and in range 0-255
   static void ColorFromImage(PointCloud &pointCloud, const GeoRaster &raster)
   {
-      double r,g,b;
-      pointCloud.Colors.clear();
+    double r, g, b;
+    pointCloud.Colors.clear();
 
-      for (auto p: pointCloud.Points) {
-        Point2D p2d = Point2D(p.x,p.y);
-        try
-        {
-          r = raster(p2d,1);
-          g = raster(p2d,2);
-          b = raster(p2d,3);
-          r /= 255;
-          g /= 255;
-          b /= 255;
-        } catch (const std::runtime_error& error)
-        {
-          // point outside of raster
-          r = 0.0;
-          g = 0.0;
-          b = 0.0;
-        }
-
-        pointCloud.Colors.push_back(Color(r,g,b));
+    for (auto p : pointCloud.Points)
+    {
+      Point2D p2d = Point2D(p.x, p.y);
+      try
+      {
+        r = raster(p2d, 1);
+        g = raster(p2d, 2);
+        b = raster(p2d, 3);
+        r /= 255;
+        g /= 255;
+        b /= 255;
+      }
+      catch (const std::runtime_error &error)
+      {
+        // point outside of raster
+        r = 0.0;
+        g = 0.0;
+        b = 0.0;
       }
 
+      pointCloud.Colors.push_back(Color(r, g, b));
+    }
   }
 
-  static PointCloud ClassificationFilter(const PointCloud &pointCloud, const std::vector<int> &classifications)
+  static PointCloud
+  ClassificationFilter(const PointCloud &pointCloud,
+                       const std::vector<int> &classifications)
   {
     PointCloud outCloud;
     size_t pointCount = pointCloud.Points.size();
