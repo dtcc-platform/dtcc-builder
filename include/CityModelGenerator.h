@@ -18,6 +18,8 @@
 #include "Vector.h"
 #include "datamodel/CityModel.h"
 
+#include "external/KDTreeVectorOfVectorsAdaptor.h"
+
 namespace DTCC
 {
 
@@ -194,45 +196,44 @@ public:
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
       Error("Missing classifications for point cloud");
 
-    // Build search trees
-    pointCloud.BuildSearchTree(true);
-    cityModel.BuildSearchTree(true, groundMargin);
-
-    // Compute bounding box tree collisions
-    const auto collisions = pointCloud.bbtree.Find(cityModel.bbtree);
-
-    // Clear old building points (if any)
+    // build a kd-tree for radius search
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+                                         2 /* dims */>
+        my_kd_tree_t;
+    my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
     for (auto &building : cityModel.Buildings)
     {
       building.GroundPoints.clear();
       building.RoofPoints.clear();
-    }
 
-    // Squared margin for detecting ground points
-    const double d2 = groundMargin * groundMargin;
+      auto centerPoint = Geometry::PolygonCenter2D(building.Footprint);
+      double radius =
+          Geometry::PolygonRadius2D(building.Footprint, centerPoint);
+      radius *= radius;
+      radius += groundMargin;
 
-    // Iterate over collisions and extract points
-    for (auto &index : collisions)
-    {
-      // Get point and building
-      const Point3D &p3D = pointCloud.Points[index.first];
-      const Point2D p2D{p3D.x, p3D.y};
-      const uint8_t clf = pointCloud.Classifications[index.first];
-      Building &building = cityModel.Buildings[index.second];
-
-      // Check for ground points
-      if (clf == 2 || clf == 9)
+      std::vector<double> query_pt{centerPoint.x, centerPoint.y};
+      auto radius_t = Timer("RadiusQuery");
+      auto indices_dists = pc_index.radiusQuery(&query_pt[0], radius);
+      radius_t.Stop();
+      for (auto const &ind_pt : indices_dists)
       {
-        if (Geometry::SquaredDistance2D(building.Footprint, p2D) < d2)
+        size_t idx = ind_pt.first;
+        const uint8_t clf = pointCloud.Classifications[idx];
+        const Point3D &p3D = pointCloud.Points[idx];
+        const Point2D p2D{p3D.x, p3D.y};
+
+        if (clf == 2 || clf == 9)
+        {
           building.GroundPoints.push_back(p3D);
-      }
-
-      // Check for roof points
-      // else if (clf == 6)
-      else
-      {
-        if (Geometry::PolygonContains2D(building.Footprint, p2D))
-          building.RoofPoints.push_back(p3D);
+        }
+        else
+        {
+          if (Geometry::PolygonContains2D(building.Footprint, p2D))
+          {
+            building.RoofPoints.push_back(p3D);
+          }
+        }
       }
     }
 
