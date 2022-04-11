@@ -14,6 +14,7 @@ BLUE = '#1F95BA'
 GREY = '#3a3a3a'
 
 TOL = 0.1
+EPS = 1e-02
 
 def Polygon(coordinates):
     return polygons(coordinates)
@@ -304,21 +305,93 @@ def ComputeVertexProjections(A, B, tol):
 
     return projections
 
+def IsValid(C):
+    return len(get_parts(C)) == 1 and minimum_clearance(C) > TOL
+
 def MergePolygons(A, B):
-    pAB = ComputeVertexProjections(A, B, 0.5)
-    pBA = ComputeVertexProjections(B, A, 0.5)
-    projections = pAB + pBA
-    C = convex_hull(polygons(projections))
-    pm = union_all([A, B, C])
-    return pm
+
+    # Simplify geometries
+    A = simplify(A, TOL)
+    B = simplify(B, TOL)
+
+    print('Minimum clearance A:', minimum_clearance(A))
+    print('Minimum clearance B:', minimum_clearance(B))
+
+    # Compute union
+    C = union(A, B, grid_size=EPS)
+    C = simplify(C, TOL)
+
+    # Accept if single geometry and good quality
+    if IsValid(C):
+        print('Using union')
+        return C
+
+    # Gradually increase tolerance for mergin
+    tol = TOL
+    maxiter = 3
+    for k in range(maxiter):
+
+        # Compute vertex projections
+        pAB = ComputeVertexProjections(A, B, tol)
+        pBA = ComputeVertexProjections(B, A, tol)
+        projections = pAB + pBA
+
+        # Check that we have at least vertices
+        if len(projections) >= 3:
+
+            # Compute convex hull of projections
+            P = convex_hull(polygons(projections))
+
+            # Compute union
+            C = union_all([A, B, P], grid_size=EPS)
+            C = simplify(C, TOL)
+
+            # Accept if single geonetry and good quality
+            if IsValid(C):
+                print('Using extended union')
+                return C
+
+        # Increase tolerance
+        tol *= 2
+        print('Increasing tolerance: tol =', tol)
+
+    # Try merging convex hulls
+    A = convex_hull(A)
+    B = convex_hull(B)
+    C = union(A, B, grid_size=EPS)
+    C = simplify(C, TOL)
+    if IsValid(C):
+        print('Using union of convex hulls')
+        return C
+
+    # Return convex hull
+    C = union(A, B)
+    C = convex_hull(C)
+    C = simplify(C, TOL)
+
+    print('Using convex hull')
+    return C
 
 def RunTestCase(testCase):
 
     # Create polygons
     p0, p1, title = testCase()
 
+    print(title)
+    print('-' * len(title))
+
     # Merge polygons
     pm = MergePolygons(p0, p1)
+
+    # Compute minimum clearance (measure of quality)
+    q0 = minimum_clearance(p0)
+    q1 = minimum_clearance(p1)
+    qm = minimum_clearance(pm)
+
+    print('Minimum clearance p0:', q0)
+    print('Minimum clearance p1:', q1)
+    print('Minimum clearance pm:', qm)
+    print('')
 
     # Get vertices (note: multipolygons)
     v0 = GetVertices(p0)
@@ -341,8 +414,6 @@ def RunTestCase(testCase):
         fill(x, y, '-o', alpha=0.75, color=ORANGE)
     for x, y in v1:
         fill(x, y, '-o', alpha=0.75, color=BLUE)
-    axis(_axis)
-    #subplot(1, 2, 2)
     for x, y in vm:
         plot(x, y, '--o', color=GREY)
     axis(_axis)
@@ -350,19 +421,19 @@ def RunTestCase(testCase):
 
 if __name__ == '__main__':
 
-    #RunTestCase(TestCase0)
-    #RunTestCase(TestCase1)
-    #RunTestCase(TestCase2)
-    #RunTestCase(TestCase3)
-    #RunTestCase(TestCase4)
-    #RunTestCase(TestCase5)
-    #RunTestCase(TestCase6)
-    #RunTestCase(TestCase7)
+    RunTestCase(TestCase0)
+    RunTestCase(TestCase1)
+    RunTestCase(TestCase2)
+    RunTestCase(TestCase3)
+    RunTestCase(TestCase4)
+    RunTestCase(TestCase5)
+    RunTestCase(TestCase6)
+    RunTestCase(TestCase7)
     RunTestCase(TestCase8)
     RunTestCase(TestCase9)
-    #RunTestCase(TestCase10)
-    #RunTestCase(TestCase11)
-    #RunTestCase(TestCase12)
-    #RunTestCase(TestCase13)
+    RunTestCase(TestCase10)
+    RunTestCase(TestCase11)
+    RunTestCase(TestCase12)
+    RunTestCase(TestCase13)
 
     show()
