@@ -16,10 +16,50 @@
 #include "Parameters.h"
 #include "VTK.h"
 #include "VertexSmoother.h"
+#include "cityjson/CityJSON.h"
 
 using namespace DTCC;
 
 void Help() { Error("Usage: dtcc-generate-simulation-mesh Parameters.json"); }
+
+void GenerateCityJSONFromSurfaces(CityJSON& cityJson, const std::vector<Surface3D> &surfaces)
+{
+  //Assigning index as object id later on
+  int buildingIndex=0;
+  for(auto surface : surfaces)
+  { 
+    //Storing current vertices num.
+    //Each surface face contains relevant indices to the owning surface.
+    //CityJson contains all vertices in a single array so we need to correlate local indices to global
+    int vertexIDOffset = cityJson.Vertices.size();
+
+    //Saving all vertices
+    for(auto v : surface.Vertices)
+    {
+      cityJson.Vertices.push_back(v);
+    }
+
+    CityObject cityObj=CityObject(std::to_string(buildingIndex));
+    cityObj.ObjectType=CityObject::CityObjectType::Building;
+
+    //Converting faces to building bounaries
+    std::vector<CityObject::Geometry::Boundary> buildingBoundaries;
+    for(auto face : surface.Faces)
+    {
+      CityObject::Geometry::Boundary boundary;
+      //Appling offset to match global vertex ID
+      boundary.BoundariesIDs.push_back(static_cast<uint>(face.v0 + vertexIDOffset));
+      boundary.BoundariesIDs.push_back(static_cast<uint>(face.v1 + vertexIDOffset));
+      boundary.BoundariesIDs.push_back(static_cast<uint>(face.v2 + vertexIDOffset));
+      buildingBoundaries.push_back(boundary);
+    }
+    CityObject::Geometry buildingGeometry;
+    buildingGeometry.Boundaries = buildingBoundaries;
+    cityObj.ObjectGeometry = buildingGeometry;
+    cityJson.CityObjects.push_back(cityObj);
+    buildingIndex++;
+  }
+}
 
 // Generate surface meshes (non-matching, used for visualization)
 void GenerateSurfaceMeshes(const CityModel &cityModel,
@@ -49,6 +89,13 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
     JSON::Write(groundSurface, dataDirectory + "GroundSurface.json", origin);
     JSON::Write(buildingSurface, dataDirectory + "BuildingSurface.json",
                 origin);
+  }
+
+  if (p["WriteCityJSON"])
+  {
+    CityJSON cityJson;
+    GenerateCityJSONFromSurfaces(cityJson, buildingSurfaces);
+    JSON::Write(cityJson, dataDirectory + "Buildings.city.json");
   }
 
   // Write data for debugging and visualization

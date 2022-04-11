@@ -29,6 +29,7 @@ public:
     Add("GenerateVolumeMeshes", true);
     Add("WriteJSON", true);
     Add("WriteVTK", true);
+    Add("WriteCityJSON",true);
     Add("Debug", false);
 
     Add("GroundSmoothing", 5);
