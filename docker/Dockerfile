@@ -1,7 +1,9 @@
 # This file builds the Docker image for the Digital Twin Cities Platform
 
 # Use Phusion base image (minimal Docker-friendly Ubuntu)
-FROM phusion/baseimage:master as base
+FROM --platform=linux/amd64 phusion/baseimage:master as base
+#force amd64 since pypcu won't buid on ARM 
+
 
 # Set some variables
 ENV USER dtcc
@@ -15,6 +17,9 @@ COPY install_scripts/ /
 
 # Install libraries used by DTCCore
 RUN ./install_packages.sh
+
+# Install python and python packages
+RUN ./install_python.sh
 
 # Add /usr/local/lib into LD
 RUN ldconfig /usr/local/lib
