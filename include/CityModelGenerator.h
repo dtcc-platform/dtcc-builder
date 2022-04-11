@@ -8,6 +8,7 @@
 #include <queue>
 #include <vector>
 
+#include "GEOS.h"
 #include "GridField.h"
 #include "Plotting.h"
 #include "PointCloud.h"
@@ -611,6 +612,13 @@ private:
                              Building &building1,
                              double minimalBuildingDistance)
   {
+
+    Polygon mergedPolygonGEOS = GEOS::MergePolygons(
+        building0.Footprint, building1.Footprint, minimalBuildingDistance);
+
+    // FIXME: Testing
+    exit(0);
+
     // Compute merged polygon
     Polygon mergedPolygon = Polyfix::MergePolygons(
         building0.Footprint, building1.Footprint, minimalBuildingDistance);
