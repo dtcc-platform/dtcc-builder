@@ -54,15 +54,11 @@ public:
       GEOSCoordSeq_setY(sequence, i, polygon.Vertices[i % n].y);
     }
 
+    // Create polygon from coordinate sequence
     GEOSGeometry *ring = GEOSGeom_createLinearRing(sequence);
     GEOSGeometry *_polygon = GEOSGeom_createPolygon(ring, 0, 0);
 
-    Print(ring);
-    Print(_polygon);
-
-    // Cleanup
-
-    return 0;
+    return _polygon;
   }
 
   /// Merge polygons. This creates a new polygon that covers the
@@ -83,7 +79,12 @@ public:
     // FIXME: Figure out where to handle this
     initGEOS(geos_msg_handler, geos_msg_handler);
 
+    // Create GEOS polygons
     GEOSGeometry *A = CreatePolygon(polygon0);
+    GEOSGeometry *B = CreatePolygon(polygon1);
+
+    Print(A);
+    Print(B);
 
     // FIXME: Figure out where to handle this
     finishGEOS();

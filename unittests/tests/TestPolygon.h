@@ -7,7 +7,7 @@ using namespace DTCC;
 
 TEST_CASE("Polygon Geometry")
 {
-  SECTION("Polgon Area")
+  SECTION("Polygon Area")
   {
     Polygon polygon;
     polygon.Vertices.push_back(Point2D(0, 0));
