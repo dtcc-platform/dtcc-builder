@@ -32,5 +32,4 @@ apt-get update && apt-get install -y \
     moreutils \
     unzip \
     jq \
-    uuid-dev \
-    libgeos++-dev
+    uuid-dev

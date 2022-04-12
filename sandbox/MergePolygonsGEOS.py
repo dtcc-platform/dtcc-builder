@@ -14,7 +14,7 @@ BLUE = '#1F95BA'
 GREY = '#3a3a3a'
 
 TOL = 0.1
-EPS = 1e-02
+EPS = 1e-03
 
 def Polygon(coordinates):
     return polygons(coordinates)
@@ -424,8 +424,8 @@ def RunTestCase(testCase):
 
 if __name__ == '__main__':
 
-    RunTestCase(TestCase0)
-    RunTestCase(TestCase1)
+    #RunTestCase(TestCase0)
+    #RunTestCase(TestCase1)
     #RunTestCase(TestCase2)
     #RunTestCase(TestCase3)
     #RunTestCase(TestCase4)
@@ -433,7 +433,7 @@ if __name__ == '__main__':
     #RunTestCase(TestCase6)
     #RunTestCase(TestCase7)
     #RunTestCase(TestCase8)
-    #RunTestCase(TestCase9)
+    RunTestCase(TestCase9)
     #RunTestCase(TestCase10)
     #RunTestCase(TestCase11)
     #RunTestCase(TestCase12)
