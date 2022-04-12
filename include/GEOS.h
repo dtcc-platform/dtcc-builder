@@ -59,8 +59,8 @@ public:
     GEOSFree(out);
   }
 
-  /// Create GEOS polygon from Polygon
-  static GEOSGeometry *CreatePolygon(const Polygon &polygon)
+  /// Create GEOS geoemetry from Polygon
+  static GEOSGeometry *CreateGeometry(const Polygon &polygon)
   {
     // Check that polygon is not empty
     const size_t n = polygon.Vertices.size();
@@ -78,9 +78,16 @@ public:
 
     // Create polygon from coordinate sequence
     GEOSGeometry *ring = GEOSGeom_createLinearRing(sequence);
-    GEOSGeometry *_polygon = GEOSGeom_createPolygon(ring, 0, 0);
+    GEOSGeometry *geometry = GEOSGeom_createPolygon(ring, 0, 0);
 
-    return _polygon;
+    return geometry;
+  }
+
+  /// Create Polygon from GEOS geometry
+  static Polygon CreatePolygon(const GEOSGeometry *geometry)
+  {
+    Polygon p;
+    return p;
   }
 
   /// Merge polygons. This creates a new polygon that covers the
@@ -101,9 +108,9 @@ public:
     // FIXME: Shouldn't be here
     const double EPS = 0.01;
 
-    // Create GEOS polygons
-    GEOSGeometry *A = CreatePolygon(polygon0);
-    GEOSGeometry *B = CreatePolygon(polygon1);
+    // Create GEOS geometries
+    GEOSGeometry *A = CreateGeometry(polygon0);
+    GEOSGeometry *B = CreateGeometry(polygon1);
 
     // Simplify geometries
     GEOSGeometry *_A = GEOSSimplify(A, tol);
@@ -113,6 +120,93 @@ public:
     GEOSGeometry *C = GEOSUnionPrec(A, B, EPS);
     GEOSGeometry *_C = GEOSSimplify(C, tol);
 
+    // Geometry to be created
+    GEOSGeometry *geometry{};
+
+    // Accept if polygon (not multi-polygon) and good quality
+    if (IsValid(_C, tol))
+    {
+      Info("Using union");
+      geometry = _C;
+    }
+
+    // If not acceptable, try gradually increase tolerance
+    if (geometry == 0)
+    {
+      double _tol = tol;
+      const size_t maxiter = 3;
+      for (size_t k = 0; k < maxiter; k++)
+      {
+        // Compute vertex projections
+        std::vector<Vector2D> projections{};
+        ComputeVertexProjections(_A, _B, tol, projections);
+        ComputeVertexProjections(_B, _A, tol, projections);
+
+        // Check that we have at least three vertices
+        if (projections.size() >= 3)
+        {
+          // Create GEOS geometry for projections
+          GEOSCoordSequence *sequence =
+              GEOSCoordSeq_create(projections.size(), 2);
+          for (size_t i = 0; i < projections.size(); i++)
+          {
+            GEOSCoordSeq_setX(sequence, i, projections[i].x);
+            GEOSCoordSeq_setY(sequence, i, projections[i].y);
+          }
+          GEOSGeometry *string = GEOSGeom_createLineString(sequence);
+
+          // Compute convex hull of projections
+          GEOSGeometry *P = GEOSConvexHull(string);
+
+          // Compute union
+          GEOSGeometry *AB = GEOSUnionPrec(_A, _B, EPS);
+          GEOSGeometry *D = GEOSUnionPrec(AB, P, EPS);
+          GEOSGeometry *_D = GEOSSimplify(D, tol);
+
+          // Accept if single geonetry and good quality
+          if (IsValid(_D, tol))
+          {
+            Info("Using extended union");
+            geometry = _D;
+            break;
+          }
+        }
+
+        // Increase tolerance
+        _tol *= 2;
+        std::cout << "Increasing tolerance: tol = " << _tol << std::endl;
+      }
+    }
+
+    // If not acceptable, try merging convex hulls
+    if (geometry == 0)
+    {
+      GEOSGeometry *HA = GEOSConvexHull(_A);
+      GEOSGeometry *HB = GEOSConvexHull(_B);
+      GEOSGeometry *D = GEOSUnionPrec(HA, HB, EPS);
+      GEOSGeometry *_D = GEOSSimplify(D, tol);
+
+      // Accept if single geonetry and good quality
+      if (IsValid(_D, tol))
+      {
+        Info("Using union of convex hulls");
+        geometry = _D;
+      }
+    }
+
+    // If not acceptable, use convex hull
+    if (geometry == 0)
+    {
+      GEOSGeometry *_AB = GEOSUnionPrec(_A, _B, EPS);
+      GEOSGeometry *H = GEOSConvexHull(_AB);
+      GEOSGeometry *_H = GEOSSimplify(H, tol);
+      geometry = _H;
+    }
+
+    // Convert to polygon
+    Print(geometry);
+    Polygon polygon = CreatePolygon(geometry);
+
     // Cleanup
     GEOSGeom_destroy(A);
     GEOSGeom_destroy(B);
@@ -121,11 +215,158 @@ public:
     GEOSGeom_destroy(_B);
     GEOSGeom_destroy(_C);
 
-    Polygon p;
-    return p;
+    return polygon;
   }
-  };
 
-  } // namespace DTCC
+private:
+  // Check if geometry is valid
+  static bool IsValid(const GEOSGeometry *geometry, double tol)
+  {
+    // Get minimum clearance
+    double q{};
+    GEOSMinimumClearance(geometry, &q);
+
+    // Get type
+    const bool isPolygon = GEOSGeomTypeId(geometry) == GEOS_POLYGON;
+
+    return isPolygon && q > tol;
+  }
+
+  // Project vertices of polygon A on edges of polygon B if close
+  static void ComputeVertexProjections(const GEOSGeometry *A,
+                                       const GEOSGeometry *B,
+                                       double tol,
+                                       std::vector<Vector2D> &projections)
+  {
+    std::cout << "Computing vertex projections" << std::endl;
+
+    // Get vertices
+    const GEOSGeometry *rA = GEOSGetExteriorRing(A);
+    const GEOSGeometry *rB = GEOSGetExteriorRing(B);
+    const GEOSCoordSequence *vA = GEOSGeom_getCoordSeq(rA);
+    const GEOSCoordSequence *vB = GEOSGeom_getCoordSeq(rB);
+    const int nA = GEOSGetNumCoordinates(A);
+    const int nB = GEOSGetNumCoordinates(B);
+
+    // Iterate over vertices in A
+    for (int i = 0; i < (nA - 1); i++)
+    {
+      // Get vertex
+      Vector2D q{};
+      GEOSCoordSeq_getXY(vA, i, &q.x, &q.y);
+
+      // Iterate over edges in B
+      for (int j = 0; j < (nB - 1); j++)
+      {
+        // Get edge
+        Vector2D p0{}, p1{};
+        GEOSCoordSeq_getXY(vB, j, &p0.x, &p0.y);
+        GEOSCoordSeq_getXY(vB, j + 1, &p1.x, &p1.y);
+
+        // Project point to edge
+        Vector2D u = q - p0;
+        Vector2D v = p1 - p0;
+        Vector2D p = p0 + v * Geometry::Dot2D(u, v) / Geometry::Dot2D(v, v);
+
+        // Check whether projected point is inside segment. Check either
+        // x or y coordinates depending on which is largest (most stable)
+        bool inside{};
+        if (std::abs(v.x) > std::abs(v.y))
+          inside = std::min(p0.x, p1.x) <= p.x && p.x <= std::max(p0.x, p1.x);
+        else
+          inside = std::min(p0.y, p1.y) <= p.y && p.y <= std::max(p0.y, p1.y);
+
+        // Use either project or closest vertex
+        if (inside)
+        {
+          const double d = sqrt(Geometry::Dot2D(q - p, q - p));
+          if (d < tol)
+          {
+            projections.push_back(p);
+            projections.push_back(q);
+          }
+          else
+          {
+            const double d0 = sqrt(Geometry::Dot2D(q - p0, q - p0));
+            const double d1 = sqrt(Geometry::Dot2D(q - p1, q - p1));
+            if (d0 < d1 && d0 < tol)
+            {
+              projections.push_back(p0);
+              projections.push_back(q);
+            }
+            else if (d1 < tol)
+            {
+              projections.push_back(p1);
+              projections.push_back(q);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /*
+    # Simplify geometries
+    A = simplify(A, TOL)
+    B = simplify(B, TOL)
+
+    # Compute union
+    C = union(A, B, grid_size=EPS)
+    C = simplify(C, TOL)
+
+    # Accept if single geometry and good quality
+    if IsValid(C):
+    print('Using union')
+    return C
+
+    # Gradually increase tolerance for mergin
+    tol = TOL
+    maxiter = 3
+    for k in range(maxiter):
+
+    # Compute vertex projections
+    pAB = ComputeVertexProjections(A, B, tol)
+    pBA = ComputeVertexProjections(B, A, tol)
+    projections = pAB + pBA
+
+    # Check that we have at least vertices
+    if len(projections) >= 3:
+
+    # Compute convex hull of projections
+    P = convex_hull(polygons(projections))
+
+    # Compute union
+    C = union_all([A, B, P], grid_size=EPS)
+    C = simplify(C, TOL)
+
+    # Accept if single geonetry and good quality
+    if IsValid(C):
+    print('Using extended union')
+    return C
+
+    # Increase tolerance
+    tol *= 2
+    print('Increasing tolerance: tol =', tol)
+
+    # Try merging convex hulls
+    A = convex_hull(A)
+    B = convex_hull(B)
+    C = union(A, B, grid_size=EPS)
+    C = simplify(C, TOL)
+    if IsValid(C):
+    print('Using union of convex hulls')
+    return C
+
+    # Return convex hull
+    C = union(A, B)
+    C = convex_hull(C)
+    C = simplify(C, TOL)
+
+    print('Using convex hull')
+    return C
+  */
+};
+
+} // namespace DTCC
 
 #endif
