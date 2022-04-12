@@ -6,6 +6,7 @@ using namespace DTCC;
 TEST_CASE("GEOS::MergePolygons")
 {
   const double TOL = 0.1;
+  GEOS::Init();
 
   // Note: These are the same tests as in the sandbox scripts
   // MergePolygons.py and MergePolygonsGEOS.py.

@@ -310,6 +310,9 @@ def IsValid(C):
 
 def MergePolygons(A, B):
 
+    print(A)
+    print(B)
+
     # Simplify geometries
     A = simplify(A, TOL)
     B = simplify(B, TOL)
@@ -423,17 +426,17 @@ if __name__ == '__main__':
 
     RunTestCase(TestCase0)
     RunTestCase(TestCase1)
-    RunTestCase(TestCase2)
-    RunTestCase(TestCase3)
-    RunTestCase(TestCase4)
-    RunTestCase(TestCase5)
-    RunTestCase(TestCase6)
-    RunTestCase(TestCase7)
-    RunTestCase(TestCase8)
-    RunTestCase(TestCase9)
-    RunTestCase(TestCase10)
-    RunTestCase(TestCase11)
-    RunTestCase(TestCase12)
-    RunTestCase(TestCase13)
+    #RunTestCase(TestCase2)
+    #RunTestCase(TestCase3)
+    #RunTestCase(TestCase4)
+    #RunTestCase(TestCase5)
+    #RunTestCase(TestCase6)
+    #RunTestCase(TestCase7)
+    #RunTestCase(TestCase8)
+    #RunTestCase(TestCase9)
+    #RunTestCase(TestCase10)
+    #RunTestCase(TestCase11)
+    #RunTestCase(TestCase12)
+    #RunTestCase(TestCase13)
 
     show()
