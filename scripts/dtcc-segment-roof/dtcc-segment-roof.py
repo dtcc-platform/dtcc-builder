@@ -3,6 +3,7 @@ import numpy as np
 from pathlib import Path
 from shapely.geometry import LineString, Polygon, MultiPoint, Point
 import math
+from tqdm import tqdm
 
 from roof_segmentation import get_roof_segments
 
@@ -15,12 +16,13 @@ def get_roof_data(building):
 
 def segment_cityModel_roofs(cityModel):
     buildings = cityModel['Buildings']
-    for building in buildings:
+    for building in tqdm(buildings, desc = "segmenting roofs"):
         footprint, roofpoints = get_roof_data(building)
+        roof_segments = []
         if len(roofpoints) > 20 :
-            roof_segments = get_roof_segments(roofpoints,8,)
-            if len(roof_segments) > 0:
-                pass
+            roof_segments = get_roof_segments(roofpoints,8)
+        building["RoofSegments"] = roof_segments
+    return cityModel   
 
 
 if __name__ == "__main__":
@@ -44,6 +46,8 @@ if __name__ == "__main__":
     with open(cityModel) as src:
         city = json.load(src)
     segmented_city_model = segment_cityModel_roofs(city)
+    with open(data_dir /"CityModel_segment.json",'w') as dst:
+        json.dump(segmented_city_model,dst,indent = 2)
     
 
 
