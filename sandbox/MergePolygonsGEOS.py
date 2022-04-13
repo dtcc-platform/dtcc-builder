@@ -231,6 +231,24 @@ def TestCase13():
           [336.40799997, 325.82299505]]
     return polygons(p0), polygons(p1), 'Test case 13'
 
+def TestCase14():
+    p0 = [[231.14399994979613, 150.44799979962409],
+          [230.8629999498953, 156.68399979919195],
+          [227.78699994989438, 156.25299980025738],
+          [228.67399994982406, 150.07099980022758],
+          [231.14399994979613, 150.44799979962409]]
+    p1 = [[207.7159999498399, 139.2019997993484],
+          [217.76999994984362, 140.09099979978055],
+          [216.67799994983943, 151.3609997993335],
+          [214.94699994981056, 154.25899980030954],
+          [215.61399995000102, 155.51899980101734],
+          [227.78699994989438, 156.25299980025738],
+          [226.24299994989997, 166.89199980068952],
+          [207.03799994988367, 164.323999799788],
+          [205.54999994981335, 162.44599980022758],
+          [207.7159999498399, 139.2019997993484]]
+    return polygons(p0), polygons(p1), 'Test case 14'
+
 def GetVertices(geometry):
     vertices = []
     for part in get_parts(geometry):
@@ -333,6 +351,7 @@ def MergePolygons(A, B):
         pAB = ComputeVertexProjections(A, B, tol)
         pBA = ComputeVertexProjections(B, A, tol)
         projections = pAB + pBA
+        print(len(projections))
 
         # Check that we have at least three vertices
         if len(projections) >= 3:
@@ -428,29 +447,32 @@ def RunTestCase(testCase):
 
 def PlotWKT(wkt):
     geometry = Geometry(wkt)
-    figure()
     for x, y in GetVertices(geometry):
         plot(x, y, '-o')
 
 if __name__ == '__main__':
 
-    RunTestCase(TestCase0)
-    RunTestCase(TestCase1)
-    RunTestCase(TestCase2)
-    RunTestCase(TestCase3)
-    RunTestCase(TestCase4)
-    RunTestCase(TestCase5)
-    RunTestCase(TestCase6)
-    RunTestCase(TestCase7)
-    RunTestCase(TestCase8)
-    RunTestCase(TestCase9)
-    RunTestCase(TestCase10)
-    RunTestCase(TestCase11)
-    RunTestCase(TestCase12)
-    RunTestCase(TestCase13)
+    #RunTestCase(TestCase0)
+    #RunTestCase(TestCase1)
+    #RunTestCase(TestCase2)
+    #RunTestCase(TestCase3)
+    #RunTestCase(TestCase4)
+    #RunTestCase(TestCase5)
+    #RunTestCase(TestCase6)
+    #RunTestCase(TestCase7)
+    #RunTestCase(TestCase8)
+    #RunTestCase(TestCase9)
+    #RunTestCase(TestCase10)
+    #RunTestCase(TestCase11)
+    #RunTestCase(TestCase12)
+    #RunTestCase(TestCase13)
+    RunTestCase(TestCase14)
 
     # Debugging of Test case 5
     #PlotWKT('POLYGON ((0 0, 0 1, 1.05 0.995, 1.1 1.5, 2.1 1.5, 2.1 0.5, 1 0.5, 1 0, 0 0))') # Python
     #PlotWKT('POLYGON ((1 1, 1.1 1.5, 2.1 1.5, 2.1 0.5, 1 0.5, 1 0, 0 0, 0 1, 1 1))') # C++
+
+    #PlotWKT('POLYGON ((231.14399994979613 150.44799979962409, 230.8629999498953 156.68399979919195, 227.78699994989438 156.25299980025738, 228.67399994982406 150.07099980022758, 231.14399994979613 150.44799979962409))')
+    #PlotWKT('POLYGON ((207.7159999498399 139.2019997993484, 217.76999994984362 140.09099979978055, 216.67799994983943 151.3609997993335, 214.94699994981056 154.25899980030954, 215.61399995000102 155.51899980101734, 227.78699994989438 156.25299980025738, 226.24299994989997 166.89199980068952, 207.03799994988367 164.323999799788, 205.54999994981335 162.44599980022758, 207.7159999498399 139.2019997993484))')
 
     show()

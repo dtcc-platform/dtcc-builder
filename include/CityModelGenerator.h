@@ -537,6 +537,9 @@ private:
   {
     Info("CityModelGenerator: Merging buildings...");
 
+    // Initialize GEOS
+    GEOS::Init();
+
     // Avoid using sqrt for efficiency
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
 
@@ -602,6 +605,9 @@ private:
     // Overwrite buildings
     cityModel.Buildings = mergedBuildings;
 
+    // Finish GEOS
+    GEOS::Finish();
+
     Info("CityModelGenerator: " + str(numMerged) +
          " building pair(s) were merged");
   }
@@ -612,15 +618,12 @@ private:
                              Building &building1,
                              double minimalBuildingDistance)
   {
+    // Compute merged polygon (old implementation)
+    // Polygon mergedPolygon = Polyfix::MergePolygons(
+    //  building0.Footprint, building1.Footprint, minimalBuildingDistance);
 
-    Polygon mergedPolygonGEOS = GEOS::MergePolygons(
-        building0.Footprint, building1.Footprint, minimalBuildingDistance);
-
-    // FIXME: Testing
-    exit(0);
-
-    // Compute merged polygon
-    Polygon mergedPolygon = Polyfix::MergePolygons(
+    // Compute merged polygon (using GEOS)
+    Polygon mergedPolygon = GEOS::MergePolygons(
         building0.Footprint, building1.Footprint, minimalBuildingDistance);
 
     // Set merged polygon

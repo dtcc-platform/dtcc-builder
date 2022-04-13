@@ -394,4 +394,31 @@ TEST_CASE("GEOS::MergePolygons")
     Polygon pm = GEOS::MergePolygons(p0, p1, TOL);
     REQUIRE(CheckSum(pm) == Approx(16767.20206));
   }
+
+  SECTION("Test case 14")
+  {
+    std::cout << "Test case 14" << std::endl;
+    std::cout << "------------" << std::endl;
+
+    Polygon p0;
+    p0.Vertices.push_back(Point2D(231.14399994979613, 150.44799979962409));
+    p0.Vertices.push_back(Point2D(230.8629999498953, 156.68399979919195));
+    p0.Vertices.push_back(Point2D(227.78699994989438, 156.25299980025738));
+    p0.Vertices.push_back(Point2D(228.67399994982406, 150.07099980022758));
+    p0.Vertices.push_back(Point2D(231.14399994979613, 150.44799979962409));
+
+    Polygon p1;
+    p1.Vertices.push_back(Point2D(207.7159999498399, 139.2019997993484));
+    p1.Vertices.push_back(Point2D(217.76999994984362, 140.09099979978055));
+    p1.Vertices.push_back(Point2D(216.67799994983943, 151.3609997993335));
+    p1.Vertices.push_back(Point2D(214.94699994981056, 154.25899980030954));
+    p1.Vertices.push_back(Point2D(215.61399995000102, 155.51899980101734));
+    p1.Vertices.push_back(Point2D(227.78699994989438, 156.25299980025738));
+    p1.Vertices.push_back(Point2D(226.24299994989997, 166.89199980068952));
+    p1.Vertices.push_back(Point2D(207.03799994988367, 164.323999799788));
+    p1.Vertices.push_back(Point2D(205.54999994981335, 162.44599980022758));
+    p1.Vertices.push_back(Point2D(207.7159999498399, 139.2019997993484));
+
+    Polygon pm = GEOS::MergePolygons(p0, p1, TOL);
+  }
 }

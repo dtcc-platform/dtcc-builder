@@ -35,14 +35,14 @@ public:
   /// Initialize GEOS, needs to be called before any other methods
   static void Init()
   {
-    Info("Initializing GEOS");
+    Info("GEOS: Initializing");
     initGEOS(geos_msg_handler, geos_msg_handler);
   }
 
   /// Finish GEOS, needs to be called to clean up resources
   static void Finish()
   {
-    Info("Cleaning up GEOS");
+    Info("GEOS: Cleaning up");
     finishGEOS();
   }
 
@@ -254,7 +254,7 @@ public:
       // Compute convex hull of union
       GEOSGeometry *AB = GEOSUnionPrec(A, B, EPS);
       GEOSGeometry *_C = GEOSConvexHull(AB);
-      GEOSGeometry *C = GEOSSimplify(_C, tol);
+      C = GEOSSimplify(_C, tol);
 
       // Cleanup
       GEOSGeom_destroy(AB);
