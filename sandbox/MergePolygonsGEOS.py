@@ -380,7 +380,7 @@ def MergePolygons(A, B):
 def CheckSum(vm):
     s = 0.0
     for x, y in vm:
-        s += sum(x) + sum(y)
+        s += sum(x[:-1]) + sum(y[:-1])
     return s
 
 def RunTestCase(testCase):
@@ -409,6 +409,7 @@ def RunTestCase(testCase):
     vm = GetVertices(pm)
 
     print('Checksum:', CheckSum(vm))
+    print(pm)
     print('')
 
     # Set axis
@@ -449,4 +450,4 @@ if __name__ == '__main__':
     RunTestCase(TestCase12)
     RunTestCase(TestCase13)
 
-    show()
+    #show()
