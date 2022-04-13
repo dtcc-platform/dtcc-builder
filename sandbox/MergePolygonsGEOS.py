@@ -14,7 +14,7 @@ BLUE = '#1F95BA'
 GREY = '#3a3a3a'
 
 TOL = 0.1
-EPS = 1e-03
+EPS = 1e-06
 
 def Polygon(coordinates):
     return polygons(coordinates)
@@ -377,6 +377,12 @@ def MergePolygons(A, B):
     print('Using convex hull')
     return C
 
+def CheckSum(vm):
+    s = 0.0
+    for x, y in vm:
+        s += sum(x) + sum(y)
+    return s
+
 def RunTestCase(testCase):
 
     # Create polygons
@@ -396,12 +402,14 @@ def RunTestCase(testCase):
     print('Minimum clearance p0:', q0)
     print('Minimum clearance p1:', q1)
     print('Minimum clearance pm:', qm)
-    print('')
 
     # Get vertices (note: multipolygons)
     v0 = GetVertices(p0)
     v1 = GetVertices(p1)
     vm = GetVertices(pm)
+
+    print('Checksum:', CheckSum(vm))
+    print('')
 
     # Set axis
     xs = v0[0][0] + v1[0][0]

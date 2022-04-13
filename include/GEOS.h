@@ -120,33 +120,45 @@ public:
   {
     Timer timer("MergePolygons (GEOS)");
 
-    // FIXME: Shouldn't be here
-    const double EPS = 0.01;
+    // Set geometric precision
+    const double EPS = Parameters::Epsilon;
 
-    // Create GEOS geometries
-    GEOSGeometry *A = CreateGeometry(polygon0);
-    GEOSGeometry *B = CreateGeometry(polygon1);
+    // Create A, simplify, and cleanup
+    GEOSGeometry *_A = CreateGeometry(polygon0);
+    GEOSGeometry *A = GEOSSimplify(_A, tol);
+    GEOSGeom_destroy(_A);
+    _A = 0;
 
-    // Simplify geometries
-    GEOSGeometry *_A = GEOSSimplify(A, tol);
-    GEOSGeometry *_B = GEOSSimplify(B, tol);
+    // Create B, simplify, and cleanup
+    GEOSGeometry *_B = CreateGeometry(polygon1);
+    GEOSGeometry *B = GEOSSimplify(_B, tol);
+    GEOSGeom_destroy(_B);
+    _B = 0;
 
-    // Compute union
-    GEOSGeometry *C = GEOSUnionPrec(A, B, EPS);
-    GEOSGeometry *_C = GEOSSimplify(C, tol);
+    // Compute union C, simplify, and cleanup
+    GEOSGeometry *_C = GEOSUnionPrec(A, B, EPS);
+    GEOSGeometry *C = GEOSSimplify(_C, tol);
+    GEOSGeom_destroy(_C);
+    _C = 0;
 
-    // Geometry to be created
-    GEOSGeometry *geometry{};
+    // A note regarding memory allocation and cleanup... At this point
+    // we have allocated three geometries A, B, C that need to be
+    // cleaned up below. Any intermediate geometries allocated below
+    // should be cleaned up close to the point of allocation.
 
-    // Accept if polygon (not multi-polygon) and good quality
-    if (IsValid(_C, tol))
+    // Accept if valid
+    if (IsValid(C, tol))
     {
       Info("Using union");
-      geometry = _C;
+    }
+    else
+    {
+      GEOSGeom_destroy(C);
+      C = 0;
     }
 
-    // If not acceptable, try gradually increase tolerance
-    if (geometry == 0)
+    // If not accepted, increase tolerance
+    if (C == 0)
     {
       double _tol = tol;
       const size_t maxiter = 3;
@@ -154,8 +166,8 @@ public:
       {
         // Compute vertex projections
         std::vector<Vector2D> projections{};
-        ComputeVertexProjections(_A, _B, tol, projections);
-        ComputeVertexProjections(_B, _A, tol, projections);
+        ComputeVertexProjections(A, B, _tol, projections);
+        ComputeVertexProjections(B, A, _tol, projections);
 
         // Check that we have at least three vertices
         if (projections.size() >= 3)
@@ -173,17 +185,29 @@ public:
           // Compute convex hull of projections
           GEOSGeometry *P = GEOSConvexHull(string);
 
-          // Compute union
-          GEOSGeometry *AB = GEOSUnionPrec(_A, _B, EPS);
-          GEOSGeometry *D = GEOSUnionPrec(AB, P, EPS);
-          GEOSGeometry *_D = GEOSSimplify(D, tol);
+          // Cleanup (note that string takes over sequence)
+          GEOSGeom_destroy(string);
 
-          // Accept if single geonetry and good quality
-          if (IsValid(_D, tol))
+          // Compute union
+          GEOSGeometry *AB = GEOSUnionPrec(A, B, EPS);
+          GEOSGeometry *_C = GEOSUnionPrec(AB, P, EPS);
+          C = GEOSSimplify(_C, tol);
+
+          // Cleanup
+          GEOSGeom_destroy(P);
+          GEOSGeom_destroy(AB);
+          GEOSGeom_destroy(_C);
+
+          // Accept if valid
+          if (IsValid(C, tol))
           {
             Info("Using extended union");
-            geometry = _D;
             break;
+          }
+          else
+          {
+            GEOSGeom_destroy(C);
+            C = 0;
           }
         }
 
@@ -193,42 +217,59 @@ public:
       }
     }
 
-    // If not acceptable, try merging convex hulls
-    if (geometry == 0)
+    // If not acceptable, try union of convex hulls
+    if (C == 0)
     {
-      GEOSGeometry *HA = GEOSConvexHull(_A);
-      GEOSGeometry *HB = GEOSConvexHull(_B);
-      GEOSGeometry *D = GEOSUnionPrec(HA, HB, EPS);
-      GEOSGeometry *_D = GEOSSimplify(D, tol);
+      // Compute union of convex hulls
+      GEOSGeometry *HA = GEOSConvexHull(A);
+      GEOSGeometry *HB = GEOSConvexHull(B);
+      GEOSGeometry *_C = GEOSUnionPrec(HA, HB, EPS);
+      C = GEOSSimplify(_C, tol);
 
-      // Accept if single geonetry and good quality
-      if (IsValid(_D, tol))
+      // Cleanup
+      GEOSGeom_destroy(HA);
+      GEOSGeom_destroy(HB);
+      GEOSGeom_destroy(_C);
+
+      // Accept if valid
+      if (IsValid(C, tol))
       {
-        Info("Using union of convex hulls");
-        geometry = _D;
+        Warning("GEOS: Falling back to union of convex hulls");
+      }
+      else
+      {
+        GEOSGeom_destroy(C);
+        C = 0;
       }
     }
 
-    // If not acceptable, use convex hull
-    if (geometry == 0)
+    // If not acceptable, use convex hull of union
+    if (C == 0)
     {
-      GEOSGeometry *_AB = GEOSUnionPrec(_A, _B, EPS);
-      GEOSGeometry *H = GEOSConvexHull(_AB);
-      GEOSGeometry *_H = GEOSSimplify(H, tol);
-      geometry = _H;
+      Warning("GEOS: Falling back to convex hull of union");
+
+      // Compute convex hull of union
+      GEOSGeometry *AB = GEOSUnionPrec(A, B, EPS);
+      GEOSGeometry *_C = GEOSConvexHull(AB);
+      GEOSGeometry *C = GEOSSimplify(_C, tol);
+
+      // Cleanup
+      GEOSGeom_destroy(AB);
+      GEOSGeom_destroy(_C);
     }
 
     // Convert to polygon
-    Print(geometry);
-    Polygon polygon = CreatePolygon(geometry);
+    assert(C);
+    Print(C);
+    Polygon polygon = CreatePolygon(C);
 
     // Cleanup
+    assert(A);
+    assert(B);
+    assert(C);
     GEOSGeom_destroy(A);
     GEOSGeom_destroy(B);
     GEOSGeom_destroy(C);
-    GEOSGeom_destroy(_A);
-    GEOSGeom_destroy(_B);
-    GEOSGeom_destroy(_C);
 
     return polygon;
   }
