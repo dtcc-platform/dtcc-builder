@@ -5,6 +5,7 @@
 #define GEOS_H
 
 #include <geos_c.h>
+#include <stdarg.h>
 
 #include "Logging.h"
 #include "Polygon.h"

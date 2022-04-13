@@ -433,21 +433,29 @@ def RunTestCase(testCase):
     axis(_axis)
     suptitle(title)
 
+def PlotWKT(wkt):
+    geometry = Geometry(wkt)
+    figure()
+    for x, y in GetVertices(geometry):
+        plot(x, y, '-o')
+
 if __name__ == '__main__':
 
-    RunTestCase(TestCase0)
-    RunTestCase(TestCase1)
-    RunTestCase(TestCase2)
-    RunTestCase(TestCase3)
-    RunTestCase(TestCase4)
+    #RunTestCase(TestCase0)
+    #RunTestCase(TestCase1)
+    #RunTestCase(TestCase2)
+    #RunTestCase(TestCase3)
+    #RunTestCase(TestCase4)
     RunTestCase(TestCase5)
-    RunTestCase(TestCase6)
-    RunTestCase(TestCase7)
-    RunTestCase(TestCase8)
-    RunTestCase(TestCase9)
-    RunTestCase(TestCase10)
-    RunTestCase(TestCase11)
-    RunTestCase(TestCase12)
-    RunTestCase(TestCase13)
+    #RunTestCase(TestCase6)
+    #RunTestCase(TestCase7)
+    #RunTestCase(TestCase8)
+    #RunTestCase(TestCase9)
+    #RunTestCase(TestCase10)
+    #RunTestCase(TestCase11)
+    #RunTestCase(TestCase12)
+    #RunTestCase(TestCase13)
 
-    #show()
+    PlotWKT('POLYGON ((1 1, 1.1 1.5, 2.1 1.5, 2.1 0.5, 1 0.5, 1 0, 0 0, 0 1, 1 1))')
+
+    show()
