@@ -138,6 +138,7 @@ TEST_CASE("GEOS::MergePolygons")
     Polygon p1;
     for (const auto &p : p0.Vertices)
       p1.Vertices.push_back(p + Vector2D(1.1, 0.5));
+    p1.Vertices[0] -= Vector2D(0.1, 0);
 
     Polygon pm = GEOS::MergePolygons(p0, p1, TOL);
     REQUIRE(CheckSum(pm) == Approx(14.344555));

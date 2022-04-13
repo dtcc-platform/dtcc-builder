@@ -311,15 +311,9 @@ def IsValid(C):
 
 def MergePolygons(A, B):
 
-    print(A)
-    print(B)
-
     # Simplify geometries
     A = simplify(A, TOL)
     B = simplify(B, TOL)
-
-    print('Minimum clearance A:', minimum_clearance(A))
-    print('Minimum clearance B:', minimum_clearance(B))
 
     # Compute union
     C = union(A, B, grid_size=EPS)
@@ -358,7 +352,6 @@ def MergePolygons(A, B):
 
         # Increase tolerance
         tol *= 2
-        print('Increasing tolerance: tol =', tol)
 
     # Try merging convex hulls
     A = convex_hull(A)
@@ -441,21 +434,23 @@ def PlotWKT(wkt):
 
 if __name__ == '__main__':
 
-    #RunTestCase(TestCase0)
-    #RunTestCase(TestCase1)
-    #RunTestCase(TestCase2)
-    #RunTestCase(TestCase3)
-    #RunTestCase(TestCase4)
+    RunTestCase(TestCase0)
+    RunTestCase(TestCase1)
+    RunTestCase(TestCase2)
+    RunTestCase(TestCase3)
+    RunTestCase(TestCase4)
     RunTestCase(TestCase5)
-    #RunTestCase(TestCase6)
-    #RunTestCase(TestCase7)
-    #RunTestCase(TestCase8)
-    #RunTestCase(TestCase9)
-    #RunTestCase(TestCase10)
-    #RunTestCase(TestCase11)
-    #RunTestCase(TestCase12)
-    #RunTestCase(TestCase13)
+    RunTestCase(TestCase6)
+    RunTestCase(TestCase7)
+    RunTestCase(TestCase8)
+    RunTestCase(TestCase9)
+    RunTestCase(TestCase10)
+    RunTestCase(TestCase11)
+    RunTestCase(TestCase12)
+    RunTestCase(TestCase13)
 
-    PlotWKT('POLYGON ((1 1, 1.1 1.5, 2.1 1.5, 2.1 0.5, 1 0.5, 1 0, 0 0, 0 1, 1 1))')
+    # Debugging of Test case 5
+    #PlotWKT('POLYGON ((0 0, 0 1, 1.05 0.995, 1.1 1.5, 2.1 1.5, 2.1 0.5, 1 0.5, 1 0, 0 0))') # Python
+    #PlotWKT('POLYGON ((1 1, 1.1 1.5, 2.1 1.5, 2.1 0.5, 1 0.5, 1 0, 0 0, 0 1, 1 1))') # C++
 
     show()

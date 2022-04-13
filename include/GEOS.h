@@ -150,13 +150,16 @@ public:
     // Accept if valid
     if (IsValid(C, tol))
     {
-      Info("Using union");
+      // Info("Using union");
     }
     else
     {
       GEOSGeom_destroy(C);
       C = 0;
     }
+
+    // Print(A);
+    // Print(B);
 
     // If not accepted, increase tolerance
     if (C == 0)
@@ -202,7 +205,7 @@ public:
           // Accept if valid
           if (IsValid(C, tol))
           {
-            Info("Using extended union");
+            // Info("Using extended union");
             break;
           }
           else
@@ -214,7 +217,6 @@ public:
 
         // Increase tolerance
         _tol *= 2;
-        std::cout << "Increasing tolerance: tol = " << _tol << std::endl;
       }
     }
 
@@ -261,7 +263,7 @@ public:
 
     // Convert to polygon
     assert(C);
-    Print(C);
+    // Print(C);
     Polygon polygon = CreatePolygon(C);
 
     // Cleanup
@@ -295,8 +297,6 @@ private:
                                        double tol,
                                        std::vector<Vector2D> &projections)
   {
-    std::cout << "Computing vertex projections" << std::endl;
-
     // Get vertices
     const GEOSGeometry *rA = GEOSGetExteriorRing(A);
     const GEOSGeometry *rB = GEOSGetExteriorRing(B);
