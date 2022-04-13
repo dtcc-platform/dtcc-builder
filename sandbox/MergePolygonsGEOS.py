@@ -288,7 +288,7 @@ def ComputeVertexProjections(A, B, tol):
             else:
                 inside = min(p0[1], p1[1]) <= p[1] and p[1] <= max(p0[1], p1[1])
 
-            # Use either project or closest vertex
+            # Use either projection or closest vertex
             if inside:
                 d = sqrt(dot(q - p, q - p))
                 if d < tol:
