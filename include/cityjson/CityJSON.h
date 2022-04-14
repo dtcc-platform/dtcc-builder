@@ -98,12 +98,6 @@ public:
 
     Geometry() : LOD{0}, Type{GeometryType::Solid} {};
 
-    //TODO: Move this to source file in next iteration
-    /*static std::unordered_map<std::string, GeometryType> const GeometryTypesStringTable = {
-              {"Solid", GeometryType::Solid},
-              {"GeometryInstance", GeometryType::GeometryInstance},
-              {"MultiSurface",GeometryType::MultiSurface}};*/
-
     static std::string GeometryTypeToString(GeometryType typeToConvert)
     {
       switch (typeToConvert)
@@ -144,6 +138,23 @@ public:
   ///
   /// @param newID the id of this object
   explicit CityObject(std::string newId) : ID(std::move(newId)) {};
+
+  static std::string CityObjectTypeToString(CityObjectType typeToConvert)
+    {
+      switch(typeToConvert)
+      {
+        case CityObjectType::Building:
+          return "Building";
+        case CityObjectType::TINRelief:
+          return "TINRelief";
+        case CityObjectType::Transportation:
+          return "Transportation";
+        case CityObjectType::WaterBody:
+          return "WaterBody";
+        default:
+          return "Building";
+      }
+    }
 
   /// Pretty-print
   virtual std::string __str__() const

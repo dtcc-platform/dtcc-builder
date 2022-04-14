@@ -713,8 +713,7 @@ namespace DTCC
           geometryArray.push_back(geometryObj);
           json["CityObjects"][id]["geometry"] = geometryArray;
 
-          // TODO: Change this accordingly to support different types
-          objID["type"] = "Building";
+          json["CityObjects"][id]["type"]=CityObject::CityObjectTypeToString(cityObject.ObjectType);
         }
         else //Treat everything as multisurface for now
         {
