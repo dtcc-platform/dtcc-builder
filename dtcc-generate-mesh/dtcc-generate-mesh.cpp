@@ -134,8 +134,9 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   // Generate mesh for ground and buildings
   Surface3D groundSurface;
   std::vector<Surface3D> buildingSurfaces;
+  //Generate surfaces without order simplexes
   MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
-                                    dtm, p["MeshResolution"]);
+                                    dtm, p["MeshResolution"], false);
 
   // Merge building surfaces
   Surface3D buildingSurface;
@@ -152,6 +153,8 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   if (p["WriteCityJSON"])
   {
     CityJSON cityJson;
+    //Include the ground in order to generate everything into a single city json
+    buildingSurfaces.push_back(groundSurface);
     GenerateCityJSONFromSurfaces(cityJson, buildingSurfaces);
     JSON::Write(cityJson, dataDirectory + "Buildings.city.json");
   }

@@ -311,11 +311,14 @@ namespace DTCC
     // building footprints. Note that meshes are non-conforming; the ground
     // and building meshes are non-matching and the building meshes may
     // contain hanging nodes.
+    // By default the function orders Simplexes in the produced Triangles.
+    // Set the orderSimplex to false to disable Simplex ordering.
     static void GenerateSurfaces3D(Surface3D &groundSurface,
                                    std::vector<Surface3D> &buildingSurfaces,
                                    const CityModel &cityModel,
                                    const GridField2D &dtm,
-                                   double resolution)
+                                   double resolution,
+                                   bool orderSimplex = true)
     {
       Info("MeshGenerator: Generating 3D surface meshes...");
       Timer timer("GenerateSurfaces3D");
@@ -336,7 +339,7 @@ namespace DTCC
       // Generate 2D mesh of domain
       Info("MeshGenerator: Generating ground surface");
       Mesh2D mesh2D;
-      CallTriangle(mesh2D, boundary, subDomains, resolution);
+      CallTriangle(mesh2D, boundary, subDomains, resolution, orderSimplex);
 
       // Compute domain markers
       ComputeDomainMarkers(mesh2D, cityModel);
@@ -403,7 +406,7 @@ namespace DTCC
         // Generate 2D mesh of building footprint
         Mesh2D _mesh2D;
         CallTriangle(_mesh2D, building.Footprint.Vertices, subDomains,
-                     resolution);
+                     resolution, orderSimplex);
 
         // Create empty building surface
         Surface3D buildingSurface;
@@ -471,7 +474,8 @@ namespace DTCC
     CallTriangle(Mesh2D &mesh2D,
                  const std::vector<Point2D> &boundary,
                  const std::vector<std::vector<Point2D>> &subDomains,
-                 double h)
+                 double h,
+                 bool orderSimplex = true)
     {
       Timer timer("CallTriangle");
 
@@ -602,7 +606,7 @@ namespace DTCC
       {
         // Note the importance of creating a sorted simplex here!
         Simplex2D t(out.trianglelist[3 * i], out.trianglelist[3 * i + 1],
-                    out.trianglelist[3 * i + 2], true);
+                    out.trianglelist[3 * i + 2], orderSimplex);
         mesh2D.Cells.push_back(t);
       }
 
