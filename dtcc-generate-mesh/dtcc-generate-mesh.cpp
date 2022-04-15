@@ -24,47 +24,11 @@ using namespace DTCC;
 
 void Help() { Error("Usage: dtcc-generate-simulation-mesh Parameters.json"); }
 
-float GetSurfaceHeight(const Surface3D& surface)
-{
-  double height=0.0;
-  for(auto v : surface.Vertices)
-  {
-    if(v.z>height)
-    {
-      height=v.z;
-    }
-  }
-  return height;
-}
-
-bool IsRooftopTriangle(const Point3D& A, const Point3D& B, const Point3D& C, float buildingHeight)
-{
-  double tolerance=1; //hardcoded value, bad practice 101.
-  bool result = std::abs(A.z - buildingHeight) < tolerance 
-              && std::abs(B.z - buildingHeight) < tolerance 
-              && std::abs(C.z - buildingHeight) < tolerance;
-  return result;
-}
-
-bool FlippedNormal(const Point3D& A, const Point3D& B, const Point3D& C)
-{
-  Point3D U = Point3D(B.x - A.x, B.y - A.y, B.z - A.z);
-  Point3D V = Point3D(C.x - A.x, C.y - A.y, C.z - A.z);
-
-  Point3D normal;
-  normal.x = (U.y * V.z) - (U.z * V.y);
-  normal.y = (U.z * V.x) - (U.x * V.z);
-  normal.z = (U.x * V.y) - (U.y * V.x);
-
-  //normalizing
-  double length = std::sqrt(std::pow(normal.x,2) + std::pow(normal.y,2) + std::pow(normal.z,2));
-  normal = Point3D(normal.x/length,normal.y/length,normal.z/length);
-  return normal.z < 0;
-}
 void GenerateCityJSONFromSurfaces(CityJSON& cityJson, const std::vector<Surface3D> &surfaces)
 {
   //Assigning index as object id later on
-  int buildingIndex=0;
+  int buildingIndex=1;
+  std::cout<<"surface size:"<<surfaces.size()<<std::endl;
   for(auto surface : surfaces)
   { 
     //Storing current vertices num.
@@ -78,40 +42,25 @@ void GenerateCityJSONFromSurfaces(CityJSON& cityJson, const std::vector<Surface3
       cityJson.Vertices.push_back(v);
     }
 
-    CityObject cityObj=CityObject(std::to_string(buildingIndex));
+    CityObject cityObj=CityObject("id-"+std::to_string(buildingIndex));
+
+    cityObj.ObjectType = ((buildingIndex==surfaces.size()) ? CityObject::CityObjectType::LandUse : CityObject::CityObjectType::Building);
+
     cityObj.ObjectType=CityObject::CityObjectType::Building;
 
     //Converting faces to building bounaries
-    std::vector<CityObject::Geometry::Boundary> buildingBoundaries;
-
-    double buildingHeight = GetSurfaceHeight(surface);
-    
+    std::vector<CityObject::Geometry::Boundary> buildingBoundaries;    
     for(auto face : surface.Faces)
     {
       CityObject::Geometry::Boundary boundary;
-
-      Point3D A = surface.Vertices[face.v0];
-      Point3D B = surface.Vertices[face.v1];
-      Point3D C = surface.Vertices[face.v2];
-      //Appling offset to match global vertex ID in all cases
-      if(IsRooftopTriangle(A,B,C,buildingHeight) && FlippedNormal(A,B,C))
-      {
-        //Flipped normal, connect faces the other way around
-        boundary.BoundariesIDs.push_back(static_cast<uint>(face.v2 + vertexIDOffset));
-        boundary.BoundariesIDs.push_back(static_cast<uint>(face.v1 + vertexIDOffset));
-        boundary.BoundariesIDs.push_back(static_cast<uint>(face.v0 + vertexIDOffset));
-      }
-      else
-      {
-        
-        boundary.BoundariesIDs.push_back(static_cast<uint>(face.v0 + vertexIDOffset));
-        boundary.BoundariesIDs.push_back(static_cast<uint>(face.v1 + vertexIDOffset));
-        boundary.BoundariesIDs.push_back(static_cast<uint>(face.v2 + vertexIDOffset));
-      }
-
+      boundary.BoundariesIDs.push_back(static_cast<uint>(face.v0 + vertexIDOffset));
+      boundary.BoundariesIDs.push_back(static_cast<uint>(face.v1 + vertexIDOffset));
+      boundary.BoundariesIDs.push_back(static_cast<uint>(face.v2 + vertexIDOffset));
       buildingBoundaries.push_back(boundary);
     }
+
     CityObject::Geometry buildingGeometry;
+    buildingGeometry.LOD=1;
     buildingGeometry.Boundaries = buildingBoundaries;
     cityObj.ObjectGeometry = buildingGeometry;
     cityJson.CityObjects.push_back(cityObj);
