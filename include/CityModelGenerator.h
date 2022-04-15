@@ -196,11 +196,13 @@ public:
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
       Error("Missing classifications for point cloud");
 
+    auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
     // build a kd-tree for radius search
     typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
                                          2 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
+    kdt_timer.Stop();
     for (auto &building : cityModel.Buildings)
     {
       building.GroundPoints.clear();
