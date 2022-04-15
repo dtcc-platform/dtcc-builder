@@ -24,7 +24,8 @@ public:
     Building,
     Transportation,
     TINRelief,
-    WaterBody
+    WaterBody,
+    LandUse
     // TODO: Add all the City Object types from CityJson's documentation
   };
 
@@ -151,6 +152,8 @@ public:
           return "Transportation";
         case CityObjectType::WaterBody:
           return "WaterBody";
+        case CityObjectType::LandUse:
+          return "LandUse";
         default:
           return "Building";
       }
