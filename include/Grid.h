@@ -112,6 +112,50 @@ namespace DTCC
       Index2Boundary(i, indices);
       return indices;
     }
+    /// Map vertex index to (at most) 8 neighoring vertex indices.
+    /// For efficiency, reserve return vector to size 4.
+    ///
+    /// @param i Vertex index
+    /// @param indices Neighboring vertex indices
+    void Index2Boundary8(size_t i, std::vector<size_t> &indices) const
+    {
+      const size_t ix = i % XSize;
+      const size_t iy = i / XSize;
+      if (ix > 0)
+        indices.push_back(i - 1);
+      if (ix < XSize - 1)
+        indices.push_back(i + 1);
+      if (iy > 0)
+      {
+        indices.push_back(i - XSize);
+        const size_t ix2 = (i - XSize) % XSize;
+        if (ix2 > 0)
+          indices.push_back(i - XSize - 1);
+        if (ix2 < XSize - 1)
+          indices.push_back(i - XSize + 1);
+      }
+      if (iy < YSize - 1)
+      {
+        indices.push_back(i + XSize);
+        const size_t ix2 = (i + XSize) % XSize;
+        if (ix2 > 0)
+          indices.push_back(i + XSize - 1);
+        if (ix2 < XSize - 1)
+          indices.push_back(i + XSize + 1);
+      }
+    }
+
+    /// Map vertex index to (at most) 8 neighoring vertex indices.
+    ///
+    /// @param i Vertex index
+    /// @return Neighboring vertex indices
+    std::vector<size_t> Index2Boundary8(size_t i) const
+    {
+      std::vector<size_t> indices;
+      indices.reserve(8);
+      Index2Boundary(i, indices);
+      return indices;
+    }
 
     /// Map point to index of closest vertex.
     ///
