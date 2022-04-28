@@ -1,7 +1,6 @@
 // Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
-#include <experimental/filesystem>
 // #include <filesystem>
 #include <string>
 #include <vector>
@@ -22,6 +21,7 @@
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
+#include "Utils.h"
 #include "VertexSmoother.h"
 
 using namespace DTCC;
@@ -43,20 +43,9 @@ int main(int argc, char *argv[])
   Info(p);
   const std::string modelName = Utils::GetFilename(argv[1], true);
 
-  // Get data directory
-  std::string dataDirectory = p["DataDirectory"];
-  if (dataDirectory.empty())
-    dataDirectory = "./";
-
-  if (dataDirectory.back() != '/')
-    dataDirectory += '/';
-
-  std::string outputDirectory = p["OutputDirectory"];
-  if (outputDirectory.empty())
-    outputDirectory = dataDirectory;
-  if (outputDirectory.back() != '/')
-    outputDirectory += "/";
-  std::experimental::filesystem::create_directories(outputDirectory);
+  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
+  std::string dataDirectory = dataAndOutputDirectory.first;
+  std::string outputDirectory = dataAndOutputDirectory.second;
 
   // Start timer
   Timer timer("Step 1: Generate city model");
