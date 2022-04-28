@@ -1,6 +1,8 @@
 // Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
+#include <experimental/filesystem>
+// #include <filesystem>
 #include <string>
 #include <vector>
 
@@ -43,7 +45,18 @@ int main(int argc, char *argv[])
 
   // Get data directory
   std::string dataDirectory = p["DataDirectory"];
-  dataDirectory += "/";
+  if (dataDirectory.empty())
+    dataDirectory = "./";
+
+  if (dataDirectory.back() != '/')
+    dataDirectory += '/';
+
+  std::string outputDirectory = p["OutputDirectory"];
+  if (outputDirectory.empty())
+    outputDirectory = dataDirectory;
+  if (outputDirectory.back() != '/')
+    outputDirectory += "/";
+  std::experimental::filesystem::create_directories(outputDirectory);
 
   // Start timer
   Timer timer("Step 1: Generate city model");
@@ -151,20 +164,20 @@ int main(int argc, char *argv[])
   // Write JSON
   if (p["WriteJSON"])
   {
-    JSON::Write(dtm, dataDirectory + "DTM.json", O);
-    JSON::Write(dsm, dataDirectory + "DSM.json", O);
-    JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
+    JSON::Write(dtm, outputDirectory + "DTM.json", O);
+    JSON::Write(dsm, outputDirectory + "DSM.json", O);
+    JSON::Write(cityModel, outputDirectory + "CityModel.json", O);
   }
 
   // Write VTK
   if (p["WriteVTK"])
   {
-    VTK::Write(dtm, dataDirectory + "DTM.vts");
-    VTK::Write(dsm, dataDirectory + "DSM.vts");
+    VTK::Write(dtm, outputDirectory + "DTM.vts");
+    VTK::Write(dsm, outputDirectory + "DSM.vts");
   }
 
   // Report timings and parameters
-  Timer::Report("dtcc-generate-citymodel", dataDirectory);
+  Timer::Report("dtcc-generate-citymodel", outputDirectory);
   Info(p);
 
   return 0;
