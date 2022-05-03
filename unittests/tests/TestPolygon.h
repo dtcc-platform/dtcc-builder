@@ -28,6 +28,23 @@ TEST_CASE("Polygon Geometry")
     REQUIRE(Geometry::PolygonArea(polygon) == Approx(8.0));
   }
 
+  SECTION("Point in Polygon")
+  {
+    Polygon polygon;
+    polygon.Vertices.push_back(Point2D(0, 0));
+    polygon.Vertices.push_back(Point2D(3, 0));
+    polygon.Vertices.push_back(Point2D(3, 3));
+    polygon.Vertices.push_back(Point2D(2, 3));
+    polygon.Vertices.push_back(Point2D(2, 2));
+    polygon.Vertices.push_back(Point2D(1, 2));
+    polygon.Vertices.push_back(Point2D(1, 3));
+    polygon.Vertices.push_back(Point2D(0, 3));
+
+    REQUIRE(Geometry::PolygonContains2D(polygon, Point2D(0, 0)));
+    REQUIRE(Geometry::PolygonContains2D(polygon, Point2D(1, 1)));
+    REQUIRE(!Geometry::PolygonContains2D(polygon, Point2D(1.5, 2.5)));
+  }
+
   SECTION("Polygon Centroid")
   {
     Polygon polygon;

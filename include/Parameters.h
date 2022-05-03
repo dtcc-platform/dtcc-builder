@@ -54,6 +54,7 @@ public:
     Add("OutlierSTD", 2.0);
 
     Add("DataDirectory", "");
+    Add("OutputDirectory", "");
   }
 
   // Map (dictionary) of parameters
