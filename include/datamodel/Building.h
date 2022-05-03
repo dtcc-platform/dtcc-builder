@@ -98,6 +98,7 @@ public:
     Footprint.Vertices.clear();
     Height = 0.0;
     GroundHeight = 0.0;
+    error = 0;
     GroundPoints.clear();
     RoofPoints.clear();
   }

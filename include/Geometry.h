@@ -429,7 +429,6 @@ public:
   // Check whether polygon intersects with polygon (2D)
   static bool Intersects2D(const Polygon &polygonA, const Polygon &polygonB)
   {
-    Info(str(polygonA) + " intersects " + str(polygonB));
     // Check if bounding boxes intersect
     if (!Intersect2D(BoundingBox2D(polygonA), BoundingBox2D(polygonB)))
       return false;
