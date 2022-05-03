@@ -129,7 +129,8 @@ int main(int argc, char *argv[])
   CityModel cityModel;
   cityModel.Name = modelName;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        bbox, p["MinBuildingDistance"]);
+                                        bbox, p["MinBuildingDistance"],
+                                        p["MinBuildingSize"]);
   cityModel.SetOrigin(O);
   Info(cityModel);
 

@@ -24,7 +24,8 @@ enum BuildingError
   BUILDING_NO_ROOF_POINTS = 1 << 2,
   BUILDING_NO_GROUND_POINTS = 1 << 3,
   BUILDING_HEIGHT_TOO_LOW = 1 << 4,
-  BUILDING_BAD_ASPECT_RATIO = 1 << 5
+  BUILDING_BAD_ASPECT_RATIO = 1 << 5,
+  BUILDING_INSUFFICIENT_POINT_COVERAGE = 1 << 6
 };
 /// Building represents a building defined by a footprint and a height.
 /// This means that a Building is currently an LOD1 representation.

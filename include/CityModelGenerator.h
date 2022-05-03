@@ -42,7 +42,8 @@ public:
                                 const std::vector<std::string> &UUIDs,
                                 const std::vector<int> &entityIDs,
                                 const BoundingBox2D &bbox,
-                                double minBuildingDistance)
+                                double minBuildingDistance,
+                                double minBuildingSize)
   {
     Info("CityModelGenerator: Generating city model...");
     Timer timer("GenerateCityModel");
@@ -67,6 +68,11 @@ public:
       building.Footprint = footprints[i];
       building.UUID = UUIDs[i];
       building.SHPFileID = entityIDs[i];
+      if (Geometry::PolygonArea(building.Footprint) < minBuildingSize)
+      {
+        building.error |= BuildingError::BUILDING_TOO_SMALL;
+      }
+
       cityModel.Buildings.push_back(building);
     }
 
@@ -264,6 +270,21 @@ public:
           cityModel, outlierNeighbors, buildingOutlierThreshold);
     }
 
+    double ptsPrSqm;
+    size_t tooFew = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      ptsPrSqm = static_cast<double>(building.RoofPoints.size()) /
+                 Geometry::PolygonArea(building.Footprint);
+      if (ptsPrSqm < 0.2)
+      {
+        building.error |= BuildingError::BUILDING_TOO_FEW_POINTS;
+        tooFew++;
+      }
+    }
+    Info("CityModelGenerator: Number of buildings with too few roof points: " +
+         str(tooFew));
+
     // Sort points by height
     for (auto &building : cityModel.Buildings)
     {
@@ -344,6 +365,7 @@ public:
         Info("CityModelGenerator: Setting ground height from DTM");
         h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
         numMissingGroundPoints++;
+        building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
       }
       else
       {
@@ -360,6 +382,7 @@ public:
              str(minBuildingHeight) + "m");
         h1 = h0 + minBuildingHeight;
         numMissingRoofPoints++;
+        building.error |= BuildingError::BUILDING_NO_ROOF_POINTS;
       }
       else
       {
@@ -375,11 +398,18 @@ public:
              str(minBuildingHeight));
         h1 = h0 + minBuildingHeight;
         numSmallHeights++;
+        building.error |= BuildingError::BUILDING_HEIGHT_TOO_LOW;
       }
 
       // Set building height(s)
       building.Height = h1 - h0;
       building.GroundHeight = h0;
+
+      if (building.Height / sqrt(Geometry::PolygonArea(building.Footprint)) >
+          25)
+      {
+        building.error |= BuildingError::BUILDING_BAD_ASPECT_RATIO;
+      }
 
       // Uncomment for debugging
       // Plotting::Plot(building);
