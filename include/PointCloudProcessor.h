@@ -99,7 +99,7 @@ public:
     Timer timer("RemoveOutliers");
 
     // Write heights to file for debbuging
-    const bool debugOutliers = true;
+    const bool debugOutliers = false;
     if (debugOutliers)
     {
       std::ofstream f;
@@ -117,29 +117,7 @@ public:
     std::vector<size_t> outliers =
         RemoveOutliers(pointCloud.Points, outlierMargin, true);
 
-    // Initialize new colors and classifications
-    std::vector<Color> newColors{};
-    std::vector<uint8_t> newClassifications{};
-
-    // Copy colors and classifications for all non-outliers
-    assert(pointCloud.Colors.size() == pointCloud.Classifications.size());
-    size_t k = 0;
-    for (size_t i = 0; i < pointCloud.Colors.size(); i++)
-    {
-      if (k >= outliers.size() || i != outliers[k])
-      {
-        newColors.push_back(pointCloud.Colors[i]);
-        newClassifications.push_back(pointCloud.Classifications[i]);
-      }
-      else
-      {
-        k++;
-      }
-    }
-
-    // Assign new to old
-    pointCloud.Colors = newColors;
-    pointCloud.Classifications = newClassifications;
+    FilterPointCloud(pointCloud, outliers);
 
     // Write heights to file for debbuging
     if (debugOutliers)
@@ -385,21 +363,28 @@ public:
     std::vector<size_t> outliers = StatisticalOutlierFinder(
         pointCloud.Points, neighbours, outlierMargin, verbose);
 
+    FilterPointCloud(pointCloud, outliers);
+  }
+
+  // Removes selected points from point cloud
+  static void FilterPointCloud(PointCloud &pointCloud,
+                               std::vector<size_t> ptsToRemove)
+  {
+    std::sort(ptsToRemove.begin(), ptsToRemove.end());
     std::vector<Point3D> newPoints;
     std::vector<Color> newColors{};
     std::vector<uint8_t> newClassifications{};
-    // Copy points, colors and classifications for all non-outliers
-    // assert(pointCloud.Colors.size() == pointCloud.Classifications.size());
     bool hasColor = false;
     bool hasClass = false;
     if (pointCloud.Colors.size() > 0)
       hasColor = true;
     if (pointCloud.Classifications.size() > 0)
       hasClass = true;
+
     size_t k = 0;
     for (size_t i = 0; i < pointCloud.Points.size(); i++)
     {
-      if (k >= outliers.size() || i != outliers[k])
+      if (k >= ptsToRemove.size() || i != ptsToRemove[k])
       {
         newPoints.push_back(pointCloud.Points[i]);
 
