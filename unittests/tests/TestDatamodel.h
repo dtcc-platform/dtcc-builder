@@ -62,6 +62,7 @@ TEST_CASE("datamodel")
     REQUIRE(building.BaseAreaID == "60605");
     REQUIRE(building.GroundHeight == Approx(34.865));
     REQUIRE(building.Height == Approx(107.574735807257));
+    REQUIRE(building.error == 0);
     REQUIRE(building.Footprint.Vertices[0].x == Approx(551.020999965025));
     REQUIRE(building.Footprint.Vertices[0].y == Approx(57.5619951048866));
 
