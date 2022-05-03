@@ -28,14 +28,12 @@ public:
     Timer("BuildingProcessor::PointCoverage");
     auto bbox = BoundingBox2D(building.Footprint);
     std::vector<BoundingBox2D> tiles;
-    Info("BBox " + str(bbox));
     for (double x = bbox.P.x; x < bbox.Q.x; x += tileSize)
     {
       for (double y = bbox.P.y; y < bbox.Q.y; y += tileSize)
       {
         auto tile =
             BoundingBox2D(Point2D(x, y), Point2D(x + tileSize, y + tileSize));
-        Info("Tile: " + str(tile));
         Polygon tilePoly;
         tilePoly.Vertices.push_back(Point2D(x, y));
         tilePoly.Vertices.push_back(Point2D(x + tileSize, y));
@@ -49,7 +47,6 @@ public:
       }
     }
 
-    Info(str(tiles.size()) + " tiles");
     BoundingBoxTree2D tileTree;
     tileTree.Build(tiles);
 
@@ -57,12 +54,10 @@ public:
     for (const auto &point : building.RoofPoints)
     {
       auto p = Point2D(point.x, point.y);
-      Info("Point: " + str(p));
       auto containingTile = tileTree.Find(p);
 
       if (containingTile.size() > 0)
       {
-        Info("containingTile: " + str(containingTile[0]));
         collisionSet.insert(containingTile[0]);
       }
     }

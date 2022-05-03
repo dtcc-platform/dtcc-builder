@@ -8,6 +8,7 @@
 #include <queue>
 #include <vector>
 
+#include "BuildingProcessor.h"
 #include "GridField.h"
 #include "Plotting.h"
 #include "PointCloud.h"
@@ -271,6 +272,7 @@ public:
     }
 
     double ptsPrSqm;
+    double pointCoverage;
     size_t tooFew = 0;
     for (auto &building : cityModel.Buildings)
     {
@@ -280,6 +282,12 @@ public:
       {
         building.error |= BuildingError::BUILDING_TOO_FEW_POINTS;
         tooFew++;
+      }
+      pointCoverage = BuildingProcessor::PointCoverage(building, 2.0);
+      Info("PointCoverage: " + str(pointCoverage));
+      if (pointCoverage < 0.5)
+      {
+        building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
       }
     }
     Info("CityModelGenerator: Number of buildings with too few roof points: " +
@@ -393,9 +401,9 @@ public:
       // Check that h0 < h1
       if (h1 < h0 + minBuildingHeight)
       {
-        Warning("Height too small for building " + building.UUID);
-        Info("CitModelGenerator: Setting building height to " +
-             str(minBuildingHeight));
+        // Warning("Height too small for building " + building.UUID);
+        // Info("CitModelGenerator: Setting building height to " +
+        //     str(minBuildingHeight));
         h1 = h0 + minBuildingHeight;
         numSmallHeights++;
         building.error |= BuildingError::BUILDING_HEIGHT_TOO_LOW;
