@@ -29,6 +29,7 @@ find_package(PugiXML REQUIRED)
 find_package(PROJ4 REQUIRED)
 find_package(Triangle REQUIRED)
 find_package(netCDF REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(assimp REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(PNG REQUIRED)
@@ -57,6 +58,9 @@ include(${VTK_USE_FILE})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
+include_directories(${CMAKE_SOURCE_DIR}/external)
+include_directories(/usr/include/nlohmann/)
+
 link_directories(/usr/local/lib) #Equivalent of ldconfig /usr/local/lib in Dockerfile
 
 # Set installation directory

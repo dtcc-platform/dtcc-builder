@@ -1,7 +1,9 @@
 // Copyright (C) 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
+#include <experimental/filesystem>
 #include <random>
+#include <utility>
 
 #ifndef DTCC_UTILS_H
 #define DTCC_UTILS_H
@@ -90,6 +92,28 @@ namespace DTCC
         }
       }
       return fileName;
+    }
+
+    /// get (and create if necessary) the data and output path
+    static std::pair<std::string, std::string>
+    getDataAndOutputPath(const Parameters &p)
+    {
+      // Get data directory
+      std::string dataDirectory = p["DataDirectory"];
+      if (dataDirectory.empty())
+        dataDirectory = "./";
+
+      if (dataDirectory.back() != '/')
+        dataDirectory += '/';
+
+      std::string outputDirectory = p["OutputDirectory"];
+      if (outputDirectory.empty())
+        outputDirectory = dataDirectory;
+      if (outputDirectory.back() != '/')
+        outputDirectory += "/";
+      std::experimental::filesystem::create_directories(outputDirectory);
+      return std::pair<std::string, std::string>(dataDirectory,
+                                                 outputDirectory);
     }
   };
 }

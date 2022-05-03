@@ -51,8 +51,11 @@ public:
     Add("RoofPercentile", 0.9);
     Add("OutlierMargin", 0.2);
     Add("MinBuildingSize", 10.0);
+    Add("OutlierNeighbors", 5);
+    Add("OutlierSTD", 1.5);
 
     Add("DataDirectory", "");
+    Add("OutputDirectory", "");
   }
 
   // Map (dictionary) of parameters
@@ -171,7 +174,7 @@ public:
     // Return table string
     return str(table);
   }
-  };
+};
 
 } // namespace DTCC
 

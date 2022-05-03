@@ -315,6 +315,19 @@ public:
     return 0.5 * std::abs(PolygonDeterminant2D(polygon));
   }
 
+  // Computer Perimeter of polygon (2D)
+  static double PolygonPerimeter2D(const Polygon &polygon)
+  {
+    double sum = 0.0;
+    for (size_t i = 0; i < polygon.Vertices.size(); i++)
+    {
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
+      sum += Geometry::Distance2D(p0, p1);
+    }
+    return sum;
+  }
+
   // Compute center of polygon (2D)
   static Point2D PolygonCenter2D(const Polygon &polygon)
   {

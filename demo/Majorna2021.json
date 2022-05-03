@@ -16,11 +16,13 @@
     "GroundPercentile": 0.1,
     "RoofPercentile": 0.9,
     "OutlierMargin": 2.0,
+    "OutlierNeighbors": 6,
+    "OutlierSTD": 2,
     "GroundSmoothing": 2,
-    "NumRandomBuildings": 11585,
+    "NumRandomBuildings": 1000,
     "GenerateSurfaceMeshes": true,
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
-    "WriteVTK": true,
+    "WriteVTK": false,
     "Debug": true
 }
