@@ -214,4 +214,50 @@ TEST_CASE("Outlier remover")
     REQUIRE(flag2.first == 2);
     REQUIRE(flag2.second == 3);
   }
+
+  SECTION("Pack Scan Flag")
+  {
+    auto flag1 = PointCloudProcessor::packScanFlag(1, 1);
+    auto flag2 = PointCloudProcessor::packScanFlag(2, 3);
+    REQUIRE(flag1 == 9);
+
+    auto parse1 = PointCloudProcessor::parseScanFlag(flag1);
+    auto parse2 = PointCloudProcessor::parseScanFlag(flag2);
+    REQUIRE(parse1.first == 1);
+    REQUIRE(parse1.second == 1);
+    REQUIRE(parse2.first == 2);
+    REQUIRE(parse2.second == 3);
+  }
+}
+
+TEST_CASE("Vegetation filter")
+{
+  PointCloud pc;
+  pc.Points.push_back(Vector3D(0, 0, 0));
+  pc.Classifications.push_back(1);
+  pc.Points.push_back(Vector3D(0, 0, 1));
+  pc.Classifications.push_back(1);
+  pc.Points.push_back(Vector3D(0, 0, 2));
+  pc.Classifications.push_back(1);
+  pc.Points.push_back(Vector3D(0, 0, 3));
+  pc.Classifications.push_back(1);
+
+  SECTION("No flags")
+  {
+    // No flags, do nothing
+    size_t pre_filter = pc.Points.size();
+    PointCloudProcessor::naiveVegetationFilter(pc);
+    REQUIRE(pc.Points.size() == pre_filter);
+  }
+
+  SECTION("Filter")
+  {
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(1, 1));
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(1, 2));
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 2));
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 3));
+
+    PointCloudProcessor::naiveVegetationFilter(pc);
+    REQUIRE(pc.Points.size() == 2);
+  }
 }
