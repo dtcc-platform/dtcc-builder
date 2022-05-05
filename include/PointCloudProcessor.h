@@ -431,6 +431,33 @@ public:
     uint8_t numReturns = (flag >> 3) & 7;
     return std::pair<uint8_t, uint8_t>(returnNumber, numReturns);
   }
+
+  static uint8_t packScanFlag(uint8_t returnNumber, uint8_t numReturns)
+  {
+    return (returnNumber & 7) | ((numReturns & 7) << 3);
+  }
+
+  static void naiveVegetationFilter(PointCloud &pointCloud)
+  {
+    // Remove some points that might be vegetation
+    std::vector<size_t> pointsToRemove;
+    if (pointCloud.ScanFlags.size() != pointCloud.Points.size())
+    {
+      Warning("Scan flags not set. No vegetation filtering");
+      return;
+    }
+
+    for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    {
+      auto scanFlag = parseScanFlag(pointCloud.ScanFlags[i]);
+      // not last point of several
+      if (scanFlag.first != scanFlag.second)
+      {
+        pointsToRemove.push_back(i);
+      }
+    }
+    FilterPointCloud(pointCloud, pointsToRemove);
+  }
 };
 
 } // namespace DTCC
