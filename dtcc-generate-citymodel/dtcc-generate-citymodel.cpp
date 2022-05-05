@@ -98,7 +98,8 @@ int main(int argc, char *argv[])
 
   // Read point cloud (only points inside bounding box)
   PointCloud pointCloud;
-  LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
+  LAS::ReadDirectory(pointCloud, dataDirectory, bbox,
+                     p["NaiveVegitationFilter"]);
 
   // Check point cloud
   if (pointCloud.Empty())
@@ -109,6 +110,12 @@ int main(int argc, char *argv[])
 
   // Remove outliers from point cloud
   PointCloudProcessor::RemoveOutliers(pointCloud, p["OutlierMargin"]);
+
+  if (p["NaiveVegitationFilter"])
+  {
+    // Remove vegetation from point cloud
+    PointCloudProcessor::NaiveVegetationFilter(pointCloud);
+  }
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;

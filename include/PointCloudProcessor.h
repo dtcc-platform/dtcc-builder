@@ -437,7 +437,7 @@ public:
     return (returnNumber & 7) | ((numReturns & 7) << 3);
   }
 
-  static void naiveVegetationFilter(PointCloud &pointCloud)
+  static void NaiveVegetationFilter(PointCloud &pointCloud)
   {
     // Remove some points that might be vegetation
     std::vector<size_t> pointsToRemove;

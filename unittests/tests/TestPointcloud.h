@@ -246,7 +246,7 @@ TEST_CASE("Vegetation filter")
   {
     // No flags, do nothing
     size_t pre_filter = pc.Points.size();
-    PointCloudProcessor::naiveVegetationFilter(pc);
+    PointCloudProcessor::NaiveVegetationFilter(pc);
     REQUIRE(pc.Points.size() == pre_filter);
   }
 
@@ -257,7 +257,7 @@ TEST_CASE("Vegetation filter")
     pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 2));
     pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 3));
 
-    PointCloudProcessor::naiveVegetationFilter(pc);
+    PointCloudProcessor::NaiveVegetationFilter(pc);
     REQUIRE(pc.Points.size() == 2);
   }
 }

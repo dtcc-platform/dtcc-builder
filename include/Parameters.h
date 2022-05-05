@@ -54,6 +54,7 @@ public:
     Add("OutlierNeighbors", 5);
     Add("OutlierSTD", 1.5);
 
+    Add("NaiveVegitationFilter", false);
     Add("DataDirectory", "");
     Add("OutputDirectory", "");
   }
