@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Dag Wästberg
+// Copyright (C) 2020-2022 Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_POINT_CLOUD_PROCESSOR_H
@@ -374,12 +374,22 @@ public:
     std::vector<Point3D> newPoints;
     std::vector<Color> newColors{};
     std::vector<uint8_t> newClassifications{};
+    std::vector<uint16_t> newIntensities{};
+    std::vector<uint8_t> newScanFlags{};
+
     bool hasColor = false;
     bool hasClass = false;
+    bool hasIntensity = false;
+    bool hasScanflags = false;
+
     if (pointCloud.Colors.size() > 0)
       hasColor = true;
     if (pointCloud.Classifications.size() > 0)
       hasClass = true;
+    if (pointCloud.Intensities.size() > 0)
+      hasIntensity = true;
+    if (pointCloud.ScanFlags.size() > 0)
+      hasScanflags = true;
 
     size_t k = 0;
     for (size_t i = 0; i < pointCloud.Points.size(); i++)
@@ -392,6 +402,10 @@ public:
           newColors.push_back(pointCloud.Colors[i]);
         if (hasClass)
           newClassifications.push_back(pointCloud.Classifications[i]);
+        if (hasIntensity)
+          newIntensities.push_back(pointCloud.Intensities[i]);
+        if (hasScanflags)
+          newScanFlags.push_back(pointCloud.ScanFlags[i]);
       }
       else
       {
@@ -405,6 +419,17 @@ public:
       pointCloud.Colors = newColors;
     if (hasClass)
       pointCloud.Classifications = newClassifications;
+    if (hasIntensity)
+      pointCloud.Intensities = newIntensities;
+    if (hasScanflags)
+      pointCloud.ScanFlags = newScanFlags;
+  }
+
+  static std::pair<uint8_t, uint8_t> parseScanFlag(uint8_t flag)
+  {
+    uint8_t returnNumber = flag & 7;
+    uint8_t numReturns = (flag >> 3) & 7;
+    return std::pair<uint8_t, uint8_t>(returnNumber, numReturns);
   }
 };
 

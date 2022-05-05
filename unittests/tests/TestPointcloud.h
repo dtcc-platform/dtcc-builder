@@ -195,4 +195,23 @@ TEST_CASE("Outlier remover")
     PointCloudProcessor::StatisticalOutlierRemover(pc, 3, 1.5);
     REQUIRE(pc.Points.size() == 6);
   }
+
+  SECTION("Read extra Data")
+  {
+    PointCloud pc;
+    LAS::Read(pc, RootPath + "data/minimal_las.las", true);
+    REQUIRE(pc.Points.size() == pc.Intensities.size());
+    REQUIRE(pc.Points.size() == pc.ScanFlags.size());
+    REQUIRE(pc.ScanFlags[0] == 9); // 1 scan, 1 return, binary 0001001
+  }
+
+  SECTION("Parse Scan Flag")
+  {
+    auto flag1 = PointCloudProcessor::parseScanFlag(9);
+    auto flag2 = PointCloudProcessor::parseScanFlag(26);
+    REQUIRE(flag1.first == 1);
+    REQUIRE(flag1.second == 1);
+    REQUIRE(flag2.first == 2);
+    REQUIRE(flag2.second == 3);
+  }
 }
