@@ -16,6 +16,17 @@
 namespace DTCC
 {
 
+// Error codes
+enum BuildingError
+{
+  BUILDING_TOO_SMALL = 1 << 0,
+  BUILDING_TOO_FEW_POINTS = 1 << 1,
+  BUILDING_NO_ROOF_POINTS = 1 << 2,
+  BUILDING_NO_GROUND_POINTS = 1 << 3,
+  BUILDING_HEIGHT_TOO_LOW = 1 << 4,
+  BUILDING_BAD_ASPECT_RATIO = 1 << 5,
+  BUILDING_INSUFFICIENT_POINT_COVERAGE = 1 << 6
+};
 /// Building represents a building defined by a footprint and a height.
 /// This means that a Building is currently an LOD1 representation.
 class Building : public Printable
@@ -41,6 +52,9 @@ public:
 
   /// Height of building relative to ground height
   double Height{};
+
+  /// Error code for error found during while generating building
+  size_t error = 0;
 
   /// Height of ground at site of building
   double GroundHeight{};
@@ -84,6 +98,7 @@ public:
     Footprint.Vertices.clear();
     Height = 0.0;
     GroundHeight = 0.0;
+    error = 0;
     GroundPoints.clear();
     RoofPoints.clear();
   }

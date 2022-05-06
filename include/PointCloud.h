@@ -16,114 +16,121 @@
 namespace DTCC
 {
 
-  class PointCloud : public Printable
+class PointCloud : public Printable
+{
+public:
+  /// Array of points
+  std::vector<Point3D> Points{};
+
+  /// Array of colors (one per point)
+  std::vector<Color> Colors{};
+
+  /// Array of classifications (one per point)
+  std::vector<uint8_t> Classifications{};
+
+  /// Array of intensities (one per point)
+  std::vector<uint16_t> Intensities{};
+
+  /// Array of scan data (one per point)
+  std::vector<uint8_t> ScanFlags{};
+
+  /// Bounding box
+  BoundingBox2D BoundingBox{};
+
+  /// Check if point cloud is empty
+  bool Empty() const { return Points.empty(); }
+
+  /// Create empty point cloud
+  PointCloud() = default;
+
+  /// Return density of point cloud (points per square meter)
+  double Density() const
   {
-  public:
+    return static_cast<double>(Points.size()) / BoundingBox.Area();
+  }
 
-    /// Array of points
-    std::vector<Point3D> Points{};
+  /// Set new origin (subtract offset). Note that this only
+  /// affects the x and y coordinates (z unaffected).
+  void SetOrigin(const Point2D &origin)
+  {
+    Info("PointCloud: Setting new origin to " + str(origin));
+    const Vector2D v2D{origin.x, origin.y};
+    const Vector3D v3D{origin.x, origin.y, 0.0};
+    for (auto &p : Points)
+      p -= v3D;
+    BoundingBox.P -= v2D;
+    BoundingBox.Q -= v2D;
+  }
 
-    /// Array of colors (one per point)
-    std::vector<Color> Colors{};
-
-    /// Array of classifications (one per point)
-    std::vector<uint8_t> Classifications{};
-
-    /// Bounding box
-    BoundingBox2D BoundingBox{};
-
-    /// Check if point cloud is empty
-    bool Empty() const { return Points.empty(); }
-
-    /// Create empty point cloud
-    PointCloud() = default;
-
-    /// Return density of point cloud (points per square meter)
-    double Density() const
+  /// set a default color to all points
+  void InitColors(const Color &c)
+  {
+    Colors.clear();
+    for (size_t i = 0; i < Points.size(); i++)
     {
-      return static_cast<double>(Points.size()) / BoundingBox.Area();
+      Colors.push_back(c);
+    }
+  }
+
+  /// Set a default color to all points
+  void InitClassifications(uint8_t c)
+  {
+    Classifications.clear();
+    for (size_t i = 0; i < Points.size(); i++)
+      Classifications.push_back(c);
+  }
+
+  /// Build search tree (bounding box tree), required for search queries.
+  ///
+  /// @param rebuild Force rebuild of existing tree if set
+  void BuildSearchTree(bool rebuild = false) const
+  {
+    // Skip if already built or force rebuild
+    if (!bbtree.Empty() && !rebuild)
+    {
+      Info("Search tree already built; set rebuild flag to force rebuild.");
+      return;
     }
 
-    /// Set new origin (subtract offset). Note that this only
-    /// affects the x and y coordinates (z unaffected).
-    void SetOrigin(const Point2D &origin)
+    // Create 2D bounding boxes for all points
+    std::vector<BoundingBox2D> bboxes;
+    for (const auto &p3D : Points)
     {
-      Info("PointCloud: Setting new origin to " + str(origin));
-      const Vector2D v2D{origin.x, origin.y};
-      const Vector3D v3D{origin.x, origin.y, 0.0};
-      for (auto &p : Points)
-        p -= v3D;
-      BoundingBox.P -= v2D;
-      BoundingBox.Q -= v2D;
+      const Point2D p2D(p3D.x, p3D.y);
+      BoundingBox2D bbox(p2D, p2D);
+      bboxes.push_back(bbox);
     }
 
-    /// set a default color to all points
-    void InitColors(const Color &c)
-    {
-      Colors.clear();
-      for (size_t i = 0; i < Points.size(); i++)
-      {
-        Colors.push_back(c);
-      }
-    }
+    // Build bounding box tree
+    bbtree.Build(bboxes);
+    Progress(str(bbtree));
+  }
 
-    /// Set a default color to all points
-    void InitClassifications(uint8_t c)
-    {
-      Classifications.clear();
-      for (size_t i = 0; i < Points.size(); i++)
-        Classifications.push_back(c);
-    }
+  /// Clear all data
+  void Clear()
+  {
+    Points.clear();
+    Colors.clear();
+    Classifications.clear();
+    Intensities.clear();
+    ScanFlags.clear();
+    bbtree.Clear();
+  }
 
-    /// Build search tree (bounding box tree), required for search queries.
-    ///
-    /// @param rebuild Force rebuild of existing tree if set
-    void BuildSearchTree(bool rebuild = false) const
-    {
-      // Skip if already built or force rebuild
-      if (!bbtree.Empty() && !rebuild)
-      {
-        Info("Search tree already built; set rebuild flag to force rebuild.");
-        return;
-      }
+  /// Pretty-print
+  std::string __str__() const override
+  {
+    return "Point cloud on " + str(BoundingBox) + " with " +
+           str(Points.size()) + " points and density " + str(Density()) +
+           " m^-2";
+  }
 
-      // Create 2D bounding boxes for all points
-      std::vector<BoundingBox2D> bboxes;
-      for (const auto &p3D : Points)
-      {
-        const Point2D p2D(p3D.x, p3D.y);
-        BoundingBox2D bbox(p2D, p2D);
-        bboxes.push_back(bbox);
-      }
+private:
+  friend class CityModelGenerator;
 
-      // Build bounding box tree
-      bbtree.Build(bboxes);
-      Progress(str(bbtree));
-    }
-
-    /// Clear all data
-    void Clear()
-    {
-      Points.clear();
-      Colors.clear();
-      Classifications.clear();
-      bbtree.Clear();
-    }
-
-    /// Pretty-print
-    std::string __str__() const override
-    {
-      return "Point cloud on " + str(BoundingBox) + " with " +
-             str(Points.size()) + " points and density " + str(Density()) +
-             " m^-2";
-    }
-
-  private:
-    friend class CityModelGenerator;
-
-    // Bounding box tree used for search queries
-    mutable BoundingBoxTree2D bbtree;
-  };
+  // Bounding box tree used for search queries
+  mutable BoundingBoxTree2D bbtree;
+};
 
 } // namespace DTCC
 

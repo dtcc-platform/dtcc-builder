@@ -1,6 +1,7 @@
 // Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
+// #include <filesystem>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,7 @@
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
+#include "Utils.h"
 #include "VertexSmoother.h"
 
 using namespace DTCC;
@@ -41,9 +43,9 @@ int main(int argc, char *argv[])
   Info(p);
   const std::string modelName = Utils::GetFilename(argv[1], true);
 
-  // Get data directory
-  std::string dataDirectory = p["DataDirectory"];
-  dataDirectory += "/";
+  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
+  std::string dataDirectory = dataAndOutputDirectory.first;
+  std::string outputDirectory = dataAndOutputDirectory.second;
 
   // Start timer
   Timer timer("Step 1: Generate city model");
@@ -96,7 +98,8 @@ int main(int argc, char *argv[])
 
   // Read point cloud (only points inside bounding box)
   PointCloud pointCloud;
-  LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
+  LAS::ReadDirectory(pointCloud, dataDirectory, bbox,
+                     p["NaiveVegitationFilter"]);
 
   // Check point cloud
   if (pointCloud.Empty())
@@ -107,6 +110,12 @@ int main(int argc, char *argv[])
 
   // Remove outliers from point cloud
   PointCloudProcessor::RemoveOutliers(pointCloud, p["OutlierMargin"]);
+
+  if (p["NaiveVegitationFilter"])
+  {
+    // Remove vegetation from point cloud
+    PointCloudProcessor::NaiveVegetationFilter(pointCloud);
+  }
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
@@ -127,20 +136,16 @@ int main(int argc, char *argv[])
   CityModel cityModel;
   cityModel.Name = modelName;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        bbox, p["MinBuildingDistance"]);
+                                        bbox, p["MinBuildingDistance"],
+                                        p["MinBuildingSize"]);
   cityModel.SetOrigin(O);
   Info(cityModel);
 
   // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
   CityModelGenerator::ExtractBuildingPoints(
-      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"]);
-
-  if (p["BuildingRemoveOutlier"])
-  {
-    CityModelGenerator::BuildingPointsOurlierRemover(
-        cityModel, p["OutlierNeighbors"], p["OutlierSTD"]);
-  }
+      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"],
+      p["OutlierNeighbors"], p["OutlierSTD"]);
 
   CityModelGenerator::ComputeBuildingHeights(
       cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
@@ -151,20 +156,20 @@ int main(int argc, char *argv[])
   // Write JSON
   if (p["WriteJSON"])
   {
-    JSON::Write(dtm, dataDirectory + "DTM.json", O);
-    JSON::Write(dsm, dataDirectory + "DSM.json", O);
-    JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
+    JSON::Write(dtm, outputDirectory + "DTM.json", O);
+    JSON::Write(dsm, outputDirectory + "DSM.json", O);
+    JSON::Write(cityModel, outputDirectory + "CityModel.json", O);
   }
 
   // Write VTK
   if (p["WriteVTK"])
   {
-    VTK::Write(dtm, dataDirectory + "DTM.vts");
-    VTK::Write(dsm, dataDirectory + "DSM.vts");
+    VTK::Write(dtm, outputDirectory + "DTM.vts");
+    VTK::Write(dsm, outputDirectory + "DSM.vts");
   }
 
   // Report timings and parameters
-  Timer::Report("dtcc-generate-citymodel", dataDirectory);
+  Timer::Report("dtcc-generate-citymodel", outputDirectory);
   Info(p);
 
   return 0;

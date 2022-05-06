@@ -8,6 +8,7 @@
 #include <queue>
 #include <vector>
 
+#include "BuildingProcessor.h"
 #include "GridField.h"
 #include "Plotting.h"
 #include "PointCloud.h"
@@ -17,6 +18,8 @@
 #include "Timer.h"
 #include "Vector.h"
 #include "datamodel/CityModel.h"
+
+#include "KDTreeVectorOfVectorsAdaptor.h"
 
 namespace DTCC
 {
@@ -40,7 +43,8 @@ public:
                                 const std::vector<std::string> &UUIDs,
                                 const std::vector<int> &entityIDs,
                                 const BoundingBox2D &bbox,
-                                double minBuildingDistance)
+                                double minBuildingDistance,
+                                double minBuildingSize)
   {
     Info("CityModelGenerator: Generating city model...");
     Timer timer("GenerateCityModel");
@@ -65,6 +69,11 @@ public:
       building.Footprint = footprints[i];
       building.UUID = UUIDs[i];
       building.SHPFileID = entityIDs[i];
+      if (Geometry::PolygonArea(building.Footprint) < minBuildingSize)
+      {
+        building.error |= BuildingError::BUILDING_TOO_SMALL;
+      }
+
       cityModel.Buildings.push_back(building);
     }
 
@@ -178,7 +187,10 @@ public:
   static void ExtractBuildingPoints(CityModel &cityModel,
                                     const PointCloud &pointCloud,
                                     double groundMargin,
-                                    double outlierMargin)
+                                    double groundOutlierMargin,
+                                    size_t outlierNeighbors = 0,
+                                    double buildingOutlierThreshold = 0.0)
+
   {
     Info("CityModelGenerator: Extracting building points...");
     Timer timer("ExtractBuildingPoints");
@@ -191,78 +203,105 @@ public:
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
       Error("Missing classifications for point cloud");
 
-    // Build search trees
-    pointCloud.BuildSearchTree(true);
-    cityModel.BuildSearchTree(true, groundMargin);
-
-    // Compute bounding box tree collisions
-    const auto collisions = pointCloud.bbtree.Find(cityModel.bbtree);
-
-    // Clear old building points (if any)
+    auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
+    // build a kd-tree for radius search
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+                                         2 /* dims */>
+        my_kd_tree_t;
+    my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
+    kdt_timer.Stop();
     for (auto &building : cityModel.Buildings)
     {
       building.GroundPoints.clear();
       building.RoofPoints.clear();
-    }
 
-    // Squared margin for detecting ground points
-    const double d2 = groundMargin * groundMargin;
+      auto centerPoint = Geometry::PolygonCenter2D(building.Footprint);
+      double radius =
+          Geometry::PolygonRadius2D(building.Footprint, centerPoint);
+      radius *= radius;
+      radius += groundMargin;
 
-    // Iterate over collisions and extract points
-    for (auto &index : collisions)
-    {
-      // Get point and building
-      const Point3D &p3D = pointCloud.Points[index.first];
-      const Point2D p2D{p3D.x, p3D.y};
-      const uint8_t clf = pointCloud.Classifications[index.first];
-      Building &building = cityModel.Buildings[index.second];
-
-      // Check for ground points
-      if (clf == 2 || clf == 9)
+      std::vector<double> query_pt{centerPoint.x, centerPoint.y};
+      auto radius_t = Timer("RadiusQuery");
+      auto indices_dists = pc_index.radiusQuery(&query_pt[0], radius);
+      radius_t.Stop();
+      for (auto const &ind_pt : indices_dists)
       {
-        if (Geometry::SquaredDistance2D(building.Footprint, p2D) < d2)
+        size_t idx = ind_pt.first;
+        const uint8_t clf = pointCloud.Classifications[idx];
+        const Point3D &p3D = pointCloud.Points[idx];
+        const Point2D p2D{p3D.x, p3D.y};
+
+        if (clf == 2 || clf == 9)
+        {
           building.GroundPoints.push_back(p3D);
-      }
-
-      // Check for roof points
-      // else if (clf == 6)
-      else
-      {
-        if (Geometry::PolygonContains2D(building.Footprint, p2D))
-          building.RoofPoints.push_back(p3D);
+        }
+        else
+        {
+          if (Geometry::PolygonContains2D(building.Footprint, p2D))
+          {
+            building.RoofPoints.push_back(p3D);
+          }
+        }
       }
     }
 
-    // Remove outliers
-    size_t numPoints = 0;
-    size_t numOutliers = 0;
+    // Remove ground outliers
+    size_t numGroundPoints = 0;
+    size_t numGroundOutliers = 0;
     for (auto &building : cityModel.Buildings)
     {
       // Count total number of points
-      numPoints += building.GroundPoints.size();
-      numPoints += building.RoofPoints.size();
+      numGroundPoints += building.GroundPoints.size();
 
       // Remove outliers and count total number of outliers
-      numOutliers += PointCloudProcessor::RemoveOutliers(building.GroundPoints,
-                                                         outlierMargin)
-                         .size();
-      numOutliers += PointCloudProcessor::RemoveOutliers(building.RoofPoints,
-                                                         outlierMargin)
-                         .size();
+      numGroundOutliers += PointCloudProcessor::RemoveOutliers(
+                               building.GroundPoints, groundOutlierMargin)
+                               .size();
     }
-    const double outlierPercentage = (100.0 * numOutliers) / numPoints;
-    Info("CityModelGenerator: Removed outliers (" + str(outlierPercentage) +
-         "%)");
+    const double outlierGroundPercentage =
+        (100.0 * numGroundOutliers) / numGroundPoints;
+    Info("CityModelGenerator: Removed ground point outliers (" +
+         str(outlierGroundPercentage) + "%)");
+
+    // Remove roof outliers
+    if (outlierNeighbors > 0)
+    {
+      CityModelGenerator::BuildingPointsOutlierRemover(
+          cityModel, outlierNeighbors, buildingOutlierThreshold);
+    }
+
+    double ptsPrSqm;
+    double pointCoverage;
+    size_t tooFew = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      ptsPrSqm = static_cast<double>(building.RoofPoints.size()) /
+                 Geometry::PolygonArea(building.Footprint);
+      if (ptsPrSqm < 0.2)
+      {
+        building.error |= BuildingError::BUILDING_TOO_FEW_POINTS;
+        tooFew++;
+      }
+      pointCoverage = BuildingProcessor::PointCoverage(building, 2.0);
+      Info("PointCoverage: " + str(pointCoverage));
+      if (pointCoverage < 0.5)
+      {
+        building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
+      }
+    }
+    Info("CityModelGenerator: Number of buildings with too few roof points: " +
+         str(tooFew));
 
     // Sort points by height
     for (auto &building : cityModel.Buildings)
     {
-      std::sort(
-          building.GroundPoints.begin(), building.GroundPoints.end(),
-          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
-      std::sort(
-          building.RoofPoints.begin(), building.RoofPoints.end(),
-          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
+      std::sort(building.GroundPoints.begin(), building.GroundPoints.end(),
+                [](const Point3D &p, const Point3D &q) -> bool
+                { return p.z < q.z; });
+      std::sort(building.RoofPoints.begin(), building.RoofPoints.end(),
+                [](const Point3D &p, const Point3D &q) -> bool
+                { return p.z < q.z; });
     }
 
     // Compute some statistics
@@ -334,6 +373,7 @@ public:
         Info("CityModelGenerator: Setting ground height from DTM");
         h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
         numMissingGroundPoints++;
+        building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
       }
       else
       {
@@ -350,6 +390,7 @@ public:
              str(minBuildingHeight) + "m");
         h1 = h0 + minBuildingHeight;
         numMissingRoofPoints++;
+        building.error |= BuildingError::BUILDING_NO_ROOF_POINTS;
       }
       else
       {
@@ -360,16 +401,23 @@ public:
       // Check that h0 < h1
       if (h1 < h0 + minBuildingHeight)
       {
-        Warning("Height too small for building " + building.UUID);
-        Info("CitModelGenerator: Setting building height to " +
-             str(minBuildingHeight));
+        // Warning("Height too small for building " + building.UUID);
+        // Info("CitModelGenerator: Setting building height to " +
+        //     str(minBuildingHeight));
         h1 = h0 + minBuildingHeight;
         numSmallHeights++;
+        building.error |= BuildingError::BUILDING_HEIGHT_TOO_LOW;
       }
 
       // Set building height(s)
       building.Height = h1 - h0;
       building.GroundHeight = h0;
+
+      if (building.Height / sqrt(Geometry::PolygonArea(building.Footprint)) >
+          25)
+      {
+        building.error |= BuildingError::BUILDING_BAD_ASPECT_RATIO;
+      }
 
       // Uncomment for debugging
       // Plotting::Plot(building);
@@ -500,13 +548,13 @@ public:
     return building;
   }
 
-  static void BuildingPointsOurlierRemover(CityModel &cityModel,
+  static void BuildingPointsOutlierRemover(CityModel &cityModel,
                                            size_t neighbours,
                                            double outlierMargin,
                                            bool verbose = false)
   {
-    Info("CityModelGenerator: BuildingPointsOurlierRemover");
-    Timer("BuildingPointsOurlierRemover");
+    Info("CityModelGenerator: BuildingPointsOutlierRemover");
+    Timer("BuildingPointsOutlierRemover");
     size_t totalRemoved = 0;
     for (auto &building : cityModel.Buildings)
     {
