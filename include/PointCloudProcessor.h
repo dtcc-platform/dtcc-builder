@@ -446,12 +446,22 @@ public:
       Warning("Scan flags not set. No vegetation filtering");
       return;
     }
+    bool hasClassification = false;
+    if (pointCloud.Classifications.size() == pointCloud.Points.size())
+      hasClassification = true;
 
     for (size_t i = 0; i < pointCloud.Points.size(); i++)
     {
       auto scanFlag = parseScanFlag(pointCloud.ScanFlags[i]);
+      uint8_t classification = 1;
+      if (hasClassification)
+        classification = pointCloud.Classifications[i];
       // not last point of several
-      if (scanFlag.first != scanFlag.second)
+
+      if ((classification >= 3 && classification <= 5) || // classified as veg
+          (classification < 2 &&                          // not classified
+           (scanFlag.first != scanFlag.second))           // not last
+      )
       {
         pointsToRemove.push_back(i);
       }
