@@ -32,4 +32,6 @@ apt-get update && apt-get install -y \
     moreutils \
     unzip \
     jq \
-    uuid-dev
+    uuid-dev \
+    libeigen3-dev \
+    libflann-dev
