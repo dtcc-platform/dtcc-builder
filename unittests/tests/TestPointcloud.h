@@ -261,3 +261,24 @@ TEST_CASE("Vegetation filter")
     REQUIRE(pc.Points.size() == 2);
   }
 }
+
+TEST_CASE("RANSAC filter")
+{
+  std::vector<Point3D> points;
+  points.push_back(Vector3D(0, 0, 25));
+  points.push_back(Vector3D(0, 0, -25));
+  for (int x = 0; x < 10; x++)
+  {
+    for (int y = 0; y < 10; y++)
+    {
+      points.push_back(Vector3D(x, y, 0));
+    }
+  }
+  SECTION("Outliers")
+  {
+    auto outliers = PointCloudProcessor::RANSAC_OutlierFinder(points, 0.1, 150);
+    REQUIRE(outliers.size() == 2);
+    REQUIRE(outliers[0] == 0);
+    REQUIRE(outliers[1] == 1);
+  }
+}
