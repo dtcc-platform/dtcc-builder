@@ -144,8 +144,22 @@ int main(int argc, char *argv[])
   // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
   CityModelGenerator::ExtractBuildingPoints(
-      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"],
-      p["OutlierNeighbors"], p["OutlierSTD"]);
+      cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"]);
+
+  // Remove outliers from roofs using RANSAC
+  // Best for very noisy data like old landmäteriet data
+  if (p["RANSACOutlierRemover"])
+  {
+    CityModelGenerator::BuildingPointsRANSACOutlierRemover(
+        cityModel, p["RANSACOutlierMargin"], p["RANSACIterations"]);
+  }
+
+  // Remove roof outliers using Statistics Outlier Removal
+  if (p["StatisticalOutlierRemover"])
+  {
+    CityModelGenerator::BuildingPointsOutlierRemover(
+        cityModel, p["OutlierNeighbors"], p["OutlierSTD"]);
+  }
 
   CityModelGenerator::ComputeBuildingHeights(
       cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);

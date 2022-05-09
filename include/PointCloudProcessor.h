@@ -381,12 +381,39 @@ public:
     FilterPointCloud(pointCloud, outliers);
   }
 
+  static void RANSAC_OutlierRemover(std::vector<Point3D> &points,
+                                    double distanceThreshold,
+                                    size_t iterations = 100)
+  {
+    Timer("RANSAC_OutlierRemover");
+
+    auto outliers = RANSAC_OutlierFinder(points, distanceThreshold, iterations);
+    if (outliers.size() == 0)
+      return;
+    std::vector<Point3D> newPoints;
+    size_t k = 0;
+    for (size_t i = 0; i < points.size(); i++)
+    {
+      if (k >= outliers.size() || i != outliers[k])
+      {
+        newPoints.push_back(points[i]);
+      }
+      else
+      {
+        k++;
+      }
+    }
+    points = newPoints;
+  }
+
   static std::vector<size_t> RANSAC_OutlierFinder(std::vector<Point3D> &points,
                                                   double distanceThreshold,
                                                   size_t iterations = 100)
   {
 
     std::vector<size_t> outliers;
+    if (points.size() < 9)
+      return outliers;
     std::vector<size_t> best_outliers(points.size(), 0);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -403,6 +430,7 @@ public:
     {
       idx1 = randIdx();
       idx2 = randIdx();
+      // idx1, 2 and 3 must be different
       while (idx2 == idx1)
       {
         idx2 = randIdx();

@@ -51,8 +51,14 @@ public:
     Add("RoofPercentile", 0.9);
     Add("OutlierMargin", 0.2);
     Add("MinBuildingSize", 15.0);
+
+    Add("StatisticalOutlierRemover", true);
     Add("OutlierNeighbors", 5);
     Add("OutlierSTD", 1.5);
+
+    Add("RANSACOutlierRemover", false);
+    Add("RANSACOutlierMargin", 3.0);
+    Add("RANSACIterations", 250);
 
     Add("NaiveVegitationFilter", false);
     Add("DataDirectory", "");
