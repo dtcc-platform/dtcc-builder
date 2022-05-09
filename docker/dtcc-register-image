@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 docker login registry.gitlab.com
-docker build -t registry.gitlab.com/dtcc3d/core .
-docker push registry.gitlab.com/dtcc3d/core
+docker build -t registry.gitlab.com/dtcc-platform/dtcc-builder .
+docker push registry.gitlab.com/dtcc-platform/dtcc-builder
