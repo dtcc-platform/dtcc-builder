@@ -65,12 +65,147 @@ getNeighborsSet(size_t iId,
   for (size_t i = 0; i < indices.size(); i++)
   {
     // set.insert(iBins[indices[i]]);
-    oNeighbors.push_back(iBins[indices[i]]);
+
+    oNeighbors.push_back(iBins[indices[i]]);    
+
     // set.clear();
     // std::cout<<indices[i]<<std::endl;
     // oNeighbors.push_back(iBins[indices[i]]);
   }
   return oNeighbors;
+}
+
+// void mergeFootprints(const Polygon& footprintStart, const std::vector<Polygon>& footprints, std::vector<std::set<size_t>> neighbors, double distTolerance)
+// {
+//   //Generating queue
+//   std::queue<size_t> indices;
+//   for(size_t i=0;i<neighbors.size();i++)
+//   {
+//     for (auto it = neighbors[i].cbegin(); it != neighbors[i].cend(); it++)
+//     {
+//       //std::cout << *it << ' ';
+//       indices.push(*it);
+//     }
+//     //std::cout << std::endl;
+//   }
+
+//   size_t numMerged=0;
+//   while(!indices.empty())
+//   {
+//     const size_t i = indices.front();
+//     indices.pop();
+//     for(size_t j=0;j<neighbors.size();j++)
+//   {
+//     // for (auto it = neighbors[j].cbegin(); it != neighbors[j].cend(); it++)
+//     // {
+//     //   const Polygon& Pj = footprints[*it];
+//     //   const double d2 = Geometry::SquaredDistance2D(footprintStart, Pj);
+
+//     //   if(d2 < distTolerance)
+//     //   {
+//     //     Info("Should merge footprints:" + str(footprintStart) + " with:" + str(Pj));
+//     //     numMerged++;
+//     //     neighbors[j].erase(*it);
+//     //     indices.push(i);
+//     //   }
+//     // }
+//     for (auto it = neighbors[j].cend(); it != neighbors[j].cbegin();--it)
+//     {
+//       const Polygon& Pj = footprints[*it];
+//       const double d2 = Geometry::SquaredDistance2D(footprintStart, Pj);
+//       if(d2 < distTolerance)
+//       {
+//         Info("Should merge footprints:" + str(footprintStart) + " with:" + str(Pj));
+//         numMerged++;
+//         neighbors[j].erase(*it);
+//         indices.push(i);
+//       }
+//     }
+//     //std::cout << std::endl;
+//   }
+//   }
+// }
+
+// void mergeFootprints(const Polygon& footprintStart, const std::vector<Polygon>& footprints, std::set<size_t> neighbors, double tol)
+// {
+//   Polygon pivotPoly = footprintStart;
+//   std::queue<size_t> indices;
+//   for(auto it = neighbors.cbegin(); it!=neighbors.cend(); it++)
+//   {
+//     indices.push(*it);
+//   }
+//   size_t merged=0;
+//   while(!indices.empty())
+//   {
+//     const size_t i = indices.front();
+//     indices.pop();
+
+//     const Polygon& temp = footprints[i];
+//     const double d2 = Geometry::SquaredDistance2D(pivotPoly, temp);
+//     if(d2<tol)
+//     {
+//       Info("Should merge footprints:" + str(pivotPoly) + " with:" + str(temp));
+//       pivotPoly = Polyfix::MergePolygons(pivotPoly, temp, tol);
+//       merged++;
+//       //neighbors[j].erase(*it);
+//       indices.push(i);
+//     }
+//   }
+// }
+
+void printSet(const std::set<size_t>& setToPrint)
+{
+  for(auto It = setToPrint.cbegin(); It != setToPrint.cend(); It++)
+  {
+    std::cout<<*It<<" ";
+  }
+  std::cout<<std::endl;
+}
+
+bool canMergeFootprints(const Polygon& footprintToCheck, const std::vector<Polygon>& footprints, const std::set<size_t>& neighbors, size_t& mergeIndex, double tol)
+{
+  //const Polygon& a = footprints[startFootprintIndex];
+  for (auto it = neighbors.cbegin(); it != neighbors.cend(); it++)
+  {
+    const Polygon& temp = footprints[*it];
+    //const double d2 = Geometry::SquaredDistance2D(a,temp);
+    const double d2 = Geometry::SquaredDistance2D(footprintToCheck, temp);
+    if(d2<tol)
+    {
+      //std::cout<<"Can merge footprints: " << footprintToCheck<< " with: "<< *it << std::endl;
+      std::cout<<"Can merge footprint:"<<*it<< " with a distance of:"<<d2<<std::endl;
+      mergeIndex=*it;
+      return true;
+    }
+  }
+  std::cout<<"Can't merge any more footprints!"<<std::endl;
+  return false;
+}
+
+void mergeFootprints(const size_t& startFootprintIndex,const std::vector<Polygon>& footprints, std::set<size_t> neighbors, double tol)
+{
+  size_t mergeIndex=0;
+  Polygon pivotFootprint = footprints[startFootprintIndex];
+  while(canMergeFootprints(pivotFootprint, footprints, neighbors, mergeIndex, tol))
+  {
+    auto neighborToDelete = neighbors.find(mergeIndex);
+    if(mergeIndex == startFootprintIndex)
+    {
+      neighbors.erase(neighborToDelete);
+      std::cout<<"Tried to merge footprint with itself, skipping..."<<std::endl;
+      continue;
+    }
+
+    Polygon footprintB = footprints[*neighborToDelete];
+    
+    pivotFootprint = Polyfix::MergePolygons(pivotFootprint, footprintB, tol);
+
+    neighbors.erase(neighborToDelete);
+
+    std::cout<<"Erased footprint:"<<*neighborToDelete<<std::endl;
+    std::cout<<"Printin remaining set..."<<std::endl;
+    printSet(neighbors);
+  }
 }
 
 int main(int argc, char *argv[])
@@ -258,35 +393,84 @@ int main(int argc, char *argv[])
     }
     indices.clear();
   } */
-  std::cout << "I am here 261" << std::endl;
-  std::vector<std::vector<size_t>> nearest =
-      getNeighbors(0, grid, centers, bins);
-  std::vector<std::set<size_t>> nearestset =
-      getNeighborsSet(0, grid, centers, setbins);
 
-  std::cout << nearest.size() << std::endl;
-  for (size_t i = 0; i < nearest.size(); i++)
-  {
-    for (size_t j = 0; j < nearest[i].size(); j++)
-    {
-      std::cout << "Nearest buildings " << nearest[i][j] << std::endl;
-    }
-  }
+  // std::cout << "I am here 261" << std::endl;
+  // std::vector<std::vector<size_t>> nearest =
+  //     getNeighbors(0, grid, centers, bins);
+  // std::vector<std::set<size_t>> nearestset =
+  //     getNeighborsSet(0, grid, centers, setbins);
 
+  // std::cout << nearest.size() << std::endl;
+  // for (size_t i = 0; i < nearest.size(); i++)
+  // {
+  //   for (size_t j = 0; j < nearest[i].size(); j++)
+  //   {
+  //     std::cout << "Nearest buildings " << nearest[i][j] << std::endl;
+  //   }
+  // }
+
+  //neighbor print....
+  std::cout<<"Printing neighbors of buildings...."<<std::endl;
   for (size_t i = 0; i < footprints.size(); i++)
   {
-    std::vector<std::set<size_t>> setcol =
+    std::vector<std::set<size_t>> neighborsVecSet =
         getNeighborsSet(i, grid, centers, setbins);
+    std::cout<<"-------------"<<std::endl;
     Info("Neighbors of building " + str(i) + " are ");
-    for (size_t j = 0; j < setcol.size(); j++)
+    //Info(footprints[i]);
+    for (size_t j = 0; j < neighborsVecSet.size(); j++)
     {
-      for (auto it = setcol[j].cbegin(); it != setcol[j].cend(); it++)
+      for (auto it = neighborsVecSet[j].cbegin(); it != neighborsVecSet[j].cend(); it++)
       {
         std::cout << *it << ' ';
       }
       std::cout << std::endl;
     }
+    //mergeFootprints(footprints[i],footprints,neighborsVecSet,p["MinBuildingDistance"]);
+    for (size_t j = 0; j < neighborsVecSet.size(); j++)
+    {
+      std::cout<<"Trying to merge set #"<<j<<std::endl;
+      mergeFootprints(i,footprints,neighborsVecSet[j],p["MinBuildingDistance"]);
+    }
+    
   }
+
+  // double tolerance = p["MinBuildingDistance"];
+  // std::queue<size_t> indices;
+  // for(size_t i=0;i<footprints.size();i++)
+  //   indices.push(i);
+  
+  // size_t NumMerged=0;
+  // while(!indices.empty())
+  // {
+  //   //pop indice of next building to check
+  //   const size_t i=indices.front();
+  //   indices.pop();
+  //   std::vector<std::set<size_t>> neighbors = getNeighborsSet(i, grid, centers, setbins);
+  //   for(size_t j=0;j<neighbors.size();j++)
+  //   {
+  //     for(auto it = neighbors[j].cbegin();it!=neighbors[j].cend();it++)
+  //     {
+  //       // skip building itself
+  //       if(i==j) continue;
+
+  //       //if building[j] is empty skip
+
+  //       //check distance for neighbors 
+  //       const Polygon& Pi = footprints[i];
+  //       const Polygon& Pj = footprints[neighbors[j]];
+  //       const double d2 = Geometry::SquaredDistance2D(Pi,Pj);
+
+  //       //Merge if distance is too small
+  //       if(d2 < tol2)
+  //       {
+  //         //TODO: Call Merge Buildings here
+  //         NumMerged++;
+  //         indices.push(i);
+  //       }
+  //     }
+  //   }
+  // }
 
   /*   for (int i = 0; i < (x * y); i++)
     {
