@@ -26,7 +26,10 @@ test:
     #- pwd && ls -alt && cd ../data && ls -alt && bash dtcc-download-data-unittests
     #- cd unittests/ && wget ftps://cloud.dtcc.chalmers.se/Unittests/Unittests.zip --no-check-certificate && unzip -f Unittests.zip
     # Fix below in order to work on Docker and CI
+    - ls -altR
     - sudo mkdir -p /home/dtcc/core/
+    - cd /builds/
+    - ls -altR
     - sudo cp -R /builds/dtcc3d/core/unittests/ /home/dtcc/core/unittests/
     - sudo chmod -R a+rw /home/dtcc/core/unittests/data/*
     - pwd && ls -alt && cd build/ && ./unittests/run-unittests
