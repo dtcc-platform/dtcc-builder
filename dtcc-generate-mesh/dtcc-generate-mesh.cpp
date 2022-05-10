@@ -13,6 +13,7 @@
 #include "MeshGenerator.h"
 #include "MeshProcessor.h"
 #include "OBJ.h"
+#include "ParameterProcessor.h"
 #include "Parameters.h"
 #include "Utils.h"
 #include "VTK.h"
@@ -28,7 +29,7 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
                            const Parameters &p)
 {
   // Get data directory
-  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
+  auto dataAndOutputDirectory = ParameterProcessor::getDataAndOutputPath(p);
   std::string dataDirectory = dataAndOutputDirectory.first;
   std::string outputDirectory = dataAndOutputDirectory.second;
 
@@ -67,7 +68,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
                           const Parameters &p)
 {
   // Get data directory
-  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
+  auto dataAndOutputDirectory = ParameterProcessor::getDataAndOutputPath(p);
   std::string dataDirectory = dataAndOutputDirectory.first;
   std::string outputDirectory = dataAndOutputDirectory.second;
 
@@ -230,7 +231,7 @@ int main(int argc, char *argv[])
   Info(p);
 
   // Get data directory
-  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
+  auto dataAndOutputDirectory = ParameterProcessor::getDataAndOutputPath(p);
   std::string dataDirectory = dataAndOutputDirectory.first;
   std::string outputDirectory = dataAndOutputDirectory.second;
 

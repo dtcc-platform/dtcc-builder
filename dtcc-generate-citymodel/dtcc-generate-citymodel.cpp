@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
+// Copyright (C) 2020-2022 Anders Logg, Anton J Olsson, Dag Wästberg
 // Licensed under the MIT License
 
-// #include <filesystem>
+#include <experimental/filesystem>
 #include <string>
 #include <vector>
 
@@ -17,6 +17,7 @@
 #include "JSON.h"
 #include "LAS.h"
 #include "Logging.h"
+#include "ParameterProcessor.h"
 #include "Parameters.h"
 #include "Polygon.h"
 #include "SHP.h"
@@ -31,21 +32,45 @@ void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
-  if (argc != 2)
+  std::string dataDirectory;
+  std::string outputDirectory;
+  std::string parameterFile;
+
+  if (CommandLine::HasOption("-h", argc, argv))
+  {
+    Help();
+    return 0;
+  }
+  auto dataParamFile = CommandLine::GetDataParameters(argc, argv);
+  dataDirectory = dataParamFile.first;
+  parameterFile = dataParamFile.second;
+  if (dataDirectory.size() == 0 && parameterFile.size() == 0)
   {
     Help();
     return 1;
   }
 
-  // Read parameters
-  Parameters p;
-  JSON::Read(p, argv[1]);
-  Info(p);
-  const std::string modelName = Utils::GetFilename(argv[1], true);
+  if (dataDirectory.size() > 0 && !Utils::EndsWith(dataDirectory, "/"))
+    dataDirectory += "/";
 
-  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
-  std::string dataDirectory = dataAndOutputDirectory.first;
-  std::string outputDirectory = dataAndOutputDirectory.second;
+  Parameters p;
+  if (parameterFile.size() > 0)
+  {
+    JSON::Read(p, parameterFile);
+    auto dataAndOutputDirectory = ParameterProcessor::getDataAndOutputPath(p);
+    if (dataDirectory.size() == 0) // only set if not set before
+    {
+      dataDirectory = dataAndOutputDirectory.first;
+    }
+    outputDirectory = dataAndOutputDirectory.second;
+  }
+  else
+  {
+    outputDirectory = dataDirectory;
+  }
+
+  Info("Loding from Data directory: " + dataDirectory);
+  Info("Saving to Output directory: " + outputDirectory);
 
   // Start timer
   Timer timer("Step 1: Generate city model");
@@ -54,6 +79,7 @@ int main(int argc, char *argv[])
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
+
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
   Info("Loaded " + str(footprints.size()) + " building footprints");
 
@@ -134,6 +160,11 @@ int main(int argc, char *argv[])
 
   // Generate raw city model
   CityModel cityModel;
+
+  std::string modelName = p["ModelName"];
+  if (modelName.size() == 0)
+    modelName = Utils::GetFilename(dataDirectory);
+
   cityModel.Name = modelName;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
                                         bbox, p["MinBuildingDistance"],

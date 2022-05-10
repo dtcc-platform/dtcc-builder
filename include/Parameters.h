@@ -24,7 +24,8 @@ public:
   {
     Map.clear();
 
-    Add("AutoDomain", false);
+    Add("ModelName", "");
+    Add("AutoDomain", true);
     Add("GenerateSurfaceMeshes", true);
     Add("GenerateVolumeMeshes", true);
     Add("WriteJSON", true);
@@ -34,7 +35,7 @@ public:
     Add("GroundSmoothing", 5);
     Add("NumRandomBuildings", 25);
 
-    Add("DomainMargin", 0.0);
+    Add("DomainMargin", 10.0);
     Add("X0", 0.0);
     Add("Y0", 0.0);
     Add("XMin", 0.0);
@@ -60,7 +61,7 @@ public:
     Add("RANSACOutlierMargin", 3.0);
     Add("RANSACIterations", 250);
 
-    Add("NaiveVegitationFilter", false);
+    Add("NaiveVegitationFilter", true);
     Add("DataDirectory", "");
     Add("OutputDirectory", "");
   }

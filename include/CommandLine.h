@@ -5,9 +5,13 @@
 #define DTCC_COMMAND_LINE_H
 
 #include <dirent.h>
+#include <experimental/filesystem>
 #include <string>
 #include <sys/types.h>
 #include <vector>
+
+#include "Filesystem.h"
+#include "Utils.h"
 
 namespace DTCC
 {
@@ -24,13 +28,6 @@ public:
     return false;
   }
 
-  static bool EndsWith(const std::string& string, const std::string &ending)
-  {
-    if (ending.size() > string.size())
-      return false;
-    return std::equal(ending.rbegin(), ending.rend(), string.rbegin());
-  }
-
   static std::string GetOption(const std::string& option, int argc, char *argv[])
   {
     for (int i = 1; i < argc; i++)
@@ -44,24 +41,39 @@ public:
     return atoi(GetOption(option, argc, argv).c_str());
   }
 
-  static std::vector<std::string> ListDirectory(const std::string& directory)
+  static std::pair<std::string, std::string> GetDataParameters(int argc,
+                                                               char *argv[])
   {
-    std::vector<std::string> fileNames;
+    std::string dataDirectory = "";
+    std::string parameterFile = "";
+    if (argc == 1)
+    {
+      // no arguments
+      dataDirectory = std::experimental::filesystem::current_path().string();
+    }
+    else if (argc == 2)
+    {
+      std::string arg = argv[1];
 
-    // Open directory
-    DIR *dirp = opendir(directory.c_str());
-    if (dirp == nullptr)
-      return fileNames;
-
-    // Read directory
-    struct dirent *dp;
-    while ((dp = readdir(dirp)) != nullptr)
-      fileNames.push_back(std::string(dp->d_name));
-
-    // Close directorys
-    closedir(dirp);
-
-    return fileNames;
+      if (Filesystem::IsDirectory(arg))
+      {
+        dataDirectory = arg;
+      }
+      else if (Filesystem::IsFile(arg))
+      {
+        parameterFile = arg;
+      }
+    }
+    if (dataDirectory.size() > 0 && dataDirectory.back() != '/')
+      dataDirectory += "/";
+    if (parameterFile.size() == 0)
+    {
+      if (Filesystem::IsFile(dataDirectory + "Parameters.json"))
+      {
+        parameterFile = dataDirectory + "Parameters.json";
+      }
+    }
+    return std::make_pair(dataDirectory, parameterFile);
   }
 };
 
