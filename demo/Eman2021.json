@@ -22,5 +22,6 @@
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
     "WriteVTK": true,
-    "Debug": true
+    "Debug": true,
+    "BuildingRemoveOutlier":true
 }

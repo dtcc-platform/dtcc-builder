@@ -28,6 +28,9 @@ RUN ./install_libLAS.sh
 # Get and compile VTK 7.1
 RUN ./install_VTK.sh
 
+# Get and compile libgeos
+RUN ./install_libgeos.sh
+
 # Add /usr/local/lib into LD
 RUN ldconfig /usr/local/lib
 
@@ -49,7 +52,6 @@ RUN echo "cat $HOME/.welcome" >> $HOME/.bashrc
 #ENTRYPOINT ["/bin/bash", "-l", "-c"]
 #CMD ["/bin/bash", "-i"]
 
-
 FROM base as dev
 USER $USER
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
@@ -57,6 +59,7 @@ CMD ["/bin/bash", "-i"]
 
 FROM base as clion
 USER root
+
 ########################################################
 # Essential packages for remote debugging and login in
 ########################################################
@@ -88,5 +91,3 @@ RUN echo 'debugger:pwd' | chpasswd
 ########################################################
 
 CMD ["/usr/sbin/sshd", "-D"]
-
-

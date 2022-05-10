@@ -8,6 +8,7 @@
 #include <queue>
 #include <vector>
 
+#include "GEOS.h"
 #include "GridField.h"
 #include "Plotting.h"
 #include "PointCloud.h"
@@ -500,6 +501,26 @@ public:
     return building;
   }
 
+  static void BuildingPointsOurlierRemover(CityModel &cityModel,
+                                           size_t neighbours,
+                                           double outlierMargin,
+                                           bool verbose = false)
+  {
+    Info("CityModelGenerator: BuildingPointsOurlierRemover");
+    Timer("BuildingPointsOurlierRemover");
+    size_t totalRemoved = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      size_t beforeFilter = building.RoofPoints.size();
+      PointCloudProcessor::StatisticalOutlierRemover(
+          building.RoofPoints, neighbours, outlierMargin, verbose);
+      totalRemoved += (beforeFilter - building.RoofPoints.size());
+    }
+    Info("BuildingPointsOutlierRemove filtered a total of " +
+         str(totalRemoved) + " points from  " +
+         str(cityModel.Buildings.size()) + " buildings");
+  }
+
 private:
   // Get percentile object from array. It is assumed that the array is ordered.
   template <class T>
@@ -515,6 +536,9 @@ private:
                              double minimalBuildingDistance)
   {
     Info("CityModelGenerator: Merging buildings...");
+
+    // Initialize GEOS
+    GEOS::Init();
 
     // Avoid using sqrt for efficiency
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
@@ -581,6 +605,9 @@ private:
     // Overwrite buildings
     cityModel.Buildings = mergedBuildings;
 
+    // Finish GEOS
+    GEOS::Finish();
+
     Info("CityModelGenerator: " + str(numMerged) +
          " building pair(s) were merged");
   }
@@ -591,8 +618,12 @@ private:
                              Building &building1,
                              double minimalBuildingDistance)
   {
-    // Compute merged polygon
-    Polygon mergedPolygon = Polyfix::MergePolygons(
+    // Compute merged polygon (old implementation)
+    // Polygon mergedPolygon = Polyfix::MergePolygons(
+    //  building0.Footprint, building1.Footprint, minimalBuildingDistance);
+
+    // Compute merged polygon (using GEOS)
+    Polygon mergedPolygon = GEOS::MergePolygons(
         building0.Footprint, building1.Footprint, minimalBuildingDistance);
 
     // Set merged polygon

@@ -158,3 +158,41 @@ TEST_CASE("Read from CSV instead of LAS/LAZ")
       REQUIRE(c != 1);
   }
 }
+
+TEST_CASE("Outlier remover")
+{
+  PointCloud pc;
+  pc.Points.push_back(Vector3D(0, 0, 0));
+  pc.Points.push_back(Vector3D(0.5, 0.5, 0));
+  pc.Points.push_back(Vector3D(0.5, 0.5, 0.5));
+  pc.Points.push_back(Vector3D(1, 1, 1));
+  pc.Points.push_back(Vector3D(1.5, 1.5, 1));
+  pc.Points.push_back(Vector3D(1.5, 1.5, 1.5));
+  pc.Points.push_back(Vector3D(10, 10, 10));
+  SECTION("Nearest Neighbours")
+  {
+    auto knn = PointCloudProcessor::KNNNearestNeighbours(pc.Points, 3);
+    REQUIRE(knn.at(0).size() == 3);
+    REQUIRE(knn.at(5).size() == 3);
+    REQUIRE(knn.at(0).at(0) == std::sqrt(0.5 * 0.5 + 0.5 * 0.5));
+    REQUIRE(knn.at(0).at(1) == std::sqrt(0.5 * 0.5 + 0.5 * 0.5 + 0.5 * 0.5));
+    REQUIRE(knn.at(6).at(0) ==
+            std::sqrt((10 - 1.5) * (10 - 1.5) + (10 - 1.5) * (10 - 1.5) +
+                      (10 - 1.5) * (10 - 1.5)));
+    REQUIRE(knn.at(6).at(1) ==
+            std::sqrt((10 - 1.5) * (10 - 1.5) + (10 - 1.5) * (10 - 1.5) +
+                      (10 - 1) * (10 - 1)));
+  }
+
+  SECTION("Outlier Remover")
+  {
+    auto outliers =
+        PointCloudProcessor::StatisticalOutlierFinder(pc.Points, 3, 1.5);
+    REQUIRE(outliers.size() == 1);
+    REQUIRE(outliers[0] == 6);
+
+    REQUIRE(pc.Points.size() == 7);
+    PointCloudProcessor::StatisticalOutlierRemover(pc, 3, 1.5);
+    REQUIRE(pc.Points.size() == 6);
+  }
+}
