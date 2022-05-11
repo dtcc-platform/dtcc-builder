@@ -34,40 +34,17 @@ int main(int argc, char *argv[])
   // Check command-line arguments
   std::string dataDirectory;
   std::string outputDirectory;
-  std::string parameterFile;
 
   if (CommandLine::HasOption("-h", argc, argv))
   {
     Help();
     return 0;
   }
-  auto dataParamFile = CommandLine::GetDataParameters(argc, argv);
-  dataDirectory = dataParamFile.first;
-  parameterFile = dataParamFile.second;
-  if (dataDirectory.size() == 0 && parameterFile.size() == 0)
-  {
-    Help();
-    return 1;
-  }
 
-  if (dataDirectory.size() > 0 && !Utils::EndsWith(dataDirectory, "/"))
-    dataDirectory += "/";
+  Parameters p = ParameterProcessor::ProcessArgs(argc, argv);
 
-  Parameters p;
-  if (parameterFile.size() > 0)
-  {
-    JSON::Read(p, parameterFile);
-    auto dataAndOutputDirectory = ParameterProcessor::getDataAndOutputPath(p);
-    if (dataDirectory.size() == 0) // only set if not set before
-    {
-      dataDirectory = dataAndOutputDirectory.first;
-    }
-    outputDirectory = dataAndOutputDirectory.second;
-  }
-  else
-  {
-    outputDirectory = dataDirectory;
-  }
+  dataDirectory = (std::string)p["DataDirectory"];
+  outputDirectory = (std::string)p["OutputDirectory"];
 
   Info("Loding from Data directory: " + dataDirectory);
   Info("Saving to Output directory: " + outputDirectory);
