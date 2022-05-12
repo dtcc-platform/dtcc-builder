@@ -50,7 +50,7 @@ public:
     Add("DomainHeight", 100.0);
     Add("GroundPercentile", 0.1);
     Add("RoofPercentile", 0.9);
-    Add("OutlierMargin", 0.2);
+    Add("OutlierMargin", 2.0);
     Add("MinBuildingSize", 15.0);
 
     Add("StatisticalOutlierRemover", true);
