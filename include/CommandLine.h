@@ -40,41 +40,6 @@ public:
   {
     return atoi(GetOption(option, argc, argv).c_str());
   }
-
-  static std::pair<std::string, std::string> GetDataParameters(int argc,
-                                                               char *argv[])
-  {
-    std::string dataDirectory = "";
-    std::string parameterFile = "";
-    if (argc == 1)
-    {
-      // no arguments
-      dataDirectory = std::experimental::filesystem::current_path().string();
-    }
-    else if (argc == 2)
-    {
-      std::string arg = argv[1];
-
-      if (Filesystem::IsDirectory(arg))
-      {
-        dataDirectory = arg;
-      }
-      else if (Filesystem::IsFile(arg))
-      {
-        parameterFile = arg;
-      }
-    }
-    if (dataDirectory.size() > 0 && dataDirectory.back() != '/')
-      dataDirectory += "/";
-    if (parameterFile.size() == 0)
-    {
-      if (Filesystem::IsFile(dataDirectory + "Parameters.json"))
-      {
-        parameterFile = dataDirectory + "Parameters.json";
-      }
-    }
-    return std::make_pair(dataDirectory, parameterFile);
-  }
 };
 
 } // namespace DTCC
