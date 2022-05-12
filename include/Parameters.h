@@ -57,7 +57,7 @@ public:
     Add("OutlierNeighbors", 5);
     Add("OutlierSTD", 1.5);
 
-    Add("RANSACOutlierRemover", false);
+    Add("RANSACOutlierRemover", true);
     Add("RANSACOutlierMargin", 3.0);
     Add("RANSACIterations", 250);
 
