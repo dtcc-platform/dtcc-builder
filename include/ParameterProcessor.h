@@ -57,9 +57,19 @@ public:
     if (!parameterFile.empty())
     {
       JSON::Read(parameters, parameterFile);
+      std::string tmpDataDir = parameters["DataDirectory"];
+      if (!tmpDataDir.empty())
+      {
+        if (tmpDataDir.back() != '/')
+        {
+          tmpDataDir += "/";
+        }
+        dataDirectory = tmpDataDir;
+      }
     }
     if (!dataDirectory.empty())
     {
+
       parameters["DataDirectory"] = dataDirectory;
     }
     outputDirectory = (std::string)parameters["OutputDirectory"];
