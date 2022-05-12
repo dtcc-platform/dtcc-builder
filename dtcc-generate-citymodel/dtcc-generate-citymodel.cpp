@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     p["XMin"] = 0.0;
     p["YMin"] = 0.0;
     p["XMax"] = bbox.Q.x - bbox.P.x;
-    p["YMax"] = bbox.Q.y - bbox.Q.y;
+    p["YMax"] = bbox.Q.y - bbox.P.y;
   }
   else
   {
