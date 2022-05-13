@@ -45,6 +45,32 @@ TEST_CASE("POINT_CLOUD")
     REQUIRE(out_pc.Points[0].x == 1);
     REQUIRE(out_pc.Points[1].x == 2);
   }
+
+  SECTION("Used Classifications")
+  {
+    PointCloud pc;
+    pc.Points.push_back(Vector3D(0, 0, 0));
+    pc.Classifications.push_back(0);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+
+    pc.BuildHasClassifications();
+
+    REQUIRE(pc.HasClassification(0));
+    REQUIRE(pc.HasClassification(1));
+    REQUIRE(pc.HasClassification(2));
+    REQUIRE(!pc.HasClassification(3));
+  }
 }
 
 TEST_CASE("BoundingBox2D")

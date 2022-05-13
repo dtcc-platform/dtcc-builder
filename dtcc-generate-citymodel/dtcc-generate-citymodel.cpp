@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
     Error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, "
           "Y{0,Min,Max} values in Parameters.json");
   pointCloud.SetOrigin(O);
+  pointCloud.BuildHasClassifications();
   Info(pointCloud);
 
   // Remove outliers from point cloud
@@ -156,7 +157,11 @@ int main(int argc, char *argv[])
 
   // Remove outliers from roofs using RANSAC
   // Best for very noisy data like old landmäteriet data
-  if (p["RANSACOutlierRemover"])
+  // if buildings are classified the RANSAC outlier remover
+  // will almost certainly do more harm than good
+  bool classifiedBuildings = pointCloud.HasClassification(6);
+
+  if (!classifiedBuildings && p["RANSACOutlierRemover"])
   {
     CityModelGenerator::BuildingPointsRANSACOutlierRemover(
         cityModel, p["RANSACOutlierMargin"], p["RANSACIterations"]);

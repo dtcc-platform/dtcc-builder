@@ -201,12 +201,15 @@ public:
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
       Error("Missing classifications for point cloud");
 
+    bool classifedBuildings = pointCloud.HasClassification(6);
+
     auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
     // build a kd-tree for radius search
     typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
                                          2 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
+
     kdt_timer.Stop();
     for (auto &building : cityModel.Buildings)
     {
@@ -234,7 +237,7 @@ public:
         {
           building.GroundPoints.push_back(p3D);
         }
-        else
+        else if (clf == 6 || (!classifedBuildings && clf < 2))
         {
           if (Geometry::PolygonContains2D(building.Footprint, p2D))
           {

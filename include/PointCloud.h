@@ -4,6 +4,7 @@
 #ifndef DTCC_POINT_CLOUD_H
 #define DTCC_POINT_CLOUD_H
 
+#include <set>
 #include <vector>
 
 #include "BoundingBox.h"
@@ -72,7 +73,7 @@ public:
     }
   }
 
-  /// Set a default color to all points
+  /// Set a default classification to all points
   void InitClassifications(uint8_t c)
   {
     Classifications.clear();
@@ -106,12 +107,32 @@ public:
     Progress(str(bbtree));
   }
 
+  void BuildHasClassifications()
+  {
+    for (auto c : Classifications)
+    {
+      UsedClassifications.insert(c);
+    }
+  }
+
+  bool HasClassification(uint8_t c) const
+
+  {
+    if (UsedClassifications.empty())
+    {
+      Warning("Classification set is not built.");
+      return false;
+    }
+    return UsedClassifications.find(c) != UsedClassifications.end();
+  }
+
   /// Clear all data
   void Clear()
   {
     Points.clear();
     Colors.clear();
     Classifications.clear();
+    UsedClassifications.clear();
     Intensities.clear();
     ScanFlags.clear();
     bbtree.Clear();
@@ -126,6 +147,9 @@ public:
   }
 
 private:
+  /// Set of used point classifications
+  std::set<uint8_t> UsedClassifications{};
+
   friend class CityModelGenerator;
 
   // Bounding box tree used for search queries
