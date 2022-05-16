@@ -28,6 +28,15 @@ using namespace DTCC;
 
 void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 
+void printSet(const std::set<size_t>& setToPrint)
+{
+  for(auto It = setToPrint.cbegin(); It != setToPrint.cend(); It++)
+  {
+    std::cout<<*It<<" ";
+  }
+  std::cout<<std::endl;
+}
+
 std::vector<std::vector<size_t>>
 getNeighbors(size_t iId,
              const Grid2D &iGrid,
@@ -75,92 +84,49 @@ getNeighborsSet(size_t iId,
   return oNeighbors;
 }
 
-// void mergeFootprints(const Polygon& footprintStart, const std::vector<Polygon>& footprints, std::vector<std::set<size_t>> neighbors, double distTolerance)
+// std::set<size_t>
+// getNeighborsSet(size_t id, const Grid2D& inGrid, const std::vector<Point2D>& inCenter, const std::vector<std::set<size_t>> bins, double distance)
 // {
-//   //Generating queue
-//   std::queue<size_t> indices;
-//   for(size_t i=0;i<neighbors.size();i++)
+//   std::set<size_t> neighbors;
+//   size_t bin = inGrid.Point2Index(inCenter[id]);
+//   std::set<size_t> set;
+//   std::vector<size_t> indices;
+//   inGrid.Index2Boundary(bin,indices);
+//   std::cout<<"Building:" << id << " is on the same bin with:"<<std::endl;
+//   for(size_t i=0;i<indices.size();i++)
 //   {
-//     for (auto it = neighbors[i].cbegin(); it != neighbors[i].cend(); it++)
-//     {
-//       //std::cout << *it << ' ';
-//       indices.push(*it);
-//     }
-//     //std::cout << std::endl;
+//     std::cout<<indices[i]<<std::endl;
+//     neighbors.insert(bins[indices[i]]);
 //   }
-
-//   size_t numMerged=0;
-//   while(!indices.empty())
-//   {
-//     const size_t i = indices.front();
-//     indices.pop();
-//     for(size_t j=0;j<neighbors.size();j++)
-//   {
-//     // for (auto it = neighbors[j].cbegin(); it != neighbors[j].cend(); it++)
-//     // {
-//     //   const Polygon& Pj = footprints[*it];
-//     //   const double d2 = Geometry::SquaredDistance2D(footprintStart, Pj);
-
-//     //   if(d2 < distTolerance)
-//     //   {
-//     //     Info("Should merge footprints:" + str(footprintStart) + " with:" + str(Pj));
-//     //     numMerged++;
-//     //     neighbors[j].erase(*it);
-//     //     indices.push(i);
-//     //   }
-//     // }
-//     for (auto it = neighbors[j].cend(); it != neighbors[j].cbegin();--it)
-//     {
-//       const Polygon& Pj = footprints[*it];
-//       const double d2 = Geometry::SquaredDistance2D(footprintStart, Pj);
-//       if(d2 < distTolerance)
-//       {
-//         Info("Should merge footprints:" + str(footprintStart) + " with:" + str(Pj));
-//         numMerged++;
-//         neighbors[j].erase(*it);
-//         indices.push(i);
-//       }
-//     }
-//     //std::cout << std::endl;
-//   }
-//   }
+  
+//   return neighbors;
 // }
 
-// void mergeFootprints(const Polygon& footprintStart, const std::vector<Polygon>& footprints, std::set<size_t> neighbors, double tol)
-// {
-//   Polygon pivotPoly = footprintStart;
-//   std::queue<size_t> indices;
-//   for(auto it = neighbors.cbegin(); it!=neighbors.cend(); it++)
-//   {
-//     indices.push(*it);
-//   }
-//   size_t merged=0;
-//   while(!indices.empty())
-//   {
-//     const size_t i = indices.front();
-//     indices.pop();
-
-//     const Polygon& temp = footprints[i];
-//     const double d2 = Geometry::SquaredDistance2D(pivotPoly, temp);
-//     if(d2<tol)
-//     {
-//       Info("Should merge footprints:" + str(pivotPoly) + " with:" + str(temp));
-//       pivotPoly = Polyfix::MergePolygons(pivotPoly, temp, tol);
-//       merged++;
-//       //neighbors[j].erase(*it);
-//       indices.push(i);
-//     }
-//   }
-// }
-
-void printSet(const std::set<size_t>& setToPrint)
+std::set<size_t>
+getNeighborsSet(size_t footprintId, const std::vector<Polygon>& footprints, double distance)
 {
-  for(auto It = setToPrint.cbegin(); It != setToPrint.cend(); It++)
+  std::set<size_t> neighbors;
+  const Polygon pivot = footprints[footprintId];
+  for(size_t i=0;i<footprints.size();i++)
   {
-    std::cout<<*It<<" ";
+    //Skip ourselves
+    if(footprintId==i) continue;
+    double dist2 = Geometry::SquaredDistance2D(pivot,footprints[i]);
+    if(dist2<distance)
+    {
+      //std::cout<<"building: "<< footprintId<<" is neighbors with:" << i << " with a distance of:"<<dist2<<std::endl;
+      neighbors.insert(i);
+    }
+
   }
-  std::cout<<std::endl;
+
+  std::cout<<"Building: " << footprintId<<" is neighbors with:"<<std::endl;
+  printSet(neighbors);
+
+  return neighbors;
 }
+
+
 
 bool canMergeFootprints(const Polygon& footprintToCheck, const std::vector<Polygon>& footprints, const std::set<size_t>& neighbors, size_t& mergeIndex, double tol)
 {
@@ -296,12 +262,14 @@ int main(int argc, char *argv[])
   size_t x = (bbox.Q.x - bbox.P.x) / (2 * maxdiam);
   size_t y = (bbox.Q.y - bbox.P.y) / (2 * maxdiam);
 
-  Info(str(xlength));
-  Info(str(ylength));
+  Info("X Length:" + str(xlength));
+  Info("Y Length:" + str(ylength));
 
-  Info(str(x));
+  Info("X:" + str(x));
+  Info("Y:" + str(y));
 
-  Info(str(y));
+  size_t temp;
+  std::cin>>temp;
   Grid2D grid(bbox, x, y);
   std::vector<std::set<size_t>> neighbors; //,setbins;
   std::vector<std::vector<size_t>> bins;
@@ -410,7 +378,7 @@ int main(int argc, char *argv[])
   // }
 
   //neighbor print....
-  std::cout<<"Printing neighbors of buildings...."<<std::endl;
+  std::cout<<"Printing neighbors of buildings with getNeighborsSet...."<<std::endl;
   for (size_t i = 0; i < footprints.size(); i++)
   {
     std::vector<std::set<size_t>> neighborsVecSet =
@@ -426,13 +394,30 @@ int main(int argc, char *argv[])
       }
       std::cout << std::endl;
     }
-    //mergeFootprints(footprints[i],footprints,neighborsVecSet,p["MinBuildingDistance"]);
-    for (size_t j = 0; j < neighborsVecSet.size(); j++)
-    {
-      std::cout<<"Trying to merge set #"<<j<<std::endl;
-      mergeFootprints(i,footprints,neighborsVecSet[j],p["MinBuildingDistance"]);
-    }
-    
+    // for (size_t j = 0; j < neighborsVecSet.size(); j++)
+    // {
+    //   std::cout<<"Trying to merge set #"<<j<<std::endl;
+    //   mergeFootprints(i,footprints,neighborsVecSet[j],p["MinBuildingDistance"]);
+    // }
+  }
+
+  std::cout<<"Printing neighbors of buildings with brute force...."<<std::endl;
+  std::cout<<"bb X:"<<grid.XStep<<" , "<<grid.YStep<<std::endl;
+  size_t t;
+  std::cin>>t;
+
+  for(size_t i=0;i<footprints.size();i++)
+  {
+    //std::set<size_t> neighbors = getNeighborsSet(i,footprints,bbox.Area());
+    //printSet(neighbors);
+
+    //Brute force...
+    //std::set<size_t> neighbors = getNeighborsSet(i,footprints,p["MinBuildingDistance"]);
+    std::set<size_t> neighbors = getNeighborsSet(i,footprints,grid.XStep);
+
+    //Bin usage
+    //std::set<size_t> neighbors2 = getNeighborsSet(i, grid, centers, 250.0);
+    std::cout<<"------"<<std::endl;
   }
 
   // double tolerance = p["MinBuildingDistance"];
