@@ -547,17 +547,16 @@ private:
 
     // Get buildings
     std::vector<Building> &buildings = cityModel.Buildings;
-
-    std::set<size_t> markedIndices;
+    std::queue<size_t> indices;
+    //std::set<size_t> markedIndices;
     std::unordered_map<size_t,std::set<size_t>> umap;
 
     //Build umap which correlates building with each neighbors
     for (size_t i = 0; i < buildings.size(); i++)
     {
-      //indices.push(i); //Anders implenetation
-      std::set<size_t> neighbors = GetBuildingNeighbors(i, markedIndices, buildings, tol2);
-      //auto test = std::make_pair<size_t,size_t>((int)i,5);
-      //umap.insert(std::make_pair<size_t,std::set<size_t>>((int)i,neighbors));
+      indices.push(i); //Anders implementation
+      //std::set<size_t> neighbors = GetBuildingNeighbors(i, markedIndices, buildings, tol2);
+      std::set<size_t> neighbors = GetBuildingNeighbors(i, buildings, tol2);
       umap.insert({i,neighbors});
     }
 
@@ -572,34 +571,43 @@ private:
     //std::cout<<"Removed "<< buildingsToRemove << " buildings from vector"<<std::endl;
 
     size_t numMerged = 0;
-    for(auto& it : umap)
-    {
-      std::cout<<"Trying to merge building " << it.first<< " with its neighbors:"<<std::endl;
-      
-      for(auto neighbor : it.second)
-      {
-        std::cout<<neighbor<<" ";
-        if(BuildingsInMergeDistance(buildings[it.first],buildings[neighbor],tol2))
-        {
-          std::unordered_map<size_t,std::set<size_t>>::const_iterator foundIt = umap.find(neighbor);
-          std::cout<<"Adding new neighbors:";
-          for(auto setIt : foundIt->second)
-          {
-            std::cout<<setIt<<",";
-            it.second.insert(setIt);
-          }
-          std::cout<<"\b \b"<<std::endl;
+    //586 pairs
+    // for(auto& it : umap)
+    // {
+    //   std::cout<<"Trying to merge building " << it.first<< " with its neighbors:"<<std::endl;
+    //   if(buildings[it.first].Empty())
+    //     continue;
 
-          Progress("CityModelGenerator: Buildings " + str(buildings[it.first]) + " and " +
-                    str(buildings[neighbor]) + " are too close, merging");
-          MergeBuildings(buildings[it.first], buildings[neighbor],minimalBuildingDistance);
-          std::cout<<"Merged ["<<it.first<<","<<neighbor<<"]"<<std::endl;
-          numMerged++;
-        }
-      }
-      std::cout<<std::endl;
-    }
-    std::cout<<"Merged: "<<numMerged<<std::endl;
+    //   for(auto neighbor : it.second)
+    //   {
+    //     std::cout<<neighbor<<" ";
+
+    //     if(it.first==neighbor)
+    //       continue;
+    //     if(buildings[neighbor].Empty())
+    //       continue;
+
+    //     if(BuildingsInMergeDistance(buildings[it.first],buildings[neighbor],tol2))
+    //     {
+    //       std::unordered_map<size_t,std::set<size_t>>::const_iterator foundIt = umap.find(neighbor);
+    //       std::cout<<"Adding new neighbors:";
+    //       for(auto setIt : foundIt->second)
+    //       {
+    //         std::cout<<setIt<<",";
+    //         it.second.insert(setIt);
+    //       }
+    //       std::cout<<"\b \b"<<std::endl;
+
+    //       Progress("CityModelGenerator: Buildings " + str(it.first) + " and " +
+    //                 str(neighbor) + " are too close, merging");
+    //       MergeBuildings(buildings[it.first], buildings[neighbor],minimalBuildingDistance);
+    //       std::cout<<"Merged ["<<it.first<<","<<neighbor<<"]"<<std::endl;
+    //       numMerged++;
+    //     }
+    //   }
+    //   //std::cout<<std::endl;
+    // }
+    // std::cout<<"Merged: "<<numMerged<<std::endl;
 
     // Create queue of indices to check
     // std::queue<size_t> indices;
@@ -610,43 +618,77 @@ private:
       
     // // Process queue until empty
     // size_t numMerged = 0;
-    // while (!indices.empty())
-    // {
-    //   // Pop index of next building to check
-    //   const size_t i = indices.front();
-    //   indices.pop();
+    while (!indices.empty())
+    {
+      // Pop index of next building to check
+      const size_t i = indices.front();
+      indices.pop();
 
-    //   // Iterate over all other buildings
-    //   for (size_t j = 0; j < buildings.size(); j++)
-    //   {
-    //     // Skip building itself
-    //     if (i == j)
-    //       continue;
+      //477 pairs
+      //Get building's neighbors from umap
+      // std::unordered_map<size_t,std::set<size_t>>::const_iterator foundIt = umap.find(i);
+      // for(auto It : foundIt->second)
+      // {
+      //   // Skip building itself
+      //   if (i == It)
+      //     continue;
 
-    //     // Skip if merged with other building (size set to 0)
-    //     if (buildings[j].Empty())
-    //       continue;
+      //   // Skip if merged with other building (size set to 0)
+      //   if (buildings[It].Empty())
+      //     continue;
 
-    //     // Compute squared distance between polygons
-    //     const Polygon &Pi = buildings[i].Footprint;
-    //     const Polygon &Pj = buildings[j].Footprint;
-    //     const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+      //   // Compute squared distance between polygons
+      //   const Polygon &Pi = buildings[i].Footprint;
+      //   const Polygon &Pj = buildings[It].Footprint;
+      //   const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
 
-    //     // Merge if distance is small
-    //     if (d2 < tol2)
-    //     {
-    //       Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-    //                str(j) + " are too close, merging");
+      //   // Merge if distance is small
+      //   if (d2 < tol2)
+      //   {
+      //     Progress("CityModelGenerator: Buildings " + str(i) + " and " +
+      //              str(It) + " are too close, merging");
 
-    //       // Merge buildings
-    //       MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
-    //       numMerged++;
+      //     // Merge buildings
+      //     MergeBuildings(buildings[i], buildings[It], minimalBuildingDistance);
+      //     numMerged++;
 
-    //       // Add building i to queue
-    //       indices.push(i);
-    //     }
-    //   }
-    // }
+      //     // Add building i to queue
+      //     indices.push(i);
+      //   }
+      // }
+
+      //723 merges
+      // Iterate over all other buildings      
+      for (size_t j = 0; j < buildings.size(); j++)
+      {
+        // Skip building itself
+        if (i == j)
+          continue;
+
+        // Skip if merged with other building (size set to 0)
+        if (buildings[j].Empty())
+          continue;
+
+        // Compute squared distance between polygons
+        const Polygon &Pi = buildings[i].Footprint;
+        const Polygon &Pj = buildings[j].Footprint;
+        const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+
+        // Merge if distance is small
+        if (d2 < tol2)
+        {
+          Progress("CityModelGenerator: Buildings " + str(i) + " and " +
+                   str(j) + " are too close, merging");
+
+          // Merge buildings
+          MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
+          numMerged++;
+
+          // Add building i to queue
+          indices.push(i);
+        }
+      }
+    }
 
     // Extract non-empty polygons (might be done more efficiently)
     std::vector<Building> mergedBuildings;
@@ -692,6 +734,29 @@ private:
         //std::cout<<"Building "<<buildingIndex << " is next to: "<<i<<std::endl;
         neighborsIndices.insert(i);
         markedIndices.insert(i);
+      }
+    }
+    //Erase last comma and switch line
+    std::cout<<"\b \b"<<std::endl;
+    return neighborsIndices;
+  }
+
+  static std::set<size_t> GetBuildingNeighbors(size_t buildingIndex, 
+                                              const std::vector<Building>& buildings,
+                                              double distance)
+  {
+    std::set<size_t> neighborsIndices;
+    std::cout<<"Building "<<buildingIndex << " is next to: ";
+    for(size_t i=0;i<buildings.size();i++)
+    {
+      //Skip when we're comparing building with itself or
+      if (i==buildingIndex)
+        continue;
+      
+      if(BuildingsInMergeDistance(buildings[buildingIndex],buildings[i], distance))
+      {
+        std::cout<<i<<",";
+        neighborsIndices.insert(i);
       }
     }
     //Erase last comma and switch line
