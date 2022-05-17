@@ -6,7 +6,7 @@ project(Core)
 
 # Set default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
+  set(CMAKE_BUILD_TYPE "Debug")
   message(STATUS "Build type not specified, using Release by default")
 endif(NOT CMAKE_BUILD_TYPE)
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})

@@ -151,7 +151,8 @@ public:
   /// heights are set to min/max values of the merged buildings.
   static void SimplifyCityModel(CityModel &cityModel,
                                 double minimalBuildingDistance,
-                                double minimalVertexDistance)
+                                double minimalVertexDistance,
+                                BoundingBox2D bbox = BoundingBox2D())
   {
     Info("CityModelGenerator: Simplifying city model...");
     Timer timer("SimplifyCityModel");
@@ -161,6 +162,7 @@ public:
 
     // Merge buildings if too close
     MergeCityModel(cityModel, minimalBuildingDistance);
+    MergeCityModelNew(cityModel, minimalBuildingDistance, bbox)
   }
 
   /// Extract ground and roof points from point cloud.
@@ -524,6 +526,21 @@ public:
   }
 
 private:
+  static double GetMaxDiameter(const std::vector<Building> &buildings)
+  {
+    double maxdiam = 0;
+    for (size_t i = 0; i < buildings.size(); i++)
+    {
+      double center = Geometry::PolygonCenter2D(buildings[i].Footprint);
+      double diameter =
+          Geometry::PolygonRadius2D(buildings[i].Footprint, center);
+      if (diameter > maxdiam)
+      {
+        maxdiam = diameter;
+      }
+      return maxdiam;
+    }
+  }
   // Get percentile object from array. It is assumed that the array is ordered.
   template <class T>
   static T GetPercentile(const std::vector<T> &array, double percentile)
