@@ -526,7 +526,7 @@ public:
   }
 
 private:
-  std::vector<std::set<size_t>>
+  static std::vector<std::set<size_t>>
   getNeighborsSet(size_t iId,
                   const Grid2D &iGrid,
                   const std::vector<Building> &iBuildings,
@@ -555,6 +555,35 @@ private:
     return oNeighbors;
   }
 
+  static std::vector<std::set<size_t>> InitializeBins(const BoundingBox2D & bbox, const std::vector<Building> &Buildings, Grid2D &GeneratedGrid)
+  {
+    double maxdiam = GetMaxDiameter(Buildings);
+    size_t x = (bbox.Q.x - bbox.P.x) / (2 * maxdiam);
+    size_t y = (bbox.Q.y - bbox.P.y) / (2 * maxdiam);
+    //Grid2D grid(bbox, x, y);
+    GeneratedGrid = Grid2D(bbox,x,y);
+    //Init bins
+    std::vector<std::set<size_t>> setbins;
+    setbins.reserve(x * y);
+    for (size_t i = 0; i < x * y; i++)
+    {
+      setbins.push_back(std::set<size_t>());
+    }
+    for (size_t i = 0; i < Buildings.size(); i++)
+    {
+      //Info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
+      Point2D center = Geometry::PolygonCenter2D(Buildings[i].Footprint);
+      Info("Building " + str(i) + str(GeneratedGrid.Point2Index(center)));
+      size_t vertexno = GeneratedGrid.Point2Index(center);
+      // bins[grid.Point2Index(centers[i])].push_back(i);
+      // myset.insert(i);
+      std::cout << "Vertexno " << vertexno << std::endl;
+      setbins[vertexno].insert(i);
+      // ins[grid.Point2Index(centers[i])]=i;
+    }
+    return setbins;
+  }
+
   static double GetMaxDiameter(const std::vector<Building> &buildings)
   {
     double maxdiam = 0;
@@ -566,7 +595,18 @@ private:
       {
         maxdiam = diameter;
       }
-      return maxdiam;
+    }
+    return maxdiam;
+  }
+
+  static void InsertNeighborsIntoStack(std::stack<size_t>& stack, std::vector<std::set<size_t>> neighbors)
+  {
+    for(size_t i=0;i<neighbors.size();i++)
+    {
+      for(auto& It : neighbors[i])
+      {
+        stack.push(It);
+      }
     }
   }
   // Get percentile object from array. It is assumed that the array is ordered.
@@ -599,52 +639,122 @@ private:
 
     if (bbox.Area() != 0.0)
     {
-      std::unordered_map<size_t, std::set<size_t>> umap;
+      // std::unordered_map<size_t, std::set<size_t>> umap;
+      // // Build umap which correlates building with each neighbors
+      // for (size_t i = 0; i < buildings.size(); i++)
+      // {
+      //   std::set<size_t> neighbors = GetBuildingNeighbors(i, buildings, tol2);
+      //   umap.insert({i, neighbors});
+      // }
+      // // 586 pairs
+      // for (auto &it : umap)
+      // {
+      //   std::cout << "Trying to merge building " << it.first
+      //             << " with its neighbors:" << std::endl;
+      //   if (buildings[it.first].Empty())
+      //     continue;
+      //   for (auto neighbor : it.second)
+      //   {
+      //     std::cout << neighbor << " ";
+      //     if (it.first == neighbor)
+      //       continue;
+      //     if (buildings[neighbor].Empty())
+      //       continue;
+      //     if (BuildingsInMergeDistance(buildings[it.first], buildings[neighbor],
+      //                                  tol2))
+      //     {
+      //       std::unordered_map<size_t, std::set<size_t>>::const_iterator
+      //           foundIt = umap.find(neighbor);
+      //       std::cout << "Adding new neighbors:";
+      //       for (auto setIt : foundIt->second)
+      //       {
+      //         std::cout << setIt << ",";
+      //         it.second.insert(setIt);
+      //       }
+      //       std::cout << "\b \b" << std::endl;
+      //       Progress("CityModelGenerator: Buildings " + str(it.first) +
+      //                " and " + str(neighbor) + " are too close, merging");
+      //       MergeBuildings(buildings[it.first], buildings[neighbor],
+      //                      minimalBuildingDistance);
+      //       std::cout << "Merged [" << it.first << "," << neighbor << "]"
+      //                 << std::endl;
+      //       numMerged++;
+      //     }
+      //   }
+      //   // std::cout<<std::endl;
+      // }
+      // std::cout << "Merged: " << numMerged << std::endl;
 
-      // Build umap which correlates building with each neighbors
+      //Initialize bins
+      Grid2D generatedGrid;
+      std::vector<std::set<size_t>> bins = InitializeBins(bbox, buildings, generatedGrid);
+
+      // Create queue of indices to check
+      std::queue<size_t> indices;
       for (size_t i = 0; i < buildings.size(); i++)
       {
-        std::set<size_t> neighbors = GetBuildingNeighbors(i, buildings, tol2);
-        umap.insert({i, neighbors});
+        indices.push(i);
       }
-      // 586 pairs
-      for (auto &it : umap)
+
+      while (!indices.empty())
       {
-        std::cout << "Trying to merge building " << it.first
-                  << " with its neighbors:" << std::endl;
-        if (buildings[it.first].Empty())
-          continue;
-        for (auto neighbor : it.second)
+        // Pop index of next building to check
+        const size_t i = indices.front();
+        indices.pop();
+
+        std::vector<std::set<size_t>> iNeighbors = getNeighborsSet(i,generatedGrid,buildings,bins);
+        //Will store any additional neighbors as a result from any merge
+        std::stack<size_t> allNeighbors;
+        InsertNeighborsIntoStack(allNeighbors, iNeighbors);
+        // for(int j=0;j<iNeighbors.size();j++)
+        // {
+        //   //Init neighbors
+        //   for(auto& It : iNeighbors[j])
+        //   {
+        //     //allNeighbors.insert(It);
+        //     allNeighbors.push(It);
+        //   }
+        // }
+
+        while(!allNeighbors.empty())
         {
-          std::cout << neighbor << " ";
-          if (it.first == neighbor)
+          const size_t tempNeighbor = allNeighbors.top();
+          allNeighbors.pop();
+
+          //Skip building itself
+          if(i == tempNeighbor)
             continue;
-          if (buildings[neighbor].Empty())
+
+          // Skip if merged with other building (size set to 0)
+          if(buildings[tempNeighbor].Empty())
             continue;
-          if (BuildingsInMergeDistance(buildings[it.first], buildings[neighbor],
-                                       tol2))
+
+          // Compute squared distance between polygons
+          const Polygon &Pi = buildings[i].Footprint;
+          const Polygon &Pj = buildings[tempNeighbor].Footprint;
+          const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+
+          // Merge if distance is small
+          if (d2 < tol2)
           {
-            std::unordered_map<size_t, std::set<size_t>>::const_iterator
-                foundIt = umap.find(neighbor);
-            std::cout << "Adding new neighbors:";
-            for (auto setIt : foundIt->second)
-            {
-              std::cout << setIt << ",";
-              it.second.insert(setIt);
-            }
-            std::cout << "\b \b" << std::endl;
-            Progress("CityModelGenerator: Buildings " + str(it.first) +
-                     " and " + str(neighbor) + " are too close, merging");
-            MergeBuildings(buildings[it.first], buildings[neighbor],
-                           minimalBuildingDistance);
-            std::cout << "Merged [" << it.first << "," << neighbor << "]"
-                      << std::endl;
+            Progress("CityModelGenerator: Buildings " + str(i) + " and " +
+                     str(tempNeighbor) + " are too close, merging");
+
+            // We're about to merge buildings, add the 2nd building's neighbors into the stack
+            InsertNeighborsIntoStack(allNeighbors,getNeighborsSet(tempNeighbor,generatedGrid,buildings,bins));
+
+            // Merge buildings
+            MergeBuildings(buildings[i], buildings[tempNeighbor], minimalBuildingDistance);
             numMerged++;
+
+            // Add building i to queue (no need?)
+            //indices.push(i);
           }
         }
-        // std::cout<<std::endl;
+
+
       }
-      std::cout << "Merged: " << numMerged << std::endl;
+      
     }
     else
     {

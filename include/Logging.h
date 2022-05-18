@@ -22,7 +22,7 @@ namespace DTCC
   };
 
   // Global log level
-  LogLevels LogLevel = INFO;
+  LogLevels LogLevel = PROGRESS;
 
   // Global log file
   std::ofstream logFile;
