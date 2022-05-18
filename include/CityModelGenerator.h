@@ -526,6 +526,35 @@ public:
   }
 
 private:
+  std::vector<std::set<size_t>>
+  getNeighborsSet(size_t iId,
+                  const Grid2D &iGrid,
+                  const std::vector<Building> &iBuildings,
+                  const std::vector<std::set<size_t>> &iBins)
+  {
+
+    std::vector<std::set<size_t>> oNeighbors;
+    Point2D center = Geometry::PolygonCenter2D(iBuildings[iId].Footprint);
+    size_t bin = iGrid.Point2Index(center);
+    // size_t bin = iGrid.Point2Index(iCenter[iId]);
+    std::vector<size_t> indices;
+    std::set<size_t> set;
+    oNeighbors.push_back(iBins[bin]);
+    iGrid.Index2Boundary8(bin, indices);
+    // e.g. 3,4,5
+    for (size_t i = 0; i < indices.size(); i++)
+    {
+      // set.insert(iBins[indices[i]]);
+
+      oNeighbors.push_back(iBins[indices[i]]);
+
+      // set.clear();
+      // std::cout<<indices[i]<<std::endl;
+      // oNeighbors.push_back(iBins[indices[i]]);
+    }
+    return oNeighbors;
+  }
+
   static double GetMaxDiameter(const std::vector<Building> &buildings)
   {
     double maxdiam = 0;
