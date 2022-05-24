@@ -571,15 +571,9 @@ private:
     }
     for (size_t i = 0; i < Buildings.size(); i++)
     {
-      //Info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
       Point2D center = Geometry::PolygonCenter2D(Buildings[i].Footprint);
-      Info("Building " + str(i) + str(GeneratedGrid.Point2Index(center)));
       size_t vertexno = GeneratedGrid.Point2Index(center);
-      // bins[grid.Point2Index(centers[i])].push_back(i);
-      // myset.insert(i);
-      std::cout << "Vertexno " << vertexno << std::endl;
       setbins[vertexno].insert(i);
-      // ins[grid.Point2Index(centers[i])]=i;
     }
     return setbins;
   }
@@ -746,7 +740,6 @@ private:
             // Merge buildings
             MergeBuildings(buildings[i], buildings[tempNeighbor], minimalBuildingDistance);
             numMerged++;
-
             // Add building i to queue (no need?)
             //indices.push(i);
           }
