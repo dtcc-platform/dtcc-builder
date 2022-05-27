@@ -633,121 +633,57 @@ private:
 
     if (bbox.Area() != 0.0)
     {
-      // std::unordered_map<size_t, std::set<size_t>> umap;
-      // // Build umap which correlates building with each neighbors
-      // for (size_t i = 0; i < buildings.size(); i++)
-      // {
-      //   std::set<size_t> neighbors = GetBuildingNeighbors(i, buildings, tol2);
-      //   umap.insert({i, neighbors});
-      // }
-      // // 586 pairs
-      // for (auto &it : umap)
-      // {
-      //   std::cout << "Trying to merge building " << it.first
-      //             << " with its neighbors:" << std::endl;
-      //   if (buildings[it.first].Empty())
-      //     continue;
-      //   for (auto neighbor : it.second)
-      //   {
-      //     std::cout << neighbor << " ";
-      //     if (it.first == neighbor)
-      //       continue;
-      //     if (buildings[neighbor].Empty())
-      //       continue;
-      //     if (BuildingsInMergeDistance(buildings[it.first], buildings[neighbor],
-      //                                  tol2))
-      //     {
-      //       std::unordered_map<size_t, std::set<size_t>>::const_iterator
-      //           foundIt = umap.find(neighbor);
-      //       std::cout << "Adding new neighbors:";
-      //       for (auto setIt : foundIt->second)
-      //       {
-      //         std::cout << setIt << ",";
-      //         it.second.insert(setIt);
-      //       }
-      //       std::cout << "\b \b" << std::endl;
-      //       Progress("CityModelGenerator: Buildings " + str(it.first) +
-      //                " and " + str(neighbor) + " are too close, merging");
-      //       MergeBuildings(buildings[it.first], buildings[neighbor],
-      //                      minimalBuildingDistance);
-      //       std::cout << "Merged [" << it.first << "," << neighbor << "]"
-      //                 << std::endl;
-      //       numMerged++;
-      //     }
-      //   }
-      //   // std::cout<<std::endl;
-      // }
-      // std::cout << "Merged: " << numMerged << std::endl;
-
-      //Initialize bins
+      // Initialize bins
       Grid2D generatedGrid;
       std::vector<std::set<size_t>> bins = InitializeBins(bbox, buildings, generatedGrid);
 
-      // Create queue of indices to check
-      std::queue<size_t> indices;
-      for (size_t i = 0; i < buildings.size(); i++)
+      for(size_t i=0;i<buildings.size();i++)
       {
-        indices.push(i);
-      }
+        // Skip if merged already
+        if(buildings[i].Empty())
+          continue;
+        std::vector<std::set<size_t>> neighbors = getNeighborsSet(i,generatedGrid,buildings,bins);
 
-      while (!indices.empty())
-      {
-        // Pop index of next building to check
-        const size_t i = indices.front();
-        indices.pop();
-
-        std::vector<std::set<size_t>> iNeighbors = getNeighborsSet(i,generatedGrid,buildings,bins);
-        //Will store any additional neighbors as a result from any merge
-        std::stack<size_t> allNeighbors;
-        InsertNeighborsIntoStack(allNeighbors, iNeighbors);
-        // for(int j=0;j<iNeighbors.size();j++)
-        // {
-        //   //Init neighbors
-        //   for(auto& It : iNeighbors[j])
-        //   {
-        //     //allNeighbors.insert(It);
-        //     allNeighbors.push(It);
-        //   }
-        // }
-
-        while(!allNeighbors.empty())
+        for(size_t j=0;j<neighbors.size();j++)
         {
-          const size_t tempNeighbor = allNeighbors.top();
-          allNeighbors.pop();
-
-          //Skip building itself
-          if(i == tempNeighbor)
-            continue;
-
-          // Skip if merged with other building (size set to 0)
-          if(buildings[tempNeighbor].Empty())
-            continue;
-
-          // Compute squared distance between polygons
-          const Polygon &Pi = buildings[i].Footprint;
-          const Polygon &Pj = buildings[tempNeighbor].Footprint;
-          const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
-
-          // Merge if distance is small
-          if (d2 < tol2)
+          for(auto n : neighbors[j])
           {
-            Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                     str(tempNeighbor) + " are too close, merging");
+            // Skip building itself
+            if(n==i)
+              continue;
 
-            // We're about to merge buildings, add the 2nd building's neighbors into the stack
-            InsertNeighborsIntoStack(allNeighbors,getNeighborsSet(tempNeighbor,generatedGrid,buildings,bins));
+            // Skip if merged already
+            if(buildings[n].Empty())
+              continue;
 
-            // Merge buildings
-            MergeBuildings(buildings[i], buildings[tempNeighbor], minimalBuildingDistance);
-            numMerged++;
-            // Add building i to queue (no need?)
-            //indices.push(i);
+            // Compute squared distance between polygons
+            const Polygon &Pi = buildings[i].Footprint;
+            const Polygon &Pn = buildings[n].Footprint;
+            const double d2 = Geometry::SquaredDistance2D(Pi, Pn);
+            // Merge if distance is small
+            if (d2 < tol2)
+            {
+              Progress("CityModelGenerator: Buildings " + str(i) + " and " +
+                       str(n) + " are too close, merging");
+              
+              // About to merge buildings. Add 2nd building's neighbors into 1st building neighbors
+              std::vector<std::set<size_t>> newNeighbors = getNeighborsSet(n,generatedGrid,buildings,bins);
+              for(size_t k=0;k<newNeighbors.size();k++)
+              {
+                //neighbors.push_back(newNeighbors[k]);
+                for(auto newNeighbor : newNeighbors[k])
+                {
+                  neighbors[j].insert(newNeighbor);
+                }
+              }
+              // Merge buildings
+              MergeBuildings(buildings[i],buildings[n],minimalBuildingDistance);
+              numMerged++;
+            }
           }
         }
 
-
       }
-      
     }
     else
     {
