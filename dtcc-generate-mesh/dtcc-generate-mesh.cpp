@@ -120,6 +120,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 2.1: Merge building footprints");
     CityModelGenerator::SimplifyCityModel(cityModel, p["MinBuildingDistance"],
                                           p["MinVertexDistance"], bbox);
+    Timer::Report("Simplify",dataDirectory);
     Info(cityModel);
   }
 
