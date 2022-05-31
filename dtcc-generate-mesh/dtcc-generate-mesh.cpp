@@ -79,7 +79,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // we assume that the data has already been generated.
 
   // Read property map
-  std::vector<Polygon> footprints;
+  /* std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
@@ -114,13 +114,13 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     const Point2D Q{O.x + xMax, O.y + yMax};
     bbox = BoundingBox2D(P, Q);
   }
-
+ */
   // Step 2.1: Merge building footprints
   {
     Timer timer("Step 2.1: Merge building footprints");
     CityModelGenerator::SimplifyCityModel(cityModel, p["MinBuildingDistance"],
-                                          p["MinVertexDistance"], bbox);
-    Timer::Report("Simplify",dataDirectory);
+                                          p["MinVertexDistance"],
+                                          dtm.Grid.BoundingBox);
     Info(cityModel);
   }
 
