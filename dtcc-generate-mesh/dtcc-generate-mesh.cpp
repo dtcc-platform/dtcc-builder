@@ -68,11 +68,11 @@ void GenerateVolumeMeshes(CityModel &cityModel,
                           /*const*/ Parameters &p)
 {
   // Get data directory
-  // std::string dataDirectory = p["DataDirectory"];
-  // dataDirectory += "/";
+  std::string dataDirectory = p["DataDirectory"];
+  dataDirectory += "/";
 
   // Get origin (for serialization purposes)
-  // Point2D origin({p["X0"], p["Y0"]});
+  Point2D origin({p["X0"], p["Y0"]});
 
   // Step 1: Generate city model (and elevation model).
   // This step is handled by dtcc-generate-citymodel and
