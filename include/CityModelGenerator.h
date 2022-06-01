@@ -664,8 +664,9 @@ private:
             if (d2 < tol2)
             {
               Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                       str(n) + " are too close, merging");
-              
+                           str(n) + " are too close, merging and distance is ",
+                       str(d2), " and queue length is " neighbors.size());
+
               // About to merge buildings. Add 2nd building's neighbors into 1st building neighbors
               std::vector<std::set<size_t>> newNeighbors = getNeighborsSet(n,generatedGrid,buildings,bins);
               for(size_t k=0;k<newNeighbors.size();k++)
