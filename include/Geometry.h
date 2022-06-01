@@ -153,16 +153,26 @@ public:
   static double SquaredDistance2D(const Polygon &polygon0,
                                   const Polygon &polygon1)
   {
+    std::cout << "Checking polygon with " << polygon0.Vertices.size()
+              << " vertices" << std::endl;
+    std::cout << "Checking polygon with " << polygon1.Vertices.size()
+              << " vertices" << std::endl;
     double d2Min = std::numeric_limits<double>::max();
 
     // Check all vertices in first polygon
     for (auto const &p : polygon0.Vertices)
+    {
+      std::cout << "Point of polygon0 " << str(p) << std::endl;
       d2Min = std::min(d2Min, SquaredDistance2D(polygon1, p));
-
+      std::cout << "D2min " << d2Min << std::endl;
+    }
     // Check all vertices in second polygon
     for (auto const &p : polygon1.Vertices)
+    {
+      std::cout << "Point of polygon1 " << str(p) << std::endl;
       d2Min = std::min(d2Min, SquaredDistance2D(polygon0, p));
-
+      std::cout << "D2min " << d2Min << std::endl;
+    }
     return d2Min;
   }
 

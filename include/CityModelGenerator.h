@@ -660,6 +660,9 @@ private:
             const Polygon &Pi = buildings[i].Footprint;
             const Polygon &Pn = buildings[n].Footprint;
             const double d2 = Geometry::SquaredDistance2D(Pi, Pn);
+            Progress("CityModelGenerator: Buildings " + str(i) + " and " +
+                     str(n) + " are " + str(d2) + " apart. IDs are " +
+                     buildings[i].UUID + "," + buildings[n].UUID);
             // Merge if distance is small
             if (d2 < tol2)
             {
