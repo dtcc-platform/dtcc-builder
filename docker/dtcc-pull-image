@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-docker pull registry.gitlab.com/dtcc3d/core &&
-docker tag registry.gitlab.com/dtcc3d/core dtccimage &&
-docker rmi -f registry.gitlab.com/dtcc3d/core
+docker pull registry.gitlab.com/dtcc-platform/dtcc-builder &&
+docker tag registry.gitlab.com/dtcc-platform/dtcc-builder dtccimage &&
+docker rmi -f registry.gitlab.com/dtcc-platform/dtcc-builder
