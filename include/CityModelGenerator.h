@@ -678,6 +678,8 @@ private:
                        str(d2) + " and queue length is " +
                        str(neighbors.size()));
 
+              buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
+
               // About to merge buildings. Add 2nd building's neighbors into 1st
               // building neighbors
               std::vector<std::set<size_t>> newNeighbors =
@@ -694,6 +696,14 @@ private:
               MergeBuildings(buildings[i], buildings[n],
                              minimalBuildingDistance);
               numMerged++;
+
+              std::cout << buildings[i].AttachedUUIDs.size()
+                      << " UUIDs are attached to " << i
+                      << ". And they are: " << std::endl;
+              for (size_t k = 0; k < buildings[i].AttachedUUIDs.size(); k++)
+              {
+                std::cout << buildings[i].AttachedUUIDs[k] << std::endl;
+              }
             }
           }
         }
