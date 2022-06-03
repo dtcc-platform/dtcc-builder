@@ -1,7 +1,6 @@
 {
     "Type": "Parameters",
-    "DataDirectory": "/home/dtcc/core/demo/MinimalCase",
-    "OutputDirectory": "/home/dtcc/core/demo/MinimalCase/Output",
+    "OutputDirectory": "/home/dtcc/core/data/output/MinimalCase",
     "DomainHeight": 50.0,
     "ElevationModelResolution": 1.0,
     "MeshResolution": 5.0,
@@ -21,7 +20,7 @@
     "WriteJSON": true,
     "WriteVTK": true,
     "Debug": true,
-    "BuildingRemoveOutlier":false,
-    "OutlierNeighbors":5,
-    "OutlierSTD":2.0
+    "BuildingRemoveOutlier": false,
+    "OutlierNeighbors": 5,
+    "OutlierSTD": 2.0
 }
