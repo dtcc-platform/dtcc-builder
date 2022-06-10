@@ -12,6 +12,7 @@ const std::string RootPath{"/home/dtcc/core/unittests/"};
 #include "tests/TestCityModel.h"
 #include "tests/TestColormaps.h"
 #include "tests/TestDatamodel.h"
+#include "tests/TestGEOS.h"
 #include "tests/TestGrid.h"
 #include "tests/TestParameters.h"
 #include "tests/TestPointcloud.h"

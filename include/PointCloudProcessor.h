@@ -4,13 +4,18 @@
 #ifndef DTCC_POINT_CLOUD_PROCESSOR_H
 #define DTCC_POINT_CLOUD_PROCESSOR_H
 
+#include <math.h>
+#include <random>
+
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"
 
 #include "Color.h"
 #include "GeoRaster.h"
+#include "Point.h"
 #include "PointCloud.h"
 #include "Timer.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -364,6 +369,106 @@ public:
         pointCloud.Points, neighbours, outlierMargin, verbose);
 
     FilterPointCloud(pointCloud, outliers);
+  }
+
+  static void RANSAC_OutlierRemover(PointCloud &pointCloud,
+                                    double distanceThreshold,
+                                    size_t iterations = 100)
+  {
+    Timer("RANSAC_OutlierRemover");
+    std::vector<size_t> outliers =
+        RANSAC_OutlierFinder(pointCloud.Points, distanceThreshold, iterations);
+    FilterPointCloud(pointCloud, outliers);
+  }
+
+  static void RANSAC_OutlierRemover(std::vector<Point3D> &points,
+                                    double distanceThreshold,
+                                    size_t iterations = 100)
+  {
+    Timer("RANSAC_OutlierRemover");
+
+    auto outliers = RANSAC_OutlierFinder(points, distanceThreshold, iterations);
+    if (outliers.size() == 0)
+      return;
+    std::vector<Point3D> newPoints;
+    size_t k = 0;
+    for (size_t i = 0; i < points.size(); i++)
+    {
+      if (k >= outliers.size() || i != outliers[k])
+      {
+        newPoints.push_back(points[i]);
+      }
+      else
+      {
+        k++;
+      }
+    }
+    points = newPoints;
+  }
+
+  static std::vector<size_t> RANSAC_OutlierFinder(std::vector<Point3D> &points,
+                                                  double distanceThreshold,
+                                                  size_t iterations = 100)
+  {
+
+    std::vector<size_t> outliers;
+    if (points.size() < 9)
+      return outliers;
+    std::vector<size_t> best_outliers(points.size(), 0);
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+    std::default_random_engine generator(seed);
+    std::uniform_int_distribution<size_t> distribution(0, points.size() - 1);
+    auto randIdx = std::bind(distribution, generator);
+    Point3D pt1, pt2, pt3;
+    Vector3D v1, v2, v3;
+    size_t idx1, idx2, idx3;
+    double k;
+
+    for (size_t i = 0; i < iterations; i++)
+    {
+      idx1 = randIdx();
+      idx2 = randIdx();
+      // idx1, 2 and 3 must be different
+      while (idx2 == idx1)
+      {
+        idx2 = randIdx();
+      }
+      idx3 = randIdx();
+      while (idx3 == idx1 || idx3 == idx2)
+      {
+        idx3 = randIdx();
+      }
+      pt1 = points[idx1];
+      pt2 = points[idx2];
+      pt3 = points[idx3];
+      v1 = Vector3D(pt2.x - pt1.x, pt2.y - pt1.y, pt2.z - pt1.z);
+      v2 = Vector3D(pt3.x - pt1.x, pt3.y - pt1.y, pt3.z - pt1.z);
+      v3 = v1.Cross(v2);
+      v3 /= v3.Magnitude();
+      if (isnan(v3.x)) // all three points are in a line
+      {
+        continue;
+      }
+
+      k = v3.Dot(pt2);
+      outliers.clear();
+      for (size_t j = 0; j < points.size(); j++)
+      {
+        auto ptPlaneDist = std::abs(v3.Dot(points[j]) - k) / v3.Magnitude();
+        if (ptPlaneDist > distanceThreshold)
+        {
+
+          outliers.push_back(j);
+        }
+      }
+      if (outliers.size() < best_outliers.size())
+      {
+        best_outliers = outliers;
+      }
+    }
+    return best_outliers;
   }
 
   // Removes selected points from point cloud

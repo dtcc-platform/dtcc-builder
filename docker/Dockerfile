@@ -33,6 +33,9 @@ RUN ./install_libLAS.sh
 # Get and compile VTK 7.1
 RUN ./install_VTK.sh
 
+# Get and compile libgeos
+RUN ./install_libgeos.sh
+
 # Add /usr/local/lib into LD
 RUN ldconfig /usr/local/lib
 

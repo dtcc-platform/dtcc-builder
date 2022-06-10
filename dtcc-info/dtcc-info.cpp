@@ -3,10 +3,11 @@
 
 #include <iostream>
 
+#include "CommandLine.h"
 #include "JSON.h"
 #include "LAS.h"
-#include "CommandLine.h"
 #include "Logging.h"
+#include "Utils.h"
 
 using namespace DTCC;
 
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
   const std::string fileName(argv[1]);
 
   // Check file type
-  if (CommandLine::EndsWith(fileName, "json"))
+  if (Utils::EndsWith(fileName, "json"))
   {
     // Read JSON and get type
     nlohmann::json json;
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
       Error("Unknown JSON type: '" + typeName + "'");
     }
   }
-  else if (CommandLine::EndsWith(fileName, "las"))
+  else if (Utils::EndsWith(fileName, "las"))
   {
     PointCloud pointCloud;
     LAS::Read(pointCloud, fileName);

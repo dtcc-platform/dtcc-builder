@@ -13,6 +13,7 @@
 #include "MeshGenerator.h"
 #include "MeshProcessor.h"
 #include "OBJ.h"
+#include "ParameterProcessor.h"
 #include "Parameters.h"
 #include "Utils.h"
 #include "VTK.h"
@@ -28,10 +29,9 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
                            const Parameters &p)
 {
   // Get data directory
-  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
-  std::string dataDirectory = dataAndOutputDirectory.first;
-  std::string outputDirectory = dataAndOutputDirectory.second;
 
+  std::string dataDirectory = (std::string)p["DataDirectory"];
+  std::string outputDirectory = (std::string)p["OutputDirectory"];
   // Get origin (for serialization purposes)
   Point2D origin({p["X0"], p["Y0"]});
 
@@ -67,10 +67,8 @@ void GenerateVolumeMeshes(CityModel &cityModel,
                           const Parameters &p)
 {
   // Get data directory
-  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
-  std::string dataDirectory = dataAndOutputDirectory.first;
-  std::string outputDirectory = dataAndOutputDirectory.second;
-
+  std::string dataDirectory = (std::string)p["DataDirectory"];
+  std::string outputDirectory = (std::string)p["OutputDirectory"];
   // Get origin (for serialization purposes)
   Point2D origin({p["X0"], p["Y0"]});
 
@@ -218,21 +216,20 @@ void GenerateVolumeMeshes(CityModel &cityModel,
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
-  if (argc != 2)
+  std::string dataDirectory;
+  std::string outputDirectory;
+
+  if (CommandLine::HasOption("-h", argc, argv))
   {
     Help();
-    return 1;
+    return 0;
   }
+  Parameters p = ParameterProcessor::ProcessArgs(argc, argv);
+  dataDirectory = (std::string)p["DataDirectory"];
+  outputDirectory = (std::string)p["OutputDirectory"];
 
-  // Read parameters
-  Parameters p;
-  JSON::Read(p, argv[1]);
-  Info(p);
-
-  // Get data directory
-  auto dataAndOutputDirectory = Utils::getDataAndOutputPath(p);
-  std::string dataDirectory = dataAndOutputDirectory.first;
-  std::string outputDirectory = dataAndOutputDirectory.second;
+  Info("Loding from Data directory: " + dataDirectory);
+  Info("Saving to Output directory: " + outputDirectory);
 
   // Read city model
   CityModel cityModel;

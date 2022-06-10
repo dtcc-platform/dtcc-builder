@@ -45,6 +45,32 @@ TEST_CASE("POINT_CLOUD")
     REQUIRE(out_pc.Points[0].x == 1);
     REQUIRE(out_pc.Points[1].x == 2);
   }
+
+  SECTION("Used Classifications")
+  {
+    PointCloud pc;
+    pc.Points.push_back(Vector3D(0, 0, 0));
+    pc.Classifications.push_back(0);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+
+    pc.BuildHasClassifications();
+
+    REQUIRE(pc.HasClassification(0));
+    REQUIRE(pc.HasClassification(1));
+    REQUIRE(pc.HasClassification(2));
+    REQUIRE(!pc.HasClassification(3));
+  }
 }
 
 TEST_CASE("BoundingBox2D")
@@ -259,5 +285,26 @@ TEST_CASE("Vegetation filter")
 
     PointCloudProcessor::NaiveVegetationFilter(pc);
     REQUIRE(pc.Points.size() == 2);
+  }
+}
+
+TEST_CASE("RANSAC filter")
+{
+  std::vector<Point3D> points;
+  points.push_back(Vector3D(0, 0, 25));
+  points.push_back(Vector3D(0, 0, -25));
+  for (int x = 0; x < 10; x++)
+  {
+    for (int y = 0; y < 10; y++)
+    {
+      points.push_back(Vector3D(x, y, 0));
+    }
+  }
+  SECTION("Outliers")
+  {
+    auto outliers = PointCloudProcessor::RANSAC_OutlierFinder(points, 0.1, 150);
+    REQUIRE(outliers.size() == 2);
+    REQUIRE(outliers[0] == 0);
+    REQUIRE(outliers[1] == 1);
   }
 }

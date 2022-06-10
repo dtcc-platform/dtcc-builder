@@ -187,9 +187,7 @@ public:
   static void ExtractBuildingPoints(CityModel &cityModel,
                                     const PointCloud &pointCloud,
                                     double groundMargin,
-                                    double groundOutlierMargin,
-                                    size_t outlierNeighbors = 0,
-                                    double buildingOutlierThreshold = 0.0)
+                                    double groundOutlierMargin)
 
   {
     Info("CityModelGenerator: Extracting building points...");
@@ -203,12 +201,15 @@ public:
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
       Error("Missing classifications for point cloud");
 
+    bool classifedBuildings = pointCloud.HasClassification(6);
+
     auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
     // build a kd-tree for radius search
     typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
                                          2 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
+
     kdt_timer.Stop();
     for (auto &building : cityModel.Buildings)
     {
@@ -236,7 +237,7 @@ public:
         {
           building.GroundPoints.push_back(p3D);
         }
-        else
+        else if (clf == 6 || (!classifedBuildings && clf < 2))
         {
           if (Geometry::PolygonContains2D(building.Footprint, p2D))
           {
@@ -264,13 +265,6 @@ public:
     Info("CityModelGenerator: Removed ground point outliers (" +
          str(outlierGroundPercentage) + "%)");
 
-    // Remove roof outliers
-    if (outlierNeighbors > 0)
-    {
-      CityModelGenerator::BuildingPointsOutlierRemover(
-          cityModel, outlierNeighbors, buildingOutlierThreshold);
-    }
-
     double ptsPrSqm;
     double pointCoverage;
     size_t tooFew = 0;
@@ -278,7 +272,7 @@ public:
     {
       ptsPrSqm = static_cast<double>(building.RoofPoints.size()) /
                  Geometry::PolygonArea(building.Footprint);
-      if (ptsPrSqm < 0.2)
+      if (ptsPrSqm < 0.25)
       {
         building.error |= BuildingError::BUILDING_TOO_FEW_POINTS;
         tooFew++;
@@ -553,7 +547,8 @@ public:
                                            double outlierMargin,
                                            bool verbose = false)
   {
-    Info("CityModelGenerator: BuildingPointsOutlierRemover");
+    if (verbose)
+      Info("CityModelGenerator: BuildingPointsOutlierRemover");
     Timer("BuildingPointsOutlierRemover");
     size_t totalRemoved = 0;
     for (auto &building : cityModel.Buildings)
@@ -563,9 +558,30 @@ public:
           building.RoofPoints, neighbours, outlierMargin, verbose);
       totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
-    Info("BuildingPointsOutlierRemove filtered a total of " +
-         str(totalRemoved) + " points from  " +
-         str(cityModel.Buildings.size()) + " buildings");
+    if (verbose)
+    {
+      Info("BuildingPointsOutlierRemove filtered a total of " +
+           str(totalRemoved) + " points from  " +
+           str(cityModel.Buildings.size()) + " buildings");
+    }
+  }
+
+  static void BuildingPointsRANSACOutlierRemover(CityModel &cityModel,
+                                                 double distanceThershold,
+                                                 size_t iterations,
+                                                 bool verbose = false)
+  {
+    if (verbose)
+      Info("CityModelGenerator: BuildingPointsRANSACOutlierRemover");
+    Timer("BuildingPointsRANSACOutlierRemover");
+    size_t totalRemoved = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      size_t beforeFilter = building.RoofPoints.size();
+      PointCloudProcessor::RANSAC_OutlierRemover(building.RoofPoints,
+                                                 distanceThershold, iterations);
+      totalRemoved += (beforeFilter - building.RoofPoints.size());
+    }
   }
 
 private:

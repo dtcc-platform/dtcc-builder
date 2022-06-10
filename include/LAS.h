@@ -13,6 +13,7 @@
 #include "BoundingBox.h"
 #include "Color.h"
 #include "CommandLine.h"
+#include "Filesystem.h"
 #include "PointCloud.h"
 #include "Vector.h"
 
@@ -85,12 +86,12 @@ public:
                             bool extraData = false)
   {
     std::string dir{directoryName};
-    if (!CommandLine::EndsWith(dir, "/"))
+    if (!Utils::EndsWith(dir, "/"))
       dir += "/";
     Info("Reading all .las and .laz files from directory " + dir + "...");
-    for (auto const &f : CommandLine::ListDirectory(dir))
-      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
-        Read(pointCloud, dir + f, extraData);
+    for (auto const &f : Filesystem::ListDirectory(dir))
+      if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
+        Read(pointCloud, f, extraData);
   }
 
   /// Read point cloud from directory of LAS files (.las and .laz) and filter by
@@ -101,12 +102,12 @@ public:
                             bool extraData = false)
   {
     std::string dir{directoryName};
-    if (!CommandLine::EndsWith(dir, "/"))
+    if (!Utils::EndsWith(dir, "/"))
       dir += "/";
     Info("Reading all .las and .laz files from directory " + dir + "...");
-    for (auto const &f : CommandLine::ListDirectory(dir))
-      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
-        Read(pointCloud, dir + f, bbox, extraData);
+    for (auto const &f : Filesystem::ListDirectory(dir))
+      if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
+        Read(pointCloud, f, bbox, extraData);
   }
 
   static void Bounds(BoundingBox2D &bb, const std::string &fileName)
@@ -132,15 +133,15 @@ public:
                               const std::string &directoryName)
   {
     std::string dir{directoryName};
-    if (!CommandLine::EndsWith(dir, "/"))
+    if (!Utils::EndsWith(dir, "/"))
       dir += "/";
     bool initBB = false;
-    for (auto const &f : CommandLine::ListDirectory(dir))
+    for (auto const &f : Filesystem::ListDirectory(dir))
     {
-      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
+      if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
       {
         auto fileBB = BoundingBox2D();
-        LAS::Bounds(fileBB, dir + f);
+        LAS::Bounds(fileBB, f);
         if (!initBB)
         {
           bb.P = fileBB.P;

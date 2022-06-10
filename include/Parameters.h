@@ -24,7 +24,8 @@ public:
   {
     Map.clear();
 
-    Add("AutoDomain", false);
+    Add("ModelName", "");
+    Add("AutoDomain", true);
     Add("GenerateSurfaceMeshes", true);
     Add("GenerateVolumeMeshes", true);
     Add("WriteJSON", true);
@@ -34,7 +35,7 @@ public:
     Add("GroundSmoothing", 5);
     Add("NumRandomBuildings", 25);
 
-    Add("DomainMargin", 0.0);
+    Add("DomainMargin", 10.0);
     Add("X0", 0.0);
     Add("Y0", 0.0);
     Add("XMin", 0.0);
@@ -49,12 +50,18 @@ public:
     Add("DomainHeight", 100.0);
     Add("GroundPercentile", 0.1);
     Add("RoofPercentile", 0.9);
-    Add("OutlierMargin", 0.2);
+    Add("OutlierMargin", 2.0);
     Add("MinBuildingSize", 15.0);
+
+    Add("StatisticalOutlierRemover", true);
     Add("OutlierNeighbors", 5);
     Add("OutlierSTD", 1.5);
 
-    Add("NaiveVegitationFilter", false);
+    Add("RANSACOutlierRemover", true);
+    Add("RANSACOutlierMargin", 3.0);
+    Add("RANSACIterations", 250);
+
+    Add("NaiveVegitationFilter", true);
     Add("DataDirectory", "");
     Add("OutputDirectory", "");
   }

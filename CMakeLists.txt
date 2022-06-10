@@ -33,6 +33,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(assimp REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(PNG REQUIRED)
+find_package(LibGEOS REQUIRED)
 
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
