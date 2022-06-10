@@ -197,7 +197,7 @@ TEST_CASE("Outlier remover")
   pc.Points.push_back(Vector3D(10, 10, 10));
   SECTION("Nearest Neighbours")
   {
-    auto knn = PointCloudProcessor::KNNNearestNeighbours(pc.Points, 3);
+    auto knn = PointCloudProcessor::KNNNearestNeighboursDist(pc.Points, 3);
     REQUIRE(knn.at(0).size() == 3);
     REQUIRE(knn.at(5).size() == 3);
     REQUIRE(knn.at(0).at(0) == std::sqrt(0.5 * 0.5 + 0.5 * 0.5));
@@ -208,6 +208,16 @@ TEST_CASE("Outlier remover")
     REQUIRE(knn.at(6).at(1) ==
             std::sqrt((10 - 1.5) * (10 - 1.5) + (10 - 1.5) * (10 - 1.5) +
                       (10 - 1) * (10 - 1)));
+  }
+
+  SECTION("Nearest Neighbours Index")
+  {
+    auto knnIdx = PointCloudProcessor::KNNNearestNeighboursIdx(pc.Points, 3);
+    REQUIRE(knnIdx.at(0).size() == 3);
+    REQUIRE(knnIdx.at(5).size() == 3);
+    REQUIRE(knnIdx.at(0).at(0) == 1);
+    REQUIRE(knnIdx.at(0).at(1) == 2);
+    REQUIRE(knnIdx.at(0).at(2) == 3);
   }
 
   SECTION("Outlier Remover")
@@ -307,4 +317,40 @@ TEST_CASE("RANSAC filter")
     REQUIRE(outliers[0] == 0);
     REQUIRE(outliers[1] == 1);
   }
+}
+
+TEST_CASE("Normals estimator")
+{
+  PointCloud pc;
+  for (int i = 0; i < 20; i++)
+  {
+    pc.Points.push_back(Point3D(Utils::Random(), Utils::Random(), 0));
+  }
+  PointCloudProcessor::EstimateNormalsKNN(pc, 4);
+  REQUIRE(pc.Normals.size() == pc.Points.size());
+  REQUIRE(pc.Normals[0].x == 0);
+  REQUIRE(pc.Normals[0].y == 0);
+  REQUIRE(pc.Normals[0].z == 1);
+  REQUIRE(pc.Normals[13].x == 0);
+  REQUIRE(pc.Normals[13].y == 0);
+  REQUIRE(pc.Normals[13].z == 1);
+
+  pc.Clear();
+  pc.Points.push_back(Vector3D(0, 0, 0));
+  pc.Points.push_back(Vector3D(0.123, 0.456, 0.789));
+  pc.Points.push_back(Vector3D(0.333, 0.444, 0.555));
+  pc.Points.push_back(Vector3D(1.111, 1.222, 1.123));
+  pc.Points.push_back(Vector3D(1.512, 1.512, 1));
+  pc.Points.push_back(Vector3D(1.554, 1.544, 1.981));
+  pc.Points.push_back(Vector3D(10, 10, 10));
+
+  PointCloudProcessor::EstimateNormalsKNN(pc, 4);
+
+  REQUIRE(Approx(pc.Normals[1].x) == 0.5115088);
+  REQUIRE(Approx(pc.Normals[1].y) == -0.77476244);
+  REQUIRE(Approx(pc.Normals[1].z) == 0.37162058);
+
+  REQUIRE(Approx(pc.Normals[6].x) == 0.6338345);
+  REQUIRE(Approx(pc.Normals[6].y) == -0.76374951);
+  REQUIRE(Approx(pc.Normals[6].z) == 0.12223135);
 }
