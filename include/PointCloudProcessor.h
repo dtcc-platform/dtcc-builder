@@ -658,7 +658,7 @@ public:
       }
       normal *= sign(normal.dot(dir));
       auto n = Vector3D(normal[0], normal[1], normal[2]);
-      Info("Normal: " + str(n));
+      // Info("Normal: " + str(n));
       normals.push_back(n);
 
       idx++;
