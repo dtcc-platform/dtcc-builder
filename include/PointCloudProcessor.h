@@ -666,6 +666,8 @@ public:
 
     return normals;
   }
+
+  // std::vector<Point3D> NormalizePointcloud(std::vector<Point3D> points) {}
 };
 } // namespace DTCC
 

@@ -106,6 +106,13 @@ public:
     return *this;
   }
 
+  double Dot(const Vector2D &p) const { return x * p.x + y * p.y; }
+
+  double AngleBetween(const Vector2D &p) const
+  {
+    return (Dot(p) / (Magnitude() * p.Magnitude()));
+  }
+
   double Magnitude() const { return sqrt(SquaredMagnitude()); }
 
   double SquaredMagnitude() const { return x * x + y * y; }
@@ -228,6 +235,11 @@ public:
   Vector3D Cross(const Vector3D &p) const
   {
     return Vector3D{y * p.z - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x};
+  }
+
+  double AngleBetween(const Vector3D &p) const
+  {
+    return (Dot(p) / (Magnitude() * p.Magnitude()));
   }
 
   double Magnitude() const { return sqrt(SquaredMagnitude()); }
