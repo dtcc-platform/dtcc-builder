@@ -110,7 +110,7 @@ public:
 
   double AngleBetween(const Vector2D &p) const
   {
-    return (Dot(p) / (Magnitude() * p.Magnitude()));
+    return acos((Dot(p) / (Magnitude() * p.Magnitude())));
   }
 
   double Magnitude() const { return sqrt(SquaredMagnitude()); }
@@ -239,7 +239,11 @@ public:
 
   double AngleBetween(const Vector3D &p) const
   {
-    return (Dot(p) / (Magnitude() * p.Magnitude()));
+
+    double a = Dot(p) / (Magnitude() * p.Magnitude());
+    if (a > 1) // can happen due to rounding errors
+      a = 1;
+    return acos(a);
   }
 
   double Magnitude() const { return sqrt(SquaredMagnitude()); }

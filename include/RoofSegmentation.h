@@ -65,6 +65,7 @@ public:
       std::vector<size_t> R;
       while (S.size() > 0)
       {
+        // Info("S: " + str(S.size()));
         size_t p_idx = *S.begin();
         S.erase(S.begin());
 
@@ -78,6 +79,7 @@ public:
           if (assigned_points.count(q_idx) == 0)
           {
             double angle_between = p_normal.AngleBetween(normals[q_idx]);
+            // Info("angle_between: " + str(angle_between));
             if (angle_between < normal_angle_threshold)
             {
               R.push_back(q_idx);
