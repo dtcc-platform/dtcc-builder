@@ -63,6 +63,10 @@ include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)
+include_directories(/usr/local/include/optim/header_only_version)
+
+
+
 
 
 link_directories(/usr/local/lib) #Equivalent of ldconfig /usr/local/lib in Dockerfile

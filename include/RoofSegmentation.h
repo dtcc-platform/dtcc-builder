@@ -30,6 +30,7 @@ public:
     {
       auto regions = RegionGrowingSegmentation(
           building.RoofPoints, max_radius, normal_angle_threshold, seed_ratio);
+      building.RoofSegments = regions;
     }
   }
 

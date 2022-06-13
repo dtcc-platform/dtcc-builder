@@ -22,7 +22,7 @@ TEST_CASE("RoofSegmentation")
   }
   SECTION("Region growing segmentation")
   {
-    auto regions = RoofSegmentation::RegionGrowingSegmentation(points, 5);
+    auto regions = RoofSegmentation::RegionGrowingSegmentation(points, 4);
     REQUIRE(regions.size() == 2);
     REQUIRE(regions[0].size() > 95);
     REQUIRE(regions[1].size() > 95);

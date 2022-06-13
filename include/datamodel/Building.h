@@ -65,6 +65,9 @@ public:
   /// Array of roof points (from point cloud) inside building footprint
   std::vector<Point3D> RoofPoints{};
 
+  /// Arrary of array of
+  std::vector<std::vector<size_t>> RoofSegments{};
+
   /// Create empty building
   Building() = default;
 
