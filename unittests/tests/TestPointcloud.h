@@ -45,6 +45,32 @@ TEST_CASE("POINT_CLOUD")
     REQUIRE(out_pc.Points[0].x == 1);
     REQUIRE(out_pc.Points[1].x == 2);
   }
+
+  SECTION("Used Classifications")
+  {
+    PointCloud pc;
+    pc.Points.push_back(Vector3D(0, 0, 0));
+    pc.Classifications.push_back(0);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(1, 0, 0));
+    pc.Classifications.push_back(1);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+    pc.Points.push_back(Vector3D(2, 0, 0));
+    pc.Classifications.push_back(2);
+
+    pc.BuildHasClassifications();
+
+    REQUIRE(pc.HasClassification(0));
+    REQUIRE(pc.HasClassification(1));
+    REQUIRE(pc.HasClassification(2));
+    REQUIRE(!pc.HasClassification(3));
+  }
 }
 
 TEST_CASE("BoundingBox2D")
@@ -171,7 +197,7 @@ TEST_CASE("Outlier remover")
   pc.Points.push_back(Vector3D(10, 10, 10));
   SECTION("Nearest Neighbours")
   {
-    auto knn = PointCloudProcessor::KNNNearestNeighbours(pc.Points, 3);
+    auto knn = PointCloudProcessor::KNNNearestNeighboursDist(pc.Points, 3);
     REQUIRE(knn.at(0).size() == 3);
     REQUIRE(knn.at(5).size() == 3);
     REQUIRE(knn.at(0).at(0) == std::sqrt(0.5 * 0.5 + 0.5 * 0.5));
@@ -182,6 +208,16 @@ TEST_CASE("Outlier remover")
     REQUIRE(knn.at(6).at(1) ==
             std::sqrt((10 - 1.5) * (10 - 1.5) + (10 - 1.5) * (10 - 1.5) +
                       (10 - 1) * (10 - 1)));
+  }
+
+  SECTION("Nearest Neighbours Index")
+  {
+    auto knnIdx = PointCloudProcessor::KNNNearestNeighboursIdx(pc.Points, 3);
+    REQUIRE(knnIdx.at(0).size() == 3);
+    REQUIRE(knnIdx.at(5).size() == 3);
+    REQUIRE(knnIdx.at(0).at(0) == 1);
+    REQUIRE(knnIdx.at(0).at(1) == 2);
+    REQUIRE(knnIdx.at(0).at(2) == 3);
   }
 
   SECTION("Outlier Remover")
@@ -195,4 +231,126 @@ TEST_CASE("Outlier remover")
     PointCloudProcessor::StatisticalOutlierRemover(pc, 3, 1.5);
     REQUIRE(pc.Points.size() == 6);
   }
+
+  SECTION("Read extra Data")
+  {
+    PointCloud pc;
+    LAS::Read(pc, RootPath + "data/minimal_las.las", true);
+    REQUIRE(pc.Points.size() == pc.Intensities.size());
+    REQUIRE(pc.Points.size() == pc.ScanFlags.size());
+    REQUIRE(pc.ScanFlags[0] == 9); // 1 scan, 1 return, binary 0001001
+  }
+
+  SECTION("Parse Scan Flag")
+  {
+    auto flag1 = PointCloudProcessor::parseScanFlag(9);
+    auto flag2 = PointCloudProcessor::parseScanFlag(26);
+    REQUIRE(flag1.first == 1);
+    REQUIRE(flag1.second == 1);
+    REQUIRE(flag2.first == 2);
+    REQUIRE(flag2.second == 3);
+  }
+
+  SECTION("Pack Scan Flag")
+  {
+    auto flag1 = PointCloudProcessor::packScanFlag(1, 1);
+    auto flag2 = PointCloudProcessor::packScanFlag(2, 3);
+    REQUIRE(flag1 == 9);
+
+    auto parse1 = PointCloudProcessor::parseScanFlag(flag1);
+    auto parse2 = PointCloudProcessor::parseScanFlag(flag2);
+    REQUIRE(parse1.first == 1);
+    REQUIRE(parse1.second == 1);
+    REQUIRE(parse2.first == 2);
+    REQUIRE(parse2.second == 3);
+  }
+}
+
+TEST_CASE("Vegetation filter")
+{
+  PointCloud pc;
+  pc.Points.push_back(Vector3D(0, 0, 0));
+  pc.Classifications.push_back(1);
+  pc.Points.push_back(Vector3D(0, 0, 1));
+  pc.Classifications.push_back(1);
+  pc.Points.push_back(Vector3D(0, 0, 2));
+  pc.Classifications.push_back(1);
+  pc.Points.push_back(Vector3D(0, 0, 3));
+  pc.Classifications.push_back(1);
+
+  SECTION("No flags")
+  {
+    // No flags, do nothing
+    size_t pre_filter = pc.Points.size();
+    PointCloudProcessor::NaiveVegetationFilter(pc);
+    REQUIRE(pc.Points.size() == pre_filter);
+  }
+
+  SECTION("Filter")
+  {
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(1, 1));
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(1, 2));
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 2));
+    pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 3));
+
+    PointCloudProcessor::NaiveVegetationFilter(pc);
+    REQUIRE(pc.Points.size() == 2);
+  }
+}
+
+TEST_CASE("RANSAC filter")
+{
+  std::vector<Point3D> points;
+  points.push_back(Vector3D(0, 0, 25));
+  points.push_back(Vector3D(0, 0, -25));
+  for (int x = 0; x < 10; x++)
+  {
+    for (int y = 0; y < 10; y++)
+    {
+      points.push_back(Vector3D(x, y, 0));
+    }
+  }
+  SECTION("Outliers")
+  {
+    auto outliers = PointCloudProcessor::RANSAC_OutlierFinder(points, 0.1, 150);
+    REQUIRE(outliers.size() == 2);
+    REQUIRE(outliers[0] == 0);
+    REQUIRE(outliers[1] == 1);
+  }
+}
+
+TEST_CASE("Normals estimator")
+{
+  PointCloud pc;
+  for (int i = 0; i < 20; i++)
+  {
+    pc.Points.push_back(Point3D(Utils::Random(), Utils::Random(), 0));
+  }
+  PointCloudProcessor::EstimateNormalsKNN(pc, 4);
+  REQUIRE(pc.Normals.size() == pc.Points.size());
+  REQUIRE(pc.Normals[0].x == 0);
+  REQUIRE(pc.Normals[0].y == 0);
+  REQUIRE(pc.Normals[0].z == 1);
+  REQUIRE(pc.Normals[13].x == 0);
+  REQUIRE(pc.Normals[13].y == 0);
+  REQUIRE(pc.Normals[13].z == 1);
+
+  pc.Clear();
+  pc.Points.push_back(Vector3D(0, 0, 0));
+  pc.Points.push_back(Vector3D(0.123, 0.456, 0.789));
+  pc.Points.push_back(Vector3D(0.333, 0.444, 0.555));
+  pc.Points.push_back(Vector3D(1.111, 1.222, 1.123));
+  pc.Points.push_back(Vector3D(1.512, 1.512, 1));
+  pc.Points.push_back(Vector3D(1.554, 1.544, 1.981));
+  pc.Points.push_back(Vector3D(10, 10, 10));
+
+  PointCloudProcessor::EstimateNormalsKNN(pc, 4);
+
+  REQUIRE(Approx(pc.Normals[1].x) == 0.5115088);
+  REQUIRE(Approx(pc.Normals[1].y) == -0.77476244);
+  REQUIRE(Approx(pc.Normals[1].z) == 0.37162058);
+
+  REQUIRE(Approx(pc.Normals[6].x) == 0.6338345);
+  REQUIRE(Approx(pc.Normals[6].y) == -0.76374951);
+  REQUIRE(Approx(pc.Normals[6].z) == 0.12223135);
 }

@@ -1,17 +1,26 @@
-// Copyright (C) 2020 Dag Wästberg
+// Copyright (C) 2020-2022 Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_POINT_CLOUD_PROCESSOR_H
 #define DTCC_POINT_CLOUD_PROCESSOR_H
+
+// #include <Eigen/Dense>
+#include <Eigen/SVD>
+#include <math.h>
+#include <random>
 
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"
 
 #include "Color.h"
 #include "GeoRaster.h"
+#include "Point.h"
 #include "PointCloud.h"
 #include "Timer.h"
+#include "Utils.h"
+#include "Vector.h"
 
+template <typename T> int sign(T val) { return (T(0) < val) - (val < T(0)); }
 namespace DTCC
 {
 
@@ -22,33 +31,36 @@ public:
   // and in range 0-255
   static void ColorFromImage(PointCloud &pointCloud, const GeoRaster &raster)
   {
-      double r,g,b;
-      pointCloud.Colors.clear();
+    double r, g, b;
+    pointCloud.Colors.clear();
 
-      for (auto p: pointCloud.Points) {
-        Point2D p2d = Point2D(p.x,p.y);
-        try
-        {
-          r = raster(p2d,1);
-          g = raster(p2d,2);
-          b = raster(p2d,3);
-          r /= 255;
-          g /= 255;
-          b /= 255;
-        } catch (const std::runtime_error& error)
-        {
-          // point outside of raster
-          r = 0.0;
-          g = 0.0;
-          b = 0.0;
-        }
-
-        pointCloud.Colors.push_back(Color(r,g,b));
+    for (auto p : pointCloud.Points)
+    {
+      Point2D p2d = Point2D(p.x, p.y);
+      try
+      {
+        r = raster(p2d, 1);
+        g = raster(p2d, 2);
+        b = raster(p2d, 3);
+        r /= 255;
+        g /= 255;
+        b /= 255;
+      }
+      catch (const std::runtime_error &error)
+      {
+        // point outside of raster
+        r = 0.0;
+        g = 0.0;
+        b = 0.0;
       }
 
+      pointCloud.Colors.push_back(Color(r, g, b));
+    }
   }
 
-  static PointCloud ClassificationFilter(const PointCloud &pointCloud, const std::vector<int> &classifications)
+  static PointCloud
+  ClassificationFilter(const PointCloud &pointCloud,
+                       const std::vector<int> &classifications)
   {
     PointCloud outCloud;
     size_t pointCount = pointCloud.Points.size();
@@ -96,7 +108,7 @@ public:
     Timer timer("RemoveOutliers");
 
     // Write heights to file for debbuging
-    const bool debugOutliers = true;
+    const bool debugOutliers = false;
     if (debugOutliers)
     {
       std::ofstream f;
@@ -114,29 +126,7 @@ public:
     std::vector<size_t> outliers =
         RemoveOutliers(pointCloud.Points, outlierMargin, true);
 
-    // Initialize new colors and classifications
-    std::vector<Color> newColors{};
-    std::vector<uint8_t> newClassifications{};
-
-    // Copy colors and classifications for all non-outliers
-    assert(pointCloud.Colors.size() == pointCloud.Classifications.size());
-    size_t k = 0;
-    for (size_t i = 0; i < pointCloud.Colors.size(); i++)
-    {
-      if (k >= outliers.size() || i != outliers[k])
-      {
-        newColors.push_back(pointCloud.Colors[i]);
-        newClassifications.push_back(pointCloud.Classifications[i]);
-      }
-      else
-      {
-        k++;
-      }
-    }
-
-    // Assign new to old
-    pointCloud.Colors = newColors;
-    pointCloud.Classifications = newClassifications;
+    FilterPointCloud(pointCloud, outliers);
 
     // Write heights to file for debbuging
     if (debugOutliers)
@@ -236,8 +226,11 @@ public:
 
     return outliers;
   }
+
+  /// Returns the Distance to the K nearest neighbors for each point in
+  /// points
   static std::vector<std::vector<double>>
-  KNNNearestNeighbours(std::vector<Point3D> &points, size_t neighbours)
+  KNNNearestNeighboursDist(std::vector<Point3D> &points, size_t neighbours)
   {
     size_t pc_size = points.size();
     std::vector<std::vector<double>> neighbourDist(pc_size);
@@ -275,9 +268,49 @@ public:
     return neighbourDist;
   }
 
-  /// Finds outliers from vector of points by removing all points more than a
-  /// given number of standard deviations from the mean distance to their N
-  /// nearest neighbours
+  /// Returns the index of the K nearest neighbors for each point in
+  /// points
+  static std::vector<std::vector<size_t>>
+  KNNNearestNeighboursIdx(std::vector<Point3D> &points, size_t neighbours)
+  {
+    size_t pc_size = points.size();
+    std::vector<std::vector<size_t>> neighbourIdx(pc_size);
+
+    if (neighbours <= 0 or neighbours > pc_size)
+    {
+      neighbours = pc_size;
+    }
+    neighbours++; // N neighbours other than ourselves
+
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+                                         3 /* dims */>
+        my_kd_tree_t;
+    my_kd_tree_t pc_index(3 /*dim*/, points, 10 /* max leaf */);
+    pc_index.index->buildIndex();
+    std::vector<size_t> ret_indexes(neighbours);
+    std::vector<double> out_dists_sqr(neighbours);
+    nanoflann::KNNResultSet<double> resultSet(neighbours);
+    resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
+    size_t idx = 0;
+    for (auto const &pt : points)
+    {
+      std::vector<double> query_pt{pt.x, pt.y, pt.z};
+      pc_index.query(&query_pt[0], neighbours, &ret_indexes[0],
+                     &out_dists_sqr[0]);
+      for (size_t i = 1; i < neighbours;
+           i++) // start from 1 since 0 is the query point
+      {
+        neighbourIdx[idx].push_back(ret_indexes[i]);
+      }
+      idx++;
+    }
+
+    return neighbourIdx;
+  }
+
+  /// Finds outliers from vector of points by removing all points more than
+  /// a given number of standard deviations from the mean distance to their
+  /// N nearest neighbours
   ///
   /// @param points The vector of points
   /// @param neighbours Number of neighbours to consider. If less than 1 or
@@ -290,14 +323,14 @@ public:
                            double outlierMargin,
                            bool verbose = false)
   {
-    Timer("StatisticalOurlierFinder");
+    Timer("StatisticalOurtierFinder");
     // Check that we have enough points
     if (points.size() <= neighbours)
       return std::vector<size_t>();
 
     std::vector<size_t> outliers;
 
-    auto neighbourDist = KNNNearestNeighbours(points, neighbours);
+    auto neighbourDist = KNNNearestNeighboursDist(points, neighbours);
     std::vector<double> u_dist_i;
 
     for (size_t i = 0; i < points.size(); i++)
@@ -347,7 +380,7 @@ public:
                                         double outlierMargin,
                                         bool verbose = false)
   {
-    Timer("StatisticalOurlierRemover");
+    Timer("StatisticalOurtierRemover");
     std::vector<size_t> outliers =
         StatisticalOutlierFinder(points, neighbours, outlierMargin, verbose);
     std::vector<Point3D> newPoints;
@@ -382,28 +415,144 @@ public:
     std::vector<size_t> outliers = StatisticalOutlierFinder(
         pointCloud.Points, neighbours, outlierMargin, verbose);
 
+    FilterPointCloud(pointCloud, outliers);
+  }
+
+  static void RANSAC_OutlierRemover(PointCloud &pointCloud,
+                                    double distanceThreshold,
+                                    size_t iterations = 100)
+  {
+    Timer("RANSAC_OutlierRemover");
+    std::vector<size_t> outliers =
+        RANSAC_OutlierFinder(pointCloud.Points, distanceThreshold, iterations);
+    FilterPointCloud(pointCloud, outliers);
+  }
+
+  static void RANSAC_OutlierRemover(std::vector<Point3D> &points,
+                                    double distanceThreshold,
+                                    size_t iterations = 100)
+  {
+    Timer("RANSAC_OutlierRemover");
+
+    auto outliers = RANSAC_OutlierFinder(points, distanceThreshold, iterations);
+    if (outliers.size() == 0)
+      return;
     std::vector<Point3D> newPoints;
-    std::vector<Color> newColors{};
-    std::vector<uint8_t> newClassifications{};
-    // Copy points, colors and classifications for all non-outliers
-    // assert(pointCloud.Colors.size() == pointCloud.Classifications.size());
-    bool hasColor = false;
-    bool hasClass = false;
-    if (pointCloud.Colors.size() > 0)
-      hasColor = true;
-    if (pointCloud.Classifications.size() > 0)
-      hasClass = true;
     size_t k = 0;
-    for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    for (size_t i = 0; i < points.size(); i++)
     {
       if (k >= outliers.size() || i != outliers[k])
       {
+        newPoints.push_back(points[i]);
+      }
+      else
+      {
+        k++;
+      }
+    }
+    points = newPoints;
+  }
+
+  static std::vector<size_t> RANSAC_OutlierFinder(std::vector<Point3D> &points,
+                                                  double distanceThreshold,
+                                                  size_t iterations = 100)
+  {
+
+    std::vector<size_t> outliers;
+    if (points.size() < 9)
+      return outliers;
+    std::vector<size_t> best_outliers(points.size(), 0);
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+    std::default_random_engine generator(seed);
+    std::uniform_int_distribution<size_t> distribution(0, points.size() - 1);
+    auto randIdx = std::bind(distribution, generator);
+    Point3D pt1, pt2, pt3;
+    Vector3D v1, v2, v3;
+    size_t idx1, idx2, idx3;
+    double k;
+
+    for (size_t i = 0; i < iterations; i++)
+    {
+      idx1 = randIdx();
+      idx2 = randIdx();
+      // idx1, 2 and 3 must be different
+      while (idx2 == idx1)
+      {
+        idx2 = randIdx();
+      }
+      idx3 = randIdx();
+      while (idx3 == idx1 || idx3 == idx2)
+      {
+        idx3 = randIdx();
+      }
+      pt1 = points[idx1];
+      pt2 = points[idx2];
+      pt3 = points[idx3];
+      v1 = Vector3D(pt2.x - pt1.x, pt2.y - pt1.y, pt2.z - pt1.z);
+      v2 = Vector3D(pt3.x - pt1.x, pt3.y - pt1.y, pt3.z - pt1.z);
+      v3 = v1.Cross(v2);
+      v3 /= v3.Magnitude();
+      if (isnan(v3.x)) // all three points are in a line
+      {
+        continue;
+      }
+
+      k = v3.Dot(pt2);
+      outliers.clear();
+      for (size_t j = 0; j < points.size(); j++)
+      {
+        auto ptPlaneDist = std::abs(v3.Dot(points[j]) - k) / v3.Magnitude();
+        if (ptPlaneDist > distanceThreshold)
+        {
+
+          outliers.push_back(j);
+        }
+      }
+      if (outliers.size() < best_outliers.size())
+      {
+        best_outliers = outliers;
+      }
+    }
+    return best_outliers;
+  }
+
+  // Removes selected points from point cloud
+  static void FilterPointCloud(PointCloud &pointCloud,
+                               std::vector<size_t> ptsToRemove)
+  {
+    std::sort(ptsToRemove.begin(), ptsToRemove.end());
+    std::vector<Point3D> newPoints;
+    std::vector<Vector3D> newNormals;
+    std::vector<Color> newColors{};
+    std::vector<uint8_t> newClassifications{};
+    std::vector<uint16_t> newIntensities{};
+    std::vector<uint8_t> newScanFlags{};
+
+    bool hasNormals = pointCloud.Normals.size() > 0;
+    bool hasColor = pointCloud.Colors.size() > 0;
+    bool hasClass = pointCloud.Classifications.size() > 0;
+    bool hasIntensity = pointCloud.Intensities.size() > 0;
+    bool hasScanflags = pointCloud.ScanFlags.size() > 0;
+
+    size_t k = 0;
+    for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    {
+      if (k >= ptsToRemove.size() || i != ptsToRemove[k])
+      {
         newPoints.push_back(pointCloud.Points[i]);
 
+        if (hasNormals)
+          newNormals.push_back(pointCloud.Normals[i]);
         if (hasColor)
           newColors.push_back(pointCloud.Colors[i]);
         if (hasClass)
           newClassifications.push_back(pointCloud.Classifications[i]);
+        if (hasIntensity)
+          newIntensities.push_back(pointCloud.Intensities[i]);
+        if (hasScanflags)
+          newScanFlags.push_back(pointCloud.ScanFlags[i]);
       }
       else
       {
@@ -413,13 +562,113 @@ public:
     // Assign new to old
     pointCloud.Points = newPoints;
 
+    if (hasNormals)
+      pointCloud.Normals = newNormals;
     if (hasColor)
       pointCloud.Colors = newColors;
     if (hasClass)
       pointCloud.Classifications = newClassifications;
+    if (hasIntensity)
+      pointCloud.Intensities = newIntensities;
+    if (hasScanflags)
+      pointCloud.ScanFlags = newScanFlags;
   }
-};
 
+  static std::pair<uint8_t, uint8_t> parseScanFlag(uint8_t flag)
+  {
+    uint8_t returnNumber = flag & 7;
+    uint8_t numReturns = (flag >> 3) & 7;
+    return std::pair<uint8_t, uint8_t>(returnNumber, numReturns);
+  }
+
+  static uint8_t packScanFlag(uint8_t returnNumber, uint8_t numReturns)
+  {
+    return (returnNumber & 7) | ((numReturns & 7) << 3);
+  }
+
+  static void NaiveVegetationFilter(PointCloud &pointCloud)
+  {
+    // Remove some points that might be vegetation
+    std::vector<size_t> pointsToRemove;
+    if (pointCloud.ScanFlags.size() != pointCloud.Points.size())
+    {
+      Warning("Scan flags not set. No vegetation filtering");
+      return;
+    }
+    bool hasClassification = false;
+    if (pointCloud.Classifications.size() == pointCloud.Points.size())
+      hasClassification = true;
+
+    for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    {
+      auto scanFlag = parseScanFlag(pointCloud.ScanFlags[i]);
+      uint8_t classification = 1;
+      if (hasClassification)
+        classification = pointCloud.Classifications[i];
+      // not last point of several
+
+      if ((classification >= 3 && classification <= 5) || // classified as veg
+          (classification < 2 &&                          // not classified
+           (scanFlag.first != scanFlag.second))           // not last
+      )
+      {
+        pointsToRemove.push_back(i);
+      }
+    }
+    FilterPointCloud(pointCloud, pointsToRemove);
+  }
+
+  static void EstimateNormalsKNN(PointCloud &pointCloud, size_t neighbours)
+  {
+    auto normals = EstimateNormalsKNN(pointCloud.Points, neighbours);
+    pointCloud.Normals = normals;
+  };
+
+  static std::vector<Vector3D> EstimateNormalsKNN(std::vector<Point3D> points,
+                                                  size_t neighbours)
+  {
+    std::vector<Vector3D> normals;
+    auto neigboursIdx = KNNNearestNeighboursIdx(points, neighbours);
+    size_t idx = 0;
+    Eigen::RowVector3d dir(0.0, 0.0, 1.0);
+    for (auto const &query_pt : points)
+    {
+      size_t found = neigboursIdx[idx].size();
+      if (found < 3) // not enough neighbours to estimate normal
+      {
+        normals.push_back(Vector3D(0, 0, 0));
+        idx++;
+        continue;
+      }
+
+      Eigen::MatrixXd neighbors(found, 3);
+      for (int i = 0; i < found; i++)
+      {
+        auto pt = points[neigboursIdx[idx][i]];
+        neighbors(i, 0) = pt.x - query_pt.x;
+        neighbors(i, 1) = pt.y - query_pt.y;
+        neighbors(i, 2) = pt.z - query_pt.z;
+      }
+      Eigen::RowVector3d normal;
+      Eigen::JacobiSVD<Eigen::MatrixXd> svd(neighbors, Eigen::ComputeThinV);
+      Eigen::MatrixXd V = svd.matrixV();
+      for (int l = 0; l < 3; l++)
+      {
+        normal[l] = V(l, 2);
+      }
+      normal *= sign(normal.dot(dir));
+      auto n = Vector3D(normal[0], normal[1], normal[2]);
+      // Info("Normal: " + str(n));
+      normals.push_back(n);
+
+      idx++;
+    }
+
+    return normals;
+  }
+
+  // std::vector<Point3D> NormalizePointcloud(std::vector<Point3D> points) {}
+};
 } // namespace DTCC
 
 #endif

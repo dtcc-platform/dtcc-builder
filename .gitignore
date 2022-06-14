@@ -8,3 +8,7 @@
 .idea/
 .vscode/
 cmake-build-debug/
+
+*.pyc
+*checkpoint.ipynb
+.DS_Store

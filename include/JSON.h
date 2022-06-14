@@ -608,6 +608,7 @@ namespace DTCC
         cityModel.Buildings[i].GroundHeight = jsonBuilding["GroundHeight"];
         cityModel.Buildings[i].UUID = jsonBuilding["UUID"];
         cityModel.Buildings[i].SHPFileID = jsonBuilding["SHPFileID"];
+        cityModel.Buildings[i].error = jsonBuilding["Error"];
       }
     }
 
@@ -652,6 +653,7 @@ namespace DTCC
         // Uncomment for debugging
         // jsonBuilding["debugID"] = building.debugID;
         jsonBuilding["SHPFileID"] = building.SHPFileID;
+        jsonBuilding["Error"] = building.error;
         jsonBuildings.push_back(jsonBuilding);
       }
       json["Type"] = "CityModel";
@@ -1105,6 +1107,8 @@ namespace DTCC
       jsonBuilding["Height"] = building.Height;
       jsonBuilding["GroundHeight"] = building.GroundHeight;
       jsonBuilding["PropertyUUID"] = building.PropertyUUID;
+      jsonBuilding["Error"] = building.error;
+
       SerializeArea(building, json, isTopObject, jsonBuilding, "Building");
     }
 
@@ -1126,6 +1130,7 @@ namespace DTCC
       building.BaseAreaID = jsonBuilding["BaseAreaID"].get<std::string>();
       building.Height = jsonBuilding["Height"].get<double>();
       building.GroundHeight = jsonBuilding["GroundHeight"].get<double>();
+      building.error = jsonBuilding["Error"];
 
       DeserializeFootprint(building.Footprint, jsonBuilding, "Footprint");
     }

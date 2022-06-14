@@ -33,6 +33,8 @@ find_package(nlohmann_json REQUIRED)
 find_package(assimp REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(PNG REQUIRED)
+find_package(LibGEOS REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
@@ -60,6 +62,12 @@ include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(/usr/include/nlohmann/)
+include_directories(/usr/include/eigen3/)
+include_directories(/usr/local/include/optim/header_only_version)
+
+
+
+
 
 link_directories(/usr/local/lib) #Equivalent of ldconfig /usr/local/lib in Dockerfile
 

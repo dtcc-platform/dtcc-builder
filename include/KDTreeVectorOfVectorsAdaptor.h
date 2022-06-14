@@ -78,7 +78,7 @@ struct KDTreeVectorOfVectorsAdaptor
   {
     assert(mat.size() != 0 && mat[0].size() != 0);
     const size_t dims = mat[0].size();
-    if (DIM > 0 && static_cast<int>(dims) != DIM)
+    if (DIM > 0 && static_cast<int>(dims) < DIM)
       throw std::runtime_error(
           "Data set dimensionality does not match the 'DIM' template argument");
     index =
@@ -106,6 +106,25 @@ struct KDTreeVectorOfVectorsAdaptor
     nanoflann::KNNResultSet<num_t, IndexType> resultSet(num_closest);
     resultSet.init(out_indices, out_distances_sq);
     index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+  }
+
+  /** Query for all points within  \a radius of the given point (entered as
+   * query_point[0:dim-1]). Note that this is a short-cut method for
+   * index->findNeighbors(). The user can also call index->... methods as
+   * desired. \note nChecks_IGNORED is ignored but kept for compatibility with
+   * the original FLANN interface.
+   */
+  inline std::vector<std::pair<size_t, num_t>>
+  radiusQuery(const num_t *query_point, const num_t radius) const
+  {
+    std::vector<std::pair<size_t, num_t>> indices_dists;
+    // nanoflann::RadiusResultSet<num_t, IndexType> resultSet(radius,
+    //                                                       indices_dists);
+    // index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+    index->radiusSearch(query_point, radius, indices_dists,
+                        nanoflann::SearchParams());
+
+    return indices_dists;
   }
 
   /** @name Interface expected by KDTreeSingleIndexAdaptor

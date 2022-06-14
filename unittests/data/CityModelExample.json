@@ -35,6 +35,7 @@
       "PropertyUUID": "c8374e11-2767-4f0a-91fd-71d7f89b6681",
       "PropertyFNR": 140029233,
       "BaseAreaID": "60605",
+      "Error": 0,
       "attributes": {
         "heatedFloorArea": 5739.0,
         "finalEnergy": 405288.7621092857,

@@ -27,7 +27,7 @@ for development and testing purposes.
 
 To download the software, clone the repository by the following command:
 
-    git clone https://gitlab.com/dtcc-platform/dtcc-builder.git
+    git clone https://gitlab.com/dtcc-platform/dtcc-builder.git -b develop
 
 Alternatively, you may want to use the SSH protocol:
 

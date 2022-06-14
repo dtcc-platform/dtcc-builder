@@ -34,5 +34,5 @@ TEST_CASE("Get Filename from path")
   REQUIRE(Utils::GetFilename(path, true) == "fileName");
   REQUIRE(Utils::GetFilename(pathFileOnly) == "fileName.json");
   REQUIRE(Utils::GetFilename(pathFileOnly, true) == "fileName");
-  REQUIRE(Utils::GetFilename(pathNoFile) == "");
+  REQUIRE(Utils::GetFilename(pathNoFile) == "dir");
 }
