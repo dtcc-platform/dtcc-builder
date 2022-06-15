@@ -18,29 +18,79 @@
 
 namespace DTCC
 {
+
+typedef std::vector<std::vector<size_t>> Segments;
 class RoofSegmentation
 {
 public:
   static void SegmentRoofs(std::vector<Building> &buildings,
                            double max_radius = 2,
                            double normal_angle_threshold = 2,
+                           size_t min_points = 10,
                            double seed_ratio = 0.1)
   {
     for (auto &building : buildings)
     {
-      auto regions = RegionGrowingSegmentation(
-          building.RoofPoints, max_radius, normal_angle_threshold, seed_ratio);
+      auto regions = RegionGrowingSegmentation(building.RoofPoints, max_radius,
+                                               normal_angle_threshold,
+                                               min_points, seed_ratio);
       building.RoofSegments = regions;
     }
   }
 
-  static std::vector<std::vector<size_t>>
-  RegionGrowingSegmentation(const std::vector<Point3D> &points,
-                            double max_radius = 2,
-                            double normal_angle_threshold = 2,
-                            double seed_ratio = 0.1)
+  static void SegmentRoofsSearchOptimal(std::vector<Building> &buildings,
+                                        double max_radius = 2,
+                                        double seed_ratio = 0.1)
   {
-    std::vector<std::vector<size_t>> regions;
+    for (auto &building : buildings)
+    {
+      double best_angle = SearchOptimateRegionSegmentationAngle(
+          building.RoofPoints, max_radius, seed_ratio);
+      auto regions = RegionGrowingSegmentation(building.RoofPoints, max_radius,
+                                               best_angle, seed_ratio);
+      building.RoofSegments = regions;
+    }
+  }
+
+  static double
+  SearchOptimateRegionSegmentationAngle(const std::vector<Point3D> &points,
+                                        double max_radius = 2,
+                                        size_t min_points = 10,
+                                        double seed_ratio = 0.1)
+  {
+    double best_score = -1;
+    double prev_score = -1;
+    double best_angle = -1;
+    double step = 0.25;
+    double start = 0.5;
+    double end = 10;
+    double a = start;
+    while (a < end)
+    {
+      auto roof_segments = RegionGrowingSegmentation(points, max_radius, a,
+                                                     min_points, seed_ratio);
+      double score = scoreRegion(roof_segments, points);
+      if (score > best_score)
+      {
+        best_score = score;
+        best_angle = a;
+      }
+      if (score > prev_score)
+        a += step;
+      else
+        a *= 2;
+      prev_score = score;
+    }
+    return best_angle;
+  }
+
+  static Segments RegionGrowingSegmentation(const std::vector<Point3D> &points,
+                                            double max_radius = 2,
+                                            double normal_angle_threshold = 2,
+                                            size_t min_points = 12,
+                                            double seed_ratio = 0.1)
+  {
+    Segments regions;
 
     auto normals = PointCloudProcessor::EstimateNormalsKNN(points, 8);
 
@@ -90,12 +140,27 @@ public:
           }
         }
       }
-      if (R.size() > 0)
+      if (R.size() >= min_points)
       {
         regions.push_back(R);
       }
     }
     return regions;
+  }
+
+private:
+  static double scoreRegion(Segments regions,
+                            const std::vector<Point3D> &points)
+  {
+    double score;
+    double segmented_points = 0;
+    for (auto const &region : regions)
+    {
+      segmented_points += region.size();
+    }
+    double segment_ratio = segmented_points / points.size();
+    score = regions.size() * regions.size() * segment_ratio;
+    return score;
   }
 };
 } // namespace DTCC

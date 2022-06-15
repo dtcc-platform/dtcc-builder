@@ -35,4 +35,12 @@ TEST_CASE("RoofSegmentation")
       REQUIRE(idx >= 100);
     }
   }
+
+  SECTION("Optimal Angle")
+  {
+    double angle =
+        RoofSegmentation::SearchOptimateRegionSegmentationAngle(points, 4);
+    REQUIRE(angle >= 0.5);
+    REQUIRE(angle < 1.0);
+  }
 }

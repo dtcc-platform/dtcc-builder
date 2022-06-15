@@ -52,6 +52,7 @@ public:
     Add("RoofPercentile", 0.9);
     Add("OutlierMargin", 2.0);
     Add("MinBuildingSize", 15.0);
+    Add("BuildingLOD", 1);
 
     Add("StatisticalOutlierRemover", true);
     Add("OutlierNeighbors", 5);

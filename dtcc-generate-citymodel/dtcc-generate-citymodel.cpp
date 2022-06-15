@@ -20,6 +20,7 @@
 #include "ParameterProcessor.h"
 #include "Parameters.h"
 #include "Polygon.h"
+#include "RoofSegmentation.h"
 #include "SHP.h"
 #include "Timer.h"
 #include "Utils.h"
@@ -176,6 +177,15 @@ int main(int argc, char *argv[])
 
   CityModelGenerator::ComputeBuildingHeights(
       cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
+
+  if ((int)p["BuildingLOD"] == 2)
+  {
+    Info("Generating building LOD 2");
+    auto roofSegTimer = Timer("Roof Segmentation");
+    // RoofSegmentation::SegmentRoofs(cityModel.Buildings);
+    RoofSegmentation::SegmentRoofsSearchOptimal(cityModel.Buildings);
+    roofSegTimer.Stop();
+  }
 
   // Stop timer
   timer.Stop();
