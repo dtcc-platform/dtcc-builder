@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Anton J Olsson
+// Copyright (C) 2022 Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_ROOFSEGMENTATION_H
