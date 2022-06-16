@@ -660,8 +660,8 @@ public:
         auto jsonSegment = nlohmann::json::array();
         for (auto idx : segment)
           jsonSegment.push_back(idx);
-
-        jsonBuilding["RoofSegments"].push_back(jsonSegment);
+        if (jsonSegment.size() > 0)
+          jsonBuilding["RoofSegments"].push_back(jsonSegment);
       }
       jsonBuildings.push_back(jsonBuilding);
     }

@@ -278,7 +278,6 @@ public:
         tooFew++;
       }
       pointCoverage = BuildingProcessor::PointCoverage(building, 2.0);
-      Info("PointCoverage: " + str(pointCoverage));
       if (pointCoverage < 0.5)
       {
         building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;

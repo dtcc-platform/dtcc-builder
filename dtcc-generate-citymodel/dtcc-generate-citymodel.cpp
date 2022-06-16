@@ -182,8 +182,8 @@ int main(int argc, char *argv[])
   {
     Info("Generating building LOD 2");
     auto roofSegTimer = Timer("Roof Segmentation");
-    // RoofSegmentation::SegmentRoofs(cityModel.Buildings);
-    RoofSegmentation::SegmentRoofsSearchOptimal(cityModel.Buildings);
+    RoofSegmentation::SegmentRoofs(cityModel.Buildings);
+    // RoofSegmentation::SegmentRoofsSearchOptimal(cityModel.Buildings);
     roofSegTimer.Stop();
   }
 

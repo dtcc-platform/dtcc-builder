@@ -91,7 +91,8 @@ public:
                                             double seed_ratio = 0.1)
   {
     Segments regions;
-
+    if (points.size() == 0)
+      return regions;
     auto normals = PointCloudProcessor::EstimateNormalsKNN(points, 8);
 
     typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
