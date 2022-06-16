@@ -7,6 +7,8 @@
 #include <random>
 #include <set>
 
+#include "progressbar.hpp"
+
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "Logging.h"
 #include "Point.h"
@@ -27,14 +29,21 @@ public:
                            double max_radius = 2,
                            double normal_angle_threshold = 2,
                            size_t min_points = 10,
-                           double seed_ratio = 0.1)
+                           double seed_ratio = 0.1,
+                           bool show_progressbar = true)
   {
+    progressbar bar(buildings.size());
+
     for (auto &building : buildings)
     {
       auto regions = RegionGrowingSegmentation(building.RoofPoints, max_radius,
                                                normal_angle_threshold,
                                                min_points, seed_ratio);
       building.RoofSegments = regions;
+      if (show_progressbar)
+      {
+        bar.update();
+      }
     }
   }
 
