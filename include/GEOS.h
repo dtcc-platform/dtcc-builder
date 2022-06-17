@@ -361,7 +361,6 @@ private:
       }
     }
   }
-
 };
 
 } // namespace DTCC

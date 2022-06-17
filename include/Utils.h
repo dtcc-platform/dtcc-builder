@@ -1,7 +1,10 @@
 // Copyright (C) 2020 Anders Logg, Anton J Olsson
 // Licensed under the MIT License
 
+#include <cassert>
+#include <experimental/filesystem>
 #include <random>
+#include <utility>
 
 #ifndef DTCC_UTILS_H
 #define DTCC_UTILS_H
@@ -62,14 +65,26 @@ namespace DTCC
       return std::string(uuid);
     }
 
+    // Check if a string ends with another string
+    static bool EndsWith(const std::string &string, const std::string &ending)
+    {
+      if (ending.size() > string.size())
+        return false;
+      return std::equal(ending.rbegin(), ending.rend(), string.rbegin());
+    }
+
     /// Return random number between 0 and 1
     static double Random() { return std::rand() / double(RAND_MAX); }
 
-    /// Returns the file name part of a path
-    /// \param str a string representing a path to a file
+    /// Returns the file name part of a path. If path end with a '/'
+    /// return the directory name instead.
+    /// \param str a string representing a path to a file.
     static std::string GetFilename(std::string fullPath,
                                    bool removeExtension = false)
     {
+      if (fullPath.back() == '/')
+        fullPath.pop_back();
+
       std::string fileName;
       size_t lastPathSep = fullPath.find_last_of('/');
 

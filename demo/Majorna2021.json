@@ -1,6 +1,7 @@
 {
     "Type": "Parameters",
     "DataDirectory": "/home/dtcc/core/data/Majorna2021",
+    "OutputDirectory": "/home/dtcc/core/data/Majorna2021/output/RANSAC_with_SOL",
     "DomainHeight": 100.0,
     "ElevationModelResolution": 1.0,
     "MeshResolution": 20.0,
@@ -16,15 +17,14 @@
     "GroundPercentile": 0.1,
     "RoofPercentile": 0.9,
     "OutlierMargin": 2.0,
+    "RANSACOutlierRemover": true,
+    "StatisticalOutlierRemover": true,
+    "NaiveVegitationFilter": true,
     "GroundSmoothing": 2,
-    "NumRandomBuildings": 11585,
+    "NumRandomBuildings": 1000,
     "GenerateSurfaceMeshes": true,
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
-    "WriteVTK": true,
-    "Debug": true,
-    "BuildingRemoveOutlier":true,
-    "OutlierNeighbors":5,
-    "OutlierSTD":2.0
-
+    "WriteVTK": false,
+    "Debug": true
 }

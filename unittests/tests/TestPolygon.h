@@ -107,4 +107,36 @@ TEST_CASE("Polygon Geometry")
       REQUIRE(vertices2[1].y == 2.5);
     }
   }
+
+  SECTION("Polygon Intersects")
+  {
+    Polygon polygon;
+    polygon.Vertices.push_back(Point2D(0, 0));
+    polygon.Vertices.push_back(Point2D(1, 0));
+    polygon.Vertices.push_back(Point2D(1, 1));
+    polygon.Vertices.push_back(Point2D(0, 1));
+
+    Polygon polygon2;
+    polygon2.Vertices.push_back(Point2D(0.5, 0.5));
+    polygon2.Vertices.push_back(Point2D(1.5, 0.5));
+    polygon2.Vertices.push_back(Point2D(1.5, 1.5));
+    polygon2.Vertices.push_back(Point2D(0.5, 1.5));
+
+    Polygon polygon3;
+    polygon3.Vertices.push_back(Point2D(-10, -10));
+    polygon3.Vertices.push_back(Point2D(10, -10));
+    polygon3.Vertices.push_back(Point2D(10, 10));
+    polygon3.Vertices.push_back(Point2D(-10, 10));
+
+    Polygon polygon4;
+    polygon4.Vertices.push_back(Point2D(2, 2));
+    polygon4.Vertices.push_back(Point2D(3, 2));
+    polygon4.Vertices.push_back(Point2D(3, 3));
+    polygon4.Vertices.push_back(Point2D(2, 3));
+
+    REQUIRE(Geometry::Intersects2D(polygon, polygon));
+    REQUIRE(Geometry::Intersects2D(polygon, polygon2));
+    REQUIRE(Geometry::Intersects2D(polygon, polygon3));
+    REQUIRE(!Geometry::Intersects2D(polygon, polygon4));
+  }
 }

@@ -134,6 +134,7 @@
     "Buildings": [
         {
             "BaseAreaID": "60605",
+            "Error": 0,
             "Footprint": [
                 {
                     "x": 551.020999965025,

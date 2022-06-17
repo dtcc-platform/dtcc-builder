@@ -1,16 +1,21 @@
-// Copyright (C) 2020 Dag Wästberg
+// Copyright (C) 2020-2022 Dag Wästberg
 // Licensed under the MIT License
 
 #ifndef DTCC_POINT_CLOUD_PROCESSOR_H
 #define DTCC_POINT_CLOUD_PROCESSOR_H
+
+#include <math.h>
+#include <random>
 
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"
 
 #include "Color.h"
 #include "GeoRaster.h"
+#include "Point.h"
 #include "PointCloud.h"
 #include "Timer.h"
+#include "Vector.h"
 
 namespace DTCC
 {
@@ -22,33 +27,36 @@ public:
   // and in range 0-255
   static void ColorFromImage(PointCloud &pointCloud, const GeoRaster &raster)
   {
-      double r,g,b;
-      pointCloud.Colors.clear();
+    double r, g, b;
+    pointCloud.Colors.clear();
 
-      for (auto p: pointCloud.Points) {
-        Point2D p2d = Point2D(p.x,p.y);
-        try
-        {
-          r = raster(p2d,1);
-          g = raster(p2d,2);
-          b = raster(p2d,3);
-          r /= 255;
-          g /= 255;
-          b /= 255;
-        } catch (const std::runtime_error& error)
-        {
-          // point outside of raster
-          r = 0.0;
-          g = 0.0;
-          b = 0.0;
-        }
-
-        pointCloud.Colors.push_back(Color(r,g,b));
+    for (auto p : pointCloud.Points)
+    {
+      Point2D p2d = Point2D(p.x, p.y);
+      try
+      {
+        r = raster(p2d, 1);
+        g = raster(p2d, 2);
+        b = raster(p2d, 3);
+        r /= 255;
+        g /= 255;
+        b /= 255;
+      }
+      catch (const std::runtime_error &error)
+      {
+        // point outside of raster
+        r = 0.0;
+        g = 0.0;
+        b = 0.0;
       }
 
+      pointCloud.Colors.push_back(Color(r, g, b));
+    }
   }
 
-  static PointCloud ClassificationFilter(const PointCloud &pointCloud, const std::vector<int> &classifications)
+  static PointCloud
+  ClassificationFilter(const PointCloud &pointCloud,
+                       const std::vector<int> &classifications)
   {
     PointCloud outCloud;
     size_t pointCount = pointCloud.Points.size();
@@ -96,7 +104,7 @@ public:
     Timer timer("RemoveOutliers");
 
     // Write heights to file for debbuging
-    const bool debugOutliers = true;
+    const bool debugOutliers = false;
     if (debugOutliers)
     {
       std::ofstream f;
@@ -114,29 +122,7 @@ public:
     std::vector<size_t> outliers =
         RemoveOutliers(pointCloud.Points, outlierMargin, true);
 
-    // Initialize new colors and classifications
-    std::vector<Color> newColors{};
-    std::vector<uint8_t> newClassifications{};
-
-    // Copy colors and classifications for all non-outliers
-    assert(pointCloud.Colors.size() == pointCloud.Classifications.size());
-    size_t k = 0;
-    for (size_t i = 0; i < pointCloud.Colors.size(); i++)
-    {
-      if (k >= outliers.size() || i != outliers[k])
-      {
-        newColors.push_back(pointCloud.Colors[i]);
-        newClassifications.push_back(pointCloud.Classifications[i]);
-      }
-      else
-      {
-        k++;
-      }
-    }
-
-    // Assign new to old
-    pointCloud.Colors = newColors;
-    pointCloud.Classifications = newClassifications;
+    FilterPointCloud(pointCloud, outliers);
 
     // Write heights to file for debbuging
     if (debugOutliers)
@@ -290,7 +276,7 @@ public:
                            double outlierMargin,
                            bool verbose = false)
   {
-    Timer("StatisticalOurlierFinder");
+    Timer("StatisticalOurtierFinder");
     // Check that we have enough points
     if (points.size() <= neighbours)
       return std::vector<size_t>();
@@ -347,7 +333,7 @@ public:
                                         double outlierMargin,
                                         bool verbose = false)
   {
-    Timer("StatisticalOurlierRemover");
+    Timer("StatisticalOurtierRemover");
     std::vector<size_t> outliers =
         StatisticalOutlierFinder(points, neighbours, outlierMargin, verbose);
     std::vector<Point3D> newPoints;
@@ -382,21 +368,138 @@ public:
     std::vector<size_t> outliers = StatisticalOutlierFinder(
         pointCloud.Points, neighbours, outlierMargin, verbose);
 
+    FilterPointCloud(pointCloud, outliers);
+  }
+
+  static void RANSAC_OutlierRemover(PointCloud &pointCloud,
+                                    double distanceThreshold,
+                                    size_t iterations = 100)
+  {
+    Timer("RANSAC_OutlierRemover");
+    std::vector<size_t> outliers =
+        RANSAC_OutlierFinder(pointCloud.Points, distanceThreshold, iterations);
+    FilterPointCloud(pointCloud, outliers);
+  }
+
+  static void RANSAC_OutlierRemover(std::vector<Point3D> &points,
+                                    double distanceThreshold,
+                                    size_t iterations = 100)
+  {
+    Timer("RANSAC_OutlierRemover");
+
+    auto outliers = RANSAC_OutlierFinder(points, distanceThreshold, iterations);
+    if (outliers.size() == 0)
+      return;
+    std::vector<Point3D> newPoints;
+    size_t k = 0;
+    for (size_t i = 0; i < points.size(); i++)
+    {
+      if (k >= outliers.size() || i != outliers[k])
+      {
+        newPoints.push_back(points[i]);
+      }
+      else
+      {
+        k++;
+      }
+    }
+    points = newPoints;
+  }
+
+  static std::vector<size_t> RANSAC_OutlierFinder(std::vector<Point3D> &points,
+                                                  double distanceThreshold,
+                                                  size_t iterations = 100)
+  {
+
+    std::vector<size_t> outliers;
+    if (points.size() < 9)
+      return outliers;
+    std::vector<size_t> best_outliers(points.size(), 0);
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+    std::default_random_engine generator(seed);
+    std::uniform_int_distribution<size_t> distribution(0, points.size() - 1);
+    auto randIdx = std::bind(distribution, generator);
+    Point3D pt1, pt2, pt3;
+    Vector3D v1, v2, v3;
+    size_t idx1, idx2, idx3;
+    double k;
+
+    for (size_t i = 0; i < iterations; i++)
+    {
+      idx1 = randIdx();
+      idx2 = randIdx();
+      // idx1, 2 and 3 must be different
+      while (idx2 == idx1)
+      {
+        idx2 = randIdx();
+      }
+      idx3 = randIdx();
+      while (idx3 == idx1 || idx3 == idx2)
+      {
+        idx3 = randIdx();
+      }
+      pt1 = points[idx1];
+      pt2 = points[idx2];
+      pt3 = points[idx3];
+      v1 = Vector3D(pt2.x - pt1.x, pt2.y - pt1.y, pt2.z - pt1.z);
+      v2 = Vector3D(pt3.x - pt1.x, pt3.y - pt1.y, pt3.z - pt1.z);
+      v3 = v1.Cross(v2);
+      v3 /= v3.Magnitude();
+      if (isnan(v3.x)) // all three points are in a line
+      {
+        continue;
+      }
+
+      k = v3.Dot(pt2);
+      outliers.clear();
+      for (size_t j = 0; j < points.size(); j++)
+      {
+        auto ptPlaneDist = std::abs(v3.Dot(points[j]) - k) / v3.Magnitude();
+        if (ptPlaneDist > distanceThreshold)
+        {
+
+          outliers.push_back(j);
+        }
+      }
+      if (outliers.size() < best_outliers.size())
+      {
+        best_outliers = outliers;
+      }
+    }
+    return best_outliers;
+  }
+
+  // Removes selected points from point cloud
+  static void FilterPointCloud(PointCloud &pointCloud,
+                               std::vector<size_t> ptsToRemove)
+  {
+    std::sort(ptsToRemove.begin(), ptsToRemove.end());
     std::vector<Point3D> newPoints;
     std::vector<Color> newColors{};
     std::vector<uint8_t> newClassifications{};
-    // Copy points, colors and classifications for all non-outliers
-    // assert(pointCloud.Colors.size() == pointCloud.Classifications.size());
+    std::vector<uint16_t> newIntensities{};
+    std::vector<uint8_t> newScanFlags{};
+
     bool hasColor = false;
     bool hasClass = false;
+    bool hasIntensity = false;
+    bool hasScanflags = false;
+
     if (pointCloud.Colors.size() > 0)
       hasColor = true;
     if (pointCloud.Classifications.size() > 0)
       hasClass = true;
+    if (pointCloud.Intensities.size() > 0)
+      hasIntensity = true;
+    if (pointCloud.ScanFlags.size() > 0)
+      hasScanflags = true;
+
     size_t k = 0;
     for (size_t i = 0; i < pointCloud.Points.size(); i++)
     {
-      if (k >= outliers.size() || i != outliers[k])
+      if (k >= ptsToRemove.size() || i != ptsToRemove[k])
       {
         newPoints.push_back(pointCloud.Points[i]);
 
@@ -404,6 +507,10 @@ public:
           newColors.push_back(pointCloud.Colors[i]);
         if (hasClass)
           newClassifications.push_back(pointCloud.Classifications[i]);
+        if (hasIntensity)
+          newIntensities.push_back(pointCloud.Intensities[i]);
+        if (hasScanflags)
+          newScanFlags.push_back(pointCloud.ScanFlags[i]);
       }
       else
       {
@@ -417,6 +524,54 @@ public:
       pointCloud.Colors = newColors;
     if (hasClass)
       pointCloud.Classifications = newClassifications;
+    if (hasIntensity)
+      pointCloud.Intensities = newIntensities;
+    if (hasScanflags)
+      pointCloud.ScanFlags = newScanFlags;
+  }
+
+  static std::pair<uint8_t, uint8_t> parseScanFlag(uint8_t flag)
+  {
+    uint8_t returnNumber = flag & 7;
+    uint8_t numReturns = (flag >> 3) & 7;
+    return std::pair<uint8_t, uint8_t>(returnNumber, numReturns);
+  }
+
+  static uint8_t packScanFlag(uint8_t returnNumber, uint8_t numReturns)
+  {
+    return (returnNumber & 7) | ((numReturns & 7) << 3);
+  }
+
+  static void NaiveVegetationFilter(PointCloud &pointCloud)
+  {
+    // Remove some points that might be vegetation
+    std::vector<size_t> pointsToRemove;
+    if (pointCloud.ScanFlags.size() != pointCloud.Points.size())
+    {
+      Warning("Scan flags not set. No vegetation filtering");
+      return;
+    }
+    bool hasClassification = false;
+    if (pointCloud.Classifications.size() == pointCloud.Points.size())
+      hasClassification = true;
+
+    for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    {
+      auto scanFlag = parseScanFlag(pointCloud.ScanFlags[i]);
+      uint8_t classification = 1;
+      if (hasClassification)
+        classification = pointCloud.Classifications[i];
+      // not last point of several
+
+      if ((classification >= 3 && classification <= 5) || // classified as veg
+          (classification < 2 &&                          // not classified
+           (scanFlag.first != scanFlag.second))           // not last
+      )
+      {
+        pointsToRemove.push_back(i);
+      }
+    }
+    FilterPointCloud(pointCloud, pointsToRemove);
   }
 };
 

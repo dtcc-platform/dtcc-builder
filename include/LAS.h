@@ -13,6 +13,7 @@
 #include "BoundingBox.h"
 #include "Color.h"
 #include "CommandLine.h"
+#include "Filesystem.h"
 #include "PointCloud.h"
 #include "Vector.h"
 
@@ -25,75 +26,91 @@ public:
   // Read point cloud from LAS file. Note that points will be added
   // to the given point cloud, enabling reading data from several
   // LAS files into the same point cloud.
-  static void Read(PointCloud &pointCloud, const std::string& fileName)
+  // if extraData is true then information about intensity and scan returns will
+  // also be read (if available)
+  static void Read(PointCloud &pointCloud,
+                   const std::string &fileName,
+                   bool extraData = false)
   {
     Info(str("LAS: ") + str("Reading point cloud from file ") + fileName);
     std::vector<liblas::FilterPtr> filters;
-    _Read(pointCloud, fileName, filters);
+    _Read(pointCloud, fileName, filters, extraData);
   }
 
   /// Read point cloud from LAS file and filter by bounding box.
   static void Read(PointCloud &pointCloud,
                    const std::string &fileName,
-                   const BoundingBox2D &bbox)
+                   const BoundingBox2D &bbox,
+                   bool extraData = false)
   {
-    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
+    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " +
+         str(bbox));
 
     liblas::Bounds<double> bounds;
     std::vector<liblas::FilterPtr> filters;
     filters.push_back(MakeBoundsFilter(bbox));
-    _Read(pointCloud, fileName, filters);
+    _Read(pointCloud, fileName, filters, extraData);
   }
 
   /// Read point cloud from LAS file and filter by classification.
-  static void Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<int> &classifications)
+  static void Read(PointCloud &pointCloud,
+                   const std::string &fileName,
+                   const std::vector<int> &classifications,
+                   bool extraData = false)
   {
     std::vector<liblas::FilterPtr> filters;
     filters.push_back(MakeClassFilter(classifications));
-    _Read(pointCloud, fileName, filters);
+    _Read(pointCloud, fileName, filters, extraData);
   }
 
   /// Read point cloud from LAS file and filter by classification and bounding
   /// box.
-  static void Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<int> &classifications, const BoundingBox2D& bbox)
+  static void Read(PointCloud &pointCloud,
+                   const std::string &fileName,
+                   const std::vector<int> &classifications,
+                   const BoundingBox2D &bbox,
+                   bool extraData = false)
   {
 
-    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " + str(bbox));
+    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " +
+         str(bbox));
     std::vector<liblas::FilterPtr> filters;
     filters.push_back(MakeClassFilter(classifications));
     filters.push_back(MakeBoundsFilter(bbox));
-    _Read(pointCloud, fileName, filters);
+    _Read(pointCloud, fileName, filters, extraData);
   }
 
   /// Read point cloud from directory of LAS files (.las and .laz).
   static void ReadDirectory(PointCloud &pointCloud,
-                            const std::string &directoryName)
+                            const std::string &directoryName,
+                            bool extraData = false)
   {
     std::string dir{directoryName};
-    if (!CommandLine::EndsWith(dir, "/"))
+    if (!Utils::EndsWith(dir, "/"))
       dir += "/";
     Info("Reading all .las and .laz files from directory " + dir + "...");
-    for (auto const &f : CommandLine::ListDirectory(dir))
-      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
-        Read(pointCloud, dir + f);
+    for (auto const &f : Filesystem::ListDirectory(dir))
+      if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
+        Read(pointCloud, f, extraData);
   }
 
   /// Read point cloud from directory of LAS files (.las and .laz) and filter by
   /// bounding box
   static void ReadDirectory(PointCloud &pointCloud,
                             const std::string &directoryName,
-                            const BoundingBox2D &bbox)
+                            const BoundingBox2D &bbox,
+                            bool extraData = false)
   {
     std::string dir{directoryName};
-    if (!CommandLine::EndsWith(dir, "/"))
+    if (!Utils::EndsWith(dir, "/"))
       dir += "/";
     Info("Reading all .las and .laz files from directory " + dir + "...");
-    for (auto const &f : CommandLine::ListDirectory(dir))
-      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
-        Read(pointCloud, dir + f, bbox);
+    for (auto const &f : Filesystem::ListDirectory(dir))
+      if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
+        Read(pointCloud, f, bbox, extraData);
   }
 
-  static void Bounds(BoundingBox2D &bb, const std::string& fileName)
+  static void Bounds(BoundingBox2D &bb, const std::string &fileName)
   {
     // Open file
     std::ifstream f;
@@ -113,18 +130,18 @@ public:
   }
 
   static void BoundsDirectory(BoundingBox2D &bb,
-                            const std::string &directoryName)
+                              const std::string &directoryName)
   {
     std::string dir{directoryName};
-    if (!CommandLine::EndsWith(dir, "/"))
+    if (!Utils::EndsWith(dir, "/"))
       dir += "/";
     bool initBB = false;
-    for (auto const &f : CommandLine::ListDirectory(dir))
+    for (auto const &f : Filesystem::ListDirectory(dir))
     {
-      if (CommandLine::EndsWith(f, ".las") || CommandLine::EndsWith(f, ".laz"))
+      if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
       {
         auto fileBB = BoundingBox2D();
-        LAS::Bounds(fileBB, dir + f);
+        LAS::Bounds(fileBB, f);
         if (!initBB)
         {
           bb.P = fileBB.P;
@@ -136,14 +153,14 @@ public:
           bb.Union(fileBB);
         }
       }
-
     }
   }
 
   /// Write point cloud to file
   static void Write(const PointCloud &pointCloud, const std::string &fileName)
   {
-    Info("LAS: Writing " + str(pointCloud.Points.size()) + " points to " + fileName);
+    Info("LAS: Writing " + str(pointCloud.Points.size()) + " points to " +
+         fileName);
 
     std::ofstream ofs;
     ofs.open(fileName, std::ios::out | std::ios::binary);
@@ -155,8 +172,11 @@ public:
       for (size_t i = 0; i < pointCloud.Points.size(); i++)
       {
         liblas::Point point(&header);
-        point.SetCoordinates(pointCloud.Points[i].x, pointCloud.Points[i].y, pointCloud.Points[i].z);
-        point.SetColor(liblas::Color(pointCloud.Colors[i].R * 65535, pointCloud.Colors[i].G * 65535, pointCloud.Colors[i].B * 65535 ))  ;
+        point.SetCoordinates(pointCloud.Points[i].x, pointCloud.Points[i].y,
+                             pointCloud.Points[i].z);
+        point.SetColor(liblas::Color(pointCloud.Colors[i].R * 65535,
+                                     pointCloud.Colors[i].G * 65535,
+                                     pointCloud.Colors[i].B * 65535));
         writer.WritePoint(point);
       }
     }
@@ -172,31 +192,36 @@ public:
   }
 
 private:
-
-  static liblas::FilterPtr MakeClassFilter(const std::vector<int> &classifications)
+  static liblas::FilterPtr
+  MakeClassFilter(const std::vector<int> &classifications)
   {
     std::vector<liblas::Classification> classes;
     for (int c : classifications)
     {
       classes.push_back(liblas::Classification(c));
     }
-    liblas::FilterPtr class_filter = liblas::FilterPtr(new liblas::ClassificationFilter(classes));
+    liblas::FilterPtr class_filter =
+        liblas::FilterPtr(new liblas::ClassificationFilter(classes));
     class_filter->SetType(liblas::FilterI::eInclusion);
 
     return class_filter;
   }
 
-  static liblas::FilterPtr MakeBoundsFilter(const BoundingBox2D& bbox)
+  static liblas::FilterPtr MakeBoundsFilter(const BoundingBox2D &bbox)
   {
     liblas::Bounds<double> bounds;
     bounds = liblas::Bounds<double>(bbox.P.x, bbox.P.y, bbox.Q.x, bbox.Q.y);
-    liblas::FilterPtr bounds_filter = liblas::FilterPtr(new liblas::BoundsFilter(bounds));
+    liblas::FilterPtr bounds_filter =
+        liblas::FilterPtr(new liblas::BoundsFilter(bounds));
     bounds_filter->SetType(liblas::FilterI::eInclusion);
 
     return bounds_filter;
   }
 
-  static void _Read(PointCloud &pointCloud, const std::string& fileName, const std::vector<liblas::FilterPtr>& filters)
+  static void _Read(PointCloud &pointCloud,
+                    const std::string &fileName,
+                    const std::vector<liblas::FilterPtr> &filters,
+                    bool extraData)
   {
     // Open file
     std::ifstream f;
@@ -226,11 +251,19 @@ private:
       liblas::Point const &_p = reader.GetPoint();
       const Vector3D p(_p.GetX(), _p.GetY(), _p.GetZ());
 
-      liblas::Color const& color = _p.GetColor();
-      liblas::Classification const& cls = _p.GetClassification();
+      liblas::Color const &color = _p.GetColor();
+      liblas::Classification const &cls = _p.GetClassification();
+      uint16_t intensity = 0;
+      uint8_t scanFlags = 0;
+      if (extraData)
+      {
+        intensity = _p.GetIntensity();
+        scanFlags = _p.GetScanFlags();
+      }
 
       // Colors seem to be 16-bit in las spec.
-      const Color c(color.GetRed()/65535.0,color.GetGreen()/65535.0,color.GetBlue()/65535.0);
+      const Color c(color.GetRed() / 65535.0, color.GetGreen() / 65535.0,
+                    color.GetBlue() / 65535.0);
 
       // Update bounding box dimensions
       if (pointCloud.Points.empty())
@@ -252,6 +285,11 @@ private:
       pointCloud.Points.push_back(p);
       pointCloud.Colors.push_back(c);
       pointCloud.Classifications.push_back(cls.GetClass());
+      if (extraData)
+      {
+        pointCloud.Intensities.push_back(intensity);
+        pointCloud.ScanFlags.push_back(scanFlags);
+      }
       readPoints++;
     }
 

@@ -426,6 +426,29 @@ public:
             bboxA.P.y <= bboxB.Q.y && bboxB.P.y <= bboxA.Q.y);
   }
 
+  // Check whether polygon intersects with polygon (2D)
+  static bool Intersects2D(const Polygon &polygonA, const Polygon &polygonB)
+  {
+    // Check if bounding boxes intersect
+    if (!Intersect2D(BoundingBox2D(polygonA), BoundingBox2D(polygonB)))
+      return false;
+
+    // Check if any edge of polygonA intersects with any edge of polygonB
+    for (const auto &p0 : polygonA.Vertices)
+      for (const auto &p1 : polygonA.Vertices)
+        for (const auto &q0 : polygonB.Vertices)
+          for (const auto &q1 : polygonB.Vertices)
+            if (Intersects2D(p0, p1, q0, q1))
+              return true;
+
+    // Check if one polygon contains the other.
+    if (PolygonContains2D(polygonA, polygonB.Vertices[0]) ||
+        PolygonContains2D(polygonB, polygonA.Vertices[0]))
+      return true;
+
+    return false;
+  }
+
   // Compute intersection between edges p0 - p1 and q0 - q1 (2D)
   static Point2D EdgeIntersection2D(const Point2D &p0,
                                     const Point2D &p1,

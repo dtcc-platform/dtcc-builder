@@ -1,6 +1,7 @@
-// Copyright (C) 2020-2021 Anders Logg, Anton J Olsson
+// Copyright (C) 2020-2022 Anders Logg, Anton J Olsson, Dag Wästberg
 // Licensed under the MIT License
 
+#include <experimental/filesystem>
 #include <string>
 #include <vector>
 
@@ -16,10 +17,12 @@
 #include "JSON.h"
 #include "LAS.h"
 #include "Logging.h"
+#include "ParameterProcessor.h"
 #include "Parameters.h"
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
+#include "Utils.h"
 #include "VertexSmoother.h"
 
 using namespace DTCC;
@@ -29,21 +32,22 @@ void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
-  if (argc != 2)
+  std::string dataDirectory;
+  std::string outputDirectory;
+
+  if (CommandLine::HasOption("-h", argc, argv))
   {
     Help();
-    return 1;
+    return 0;
   }
 
-  // Read parameters
-  Parameters p;
-  JSON::Read(p, argv[1]);
-  Info(p);
-  const std::string modelName = Utils::GetFilename(argv[1], true);
+  Parameters p = ParameterProcessor::ProcessArgs(argc, argv);
 
-  // Get data directory
-  std::string dataDirectory = p["DataDirectory"];
-  dataDirectory += "/";
+  dataDirectory = (std::string)p["DataDirectory"];
+  outputDirectory = (std::string)p["OutputDirectory"];
+
+  Info("Loding from Data directory: " + dataDirectory);
+  Info("Saving to Output directory: " + outputDirectory);
 
   // Start timer
   Timer timer("Step 1: Generate city model");
@@ -52,6 +56,7 @@ int main(int argc, char *argv[])
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
+
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
   Info("Loaded " + str(footprints.size()) + " building footprints");
 
@@ -72,7 +77,7 @@ int main(int argc, char *argv[])
     p["XMin"] = 0.0;
     p["YMin"] = 0.0;
     p["XMax"] = bbox.Q.x - bbox.P.x;
-    p["YMax"] = bbox.Q.y - bbox.Q.y;
+    p["YMax"] = bbox.Q.y - bbox.P.y;
   }
   else
   {
@@ -96,17 +101,25 @@ int main(int argc, char *argv[])
 
   // Read point cloud (only points inside bounding box)
   PointCloud pointCloud;
-  LAS::ReadDirectory(pointCloud, dataDirectory, bbox);
+  LAS::ReadDirectory(pointCloud, dataDirectory, bbox,
+                     p["NaiveVegitationFilter"]);
 
   // Check point cloud
   if (pointCloud.Empty())
     Error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, "
           "Y{0,Min,Max} values in Parameters.json");
   pointCloud.SetOrigin(O);
+  pointCloud.BuildHasClassifications();
   Info(pointCloud);
 
   // Remove outliers from point cloud
   PointCloudProcessor::RemoveOutliers(pointCloud, p["OutlierMargin"]);
+
+  if (p["NaiveVegitationFilter"])
+  {
+    // Remove vegetation from point cloud
+    PointCloudProcessor::NaiveVegetationFilter(pointCloud);
+  }
 
   // Generate DTM (excluding buildings and other objects)
   GridField2D dtm;
@@ -125,9 +138,15 @@ int main(int argc, char *argv[])
 
   // Generate raw city model
   CityModel cityModel;
+
+  std::string modelName = p["ModelName"];
+  if (modelName.size() == 0)
+    modelName = Utils::GetFilename(dataDirectory);
+
   cityModel.Name = modelName;
   CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        bbox, p["MinBuildingDistance"]);
+                                        bbox, p["MinBuildingDistance"],
+                                        p["MinBuildingSize"]);
   cityModel.SetOrigin(O);
   Info(cityModel);
 
@@ -136,9 +155,22 @@ int main(int argc, char *argv[])
   CityModelGenerator::ExtractBuildingPoints(
       cityModel, pointCloud, p["GroundMargin"], p["OutlierMargin"]);
 
-  if (p["BuildingRemoveOutlier"])
+  // Remove outliers from roofs using RANSAC
+  // Best for very noisy data like old landmäteriet data
+  // if buildings are classified the RANSAC outlier remover
+  // will almost certainly do more harm than good
+  bool classifiedBuildings = pointCloud.HasClassification(6);
+
+  if (!classifiedBuildings && p["RANSACOutlierRemover"])
   {
-    CityModelGenerator::BuildingPointsOurlierRemover(
+    CityModelGenerator::BuildingPointsRANSACOutlierRemover(
+        cityModel, p["RANSACOutlierMargin"], p["RANSACIterations"]);
+  }
+
+  // Remove roof outliers using Statistics Outlier Removal
+  if (p["StatisticalOutlierRemover"])
+  {
+    CityModelGenerator::BuildingPointsOutlierRemover(
         cityModel, p["OutlierNeighbors"], p["OutlierSTD"]);
   }
 
@@ -151,20 +183,20 @@ int main(int argc, char *argv[])
   // Write JSON
   if (p["WriteJSON"])
   {
-    JSON::Write(dtm, dataDirectory + "DTM.json", O);
-    JSON::Write(dsm, dataDirectory + "DSM.json", O);
-    JSON::Write(cityModel, dataDirectory + "CityModel.json", O);
+    JSON::Write(dtm, outputDirectory + "DTM.json", O);
+    JSON::Write(dsm, outputDirectory + "DSM.json", O);
+    JSON::Write(cityModel, outputDirectory + "CityModel.json", O);
   }
 
   // Write VTK
   if (p["WriteVTK"])
   {
-    VTK::Write(dtm, dataDirectory + "DTM.vts");
-    VTK::Write(dsm, dataDirectory + "DSM.vts");
+    VTK::Write(dtm, outputDirectory + "DTM.vts");
+    VTK::Write(dsm, outputDirectory + "DSM.vts");
   }
 
   // Report timings and parameters
-  Timer::Report("dtcc-generate-citymodel", dataDirectory);
+  Timer::Report("dtcc-generate-citymodel", outputDirectory);
   Info(p);
 
   return 0;
