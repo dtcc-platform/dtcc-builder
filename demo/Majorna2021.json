@@ -1,7 +1,7 @@
 {
     "Type": "Parameters",
-    "DataDirectory": "/home/dtcc/core/data/Majorna2021",
-    "OutputDirectory": "/home/dtcc/core/data/Majorna2021/output/RANSAC_with_SOL",
+    "DataDirectory": "/home/dtcc/dtcc-platform/dtcc-builder/data/Majorna2021",
+    "OutputDirectory": "/home/dtcc/dtcc-platform/dtcc-builder/data/Majorna2021",
     "DomainHeight": 100.0,
     "ElevationModelResolution": 1.0,
     "MeshResolution": 20.0,
@@ -25,6 +25,6 @@
     "GenerateSurfaceMeshes": true,
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
-    "WriteVTK": false,
+    "WriteVTK": true,
     "Debug": true
 }
