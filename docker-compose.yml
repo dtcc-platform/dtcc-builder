@@ -4,26 +4,30 @@ services:
   dev:
     build: 
       context: ./
+      dockerfile: './dtcc-model/docker/Dockerfile'
       target: dev
-    container_name: dtcc
-    image: dtccimage
+    container_name: dtccdev
+    image: dtcc-platform/dev
     volumes:
       - ./..:/home/dtcc/core
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_PTRACE
+
   clion:
     build:
       context: ./
+      dockerfile: './dtcc-model/docker/Dockerfile'
       target: clion
     container_name: dtccclion
+    image: dtcc-platform/clion
     security_opt: # options needed for gdb debugging
       - seccomp:unconfined
       - apparmor:unconfined
-    image: dtccimageclion
     volumes:
       - ./..:/home/dtcc/core  
     ports:
       - "7776:22"
       - "7777:7777"
+
