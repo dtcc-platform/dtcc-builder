@@ -33,3 +33,7 @@ apt-get update && apt-get install -y \
     unzip \
     jq \
     uuid-dev
+./install_assimp.sh
+./install_libgeos.sh
+./install_libLAS.sh
+./install_VTK.sh
