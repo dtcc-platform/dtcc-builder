@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker create -ti --name dtcc -v$(pwd)/..:/home/dtcc/core dtccimage
+docker create -ti --name dtcc -v$(pwd)/..:/home/dtcc/core dtcc-platform/dev
