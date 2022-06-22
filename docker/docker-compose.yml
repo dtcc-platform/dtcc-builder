@@ -17,3 +17,9 @@ services:
       - seccomp:unconfined
     cap_add:
       - SYS_PTRACE
+
+
+networks:
+  default:
+    external: true
+    name: docker_dtcc-core-network

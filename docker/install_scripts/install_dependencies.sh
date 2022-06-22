@@ -38,3 +38,7 @@ apt-get update && apt-get install -y \
 ./install_libgeos.sh
 ./install_libLAS.sh
 ./install_VTK.sh
+./install_python.sh
+./install_py_libs.sh
+
+
