@@ -1,15 +1,15 @@
 version: '3.9'
 
 services:
-  dev:
+  builder:
     build: 
       context: ./
       dockerfile: './dtcc-model/docker/Dockerfile'
       target: dev
-    container_name: dtccdev
-    image: dtcc-platform/dev
+    container_name: dtcc-builder
+    image: dtcc-builder-image
     volumes:
-      - ./..:/home/dtcc/core
+      - ./..:/home/dtcc/dtcc-builder
     security_opt:
       - seccomp:unconfined
     cap_add:
