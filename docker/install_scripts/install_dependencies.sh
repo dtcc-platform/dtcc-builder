@@ -3,8 +3,8 @@
 apt-get update && apt-get install -y \
     locales \
     sudo \
-	build-essential \
-	cmake\
+    build-essential \
+    cmake\
     nlohmann-json3-dev \
     libshp-dev \
     libpugixml-dev \
@@ -33,6 +33,7 @@ apt-get update && apt-get install -y \
     unzip \
     jq \
     uuid-dev
+
 ./install_assimp.sh
 ./install_libgeos.sh
 ./install_libLAS.sh

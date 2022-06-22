@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-#docker create -ti --name dtcc-core -v$(pwd)..:/home/dtcc/dtcc-core dtcc-core-image
 docker-compose up -d builder
