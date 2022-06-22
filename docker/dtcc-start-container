@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-UID=${UID} GID=${GID} docker start dtcc-builder
-UID=${UID} GID=${GID} docker attach dtcc-builder
+docker start dtcc-builder
+docker attach dtcc-builder
