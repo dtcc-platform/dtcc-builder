@@ -2,14 +2,17 @@ version: '3.9'
 
 services:
   builder:
-    build: 
+    build:
       context: ./
       dockerfile: './dtcc-model/docker/Dockerfile'
       target: dev
+    working_dir: ${WORKING_DIR}
     container_name: dtcc-builder
     image: dtcc-builder-image
+    stdin_open: true
+    tty: true
     volumes:
-      - ./..:/home/dtcc/dtcc-builder
+      - ./:${WORKING_DIR}
     security_opt:
       - seccomp:unconfined
     cap_add:

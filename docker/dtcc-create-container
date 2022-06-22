@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-docker create -ti --name dtcc -v$(pwd)/..:/home/dtcc/core dtcc-platform/dev
+#docker create -ti --name dtcc-core -v$(pwd)..:/home/dtcc/dtcc-core dtcc-core-image
+export UID="$(id -u)" 
+export GID="$(id -g)" 
+docker-compose up -d builder
