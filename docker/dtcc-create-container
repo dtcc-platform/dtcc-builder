@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker-compose up -d builder
+docker-compose up -d --remove-orphans builder
