@@ -561,8 +561,15 @@ private:
                  Grid2D &GeneratedGrid)
   {
     double maxdiam = GetMaxDiameter(Buildings);
-    size_t x = (bbox.Q.x - bbox.P.x) / (2 * maxdiam);
-    size_t y = (bbox.Q.y - bbox.P.y) / (2 * maxdiam);
+
+    // size_t x = (bbox.Q.x - bbox.P.x) / (2 * maxdiam);
+    // size_t y = (bbox.Q.y - bbox.P.y) / (2 * maxdiam);
+
+    const size_t x =
+        static_cast<size_t>(std::floor(2.0 * (bbox.Q.x - bbox.P.x) / maxdiam));
+    const size_t y =
+        static_cast<size_t>(std::floor(2.0 * (bbox.Q.y - bbox.P.y) / maxdiam));
+
     // Grid2D grid(bbox, x, y);
     GeneratedGrid = Grid2D(bbox, x, y);
     // Init bins
@@ -588,7 +595,7 @@ private:
     {
       Point2D center = Geometry::PolygonCenter2D(buildings[i].Footprint);
       double diameter =
-          Geometry::PolygonRadius2D(buildings[i].Footprint, center);
+          2.0 * Geometry::PolygonRadius2D(buildings[i].Footprint, center);
       if (diameter > maxdiam)
       {
         maxdiam = diameter;
@@ -639,6 +646,8 @@ private:
 
     if (useBinning)
     {
+      Info("Using NEW algorithm");
+
       // Initialize bins
       Grid2D generatedGrid;
       std::vector<std::set<size_t>> bins =
@@ -671,6 +680,7 @@ private:
             Progress("CityModelGenerator: Buildings " + str(i) + " and " +
                      str(n) + " are " + str(d2) + " apart. IDs are " +
                      buildings[i].UUID + "," + buildings[n].UUID);
+
             // Merge if distance is small
             if (d2 < tol2)
             {
@@ -679,7 +689,7 @@ private:
                        str(d2) + " and queue length is " +
                        str(neighbors.size()));
 
-              buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
+              buildings[i].AttachedUUIDs.push_back(buildings[n].UUID);
 
               // About to merge buildings. Add 2nd building's neighbors into 1st
               // building neighbors
@@ -712,6 +722,8 @@ private:
     }
     else
     {
+      Info("Using OLD algorithm");
+
       // Create queue of indices to check
       std::queue<size_t> indices;
       for (size_t i = 0; i < buildings.size(); i++)
