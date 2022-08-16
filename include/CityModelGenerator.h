@@ -150,9 +150,10 @@ public:
   /// will decrease. Ground points and roof points are also merged and
   /// heights are set to min/max values of the merged buildings.
   static void SimplifyCityModel(CityModel &cityModel,
+                                const BoundingBox2D &bbox,
                                 double minimalBuildingDistance,
                                 double minimalVertexDistance,
-                                BoundingBox2D bbox = BoundingBox2D())
+                                bool useBinning) // FIXME: Debugging
   {
     Info("CityModelGenerator: Simplifying city model...");
     Timer timer("SimplifyCityModel");
@@ -161,8 +162,7 @@ public:
     cityModel.bbtree.Clear();
 
     // Merge buildings if too close
-    MergeCityModel(cityModel, minimalBuildingDistance, bbox);
-    // MergeCityModelNew(cityModel, minimalBuildingDistance, bbox);
+    MergeCityModel(cityModel, bbox, minimalBuildingDistance, useBinning);
   }
 
   /// Extract ground and roof points from point cloud.
@@ -619,8 +619,9 @@ private:
 
   // Merge all buildings closer than a given distance
   static void MergeCityModel(CityModel &cityModel,
+                             const BoundingBox2D &bbox,
                              double minimalBuildingDistance,
-                             BoundingBox2D bbox = BoundingBox2D())
+                             bool useBinning)
   {
     Info("CityModelGenerator: Merging buildings...");
 
@@ -636,7 +637,7 @@ private:
     // Merged buildings num
     size_t numMerged = 0;
 
-    if (bbox.Area() != 0.0)
+    if (useBinning)
     {
       // Initialize bins
       Grid2D generatedGrid;

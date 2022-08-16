@@ -65,7 +65,7 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
 // Generate volume meshes (matching, used for simulation)
 void GenerateVolumeMeshes(CityModel &cityModel,
                           const GridField2D &dtm,
-                          /*const*/ Parameters &p)
+                          const Parameters &p)
 {
   // Get data directory
   std::string dataDirectory = p["DataDirectory"];
@@ -78,49 +78,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // This step is handled by dtcc-generate-citymodel and
   // we assume that the data has already been generated.
 
-  // Read property map
-  /* std::vector<Polygon> footprints;
-  std::vector<std::string> UUIDs;
-  std::vector<int> entityIDs;
-  SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
-  Info("Loaded " + str(footprints.size()) + " building footprints");
-  //Creating bbox
-  BoundingBox2D bbox;
-  Point2D O;
-  if (p["AutoDomain"])
-  {
-    bbox = BoundingBox2D(footprints, p["DomainMargin"]);
-    Info("Bounding box of footprints: " + str(bbox));
-    BoundingBox2D lasBBox;
-    LAS::BoundsDirectory(lasBBox, dataDirectory);
-    Info("Bounding box of point cloud: " + str(lasBBox));
-    bbox.Intersect(lasBBox);
-    O = bbox.P;
-    p["X0"] = O.x;
-    p["Y0"] = O.y;
-    p["XMin"] = 0.0;
-    p["YMin"] = 0.0;
-    p["XMax"] = bbox.Q.x - bbox.P.x;
-    p["YMax"] = bbox.Q.y - bbox.Q.y;
-  }
-  else
-  {
-    O = Point2D(p["X0"], p["Y0"]);
-    const double xMin = p["XMin"];
-    const double xMax = p["XMax"];
-    const double yMin = p["YMin"];
-    const double yMax = p["YMax"];
-    const Point2D P{O.x + xMin, O.y + yMin};
-    const Point2D Q{O.x + xMax, O.y + yMax};
-    bbox = BoundingBox2D(P, Q);
-  }
- */
   // Step 2.1: Merge building footprints
   {
     Timer timer("Step 2.1: Merge building footprints");
-    CityModelGenerator::SimplifyCityModel(cityModel, p["MinBuildingDistance"],
-                                          p["MinVertexDistance"],
-                                          dtm.Grid.BoundingBox);
+    CityModelGenerator::SimplifyCityModel(
+        cityModel, dtm.Grid.BoundingBox, p["MinBuildingDistance"],
+        p["MinVertexDistance"], p["UseBinning"]);
     Info(cityModel);
   }
 

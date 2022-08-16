@@ -53,6 +53,8 @@ public:
     Add("BuildingRemoveOutlier", false);
     Add("OutlierNeighbors", 6);
     Add("OutlierSTD", 2.0);
+    Add("UseBinning",
+        false); // FIXME: Temporary while debugging new binning algoritm
 
     Add("DataDirectory", "");
   }
