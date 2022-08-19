@@ -8,6 +8,7 @@
 #include <map>
 #include <queue>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 #include "GEOS.h"
@@ -526,6 +527,84 @@ public:
   }
 
 private:
+  // Update binning for for building
+  void UpdateBinning(std::vector<std::unordered_set<size_t>> &building2bins,
+                     std::vector<std::unordered_set<size_t>> &bin2buildings,
+                     size_t buildingIndex,
+                     const Building &building,
+                     const Grid2D &grid)
+  {
+    // Compute bounding box of building
+    BoundingBox2D bbox(building.Footprint.Vertices);
+
+    // Get grid cell size
+    const double hx = grid.XSize;
+    const double hy = grid.YSize;
+
+    // Get grid indices for bounding box
+    long int ixMin{}, iyMin{};
+    long int ixMax{}, iyMax{};
+    grid.Point2Index(ixMin, iyMin, bbox.P);
+    grid.Point2Index(ixMax, iyMax, bbox.Q);
+
+    // Check margin
+    double xMin = grid.BoundingBox.P.x + ixMin * hx;
+    double yMin = grid.BoundingBox.P.y + iyMin * hy;
+    double xMax = grid.BoundingBox.P.x + ixMax * hx;
+    double yMax = grid.BoundingBox.P.y + iyMax * hy;
+    if (xMin - bbox.P.x + Parameters::Epsilon > 0.5 * hx)
+      ixMin -= 1;
+    if (yMin - bbox.P.y + Parameters::Epsilon > 0.5 * hy)
+      iyMin -= 1;
+    if (bbox.Q.x - xMax + Parameters::Epsilon > 0.5 * hx)
+      ixMax += 1;
+    if (bbox.Q.y - yMax + Parameters::Epsilon > 0.5 * hy)
+      iyMax += 1;
+
+    // Check overflow
+    if (ixMin < 0)
+      ixMin = 0;
+    if (iyMin < 0)
+      iyMin = 0;
+    if (ixMax >= grid.XSize)
+      ixMax = grid.XSize - 1;
+    if (iyMax >= grid.YSize)
+      iyMax = grid.YSize - 1;
+
+    // Add to bins
+    for (long int ix = ixMin; ix <= ixMax; ix++)
+    {
+      for (long int iy = iyMin; iy <= iyMax; iy++)
+      {
+        const long int binIndex = grid.Index2Index(ix, iy);
+        building2bins[buildingIndex].insert(binIndex);
+        bin2buildings[binIndex].insert(buildingIndex);
+      }
+    }
+  }
+
+  // Get closest neighbors of building (buildings with overlapping bins)
+  std::unordered_set<size_t>
+  GetNeighbors(size_t buildingIndex,
+               const std::vector<std::unordered_set<size_t>> &building2bins,
+               const std::vector<std::unordered_set<size_t>> &bin2buildings)
+  {
+    // Initialize empty set of neighbor building indices
+    std::unordered_set<size_t> indices{};
+
+    // Iterate over bins of building
+    for (const auto binIndex : building2bins[buildingIndex])
+    {
+      // Iterate over buildings in bin
+      for (const auto index : bin2buildings[binIndex])
+      {
+        indices.insert(index);
+      }
+    }
+
+    return indices;
+  }
+
   static std::vector<std::set<size_t>>
   getNeighborsSet(size_t iId,
                   const Grid2D &iGrid,

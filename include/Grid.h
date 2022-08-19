@@ -78,8 +78,7 @@ namespace DTCC
     {
       const size_t ix = i % XSize;
       const size_t iy = i / XSize;
-      return {BoundingBox.P.x + ix * XStep,
-                     BoundingBox.P.y + iy * YStep};
+      return {BoundingBox.P.x + ix * XStep, BoundingBox.P.y + iy * YStep};
     }
 
     /// Map vertex index to (at most) 4 neighoring vertex indices.
@@ -157,17 +156,34 @@ namespace DTCC
       return indices;
     }
 
+    /// Map x and y indices to global index
+    long int Index2Index(long int ix, long int iy) const
+    {
+      return ix + iy * XSize;
+    }
+
+    /// Map point to index of closest vertex.
+    ///
+    /// @param ix Grid index for x-direction (output)
+    /// @param iy Grid index for y-direction (output)
+    /// @param p Point
+    void Point2Index(long int &ix, long int &iy, const Point2D &p) const
+    {
+      const double _x = p.x - BoundingBox.P.x;
+      const double _y = p.y - BoundingBox.P.y;
+      ix = Utils::crop(std::lround(_x / XStep), XSize);
+      iy = Utils::crop(std::lround(_y / YStep), YSize);
+    }
+
     /// Map point to index of closest vertex.
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Point2D& p) const
+    size_t Point2Index(const Point2D &p) const
     {
-      const double _x = p.x - BoundingBox.P.x;
-      const double _y = p.y - BoundingBox.P.y;
-      const long int ix = Utils::crop(std::lround(_x / XStep), XSize);
-      const long int iy = Utils::crop(std::lround(_y / YStep), YSize);
-      return ix + iy * XSize;
+      long int ix{}, iy{};
+      Point2Index(ix, iy, p);
+      return Index2Index(ix, iy);
     }
 
     /// Map point to cell and local coordinates.
