@@ -583,7 +583,7 @@ private:
     }
   }
 
-  // Get closest neighbors of building (buildings with overlapping bins)
+  // Get neighbors of building (buildings with overlapping bins)
   std::unordered_set<size_t>
   GetNeighbors(size_t buildingIndex,
                const std::vector<std::unordered_set<size_t>> &building2bins,
