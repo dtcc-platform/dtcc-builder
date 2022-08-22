@@ -527,193 +527,6 @@ public:
   }
 
 private:
-  // Update binning for for building
-  static void UpdateBinning(std::vector<std::unordered_set<size_t>> &building2bins,
-                     std::vector<std::unordered_set<size_t>> &bin2buildings,
-                     size_t buildingIndex,
-                     const Building &building,
-                     const Grid2D &grid)
-  {
-    // Compute bounding box of building
-    BoundingBox2D bbox(building.Footprint.Vertices);
-
-    // Get grid cell size
-    const double hx = grid.XSize;
-    const double hy = grid.YSize;
-
-    // Get grid indices for bounding box
-    long int ixMin{}, iyMin{};
-    long int ixMax{}, iyMax{};
-    grid.Point2Index(ixMin, iyMin, bbox.P);
-    grid.Point2Index(ixMax, iyMax, bbox.Q);
-
-    // Check margin
-    double xMin = grid.BoundingBox.P.x + ixMin * hx;
-    double yMin = grid.BoundingBox.P.y + iyMin * hy;
-    double xMax = grid.BoundingBox.P.x + ixMax * hx;
-    double yMax = grid.BoundingBox.P.y + iyMax * hy;
-    if (xMin - bbox.P.x + Parameters::Epsilon > 0.5 * hx)
-      ixMin -= 1;
-    if (yMin - bbox.P.y + Parameters::Epsilon > 0.5 * hy)
-      iyMin -= 1;
-    if (bbox.Q.x - xMax + Parameters::Epsilon > 0.5 * hx)
-      ixMax += 1;
-    if (bbox.Q.y - yMax + Parameters::Epsilon > 0.5 * hy)
-      iyMax += 1;
-
-    // Check overflow
-    if (ixMin < 0)
-      ixMin = 0;
-    if (iyMin < 0)
-      iyMin = 0;
-    if (ixMax >= grid.XSize)
-      ixMax = grid.XSize - 1;
-    if (iyMax >= grid.YSize)
-      iyMax = grid.YSize - 1;
-
-    // Add to bins
-    for (long int ix = ixMin; ix <= ixMax; ix++)
-    {
-      for (long int iy = iyMin; iy <= iyMax; iy++)
-      {
-        const long int binIndex = grid.Index2Index(ix, iy);
-        building2bins[buildingIndex].insert(binIndex);
-        bin2buildings[binIndex].insert(buildingIndex);
-      }
-    }
-
-    // Sanity check
-    long int minIndex = grid.Index2Index(ixMin, iyMin);
-    long int maxIndex = grid.Index2Index(ixMax, iyMax);
-    Point2D P = grid.Index2Point(minIndex);
-    Point2D Q = grid.Index2Point(maxIndex);
-    double dxMin = std::abs(P.x - bbox.P.x) / hx;
-    double dxMax = std::abs(Q.x - bbox.Q.x) / hx;
-    double dyMin = std::abs(P.y - bbox.P.y) / hy;
-    double dyMax = std::abs(Q.y - bbox.Q.y) / hy;
-    std::cout << "CHECK: " << dxMin << " " << dxMax << " " << dyMin << " "
-              << dyMax << " (should be between 0 and 0.5)" << std::endl;
-  }
-
-  // Get neighbors of building (buildings with overlapping bins)
-  std::unordered_set<size_t>
-  GetNeighbors(size_t buildingIndex,
-               const std::vector<std::unordered_set<size_t>> &building2bins,
-               const std::vector<std::unordered_set<size_t>> &bin2buildings)
-  {
-    // Initialize empty set of neighbor building indices
-    std::unordered_set<size_t> indices{};
-
-    // Iterate over bins of building
-    for (const auto binIndex : building2bins[buildingIndex])
-    {
-      // Iterate over buildings in bin
-      for (const auto index : bin2buildings[binIndex])
-      {
-        indices.insert(index);
-      }
-    }
-
-    return indices;
-  }
-
-  static std::vector<std::set<size_t>>
-  getNeighborsSet(size_t iId,
-                  const Grid2D &iGrid,
-                  const std::vector<Building> &iBuildings,
-                  const std::vector<std::set<size_t>> &iBins)
-  {
-
-    std::vector<std::set<size_t>> oNeighbors;
-    Point2D center = Geometry::PolygonCenter2D(iBuildings[iId].Footprint);
-    size_t bin = iGrid.Point2Index(center);
-    // size_t bin = iGrid.Point2Index(iCenter[iId]);
-    std::vector<size_t> indices;
-    std::set<size_t> set;
-    oNeighbors.push_back(iBins[bin]);
-    iGrid.Index2Boundary8(bin, indices);
-    // e.g. 3,4,5
-    for (size_t i = 0; i < indices.size(); i++)
-    {
-      // set.insert(iBins[indices[i]]);
-
-      oNeighbors.push_back(iBins[indices[i]]);
-
-      // set.clear();
-      // std::cout<<indices[i]<<std::endl;
-      // oNeighbors.push_back(iBins[indices[i]]);
-    }
-    return oNeighbors;
-  }
-
-  static std::vector<std::set<size_t>>
-  InitializeBins(const BoundingBox2D &bbox,
-                 const std::vector<Building> &Buildings,
-                 Grid2D &GeneratedGrid)
-  {
-    double maxdiam = GetMaxDiameter(Buildings);
-
-    // size_t x = (bbox.Q.x - bbox.P.x) / (2 * maxdiam);
-    // size_t y = (bbox.Q.y - bbox.P.y) / (2 * maxdiam);
-
-    const size_t x =
-        static_cast<size_t>(std::floor(2.0 * (bbox.Q.x - bbox.P.x) / maxdiam));
-    const size_t y =
-        static_cast<size_t>(std::floor(2.0 * (bbox.Q.y - bbox.P.y) / maxdiam));
-
-    // Grid2D grid(bbox, x, y);
-    GeneratedGrid = Grid2D(bbox, x, y);
-    // Init bins
-    std::vector<std::set<size_t>> setbins;
-    setbins.reserve(x * y);
-    for (size_t i = 0; i < x * y; i++)
-    {
-      setbins.push_back(std::set<size_t>());
-    }
-    for (size_t i = 0; i < Buildings.size(); i++)
-    {
-      Point2D center = Geometry::PolygonCenter2D(Buildings[i].Footprint);
-      size_t vertexno = GeneratedGrid.Point2Index(center);
-      setbins[vertexno].insert(i);
-    }
-    return setbins;
-  }
-
-  static double GetMaxDiameter(const std::vector<Building> &buildings)
-  {
-    double maxdiam = 0;
-    for (size_t i = 0; i < buildings.size(); i++)
-    {
-      Point2D center = Geometry::PolygonCenter2D(buildings[i].Footprint);
-      double diameter =
-          2.0 * Geometry::PolygonRadius2D(buildings[i].Footprint, center);
-      if (diameter > maxdiam)
-      {
-        maxdiam = diameter;
-      }
-    }
-    return maxdiam;
-  }
-
-  static void InsertNeighborsIntoStack(std::stack<size_t> &stack,
-                                       std::vector<std::set<size_t>> neighbors)
-  {
-    for (size_t i = 0; i < neighbors.size(); i++)
-    {
-      for (auto &It : neighbors[i])
-      {
-        stack.push(It);
-      }
-    }
-  }
-  // Get percentile object from array. It is assumed that the array is ordered.
-  template <class T>
-  static T GetPercentile(const std::vector<T> &array, double percentile)
-  {
-    size_t index = std::max(0.0, percentile * array.size());
-    index = std::min(index, array.size() - 1);
-    return array[index];
-  }
 
   // Merge all buildings closer than a given distance
   static void MergeCityModel(CityModel &cityModel,
@@ -739,24 +552,26 @@ private:
     {
       Info("Using NEW algorithm");
 
-      // Initialize bins
-      Grid2D generatedGrid;
-      std::vector<std::set<size_t>> bins =
-          InitializeBins(bbox, buildings, generatedGrid);
+      // Initialize grid
+      const double h = ComputeMeanBuildingSize(buildings);
+      const size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
+      const size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
+      Grid2D grid(bbox, nX, nY);
 
-      std::vector<std::unordered_set<size_t>> bin2buildings{generatedGrid.NumVertices()};
+      // Initialize bins
       std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
+      std::vector<std::unordered_set<size_t>> bin2buildings{grid.NumVertices()};
 
       //Anders' slack sketch
       for(size_t i=0;i<buildings.size();i++)
       {
-        UpdateBinning(building2bins,bin2buildings,i,buildings[i],generatedGrid);
+        UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
       }
 
       // Create queue of indices to check
       std::queue<size_t> indices;
       for (size_t i = 0; i < buildings.size(); i++)
-        indices.push(i);      
+        indices.push(i);
 
       while(!indices.empty())
       {
@@ -788,7 +603,8 @@ private:
               Progress("NEW Algorithm - CityModelGenerator: Buildings " + str(i) + " and " +
                      str(j) + " are too close, merging");
               MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
-              UpdateBinning(building2bins,bin2buildings,i,buildings[i],generatedGrid);
+              UpdateBinning(building2bins, bin2buildings, i, buildings[i],
+                            grid);
             }
             // Update binning
             //UpdateBinning(mergedBuilding, bin2buildings, building2bins);
@@ -881,38 +697,108 @@ private:
          " building pair(s) were merged");
   }
 
-  static std::set<size_t>
-  GetBuildingNeighbors(size_t buildingIndex,
-                       const std::vector<Building> &buildings,
-                       double distance)
+  // Compute mean building size (from bounding boxes)
+  static double ComputeMeanBuildingSize(std::vector<Building> &buildings)
   {
-    std::set<size_t> neighborsIndices;
-    std::cout << "Building " << buildingIndex << " is next to: ";
-    for (size_t i = 0; i < buildings.size(); i++)
+    double meanBuildingSize = 0.0;
+    for (const auto &building : buildings)
     {
-      // Skip when we're comparing building with itself or
-      if (i == buildingIndex)
-        continue;
-
-      if (BuildingsInMergeDistance(buildings[buildingIndex], buildings[i],
-                                   distance))
-      {
-        std::cout << i << ",";
-        neighborsIndices.insert(i);
-      }
+      BoundingBox2D bbox(building.Footprint.Vertices);
+      meanBuildingSize += std::max(bbox.Q.x - bbox.P.x, bbox.Q.y - bbox.P.y);
     }
-    // Erase last comma and switch line
-    std::cout << "\b \b" << std::endl;
-    return neighborsIndices;
+    meanBuildingSize /= static_cast<double>(buildings.size());
+    return meanBuildingSize;
   }
 
-  static bool BuildingsInMergeDistance(const Building &b0,
-                                       const Building &b1,
-                                       double Distance)
+  // Update binning for for building
+  static void
+  UpdateBinning(std::vector<std::unordered_set<size_t>> &building2bins,
+                std::vector<std::unordered_set<size_t>> &bin2buildings,
+                size_t buildingIndex,
+                const Building &building,
+                const Grid2D &grid)
   {
-    const Polygon &P0 = b0.Footprint;
-    const Polygon &P1 = b1.Footprint;
-    return Geometry::SquaredDistance2D(P0, P1) < Distance;
+    // Compute bounding box of building
+    BoundingBox2D bbox(building.Footprint.Vertices);
+
+    // Get grid cell size
+    const double hx = grid.XSize;
+    const double hy = grid.YSize;
+
+    // Get grid indices for bounding box
+    long int ixMin{}, iyMin{};
+    long int ixMax{}, iyMax{};
+    grid.Point2Index(ixMin, iyMin, bbox.P);
+    grid.Point2Index(ixMax, iyMax, bbox.Q);
+
+    // Check margin
+    double xMin = grid.BoundingBox.P.x + ixMin * hx;
+    double yMin = grid.BoundingBox.P.y + iyMin * hy;
+    double xMax = grid.BoundingBox.P.x + ixMax * hx;
+    double yMax = grid.BoundingBox.P.y + iyMax * hy;
+    if (xMin - bbox.P.x + Parameters::Epsilon > 0.5 * hx)
+      ixMin -= 1;
+    if (yMin - bbox.P.y + Parameters::Epsilon > 0.5 * hy)
+      iyMin -= 1;
+    if (bbox.Q.x - xMax + Parameters::Epsilon > 0.5 * hx)
+      ixMax += 1;
+    if (bbox.Q.y - yMax + Parameters::Epsilon > 0.5 * hy)
+      iyMax += 1;
+
+    // Check overflow
+    if (ixMin < 0)
+      ixMin = 0;
+    if (iyMin < 0)
+      iyMin = 0;
+    if (ixMax >= grid.XSize)
+      ixMax = grid.XSize - 1;
+    if (iyMax >= grid.YSize)
+      iyMax = grid.YSize - 1;
+
+    // Add to bins
+    for (long int ix = ixMin; ix <= ixMax; ix++)
+    {
+      for (long int iy = iyMin; iy <= iyMax; iy++)
+      {
+        const long int binIndex = grid.Index2Index(ix, iy);
+        building2bins[buildingIndex].insert(binIndex);
+        bin2buildings[binIndex].insert(buildingIndex);
+      }
+    }
+
+    // Sanity check
+    long int minIndex = grid.Index2Index(ixMin, iyMin);
+    long int maxIndex = grid.Index2Index(ixMax, iyMax);
+    Point2D P = grid.Index2Point(minIndex);
+    Point2D Q = grid.Index2Point(maxIndex);
+    double dxMin = std::abs(P.x - bbox.P.x) / hx;
+    double dxMax = std::abs(Q.x - bbox.Q.x) / hx;
+    double dyMin = std::abs(P.y - bbox.P.y) / hy;
+    double dyMax = std::abs(Q.y - bbox.Q.y) / hy;
+    std::cout << "CHECK: " << dxMin << " " << dxMax << " " << dyMin << " "
+              << dyMax << " (should be between 0 and 0.5)" << std::endl;
+  }
+
+  // Get neighbors of building (buildings with overlapping bins)
+  std::unordered_set<size_t>
+  GetNeighbors(size_t buildingIndex,
+               const std::vector<std::unordered_set<size_t>> &building2bins,
+               const std::vector<std::unordered_set<size_t>> &bin2buildings)
+  {
+    // Initialize empty set of neighbor building indices
+    std::unordered_set<size_t> indices{};
+
+    // Iterate over bins of building
+    for (const auto binIndex : building2bins[buildingIndex])
+    {
+      // Iterate over buildings in bin
+      for (const auto index : bin2buildings[binIndex])
+      {
+        indices.insert(index);
+      }
+    }
+
+    return indices;
   }
 
   // Merge two buildings, replacing the first building and clearing the second.
@@ -984,6 +870,15 @@ private:
 
     // Compute convex hull
     return Geometry::ConvexHull2D(uniquePoints);
+  }
+
+  // Get percentile object from array. It is assumed that the array is ordered.
+  template <class T>
+  static T GetPercentile(const std::vector<T> &array, double percentile)
+  {
+    size_t index = std::max(0.0, percentile * array.size());
+    index = std::min(index, array.size() - 1);
+    return array[index];
   }
 };
 
