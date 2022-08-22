@@ -528,7 +528,7 @@ public:
 
 private:
   // Update binning for for building
-  void UpdateBinning(std::vector<std::unordered_set<size_t>> &building2bins,
+  static void UpdateBinning(std::vector<std::unordered_set<size_t>> &building2bins,
                      std::vector<std::unordered_set<size_t>> &bin2buildings,
                      size_t buildingIndex,
                      const Building &building,
@@ -744,72 +744,58 @@ private:
       std::vector<std::set<size_t>> bins =
           InitializeBins(bbox, buildings, generatedGrid);
 
-      for (size_t i = 0; i < buildings.size(); i++)
-      {
-        // Skip if merged already
-        if (buildings[i].Empty())
-          continue;
-        std::vector<std::set<size_t>> neighbors =
-            getNeighborsSet(i, generatedGrid, buildings, bins);
+      std::vector<std::unordered_set<size_t>> bin2buildings{generatedGrid.NumVertices()};
+      std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
 
-        for (size_t j = 0; j < neighbors.size(); j++)
+      //Anders' slack sketch
+      for(size_t i=0;i<buildings.size();i++)
+      {
+        UpdateBinning(building2bins,bin2buildings,i,buildings[i],generatedGrid);
+      }
+
+      // Create queue of indices to check
+      std::queue<size_t> indices;
+      for (size_t i = 0; i < buildings.size(); i++)
+        indices.push(i);      
+
+      while(!indices.empty())
+      {
+        // Pop index of next building to check
+        const size_t i = indices.front();
+        indices.pop();
+
+        // Iterate over bins
+        for (const auto binIndex : building2bins[i])
         {
-          for (auto n : neighbors[j])
+          // Iterate over buildings in bin
+          for (const auto j : bin2buildings[binIndex])
           {
             // Skip building itself
-            if (n == i)
+            if (i == j)
               continue;
 
-            // Skip if merged already
-            if (buildings[n].Empty())
+            if(buildings[j].Empty())
               continue;
 
-            // Compute squared distance between polygons
+            // Compute distance
             const Polygon &Pi = buildings[i].Footprint;
-            const Polygon &Pn = buildings[n].Footprint;
-            const double d2 = Geometry::SquaredDistance2D(Pi, Pn);
-            Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                     str(n) + " are " + str(d2) + " apart. IDs are " +
-                     buildings[i].UUID + "," + buildings[n].UUID);
+            const Polygon &Pj = buildings[j].Footprint;
+            const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
 
             // Merge if distance is small
-            if (d2 < tol2)
+            if(d2<tol2)
             {
-              Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                       str(n) + " are too close, merging and distance is " +
-                       str(d2) + " and queue length is " +
-                       str(neighbors.size()));
-
-              buildings[i].AttachedUUIDs.push_back(buildings[n].UUID);
-
-              // About to merge buildings. Add 2nd building's neighbors into 1st
-              // building neighbors
-              std::vector<std::set<size_t>> newNeighbors =
-                  getNeighborsSet(n, generatedGrid, buildings, bins);
-              for (size_t k = 0; k < newNeighbors.size(); k++)
-              {
-                // neighbors.push_back(newNeighbors[k]);
-                for (auto newNeighbor : newNeighbors[k])
-                {
-                  neighbors[j].insert(newNeighbor);
-                }
-              }
-              // Merge buildings
-              MergeBuildings(buildings[i], buildings[n],
-                             minimalBuildingDistance);
-              numMerged++;
-
-              std::cout << buildings[i].AttachedUUIDs.size()
-                      << " UUIDs are attached to " << i
-                      << ". And they are: " << std::endl;
-              for (size_t k = 0; k < buildings[i].AttachedUUIDs.size(); k++)
-              {
-                std::cout << buildings[i].AttachedUUIDs[k] << std::endl;
-              }
+              Progress("NEW Algorithm - CityModelGenerator: Buildings " + str(i) + " and " +
+                     str(j) + " are too close, merging");
+              MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
+              UpdateBinning(building2bins,bin2buildings,i,buildings[i],generatedGrid);
             }
+            // Update binning
+            //UpdateBinning(mergedBuilding, bin2buildings, building2bins);
           }
         }
       }
+
     }
     else
     {
