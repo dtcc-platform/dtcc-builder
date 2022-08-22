@@ -587,6 +587,7 @@ private:
           if (i == j)
             continue;
 
+          // Skip if merged with other building (size set to 0)
           if (buildings[j].Empty())
             continue;
 
@@ -603,8 +604,9 @@ private:
             MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
             UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
           }
+
           // Update binning
-          // UpdateBinning(mergedBuilding, bin2buildings, building2bins);
+          UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
         }
       }
     }
@@ -657,14 +659,7 @@ private:
             MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
             numMerged++;
 
-            std::cout << buildings[i].AttachedUUIDs.size()
-                      << " UUIDs are attached to " << i
-                      << ". And they are: " << std::endl;
-            for (size_t k = 0; k < buildings[i].AttachedUUIDs.size(); k++)
-            {
-              std::cout << buildings[i].AttachedUUIDs[k] << std::endl;
-            }
-            // Add building i to queue
+            // Add building back to queue
             indices.push(i);
           }
         }
