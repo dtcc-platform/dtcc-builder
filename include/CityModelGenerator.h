@@ -601,12 +601,18 @@ private:
           {
             Progress("NEW Algorithm - CityModelGenerator: Buildings " + str(i) +
                      " and " + str(j) + " are too close, merging");
-            MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
-            UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
-          }
 
-          // Update binning
-          UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
+            // Merge buildings
+            buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
+            MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
+            numMerged++;
+
+            // Update binning
+            UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
+
+            // Add building back to queue
+            indices.push(i);
+          }
         }
       }
     }
