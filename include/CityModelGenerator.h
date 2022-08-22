@@ -586,6 +586,11 @@ private:
         _neighbors.assign(neighbors.begin(), neighbors.end());
         std::sort(_neighbors.begin(), _neighbors.end());
 
+        std::cout << "Building " << i << ":";
+        for (size_t j : _neighbors)
+          std::cout << " " << j;
+        std::cout << std::endl;
+
         // Iterate over neighbors
         for (size_t j : _neighbors)
         {
@@ -606,7 +611,7 @@ private:
           // Merge if distance is small
           if (d2 < tol2)
           {
-            Progress("CityModelGenerator: Buildings " + str(i) + " and" +
+            Progress("CityModelGenerator: Buildings " + str(i) + " and " +
                      str(j) + " are too close, merging");
 
             // Merge buildings
