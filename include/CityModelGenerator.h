@@ -553,8 +553,9 @@ private:
     {
       Info("Using NEW algorithm");
 
-      // Initialize grid
-      const double h = ComputeMeanBuildingSize(buildings);
+      // Initialize grid (grid size needs to be *at least* minimal distance)
+      double h = ComputeMeanBuildingSize(buildings);
+      h = std::max(h, minimalBuildingDistance + Parameters::Epsilon);
       const size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
       const size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
       Grid2D grid(bbox, nX, nY);
@@ -581,18 +582,8 @@ private:
         std::unordered_set<size_t> neighbors{
             GetNeighbors(i, building2bins, bin2buildings)};
 
-        // FIXME: Testing
-        std::vector<size_t> _neighbors{};
-        _neighbors.assign(neighbors.begin(), neighbors.end());
-        std::sort(_neighbors.begin(), _neighbors.end());
-
-        std::cout << "Building " << i << ":";
-        for (size_t j : _neighbors)
-          std::cout << " " << j;
-        std::cout << std::endl;
-
         // Iterate over neighbors
-        for (size_t j : _neighbors)
+        for (size_t j : neighbors)
         {
           // Skip building itself
           if (i == j)
@@ -729,8 +720,8 @@ private:
     BoundingBox2D bbox(building.Footprint.Vertices);
 
     // Get grid cell size
-    const double hx = grid.XSize;
-    const double hy = grid.YSize;
+    const double hx = grid.XStep;
+    const double hy = grid.YStep;
 
     // Get grid indices for bounding box
     long int ixMin{}, iyMin{};
@@ -743,13 +734,13 @@ private:
     double yMin = grid.BoundingBox.P.y + iyMin * hy;
     double xMax = grid.BoundingBox.P.x + ixMax * hx;
     double yMax = grid.BoundingBox.P.y + iyMax * hy;
-    if (xMin - bbox.P.x + Parameters::Epsilon > 0.5 * hx)
+    if (xMin - bbox.P.x + Parameters::Epsilon > 0.0)
       ixMin -= 1;
-    if (yMin - bbox.P.y + Parameters::Epsilon > 0.5 * hy)
+    if (yMin - bbox.P.y + Parameters::Epsilon > 0.0)
       iyMin -= 1;
-    if (bbox.Q.x - xMax + Parameters::Epsilon > 0.5 * hx)
+    if (bbox.Q.x - xMax + Parameters::Epsilon > 0.0)
       ixMax += 1;
-    if (bbox.Q.y - yMax + Parameters::Epsilon > 0.5 * hy)
+    if (bbox.Q.y - yMax + Parameters::Epsilon > 0.0)
       iyMax += 1;
 
     // Check overflow
@@ -774,7 +765,7 @@ private:
     }
 
     // Sanity check: These numbers should never be larger
-    // than 0.5 and only rarely smaller than -0.5
+    // than 0 and only rarely smaller than -0.5
     const long int minIndex = grid.Index2Index(ixMin, iyMin);
     const long int maxIndex = grid.Index2Index(ixMax, iyMax);
     const Point2D P = grid.Index2Point(minIndex);
@@ -784,11 +775,11 @@ private:
     const double dyMin = (P.y - bbox.P.y) / hy;
     const double dyMax = (bbox.Q.y - Q.y) / hy;
     // std::cout << "CHECK: " << dxMin << " " << dxMax << " " << dyMin << " " <<
-    // dyMax << std::endl;
-    assert(dxMin < 0.5);
-    assert(dxMax < 0.5);
-    assert(dyMin < 0.5);
-    assert(dyMax < 0.5);
+    //  dyMax << std::endl;
+    assert(dxMin < 0.0);
+    assert(dxMax < 0.0);
+    assert(dyMin < 0.0);
+    assert(dyMax < 0.0);
   }
 
   // Get neighbors of building (buildings with overlapping bins)

@@ -62,7 +62,7 @@ namespace DTCC
   }
 
   // Print information message
-  void Info(const std::string& message)
+  void Info(const std::string &message = "")
   {
     if (LogLevel <= INFO)
       __print__(message);
