@@ -581,6 +581,18 @@ private:
         bin2buildings[binIndex].insert(buildingIndex);
       }
     }
+
+    // Sanity check
+    long int minIndex = grid.Index2Index(ixMin, iyMin);
+    long int maxIndex = grid.Index2Index(ixMax, iyMax);
+    Point2D P = grid.Index2Point(minIndex);
+    Point2D Q = grid.Index2Point(maxIndex);
+    double dxMin = std::abs(P.x - bbox.P.x) / hx;
+    double dxMax = std::abs(Q.x - bbox.Q.x) / hx;
+    double dyMin = std::abs(P.y - bbox.P.y) / hy;
+    double dyMax = std::abs(Q.y - bbox.Q.y) / hy;
+    std::cout << "CHECK: " << dxMin << " " << dxMax << " " << dyMin << " "
+              << dyMax << " (should be between 0 and 0.5)" << std::endl;
   }
 
   // Get neighbors of building (buildings with overlapping bins)
