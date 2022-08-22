@@ -756,17 +756,22 @@ private:
       }
     }
 
-    // Sanity check
-    long int minIndex = grid.Index2Index(ixMin, iyMin);
-    long int maxIndex = grid.Index2Index(ixMax, iyMax);
-    Point2D P = grid.Index2Point(minIndex);
-    Point2D Q = grid.Index2Point(maxIndex);
-    double dxMin = std::abs(P.x - bbox.P.x) / hx;
-    double dxMax = std::abs(Q.x - bbox.Q.x) / hx;
-    double dyMin = std::abs(P.y - bbox.P.y) / hy;
-    double dyMax = std::abs(Q.y - bbox.Q.y) / hy;
-    std::cout << "CHECK: " << dxMin << " " << dxMax << " " << dyMin << " "
-              << dyMax << " (should be between 0 and 0.5)" << std::endl;
+    // Sanity check: These numbers should never be larger
+    // than 0.5 and only rarely smaller than -0.5
+    const long int minIndex = grid.Index2Index(ixMin, iyMin);
+    const long int maxIndex = grid.Index2Index(ixMax, iyMax);
+    const Point2D P = grid.Index2Point(minIndex);
+    const Point2D Q = grid.Index2Point(maxIndex);
+    const double dxMin = (P.x - bbox.P.x) / hx;
+    const double dxMax = (bbox.Q.x - Q.x) / hx;
+    const double dyMin = (P.y - bbox.P.y) / hy;
+    const double dyMax = (bbox.Q.y - Q.y) / hy;
+    // std::cout << "CHECK: " << dxMin << " " << dxMax << " " << dyMin << " " <<
+    // dyMax << std::endl;
+    assert(dxMin < 0.5);
+    assert(dxMax < 0.5);
+    assert(dyMin < 0.5);
+    assert(dyMax < 0.5);
   }
 
   // Get neighbors of building (buildings with overlapping bins)
