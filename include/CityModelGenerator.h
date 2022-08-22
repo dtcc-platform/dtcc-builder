@@ -561,57 +561,52 @@ private:
       // Initialize bins
       std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
       std::vector<std::unordered_set<size_t>> bin2buildings{grid.NumVertices()};
-
-      //Anders' slack sketch
-      for(size_t i=0;i<buildings.size();i++)
-      {
+      for (size_t i = 0; i < buildings.size(); i++)
         UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
-      }
 
       // Create queue of indices to check
-      std::queue<size_t> indices;
+      std::queue<size_t> indices{};
       for (size_t i = 0; i < buildings.size(); i++)
         indices.push(i);
 
-      while(!indices.empty())
+      // Process queue until empty
+      while (!indices.empty())
       {
         // Pop index of next building to check
         const size_t i = indices.front();
         indices.pop();
 
-        // Iterate over bins
-        for (const auto binIndex : building2bins[i])
+        // Get neighbor indices
+        std::unordered_set<size_t> neighbors{
+            GetNeighbors(i, building2bins, bin2buildings)};
+
+        // Iterate over neighbors
+        for (size_t j : neighbors)
         {
-          // Iterate over buildings in bin
-          for (const auto j : bin2buildings[binIndex])
+          // Skip building itself
+          if (i == j)
+            continue;
+
+          if (buildings[j].Empty())
+            continue;
+
+          // Compute distance
+          const Polygon &Pi = buildings[i].Footprint;
+          const Polygon &Pj = buildings[j].Footprint;
+          const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+
+          // Merge if distance is small
+          if (d2 < tol2)
           {
-            // Skip building itself
-            if (i == j)
-              continue;
-
-            if(buildings[j].Empty())
-              continue;
-
-            // Compute distance
-            const Polygon &Pi = buildings[i].Footprint;
-            const Polygon &Pj = buildings[j].Footprint;
-            const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
-
-            // Merge if distance is small
-            if(d2<tol2)
-            {
-              Progress("NEW Algorithm - CityModelGenerator: Buildings " + str(i) + " and " +
-                     str(j) + " are too close, merging");
-              MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
-              UpdateBinning(building2bins, bin2buildings, i, buildings[i],
-                            grid);
-            }
-            // Update binning
-            //UpdateBinning(mergedBuilding, bin2buildings, building2bins);
+            Progress("NEW Algorithm - CityModelGenerator: Buildings " + str(i) +
+                     " and " + str(j) + " are too close, merging");
+            MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
+            UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
           }
+          // Update binning
+          // UpdateBinning(mergedBuilding, bin2buildings, building2bins);
         }
       }
-
     }
     else
     {
@@ -780,24 +775,15 @@ private:
   }
 
   // Get neighbors of building (buildings with overlapping bins)
-  std::unordered_set<size_t>
+  static std::unordered_set<size_t>
   GetNeighbors(size_t buildingIndex,
                const std::vector<std::unordered_set<size_t>> &building2bins,
                const std::vector<std::unordered_set<size_t>> &bin2buildings)
   {
-    // Initialize empty set of neighbor building indices
     std::unordered_set<size_t> indices{};
-
-    // Iterate over bins of building
     for (const auto binIndex : building2bins[buildingIndex])
-    {
-      // Iterate over buildings in bin
       for (const auto index : bin2buildings[binIndex])
-      {
         indices.insert(index);
-      }
-    }
-
     return indices;
   }
 
