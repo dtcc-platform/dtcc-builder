@@ -545,8 +545,9 @@ private:
     // Get buildings
     std::vector<Building> &buildings = cityModel.Buildings;
 
-    // Merged buildings num
+    // Counters
     size_t numMerged = 0;
+    size_t numCompared = 0;
 
     if (useBinning)
     {
@@ -580,8 +581,13 @@ private:
         std::unordered_set<size_t> neighbors{
             GetNeighbors(i, building2bins, bin2buildings)};
 
+        // FIXME: Testing
+        std::vector<size_t> _neighbors{};
+        _neighbors.assign(neighbors.begin(), neighbors.end());
+        std::sort(_neighbors.begin(), _neighbors.end());
+
         // Iterate over neighbors
-        for (size_t j : neighbors)
+        for (size_t j : _neighbors)
         {
           // Skip building itself
           if (i == j)
@@ -595,12 +601,13 @@ private:
           const Polygon &Pi = buildings[i].Footprint;
           const Polygon &Pj = buildings[j].Footprint;
           const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+          numCompared++;
 
           // Merge if distance is small
           if (d2 < tol2)
           {
-            Progress("NEW Algorithm - CityModelGenerator: Buildings " + str(i) +
-                     " and " + str(j) + " are too close, merging");
+            Progress("CityModelGenerator: Buildings " + str(i) + " and" +
+                     str(j) + " are too close, merging");
 
             // Merge buildings
             buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
@@ -649,10 +656,7 @@ private:
           const Polygon &Pi = buildings[i].Footprint;
           const Polygon &Pj = buildings[j].Footprint;
           const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
-
-          Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                   str(j) + " are " + str(d2) + " apart.IDs are " +
-                   buildings[i].UUID + "," + buildings[j].UUID);
+          numCompared++;
 
           // Merge if distance is small
           if (d2 < tol2)
@@ -691,6 +695,8 @@ private:
 
     Info("CityModelGenerator: " + str(numMerged) +
          " building pair(s) were merged");
+    Info("CityModelGenerator: " + str(numCompared) +
+         " pair(s) of buildings were checked");
   }
 
   // Compute mean building size (from bounding boxes)
