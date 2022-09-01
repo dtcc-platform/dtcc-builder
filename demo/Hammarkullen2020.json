@@ -1,6 +1,6 @@
 {
     "Type": "Parameters",
-    "DataDirectory": "/home/dtcc/dtcc-platform/dtcc-builder/data/Hammarkullen2020",
+    "DataDirectory": "/home/dtcc/dtcc-builder/data/Hammarkullen2020",
     "DomainHeight": 100.0,
     "ElevationModelResolution": 1.0,
     "MeshResolution": 10.0,

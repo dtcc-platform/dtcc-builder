@@ -1,7 +1,7 @@
 {
     "Type": "Parameters",
-    "DataDirectory": "/home/dtcc/dtcc-platform/dtcc-builder/data/Majorna2021",
-    "OutputDirectory": "/home/dtcc/dtcc-platform/dtcc-builder/data/Majorna2021",
+    "DataDirectory": "/home/dtcc/dtcc-builder/data/Majorna2021",
+    "OutputDirectory": "/home/dtcc/dtcc-builder/data/Majorna2021",
     "DomainHeight": 100.0,
     "ElevationModelResolution": 1.0,
     "MeshResolution": 20.0,
