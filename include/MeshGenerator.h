@@ -70,7 +70,7 @@ namespace DTCC
       boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
 
       // Generate 2D mesh
-      CallTriangle(mesh2D, boundary, subDomains, resolution);
+      CallTriangle(mesh2D, boundary, subDomains, resolution, true);
 
       // Mark subdomains
       ComputeDomainMarkers(mesh2D, cityModel);
@@ -336,7 +336,7 @@ namespace DTCC
       // Generate 2D mesh of domain
       Info("MeshGenerator: Generating ground surface");
       Mesh2D mesh2D;
-      CallTriangle(mesh2D, boundary, subDomains, resolution);
+      CallTriangle(mesh2D, boundary, subDomains, resolution, false);
 
       // Compute domain markers
       ComputeDomainMarkers(mesh2D, cityModel);
@@ -400,10 +400,13 @@ namespace DTCC
       Info("MeshGenerator: Generating building surfaces");
       for (auto const &building : cityModel.Buildings)
       {
+        // FIXME: Consider making flipping triangles upside-down here
+        // so that the normal points downwards rather than upwards.
+
         // Generate 2D mesh of building footprint
         Mesh2D _mesh2D;
         CallTriangle(_mesh2D, building.Footprint.Vertices, subDomains,
-                     resolution);
+                     resolution, false);
 
         // Create empty building surface
         Surface3D buildingSurface;
@@ -471,7 +474,8 @@ namespace DTCC
     CallTriangle(Mesh2D &mesh2D,
                  const std::vector<Point2D> &boundary,
                  const std::vector<std::vector<Point2D>> &subDomains,
-                 double h)
+                 double h,
+                 bool sortTriangles)
     {
       Timer timer("CallTriangle");
 
@@ -602,7 +606,7 @@ namespace DTCC
       {
         // Note the importance of creating a sorted simplex here!
         Simplex2D t(out.trianglelist[3 * i], out.trianglelist[3 * i + 1],
-                    out.trianglelist[3 * i + 2], true);
+                    out.trianglelist[3 * i + 2], sortTriangles);
         mesh2D.Cells.push_back(t);
       }
 
