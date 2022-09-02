@@ -33,6 +33,9 @@ class Building : public Printable
 {
 public:
   /// Universally unique identifier of building
+  std::vector<std::string> AttachedUUIDs{};
+
+  /// Universally unique identifier of building
   std::string UUID{};
 
   /// ID (index) of building when parsed from shapefile

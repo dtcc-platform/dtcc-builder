@@ -22,7 +22,7 @@ namespace DTCC
   };
 
   // Global log level
-  LogLevels LogLevel = INFO;
+  LogLevels LogLevel = PROGRESS;
 
   // Global log file
   std::ofstream logFile;
@@ -62,7 +62,7 @@ namespace DTCC
   }
 
   // Print information message
-  void Info(const std::string& message)
+  void Info(const std::string &message = "")
   {
     if (LogLevel <= INFO)
       __print__(message);

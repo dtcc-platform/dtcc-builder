@@ -19,6 +19,9 @@
 #include "VTK.h"
 #include "VertexSmoother.h"
 
+#include "LAS.h"
+#include "SHP.h"
+
 using namespace DTCC;
 
 void Help() { Error("Usage: dtcc-generate-simulation-mesh Parameters.json"); }
@@ -79,7 +82,8 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Step 2.1: Merge building footprints
   {
     Timer timer("Step 2.1: Merge building footprints");
-    CityModelGenerator::SimplifyCityModel(cityModel, p["MinBuildingDistance"],
+    CityModelGenerator::SimplifyCityModel(cityModel, dtm.Grid.BoundingBox,
+                                          p["MinBuildingDistance"],
                                           p["MinVertexDistance"]);
     Info(cityModel);
   }

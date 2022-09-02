@@ -5,10 +5,10 @@ project(Core)
 # Note: To building in Debug mode, use cmake .. -DCMAKE_BUILD_TYPE=Debug
 
 # Set default build type to Release
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
   message(STATUS "Build type not specified, using Release by default")
-endif(NOT CMAKE_BUILD_TYPE)
+endif()
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
 # Set build flags

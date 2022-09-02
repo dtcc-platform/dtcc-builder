@@ -78,8 +78,7 @@ namespace DTCC
     {
       const size_t ix = i % XSize;
       const size_t iy = i / XSize;
-      return {BoundingBox.P.x + ix * XStep,
-                     BoundingBox.P.y + iy * YStep};
+      return {BoundingBox.P.x + ix * XStep, BoundingBox.P.y + iy * YStep};
     }
 
     /// Map vertex index to (at most) 4 neighoring vertex indices.
@@ -112,18 +111,79 @@ namespace DTCC
       Index2Boundary(i, indices);
       return indices;
     }
+    /// Map vertex index to (at most) 8 neighoring vertex indices.
+    /// For efficiency, reserve return vector to size 4.
+    ///
+    /// @param i Vertex index
+    /// @param indices Neighboring vertex indices
+    void Index2Boundary8(size_t i, std::vector<size_t> &indices) const
+    {
+      const size_t ix = i % XSize;
+      const size_t iy = i / XSize;
+      if (ix > 0)
+        indices.push_back(i - 1);
+      if (ix < XSize - 1)
+        indices.push_back(i + 1);
+      if (iy > 0)
+      {
+        indices.push_back(i - XSize);
+        const size_t ix2 = (i - XSize) % XSize;
+        if (ix2 > 0)
+          indices.push_back(i - XSize - 1);
+        if (ix2 < XSize - 1)
+          indices.push_back(i - XSize + 1);
+      }
+      if (iy < YSize - 1)
+      {
+        indices.push_back(i + XSize);
+        const size_t ix2 = (i + XSize) % XSize;
+        if (ix2 > 0)
+          indices.push_back(i + XSize - 1);
+        if (ix2 < XSize - 1)
+          indices.push_back(i + XSize + 1);
+      }
+    }
+
+    /// Map vertex index to (at most) 8 neighoring vertex indices.
+    ///
+    /// @param i Vertex index
+    /// @return Neighboring vertex indices
+    std::vector<size_t> Index2Boundary8(size_t i) const
+    {
+      std::vector<size_t> indices;
+      indices.reserve(8);
+      Index2Boundary(i, indices);
+      return indices;
+    }
+
+    /// Map x and y indices to global index
+    long int Index2Index(long int ix, long int iy) const
+    {
+      return ix + iy * XSize;
+    }
+
+    /// Map point to index of closest vertex.
+    ///
+    /// @param ix Grid index for x-direction (output)
+    /// @param iy Grid index for y-direction (output)
+    /// @param p Point
+    void Point2Index(long int &ix, long int &iy, const Point2D &p) const
+    {
+      const double _x = p.x - BoundingBox.P.x;
+      const double _y = p.y - BoundingBox.P.y;
+      ix = Utils::crop(std::lround(_x / XStep), XSize);
+      iy = Utils::crop(std::lround(_y / YStep), YSize);
+    }
 
     /// Map point to index of closest vertex.
     ///
     /// @param p Point
     /// @return Vertex index
-    size_t Point2Index(const Point2D& p) const
+    size_t Point2Index(const Point2D &p) const
     {
-      const double _x = p.x - BoundingBox.P.x;
-      const double _y = p.y - BoundingBox.P.y;
-      const long int ix = Utils::crop(std::lround(_x / XStep), XSize);
-      const long int iy = Utils::crop(std::lround(_y / YStep), YSize);
-      return ix + iy * XSize;
+      long int ix{}, iy{};
+      Point2Index(ix, iy, p);
+      return Index2Index(ix, iy);
     }
 
     /// Map point to cell and local coordinates.
