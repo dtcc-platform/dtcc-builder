@@ -188,6 +188,21 @@ Property map data and the road network comes in the form of SHP files
 (with corresponding SHX, DBF and PRJ files). The files of interest are
 the ones named `by_get.*` and `vl_*` respectivelly.
 
+### Road network data
+
+Like property maps, road maps also use the SHP format (as well as same
+formats for corresponding files). By using the program
+`dtcc-generate-roadnetwork`, shapefiles can be converted into JSON
+format. From the `bin` directory, the following command is then used:
+
+    ./dtcc-generate-roadnetwork <path to SHP file>
+
+To view the created JSON file, the program `dtcc-plot` can be
+used. For usage, see the source file (`dtcc-plot/dtcc-plot`). Plotting
+must be done outside the container, using your native system. The
+Python package `matplotlib` needs to be installed: `pip3 install
+matplotlib` on Mac and Windows.
+
 ### Data formats
 
 WIP: Describe DTCC JSON format.
