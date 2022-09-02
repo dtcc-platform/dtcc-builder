@@ -81,9 +81,9 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Step 2.1: Merge building footprints
   {
     Timer timer("Step 2.1: Merge building footprints");
-    CityModelGenerator::SimplifyCityModel(
-        cityModel, dtm.Grid.BoundingBox, p["MinBuildingDistance"],
-        p["MinVertexDistance"], p["UseBinning"]);
+    CityModelGenerator::SimplifyCityModel(cityModel, dtm.Grid.BoundingBox,
+                                          p["MinBuildingDistance"],
+                                          p["MinVertexDistance"]);
     Info(cityModel);
   }
 

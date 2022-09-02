@@ -153,8 +153,7 @@ public:
   static void SimplifyCityModel(CityModel &cityModel,
                                 const BoundingBox2D &bbox,
                                 double minimalBuildingDistance,
-                                double minimalVertexDistance,
-                                bool useBinning) // FIXME: Debugging
+                                double minimalVertexDistance)
   {
     Info("CityModelGenerator: Simplifying city model...");
     Timer timer("SimplifyCityModel");
@@ -163,7 +162,7 @@ public:
     cityModel.bbtree.Clear();
 
     // Merge buildings if too close
-    MergeCityModel(cityModel, bbox, minimalBuildingDistance, useBinning);
+    MergeCityModel(cityModel, bbox, minimalBuildingDistance);
   }
 
   /// Extract ground and roof points from point cloud.
@@ -531,8 +530,7 @@ private:
   // Merge all buildings closer than a given distance
   static void MergeCityModel(CityModel &cityModel,
                              const BoundingBox2D &bbox,
-                             double minimalBuildingDistance,
-                             bool useBinning)
+                             double minimalBuildingDistance)
   {
     Info("CityModelGenerator: Merging buildings...");
 
@@ -549,125 +547,70 @@ private:
     size_t numMerged = 0;
     size_t numCompared = 0;
 
-    if (useBinning)
+    // Initialize grid
+    // Note: Grid size needs to be *at least* minimal distance
+    // Note: Factor 4 seems to be a good choice (tested using dtcc-bench-run)
+    double h = 4.0 * ComputeMeanBuildingSize(buildings);
+    h = std::max(h, minimalBuildingDistance + Parameters::Epsilon);
+    const size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
+    const size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
+    Grid2D grid(bbox, nX, nY);
+
+    // Initialize bins
+    std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
+    std::vector<std::unordered_set<size_t>> bin2buildings{grid.NumVertices()};
+    for (size_t i = 0; i < buildings.size(); i++)
+      UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
+
+    // Create queue of indices to check
+    std::queue<size_t> indices{};
+    for (size_t i = 0; i < buildings.size(); i++)
+      indices.push(i);
+
+    // Process queue until empty
+    while (!indices.empty())
     {
-      Info("Using NEW algorithm");
+      // Pop index of next building to check
+      const size_t i = indices.front();
+      indices.pop();
 
-      // Initialize grid (grid size needs to be *at least* minimal distance)
-      double h = ComputeMeanBuildingSize(buildings);
-      h = std::max(h, minimalBuildingDistance + Parameters::Epsilon);
-      const size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
-      const size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
-      Grid2D grid(bbox, nX, nY);
+      // Get neighbor indices
+      std::unordered_set<size_t> neighbors{
+          GetNeighbors(i, building2bins, bin2buildings)};
 
-      // Initialize bins
-      std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
-      std::vector<std::unordered_set<size_t>> bin2buildings{grid.NumVertices()};
-      for (size_t i = 0; i < buildings.size(); i++)
-        UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
-
-      // Create queue of indices to check
-      std::queue<size_t> indices{};
-      for (size_t i = 0; i < buildings.size(); i++)
-        indices.push(i);
-
-      // Process queue until empty
-      while (!indices.empty())
+      // Iterate over neighbors
+      for (size_t j : neighbors)
       {
-        // Pop index of next building to check
-        const size_t i = indices.front();
-        indices.pop();
+        // Skip building itself
+        if (i == j)
+          continue;
 
-        // Get neighbor indices
-        std::unordered_set<size_t> neighbors{
-            GetNeighbors(i, building2bins, bin2buildings)};
+        // Skip if merged with other building (size set to 0)
+        if (buildings[j].Empty())
+          continue;
 
-        // Iterate over neighbors
-        for (size_t j : neighbors)
+        // Compute distance
+        const Polygon &Pi = buildings[i].Footprint;
+        const Polygon &Pj = buildings[j].Footprint;
+        const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+        numCompared++;
+
+        // Merge if distance is small
+        if (d2 < tol2)
         {
-          // Skip building itself
-          if (i == j)
-            continue;
+          Progress("CityModelGenerator: Buildings " + str(i) + " and " +
+                   str(j) + " are too close, merging");
 
-          // Skip if merged with other building (size set to 0)
-          if (buildings[j].Empty())
-            continue;
+          // Merge buildings
+          buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
+          MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
+          numMerged++;
 
-          // Compute distance
-          const Polygon &Pi = buildings[i].Footprint;
-          const Polygon &Pj = buildings[j].Footprint;
-          const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
-          numCompared++;
+          // Update binning
+          UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
 
-          // Merge if distance is small
-          if (d2 < tol2)
-          {
-            Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                     str(j) + " are too close, merging");
-
-            // Merge buildings
-            buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
-            MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
-            numMerged++;
-
-            // Update binning
-            UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
-
-            // Add building back to queue
-            indices.push(i);
-          }
-        }
-      }
-    }
-    else
-    {
-      Info("Using OLD algorithm");
-
-      // Create queue of indices to check
-      std::queue<size_t> indices;
-      for (size_t i = 0; i < buildings.size(); i++)
-      {
-        indices.push(i);
-      }
-
-      // Process queue until empty
-      while (!indices.empty())
-      {
-        // Pop index of next building to check
-        const size_t i = indices.front();
-        indices.pop();
-
-        // Iterate over all other buildings
-        for (size_t j = 0; j < buildings.size(); j++)
-        {
-          // Skip building itself
-          if (i == j)
-            continue;
-
-          // Skip if merged with other building (size set to 0)
-          if (buildings[j].Empty())
-            continue;
-
-          // Compute squared distance between polygons
-          const Polygon &Pi = buildings[i].Footprint;
-          const Polygon &Pj = buildings[j].Footprint;
-          const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
-          numCompared++;
-
-          // Merge if distance is small
-          if (d2 < tol2)
-          {
-            Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                     str(j) + " are too close, merging");
-
-            // Merge buildings
-            buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
-            MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
-            numMerged++;
-
-            // Add building back to queue
-            indices.push(i);
-          }
+          // Add building back to queue
+          indices.push(i);
         }
       }
     }
