@@ -16,6 +16,9 @@ GREY = '#3a3a3a'
 TOL = 0.1
 EPS = 1e-06
 
+# Set to True for generating plots for paper
+PAPERPLOTS = True
+
 def Polygon(coordinates):
     return polygons(coordinates)
 
@@ -444,6 +447,14 @@ def RunTestCase(testCase):
         plot(x, y, '--o', color=GREY)
     axis(_axis)
     suptitle(title)
+
+    if PAPERPLOTS:
+       axis(False)
+       suptitle('')
+       tight_layout()
+       fileName = title.replace(' ', '').replace('c', 'C') + '.pdf'
+       print('Saving plot to file %s' % fileName)
+       savefig(fileName)
 
 def PlotWKT(wkt):
     geometry = Geometry(wkt)
