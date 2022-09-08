@@ -30,6 +30,7 @@ public:
     Add("GenerateVolumeMeshes", true);
     Add("WriteJSON", true);
     Add("WriteVTK", true);
+    Add("WriteMatrix", false);
     Add("Debug", false);
 
     Add("GroundSmoothing", 5);

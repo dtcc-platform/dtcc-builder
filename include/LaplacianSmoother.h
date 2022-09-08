@@ -31,7 +31,8 @@ namespace DTCC
                              const CityModel &cityModel,
                              const GridField2D &dem,
                              double topHeight,
-                             bool fixBuildings)
+                             bool fixBuildings,
+                             bool writeMatrix)
     {
       Info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing)...");
       Timer timer("SmoothMesh3D");
@@ -89,6 +90,54 @@ namespace DTCC
       bc3->apply(*A, *b);
       bc2->apply(*A, *b);
       bc1->apply(*A, *b);
+
+      // Write matrix to file (used for testing/development)
+      // Loadin data in MATLAB:
+      //
+      // load matrix.dat
+      // load vector.dat
+      // A = spconvert(matrix);
+      // b = vector;
+      if (writeMatrix)
+      {
+        // Write matrix
+        {
+          const size_t M = A->size(0);
+          const size_t N = A->size(1);
+          Info("LaplacianSmoother: Writing matrix of size " + str(M) + " x " +
+               str(N) + " to file matrix.dat");
+          std::stringstream ss;
+          for (size_t i = 0; i < M; i++)
+          {
+            std::vector<std::size_t> columns{};
+            std::vector<double> values{};
+            A->getrow(i, columns, values);
+            for (size_t j = 0; j < columns.size(); j++)
+              ss << (i + 1) << " " << (columns[j] + 1) << " " << values[j]
+                 << std::endl;
+          }
+          std::ofstream fs;
+          fs.open("matrix.dat");
+          fs << ss.rdbuf();
+          fs.close();
+        }
+
+        // Write vector
+        {
+          const size_t M = A->size(0);
+          Info("LaplacianSmoother: Writing vector of size " + str(M) +
+               " to file vector.dat");
+          std::stringstream ss;
+          std::vector<double> values{};
+          b->get_local(values);
+          for (size_t i = 0; i < M; i++)
+            ss << values[i] << std::endl;
+          std::ofstream fs;
+          fs.open("vector.dat");
+          fs << ss.rdbuf();
+          fs.close();
+        }
+      }
 
       // Create linear solver
       dolfin::KrylovSolver solver(_mesh3D.mpi_comm(), "bicgstab", "amg");

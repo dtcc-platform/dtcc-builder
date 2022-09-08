@@ -25,5 +25,6 @@
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
     "WriteVTK": true,
+    "WriteMatrix": false,
     "Debug": true
 }
