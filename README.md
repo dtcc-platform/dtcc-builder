@@ -1,12 +1,12 @@
 # DTCC Builder
 
-DTCC Builder is part the
-[Digital Twin Platform (DTCC Platform)](https://gitlab.com/dtcc-platform)
-developed at the
-[Digital Twin Cities Centre](https://dtcc.chalmers.se/)
-
 DTCC Builder is a mesh generator for automatic, efficient, and robust
 mesh generation for large-scale city modeling and simulation.
+
+This project is part the
+[Digital Twin Platform (DTCC Platform)](https://gitlab.com/dtcc-platform)
+developed at the
+[Digital Twin Cities Centre](https://dtcc.chalmers.se/).
 
 ## Documentation
 
@@ -27,8 +27,8 @@ Part of this code is contributed by ReSpace AB under the MIT License.
 
 ## License
 
-The DTCC Platform is licensed under the [MIT
-license](https://opensource.org/licenses/MIT).
+DTCC Builder is licensed under the
+[MIT license](https://opensource.org/licenses/MIT).
 
 Copyright is held by the individual authors as listed at the top of
 each source file.
