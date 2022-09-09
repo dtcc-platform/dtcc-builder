@@ -1,3 +1,0 @@
-# DTCC Builder
-
-Testing documentation
