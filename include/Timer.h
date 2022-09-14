@@ -72,7 +72,8 @@ public:
   }
 
   // Print report (summary of all timers)
-  static void Report(const std::string &title, const std::string &dataDirectory)
+  static void Report(const std::string &title,
+                     const std::string &fileName = "Timings.json")
   {
     // Build table
     Table table(title);
@@ -95,7 +96,7 @@ public:
     Info(table);
 
     // Write JSON
-    JSON::Write(timings, dataDirectory + "Timings.json");
+    JSON::Write(timings, fileName, 4);
   }
 
 private:

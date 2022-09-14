@@ -32,9 +32,8 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
                            const Parameters &p)
 {
   // Get data directory
+  const std::string dataDirectory = p["DataDirectory"];
 
-  std::string dataDirectory = (std::string)p["DataDirectory"];
-  std::string outputDirectory = (std::string)p["OutputDirectory"];
   // Get origin (for serialization purposes)
   Point2D origin({p["X0"], p["Y0"]});
 
@@ -69,9 +68,10 @@ void GenerateVolumeMeshes(CityModel &cityModel,
                           const GridField2D &dtm,
                           const Parameters &p)
 {
-  // Get data directory
-  std::string dataDirectory = (std::string)p["DataDirectory"];
-  std::string outputDirectory = (std::string)p["OutputDirectory"];
+  // Get directories
+  const std::string dataDirectory = p["DataDirectory"];
+  const std::string outputDirectory = p["OutputDirectory"];
+
   // Get origin (for serialization purposes)
   Point2D origin({p["X0"], p["Y0"]});
 
@@ -222,20 +222,18 @@ void GenerateVolumeMeshes(CityModel &cityModel,
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
-  std::string dataDirectory;
-  std::string outputDirectory;
-
   if (CommandLine::HasOption("-h", argc, argv))
   {
     Help();
     return 0;
   }
   Parameters p = ParameterProcessor::ProcessArgs(argc, argv);
-  dataDirectory = (std::string)p["DataDirectory"];
-  outputDirectory = (std::string)p["OutputDirectory"];
 
-  Info("Loding from Data directory: " + dataDirectory);
-  Info("Saving to Output directory: " + outputDirectory);
+  // Get directories
+  const std::string dataDirectory = p["DataDirectory"];
+  const std::string outputDirectory = p["OutputDirectory"];
+  Info("Loding data from directory: " + dataDirectory);
+  Info("Saving data to directory:   " + outputDirectory);
 
   // Read city model
   CityModel cityModel;
@@ -260,7 +258,10 @@ int main(int argc, char *argv[])
   }
 
   // Report timings and parameters
-  Timer::Report("Timings for dtcc-generate-mesh", outputDirectory);
+  const std::string prefix = outputDirectory + "/dtcc-generate-mesh";
+  Timer::Report("Timings for dtcc-generate-citymodel",
+                prefix + "-timings.json");
+  JSON::Write(p, prefix + "-parameters.json", 4);
   Info(p);
 
   return 0;

@@ -32,22 +32,18 @@ void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
-  std::string dataDirectory;
-  std::string outputDirectory;
-
   if (CommandLine::HasOption("-h", argc, argv))
   {
     Help();
     return 0;
   }
-
   Parameters p = ParameterProcessor::ProcessArgs(argc, argv);
 
-  dataDirectory = (std::string)p["DataDirectory"];
-  outputDirectory = (std::string)p["OutputDirectory"];
-
-  Info("Loding from Data directory: " + dataDirectory);
-  Info("Saving to Output directory: " + outputDirectory);
+  // Get directories
+  const std::string dataDirectory = p["DataDirectory"];
+  const std::string outputDirectory = p["OutputDirectory"];
+  Info("Loding data from directory: " + dataDirectory);
+  Info("Saving data to directory:   " + outputDirectory);
 
   // Start timer
   Timer timer("Step 1: Generate city model");
@@ -196,7 +192,10 @@ int main(int argc, char *argv[])
   }
 
   // Report timings and parameters
-  Timer::Report("Timings for dtcc-generate-citymodel", outputDirectory);
+  const std::string prefix = outputDirectory + "/dtcc-generate-citymodel";
+  Timer::Report("Timings for dtcc-generate-citymodel",
+                prefix + "-timings.json");
+  JSON::Write(p, prefix + "-parameters.json", 4);
   Info(p);
 
   return 0;

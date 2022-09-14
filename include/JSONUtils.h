@@ -36,11 +36,11 @@ static void Read(T& t, std::string fileName)
 
 /// Write object to file
 template <class T>
-static void Write(const T& t, std::string fileName)
+static void Write(const T &t, std::string fileName, int indent = -1)
 {
   nlohmann::json json{};
   Serialize(t, json);
-  Write(json, fileName);
+  Write(json, fileName, indent);
 }
 
 /// Write object and origin (offset) to file
