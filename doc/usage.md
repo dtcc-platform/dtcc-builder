@@ -1,6 +1,6 @@
-## Usage
+# Usage
 
-### Running the demo
+## Running the demo
 
 To run a simple demo, enter the `demo` directory and issue the
 following commands:
@@ -16,7 +16,7 @@ description of the parameters.
 
 **Note:** These commands should be issued *inside* the container.
 
-### Visualizing results
+## Visualizing results
 
 To visualize the generated meshes, install and open
 [Paraview](https://www.paraview.org/). This will allow
