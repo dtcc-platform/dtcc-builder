@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
   }
 
   // Report timings and parameters
-  Timer::Report("dtcc-generate-mesh", outputDirectory);
+  Timer::Report("Timings for dtcc-generate-mesh", outputDirectory);
   Info(p);
 
   return 0;

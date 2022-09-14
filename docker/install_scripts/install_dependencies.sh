@@ -30,7 +30,8 @@ apt-get update && apt-get install -y \
     moreutils \
     unzip \
     jq \
-    uuid-dev
+    uuid-dev \
+    dialog
 
 ./install_assimp.sh
 ./install_libgeos.sh
@@ -38,5 +39,3 @@ apt-get update && apt-get install -y \
 ./install_VTK.sh
 ./install_python.sh
 ./install_py_libs.sh
-
-

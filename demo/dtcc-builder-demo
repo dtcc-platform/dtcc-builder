@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# List of available datasets
+DATASETS=(HelsingborgResidential2022 "Urban area in Helsingborg, Sweden"
+          HelsingborgHarbour2022     "Harbour area in Helsingborg, Sweden")
+
+# Select dataset
+DATASET=$(dialog --clear \
+          --backtitle "DTCC Builder Demo" \
+          --menu "Please select a dataset" 0 0 0 "${DATASETS[@]}" \
+          2>&1 >/dev/tty)
+
+echo $DATASET
+
+# Check if dataset exists
+DATA_DIRECTORY="../data/$DATASET"
+if [ ! -f "$DATA_DIRECTORY/PropertyMap.shp" ]; then
+    echo "*** Dataset $DATASET not found"
+    echo "*** Make sure to run ./dtcc-download-demo-data-public in the data directory"
+    exit 1
+fi
+
+# Run demo
+echo "Running demo for data set $DATASET..."
+../bin/dtcc-generate-citymodel $DATA_DIRECTORY
+../bin/dtcc-generate-mesh $DATA_DIRECTORY
+echo ""
+echo "Demo completed. Generated data saved to $DATA_DIRECTORY."
