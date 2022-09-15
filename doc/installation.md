@@ -1,59 +1,33 @@
 # Installation
 
-## Getting started
+## Downloading the software
 
-These instructions will get you up and running on your local machine
-for development and testing purposes.
-
-### Downloading the software
-
-To download the software, clone the repository by the following command:
+To download the software, clone the Git repository by the following command:
 
     git clone https://gitlab.com/dtcc-platform/dtcc-builder.git -b develop
 
 Alternatively, you may want to use the SSH protocol:
 
-    git clone git@gitlab.com:dtcc-platform/dtcc-builder.git
+    git clone git@gitlab.com:dtcc-platform/dtcc-builder.git -b develop
 
 This will create a directory named `dtcc-builder` containing the full
-source code.
+source code of DTCC Builder.
 
-**Note:** If you are using Windows, you might first want to make sure
-that Git does not convert Unix-style file endings on checkout. This
-can be accomplished by:
+## Building the software
 
-    git config --global dtcc-builder.autocrlf false
+---
+**Note:** DTCC Builder depends on a number of open-source
+libraries. To ensure that you have all the dependencies needed, it is
+recommended to work from inside the [DTCC
+Docker](https://gitlab.com/dtcc-platform/dtcc-docker) container for
+DTCC Builder. This documentation assumes that all commands are run
+from within the Docker container.
+---
 
-### Downloading demo data
-
-To download demo data, there is an open demo dataset (public) and one
-available only for development/research purposes. Enter the `data`
-directory and issue the following command:
-
-    ./dtcc-download-demo-data-public
-
-For the typical new user, this should be done inside the
-container. Obtaining the public dataset requires no credentials.
-
-The public demo data currently contains the following two datasets:
-
-* `Eman2021`: A residential area in the vicinity of the river Emån in
-southern Sweden (Småland)
-* `Majorna2021`: A residential area within the City of Gothenburg in
-  Sweden
-
-The public demo data is kindly provided by Lantmäteriet and published at
-
-    ftp://download-open.lantmateriet.se/GEO-demoomrade
-
-For accesing the private demo datasets you will need a set of
-credentials supplied by the development team. Contact us for more
-info.
-
-### Building and installing
-
-To build, use a standard out-of-source CMake build by issuing the
-following commands from the top level directory:
+DTCC Builder is implemented in C++ and uses
+[CMake](https://cmake.org/) for configuration and build. To create a
+standard out-of-source CMake build, issue the following commands from
+the top-level directory:
 
     mkdir build
     cd build
@@ -61,7 +35,21 @@ following commands from the top level directory:
     make -j
 	make install
 
-This will build and install all programs into the top level `bin`
+This will build and install all programs into the top-level `bin`
 directory.
 
-**Note:** These commands should be issued *inside* the container.
+## Downloading demo data
+
+DTCC builder requires data to run. The demo data are not part of the
+repository and must be downloaded separately. To download public demo
+data, enter the `data` directory and issue the following command:
+
+    ./dtcc-download-demo-data-public
+
+---
+**Note:** The command `dtcc-download-demo-data` provides additional
+datasets that may not be shared publicly (because of license
+restrictions from the data owners). Access to no-public data is
+provided to developers on request. Contact the maintainers of DTCC
+Builder for more info.
+---

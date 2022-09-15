@@ -41,3 +41,11 @@ classes (for example in the class `MeshGenerator` rather than in the
 class `Mesh`). This means that pure data classes (like `Mesh`) can be
 kept clean with only class data and functions for data access and
 initialization.
+
+## Tips & tricks
+
+**Note:** If you are using Windows, you might want to make sure that
+Git does not convert Unix-style file endings on checkout. This can be
+accomplished by:
+
+    git config --global dtcc-builder.autocrlf false
