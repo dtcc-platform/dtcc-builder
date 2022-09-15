@@ -27,5 +27,8 @@ described in detail in the paper [Digital twins for city simulation:
 Automatic, efficient, and robust mesh generation for large-scale city
 modeling and simulation](TBD).
 
-![](images/demo-majorna.jpg){width=100%}
-*image_caption*
+![](images/demo-majorna.jpg)
+*Surface mesh of an area (Majorna) in Gothenburg, generated with DTCC Buider.*
+
+![](images/demo-majorna-zoom.jpg)
+*Detail of surface mesh of an area (Majorna) in Gothenburg, generated with DTCC Builder.*
