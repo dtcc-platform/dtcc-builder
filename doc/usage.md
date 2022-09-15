@@ -1,20 +1,51 @@
 # Usage
 
-## Running the demo
+## Overview
 
-To run a simple demo, enter the `demo` directory and issue the
-following commands:
+DTCC Builder consists of a C++ library and a number of programs
+(binaries). The two main programs are
 
-    ./demo-generate-citymodel
-    ./demo-generate-mesh
+    ./dtcc-generate-citymodel
+    ./dtcc-generate-mesh
 
-This will generate a set of meshes for the demo data downloaded. The
-input data as well as the output data generated are stored in the
-`data` directory. To change dataset or parameters for the demo, edit
-the scripts above to select a different parameter set. See below for a
-description of the parameters.
+The first of these programs is used to [generate city models from raw
+data](#generating-city-models) and the second program is used to
+[generate meshes for a city model](#generating-meshes). Both programs
+are described in detail below.
 
-**Note:** These commands should be issued *inside* the container.
+A good starting point is to first run the main demo of DTCC Builder by
+entering the `demo` directory and issuing the command
+
+    ./dtcc-builder-demo
+
+This will present you with a menu from which you may choose a demo
+dataset, after which a citymodel and a number of output meshes will be
+created.
+
+The output data may be found in the corresponding subdirectory of the
+`data` directory and consist of several data files in JSON and
+[Paraview](https://www.paraview.org/) format. Both the data formats
+and how to visualize the generated city models and meshes are
+described in detail below.
+
+---
+**Note:** To run the demo, you first need to build and install DTCC Builder. You
+must also download the demo datasets as described in the [installation
+instructions](./installation.md) for DTCC Builder.
+---
+
+---
+**Note:** The demo simply runs `dtcc-generate-citymodel` and
+`dtcc-generate-mesh` in order for the selected dataset.
+---
+
+## Generating city models
+
+Test
+
+## Generating meshes
+
+Test
 
 ## Visualizing results
 
@@ -49,15 +80,6 @@ corner will in this example be at EPSG:3006 coordinates (6405000,
 Property map data and the road network comes in the form of SHP files
 (with corresponding SHX, DBF and PRJ files). The files of interest are
 the ones named `by_get.*` and `vl_*` respectivelly.
-
-### Road network data
-
-Like property maps, road maps also use the SHP format (as well as same
-formats for corresponding files). By using the program
-`dtcc-generate-roadnetwork`, shapefiles can be converted into JSON
-format. From the `bin` directory, the following command is then used:
-
-    ./dtcc-generate-roadnetwork <path to SHP file>
 
 To view the created JSON file, the program `dtcc-plot` can be
 used. For usage, see the source file (`dtcc-plot/dtcc-plot`). Plotting

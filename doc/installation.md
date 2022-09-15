@@ -15,15 +15,6 @@ source code of DTCC Builder.
 
 ## Building the software
 
----
-**Note:** DTCC Builder depends on a number of open-source
-libraries. To ensure that you have all the dependencies needed, it is
-recommended to work from inside the [DTCC
-Docker](https://gitlab.com/dtcc-platform/dtcc-docker) container for
-DTCC Builder. This documentation assumes that all commands are run
-from within the Docker container.
----
-
 DTCC Builder is implemented in C++ and uses
 [CMake](https://cmake.org/) for configuration and build. To create a
 standard out-of-source CMake build, issue the following commands from
@@ -37,6 +28,15 @@ the top-level directory:
 
 This will build and install all programs into the top-level `bin`
 directory.
+
+---
+**Note:** DTCC Builder depends on a number of open-source
+libraries. To ensure that you have all the dependencies needed, it is
+recommended to work from inside the [DTCC
+Docker](https://gitlab.com/dtcc-platform/dtcc-docker) container for
+DTCC Builder. This documentation assumes that all commands are run
+from within the Docker container.
+---
 
 ## Downloading demo data
 
