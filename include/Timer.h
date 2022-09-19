@@ -23,7 +23,7 @@ public:
   /// is constructed and the elapsed time is reported when timer
   /// goes out of scope.
   explicit Timer(std::string name, bool autoStart = true)
-      : Name(std::move(name)), autoStart(autoStart)
+      : Name(std::move(name)), autoStart(autoStart), running(false)
   {
     if (autoStart)
       Start();
@@ -32,16 +32,27 @@ public:
   // Destructor
   ~Timer()
   {
-    if (autoStart)
+    if (autoStart and running)
       Stop();
   }
 
   // Start clock
-  void Start() { t0 = std::chrono::high_resolution_clock::now(); }
+  void Start()
+  {
+    t0 = std::chrono::high_resolution_clock::now();
+    running = true;
+  }
 
   // Stop clock
   void Stop()
   {
+    // Check if timer is running
+    if (!running)
+    {
+      Warning("Timer stopped but it's not running");
+      return;
+    }
+
     // Record current time
     t1 = std::chrono::high_resolution_clock::now();
 
@@ -102,6 +113,9 @@ public:
 private:
   // True if timer is started and stopped automatically
   bool autoStart{};
+
+  // True if timer is running
+  bool running{};
 
   // Time at start
   std::chrono::high_resolution_clock::time_point t0{};
