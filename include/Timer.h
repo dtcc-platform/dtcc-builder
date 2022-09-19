@@ -55,7 +55,8 @@ public:
 
     // Record current time
     t1 = std::chrono::high_resolution_clock::now();
-
+    running = false;
+    
     // Register timing
     auto it = timings.find(Name);
     if (it == timings.end())
