@@ -51,20 +51,20 @@ The following input data are needed:
 * **Parameters** used to control the city model generation stored
   as a JSON file named `Parameters.json` (optional).
 
-If `dtcc-generate-citymodel` is run without any arguments, it is
-assumed that the current working directory contains the input data:
+If no command-line argument is given, it is assumed that the current
+working directory contains the input data:
 
     dtcc-generate-citymodel
 
-If `dtcc-generate-citymodel` is run with a directory name as argument,
-that directory is searched for the input data:
+If a directory is given as command-line argumennt, the given directory
+is searched for the input data:
 
     dtcc-generate-citymodel <path to data directory>
 
-If `dtcc-generate-citymodel` is run with a parameter file as argument,
-the `DataDirectory` parameter is searched for the input data:
+If a parameter file is given as argument, the specified
+`DataDirectory` parameter is searched for the input data:
 
-    dtcc-generate-mesh <path to parameter file>
+    dtcc-generate-citymodel <path to parameter file>
 
 ### Output data
 
@@ -92,18 +92,18 @@ The following input data are needed:
 * **Parameters** used to control the mesh generation stored
   as a JSON file named `Parameters.json` (optional).
 
-If `dtcc-generate-mesh` is run without any arguments, it is
-assumed that the current working directory contains the input data:
+If no command-line argument is given, it is assumed that the current
+working directory contains the input data:
 
     dtcc-generate-mesh
 
-If `dtcc-generate-mesh` is run with a directory name as argument,
-that directory is searched for the input data:
+If a directory is given as command-line argumennt, the given directory
+is searched for the input data:
 
     dtcc-generate-mesh <path to data directory>
 
-If `dtcc-generate-mesh` is run with a parameter file as argument,
-the `DataDirectory` parameter is searched for the input data:
+If a parameter file is given as argument, the specified
+`DataDirectory` parameter is searched for the input data:
 
     dtcc-generate-mesh <path to parameter file>
 
@@ -126,7 +126,7 @@ In addition, timings and parameters are stored as
 ## Visualizing results
 
 Generated data files in DTCC JSON format may be opened and visualized
-using (DTCC Viewer)[https://viewer.dtcc.chalmers.se].
+using [DTCC Viewer](https://viewer.dtcc.chalmers.se).
 
 Generated data files in VTK structured/unstructured grid format may be
 opened and visualized using [Paraview](https://www.paraview.org/).
