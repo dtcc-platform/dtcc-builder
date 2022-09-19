@@ -19,7 +19,7 @@ entering the `demo` directory and issuing the command
     ./dtcc-builder-demo
 
 This will present a menu from which you may select a demo dataset,
-after which a citymodel and a number of output meshes will be created.
+after which a city model and a number of output meshes will be created.
 
 The output data may be found in the corresponding subdirectory of the
 `data` directory and consist of several data files in JSON and
@@ -28,101 +28,143 @@ and how to visualize the generated city models and meshes are
 described in detail below.
 
 > **Note:** To run the demo, you first need to build and install DTCC Builder. You
-must also download the demo datasets as described in the [installation
-instructions](./installation.md) for DTCC Builder.
----
+must also download the demo datasets as described in the
+[installation instructions](./installation.md) for DTCC Builder.
 
 > **Note:** The demo simply runs the two programs
-`dtcc-generate-citymodel` and `dtcc-generate-mesh` in order for the
+`dtcc-generate-citymodel` and `dtcc-generate-mesh` in sequence for the
 selected dataset.
 
-## Generating city models
+## Generating city models (`dtcc-generate-citymodel`)
 
-Test
+The program `dtcc-generate-citymodel` is used to generate a city model
+from a set of point clouds and cadastral data.
 
-## Generating meshes
+### Input data
 
-Test
+The following input data are needed:
+
+* **Point cloud data** in LAS/LAZ format consisting of one or more files
+  with suffix `.las` or `.laz`.
+* **Cadastral data** in [shapefile format](https://en.wikipedia.org/wiki/Shapefile)
+  named `PropertyMap.[shp,shx,dbf,prj,cpg]`.
+* **Parameters** used to control the city model generation stored
+  as a JSON file named `Parameters.json` (optional).
+
+If `dtcc-generate-citymodel` is run without any arguments, it is
+assumed that the current working directory contains the input data:
+
+    dtcc-generate-citymodel
+
+If `dtcc-generate-citymodel` is run with a directory name as argument,
+that directory is searched for the input data:
+
+    dtcc-generate-citymodel <path to data directory>
+
+If `dtcc-generate-citymodel` is run with a parameter file as argument,
+the `DataDirectory` parameter is searched for the input data:
+
+    dtcc-generate-mesh <path to parameter file>
+
+### Output data
+
+* `CityModel.json` - city model in DTCC JSON format
+* `DSM.json` - digital surface map in DTCC JSON format
+* `DSM.vts` - digital surface map in VTK structured grid format
+* `DTM.json` - digital terrain map in DTCC JSON format
+* `DTM.vts` - digital terrain map in VTK structured grid format
+
+In addition, timings and parameters are stored as
+`dtcc-generate-citymodel-timings.json` and
+`dtcc-generate-citymodel-parameters.json`.
+
+## Generating meshes (`dtcc-generate-mesh`)
+
+The program `dtcc-generate-mesh` is used to generate meshes from a
+city model and a digital terrain map.
+
+### Input data
+
+The following input data are needed:
+
+* **City model** in DTCC JSON format named `CityModel.json`.
+* **Digital terrain map** in DTCC JSON format named `DTM.json`.
+* **Parameters** used to control the mesh generation stored
+  as a JSON file named `Parameters.json` (optional).
+
+If `dtcc-generate-mesh` is run without any arguments, it is
+assumed that the current working directory contains the input data:
+
+    dtcc-generate-mesh
+
+If `dtcc-generate-mesh` is run with a directory name as argument,
+that directory is searched for the input data:
+
+    dtcc-generate-mesh <path to data directory>
+
+If `dtcc-generate-mesh` is run with a parameter file as argument,
+the `DataDirectory` parameter is searched for the input data:
+
+    dtcc-generate-mesh <path to parameter file>
+
+### Output data
+
+- `CityModelSimple.json` - simplified city model in DTCC JSON format
+- `GroundSurface.json` - surface mesh of ground in DTCC JSON format
+- `GroundSurface.vtu` - surface mesh of ground in VTK unstructured grid format
+- `BuildingSurface.json` - surface mesh of buildings in DTCC JSON format
+- `BuildingSurface.vtu` - surface mesh of buildings in VTK unstructured grid format
+- `CitySurface.json` - surface mesh of ground and buildings in DTCC JSON format
+- `CitySurface.vtu` - surface mesh of ground and buildings in VTK unstructured grid format
+- `CityMesh.json` - volume mesh of city in DTCC JSON format
+- `CityMesh.vtu` - volume mesh of city in VTK unstructured grid format
+
+In addition, timings and parameters are stored as
+`dtcc-generate-mesh-timings.json` and
+`dtcc-generate-mesh-parameters.json`.
 
 ## Visualizing results
 
-To visualize the generated meshes, install and open
-[Paraview](https://www.paraview.org/). This will allow
-you to open and visualize the generated `.vts` and `.vtu`
-files in the `data` directory.
+Generated data files in DTCC JSON format may be opened and visualized
+using (DTCC Viewer)[https://viewer.dtcc.chalmers.se].
 
-## Data
-
-### Data sources
-
-The DTCC Platform makes use of the following data sources:
-
-* Point clouds (Lantmäteriet:Laserdata NH 2019 (laz); EPSG:3006)
-* Property maps (Lantmäteriet:Fastighetskartan Bebyggelse; EPSG:3006)
-* Road network maps (Lantmäteriet:Vägkartan; EPSG:3006)
-
-Chalmers has a license for downloading data from `http://zeus.slu.se`.
-
-Point cloud data comes in the form of a number square grids large
-enough to cover the requested domain. Each point cloud is compressed
-as a RAR file. Uncompress it to get the LAS point cloud file, for
-example:
-
-    unrar e 09B008_64050_3225_25.rar
-
-This will create the file 09B008_64050_3225_25.las. The lower left
-corner will in this example be at EPSG:3006 coordinates (6405000,
-322500).
-
-Property map data and the road network comes in the form of SHP files
-(with corresponding SHX, DBF and PRJ files). The files of interest are
-the ones named `by_get.*` and `vl_*` respectivelly.
-
-To view the created JSON file, the program `dtcc-plot` can be
-used. For usage, see the source file (`dtcc-plot/dtcc-plot`). Plotting
-must be done outside the container, using your native system. The
-Python package `matplotlib` needs to be installed: `pip3 install
-matplotlib` on Mac and Windows.
-
-### Data formats
-
-WIP: Describe DTCC JSON format.
-
-WIP: Describe CityJSON format.
-
-### Coordinate system
-
-The unit of length is metres relative to the SWEREF99 TM (EPSG:3006)
-coordinate system.
+Generated data files in VTK structured/unstructured grid format may be
+opened and visualized using [Paraview](https://www.paraview.org/).
 
 ## Parameters
 
-The DTCC Platform uses the following global parameters,
-controlled via a JSON file `Parameters.json`.
+DTCC Builder may be controlled using a set of parameters specified in
+JSON format. The parameters file may either be supplied as a
+command-line argument or stored in a file named `Parameters.json` in
+the data directory.
 
 All data files are assumed to be located in a directory determined by
-the parameter `DataDirectory`. Any generated data files will be stored
-in the same location.
+the parameter `DataDirectory`:
 
-    DataDirectory = directory for input/output
+    DataDirectory = directory for input data files
+
+Generated data files will be stored in a directory determined by the
+parameter `OutputDirectory`:
+
+    OutputDirectory = directory for generated data files
 
 When parsing data from original data files (LAS point clouds and SHP
 files), a nonzero origin may be specified to offset the coordinate
 system relative to the origin. This has the advantage that very large
 values for the coordinates may be avoided (which is good for numerical
-stability).
+stability):
 
     X0 = x-coordinate of new origin
     Y0 = y-coordinate of new origin
 
-In other words, the offset `(X0, Y0)` is subtracted from the original
-coordinates during processing. In the simplest case, the offset should
-be set to the coordinates of the lower left (south-west) corner of the
-domain covered by the data.
+The offset `(X0, Y0)` is subtracted from the original coordinates
+during processing. In the simplest case, the offset should be set to
+the coordinates of the lower left (south-west) corner of the domain
+covered by the data.
 
-Height maps, city models and meshes are generated for a rectangular
+Height maps, city models, and meshes are generated for a rectangular
 domain with coordinates relative to the new origin specified by `X0`
-and `Y0`.
+and `Y0`:
 
     XMin = x-coordinate for lower left corner
     YMin = y-coordinate for lower left corner
@@ -136,81 +178,49 @@ YMax) = (Width, Height)`.
 Alternatively, the domain may be determined by the bounding box of the
 point cloud(s) by. If `AutoDomain` is `true`, then `XMin`, `YMin`,
 `XMax`, `YMax` are automatically determined (and their parameter
-values ignored).
+values ignored):
 
     AutoDomain = true/false
 
-> **Note**: The `AutoDomain` parameter has been temporarily disabled.
-
 When generating elevation models from LAS point cloud data, the
 `ElevationModelResolution` parameter determines the resolution of the grid
-onto which the height map is sampled.
+onto which the height map is sampled:
 
     ElevationModelResolution = resolution of elevation models
 
-When generating the city model from SHP file data, the
+When generating city models from SHP file data, the
 `MinimalBuildingDistance` parameter determines a minimal distance
 between buildings. Buildings that are closer than the specified
 distance are automatically merged to avoid overlapping buildings or
 buildings that are very close (which may otherwise upset the mesh
-generation).
+generation):
 
     MinBuildingDistance = minimal distance between buildings
 
 When generating the volume mesh, the `DomainHeight` parameter
-determines the height of the domain relative to the average ground
-level.
+determines the height of the domain relative to the mean ground level:
 
     DomainHeight = height of computational domain (volume mesh)
 
 When generating both volume and visualization meshes, the
 `MeshResolution` parameter determines the maximum size (diameter) of
-the mesh cells.
+the mesh cells:
 
     MeshResolution = resolution of computational mesh (mesh size)
 
 Both volume and visualization meshes may be generated with or without
 displacing the ground level outside of buildings. If the `FlatGround`
-parameter is set to `true`, then the ground is kept flat.
+parameter is set to `true`, then the ground is kept flat:
 
     FlatGround = true / false
 
 The surface mesh generation produces an additional smoothed version of
 the ground surface. The number of smoothing iterations is controlled
-by the `GroundSmoothing` parameter.
+by the `GroundSmoothing` parameter:
 
     GroundSmoothing = number of smoothing iterations
 
 > **Note**: The list of parameters above is only partly complete since
 experimental parameters may be added/removed during development. For
-the latest list of parameters, refer to the parameter files for the
-demos, for example `Majorna2021.json`
-
-### Output
-
-## JSON files
-
-- `DSM.json` - Digital surface map generated from point cloud (`GridField2D`)
-- `DTM.json` - Digital terrain map generated from point cloud (`GridField2D`)
-- `CityModel.json` - city model generated from property map and point cloud (`CityModel`)
-- `CityModelSimple.json` - simplified (merged) city model (`CityModel`)
-- `GroundSurface.json` - surface mesh of ground generated from DTM (`Surface3D`)
-- `BuildingSurface.json` - surface mesh of all buildings generated from city model (`Surface3D`)
-- `CityMesh.json` - volume mesh of city model (`Mesh3D`)
-- `CitySurface.json` - surface mesh of city model (`Surface3D`)
-
-## VTS files (structured VTK meshes)
-
-- `DSM.vts` - Digital surface map generated from point cloud
-- `DTM.vts` - Digital terrain map generated from point cloud
-
-## VTU files (unstructured VTK meshes)
-
-- `GroundSurface.json` - surface mesh of ground generated from DTM
-- `BuildingSurface.json` - surface mesh of all buildings generated from city model
-- `CityMesh.json` - volume mesh of city model
-- `CitySurface.json` - surface mesh of city model
-- `Step[31-35][Mesh/Boundary].vtu` - mesh generation debugging output (intermediate steps with Step35 = final mesh)
-
-> **Note**: Some of these data files are only generated when the
-parameter `Debug` is set.
+a complete list of  parameters, refer to the parameter files
+`dtcc-generate-[citymodel,mesh].json` generated by running the demo.
