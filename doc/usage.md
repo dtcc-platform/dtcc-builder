@@ -18,9 +18,8 @@ entering the `demo` directory and issuing the command
 
     ./dtcc-builder-demo
 
-This will present you with a menu from which you may choose a demo
-dataset, after which a citymodel and a number of output meshes will be
-created.
+This will present a menu from which you may select a demo dataset,
+after which a citymodel and a number of output meshes will be created.
 
 The output data may be found in the corresponding subdirectory of the
 `data` directory and consist of several data files in JSON and
@@ -28,16 +27,14 @@ The output data may be found in the corresponding subdirectory of the
 and how to visualize the generated city models and meshes are
 described in detail below.
 
----
-**Note:** To run the demo, you first need to build and install DTCC Builder. You
+> **Note:** To run the demo, you first need to build and install DTCC Builder. You
 must also download the demo datasets as described in the [installation
 instructions](./installation.md) for DTCC Builder.
 ---
 
----
-**Note:** The demo simply runs `dtcc-generate-citymodel` and
-`dtcc-generate-mesh` in order for the selected dataset.
----
+> **Note:** The demo simply runs the two programs
+`dtcc-generate-citymodel` and `dtcc-generate-mesh` in order for the
+selected dataset.
 
 ## Generating city models
 
@@ -143,7 +140,7 @@ values ignored).
 
     AutoDomain = true/false
 
-**Note**: The `AutoDomain` parameter has been temporarily disabled.
+> **Note**: The `AutoDomain` parameter has been temporarily disabled.
 
 When generating elevation models from LAS point cloud data, the
 `ElevationModelResolution` parameter determines the resolution of the grid
@@ -184,7 +181,7 @@ by the `GroundSmoothing` parameter.
 
     GroundSmoothing = number of smoothing iterations
 
-**Note**: The list of parameters above is only partly complete since
+> **Note**: The list of parameters above is only partly complete since
 experimental parameters may be added/removed during development. For
 the latest list of parameters, refer to the parameter files for the
 demos, for example `Majorna2021.json`
@@ -215,5 +212,5 @@ demos, for example `Majorna2021.json`
 - `CitySurface.json` - surface mesh of city model
 - `Step[31-35][Mesh/Boundary].vtu` - mesh generation debugging output (intermediate steps with Step35 = final mesh)
 
-**Note**: Some of these data files are only generated when the
+> **Note**: Some of these data files are only generated when the
 parameter `Debug` is set.
