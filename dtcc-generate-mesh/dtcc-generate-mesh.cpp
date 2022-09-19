@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 
   // Report timings and parameters
   const std::string prefix = outputDirectory + "/dtcc-generate-mesh";
-  Timer::Report("Timings for dtcc-generate-citymodel",
+  Timer::Report("Timings for dtcc-generate-mesh",
                 prefix + "-timings.json");
   JSON::Write(p, prefix + "-parameters.json", 4);
   Info(p);
