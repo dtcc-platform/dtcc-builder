@@ -5,8 +5,8 @@
 DTCC Builder consists of a C++ library and a number of programs
 (binaries). The two main programs are
 
-    ./dtcc-generate-citymodel
-    ./dtcc-generate-mesh
+    dtcc-generate-citymodel
+    dtcc-generate-mesh
 
 The first of these programs is used to [generate city models from raw
 data](#generating-city-models) and the second program is used to

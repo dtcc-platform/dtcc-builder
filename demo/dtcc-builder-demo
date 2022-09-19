@@ -9,8 +9,7 @@ DATASET=$(dialog --clear \
           --backtitle "DTCC Builder Demo" \
           --menu "Please select a dataset" 0 0 0 "${DATASETS[@]}" \
           2>&1 >/dev/tty)
-
-echo $DATASET
+clear
 
 # Check if dataset exists
 DATA_DIRECTORY="../data/$DATASET"
