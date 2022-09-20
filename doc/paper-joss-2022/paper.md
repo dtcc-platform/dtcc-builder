@@ -10,7 +10,7 @@ tags:
   - C++
 authors:
   - name: Anders Logg
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-1547-4773
     equal-contrib: true
     affiliation: "1, 3"
   - name: Vasilis Naserentin
@@ -20,7 +20,7 @@ authors:
     equal-contrib: true
     affiliation: "2, 3"
 affiliations:
- - name: Chalmers Univesrity of Technology
+ - name: Chalmers University of Technology
    index: 1
  - name: FIXME CIT
    index: 2
@@ -32,67 +32,80 @@ bibliography: paper.bib
 
 # Summary
 
-The forces on stars, galaxies, and dark matter under external gravitational
-fields lead to the dynamical evolution of structures in the universe. The orbits
-of these bodies are therefore key to understanding the formation, history, and
-future state of galaxies. The field of "galactic dynamics," which aims to model
-the gravitating components of galaxies to study their structure and evolution,
-is now well-established, commonly taught, and frequently used in astronomy.
-Aside from toy problems and demonstrations, the majority of problems require
-efficient numerical tools, many of which require the same base code (e.g., for
-performing numerical orbit integration).
+DTCC Builder is a mesh generator for automatic, efficient, and robust
+mesh generation for large-scale city modeling and simulation.  Using
+standard and widely available raw data sources in the form of point
+clouds and cadastral data, DTCC Builder generates high-quality 3D
+surface and volume meshes, suitable for both visualization and
+simulation. In particular, DTCC Builder is capable of generating
+large-scale, conforming tetrahedral volume meshes of cities suitable
+for finite element (FEM) simulation.
 
 # Statement of need
 
-DTCC Builder is a mesh generator for...
+The interest in creating digital twins, i.e., models of physical
+systems that mirror the physical systems in real-time and enable
+analysis and prediction, has been rapidly increasing in recent years.
+In particular, there has been a surge in the interest for creating
+digital twins of cities [@ketzlerDigitalTwinsCities2020]. The creation
+of a digital twin of a city involves the creation of a 3D model. Such
+3D models may either be created manually, semi-automatically, or in a
+fully automatic way from available raw data, often in the form of
+point clouds obtained from aerial scanning and cadastral data
+(property maps).
 
+3D mesh generation is a very challenging process, especially in the
+face of bad quality and low resolution data, which is often the case
+for publicly available data for cities. Furthermore, if the 3D meshes
+are to be used for modeling and simulation, certain requirements are
+posed on the quality of the meshes. DTCC Builder aims to solve these
+challenges by automating the mesh generation process in a both robust
+and efficient way.
 
+DTCC Builder is part of the open-source digital twin platform
+[DTCC Platform](https://platform.dtcc.chalmers.se) developed at the
+[Digital Twin Cities Centre](https://dtcc.chalmers.se).
 
-DTCC Builder is implemented in C++ and very efficient...
+![](demo-majorna.jpg)
+*Surface mesh of an area (Majorna) in Gothenburg, generated with DTCC Buider.*
 
+![](demo-majorna-zoom.jpg)
+*Detail of surface mesh of an area (Majorna) in Gothenburg, generated with DTCC Builder.*
 
-DTCC Builder is part of DTCC Platform...
+# Method and implementation
 
+DTCC Builder uses a novel algorithm for mesh generation. The key idea
+is to utilize the special geometry of city models to reduce the 3D
+mesh generation problem to a 2D problem. A 2D mesh respecting the
+polygonal footprints of buildings is generated and then layered to
+create 3D mesh. Building heights and ground height are incorporated by
+a PDE-based smoothing process. The method and algorihtms are described
+in detail in the paper [naserentinXXX2022].
 
-# Mathematics
+DTCC Builder is implemented in C++ and makes use of several
+open-source packages, notably
+FEniCS [loggAutomatedSolutionDifferential2012] for solving PDEs,
+Triangle [shewchukTriangleEngineering2D1996] for 2D mesh
+generation, and
+GEOS [geoscontributorsGEOSCoordinateTransformation2021] for
+geometric operations.
 
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
+# Documentation
 
-Double dollars make self-standing equations:
+The documentation for DTCC Builder is published on the
+[DTCC GitLab pages](https://gitlab.com/dtcc-platform/dtcc-builder)
+as well as on the documentation pages for
+[DTCC Platform](https://dtcc.chalmers.se).
 
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
+# Future work
 
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
+DTCC Builder currently only provides a C++ and command-line
+interface. Future versions will provide a Python interface and also an
+online interface as part of
+[DTCC Platform](https://platform.dtcc.chalmers.se).
 
-# Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-# Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
+DTCC Builder currently generates city models in Level of Detail (LoD)
+1.2 but ongoing work seeks to extend DTCC Bulder to LoD1.3 and LoD2.x.
 
 # Acknowledgements
 
@@ -100,17 +113,3 @@ This work is part of the Digital Twin Cities Centre supported by
 Sweden’s Innovation Agency Vinnova under Grant No.  2019-00041.
 
 # References
-
-# TODO
-
-[x] The software must be open source as per the OSI definition.
-[x] The software must have an obvious research application.
-[x] You must be a major contributor to the software you are submitting
-[x] Have a GitHub account to participate in the review process.
-[x] Your paper must not focus on new research results accomplished with the software.
-[x] Your paper must be hosted in a Git-based repository together with your software.
-[x] Be stored in a repository that can be cloned without registration.
-[x] Be stored in a repository that is browsable online without registration.
-[ ] Have an issue tracker that is readable without registration.
-[ ] Permit individuals to create issues/file tickets against your repository.
-[ ] Indicate whether related publications exist as part of submitting to JOSS.
