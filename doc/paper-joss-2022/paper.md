@@ -12,21 +12,23 @@ authors:
   - name: Anders Logg
     orcid: 0000-0002-1547-4773
     equal-contrib: true
-    affiliation: "1, 3"
+    affiliation: "1, 2"
   - name: Vasilis Naserentin
-	orcid: FIXME
+	orcid: 0000-0002-3485-9329
     equal-contrib: true
     affiliation: "1, 3"
   - name: Dag Wästberg
 	orcid: FIXME
     equal-contrib: true
-    affiliation: "2, 3"
+    affiliation: "2, 4"
 affiliations:
  - name: Chalmers University of Technology
    index: 1
  - name: Chalmers Industriteknik
-   index: 2
+   index: 4
  - name: Digital Twin Cities Centre
+   index: 2
+ - name: Aristotle University of Thessaloniki
    index: 3
 date: 20 September 2022
 bibliography: paper.bib
@@ -120,6 +122,9 @@ online interface as part of
 
 DTCC Builder currently generates city models in Level of Detail (LoD)
 1.2 but ongoing work seeks to extend DTCC Builder to LoD1.3 and LoD2.x.
+
+DTCC Builder currently runs on a single thread. Future versions versions will 
+provide means of parallelization across shared or distributed memory.
 
 # Acknowledgements
 
