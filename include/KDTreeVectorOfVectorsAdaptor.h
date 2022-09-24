@@ -29,8 +29,9 @@
 #pragma once
 
 #include <nanoflann.hpp>
-
 #include <vector>
+
+#include "Timer.h"
 
 // ===== This example shows how to use nanoflann with these types of containers:
 // =======
@@ -69,6 +70,10 @@ struct KDTreeVectorOfVectorsAdaptor
   index_t *index; //! The kd-tree index for the user to call its methods as
                   //! usual with any other FLANN index.
 
+  nanoflann::SearchParams searchParams =
+      nanoflann::SearchParams(32, 0.001, false);
+  // nanoflann::SearchParams searchParams = nanoflann::SearchParams(32,0,true);
+
   /// Constructor: takes a const ref to the vector of vectors object with the
   /// data points
   KDTreeVectorOfVectorsAdaptor(const size_t /* dimensionality */,
@@ -84,7 +89,9 @@ struct KDTreeVectorOfVectorsAdaptor
     index =
         new index_t(static_cast<int>(dims), *this /* adaptor */,
                     nanoflann::KDTreeSingleIndexAdaptorParams(leaf_max_size));
+    auto t1 = DTCC::Timer("KDTreeVofV: Building Index");
     index->buildIndex();
+    t1.Stop();
   }
 
   ~KDTreeVectorOfVectorsAdaptor() { delete index; }
@@ -105,7 +112,7 @@ struct KDTreeVectorOfVectorsAdaptor
   {
     nanoflann::KNNResultSet<num_t, IndexType> resultSet(num_closest);
     resultSet.init(out_indices, out_distances_sq);
-    index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+    index->findNeighbors(resultSet, query_point, searchParams);
   }
 
   /** Query for all points within  \a radius of the given point (entered as
@@ -117,12 +124,12 @@ struct KDTreeVectorOfVectorsAdaptor
   inline std::vector<std::pair<size_t, num_t>>
   radiusQuery(const num_t *query_point, const num_t radius) const
   {
+    DTCC::Timer radiuQueryTimer("KDTreeVofV: radiusQuery");
     std::vector<std::pair<size_t, num_t>> indices_dists;
     // nanoflann::RadiusResultSet<num_t, IndexType> resultSet(radius,
     //                                                       indices_dists);
     // index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
-    index->radiusSearch(query_point, radius, indices_dists,
-                        nanoflann::SearchParams());
+    index->radiusSearch(query_point, radius, indices_dists, searchParams);
 
     return indices_dists;
   }
@@ -139,6 +146,7 @@ struct KDTreeVectorOfVectorsAdaptor
   // Returns the dim'th component of the idx'th point in the class:
   inline num_t kdtree_get_pt(const size_t idx, const size_t dim) const
   {
+    // DTCC::Timer getPtTimer("KDTreeVofV: get_pt");
     return m_data[idx][dim];
   }
 

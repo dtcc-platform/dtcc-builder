@@ -244,10 +244,12 @@ public:
         }
         else if (clf == 6 || (!classifedBuildings && clf < 2))
         {
+          auto pc_timer = Timer("PolygoCOntains2D");
           if (Geometry::PolygonContains2D(building.Footprint, p2D))
           {
             building.RoofPoints.push_back(p3D);
           }
+          pc_timer.Stop();
         }
       }
     }
@@ -587,6 +589,8 @@ public:
                                                  distanceThershold, iterations);
       totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
+    Info("BuildingPointsRANSACOutlierRemover remove " + str(totalRemoved) +
+         " points");
   }
 
 private:
