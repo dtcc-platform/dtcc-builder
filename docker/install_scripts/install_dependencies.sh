@@ -31,7 +31,9 @@ apt-get update && apt-get install -y \
     unzip \
     jq \
     uuid-dev \
-    dialog
+    dialog \
+    libprotobuf-dev \
+    protobuf-compiler
 
 ./install_assimp.sh
 ./install_libgeos.sh
