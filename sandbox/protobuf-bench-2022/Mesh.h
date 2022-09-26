@@ -1,35 +1,38 @@
-// Copyright (C) 2019 Anders Logg
-// Licensed under the MIT License
-
 #ifndef DTCC_MESH_H
 #define DTCC_MESH_H
 
 #include <vector>
 
-#include "Logging.h"
-#include "Point.h"
-#include "Simplex.h"
-#include "Vector.h"
-
 namespace DTCC
 {
 
+  class Point3D
+  {
+  public:
+    double x{};
+    double y{};
+    double z{};
+  };
+
+  class Simplex3D
+  {
+  public:
+    std::size_t v0{};
+    std::size_t v1{};
+    std::size_t v2{};
+    std::size_t v3{};
+  };
 
   class Mesh3D
   {
   public:
 
-    /// Array of vertices
     std::vector<Point3D> Vertices{};
-
-    /// Array of cells (tetrahedra)
     std::vector<Simplex3D> Cells{};
-
-    /// Array of cell markers
     std::vector<int> Markers{};
 
   };
 
-} // namespace DTCC
+}
 
 #endif
