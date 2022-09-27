@@ -5,7 +5,7 @@ syntax = "proto3";
 // The internet told me do this, I don't know why - DW
 option optimize_for = LITE_RUNTIME;
 
-package PROTO;
+package PROT;
 
 //--- Geometry ---
 
