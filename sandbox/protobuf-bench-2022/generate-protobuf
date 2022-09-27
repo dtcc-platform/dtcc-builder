@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Building C++ classes..."
+protoc --cpp_out=. dtcc.proto
