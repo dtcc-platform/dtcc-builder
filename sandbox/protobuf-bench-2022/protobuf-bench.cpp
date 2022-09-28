@@ -26,11 +26,11 @@ double TetrahedronVolume(const double x0[], const double x1[], const double x2[]
 			 - x1[1]*x0[2] - x2[1]*x1[2] - x0[1]*x2[2])) / 6.0;
 }
 
-class Mesh3DProtoFlat : public PROT::Mesh3DFlat
+class Mesh3DProtFlat : public PROT::Mesh3DFlat
 {
 public:
 
-  const double* Vertex(int32_t i) const
+  inline const double* Vertex(int32_t i) const
   {
     return &vertices()[3*i];
   }
@@ -362,7 +362,7 @@ void AccessPROTNEST(const PROT::Mesh3D &mesh)
 
 //--- PROT FLAT  ---------------------------------------------------------------
 
-void CreatePROTFLAT(PROT::Mesh3DFlat &mesh, uint32_t N)
+void CreatePROTFLAT(Mesh3DProtFlat &mesh, uint32_t N)
 {
   DTCC::Timer timer("Create PROT FLAT");
 
@@ -431,7 +431,7 @@ void CreatePROTFLAT(PROT::Mesh3DFlat &mesh, uint32_t N)
   }
 }
 
-void AccessPROTFLAT(const PROT::Mesh3DFlat &mesh)
+void AccessPROTFLAT(Mesh3DProtFlat &mesh)
 {
   DTCC::Timer timer("Access PROT FLAT");
 
@@ -445,10 +445,14 @@ void AccessPROTFLAT(const PROT::Mesh3DFlat &mesh)
   {
     //--- BENCH --------------------------------------
     const uint32_t *vv = &c[i];
-    const double *x0 = &v[3*vv[0]];
-    const double *x1 = &v[3*vv[1]];
-    const double *x2 = &v[3*vv[2]];
-    const double *x3 = &v[3*vv[3]];
+    const double *x0 = mesh.Vertex(vv[0]);
+    const double *x1 = mesh.Vertex(vv[1]);
+    const double *x2 = mesh.Vertex(vv[2]);
+    const double *x3 = mesh.Vertex(vv[3]);
+    //const double *x0 = &v[3*vv[0]];
+    //const double *x1 = &v[3*vv[1]];
+    //const double *x2 = &v[3*vv[2]];
+    //const double *x3 = &v[3*vv[3]];
 
     //const auto v0{3*c[i]};
     //const auto v1{3*c[i + 1]};
@@ -469,7 +473,7 @@ void AccessPROTFLAT(const PROT::Mesh3DFlat &mesh)
 int main()
 {
   // Size of mesh (unit cube N x N x N)
-  const uint32_t N{256};
+  const uint32_t N{128};
 
   // DTCC NEST
   {
@@ -494,7 +498,7 @@ int main()
 
   // PROT FLAT
   {
-    PROT::Mesh3DFlat mesh{};
+    Mesh3DProtFlat mesh{};
     CreatePROTFLAT(mesh, N);
     AccessPROTFLAT(mesh);
   }
