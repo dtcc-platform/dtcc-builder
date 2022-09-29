@@ -17,20 +17,24 @@ namespace DTCC
   class Simplex3D
   {
   public:
-    std::size_t v0{};
-    std::size_t v1{};
-    std::size_t v2{};
-    std::size_t v3{};
+    uint32_t v0{};
+    uint32_t v1{};
+    uint32_t v2{};
+    uint32_t v3{};
   };
 
   class Mesh3D
   {
   public:
-
     std::vector<Point3D> Vertices{};
     std::vector<Simplex3D> Cells{};
-    std::vector<int> Markers{};
+  };
 
+  class Mesh3DFlat
+  {
+  public:
+    std::vector<double> Vertices{};
+    std::vector<uint32_t> Cells{};
   };
 
 }

@@ -11,15 +11,15 @@ package PROT;
 
 message Vector2D
 {
-  float x = 1;
-  float y = 2;
+  double x = 1;
+  double y = 2;
 }
 
 message Vector3D
 {
-  float x = 1;
-  float y = 2;
-  float z = 3;
+  double x = 1;
+  double y = 2;
+  double z = 3;
 }
 
 message Simplex1D
@@ -98,8 +98,8 @@ message Grid2D
   BoundingBox2D boundingBox = 1;
   int32 xSize = 2;
   int32 ySize = 3;
-  float xStep = 4;
-  float yStep = 5;
+  double xStep = 4;
+  double yStep = 5;
 }
 
 message Grid3D
@@ -108,9 +108,9 @@ message Grid3D
   int32 xSize = 2;
   int32 ySize = 3;
   int32 zSize = 4;
-  float xStep = 5;
-  float yStep = 6;
-  float zStep = 7;
+  double xStep = 5;
+  double yStep = 6;
+  double zStep = 7;
 }
 
 message Mesh2D
@@ -125,6 +125,12 @@ message Mesh3D
   repeated Vector3D vertices = 1;
   repeated Simplex3D cells = 2;
   repeated int32 markers = 3;
+}
+
+message Mesh3DFlat
+{
+  repeated double vertices = 1;
+  repeated uint32 cells = 2;
 }
 
 message Surface2D
@@ -146,73 +152,73 @@ message Surface3D
 message GridField2D
 {
   Grid2D grid = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message GridField3D
 {
   Grid3D grid = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message GridVectorField2D
 {
   Grid2D grid = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message GridVectorField3D
 {
   Grid3D grid = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message MeshField2D
 {
   Mesh2D mesh = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message MeshField3D
 {
   Mesh3D mesh = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message MeshVectorField2D
 {
   Mesh2D mesh = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message MeshVectorField3D
 {
   Mesh3D mesh = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message SurfaceField2D
 {
   Surface2D surface = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message SurfaceField3D
 {
   Surface3D surface = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message SurfaceVectorField2D
 {
   Surface2D surface = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 message SurfaceVectorField3D
 {
   Surface3D surface = 1;
-  repeated float values = 2;
+  repeated double values = 2;
 }
 
 //--- City model ---
