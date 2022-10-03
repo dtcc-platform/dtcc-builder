@@ -26,6 +26,9 @@ double TetrahedronVolume(const double x0[], const double x1[], const double x2[]
 			 - x1[1]*x0[2] - x2[1]*x1[2] - x0[1]*x2[2])) / 6.0;
 }
 
+/* Does not seem to work for certain Protobuf version since parent class
+   has been declared as final.
+
 class Mesh3DProtFlat : public PROT::Mesh3DFlat
 {
 public:
@@ -36,6 +39,8 @@ public:
   }
 
 };
+
+*/
 
 //--- DTCC NEST ----------------------------------------------------------------
 
@@ -362,7 +367,7 @@ void AccessPROTNEST(const PROT::Mesh3D &mesh)
 
 //--- PROT FLAT  ---------------------------------------------------------------
 
-void CreatePROTFLAT(Mesh3DProtFlat &mesh, uint32_t N)
+void CreatePROTFLAT(PROT::Mesh3DFlat &mesh, uint32_t N)
 {
   DTCC::Timer timer("Create PROT FLAT");
 
@@ -431,7 +436,7 @@ void CreatePROTFLAT(Mesh3DProtFlat &mesh, uint32_t N)
   }
 }
 
-void AccessPROTFLAT(Mesh3DProtFlat &mesh)
+void AccessPROTFLAT(PROT::Mesh3DFlat &mesh)
 {
   DTCC::Timer timer("Access PROT FLAT");
 
@@ -445,14 +450,14 @@ void AccessPROTFLAT(Mesh3DProtFlat &mesh)
   {
     //--- BENCH --------------------------------------
     const uint32_t *vv = &c[i];
-    const double *x0 = mesh.Vertex(vv[0]);
-    const double *x1 = mesh.Vertex(vv[1]);
-    const double *x2 = mesh.Vertex(vv[2]);
-    const double *x3 = mesh.Vertex(vv[3]);
-    //const double *x0 = &v[3*vv[0]];
-    //const double *x1 = &v[3*vv[1]];
-    //const double *x2 = &v[3*vv[2]];
-    //const double *x3 = &v[3*vv[3]];
+    //const double *x0 = mesh.Vertex(vv[0]);
+    //const double *x1 = mesh.Vertex(vv[1]);
+    //const double *x2 = mesh.Vertex(vv[2]);
+    //const double *x3 = mesh.Vertex(vv[3]);
+    const double *x0 = &v[3*vv[0]];
+    const double *x1 = &v[3*vv[1]];
+    const double *x2 = &v[3*vv[2]];
+    const double *x3 = &v[3*vv[3]];
 
     //const auto v0{3*c[i]};
     //const auto v1{3*c[i + 1]};
@@ -498,7 +503,7 @@ int main()
 
   // PROT FLAT
   {
-    Mesh3DProtFlat mesh{};
+    PROT::Mesh3DFlat mesh{};
     CreatePROTFLAT(mesh, N);
     AccessPROTFLAT(mesh);
   }
