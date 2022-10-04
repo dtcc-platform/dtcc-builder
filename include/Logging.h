@@ -31,7 +31,13 @@ namespace DTCC
   class Printable
   {
   public:
+
+    // Convert to string (pretty-print)
     virtual std::string __str__() const = 0;
+
+    // Conversion operator
+    operator std::string() const { return __str__(); }
+
   };
 
   // Format message
@@ -56,6 +62,8 @@ namespace DTCC
     struct tm *ti = localtime(&tt);
     return asctime(ti);
   }
+
+  //--- Public interface of logging system ---
 
   // Set log level
   void set_log_level(LogLevels log_level)
@@ -82,12 +90,6 @@ namespace DTCC
     log(INFO, message);
   }
 
-  // Print information message (printable object)
-  void Info(const Printable &printable)
-  {
-    Info(printable.__str__());
-  }
-
   // Print warning message
   void Warning(const std::string& message)
   {
@@ -101,12 +103,10 @@ namespace DTCC
     throw std::runtime_error(message);
   }
 
+  //--- Utility functions for string conversion ---
+
   // Convert printable object to string
   std::string str(const Printable &x) { return x.__str__(); }
-
-  // FIXME: Functions below should be possible to handle with a common
-  // template but does not seem to work (overloaded str for Printable
-  // seems to be hidden).
 
   // Convert const char* to string
   std::string str(const char *x)
