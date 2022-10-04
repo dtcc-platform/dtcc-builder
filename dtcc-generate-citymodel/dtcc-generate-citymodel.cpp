@@ -31,6 +31,8 @@ void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
 
 int main(int argc, char *argv[])
 {
+  progress(0.0);
+
   // Check command-line arguments
   if (CommandLine::HasOption("-h", argc, argv))
   {
@@ -175,6 +177,7 @@ int main(int argc, char *argv[])
 
   // Stop timer
   timer.Stop();
+  progress(0.9);
 
   // Write JSON
   if (p["WriteJSON"])
@@ -183,6 +186,7 @@ int main(int argc, char *argv[])
     JSON::Write(dsm, outputDirectory + "DSM.json", O);
     JSON::Write(cityModel, outputDirectory + "CityModel.json", O);
   }
+  progress(0.95);
 
   // Write VTK
   if (p["WriteVTK"])
@@ -190,6 +194,7 @@ int main(int argc, char *argv[])
     VTK::Write(dtm, outputDirectory + "DTM.vts");
     VTK::Write(dsm, outputDirectory + "DSM.vts");
   }
+  progress(0.99);
 
   // Report timings and parameters
   const std::string prefix = outputDirectory + "/dtcc-generate-citymodel";
@@ -197,6 +202,7 @@ int main(int argc, char *argv[])
                 prefix + "-timings.json");
   JSON::Write(p, prefix + "-parameters.json", 4);
   Info(p);
+  progress(1.0);
 
   return 0;
 }
