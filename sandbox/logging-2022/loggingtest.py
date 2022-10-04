@@ -1,6 +1,6 @@
 import logging
 
-format = "%(asctime)-23s %(name)-12s [%(levelname)-8s] %(message)s"
+format = "%(asctime)-23s [%(name)-12s] [%(levelname)-8s] %(message)s"
 logging.basicConfig(format=format)
 logging.addLevelName(25, 'PROGRESS')
 

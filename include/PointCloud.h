@@ -104,7 +104,7 @@ public:
 
     // Build bounding box tree
     bbtree.Build(bboxes);
-    Progress(str(bbtree));
+    Debug(str(bbtree));
   }
 
   void BuildHasClassifications()

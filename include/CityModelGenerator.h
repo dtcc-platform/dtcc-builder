@@ -662,8 +662,8 @@ private:
         // Merge if distance is small
         if (d2 < tol2)
         {
-          Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                   str(j) + " are too close, merging");
+          Debug("CityModelGenerator: Buildings " + str(i) + " and " +
+		str(j) + " are too close, merging");
 
           // Merge buildings
           buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);

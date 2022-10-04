@@ -84,7 +84,7 @@ public:
       size_t dims = dim.getSize();
       Dimensions.push_back(dims);
 
-      Progress("Dim is " + str(dims) + " of " + str(numDims) + " with name " + dim.getName());
+      Debug("Dim is " + str(dims) + " of " + str(numDims) + " with name " + dim.getName());
       CoordinateNames.push_back(dim.getName());
 
       // NcVar tempvar=iFile.getVar(dim.getName());
@@ -109,23 +109,23 @@ public:
 
     auto tempvector = new double[CoordinateDimensions[i]];
 
-    Progress("into extractCoordinates");
-    Progress(Coordinates[i].getName());
+    Debug("into extractCoordinates");
+    Debug(Coordinates[i].getName());
 
     Coordinates[i].getVar(tempvector);
 
-    Progress("Got em" + str(CoordinateDimensions[i]));
-    Progress(str(tempvector[0]));
+    Debug("Got em" + str(CoordinateDimensions[i]));
+    Debug(str(tempvector[0]));
     // iVector.push_back(tempvector);
 
-    Progress("Got em all");
+    Debug("Got em all");
     delete[] tempvector;
     tempvector = nullptr;
   }
   void getOrigin(NcVar &iData)
   {
     NcGroup group = iData.getParentGroup();
-    Progress(str(group.getAttCount()));
+    Debug(str(group.getAttCount()));
     std::multimap<std::string, NcGroupAtt> myMap;
     std::multimap<std::string, NcGroupAtt>::iterator itr;
     std::map<std::string, NcGroup> myCoordMap;
@@ -133,42 +133,42 @@ public:
     myCoordMap = group.getCoordVars();
     for (citr = myCoordMap.begin(); citr != myCoordMap.end(); ++citr)
     {
-      Progress("Coordinates");
-      Progress(citr->first);
+      Debug("Coordinates");
+      Debug(citr->first);
     }
     myMap = group.getAtts();
     int counter = 0;
     for (itr = myMap.begin(); itr != myMap.end(); ++itr)
     {
-      Progress(str(counter) + " " + itr->first + " " + itr->second.getName());
+      Debug(str(counter) + " " + itr->first + " " + itr->second.getName());
       counter++;
       NcType type = itr->second.getType();
-      Progress(type.getName());
+      Debug(type.getName());
       if (type.getName() == "char")
-        Progress(" char found");
+        Debug(" char found");
       if (itr->first == "origin_x")
       {
-        Progress(" X origin found");
+        Debug(" X origin found");
         double *originx = new double[itr->second.getAttLength()];
         itr->second.getValues(originx);
         Origin.push_back(originx[0]);
-        Progress(str(originx[0]));
+        Debug(str(originx[0]));
       }
       if (itr->first == "origin_y")
       {
-        Progress(" y origin found");
+        Debug(" y origin found");
         double *originy = new double[itr->second.getAttLength()];
         itr->second.getValues(originy);
         Origin.push_back(originy[0]);
-        Progress(str(originy[0]));
+        Debug(str(originy[0]));
       }
       if (itr->first == "origin_z")
       {
-        Progress(" z origin found");
+        Debug(" z origin found");
         double *originz = new double[itr->second.getAttLength()];
         itr->second.getValues(originz);
         Origin.push_back(originz[0]);
-        Progress(str(originz[0]));
+        Debug(str(originz[0]));
       }
     }
   }
@@ -204,7 +204,7 @@ public:
     {
       if (Coordinates[i].getName() != Name)
       {
-        Progress(Coordinates[i].getName());
+        Debug(Coordinates[i].getName());
         ;
         tempPtr.reset(new double[CoordinateDimensions[i]]);
         Coordinates[i].getVar(tempPtr.get());

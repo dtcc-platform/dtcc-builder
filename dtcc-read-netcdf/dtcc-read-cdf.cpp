@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   std::string fileout = argv[2];
   std::string filein = argv[1];
   nlohmann::json json;
-  Progress("I am here");
+  Debug("I am here");
   // PostProcessParameters ppparameters;
   json["Type"] = "NetCDF4Parsed";
   // JSON::Read(ppparameters, argv[3]);
@@ -53,9 +53,9 @@ int main(int argc, char *argv[])
   json["Variable"] = argv[3];
   // std::cout << ppparameters << std::endl;
   NcDim dim;
-  Progress("I am here 2");
+  Debug("I am here 2");
   NcFile dataFile(filein, NcFile::read);
-  Progress("I am here 3");
+  Debug("I am here 3");
   // NcVar datau = dataFile.getVar(ppparameters.Variable.c_str());
   NcVar datau = dataFile.getVar(argv[3]);
   NcType type = datau.getType();

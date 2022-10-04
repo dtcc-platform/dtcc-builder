@@ -1,11 +1,13 @@
 // Copyright (C) 2020 ReSpace AB
 // Licensed under the MIT License
+//
+// Simple logging system for use in DTCC C++ code modeled
+// after the standard Python logging module.
 
 #ifndef DTCC_LOGGING_H
 #define DTCC_LOGGING_H
 
 #include <ctime>
-#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -15,17 +17,15 @@ namespace DTCC
   // Log levels
   enum LogLevels
   {
-    PROGRESS = 0,
-    INFO = 1,
-    WARNING = 2,
-    ERROR = 3
+    DEBUG = 10,
+    INFO = 20,
+    WARNING = 30,
+    ERROR = 40,
+    PROGRESS = 25
   };
 
   // Global log level
-  LogLevels LogLevel = PROGRESS;
-
-  // Global log file
-  std::ofstream logFile;
+  LogLevels __log_level__ = INFO;
 
   // Interface for printable objects
   class Printable
@@ -34,20 +34,16 @@ namespace DTCC
     virtual std::string __str__() const = 0;
   };
 
+  // Format message
+  std::string __format__(const std::string& message)
+  {
+    return message;
+  }
+
   // Print message to stdout
   void __print__(const std::string& message)
   {
-    std::cout << message << std::endl;
-  }
-
-  // Print message
-  void __print_logfile__(const std::string& message, bool closeLogFile=false)
-  {
-    if (logFile)
-    {
-      logFile << message << std::endl;
-      if (closeLogFile) logFile.close();
-    }
+    std::cout << __format__(message) << std::endl;
   }
 
   /// Return current time (as a string)
@@ -61,63 +57,48 @@ namespace DTCC
     return asctime(ti);
   }
 
-  // Print information message
-  void Info(const std::string &message = "")
+  // Set log level
+  void set_log_level(LogLevels log_level)
   {
-    if (LogLevel <= INFO)
-      __print__(message);
-    __print_logfile__(message);
+    __log_level__ = log_level;
   }
 
-  // Print information about printable object
+  // Print message at given log level
+  void log(int log_level, const std::string &message = "")
+  {
+    if (log_level >= __log_level__)
+      __print__(message);
+  }
+
+  // Print debug message
+  void Debug(const std::string& message)
+  {
+    log(DEBUG, message);
+  }
+
+  // Print information message (string)
+  void Info(const std::string &message = "")
+  {
+    log(INFO, message);
+  }
+
+  // Print information message (printable object)
   void Info(const Printable &printable)
   {
     Info(printable.__str__());
   }
 
-  // Print progress message
-  void Progress(const std::string& message)
-  {
-    if (LogLevel <= PROGRESS)
-      __print__(message);
-    __print_logfile__(message);
-  }
-
   // Print warning message
   void Warning(const std::string& message)
   {
-    const std::string msg = "Warning: " + message;
-    if (LogLevel <= WARNING)
-      __print__(msg);
-    __print_logfile__(msg);
+    log(WARNING, message);
   }
 
   // Print error message and throw exception
   void Error(const std::string& message)
   {
-    const std::string msg = "Error: " + message;
-    if (LogLevel <= ERROR)
-      __print__(msg);
-    __print_logfile__(msg, true);
+    log(ERROR, message);
     throw std::runtime_error(message);
-  }
-
-  // Set log level
-  void SetLogLevel(LogLevels logLevel)
-  {
-    LogLevel = logLevel;
-  }
-
-  // Set log file
-  void SetLogFile(const std::string& fileName, bool append=false)
-  {
-    if (append)
-      logFile.open(fileName, std::ofstream::out | std::ofstream::app);
-    else
-      logFile.open(fileName, std::ofstream::out);
-    if (!logFile)
-      Error("Unable to write to logfile " + fileName);
-    logFile << std::endl << "Time: " << CurrentTime();
   }
 
   // Convert printable object to string
@@ -148,7 +129,6 @@ namespace DTCC
   {
     std::ostringstream out;
     out.precision(precision);
-    // out << std::scientific << x;
     out << std::defaultfloat << x;
     return out.str();
   }

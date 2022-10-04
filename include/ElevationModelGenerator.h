@@ -84,7 +84,7 @@ public:
     dem.Grid.YStep = (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) /
                      (dem.Grid.YSize - 1);
 
-    Progress("ElevationModelGenerator: Computing mean elevation");
+    Debug("ElevationModelGenerator: Computing mean elevation");
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
@@ -109,7 +109,7 @@ public:
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
-    Progress("ElevationModelGenerator: Extracting point cloud data");
+    Debug("ElevationModelGenerator: Extracting point cloud data");
 
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
@@ -175,7 +175,7 @@ public:
     // Compute mean elevation
     meanElevation /= static_cast<double>(numInside);
 
-    Progress("ElevationModelGenerator: Computing local mean elevation");
+    Debug("ElevationModelGenerator: Computing local mean elevation");
 
     // Compute mean of elevations for each grid point
     std::vector<size_t> missingIndices;
@@ -192,7 +192,7 @@ public:
     if (numMissing == numGridPoints)
       throw std::runtime_error("No points inside height map domain.");
 
-    Progress("ElevationModelGenerator: Filling in missing grid points (" +
+    Debug("ElevationModelGenerator: Filling in missing grid points (" +
              str(numMissing) + "/" + str(numGridPoints) + ")");
 
     // Reuse vector numLocalPoints to indicate which points have been
