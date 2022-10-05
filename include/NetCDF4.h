@@ -31,21 +31,21 @@ public:
   // T *Vector;
   explicit NetCDF4(size_t size)
   {
-    Info("Creating new NetCDF4 with known size " + str(size));
+    info("Creating new NetCDF4 with known size " + str(size));
     // Vector = new T[size];
     // Pointer.reset(new T[Size]);
     // Size = size;
   }
   NetCDF4()
   {
-    Info("Creating new NetCDF4 without known size");
+    info("Creating new NetCDF4 without known size");
 
     Size = 0;
   }
   ~NetCDF4()
   {
-    Info("Destroying NetCDF4");
-    Info("Size is " + str(Size));
+    info("Destroying NetCDF4");
+    info("Size is " + str(Size));
     /*if (Size!=0)
         {
         delete Vector;
@@ -84,7 +84,7 @@ public:
       size_t dims = dim.getSize();
       Dimensions.push_back(dims);
 
-      Debug("Dim is " + str(dims) + " of " + str(numDims) + " with name " + dim.getName());
+      debug("Dim is " + str(dims) + " of " + str(numDims) + " with name " + dim.getName());
       CoordinateNames.push_back(dim.getName());
 
       // NcVar tempvar=iFile.getVar(dim.getName());
@@ -109,23 +109,23 @@ public:
 
     auto tempvector = new double[CoordinateDimensions[i]];
 
-    Debug("into extractCoordinates");
-    Debug(Coordinates[i].getName());
+    debug("into extractCoordinates");
+    debug(Coordinates[i].getName());
 
     Coordinates[i].getVar(tempvector);
 
-    Debug("Got em" + str(CoordinateDimensions[i]));
-    Debug(str(tempvector[0]));
+    debug("Got em" + str(CoordinateDimensions[i]));
+    debug(str(tempvector[0]));
     // iVector.push_back(tempvector);
 
-    Debug("Got em all");
+    debug("Got em all");
     delete[] tempvector;
     tempvector = nullptr;
   }
   void getOrigin(NcVar &iData)
   {
     NcGroup group = iData.getParentGroup();
-    Debug(str(group.getAttCount()));
+    debug(str(group.getAttCount()));
     std::multimap<std::string, NcGroupAtt> myMap;
     std::multimap<std::string, NcGroupAtt>::iterator itr;
     std::map<std::string, NcGroup> myCoordMap;
@@ -133,42 +133,42 @@ public:
     myCoordMap = group.getCoordVars();
     for (citr = myCoordMap.begin(); citr != myCoordMap.end(); ++citr)
     {
-      Debug("Coordinates");
-      Debug(citr->first);
+      debug("Coordinates");
+      debug(citr->first);
     }
     myMap = group.getAtts();
     int counter = 0;
     for (itr = myMap.begin(); itr != myMap.end(); ++itr)
     {
-      Debug(str(counter) + " " + itr->first + " " + itr->second.getName());
+      debug(str(counter) + " " + itr->first + " " + itr->second.getName());
       counter++;
       NcType type = itr->second.getType();
-      Debug(type.getName());
+      debug(type.getName());
       if (type.getName() == "char")
-        Debug(" char found");
+        debug(" char found");
       if (itr->first == "origin_x")
       {
-        Debug(" X origin found");
+        debug(" X origin found");
         double *originx = new double[itr->second.getAttLength()];
         itr->second.getValues(originx);
         Origin.push_back(originx[0]);
-        Debug(str(originx[0]));
+        debug(str(originx[0]));
       }
       if (itr->first == "origin_y")
       {
-        Debug(" y origin found");
+        debug(" y origin found");
         double *originy = new double[itr->second.getAttLength()];
         itr->second.getValues(originy);
         Origin.push_back(originy[0]);
-        Debug(str(originy[0]));
+        debug(str(originy[0]));
       }
       if (itr->first == "origin_z")
       {
-        Debug(" z origin found");
+        debug(" z origin found");
         double *originz = new double[itr->second.getAttLength()];
         itr->second.getValues(originz);
         Origin.push_back(originz[0]);
-        Debug(str(originz[0]));
+        debug(str(originz[0]));
       }
     }
   }
@@ -178,7 +178,7 @@ public:
     // Coordinates[0].getVar(CoordinatesName[0]);
     for (size_t i = 0; i < Coordinates.size(); i++)
     {
-      Info("Coordinate Name " + Coordinates[i].getName());
+      info("Coordinate Name " + Coordinates[i].getName());
     }
   }
 
@@ -204,7 +204,7 @@ public:
     {
       if (Coordinates[i].getName() != Name)
       {
-        Debug(Coordinates[i].getName());
+        debug(Coordinates[i].getName());
         ;
         tempPtr.reset(new double[CoordinateDimensions[i]]);
         Coordinates[i].getVar(tempPtr.get());

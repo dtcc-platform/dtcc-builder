@@ -196,7 +196,7 @@ namespace DTCC
     {
       // Check that point is inside domain
       if (!Geometry::BoundingBoxContains2D(BoundingBox, p))
-        Error("Point p = " + str(p) + " is outside of domain = " + str(BoundingBox));
+        error("Point p = " + str(p) + " is outside of domain = " + str(BoundingBox));
 
       // Compute grid cell containing point (lower left corner)
       const double _x = p.x - BoundingBox.P.x;
@@ -355,7 +355,7 @@ namespace DTCC
     {
       // Check that point is inside domain
       if (!Geometry::BoundingBoxContains3D(BoundingBox, p))
-        Error("Point p = " + str(p) + " is outside of domain = " + str(BoundingBox));
+        error("Point p = " + str(p) + " is outside of domain = " + str(BoundingBox));
 
       // Compute grid cell containing point (lower left corner)
       const double _x = p.x - BoundingBox.P.x;

@@ -179,11 +179,11 @@ aiScene *generatePlane()
 /* Vertices getter & printer                                            */
 /************************************************************************/
 
-std::vector<aiVector3D> getMeshVertices(const aiMesh& mesh) 
+std::vector<aiVector3D> getMeshVertices(const aiMesh& mesh)
 {
   std::vector<aiVector3D> vertices;
   uint vertexNum = mesh.mNumVertices;
-    
+
   for(uint i=0;i<vertexNum;i++)
   {
     vertices.push_back(mesh.mVertices[i]);
@@ -191,12 +191,12 @@ std::vector<aiVector3D> getMeshVertices(const aiMesh& mesh)
   return vertices;
 }
 
-void printVertices(const std::vector<aiVector3D>& vertices) 
+void printVertices(const std::vector<aiVector3D>& vertices)
 {
   uint counter=0;
   for(auto it=vertices.begin();it!=vertices.end();++it,counter++)
   {
-    Info("Vertex " + str(counter) + ": {" + str((*it).x) + "," + str((*it).y) + "," + str((*it).z) + "}");
+    info("Vertex " + str(counter) + ": {" + str((*it).x) + "," + str((*it).y) + "," + str((*it).z) + "}");
   }
 }
 
@@ -205,7 +205,7 @@ void printVertices(const std::vector<aiVector3D>& vertices)
 /* Normals getter & printer                                             */
 /************************************************************************/
 
-std::vector<aiVector3D> getMeshNormals(const aiMesh& mesh) 
+std::vector<aiVector3D> getMeshNormals(const aiMesh& mesh)
 {
   std::vector<aiVector3D> normals;
   uint normalsNum = mesh.mNumVertices;
@@ -224,7 +224,7 @@ void printNormals(const std::vector<aiVector3D>& normals)
   uint counter = 0;
   for (auto it = normals.begin(); it != normals.end(); ++it, counter++)
   {
-    Info("Normal " + str(counter) + ": {" + str((*it).x) + "," + str((*it).y) + "," + str((*it).z) + "}");
+    info("Normal " + str(counter) + ": {" + str((*it).x) + "," + str((*it).y) + "," + str((*it).z) + "}");
   }
 }
 
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
 
   if (cubeScene)
   {
-    Info(" valid cube scene with # " + str(cubeScene->mNumMeshes) + " of meshes!");
+    info(" valid cube scene with # " + str(cubeScene->mNumMeshes) + " of meshes!");
 
     //Get the first mesh
 
@@ -260,11 +260,11 @@ int main(int argc, char *argv[])
   }
   else
   {
-    Error(importer.GetErrorString());
+    error(importer.GetErrorString());
   }
 
-  Info(str(cubeScene->mRootNode->mNumChildren));
-  Info(str(cubeScene->mRootNode->mNumMeshes));
+  info(str(cubeScene->mRootNode->mNumChildren));
+  info(str(cubeScene->mRootNode->mNumMeshes));
   // aiMesh *newMesh = cubeScene->mRootNode->aiNode->mMeshes[0];
 
   /*

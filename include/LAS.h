@@ -32,7 +32,7 @@ public:
                    const std::string &fileName,
                    bool extraData = false)
   {
-    Info(str("LAS: ") + str("Reading point cloud from file ") + fileName);
+    info(str("LAS: ") + str("Reading point cloud from file ") + fileName);
     std::vector<liblas::FilterPtr> filters;
     _Read(pointCloud, fileName, filters, extraData);
   }
@@ -43,7 +43,7 @@ public:
                    const BoundingBox2D &bbox,
                    bool extraData = false)
   {
-    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " +
+    info("LAS: Reading point cloud from file: " + fileName + " bounded by " +
          str(bbox));
 
     liblas::Bounds<double> bounds;
@@ -72,7 +72,7 @@ public:
                    bool extraData = false)
   {
 
-    Info("LAS: Reading point cloud from file: " + fileName + " bounded by " +
+    info("LAS: Reading point cloud from file: " + fileName + " bounded by " +
          str(bbox));
     std::vector<liblas::FilterPtr> filters;
     filters.push_back(MakeClassFilter(classifications));
@@ -88,7 +88,7 @@ public:
     std::string dir{directoryName};
     if (!Utils::EndsWith(dir, "/"))
       dir += "/";
-    Info("Reading all .las and .laz files from directory " + dir + "...");
+    info("Reading all .las and .laz files from directory " + dir + "...");
     for (auto const &f : Filesystem::ListDirectory(dir))
       if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
         Read(pointCloud, f, extraData);
@@ -104,7 +104,7 @@ public:
     std::string dir{directoryName};
     if (!Utils::EndsWith(dir, "/"))
       dir += "/";
-    Info("Reading all .las and .laz files from directory " + dir + "...");
+    info("Reading all .las and .laz files from directory " + dir + "...");
     for (auto const &f : Filesystem::ListDirectory(dir))
       if (Utils::EndsWith(f, ".las") || Utils::EndsWith(f, ".laz"))
         Read(pointCloud, f, bbox, extraData);
@@ -159,7 +159,7 @@ public:
   /// Write point cloud to file
   static void Write(const PointCloud &pointCloud, const std::string &fileName)
   {
-    Info("LAS: Writing " + str(pointCloud.Points.size()) + " points to " +
+    info("LAS: Writing " + str(pointCloud.Points.size()) + " points to " +
          fileName);
 
     std::ofstream ofs;
@@ -240,7 +240,7 @@ private:
     const size_t numPoints = header.GetPointRecordsCount();
     const std::string compression =
         (isCompressed ? "Compressed" : "Uncompressed");
-    Info("LAS: " + compression + ", " + signature + ", " + str(numPoints) +
+    info("LAS: " + compression + ", " + signature + ", " + str(numPoints) +
          " points");
 
     // Iterate over points
@@ -293,7 +293,7 @@ private:
       readPoints++;
     }
 
-    Info("LAS: Found " + str(readPoints) + " points matching given filters");
+    info("LAS: Found " + str(readPoints) + " points matching given filters");
   }
 };
 } // namespace DTCC

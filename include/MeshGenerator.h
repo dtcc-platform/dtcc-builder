@@ -44,17 +44,17 @@ namespace DTCC
                                const BoundingBox2D &boundingBox,
                                double resolution)
     {
-      Info("MeshGenerator: Generating 2D mesh...");
+      info("MeshGenerator: Generating 2D mesh...");
       Timer timer("GenerateMesh2D");
 
       // Print some stats
       const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
       const size_t ny = (boundingBox.Q.y - boundingBox.P.y) / resolution;
       const size_t n = nx * ny;
-      Info("MeshGenerator: Domain bounding box is " + str(boundingBox));
-      Info("MeshGenerator: Mesh resolution is " + str(resolution));
-      Info("MeshGenerator: Estimated number of triangles is " + str(n));
-      Info("MeshGenerator: Number of subdomains (buildings) is " +
+      info("MeshGenerator: Domain bounding box is " + str(boundingBox));
+      info("MeshGenerator: Mesh resolution is " + str(resolution));
+      info("MeshGenerator: Estimated number of triangles is " + str(n));
+      info("MeshGenerator: Number of subdomains (buildings) is " +
            str(cityModel.Buildings.size()));
 
       // Extract subdomains (building footprints)
@@ -92,7 +92,7 @@ namespace DTCC
                                  double domainHeight,
                                  double meshResolution)
     {
-      Info("MeshGenerator: Generating 3D mesh...");
+      info("MeshGenerator: Generating 3D mesh...");
       Timer timer("GenerateMesh3D");
 
       // Compute number of layers
@@ -100,7 +100,7 @@ namespace DTCC
       const double dz = domainHeight / double(numLayers);
       const size_t layerSize = mesh2D.Vertices.size();
 
-      Info("MeshGenerator: Generating 3D mesh with " + str(numLayers) +
+      info("MeshGenerator: Generating 3D mesh with " + str(numLayers) +
            " layers...");
 
       // Resize 3D mesh
@@ -179,7 +179,7 @@ namespace DTCC
                            const CityModel &cityModel,
                            size_t numLayers)
     {
-      Info("MeshGenerator: Trimming 3D mesh...");
+      info("MeshGenerator: Trimming 3D mesh...");
       Timer timer("TrimMesh3D");
 
       // Create markers for all cells that should be kept
@@ -317,7 +317,7 @@ namespace DTCC
                                    const GridField2D &dtm,
                                    double resolution)
     {
-      Info("MeshGenerator: Generating 3D surface meshes...");
+      info("MeshGenerator: Generating 3D surface meshes...");
       Timer timer("GenerateSurfaces3D");
 
       // Create empty subdomains for Triangle mesh generation
@@ -334,7 +334,7 @@ namespace DTCC
       boundary.push_back(Point2D(bbox.P.x, bbox.Q.y));
 
       // Generate 2D mesh of domain
-      Info("MeshGenerator: Generating ground surface");
+      info("MeshGenerator: Generating ground surface");
       Mesh2D mesh2D;
       CallTriangle(mesh2D, boundary, subDomains, resolution, false);
 
@@ -352,7 +352,7 @@ namespace DTCC
       }
 
       // Displace ground surface
-      Info("MeshGenerator: Displacing ground surface");
+      info("MeshGenerator: Displacing ground surface");
 
       // Fill all points with maximum height. This is used to
       // always choose the smallest height for each point since
@@ -397,7 +397,7 @@ namespace DTCC
       const double groundHeight = dtm.Min();
 
       // Iterate over buildings to generate surfaces
-      Info("MeshGenerator: Generating building surfaces");
+      info("MeshGenerator: Generating building surfaces");
       for (auto const &building : cityModel.Buildings)
       {
         // FIXME: Consider making flipping triangles upside-down here
@@ -652,9 +652,9 @@ namespace DTCC
     // Print triangle I/O data
     static void PrintTriangleIO(const struct triangulateio& io)
     {
-      Info("Triangle I/O data: ");
-      Info("  pointlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointlist)));
-      Info("  pointmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointmarkerlist)));
+      info("Triangle I/O data: ");
+      info("  pointlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointlist)));
+      info("  pointmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointmarkerlist)));
       if (io.pointmarkerlist)
       {
         std::stringstream stringBuilder{};
@@ -662,19 +662,19 @@ namespace DTCC
         for (int i = 0; i < io.numberofpoints; i++)
           stringBuilder << " " << io.pointmarkerlist[i];
         stringBuilder << std::endl;
-        Info(stringBuilder.str());
+        info(stringBuilder.str());
       }
-      Info("  numberofpoints = " + str(io.numberofpoints));
-      Info("  numberofpointattributes = " + str(io.numberofpointattributes));
-      Info("  trianglelist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglelist)));
-      Info("  triangleattributelist = " + str(reinterpret_cast<std::uintptr_t>(io.triangleattributelist)));
-      Info("  trianglearealist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglearealist)));
-      Info("  neighborlist = " + str(reinterpret_cast<std::uintptr_t>(io.neighborlist)));
-      Info("  numberoftriangles = " + str(io.numberoftriangles));
-      Info("  numberofcorners = " + str(io.numberofcorners));
-      Info("  numberoftriangleattributes = " + str(io.numberoftriangleattributes));
-      Info("  segmentlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentlist)));
-      Info("  segmentmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentmarkerlist)));
+      info("  numberofpoints = " + str(io.numberofpoints));
+      info("  numberofpointattributes = " + str(io.numberofpointattributes));
+      info("  trianglelist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglelist)));
+      info("  triangleattributelist = " + str(reinterpret_cast<std::uintptr_t>(io.triangleattributelist)));
+      info("  trianglearealist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglearealist)));
+      info("  neighborlist = " + str(reinterpret_cast<std::uintptr_t>(io.neighborlist)));
+      info("  numberoftriangles = " + str(io.numberoftriangles));
+      info("  numberofcorners = " + str(io.numberofcorners));
+      info("  numberoftriangleattributes = " + str(io.numberoftriangleattributes));
+      info("  segmentlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentlist)));
+      info("  segmentmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentmarkerlist)));
       if (io.segmentmarkerlist)
       {
         std::stringstream stringBuilder{};
@@ -682,23 +682,23 @@ namespace DTCC
         for (int i = 0; i < io.numberofsegments; i++)
           stringBuilder << " " << io.segmentmarkerlist[i];
         stringBuilder << std::endl;
-        Info(stringBuilder.str());
+        info(stringBuilder.str());
       }
-      Info("  numberofsegments = " + str(io.numberofsegments));
-      Info("  holelist = " + str(reinterpret_cast<std::uintptr_t>(io.holelist)));
-      Info("  numberofholes = " + str(io.numberofholes));
-      Info("  regionlist = " + str(reinterpret_cast<std::uintptr_t>(io.regionlist)));
-      Info("  numberofregions = " + str(io.numberofregions));
-      Info("  edgelist = " + str(reinterpret_cast<std::uintptr_t>(io.edgelist)));
-      Info("  edgemarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.edgemarkerlist)));
-      Info("  normlist = " + str(reinterpret_cast<std::uintptr_t>(io.normlist)));
-      Info("  numberofedges = " + str(io.numberofedges));
+      info("  numberofsegments = " + str(io.numberofsegments));
+      info("  holelist = " + str(reinterpret_cast<std::uintptr_t>(io.holelist)));
+      info("  numberofholes = " + str(io.numberofholes));
+      info("  regionlist = " + str(reinterpret_cast<std::uintptr_t>(io.regionlist)));
+      info("  numberofregions = " + str(io.numberofregions));
+      info("  edgelist = " + str(reinterpret_cast<std::uintptr_t>(io.edgelist)));
+      info("  edgemarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.edgemarkerlist)));
+      info("  normlist = " + str(reinterpret_cast<std::uintptr_t>(io.normlist)));
+      info("  numberofedges = " + str(io.numberofedges));
     }
 
     // Compute domain markers for subdomains
     static void ComputeDomainMarkers(Mesh2D & mesh, const CityModel & cityModel)
     {
-      Info("MeshGenerator: Computing domain markers");
+      info("MeshGenerator: Computing domain markers");
       Timer timer("ComputeDomainMarkers");
 
       // Build search tree for city model

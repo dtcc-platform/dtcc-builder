@@ -1,8 +1,13 @@
 // Copyright (C) 2020 ReSpace AB
 // Licensed under the MIT License
 //
-// Simple logging system for use in DTCC C++ code modeled
-// after the standard Python logging module.
+// Simple logging system for use in DTCC C++ code modeled after the standard
+// standard Python logging module with the following configuration:
+//
+// import logging
+// format = "%(asctime)s [%(name)s] [%(levelname)s] %(message)s"
+// logging.basicConfig(format=format)
+// logging.addLevelName(25, 'PROGRESS')
 
 #ifndef DTCC_LOGGING_H
 #define DTCC_LOGGING_H
@@ -67,22 +72,22 @@ namespace DTCC
     switch(log_level)
     {
     case DEBUG:
-      level = "[DEBUG   ]";
+      level = "[DEBUG]";
       break;
     case INFO:
-      level = "[INFO    ]";
+      level = "[INFO]";
       break;
     case WARNING:
-      level = "[WARNING ]";
+      level = "[WARNING]";
       break;
     case ERROR:
-      level = "[ERROR   ]";
+      level = "[ERROR]";
       break;
     case PROGRESS:
       level = "[PROGRESS]";
       break;
     default:
-      level = "[        ]";
+      level = "[UNKNOWN]";
     };
 
     return current_time() + " " + component + " " + level + " " + message;
@@ -115,25 +120,25 @@ namespace DTCC
   }
 
   // Print debug message
-  void Debug(const std::string& message)
+  void debug(const std::string& message)
   {
     log(DEBUG, message);
   }
 
   // Print information message (string)
-  void Info(const std::string &message = "")
+  void info(const std::string &message = "")
   {
     log(INFO, message);
   }
 
   // Print warning message
-  void Warning(const std::string& message)
+  void warning(const std::string& message)
   {
     log(WARNING, message);
   }
 
   // Print error message and throw exception
-  void Error(const std::string& message)
+  void error(const std::string& message)
   {
     log(ERROR, message);
     throw std::runtime_error(message);

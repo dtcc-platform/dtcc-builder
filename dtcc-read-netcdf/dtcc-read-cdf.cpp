@@ -18,7 +18,7 @@ using namespace DTCC;
 
 void Help()
 {
-  Error("Usage: vc-read-netcdf filein.nc fileout.json variable");
+  error("Usage: vc-read-netcdf filein.nc fileout.json variable");
 }
 
 void unflatted(int height, int width, int depth, int index)
@@ -30,9 +30,9 @@ void unflatted(int height, int width, int depth, int index)
                                                                      // y
   int depth_index =
       index - width_index * height * depth - height_index * depth; // This is z
-  Info(str(height_index));
-  Info(str(width_index));
-  Info(str(depth_index));
+  info(str(height_index));
+  info(str(width_index));
+  info(str(depth_index));
 }
 
 int main(int argc, char *argv[])
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   std::string fileout = argv[2];
   std::string filein = argv[1];
   nlohmann::json json;
-  Debug("I am here");
+  debug("I am here");
   // PostProcessParameters ppparameters;
   json["Type"] = "NetCDF4Parsed";
   // JSON::Read(ppparameters, argv[3]);
@@ -53,9 +53,9 @@ int main(int argc, char *argv[])
   json["Variable"] = argv[3];
   // std::cout << ppparameters << std::endl;
   NcDim dim;
-  Debug("I am here 2");
+  debug("I am here 2");
   NcFile dataFile(filein, NcFile::read);
-  Debug("I am here 3");
+  debug("I am here 3");
   // NcVar datau = dataFile.getVar(ppparameters.Variable.c_str());
   NcVar datau = dataFile.getVar(argv[3]);
   NcType type = datau.getType();

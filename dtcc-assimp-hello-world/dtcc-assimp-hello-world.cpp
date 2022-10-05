@@ -1,5 +1,5 @@
 // vc-assimp-hello-world
-// Orfeas Eleftheriou 2020 
+// Orfeas Eleftheriou 2020
 // Licensed under the MIT License
 
 #include <iostream>
@@ -15,12 +15,12 @@
 #include "datamodel/CityModel.h"
 
 //Assimp includes
-#include <assimp/Importer.hpp>      
+#include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>
-#include <assimp/scene.h>           
+#include <assimp/scene.h>
 #include <assimp/mesh.h>
 #include <assimp/vector3.h>
-#include <assimp/postprocess.h>     
+#include <assimp/postprocess.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/material.h>
 
@@ -30,14 +30,14 @@ aiVector3D* generatePlaneVertices()
 {
     // std::vector<aiVector3D> vertices;
     // vertices.push_back(aiVector3D(-1,-1,0));
-    // vertices.push_back(aiVector3D(1,-1,0));    
-    // vertices.push_back(aiVector3D(1,1,0));    
+    // vertices.push_back(aiVector3D(1,-1,0));
+    // vertices.push_back(aiVector3D(1,1,0));
     // vertices.push_back(aiVector3D(-1,1,0));
     // return vertices;
     aiVector3D* vertices=new aiVector3D[4];
     vertices[0]=aiVector3D(-1,-1,0);
-    vertices[1]=aiVector3D(1,-1,0);    
-    vertices[2]=aiVector3D(1,1,0);    
+    vertices[1]=aiVector3D(1,-1,0);
+    vertices[2]=aiVector3D(1,1,0);
     vertices[3]=aiVector3D(-1,1,0);
     return vertices;
 }
@@ -162,7 +162,7 @@ aiScene* generatePlane()
 
         //Create a single solid material for the plane
         plane->mMaterials=new aiMaterial*[1];
-        plane->mMaterials[0]=generatePlaneMaterial();    
+        plane->mMaterials[0]=generatePlaneMaterial();
         plane->mNumMaterials=1;
 
         //Store mesh
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 {
     // Check command-line arguments
     //std::cout << "Hello World!"<<std::endl;
-  
+
     Assimp::Exporter* TestExporter=new Assimp::Exporter();
 
     aiScene* planeScene = generatePlane();
@@ -186,13 +186,13 @@ int main(int argc, char *argv[])
     int result = TestExporter->Export(planeScene,"obj",fileName);
     if(result==0)
     {
-      Info("File exported successfully: " + fileName);
+      info("File exported successfully: " + fileName);
     }
     else
     {
-      Error("There was an error in file export");
-      Error("Error:" + str(TestExporter->GetErrorString()));
+      error("There was an error in file export");
+      error(str(TestExporter->GetErrorString()));
     }
-    
+
     return 0;
 }

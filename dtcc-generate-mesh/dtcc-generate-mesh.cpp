@@ -24,7 +24,7 @@
 
 using namespace DTCC;
 
-void Help() { Error("Usage: dtcc-generate-simulation-mesh Parameters.json"); }
+void Help() { error("Usage: dtcc-generate-mesh Parameters.json"); }
 
 // Generate surface meshes (non-matching, used for visualization)
 void GenerateSurfaceMeshes(const CityModel &cityModel,
@@ -85,14 +85,14 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     CityModelGenerator::SimplifyCityModel(cityModel, dtm.Grid.BoundingBox,
                                           p["MinBuildingDistance"],
                                           p["MinVertexDistance"]);
-    Info(cityModel);
+    info(cityModel);
   }
 
   // Step 2.2: Clean building footprints
   {
     Timer timer("Step 2.2: Clean building footprints");
     CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
-    Info(cityModel);
+    info(cityModel);
   }
 
   // Step 2.3: Compute building heights
@@ -100,7 +100,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 2.3: Compute building heights");
     CityModelGenerator::ComputeBuildingHeights(
         cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
-    Info(cityModel);
+    info(cityModel);
   }
 
   // Write JSON
@@ -115,7 +115,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 3.1: Generate 2D mesh");
     MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox,
                                   p["MeshResolution"]);
-    Info(mesh2D);
+    info(mesh2D);
   }
 
   // Write VTK
@@ -131,7 +131,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 3.2: Generate 3D mesh");
     numLayers = MeshGenerator::GenerateMesh3D(mesh, mesh2D, p["DomainHeight"],
                                               p["MeshResolution"]);
-    Info(mesh);
+    info(mesh);
   }
 
   // Write VTK
@@ -150,7 +150,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     topHeight = dtm.Mean() + static_cast<double>(p["DomainHeight"]);
     LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false,
                                     false);
-    Info(mesh);
+    info(mesh);
   }
 
   // Write VTK
@@ -166,7 +166,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Timer timer("Step 3.4: Trim 3D mesh");
     MeshGenerator::TrimMesh3D(mesh, mesh2D, cityModel, numLayers);
-    Info(mesh);
+    info(mesh);
   }
 
   // Write VTK
@@ -183,7 +183,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 3.5: Smooth 3D mesh");
     LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
                                     p["WriteMatrix"]);
-    Info(mesh);
+    info(mesh);
   }
 
   // Write VTK
@@ -232,18 +232,18 @@ int main(int argc, char *argv[])
   // Get directories
   const std::string dataDirectory = p["DataDirectory"];
   const std::string outputDirectory = p["OutputDirectory"];
-  Info("Loding data from directory: " + dataDirectory);
-  Info("Saving data to directory:   " + outputDirectory);
+  info("Loding data from directory: " + dataDirectory);
+  info("Saving data to directory:   " + outputDirectory);
 
   // Read city model
   CityModel cityModel;
   JSON::Read(cityModel, outputDirectory + "CityModel.json");
-  Info(cityModel);
+  info(cityModel);
 
   // Read elevation model (only DTM is used)
   GridField2D dtm;
   JSON::Read(dtm, outputDirectory + "DTM.json");
-  Info(dtm);
+  info(dtm);
 
   // Generate surface meshes (non-matching, used for visualization)
   if (p["GenerateSurfaceMeshes"])
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
   Timer::Report("Timings for dtcc-generate-mesh",
                 prefix + "-timings.json");
   JSON::Write(p, prefix + "-parameters.json", 4);
-  Info(p);
+  info(p);
 
   return 0;
 }

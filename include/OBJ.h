@@ -33,13 +33,13 @@ public:
   /// system, but flips y and z coordinates by default during import.
   static void Write(const Surface3D &surface3D, std::string fileName)
   {
-    Info("OBJ: Writing 3D surface file " + fileName + "...");
+    info("OBJ: Writing 3D surface file " + fileName + "...");
 
     // Open file
     std::ofstream f(fileName.c_str());
     if (!f)
     {
-      Error("Unable to write to file: " + fileName);
+      error("Unable to write to file: " + fileName);
     }
 
     // Write to string stream, much faster than writing directly to file

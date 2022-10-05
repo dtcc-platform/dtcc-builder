@@ -22,7 +22,7 @@ public:
   // list of vertex coordinates (3 x 3 = 9 numbers per triangle).
   static std::vector<float> Read(const std::string& filename)
   {
-    Info("STL file:   " + filename);
+    info("STL file:   " + filename);
 
     // Open file
     std::ifstream f(filename.c_str(), std::ios::in | std::ios::binary);
@@ -34,8 +34,8 @@ public:
     // Parse header and number of triangles
     std::string InfoHeader = ParseHeader(f);
     unsigned long NumTriangles = ParseUnsignedLong(f);
-    Info("STL header: " + InfoHeader);
-    Info("STL size:  " + str(NumTriangles) + " triangles");
+    info("STL header: " + InfoHeader);
+    info("STL size:  " + str(NumTriangles) + " triangles");
 
     // Initialize mesh data
     std::vector<float> Triangles(9 * NumTriangles);

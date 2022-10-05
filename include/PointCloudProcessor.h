@@ -100,7 +100,7 @@ public:
   // to do a bit more since also the colors and classifications are affected.
   static void RemoveOutliers(PointCloud &pointCloud, double outlierMargin)
   {
-    Info("PointCloudProcessor: Removing outliers...");
+    info("PointCloudProcessor: Removing outliers...");
     Timer timer("RemoveOutliers");
 
     // Write heights to file for debbuging
@@ -138,7 +138,7 @@ public:
       f.close();
     }
 
-    Info("PointCloudProcessor: " + str(outliers.size()) +
+    info("PointCloudProcessor: " + str(outliers.size()) +
          " outliers removed from point cloud");
   }
 
@@ -179,12 +179,12 @@ public:
 
     if (verbose)
     {
-      Info("PointCloudProcessor: min height = " + str(min) +
+      info("PointCloudProcessor: min height = " + str(min) +
            " m (before filtering)");
-      Info("PointCloudProcessor: max height = " + str(max) +
+      info("PointCloudProcessor: max height = " + str(max) +
            " m (before filtering)");
-      Info("PointCloudProcessor: mean height = " + str(mean) + " m");
-      Info("PointCloudProcessor: standard deviation = " + str(std) + " m");
+      info("PointCloudProcessor: mean height = " + str(mean) + " m");
+      info("PointCloudProcessor: standard deviation = " + str(std) + " m");
     }
 
     // Remove outliers (can perhaps be implemented more efficiently)
@@ -214,9 +214,9 @@ public:
 
     if (verbose)
     {
-      Info("PointCloudProcessor: min height = " + str(min) +
+      info("PointCloudProcessor: min height = " + str(min) +
            " m (after filtering)");
-      Info("PointCloudProcessor: max height = " + str(max) +
+      info("PointCloudProcessor: max height = " + str(max) +
            " m (after filtering)");
     }
 
@@ -311,7 +311,7 @@ public:
 
     double T = mean + outlierMargin * std;
 
-    // Info("T: " + str(T));
+    // info("T: " + str(T));
     for (size_t i = 0; i < u_dist_i.size(); i++)
     {
       if (u_dist_i[i] > T)
@@ -548,7 +548,7 @@ public:
     std::vector<size_t> pointsToRemove;
     if (pointCloud.ScanFlags.size() != pointCloud.Points.size())
     {
-      Warning("Scan flags not set. No vegetation filtering");
+      warning("Scan flags not set. No vegetation filtering");
       return;
     }
     bool hasClassification = false;

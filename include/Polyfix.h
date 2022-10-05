@@ -456,7 +456,7 @@ public:
     // If merge failed, return convex hull
     if (nextVertex != firstVertex)
     {
-      Warning("Polygon merge failed, falling back to convex hull.");
+      warning("Polygon merge failed, falling back to convex hull.");
       vertices.clear();
       for (const auto &p : polygon0.Vertices)
         vertices.push_back(p);
@@ -651,7 +651,7 @@ private:
       stringBuilder << "]";
     }
     stringBuilder << "]" << std::endl;
-    Info(stringBuilder.str());
+    info(stringBuilder.str());
   }
 
   // Used for debugging
@@ -666,7 +666,7 @@ private:
       stringBuilder << polygon[i];
     }
     stringBuilder << "]" << std::endl;
-    Info(stringBuilder.str());
+    info(stringBuilder.str());
   }
 };
 

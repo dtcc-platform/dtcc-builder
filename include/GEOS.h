@@ -35,14 +35,14 @@ public:
   /// Initialize GEOS, needs to be called before any other methods
   static void Init()
   {
-    Info("GEOS: Initializing");
+    info("GEOS: Initializing");
     initGEOS(geos_msg_handler, geos_msg_handler);
   }
 
   /// Finish GEOS, needs to be called to clean up resources
   static void Finish()
   {
-    Info("GEOS: Cleaning up");
+    info("GEOS: Cleaning up");
     finishGEOS();
   }
 
@@ -53,7 +53,7 @@ public:
     GEOSWKTWriter *writer = GEOSWKTWriter_create();
     GEOSWKTWriter_setTrim(writer, 1);
     char *out = GEOSWKTWriter_write(writer, geometry);
-    Info(out);
+    info(out);
 
     // Cleanup
     GEOSWKTWriter_destroy(writer);
@@ -67,7 +67,7 @@ public:
     // Check that polygon is not empty
     const size_t n = polygon.Vertices.size();
     if (n == 0)
-      Error("Unable to create GEOS polygon; polygon has no vertices");
+      error("Unable to create GEOS polygon; polygon has no vertices");
 
     // Create coordinate sequence and set coordinates. Note that first
     // vertex needs to be included both at beginning and end.
@@ -150,7 +150,7 @@ public:
     // Accept if valid
     if (IsValid(C, tol))
     {
-      // Info("Using union");
+      // info("Using union");
     }
     else
     {
@@ -205,7 +205,7 @@ public:
           // Accept if valid
           if (IsValid(C, tol))
           {
-            // Info("Using extended union");
+            // info("Using extended union");
             break;
           }
           else
@@ -237,7 +237,7 @@ public:
       // Accept if valid
       if (IsValid(C, tol))
       {
-        Warning("GEOS: Falling back to union of convex hulls");
+        warning("GEOS: Falling back to union of convex hulls");
       }
       else
       {
@@ -249,7 +249,7 @@ public:
     // If not acceptable, use convex hull of union
     if (C == 0)
     {
-      Warning("GEOS: Falling back to convex hull of union");
+      warning("GEOS: Falling back to convex hull of union");
 
       // Compute convex hull of union
       GEOSGeometry *AB = GEOSUnionPrec(A, B, EPS);
