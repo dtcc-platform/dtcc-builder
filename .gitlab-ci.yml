@@ -34,5 +34,6 @@ test:
     - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
     - pwd && ls -alt && cd build/ && ./unittests/run-unittests
     - ls -altr /builds/dtcc-platform/dtcc-builder/unittests/
+    - ls -altr /builds/dtcc-platform/dtcc-builder/bin/
   dependencies:
     - build
