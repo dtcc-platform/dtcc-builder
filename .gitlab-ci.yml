@@ -33,5 +33,6 @@ test:
     - sudo cp -R /builds/dtcc-platform/dtcc-builder/unittests/ /home/dtcc/dtcc-builder/unittests/
     - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
     - pwd && ls -alt && cd build/ && ./unittests/run-unittests
+    - ldd  /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel 
   dependencies:
     - build
