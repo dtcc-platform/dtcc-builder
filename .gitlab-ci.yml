@@ -32,8 +32,10 @@ test:
     #- %ls -altR
     - sudo cp -R /builds/dtcc-platform/dtcc-builder/unittests/ /home/dtcc/dtcc-builder/unittests/
     - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
-    - pwd && ls -alt && cd build/ && ./unittests/run-unittests
-    - ls -altr /builds/dtcc-platform/dtcc-builder/unittests/
-    - ls -altr /builds/dtcc-platform/dtcc-builder/bin/
+    #- pwd && ls -alt && cd build/ && ./unittests/run-unittests
+    #- ls -altr /builds/dtcc-platform/dtcc-builder/unittests/
+    #- ls -altr /builds/dtcc-platform/dtcc-builder/bin/
+    - ls -altr /builds/dtcc-platform/dtcc-builder
+
   dependencies:
     - build
