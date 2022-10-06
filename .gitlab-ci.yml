@@ -16,6 +16,7 @@ build:
     - pwd && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make all && make install
   artifacts:
     paths:
+      - bin/
       - build/
       - unittests/
 
@@ -31,6 +32,8 @@ test:
     #- cd /builds/
     #- %ls -altR
     - sudo cp -R /builds/dtcc-platform/dtcc-builder/unittests/ /home/dtcc/dtcc-builder/unittests/
+    - sudo cp -R /builds/dtcc-platform/dtcc-builder/bin/ /home/dtcc/dtcc-builder/bin
+    - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
     - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
     #- pwd && ls -alt && cd build/ && ./unittests/run-unittests
     #- ls -altr /builds/dtcc-platform/dtcc-builder/unittests/
