@@ -36,7 +36,7 @@ test:
     #- ls -altr /builds/dtcc-platform/dtcc-builder/unittests/
     #- ls -altr /builds/dtcc-platform/dtcc-builder/bin/
     - ls -altr /builds/dtcc-platform/dtcc-builder/bin
-    - ldd -altr /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
+    - ldd -/builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
 
   dependencies:
     - build
