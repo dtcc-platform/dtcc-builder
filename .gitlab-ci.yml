@@ -52,6 +52,9 @@ test:
     - sh ./myfile.sh
     - ls -alt
     #-ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
-
+  artifacts:
+    paths:
+      - build/
+      - unittests/
   dependencies:
     - build
