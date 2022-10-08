@@ -55,7 +55,8 @@ test:
     #-ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
   artifacts:
     paths:
-      - build/
-      - unittests/
+      - /builds/dtcc-platform/dtcc-builder/temp/
+      #- build/
+      #- unittests/
   dependencies:
     - build
