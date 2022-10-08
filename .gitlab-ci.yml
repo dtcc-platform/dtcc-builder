@@ -42,8 +42,7 @@ binaries:
       - /builds/dtcc-platform/dtcc-builder/temp/
       - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
       - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-mesh
-  dependencies:
-    - build
+  needs: [build]
 
 test:
   stage: test
