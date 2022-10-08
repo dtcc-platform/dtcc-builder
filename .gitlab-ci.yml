@@ -51,6 +51,7 @@ test:
     - cat myfile.sh
     - sh ./myfile.sh
     - ls -alt
+    - pwd
     #-ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
   artifacts:
     paths:
