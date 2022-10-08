@@ -39,7 +39,19 @@ test:
     #- ls -altr /builds/dtcc-platform/dtcc-builder/unittests/
     #- ls -altr /builds/dtcc-platform/dtcc-builder/bin/
     - ls -altr /builds/dtcc-platform/dtcc-builder/bin
-    - ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
+    - echo "
+      rm -rf temp/
+      mkdir temp/
+      ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel |cut -d \" \" -f3|grep .|grep /lib/x86_64-linux-gnu/ -v|
+      while IFS= read -r line; do
+      echo \"\$line\"
+      cp \"\$line\" temp/
+      done" > myfile.sh
+    - chmod +x myfile.sh
+    #- #sh ./myfile.sh
+    - cat myfile.sh
+    - ls -alt
+    #-ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
 
   dependencies:
     - build
