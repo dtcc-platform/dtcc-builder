@@ -5,6 +5,7 @@ image:
 stages:
   - build
   - test
+  - binaries
 
 before_script:
     - echo "Skipping since we are using Gitlab's Docker image registry"
@@ -19,6 +20,30 @@ build:
       - bin/
       - build/
       - unittests/
+
+binaries:
+  stage: binaries
+  script:
+    - echo "
+      rm -rf temp/;
+      mkdir temp/;
+      ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel |cut -d \" \" -f3|grep .|grep /lib/x86_64-linux-gnu/ -v|
+      while IFS= read -r line; do
+      echo \"\$line\";
+      cp \"\$line\" temp/;
+      done;" > myfile.sh
+    - chmod +x myfile.sh
+    - cat myfile.sh
+    - sh ./myfile.sh
+    - ls -alt
+    - pwd 
+  artifacts:
+    paths:
+      - /builds/dtcc-platform/dtcc-builder/temp/
+      - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
+      - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-mesh
+  dependencies:
+    - build
 
 test:
   stage: test
