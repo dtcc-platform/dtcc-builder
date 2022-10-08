@@ -47,39 +47,11 @@ binaries:
 test:
   stage: test
   script:
-    # - pwd && ls -alt && cd unittests/ && ls
-    #- pwd && ls -alt && cd ../data && ls -alt && bash dtcc-download-data-unittests
-    #- cd unittests/ && wget ftps://cloud.dtcc.chalmers.se/Unittests/Unittests.zip --no-check-certificate && unzip -f Unittests.zip
-    # Fix below in order to work on Docker and CI
-    #- ls -altR
     - sudo mkdir -p /home/dtcc/dtcc-builder/
     #- cd /builds/
     #- %ls -altR
     - sudo cp -R /builds/dtcc-platform/dtcc-builder/unittests/ /home/dtcc/dtcc-builder/unittests/
-    - sudo cp -R /builds/dtcc-platform/dtcc-builder/bin/ /home/dtcc/dtcc-builder/bin
     - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
-    - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
-    #- pwd && ls -alt && cd build/ && ./unittests/run-unittests
-    #- ls -altr /builds/dtcc-platform/dtcc-builder/unittests/
-    #- ls -altr /builds/dtcc-platform/dtcc-builder/bin/
-    - ls -altr /builds/dtcc-platform/dtcc-builder/bin
-    - echo "
-      rm -rf temp/;
-      mkdir temp/;
-      ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel |cut -d \" \" -f3|grep .|grep /lib/x86_64-linux-gnu/ -v|
-      while IFS= read -r line; do
-      echo \"\$line\";
-      cp \"\$line\" temp/;
-      done;" > myfile.sh
-    - chmod +x myfile.sh
-    - cat myfile.sh
-    - sh ./myfile.sh
-    - ls -alt
-    - pwd
-  artifacts:
-    paths:
-      - /builds/dtcc-platform/dtcc-builder/temp/
-      - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
-      - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-mesh
+    - pwd && ls -alt && cd build/ && ./unittests/run-unittests 
   dependencies:
     - build
