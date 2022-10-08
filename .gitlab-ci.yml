@@ -48,7 +48,7 @@ test:
       cp \"\$line\" temp/
       done" > myfile.sh
     - chmod +x myfile.sh
-    #- #sh ./myfile.sh
+    - sh ./myfile.sh
     - cat myfile.sh
     - ls -alt
     #-ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
