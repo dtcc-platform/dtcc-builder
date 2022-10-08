@@ -52,11 +52,10 @@ test:
     - sh ./myfile.sh
     - ls -alt
     - pwd
-    #-ldd /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
   artifacts:
     paths:
       - /builds/dtcc-platform/dtcc-builder/temp/
-      #- build/
-      #- unittests/
+      - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-citymodel
+      - /builds/dtcc-platform/dtcc-builder/bin/dtcc-generate-mesh
   dependencies:
     - build
