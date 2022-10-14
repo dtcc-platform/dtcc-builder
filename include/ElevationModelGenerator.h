@@ -36,17 +36,17 @@ public:
                                      const std::vector<int> &classifications,
                                      double resolution)
   {
-    Info("ElevationModelGenerator: Generating digital elevation model from "
+    info("ElevationModelGenerator: Generating digital elevation model from "
          "point cloud...");
     Timer timer("GenerateElevationModel");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
-      Error("Empty point cloud");
+      error("Empty point cloud");
 
     // Check that point cloud has classifications
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
-      Error("Missing classifications for point cloud");
+      error("Missing classifications for point cloud");
 
     // Print classifications
     if (classifications.size() > 0)
@@ -58,11 +58,11 @@ public:
         if (i + 1 < classifications.size())
           msg += ", ";
       }
-      Info(msg);
+      info(msg);
     }
     else
     {
-      Info("ElevationModelGenerator: Using all classifications");
+      info("ElevationModelGenerator: Using all classifications");
     }
 
     // FIXME: Add function Grid::Init(bbox) that takes care of this
@@ -84,7 +84,7 @@ public:
     dem.Grid.YStep = (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) /
                      (dem.Grid.YSize - 1);
 
-    Progress("ElevationModelGenerator: Computing mean elevation");
+    debug("ElevationModelGenerator: Computing mean elevation");
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
@@ -109,7 +109,7 @@ public:
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
-    Progress("ElevationModelGenerator: Extracting point cloud data");
+    debug("ElevationModelGenerator: Extracting point cloud data");
 
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
@@ -175,7 +175,7 @@ public:
     // Compute mean elevation
     meanElevation /= static_cast<double>(numInside);
 
-    Progress("ElevationModelGenerator: Computing local mean elevation");
+    debug("ElevationModelGenerator: Computing local mean elevation");
 
     // Compute mean of elevations for each grid point
     std::vector<size_t> missingIndices;
@@ -192,8 +192,8 @@ public:
     if (numMissing == numGridPoints)
       throw std::runtime_error("No points inside height map domain.");
 
-    Progress("ElevationModelGenerator: Filling in missing grid points (" +
-             str(numMissing) + "/" + str(numGridPoints) + ")");
+    debug("ElevationModelGenerator: Filling in missing grid points (" +
+          str(numMissing) + "/" + str(numGridPoints) + ")");
 
     // Reuse vector numLocalPoints to indicate which points have been
     // visited: 0 = empty, 1 = boundary, 2 = filled
@@ -250,12 +250,12 @@ public:
     // Print some stats
     const double percentMissing =
         100.0 * static_cast<double>(numMissing) / numGridPoints;
-    Info("ElevationModelGenerator: " + str(numOutliers) +
+    info("ElevationModelGenerator: " + str(numOutliers) +
          " outlier(s) ignored");
-    Info("ElevationModelGenerator: Mean elevation is " + str(meanElevation, 4) +
+    info("ElevationModelGenerator: Mean elevation is " + str(meanElevation, 4) +
          "m");
-    Info("ElevationModelGenerator: " + str(numGridPoints) + " grid points");
-    Info("ElevationModelGenerator: " + str(numMissing) +
+    info("ElevationModelGenerator: " + str(numGridPoints) + " grid points");
+    info("ElevationModelGenerator: " + str(numMissing) +
          " missing grid points (" + str(percentMissing, 3) + "%)");
     //    std::cout << "ElevationModelGenerator: "
     //        << "Maximum search distance is " << maxStep << std::endl;
@@ -282,7 +282,7 @@ public:
                                       const BoundingBox2D &bbox,
                                       double resolution)
   {
-    Info("ElevationModelGenerator: Randomizing elevation model...");
+    info("ElevationModelGenerator: Randomizing elevation model...");
 
     // Some hard-coded building dimensions
     const double H = 50.0;      // Maximum hill height

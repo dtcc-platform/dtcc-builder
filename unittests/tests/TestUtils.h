@@ -8,13 +8,13 @@ TEST_CASE("Hashing")
   SECTION("Hash Point2D")
   {
     Point2D p(1, 2);
-    Info(Hashing::Hex(Hashing::Hash(p)));
+    info(Hashing::Hex(Hashing::Hash(p)));
   }
 
   SECTION("Hash Point3D")
   {
     Point3D p(1, 2, 3);
-    Info(Hashing::Hex(Hashing::Hash(p)));
+    info(Hashing::Hex(Hashing::Hash(p)));
   }
 }
 

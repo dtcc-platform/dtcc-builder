@@ -14,7 +14,7 @@
 
 using namespace DTCC;
 
-void Help() { Error("Usage: dtcc-randomize-citymodel Parameters.json"); }
+void Help() { error("Usage: dtcc-randomize-citymodel Parameters.json"); }
 
 int main(int argc, char *argv[])
 {
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters p;
   JSON::Read(p, argv[1]);
-  Info(p);
+  info(p);
   const std::string modelName = Utils::GetFilename(argv[1], true);
 
   // Get data directory
@@ -46,10 +46,10 @@ int main(int argc, char *argv[])
   BoundingBox2D bbox{P, Q};
 
   // Check size of bounding box
-  Info("Bounding box of city model: " + str(bbox));
+  info("Bounding box of city model: " + str(bbox));
   if (bbox.Area() < 100.0)
   {
-    Error("Domain too small to generate a city model");
+    error("Domain too small to generate a city model");
     return 1;
   }
 
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   cityModel.Name = modelName;
   CityModelGenerator::RandomizeCityModel(cityModel, dtm,
                                          p["NumRandomBuildings"]);
-  Info(cityModel);
+  info(cityModel);
 
   // Clean city model
   CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
   // Report timings and parameters
   Timer::Report("dtcc-randomize-citymodel", dataDirectory);
-  Info(p);
+  info(p);
 
   return 0;
 }

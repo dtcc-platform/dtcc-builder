@@ -38,7 +38,7 @@ public:
   /// @parame fileName Filename (path)
   static void Write(const Mesh3D &mesh3D, std::string fileName)
   {
-    Info("VTK: Writing 3D mesh to file " + fileName);
+    info("VTK: Writing 3D mesh to file " + fileName);
 
     // Set vertex data
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -82,7 +82,7 @@ public:
   /// @parame fileName Filename (path)
   static void Write(const Mesh2D &mesh2D, std::string fileName)
   {
-    Info("VTK: Writing 2D mesh to file " + fileName);
+    info("VTK: Writing 2D mesh to file " + fileName);
 
     // Set vertex data
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -123,7 +123,7 @@ public:
   /// @parame fileName Filename (path)
   static void Write(const Surface3D &surface3D, std::string fileName)
   {
-    Info("VTK: Writing 3D surface mesh to file " + fileName);
+    info("VTK: Writing 3D surface mesh to file " + fileName);
 
     // Set vertex data
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -166,7 +166,7 @@ public:
   /// @parame fileName Filename (path)
   static void Write(const GridField2D &gridField2D, std::string fileName)
   {
-    Info("VTK: Writing 2D grid field to file " + fileName);
+    info("VTK: Writing 2D grid field to file " + fileName);
 
     // Set grid data
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -206,7 +206,7 @@ public:
   /// @parame fileName Filename (path)
   static void Write(const GridField3D &gridField3D, std::string fileName)
   {
-    Info("VTK: Writing 3D grid field to file " + fileName);
+    info("VTK: Writing 3D grid field to file " + fileName);
 
     // Set grid data
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();

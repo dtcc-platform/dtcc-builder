@@ -26,7 +26,7 @@
 
 using namespace DTCC;
 
-void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
+void Help() { error("Usage: dtcc-generate-citymodel Parameters.json"); }
 
 void printSet(const std::set<size_t> &setToPrint)
 {
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters p;
   JSON::Read(p, argv[1]);
-  Info(p);
+  info(p);
   const std::string modelName = Utils::GetFilename(argv[1], true);
 
   // Get data directory
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
-  Info("Loaded " + str(footprints.size()) + " building footprints");
+  info("Loaded " + str(footprints.size()) + " building footprints");
 
   // Set bounding box
   BoundingBox2D bbox;
@@ -222,10 +222,10 @@ int main(int argc, char *argv[])
   if (p["AutoDomain"])
   {
     bbox = BoundingBox2D(footprints, p["DomainMargin"]);
-    Info("Bounding box of footprints: " + str(bbox));
+    info("Bounding box of footprints: " + str(bbox));
     BoundingBox2D lasBBox;
     LAS::BoundsDirectory(lasBBox, dataDirectory);
-    Info("Bounding box of point cloud: " + str(lasBBox));
+    info("Bounding box of point cloud: " + str(lasBBox));
     bbox.Intersect(lasBBox);
     O = bbox.P;
     p["X0"] = O.x;
@@ -248,10 +248,10 @@ int main(int argc, char *argv[])
   }
 
   // Check size of bounding box
-  Info("Bounding box of city model: " + str(bbox));
+  info("Bounding box of city model: " + str(bbox));
   if (bbox.Area() < 100.0)
   {
-    Error("Domain too small to generate a city model");
+    error("Domain too small to generate a city model");
     return 1;
   }
   std::vector<double> diameters;
@@ -275,11 +275,11 @@ int main(int argc, char *argv[])
   size_t x = (bbox.Q.x - bbox.P.x) / (2 * maxdiam);
   size_t y = (bbox.Q.y - bbox.P.y) / (2 * maxdiam);
 
-  Info("X Length:" + str(xlength));
-  Info("Y Length:" + str(ylength));
+  info("X Length:" + str(xlength));
+  info("Y Length:" + str(ylength));
 
-  Info("X:" + str(x));
-  Info("Y:" + str(y));
+  info("X:" + str(x));
+  info("Y:" + str(y));
 
   size_t temp;
   std::cin >> temp;
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
   // std::set<size_t> set;
   for (int i = 0; i < footprints.size(); i++)
   {
-    Info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
+    info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
     // ins[grid.Point2Index(centers[i])]=i;
   }
 
@@ -323,10 +323,10 @@ int main(int argc, char *argv[])
     }
     std::getline(std::cin, dummy); */
   std::set<size_t> myset;
-  Info("I am here 209");
+  info("I am here 209");
   for (size_t i = 0; i < footprints.size(); i++)
   {
-    Info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
+    info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
     size_t vertexno = grid.Point2Index(centers[i]);
     // bins[grid.Point2Index(centers[i])].push_back(i);
     // myset.insert(i);
@@ -337,13 +337,13 @@ int main(int argc, char *argv[])
 
   for (size_t i = 0; i < footprints.size(); i++)
   {
-    Info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
+    info("Building " + str(i) + " " + str(grid.Point2Index(centers[i])));
     size_t vertexno = grid.Point2Index(centers[i]);
     // bins[grid.Point2Index(centers[i])].push_back(i);
     bins[vertexno].push_back(i);
     // ins[grid.Point2Index(centers[i])]=i;
   }
-  Info("Bins size is " + str(bins.size()));
+  info("Bins size is " + str(bins.size()));
   size_t sum = 0;
   for (size_t i = 0; i < bins.size(); i++)
   {
@@ -354,11 +354,11 @@ int main(int argc, char *argv[])
 
   for (size_t i = 0; i < bins.size(); i++)
   {
-    Info("Bin " + str(i) + " has size " + str(bins[i].size()) +
+    info("Bin " + str(i) + " has size " + str(bins[i].size()) +
          " and buildings: ");
     for (size_t j = 0; j < bins[i].size(); j++)
     {
-      Info(str(bins[i][j]) + " " + str(j));
+      info(str(bins[i][j]) + " " + str(j));
     }
   }
 
@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
     std::vector<std::set<size_t>> neighborsVecSet =
         getNeighborsSet(i, grid, centers, setbins);
     std::cout << "-------------" << std::endl;
-    Info("Neighbors of building " + str(i) + " are ");
+    info("Neighbors of building " + str(i) + " are ");
     // Info(footprints[i]);
     for (size_t j = 0; j < neighborsVecSet.size(); j++)
     {

@@ -49,14 +49,14 @@ public:
     // Check if timer is running
     if (!running)
     {
-      Warning("Timer stopped but it's not running");
+      warning("Timer stopped but it's not running");
       return;
     }
 
     // Record current time
     t1 = std::chrono::high_resolution_clock::now();
     running = false;
-    
+
     // Register timing
     auto it = timings.find(Name);
     if (it == timings.end())
@@ -80,7 +80,7 @@ public:
   // Print elapsed time
   void Print() const
   {
-    Info("Elapsed time (CPU): " + str(Time()) + " (" + Name + ")");
+    info("Elapsed time (CPU): " + str(Time()) + " (" + Name + ")");
   }
 
   // Print report (summary of all timers)
@@ -105,7 +105,7 @@ public:
     }
 
     // Print table
-    Info(table);
+    info(table);
 
     // Write JSON
     JSON::Write(timings, fileName, 4);

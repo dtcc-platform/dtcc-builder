@@ -46,7 +46,7 @@ public:
   const Parameter &operator=(bool value)
   {
     if (Type != ParameterType::Bool)
-      Error("Unable to set parameter \"" + Key + "\"; not a bool parameter");
+      error("Unable to set parameter \"" + Key + "\"; not a bool parameter");
     valueBool = value;
     return *this;
   }
@@ -55,7 +55,7 @@ public:
   const Parameter &operator=(int value)
   {
     if (Type != ParameterType::Int)
-      Error("Unable to set parameter \"" + Key + "\"; not an int parameter");
+      error("Unable to set parameter \"" + Key + "\"; not an int parameter");
     valueInt = value;
     return *this;
   }
@@ -64,7 +64,7 @@ public:
   const Parameter &operator=(double value)
   {
     if (Type != ParameterType::Float)
-      Error("Unable to set parameter \"" + Key + "\"; not a float parameter");
+      error("Unable to set parameter \"" + Key + "\"; not a float parameter");
     valueFloat = value;
     return *this;
   }
@@ -73,7 +73,7 @@ public:
   const Parameter &operator=(const std::string &value)
   {
     if (Type != ParameterType::String)
-      Error("Unable to set parameter \"" + Key + "\"; not a string parameter");
+      error("Unable to set parameter \"" + Key + "\"; not a string parameter");
     valueString = value;
     return *this;
   }
@@ -82,7 +82,7 @@ public:
   const Parameter &operator=(const char *value)
   {
     if (Type != ParameterType::String)
-      Error("Unable to set parameter \"" + Key + "\"; not a string parameter");
+      error("Unable to set parameter \"" + Key + "\"; not a string parameter");
     valueString = std::string(value);
     return *this;
   }
@@ -91,7 +91,7 @@ public:
   operator bool() const
   {
     if (Type != ParameterType::Bool)
-      Error("Unable to access parameter \"" + Key + "\"; not a bool parameter");
+      error("Unable to access parameter \"" + Key + "\"; not a bool parameter");
     AccessCount++;
     return valueBool;
   }
@@ -100,7 +100,7 @@ public:
   operator int() const
   {
     if (Type != ParameterType::Int)
-      Error("Unable to access parameter \"" + Key + "\"; not an int parameter");
+      error("Unable to access parameter \"" + Key + "\"; not an int parameter");
     AccessCount++;
     return valueInt;
   }
@@ -109,9 +109,9 @@ public:
   operator size_t() const
   {
     if (Type != ParameterType::Int)
-      Error("Unable to access parameter \"" + Key + "\"; not an int parameter");
+      error("Unable to access parameter \"" + Key + "\"; not an int parameter");
     if (valueInt < 0)
-      Error("Unable to access parameter \"" + Key +
+      error("Unable to access parameter \"" + Key +
             "\" as unsigned int; value is negative");
     AccessCount++;
     return static_cast<size_t>(valueInt);
@@ -121,7 +121,7 @@ public:
   operator double() const
   {
     if (Type != ParameterType::Float)
-      Error("Unable to access parameter \"" + Key +
+      error("Unable to access parameter \"" + Key +
             "\"; not a float parameter");
     AccessCount++;
     return valueFloat;
@@ -131,7 +131,7 @@ public:
   operator std::string() const
   {
     if (Type != ParameterType::String)
-      Error("Unable to access parameter \"" + Key +
+      error("Unable to access parameter \"" + Key +
             "\"; not a string parameter");
     AccessCount++;
     return valueString;

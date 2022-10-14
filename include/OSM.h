@@ -23,7 +23,7 @@ public:
   // Read polygons from OSM file
   static void Read(std::vector<Polygon> polygons, const std::string& fileName)
   {
-    Info("OSM: Reading polygons from file " + fileName);
+    info("OSM: Reading polygons from file " + fileName);
 
     // Read XML data from file
     pugi::xml_document doc;
