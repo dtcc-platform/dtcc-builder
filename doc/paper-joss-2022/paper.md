@@ -111,7 +111,7 @@ operations.
 The documentation for DTCC Builder is published on the
 [DTCC Builder GitLab pages](https://gitlab.com/dtcc-platform/dtcc-builder)
 as well as on the documentation pages for
-[DTCC Platform](https://dtcc.chalmers.se).
+[DTCC Platform](https://platform.dtcc.chalmers.se).
 
 # Limitations and future work
 
