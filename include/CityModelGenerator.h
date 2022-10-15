@@ -14,6 +14,7 @@
 #include "BuildingProcessor.h"
 #include "GEOS.h"
 #include "GridField.h"
+#include "Logging.h"
 #include "Plotting.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
@@ -589,7 +590,7 @@ public:
                                                  distanceThershold, iterations);
       totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
-    Info("BuildingPointsRANSACOutlierRemover remove " + str(totalRemoved) +
+    info("BuildingPointsRANSACOutlierRemover remove " + str(totalRemoved) +
          " points");
   }
 
