@@ -20,7 +20,7 @@
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
 
-using namespace DTCC;
+using namespace DTCCBUILDER;
 
 int main(int argc, char *argv[])
 {

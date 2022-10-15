@@ -2,7 +2,7 @@
 #include "SHP.h"
 #include "Utils.h"
 
-using namespace DTCC;
+using namespace DTCCBUILDER;
 
 TEST_CASE("Create own UUIDs")
 {

@@ -9,7 +9,7 @@
 #include <tuple>
 #include <vector>
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 class Simplex1D
@@ -137,6 +137,6 @@ struct CompareSimplex3D
   }
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

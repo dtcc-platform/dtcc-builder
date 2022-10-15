@@ -10,7 +10,7 @@
 #include "Logging.h"
 #include "Point.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 class Polygon : public Printable
@@ -47,6 +47,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

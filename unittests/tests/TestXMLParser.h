@@ -2,7 +2,7 @@
 #include <XMLParser.h>
 #include <nlohmann/json.hpp>
 
-using namespace DTCC;
+using namespace DTCCBUILDER;
 
 TEST_CASE("XMLParser")
 {

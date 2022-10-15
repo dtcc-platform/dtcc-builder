@@ -13,7 +13,7 @@
 
 using namespace nlohmann;
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 /// Class for parsing and converting from GeoJSON format.
@@ -48,6 +48,6 @@ public:
     return RoadNetworkGenerator::GetRoadNetwork(geoRoadNetwork);
   }
 };
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif // CORE_GEOJSON_H

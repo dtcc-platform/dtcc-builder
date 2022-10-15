@@ -7,7 +7,7 @@
 #include "Logging.h"
 #include "datamodel/Building.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 /// Simple utilities for printing Python plotting code for debugging
 class Plotting
@@ -137,6 +137,6 @@ private:
     return c;
   }
 };
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

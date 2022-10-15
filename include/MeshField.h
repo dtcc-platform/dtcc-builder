@@ -7,7 +7,7 @@
 #include "Mesh.h"
 #include "Field.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
   /// MeshField2D represents a scalar field on an irregular 2D mesh.

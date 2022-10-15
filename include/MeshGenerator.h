@@ -25,7 +25,7 @@ extern "C"
 #include <triangle.h>
 }
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
   class MeshGenerator
@@ -783,6 +783,6 @@ namespace DTCC
     }
   };
 
-} // namespace DTCC
+  } // namespace DTCCBUILDER
 
 #endif

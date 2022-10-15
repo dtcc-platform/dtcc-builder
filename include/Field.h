@@ -6,7 +6,7 @@
 
 #include "Point.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
   /// Field2D represents a scalar field on a 2D domain.

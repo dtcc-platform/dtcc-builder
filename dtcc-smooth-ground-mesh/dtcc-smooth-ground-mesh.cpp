@@ -11,7 +11,7 @@
 #include "VTK.h"
 #include "VertexSmoother.h"
 
-using namespace DTCC;
+using namespace DTCCBUILDER;
 
 void Help() { error("Usage: dtcc-smooth-surface-mesh Parameters.json"); }
 

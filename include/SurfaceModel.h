@@ -10,7 +10,7 @@
 #include "GeoReference.h"
 #include "Vector.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 class SurfaceModel
@@ -54,6 +54,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

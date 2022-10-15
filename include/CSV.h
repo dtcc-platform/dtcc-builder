@@ -18,7 +18,7 @@
 #include "PointCloud.h"
 #include "Logging.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 class CSV
@@ -336,6 +336,6 @@ private:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

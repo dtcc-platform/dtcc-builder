@@ -7,7 +7,7 @@
 #include "BaseArea.h"
 #include <Logging.h>
 #include <vector>
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 /// Representation of a primary area.
@@ -38,6 +38,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif // CORE_PRIMARYAREA_H

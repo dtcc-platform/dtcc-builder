@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 class PostProcessVariables
@@ -106,6 +106,6 @@ std::ostream &operator<<(std::ostream &s,
   return s;
 }
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

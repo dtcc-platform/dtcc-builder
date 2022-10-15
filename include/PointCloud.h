@@ -14,7 +14,7 @@
 #include "Point.h"
 #include "Vector.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 class PointCloud : public Printable
@@ -156,6 +156,6 @@ private:
   mutable BoundingBoxTree2D bbtree;
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

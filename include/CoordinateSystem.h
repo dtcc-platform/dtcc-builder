@@ -10,7 +10,7 @@
 
 #include "Vector.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 class CoordinateSystem
@@ -55,6 +55,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif

@@ -11,7 +11,7 @@
 #include "Utils.h"
 #include "Logging.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
   /// Grid2D represents a uniform 2D grid defined by a bounding box partitioned

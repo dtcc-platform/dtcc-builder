@@ -14,7 +14,7 @@
 #include "BoundingBoxTree.h"
 #include "Logging.h"
 
-namespace DTCC
+namespace DTCCBUILDER
 {
 
 /// CityModel model represents a collection of Buildings.
@@ -133,6 +133,6 @@ private:
   mutable BoundingBoxTree2D bbtree;
 };
 
-} // namespace DTCC
+} // namespace DTCCBUILDER
 
 #endif
