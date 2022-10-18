@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
-    echo "Building Docker image for dtcc-builder..."
-    export UID=$(id -u)
-    export GID=$(id -g)
-    export GID=1003
+echo "Building Docker image for dtcc-builder..."
+     export UID=$(id -u)
+     export GID=$(id -g)
+     export GID=1003
+
+if [ ! -f bin/dtcc-build-image ]; then
+rightpath=`find . -name "dtcc-build-image"|tail -n 1|cut -d "/" -f2`
+cd $rightpath
+    docker-compose -f docker-compose.yml build dtcc-builder 
+else
+#    echo "Building Docker image for dtcc-builder..."
+#    export UID=$(id -u)
+#    export GID=$(id -g)
+#    export GID=1003
 	docker-compose -f docker-compose.yml build dtcc-builder
+fi
