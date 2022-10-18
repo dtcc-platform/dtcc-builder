@@ -10,7 +10,7 @@
 #include "Mesh.h"
 #include "Surface.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 class FEniCS
@@ -158,6 +158,6 @@ public:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

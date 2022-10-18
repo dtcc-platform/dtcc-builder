@@ -10,7 +10,7 @@
 
 #include "Utils.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 class Filesystem
 {
@@ -49,6 +49,6 @@ public:
     return fileNames;
   }
 };
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

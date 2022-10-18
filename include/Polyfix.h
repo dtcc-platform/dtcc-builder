@@ -9,7 +9,7 @@
 #include "Timer.h"
 #include "Logging.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 /// Polyfix provides algorithms for processing polygons, including
 /// polygon cleaning and polygon merging.
@@ -670,6 +670,6 @@ private:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

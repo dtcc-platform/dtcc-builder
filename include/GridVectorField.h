@@ -9,7 +9,7 @@
 #include "Geometry.h"
 #include "Logging.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
   /// GridVectorField2D represents a vector field on a uniform 2D grid.

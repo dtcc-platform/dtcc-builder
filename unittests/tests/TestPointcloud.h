@@ -5,7 +5,7 @@
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
 
-using namespace DTCCBUILDER;
+using namespace DTCC_BUILDER;
 
 TEST_CASE("POINT_CLOUD")
 {

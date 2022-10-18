@@ -19,7 +19,7 @@
 #include "Simplex.h"
 #include "Vector.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 class Geometry
@@ -621,6 +621,6 @@ public:
 
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

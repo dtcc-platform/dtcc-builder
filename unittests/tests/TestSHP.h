@@ -1,7 +1,7 @@
 #include "Polygon.h"
 #include "SHP.h"
 
-using namespace DTCCBUILDER;
+using namespace DTCC_BUILDER;
 
 TEST_CASE("Read SHP")
 {

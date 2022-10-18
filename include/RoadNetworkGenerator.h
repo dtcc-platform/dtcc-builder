@@ -12,7 +12,7 @@
 
 using namespace nlohmann;
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 /// Class for generating RoadNetwork objects, given .json or .geojson files.
 class RoadNetworkGenerator
@@ -123,6 +123,6 @@ public:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif // CORE_ROADNETWORKGENERATOR_H

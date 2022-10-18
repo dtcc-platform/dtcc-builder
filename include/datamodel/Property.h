@@ -8,7 +8,7 @@
 #include "datamodel/Building.h"
 #include <utility>
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 /// Representation of a property.
 class Property : public Printable
@@ -42,6 +42,6 @@ public:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif // DTCC_PROPERTY_H

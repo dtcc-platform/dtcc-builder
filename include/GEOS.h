@@ -20,7 +20,7 @@ static void geos_msg_handler(const char *fmt, ...)
   va_end(ap);
 }
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 /// This class provides algorithms for working with polygons based on
 /// the GEOS library (libgeos).
@@ -363,6 +363,6 @@ private:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

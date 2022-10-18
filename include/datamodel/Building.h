@@ -13,7 +13,7 @@
 #include "Polygon.h"
 #include "Vector.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 // Error codes
@@ -121,6 +121,6 @@ public:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

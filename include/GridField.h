@@ -11,7 +11,7 @@
 #include "Geometry.h"
 #include "Logging.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
   /// GridField2D represents a scalar field on a uniform 2D grid.

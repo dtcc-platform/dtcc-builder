@@ -11,7 +11,7 @@
 #include "Geometry.h"
 #include "Logging.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
   // Note: This is a new implementation of the corresponding algorithm

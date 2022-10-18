@@ -13,7 +13,7 @@
 #include "Parameters.h"
 #include "cityjson/CityJSON.h"
 
-using namespace DTCCBUILDER;
+using namespace DTCC_BUILDER;
 
 void Help()
 {

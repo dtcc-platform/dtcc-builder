@@ -3,7 +3,7 @@
 #include "RoadNetworkGenerator.h"
 #include "SHP.h"
 
-using namespace DTCCBUILDER;
+using namespace DTCC_BUILDER;
 
 TEST_CASE("RoadNetwork generation")
 {

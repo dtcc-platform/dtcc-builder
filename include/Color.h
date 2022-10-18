@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 /// Colors are stored as doubles in the range 0-1
@@ -44,5 +44,5 @@ public:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 #endif

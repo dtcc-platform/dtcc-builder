@@ -10,7 +10,7 @@
 #include "Surface.h"
 #include "Timer.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
   class VertexSmoother

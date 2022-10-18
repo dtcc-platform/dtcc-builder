@@ -89,7 +89,7 @@ struct KDTreeVectorOfVectorsAdaptor
     index =
         new index_t(static_cast<int>(dims), *this /* adaptor */,
                     nanoflann::KDTreeSingleIndexAdaptorParams(leaf_max_size));
-    auto t1 = DTCCBUILDER::Timer("KDTreeVofV: Building Index");
+    auto t1 = DTCC_BUILDER::Timer("KDTreeVofV: Building Index");
     index->buildIndex();
     t1.Stop();
   }
@@ -124,7 +124,7 @@ struct KDTreeVectorOfVectorsAdaptor
   inline std::vector<std::pair<size_t, num_t>>
   radiusQuery(const num_t *query_point, const num_t radius) const
   {
-    DTCCBUILDER::Timer radiuQueryTimer("KDTreeVofV: radiusQuery");
+    DTCC_BUILDER::Timer radiuQueryTimer("KDTreeVofV: radiusQuery");
     std::vector<std::pair<size_t, num_t>> indices_dists;
     // nanoflann::RadiusResultSet<num_t, IndexType> resultSet(radius,
     //                                                       indices_dists);
@@ -146,7 +146,7 @@ struct KDTreeVectorOfVectorsAdaptor
   // Returns the dim'th component of the idx'th point in the class:
   inline num_t kdtree_get_pt(const size_t idx, const size_t dim) const
   {
-    // DTCCBUILDER::Timer getPtTimer("KDTreeVofV: get_pt");
+    // DTCC_BUILDER::Timer getPtTimer("KDTreeVofV: get_pt");
     return m_data[idx][dim];
   }
 

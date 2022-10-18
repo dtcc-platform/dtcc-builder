@@ -24,7 +24,7 @@
 #include "cityjson/CityJSON.h"
 #include "datamodel/RoadNetwork.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
   class JSON
@@ -1350,6 +1350,6 @@ namespace DTCCBUILDER
     }
   };
 
-  } // namespace DTCCBUILDER
+  } // namespace DTCC_BUILDER
 
 #endif

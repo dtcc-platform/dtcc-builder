@@ -10,7 +10,7 @@
 #include "Parameters.h"
 #include "Surface.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 class OBJ

@@ -17,7 +17,7 @@
 #include "PointCloud.h"
 #include "Vector.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 class LAS
@@ -296,6 +296,6 @@ private:
     info("LAS: Found " + str(readPoints) + " points matching given filters");
   }
 };
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

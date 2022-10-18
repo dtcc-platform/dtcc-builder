@@ -14,7 +14,7 @@
 #include "Parameters.h"
 #include "Logging.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 class WLD
@@ -63,6 +63,6 @@ public:
   };
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

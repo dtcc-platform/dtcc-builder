@@ -13,7 +13,7 @@
 
 #include "Point.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
 class GeoReference
@@ -66,6 +66,6 @@ public:
   }
 };
 
-} // namespace DTCCBUILDER
+} // namespace DTCC_BUILDER
 
 #endif

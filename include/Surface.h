@@ -10,7 +10,7 @@
 #include "Point.h"
 #include "Simplex.h"
 
-namespace DTCCBUILDER
+namespace DTCC_BUILDER
 {
 
   class Surface2D : public Printable
@@ -78,6 +78,6 @@ namespace DTCCBUILDER
 
   };
 
-  } // namespace DTCCBUILDER
+  } // namespace DTCC_BUILDER
 
 #endif
