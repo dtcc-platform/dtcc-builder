@@ -9,7 +9,7 @@
 
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 /// Table is used for easy printing of tabular data.
@@ -93,6 +93,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

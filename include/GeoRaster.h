@@ -9,7 +9,7 @@
 #include "GridField.h"
 #include "Point.h"
 #include "Logging.h"
-namespace DTCC_BUILDER
+namespace DTCC
 {
 class GeoRaster
 {
@@ -39,6 +39,6 @@ public:
 
 
 };
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

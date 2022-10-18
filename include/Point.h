@@ -6,7 +6,7 @@
 
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
   /// Point2D represents a point in 2D Euclidean space.
@@ -93,6 +93,6 @@ namespace DTCC_BUILDER
 
   };
 
-  } // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

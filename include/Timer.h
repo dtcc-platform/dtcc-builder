@@ -10,7 +10,7 @@
 
 #include "JSON.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class Timer
@@ -131,6 +131,6 @@ private:
 // Initialize static member
 std::map<std::string, std::pair<double, size_t>> Timer::timings;
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

@@ -12,7 +12,7 @@
 #include "ColorMap.h"
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 class ColorMapIO
 {
@@ -117,6 +117,6 @@ public:
     }
   }
 };
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

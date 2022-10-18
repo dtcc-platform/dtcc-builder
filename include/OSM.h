@@ -14,7 +14,7 @@
 #include "Polygon.h"
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class OSM
@@ -112,6 +112,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

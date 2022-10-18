@@ -10,7 +10,7 @@
 #include <pugixml.hpp>
 #include <string>
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 /// Class for reading an XML file and returning the data as a JSON object, with
@@ -306,6 +306,6 @@ private:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif // CORE_XMLPARSER_H

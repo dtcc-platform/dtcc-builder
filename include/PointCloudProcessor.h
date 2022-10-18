@@ -17,7 +17,7 @@
 #include "Timer.h"
 #include "Vector.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class PointCloudProcessor
@@ -575,6 +575,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

@@ -12,7 +12,7 @@
 #include <datamodel/RoadNetwork.h>
 #include <iostream>
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 void Help() { error("Usage: dtcc-generate-roadnetwork fileName.shp"); }
 

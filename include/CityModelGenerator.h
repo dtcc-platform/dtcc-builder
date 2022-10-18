@@ -21,13 +21,12 @@
 #include "Polyfix.h"
 #include "Polygon.h"
 #include "Timer.h"
-#include "Utils.h"
 #include "Vector.h"
 #include "datamodel/CityModel.h"
 
 #include "KDTreeVectorOfVectorsAdaptor.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class CityModelGenerator
@@ -889,6 +888,6 @@ private:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

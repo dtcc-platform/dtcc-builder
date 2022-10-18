@@ -9,7 +9,7 @@
 
 #ifndef DTCC_RASTER_H
 #define DTCC_RASTER_H
-namespace DTCC_BUILDER
+namespace DTCC
 {
 class RASTER
 {
@@ -95,6 +95,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

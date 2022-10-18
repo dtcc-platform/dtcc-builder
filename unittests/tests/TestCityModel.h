@@ -4,7 +4,7 @@
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 TEST_CASE("Filter CityModel")
 {

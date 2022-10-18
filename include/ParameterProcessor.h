@@ -9,7 +9,7 @@
 
 #include "Logging.h"
 #include "Parameters.h"
-namespace DTCC_BUILDER
+namespace DTCC
 {
 class ParameterProcessor
 {
@@ -83,6 +83,6 @@ public:
     return parameters;
   }
 };
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

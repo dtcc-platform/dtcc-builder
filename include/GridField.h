@@ -11,7 +11,7 @@
 #include "Geometry.h"
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
   /// GridField2D represents a scalar field on a uniform 2D grid.
@@ -58,7 +58,7 @@ namespace DTCC_BUILDER
       const double v11 = Values[i + Grid.XSize + 1];
 
       // Compute value by bilinear interpolation
-      return Grid2D::Interpolate(x, y, v00, v10, v01, v11);
+      return DTCC::Grid2D::Interpolate(x, y, v00, v10, v01, v11);
     }
 
     double Nearest(const Point2D& p) const
@@ -162,8 +162,7 @@ namespace DTCC_BUILDER
       const double v111 = Values[i + Grid.XSize + 1 + Grid.XSize * Grid.YSize];
 
       // Compute value by trilinear interpolation
-      return Grid3D::Interpolate(x, y, z, v000, v100, v010, v110, v001, v101,
-                                 v011, v111);
+      return DTCC::Grid3D::Interpolate(x, y, z, v000, v100, v010, v110, v001, v101, v011, v111);
     }
 
     double Nearest(const Point3D& p) const 

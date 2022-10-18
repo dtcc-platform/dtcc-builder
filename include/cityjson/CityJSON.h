@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <iostream>
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 /// CityObject is a type that stores parsed data from the CityJSON format
@@ -204,5 +204,5 @@ public:
     CityJSON() : Type("CityJSON"), Version("1.0") {}
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 #endif

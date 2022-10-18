@@ -6,7 +6,7 @@
 
 #include "Property.h"
 #include <vector>
-namespace DTCC_BUILDER
+namespace DTCC
 {
 /// Representation of a base area.
 class BaseArea : public Printable
@@ -34,6 +34,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif // CORE_BASEAREA_H

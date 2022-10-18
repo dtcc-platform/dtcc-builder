@@ -17,7 +17,7 @@
 
 using namespace nlohmann;
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class SHP
@@ -330,6 +330,6 @@ private:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

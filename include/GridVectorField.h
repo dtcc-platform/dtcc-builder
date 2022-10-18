@@ -9,7 +9,7 @@
 #include "Geometry.h"
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
   /// GridVectorField2D represents a vector field on a uniform 2D grid.
@@ -61,8 +61,8 @@ namespace DTCC_BUILDER
 
       // Compute value by bilinear interpolation
       Vector2D v{};
-      v.x = Grid2D::Interpolate(x, y, v00x, v10x, v01x, v11x);
-      v.y = Grid2D::Interpolate(x, y, v00y, v10y, v01y, v11y);
+      v.x = DTCC::Grid2D::Interpolate(x, y, v00x, v10x, v01x, v11x);
+      v.y = DTCC::Grid2D::Interpolate(x, y, v00y, v10y, v01y, v11y);
 
       return v;
     }
@@ -154,12 +154,9 @@ namespace DTCC_BUILDER
 
       // Compute value by trilinear interpolation
       Vector3D v;
-      v.x = Grid3D::Interpolate(x, y, z, v000x, v100x, v010x, v110x, v001x,
-                                v101x, v011x, v111x);
-      v.y = Grid3D::Interpolate(x, y, z, v000y, v100y, v010y, v110y, v001y,
-                                v101y, v011y, v111y);
-      v.z = Grid3D::Interpolate(x, y, z, v000z, v100z, v010z, v110z, v001z,
-                                v101z, v011z, v111z);
+      v.x = DTCC::Grid3D::Interpolate(x, y, z, v000x, v100x, v010x, v110x, v001x, v101x, v011x, v111x);
+      v.y = DTCC::Grid3D::Interpolate(x, y, z, v000y, v100y, v010y, v110y, v001y, v101y, v011y, v111y);
+      v.z = DTCC::Grid3D::Interpolate(x, y, z, v000z, v100z, v010z, v110z, v001z, v101z, v011z, v111z);
 
       return v;
     }

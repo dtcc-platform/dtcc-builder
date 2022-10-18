@@ -1,7 +1,7 @@
 #include "BuildingProcessor.h"
 #include "datamodel/Building.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 TEST_CASE("Point converage")
 {

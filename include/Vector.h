@@ -9,7 +9,7 @@
 #include "Logging.h"
 #include "Point.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 /// Vector2D represents a Euclidean 2D vector
@@ -335,6 +335,6 @@ Point3D operator-=(Point3D &p, const Vector3D &v)
   return p;
 }
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

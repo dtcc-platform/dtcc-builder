@@ -19,7 +19,7 @@
 #include "Mesh.h"
 #include "Timer.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
   class LaplacianSmoother
@@ -454,6 +454,6 @@ namespace DTCC_BUILDER
     }
   };
 
-  } // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

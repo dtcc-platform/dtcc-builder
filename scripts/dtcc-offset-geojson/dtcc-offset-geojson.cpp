@@ -10,7 +10,7 @@
 #include <iostream>
 #include <netcdf>
 #include <string>
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 void Help()
 {

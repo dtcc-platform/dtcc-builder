@@ -1,6 +1,6 @@
 #include "JSON.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 TEST_CASE("Parse Parameters")
 {

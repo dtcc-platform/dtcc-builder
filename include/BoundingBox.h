@@ -11,7 +11,7 @@
 #include "Polygon.h"
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
   /// BoundingBox2D represents a 2D bounding box defined by two 2D points.

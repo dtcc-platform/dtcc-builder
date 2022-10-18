@@ -13,7 +13,7 @@
 #include "Filesystem.h"
 #include "Utils.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 /// Simple utilities for command-line parsing
@@ -42,6 +42,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

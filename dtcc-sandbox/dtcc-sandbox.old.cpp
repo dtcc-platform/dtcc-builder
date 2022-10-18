@@ -11,7 +11,7 @@
 #include <vtkStructuredGrid.h>
 #include <vtkXMLStructuredGridWriter.h>
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 int main(int, char *[])
 {

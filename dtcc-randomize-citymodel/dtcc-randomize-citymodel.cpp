@@ -12,7 +12,7 @@
 #include "Parameters.h"
 #include "VTK.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 void Help() { error("Usage: dtcc-randomize-citymodel Parameters.json"); }
 

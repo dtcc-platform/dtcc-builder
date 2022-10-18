@@ -9,7 +9,7 @@
 
 #include "Color.h"
 #include "Logging.h"
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class ColorFunctions
@@ -29,5 +29,5 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 #endif

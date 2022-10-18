@@ -22,7 +22,7 @@
 #include "LAS.h"
 #include "SHP.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 void Help() { error("Usage: dtcc-generate-mesh Parameters.json"); }
 

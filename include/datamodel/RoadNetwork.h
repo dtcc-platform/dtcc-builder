@@ -9,7 +9,7 @@
 
 #include "Point.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 class RoadNetwork : public Printable
 {
@@ -41,6 +41,6 @@ public:
            str(EdgeValues.size()) + " edge value arrays";
   }
   };
-  } // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif // DTCC_ROAD_H

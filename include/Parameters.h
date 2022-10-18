@@ -11,7 +11,7 @@
 #include "Parameter.h"
 #include "Table.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 /// Parameters holds a database of parameters (key-value pairs).
@@ -185,6 +185,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

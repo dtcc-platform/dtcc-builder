@@ -9,7 +9,7 @@
 #include "Logging.h"
 #include "Utils.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 void Help() { error("Usage: dtcc-info Data.[json,las]"); }
 

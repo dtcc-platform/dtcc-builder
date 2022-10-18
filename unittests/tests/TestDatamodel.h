@@ -2,7 +2,7 @@
 #include "datamodel/BaseArea.h"
 #include "datamodel/District.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 TEST_CASE("datamodel")
 {

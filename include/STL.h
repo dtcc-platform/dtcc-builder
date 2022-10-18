@@ -12,7 +12,7 @@
 
 #include "Logging.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class STL
@@ -86,6 +86,6 @@ private:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif

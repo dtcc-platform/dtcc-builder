@@ -3,7 +3,7 @@
 #include "Polyfix.h"
 #include "Polygon.h"
 
-using namespace DTCC_BUILDER;
+using namespace DTCC;
 
 TEST_CASE("Polygon Geometry")
 {

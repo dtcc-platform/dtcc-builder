@@ -14,7 +14,7 @@
 #include "Polygon.h"
 #include "Timer.h"
 
-namespace DTCC_BUILDER
+namespace DTCC
 {
 
 class BuildingProcessor
@@ -66,6 +66,6 @@ public:
   }
 };
 
-} // namespace DTCC_BUILDER
+} // namespace DTCC
 
 #endif
