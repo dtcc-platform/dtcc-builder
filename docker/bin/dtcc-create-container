@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+    export UID=$(id -u)
+    export GID=$(id -g)
+#    docker-compose -f docker-compose.yml down
+    echo "Creating Docker container for dtcc-builder..."
+    docker-compose -f docker-compose.yml up -d  dtcc-builder

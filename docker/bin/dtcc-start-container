@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+    echo "Starting Docker container for dtcc-builder..."
+    docker start dtcc-builder
+    echo ""
+    cat Welcome
+    echo ""
+    echo "You may use CTRL-D to exit. To restart the container, use the commands"
+    echo ""
+    echo "  docker start dtcc-builder"
+    echo "  docker attach dtcc-builder"
+    echo ""
+    docker attach dtcc-builder
