@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+  docker container rm dtcc-builder -f
+  docker image rm dtcc-builder-image -f
