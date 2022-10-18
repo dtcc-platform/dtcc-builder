@@ -302,7 +302,7 @@ private:
     ss << "Error description: " << result.description() << "\n";
     ss << "Error offset: " << result.offset << " (error at [..."
        << (path + result.offset) << "]\n\n";
-    Error(ss.str());
+    error(ss.str());
   }
 };
 

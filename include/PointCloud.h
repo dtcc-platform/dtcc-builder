@@ -54,7 +54,7 @@ public:
   /// affects the x and y coordinates (z unaffected).
   void SetOrigin(const Point2D &origin)
   {
-    Info("PointCloud: Setting new origin to " + str(origin));
+    info("PointCloud: Setting new origin to " + str(origin));
     const Vector2D v2D{origin.x, origin.y};
     const Vector3D v3D{origin.x, origin.y, 0.0};
     for (auto &p : Points)
@@ -89,7 +89,7 @@ public:
     // Skip if already built or force rebuild
     if (!bbtree.Empty() && !rebuild)
     {
-      Info("Search tree already built; set rebuild flag to force rebuild.");
+      info("Search tree already built; set rebuild flag to force rebuild.");
       return;
     }
 
@@ -104,7 +104,7 @@ public:
 
     // Build bounding box tree
     bbtree.Build(bboxes);
-    Progress(str(bbtree));
+    debug(str(bbtree));
   }
 
   void BuildHasClassifications()
@@ -120,7 +120,7 @@ public:
   {
     if (UsedClassifications.empty())
     {
-      Warning("Classification set is not built.");
+      warning("Classification set is not built.");
       return false;
     }
     return UsedClassifications.find(c) != UsedClassifications.end();

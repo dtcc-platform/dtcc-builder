@@ -24,7 +24,7 @@ public:
   /// @param mesh A 3D mesh
   static void ExtractBoundary3D(Surface3D &surface, const Mesh3D &mesh)
   {
-    Info("MeshProcessor: Extracting boundary of 3D mesh...");
+    info("MeshProcessor: Extracting boundary of 3D mesh...");
     Timer timer("ExtractBoundary3D");
 
     // Clear surface
@@ -100,7 +100,7 @@ public:
   static void ExtractOpenSurface3D(Surface3D &surface,
                                    const Surface3D &boundary)
   {
-    Info("MeshProcessor: Extracting open surface from boundary...");
+    info("MeshProcessor: Extracting open surface from boundary...");
     Timer timer("ExtractOpenSurface3D");
 
     // Clear surface
@@ -158,7 +158,7 @@ public:
   static void MergeSurfaces3D(Surface3D &surface,
                               const std::vector<Surface3D> &surfaces)
   {
-    Info("MeshProcessor: Merging 3D surfaces into a single surface...");
+    info("MeshProcessor: Merging 3D surfaces into a single surface...");
     Timer timer("MergeSurfaces3D");
 
     // Count the number of vertices and cells
@@ -214,7 +214,7 @@ private:
       it->second.first++;
     else
     {
-      Error("Found face with more than 2 cell neighbors.");
+      error("Found face with more than 2 cell neighbors.");
     }
   }
 

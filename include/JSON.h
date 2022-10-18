@@ -43,7 +43,7 @@ namespace DTCC
       for (auto &it : parameters.Map)
       {
         if (!HasKey(it.first, json))
-          Warning("Missing parameter \"" + it.first +
+          warning("Missing parameter \"" + it.first +
                   "\", using default value");
         else
         {
@@ -70,7 +70,7 @@ namespace DTCC
       for (auto it = json.begin(); it != json.end(); ++it)
       {
         if (!parameters.HasKey(it.key()) && it.key() != "Type")
-          Warning("Unknown parameter \"" + it.key() + "\", ignoring");
+          warning("Unknown parameter \"" + it.key() + "\", ignoring");
       }
     };
 

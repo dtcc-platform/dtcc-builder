@@ -38,7 +38,7 @@ public:
       }
       else
       {
-        Error("Unknown argument: " + arg);
+        error("Unknown argument: " + arg);
         exit(1);
       }
     }

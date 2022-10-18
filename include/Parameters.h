@@ -78,7 +78,7 @@ public:
   {
     auto it = Map.find(key);
     if (it == Map.end())
-      Error("Unknown parameter: \"" + key + "\"");
+      error("Unknown parameter: \"" + key + "\"");
     return it->second;
   }
 
@@ -87,7 +87,7 @@ public:
   {
     auto it = Map.find(key);
     if (it == Map.end())
-      Error("Unknown parameter: \"" + key + "\"");
+      error("Unknown parameter: \"" + key + "\"");
     return it->second;
   }
 
@@ -101,7 +101,7 @@ public:
   void Add(const std::string &key, bool value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::Bool, key);
     p = value;
     Map[key] = p;
@@ -111,7 +111,7 @@ public:
   void Add(const std::string &key, int value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::Int, key);
     p = value;
     Map[key] = p;
@@ -121,7 +121,7 @@ public:
   void Add(const std::string &key, double value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::Float, key);
     p = value;
     Map[key] = p;
@@ -131,7 +131,7 @@ public:
   void Add(const std::string &key, const std::string &value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::String, key);
     p = value;
     Map[key] = p;
@@ -141,7 +141,7 @@ public:
   void Add(const std::string &key, const char *value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::String, key);
     p = std::string(value);
     Map[key] = p;

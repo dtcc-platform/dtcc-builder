@@ -38,7 +38,7 @@ public:
                    json *attributes = nullptr,
                    bool handleDuplicateUUIDs = true)
   {
-    Info("SHP: Reading polygons from file " + fileName);
+    info("SHP: Reading polygons from file " + fileName);
     // Open file(s)
     SHPHandle handle = SHPOpen(fileName.c_str(), "r");
     DBFHandle handleD = DBFOpen(fileName.c_str(), "rb");
@@ -46,37 +46,37 @@ public:
 
     if (UUIDs != nullptr && entityID == nullptr)
     {
-      Error("entityID can't be null if reading UUIDs");
+      error("entityID can't be null if reading UUIDs");
     }
 
     // Get info
     int numEntities, shapeType;
     SHPGetInfo(handle, &numEntities, &shapeType, nullptr, nullptr);
-    Info("SHP: " + str(numEntities) + " entities");
+    info("SHP: " + str(numEntities) + " entities");
     switch (shapeType)
     {
     case SHPT_POINT:
     case SHPT_POINTZ:
     case SHPT_POINTM:
-      Info("SHP: point type");
+      info("SHP: point type");
       break;
     case SHPT_ARC:
     case SHPT_ARCZ:
     case SHPT_ARCM:
-      Info("SHP: arc type");
+      info("SHP: arc type");
       break;
     case SHPT_POLYGON:
     case SHPT_POLYGONZ:
     case SHPT_POLYGONM:
-      Info("SHP: polygon type");
+      info("SHP: polygon type");
       break;
     case SHPT_MULTIPOINT:
     case SHPT_MULTIPOINTZ:
     case SHPT_MULTIPOINTM:
-      Info("SHP: multipoint type");
+      info("SHP: multipoint type");
       break;
     default:
-      Info("SHP: unknown type");
+      info("SHP: unknown type");
     }
 
     // Check that we have polygon or arc type.
@@ -148,10 +148,10 @@ private:
     std::transform(codePage.begin(), codePage.end(), codePage.begin(),
                    ::toupper);
     if (codePage == "ISO88591")
-      Info("SHP: DBF attributes encoded as ISO-8859-1, converting to "
+      info("SHP: DBF attributes encoded as ISO-8859-1, converting to "
            "UTF-8...");
     else if (codePage != "UTF8")
-      Info("SHP: Unknown or unrecognized encoding of DBF attributes, "
+      info("SHP: Unknown or unrecognized encoding of DBF attributes, "
            "characters may "
            "not be "
            "displayed correctly");

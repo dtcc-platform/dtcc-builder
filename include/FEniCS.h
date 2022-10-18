@@ -19,7 +19,7 @@ public:
   // Create FEniCS mesh from DTCC mesh (2D)
   static void ConvertMesh(const Mesh2D &mesh2D, dolfin::Mesh &mesh)
   {
-    Info("FEniCS: Converting to FEniCS 2D mesh...");
+    info("FEniCS: Converting to FEniCS 2D mesh...");
 
     // Inialize mesh editor
     dolfin::MeshEditor meshEditor;
@@ -48,7 +48,7 @@ public:
   // Create FEniCS mesh from DTCC mesh (3D)
   static void ConvertMesh(const Mesh3D &mesh3D, dolfin::Mesh &mesh)
   {
-    Info("FEniCS: Converting to FEniCS 3D mesh...");
+    info("FEniCS: Converting to FEniCS 3D mesh...");
 
     // Inialize mesh editor
     dolfin::MeshEditor meshEditor;
@@ -87,7 +87,7 @@ public:
   static void ConvertMesh(const std::vector<Surface3D> &surfaces,
                           dolfin::Mesh &mesh)
   {
-    Info("FEniCS: Converting to FEniCS 3D surface...");
+    info("FEniCS: Converting to FEniCS 3D surface...");
 
     // Inialize mesh editor
     dolfin::MeshEditor meshEditor;
@@ -139,21 +139,21 @@ public:
   // Write FEniCS mesh to file
   static void Write(const dolfin::Mesh &mesh, const std::string& fileName)
   {
-    Info("FEniCS: Writing to file " + fileName + "...");
+    info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << mesh;
   }
 
   // Write FEniCS boundary mesh to file
   static void Write(const dolfin::BoundaryMesh &boundary, const std::string& fileName)
   {
-    Info("FEniCS: Writing to file " + fileName + "...");
+    info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << boundary;
   }
 
   // Write FEniCS function to file
   static void Write(const dolfin::Function &function, const std::string& fileName)
   {
-    Info("FEniCS: Writing to file " + fileName + "...");
+    info("FEniCS: Writing to file " + fileName + "...");
     dolfin::File(fileName) << function;
   }
 };

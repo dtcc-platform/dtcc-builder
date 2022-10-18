@@ -14,6 +14,7 @@
 #include "BuildingProcessor.h"
 #include "GEOS.h"
 #include "GridField.h"
+#include "Logging.h"
 #include "Plotting.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
@@ -50,7 +51,7 @@ public:
                                 double minBuildingDistance,
                                 double minBuildingSize)
   {
-    Info("CityModelGenerator: Generating city model...");
+    info("CityModelGenerator: Generating city model...");
     Timer timer("GenerateCityModel");
 
     // Clear data
@@ -63,7 +64,7 @@ public:
       if (!Geometry::BoundingBoxContains2D(bbox, footprints[i],
                                            minBuildingDistance))
       {
-        Warning("Skipping building " + UUIDs[i] +
+        warning("Skipping building " + UUIDs[i] +
                 "; outside domain or too close to boundary");
         continue;
       }
@@ -81,7 +82,7 @@ public:
       cityModel.Buildings.push_back(building);
     }
 
-    Info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
+    info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
          str(footprints.size()) + " buildings inside bounding box");
   }
 
@@ -94,7 +95,7 @@ public:
   /// Developer note: This may be optimized by avoiding copying
   static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
   {
-    Info("CityModelGenerator: Cleaning city model...");
+    info("CityModelGenerator: Cleaning city model...");
     Timer timer("CleanCityModel");
 
     // Clear search tree (since it might become invalid)
@@ -142,15 +143,15 @@ public:
         numRemoved++;
     }
 
-    Info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
+    info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not closed");
-    Info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
+    info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not oriented");
-    Info("CityModelGenerator: Merged vertices for " + str(numVertexMerged) +
+    info("CityModelGenerator: Merged vertices for " + str(numVertexMerged) +
          "/" + str(cityModel.Buildings.size()) + " polygons");
-    Info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
+    info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
          str(cityModel.Buildings.size()) + " polygons");
-    Info("CityModelGenerator: Removed " + str(numRemoved) + "/" +
+    info("CityModelGenerator: Removed " + str(numRemoved) + "/" +
          str(cityModel.Buildings.size()) +
          " buildings (invalid/too small after cleaning)");
   }
@@ -164,7 +165,7 @@ public:
                                 double minimalBuildingDistance,
                                 double minimalVertexDistance)
   {
-    Info("CityModelGenerator: Simplifying city model...");
+    info("CityModelGenerator: Simplifying city model...");
     Timer timer("SimplifyCityModel");
 
     // Clear search tree (since it might become invalid)
@@ -195,16 +196,16 @@ public:
                                     double groundOutlierMargin)
 
   {
-    Info("CityModelGenerator: Extracting building points...");
+    info("CityModelGenerator: Extracting building points...");
     Timer timer("ExtractBuildingPoints");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
-      Error("Empty point cloud");
+      error("Empty point cloud");
 
     // Check that point cloud has classifications
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
-      Error("Missing classifications for point cloud");
+      error("Missing classifications for point cloud");
 
     bool classifedBuildings = pointCloud.HasClassification(6);
 
@@ -244,10 +245,12 @@ public:
         }
         else if (clf == 6 || (!classifedBuildings && clf < 2))
         {
+          auto pc_timer = Timer("PolygoCOntains2D");
           if (Geometry::PolygonContains2D(building.Footprint, p2D))
           {
             building.RoofPoints.push_back(p3D);
           }
+          pc_timer.Stop();
         }
       }
     }
@@ -267,7 +270,7 @@ public:
     }
     const double outlierGroundPercentage =
         (100.0 * numGroundOutliers) / numGroundPoints;
-    Info("CityModelGenerator: Removed ground point outliers (" +
+    info("CityModelGenerator: Removed ground point outliers (" +
          str(outlierGroundPercentage) + "%)");
 
     double ptsPrSqm;
@@ -283,13 +286,13 @@ public:
         tooFew++;
       }
       pointCoverage = BuildingProcessor::PointCoverage(building, 2.0);
-      Info("PointCoverage: " + str(pointCoverage));
+      info("PointCoverage: " + str(pointCoverage));
       if (pointCoverage < 0.5)
       {
         building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
       }
     }
-    Info("CityModelGenerator: Number of buildings with too few roof points: " +
+    info("CityModelGenerator: Number of buildings with too few roof points: " +
          str(tooFew));
 
     // Sort points by height
@@ -325,10 +328,10 @@ public:
     const double meanG = static_cast<double>(sumG) / cityModel.Buildings.size();
     const double meanR = static_cast<double>(sumR) / cityModel.Buildings.size();
 
-    Info("CityModelGenerator: min/mean/max number of ground points per "
+    info("CityModelGenerator: min/mean/max number of ground points per "
          "building is " +
          str(minG) + "/" + str(meanG) + "/" + str(maxG));
-    Info("CityModelGenerator: min/mean/max number of roof points per building "
+    info("CityModelGenerator: min/mean/max number of roof points per building "
          "is " +
          str(minR) + "/" + str(meanR) + "/" + str(maxR));
   }
@@ -347,7 +350,7 @@ public:
                                      double groundPercentile,
                                      double roofPercentile)
   {
-    Info("CityModelGenerator: Computing building heights...");
+    info("CityModelGenerator: Computing building heights...");
     Timer timer("ComputeBuildingHeights");
 
     // FIXME: Make this a parameter
@@ -368,8 +371,8 @@ public:
       double h0{0};
       if (building.GroundPoints.empty())
       {
-        Warning("Missing ground points for building " + building.UUID);
-        Info("CityModelGenerator: Setting ground height from DTM");
+        warning("Missing ground points for building " + building.UUID);
+        info("CityModelGenerator: Setting ground height from DTM");
         h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
         numMissingGroundPoints++;
         building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
@@ -384,8 +387,8 @@ public:
       double h1{0};
       if (building.RoofPoints.empty())
       {
-        Warning("Missing roof points for building " + building.UUID);
-        Info("CityModelGenerator: Setting building height to " +
+        warning("Missing roof points for building " + building.UUID);
+        info("CityModelGenerator: Setting building height to " +
              str(minBuildingHeight) + "m");
         h1 = h0 + minBuildingHeight;
         numMissingRoofPoints++;
@@ -400,8 +403,8 @@ public:
       // Check that h0 < h1
       if (h1 < h0 + minBuildingHeight)
       {
-        // Warning("Height too small for building " + building.UUID);
-        // Info("CitModelGenerator: Setting building height to " +
+        // warning("Height too small for building " + building.UUID);
+        // info("CitModelGenerator: Setting building height to " +
         //     str(minBuildingHeight));
         h1 = h0 + minBuildingHeight;
         numSmallHeights++;
@@ -424,11 +427,11 @@ public:
 
     // Print some statistics
     const size_t n = cityModel.Buildings.size();
-    Info("CityModelGenerator: Missing ground points for " +
+    info("CityModelGenerator: Missing ground points for " +
          str(numMissingGroundPoints) + "/" + str(n) + " building(s)");
-    Info("CityModelGenerator: Missing roof points for " +
+    info("CityModelGenerator: Missing roof points for " +
          str(numMissingRoofPoints) + "/" + str(n) + " building(s)");
-    Info("CityModelGenerator: Height too small (adjusted) for " +
+    info("CityModelGenerator: Height too small (adjusted) for " +
          str(numSmallHeights) + "/" + str(n) + " building(s)");
   }
 
@@ -441,7 +444,7 @@ public:
                                  const GridField2D &dtm,
                                  size_t numBuildings)
   {
-    Info("CityModelGenerator: Randomizing city model...");
+    info("CityModelGenerator: Randomizing city model...");
 
     // Some hard-coded dimensions
     const double A = 20.0;  // Maximum building side length
@@ -464,8 +467,8 @@ public:
         // Check number of attempts
         if (++counter > N)
         {
-          Info("Try setting a smaller number of random buildings.");
-          Error("Unable to randomize city model; reached maximum number of "
+          info("Try setting a smaller number of random buildings.");
+          error("Unable to randomize city model; reached maximum number of "
                 "attempts.");
         }
 
@@ -506,7 +509,7 @@ public:
         cityModel.Buildings.push_back(building);
         centers.push_back(c);
 
-        Info("Creating random building " + str(i + 1) + "/" +
+        info("Creating random building " + str(i + 1) + "/" +
              str(numBuildings) + " at c = " + str(c));
         break;
       }
@@ -553,7 +556,7 @@ public:
                                            bool verbose = false)
   {
     if (verbose)
-      Info("CityModelGenerator: BuildingPointsOutlierRemover");
+      info("CityModelGenerator: BuildingPointsOutlierRemover");
     Timer("BuildingPointsOutlierRemover");
     size_t totalRemoved = 0;
     for (auto &building : cityModel.Buildings)
@@ -565,7 +568,7 @@ public:
     }
     if (verbose)
     {
-      Info("BuildingPointsOutlierRemove filtered a total of " +
+      info("BuildingPointsOutlierRemove filtered a total of " +
            str(totalRemoved) + " points from  " +
            str(cityModel.Buildings.size()) + " buildings");
     }
@@ -577,7 +580,7 @@ public:
                                                  bool verbose = false)
   {
     if (verbose)
-      Info("CityModelGenerator: BuildingPointsRANSACOutlierRemover");
+      info("CityModelGenerator: BuildingPointsRANSACOutlierRemover");
     Timer("BuildingPointsRANSACOutlierRemover");
     size_t totalRemoved = 0;
     for (auto &building : cityModel.Buildings)
@@ -587,6 +590,8 @@ public:
                                                  distanceThershold, iterations);
       totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
+    info("BuildingPointsRANSACOutlierRemover remove " + str(totalRemoved) +
+         " points");
   }
 
 private:
@@ -596,7 +601,7 @@ private:
                              const BoundingBox2D &bbox,
                              double minimalBuildingDistance)
   {
-    Info("CityModelGenerator: Merging buildings...");
+    info("CityModelGenerator: Merging buildings...");
 
     // Initialize GEOS
     GEOS::Init();
@@ -662,8 +667,8 @@ private:
         // Merge if distance is small
         if (d2 < tol2)
         {
-          Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                   str(j) + " are too close, merging");
+          debug("CityModelGenerator: Buildings " + str(i) + " and " + str(j) +
+                " are too close, merging");
 
           // Merge buildings
           buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
@@ -686,7 +691,7 @@ private:
       if (building.Valid())
         mergedBuildings.push_back(building);
       else if (!building.Empty())
-        Warning("Building " + building.UUID +
+        warning("Building " + building.UUID +
                 " has non-empty footprint but less than 3 vertices, skipping");
     }
 
@@ -696,9 +701,9 @@ private:
     // Finish GEOS
     GEOS::Finish();
 
-    Info("CityModelGenerator: " + str(numMerged) +
+    info("CityModelGenerator: " + str(numMerged) +
          " building pair(s) were merged");
-    Info("CityModelGenerator: " + str(numCompared) +
+    info("CityModelGenerator: " + str(numCompared) +
          " pair(s) of buildings were checked");
   }
 

@@ -27,10 +27,12 @@
 
 using namespace DTCC;
 
-void Help() { Error("Usage: dtcc-generate-citymodel Parameters.json"); }
+void Help() { error("Usage: dtcc-generate-citymodel Parameters.json"); }
 
 int main(int argc, char *argv[])
 {
+  progress(0.0);
+
   // Check command-line arguments
   if (CommandLine::HasOption("-h", argc, argv))
   {
@@ -42,8 +44,8 @@ int main(int argc, char *argv[])
   // Get directories
   const std::string dataDirectory = p["DataDirectory"];
   const std::string outputDirectory = p["OutputDirectory"];
-  Info("Loding data from directory: " + dataDirectory);
-  Info("Saving data to directory:   " + outputDirectory);
+  info("Loding data from directory: " + dataDirectory);
+  info("Saving data to directory:   " + outputDirectory);
 
   // Start timer
   Timer timer("Step 1: Generate city model");
@@ -53,8 +55,9 @@ int main(int argc, char *argv[])
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
 
+  auto loading_timer = Timer("load data");
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
-  Info("Loaded " + str(footprints.size()) + " building footprints");
+  info("Loaded " + str(footprints.size()) + " building footprints");
 
   // Set bounding box
   BoundingBox2D bbox;
@@ -62,10 +65,10 @@ int main(int argc, char *argv[])
   if (p["AutoDomain"])
   {
     bbox = BoundingBox2D(footprints, p["DomainMargin"]);
-    Info("Bounding box of footprints: " + str(bbox));
+    info("Bounding box of footprints: " + str(bbox));
     BoundingBox2D lasBBox;
     LAS::BoundsDirectory(lasBBox, dataDirectory);
-    Info("Bounding box of point cloud: " + str(lasBBox));
+    info("Bounding box of point cloud: " + str(lasBBox));
     bbox.Intersect(lasBBox);
     O = bbox.P;
     p["X0"] = O.x;
@@ -88,25 +91,27 @@ int main(int argc, char *argv[])
   }
 
   // Check size of bounding box
-  Info("Bounding box of city model: " + str(bbox));
+  info("Bounding box of city model: " + str(bbox));
   if (bbox.Area() < 100.0)
   {
-    Error("Domain too small to generate a city model");
+    error("Domain too small to generate a city model");
     return 1;
   }
 
   // Read point cloud (only points inside bounding box)
+  auto loadlas_timer = Timer("Reaing LAS");
   PointCloud pointCloud;
   LAS::ReadDirectory(pointCloud, dataDirectory, bbox,
                      p["NaiveVegitationFilter"]);
+  loadlas_timer.Stop();
 
   // Check point cloud
   if (pointCloud.Empty())
-    Error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, "
+    error("Point cloud is empty. Check LiDaR quality or the X{0,Min,Max}, "
           "Y{0,Min,Max} values in Parameters.json");
   pointCloud.SetOrigin(O);
   pointCloud.BuildHasClassifications();
-  Info(pointCloud);
+  info(pointCloud);
 
   // Remove outliers from point cloud
   PointCloudProcessor::RemoveOutliers(pointCloud, p["OutlierMargin"]);
@@ -121,13 +126,13 @@ int main(int argc, char *argv[])
   GridField2D dtm;
   ElevationModelGenerator::GenerateElevationModel(
       dtm, pointCloud, {2, 9}, p["ElevationModelResolution"]);
-  Info(dtm);
+  info(dtm);
 
   // Generate DSM (including buildings and other objects)
   GridField2D dsm;
   ElevationModelGenerator::GenerateElevationModel(
       dsm, pointCloud, {}, p["ElevationModelResolution"]);
-  Info(dsm);
+  info(dsm);
 
   // Smooth elevation model (only done for DTM)
   VertexSmoother::SmoothField(dtm, p["GroundSmoothing"]);
@@ -144,7 +149,7 @@ int main(int argc, char *argv[])
                                         bbox, p["MinBuildingDistance"],
                                         p["MinBuildingSize"]);
   cityModel.SetOrigin(O);
-  Info(cityModel);
+  info(cityModel);
 
   // Clean city model and compute heights
   CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
@@ -175,6 +180,7 @@ int main(int argc, char *argv[])
 
   // Stop timer
   timer.Stop();
+  progress(0.9);
 
   // Write JSON
   if (p["WriteJSON"])
@@ -183,6 +189,7 @@ int main(int argc, char *argv[])
     JSON::Write(dsm, outputDirectory + "DSM.json", O);
     JSON::Write(cityModel, outputDirectory + "CityModel.json", O);
   }
+  progress(0.95);
 
   // Write VTK
   if (p["WriteVTK"])
@@ -190,13 +197,15 @@ int main(int argc, char *argv[])
     VTK::Write(dtm, outputDirectory + "DTM.vts");
     VTK::Write(dsm, outputDirectory + "DSM.vts");
   }
+  progress(0.99);
 
   // Report timings and parameters
   const std::string prefix = outputDirectory + "/dtcc-generate-citymodel";
   Timer::Report("Timings for dtcc-generate-citymodel",
                 prefix + "-timings.json");
   JSON::Write(p, prefix + "-parameters.json", 4);
-  Info(p);
+  info(p);
+  progress(1.0);
 
   return 0;
 }

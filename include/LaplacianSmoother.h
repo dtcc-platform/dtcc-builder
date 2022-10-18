@@ -34,7 +34,7 @@ namespace DTCC
                              bool fixBuildings,
                              bool writeMatrix)
     {
-      Info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing)...");
+      info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing)...");
       Timer timer("SmoothMesh3D");
 
       // Convert to FEniCS mesh
@@ -104,7 +104,7 @@ namespace DTCC
         {
           const size_t M = A->size(0);
           const size_t N = A->size(1);
-          Info("LaplacianSmoother: Writing matrix of size " + str(M) + " x " +
+          info("LaplacianSmoother: Writing matrix of size " + str(M) + " x " +
                str(N) + " to file matrix.dat");
           std::stringstream ss;
           for (size_t i = 0; i < M; i++)
@@ -125,7 +125,7 @@ namespace DTCC
         // Write vector
         {
           const size_t M = A->size(0);
-          Info("LaplacianSmoother: Writing vector of size " + str(M) +
+          info("LaplacianSmoother: Writing vector of size " + str(M) +
                " to file vector.dat");
           std::stringstream ss;
           std::vector<double> values{};
@@ -166,7 +166,7 @@ namespace DTCC
                                   const std::vector<int> &domainMarkers,
                                   double h)
     {
-      Warning("Elastic smoothing not (yet) implemented.");
+      warning("Elastic smoothing not (yet) implemented.");
     }
 
     // Generate elevation function (used only for testing/visualization)
@@ -446,11 +446,11 @@ namespace DTCC
       }
 
       const size_t k4 = subDomains.size() - (k0 + k1 + k2 + k3);
-      Info("LaplacianSmoother: Found " + str(k0) + " building boundary facets");
-      Info("LaplacianSmoother: Found " + str(k1) + " ground boundary facets");
-      Info("LaplacianSmoother: Found " + str(k2) + " halo boundary facets");
-      Info("LaplacianSmoother: Found " + str(k3) + " top boundary facets");
-      Info("LaplacianSmoother: Found " + str(k4) + " Neumann boundary facets");
+      info("LaplacianSmoother: Found " + str(k0) + " building boundary facets");
+      info("LaplacianSmoother: Found " + str(k1) + " ground boundary facets");
+      info("LaplacianSmoother: Found " + str(k2) + " halo boundary facets");
+      info("LaplacianSmoother: Found " + str(k3) + " top boundary facets");
+      info("LaplacianSmoother: Found " + str(k4) + " Neumann boundary facets");
     }
   };
 
