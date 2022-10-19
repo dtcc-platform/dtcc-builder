@@ -7,7 +7,7 @@
 #include "PrimaryArea.h"
 #include <Logging.h>
 #include <Polygon.h>
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 /// Representation of a city district
@@ -37,6 +37,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif // CORE_DISTRICT_H

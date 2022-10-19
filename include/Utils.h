@@ -10,7 +10,7 @@
 #define DTCC_UTILS_H
 
 #include <uuid/uuid.h>
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
   /// Utils provides a collection of utility functions that are used

@@ -12,7 +12,7 @@
 #include "Color.h"
 #include "ColorFunctions.h"
 #include "Logging.h"
-namespace DTCC
+namespace DTCC_BUILDER
 {
 enum ColorMapType {Linear,Discrete};
 

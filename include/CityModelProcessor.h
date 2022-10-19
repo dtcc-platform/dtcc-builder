@@ -11,7 +11,7 @@
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class CityModelProcessor
@@ -65,5 +65,5 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 #endif

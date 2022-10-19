@@ -6,7 +6,7 @@
 
 #include "Logging.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 /// Parameter type
@@ -194,6 +194,6 @@ private:
   std::string valueString{};
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

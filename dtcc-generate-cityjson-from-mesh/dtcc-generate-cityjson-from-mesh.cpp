@@ -22,7 +22,7 @@
 #include <assimp/scene.h>
 #include <assimp/vector3.h>
 
-using namespace DTCC;
+using namespace DTCC_BUILDER;
 
 void Help()
 {

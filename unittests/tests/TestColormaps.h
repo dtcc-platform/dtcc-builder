@@ -3,7 +3,7 @@
 #include "ColorMapIO.h"
 #include "JSON.h"
 
-using namespace DTCC;
+using namespace DTCC_BUILDER;
 
 TEST_CASE("COLORMAPS")
 {

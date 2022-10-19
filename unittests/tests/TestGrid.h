@@ -4,7 +4,7 @@
 #include "GridVectorField.h"
 #include "Point.h"
 
-using namespace DTCC;
+using namespace DTCC_BUILDER;
 
 TEST_CASE("Grid2D")
 {

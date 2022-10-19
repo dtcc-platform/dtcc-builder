@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
   class Point3D

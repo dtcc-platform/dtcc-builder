@@ -12,7 +12,7 @@
 
 using namespace nlohmann;
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 /// Class for generating RoadNetwork objects, given .json or .geojson files.
 class RoadNetworkGenerator
@@ -21,7 +21,7 @@ class RoadNetworkGenerator
   /// \param network RoadNetwork object
   /// \param attributes Values and properties fetched from file
   /// \param attributeIndex Index of edge to add attributes to
-  static void AddEdgeProperties(DTCC::RoadNetwork &network,
+  static void AddEdgeProperties(DTCC_BUILDER::RoadNetwork &network,
                                 const json &attributes,
                                 size_t attributeIndex)
   {
@@ -123,6 +123,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif // CORE_ROADNETWORKGENERATOR_H

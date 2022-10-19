@@ -17,7 +17,7 @@
 #include "Vector.h"
 #include "VertexSmoother.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class ElevationModelGenerator
@@ -337,6 +337,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

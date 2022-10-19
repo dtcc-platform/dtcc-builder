@@ -1,7 +1,7 @@
 #include "GEOS.h"
 #include "Polygon.h"
 
-using namespace DTCC;
+using namespace DTCC_BUILDER;
 
 // Check sum for comparing against sandbox/MergePolygonsGEOS.py
 double CheckSum(const Polygon &polygon)

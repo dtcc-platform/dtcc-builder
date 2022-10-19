@@ -13,7 +13,7 @@
 #include "Vector.h"
 #include "Simplex.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class XML
@@ -140,6 +140,6 @@ private:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

@@ -24,7 +24,7 @@
 #include "Timer.h"
 #include "VertexSmoother.h"
 
-using namespace DTCC;
+using namespace DTCC_BUILDER;
 
 void Help() { error("Usage: dtcc-generate-citymodel Parameters.json"); }
 

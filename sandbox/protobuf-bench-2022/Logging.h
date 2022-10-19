@@ -10,7 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
   // Log levels
   enum LogLevels
@@ -153,6 +153,6 @@ namespace DTCC
     return out.str();
   }
 
-} // namespace DTCC
+  } // namespace DTCC_BUILDER
 
 #endif

@@ -7,7 +7,7 @@
 #include "Mesh.h"
 #include "VectorField.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
   /// MeshVectorField2D represents a vector field on an irregular 2D mesh.

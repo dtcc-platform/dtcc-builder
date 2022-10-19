@@ -10,7 +10,7 @@
 
 #include "Logging.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 using namespace netCDF;
 
@@ -317,6 +317,6 @@ static void readVarAtts(NcVar &datau)
   }
 }
 #endif
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

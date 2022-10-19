@@ -12,7 +12,7 @@
 #include "Table.h"
 //#include "JSON.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class Timer
@@ -133,6 +133,6 @@ private:
 // Initialize static member
 std::map<std::string, std::pair<double, size_t>> Timer::timings;
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

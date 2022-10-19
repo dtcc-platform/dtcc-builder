@@ -26,7 +26,7 @@
 #include "Surface.h"
 #include "Vector.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class VTK
@@ -245,6 +245,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

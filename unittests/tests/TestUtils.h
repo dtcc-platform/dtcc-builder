@@ -1,7 +1,7 @@
 #include "Hashing.h"
 #include "Utils.h"
 
-using namespace DTCC;
+using namespace DTCC_BUILDER;
 
 TEST_CASE("Hashing")
 {

@@ -7,7 +7,7 @@
 #include "Point.h"
 #include "Vector.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
   /// VectorField2D represents a vector field on a 2D domain.

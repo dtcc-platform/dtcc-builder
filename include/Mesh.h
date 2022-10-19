@@ -11,7 +11,7 @@
 #include "Simplex.h"
 #include "Vector.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 /// Mesh2D represents a triangular mesh of a 2D domain.
@@ -85,6 +85,6 @@ public:
 
   };
 
-} // namespace DTCC
+  } // namespace DTCC_BUILDER
 
 #endif

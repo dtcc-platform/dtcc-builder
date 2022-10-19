@@ -26,7 +26,7 @@
 
 #include "KDTreeVectorOfVectorsAdaptor.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class CityModelGenerator
@@ -888,6 +888,6 @@ private:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

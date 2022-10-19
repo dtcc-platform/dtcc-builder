@@ -12,7 +12,7 @@
 #include "Mesh.h"
 #include "Surface.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class MeshProcessor
@@ -237,6 +237,6 @@ private:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

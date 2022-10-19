@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class Hashing
@@ -138,6 +138,6 @@ public:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif
