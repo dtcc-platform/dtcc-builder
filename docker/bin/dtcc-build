@@ -4,7 +4,7 @@ echo "Building Docker image for DTCC Builder..."
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-export _UID=$(id -g)
+export UID
 if [[ "$OSTYPE" == "darwin"* ]]; then
     export GID=1003
 else
