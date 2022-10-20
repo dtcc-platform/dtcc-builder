@@ -13,6 +13,21 @@ Alternatively, you may want to use the SSH protocol:
 This will create a directory named `dtcc-builder` containing the full
 source code of DTCC Builder.
 
+## Installing dependencies
+
+DTCC Builder depends on a number of open-source libraries. The easiest
+way to install these dependencies is to use the provided Docker image
+for DTCC Builder. To build and start the DTCC Docker image
+(container), enter the `docker` directory and issue the following two
+commands:
+
+    bin/dtcc-build
+    bin/dtcc-start
+
+The first of these two commands will build a Docker image and
+container for DTCC Builder and the second command will start and
+attach to the container.
+
 ## Building the software
 
 DTCC Builder is implemented in C++ and uses
@@ -29,9 +44,10 @@ the top-level directory:
 This will build and install all programs into the top-level `bin`
 directory.
 
-> **Note:** DTCC Builder depends on a number of open-source
-libraries. To ensure that you have all the dependencies needed, it is
-recommended to work from inside the [DTCC
+> **Note:** These commands should be run from inside the Docker
+> container provided for DTCC Builder.
+
+[DTCC
 Docker](https://gitlab.com/dtcc-platform/dtcc-docker) container for
 DTCC Builder. This documentation assumes that all commands are run
 from within the Docker container.
@@ -45,7 +61,7 @@ data, enter the `data` directory and issue the following command:
     ./dtcc-download-demo-data-public
 
 > **Note:** The command `dtcc-download-demo-data` provides additional
-datasets that may not be shared publicly (because of license
-restrictions from the data owners). Access to no-public data is
-provided to developers on request. Contact the maintainers of DTCC
-Builder for more info.
+> datasets that may not be shared publicly (because of license
+> restrictions from the data owners). Access to no-public data is
+> provided to developers on request. Contact the maintainers of DTCC
+> Builder for more info.
