@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 echo "Building Docker image for dtcc-builder..."
-     export UID=$(id -u)
-     export GID=$(id -g)
-     export GID=1003
+export UID=$(id -u)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export GID=1003
+else
+    export GID=$(id -g)
+fi
 
 if [ ! -f bin/dtcc-build-image ]; then
 rightpath=`find . -name "dtcc-build-image"|tail -n 1|cut -d "/" -f2`
