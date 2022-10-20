@@ -8,16 +8,6 @@ else
     export GID=$(id -g)
 fi
 
-if [ ! -f bin/dtcc-build-image ]; then
-rightpath=`find . -name "dtcc-build-image"|tail -n 1|cut -d "/" -f2`
-cd $rightpath
-    docker-compose -f docker-compose.yml build dtcc-builder 
-    docker-compose -f docker-compose.yml up -d  dtcc-builder
-else
-#    echo "Building Docker image for dtcc-builder..."
-#    export UID=$(id -u)
-#    export GID=$(id -g)
-#    export GID=1003
-	docker-compose -f docker-compose.yml build dtcc-builder
-    docker-compose -f docker-compose.yml up -d  dtcc-builder
-fi
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+docker-compose -f ${SCRIPT_DIR}/../docker-compose.yml build dtcc-builder 
+docker-compose -f ${SCRIPT_DIR}/../docker-compose.yml up -d  dtcc-builder
