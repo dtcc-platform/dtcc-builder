@@ -26,9 +26,9 @@ RUN ldconfig /usr/local/lib
 RUN useradd -m $USER -G sudo && \
     echo "$USER:$USER" | chpasswd && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-ARG uid
+ARG _uid
 ARG gid
-RUN usermod -u ${uid} dtcc
+RUN usermod -u ${_uid} dtcc
 RUN groupmod -g ${gid} dtcc
 
 #RUN touch banner
