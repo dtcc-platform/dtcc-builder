@@ -8,7 +8,7 @@ services:
       dockerfile: 'Dockerfile'
       target: dev
       args:
-        - uid=${UID}
+        - _uid=${_UID}
         - gid=${GID}
     working_dir: ${WORKING_DIR_BUILDER}
     container_name: dtcc-builder
