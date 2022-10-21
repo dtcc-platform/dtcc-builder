@@ -378,8 +378,10 @@ public:
       {
         // Pick percentile from ground points
         sort(building.GroundPoints.begin(), building.GroundPoints.end(),
-             [](const auto &lhs, const auto &rhs) { return lhs.z < rhs.z; })
-            h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
+             [](const Point3D &lhs, const Point3D &rhs) {
+               return lhs.z < rhs.z;
+             });
+        h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
       }
 
       // Compute roof height h1
@@ -396,8 +398,10 @@ public:
       else
       {
         sort(building.RoofPoints.begin(), building.RoofPoints.end(),
-             [](const auto &lhs, const auto &rhs) { return lhs.z < rhs.z; })
-            h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
+             [](const Point3D &lhs, const Point3D &rhs) {
+               return lhs.z < rhs.z;
+             });
+        h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
       }
 
       // Check that h0 < h1
