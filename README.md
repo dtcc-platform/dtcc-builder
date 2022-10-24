@@ -9,6 +9,8 @@ developed at the
 [Digital Twin Cities Centre](https://dtcc.chalmers.se/)
 supported by Sweden’s Innovation Agency Vinnova under Grant No. 2019-421 00041.
 
+Notes about releases and changes are documented in the [changelog](./CHANGELOG.md).
+
 ## Documentation
 
 * [Introduction](./doc/introduction.md)
