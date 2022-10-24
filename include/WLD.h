@@ -26,7 +26,7 @@ public:
   static void
   Read(GeoReference &geoReference, const std::string& fileName, size_t stride = 1)
   {
-    Info("WLD: Reading geo reference from file " + fileName);
+    info("WLD: Reading geo reference from file " + fileName);
 
     std::ifstream f(fileName);
     std::string A, D, B, E, C, F;
@@ -49,7 +49,7 @@ public:
   // Write geo reference to WLD file
   static void Write(GeoReference &geoReference, const std::string& fileName)
   {
-    Info("WLD: Writing geo reference to file " + fileName);
+    info("WLD: Writing geo reference to file " + fileName);
 
     std::ofstream f(fileName);
     f << std::setprecision(Parameters::Precision);

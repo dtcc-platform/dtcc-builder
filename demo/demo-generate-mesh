@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-PARAMETERS=Majorna2021.json
-
-../bin/dtcc-generate-mesh $PARAMETERS

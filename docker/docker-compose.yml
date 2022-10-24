@@ -1,29 +1,30 @@
 version: '3.9'
 
 services:
-  dev:
-    build: 
-      context: ./
+
+  dtcc-builder:
+    build:
+      context: .
+      dockerfile: 'Dockerfile'
       target: dev
-    container_name: dtcc
-    image: dtccimage
+      args:
+        - _uid=${_UID}
+        - gid=${GID}
+    working_dir: ${WORKING_DIR_BUILDER}
+    container_name: dtcc-builder
+    image: dtcc-builder-image
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
     volumes:
-      - ./..:/home/dtcc/core
+      - ../:${WORKING_DIR_BUILDER}:rw
+      - dtcc-platform-shared-data:${SHARED_DATA_DIR}:rw
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_PTRACE
-  clion:
-    build:
-      context: ./
-      target: clion
-    container_name: dtccclion
-    security_opt: # options needed for gdb debugging
-      - seccomp:unconfined
-      - apparmor:unconfined
-    image: dtccimageclion
-    volumes:
-      - ./..:/home/dtcc/core  
-    ports:
-      - "7776:22"
-      - "7777:7777"
+
+volumes:
+  dtcc-platform-shared-data:
+
+

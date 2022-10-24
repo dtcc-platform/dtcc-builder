@@ -16,9 +16,9 @@ public:
   /// Print initialization code for plotting
   static void Init()
   {
-    Info("from pylab import *");
-    Info("from mpl_toolkits.mplot3d import Axes3D");
-    Info("ax = Axes3D(figure())");
+    info("from pylab import *");
+    info("from mpl_toolkits.mplot3d import Axes3D");
+    info("ax = Axes3D(figure())");
   }
 
   /// Plot points (2D)
@@ -29,7 +29,7 @@ public:
     const std::string y = GetY(points);
 
     // Print plot commands
-    Info("ax.scatter(" + x + ", " + y + ")");
+    info("ax.scatter(" + x + ", " + y + ")");
   }
 
   /// Plot points (3D)
@@ -41,7 +41,7 @@ public:
     const std::string z = GetZ(points);
 
     // Print plot commands
-    Info("ax.scatter(" + x + ", " + y + ", " + z + ")");
+    info("ax.scatter(" + x + ", " + y + ", " + z + ")");
   }
 
   /// Plot building
@@ -75,11 +75,11 @@ public:
     Point3D c3D(c2D.x, c2D.y, building.GroundHeight);
 
     // Print plot commands
-    Info("ax.plot(" + x + ", " + y + ", " + z + ")");
-    Info("ax.scatter(" + gx + ", " + gy + ", " + gz + ", marker='o')");
-    Info("ax.scatter(" + rx + ", " + ry + ", " + rz + ", marker='.')");
+    info("ax.plot(" + x + ", " + y + ", " + z + ")");
+    info("ax.scatter(" + gx + ", " + gy + ", " + gz + ", marker='o')");
+    info("ax.scatter(" + rx + ", " + ry + ", " + rz + ", marker='.')");
     if (plotUUID)
-      Info("ax.text(" + str(c3D.x) + "," + str(c3D.y) + "," + str(c3D.z) +
+      info("ax.text(" + str(c3D.x) + "," + str(c3D.y) + "," + str(c3D.z) +
            ",'" + building.UUID + "')");
   }
 

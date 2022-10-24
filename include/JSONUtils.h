@@ -7,10 +7,10 @@
 /// Read JSON data from file
 static void Read(nlohmann::json& json, std::string fileName)
 {
-  Info("JSON: Reading from file " + fileName + "...");
+  info("JSON: Reading from file " + fileName + "...");
   std::ifstream f(fileName);
   if (!f)
-    Error("Unable to read from file " + fileName);
+    error("Unable to read from file " + fileName);
   f >> json;
 }
 
@@ -18,10 +18,10 @@ static void Read(nlohmann::json& json, std::string fileName)
 static void
 Write(const nlohmann::json &json, std::string fileName, int indent = -1)
 {
-  Info("JSON: Writing to file " + fileName + "...");
+  info("JSON: Writing to file " + fileName + "...");
   std::ofstream f(fileName);
   if (!f)
-    Error("Unable to write to file " + fileName);
+    error("Unable to write to file " + fileName);
   f << json.dump(indent);
 }
 
@@ -36,11 +36,11 @@ static void Read(T& t, std::string fileName)
 
 /// Write object to file
 template <class T>
-static void Write(const T& t, std::string fileName)
+static void Write(const T &t, std::string fileName, int indent = -1)
 {
   nlohmann::json json{};
   Serialize(t, json);
-  Write(json, fileName);
+  Write(json, fileName, indent);
 }
 
 /// Write object and origin (offset) to file
@@ -74,7 +74,7 @@ void WriteString(const T& t, std::string& jsonString)
 static void CheckType(std::string typeName, const nlohmann::json& json)
 {
   if (json.find("Type") == json.end() || json["Type"] != typeName)
-    Error("Unable to read JSON data; expecting type " + typeName + ".");
+    error("Unable to read JSON data; expecting type " + typeName + ".");
 }
 
 /// Check json document for key
@@ -87,7 +87,7 @@ static bool HasKey(std::string key, const nlohmann::json &json)
 static bool ToBool(std::string key, const nlohmann::json &json)
 {
   if (json.find(key) == json.end())
-    Error("Missing field '" + key + "' in JSON file.");
+    error("Missing field '" + key + "' in JSON file.");
   return json[key];
 }
 
@@ -95,7 +95,7 @@ static bool ToBool(std::string key, const nlohmann::json &json)
 static int ToInt(std::string key, const nlohmann::json &json)
 {
   if (json.find(key) == json.end())
-    Error("Missing field '" + key + "' in JSON file.");
+    error("Missing field '" + key + "' in JSON file.");
   return json[key];
 }
 
@@ -103,10 +103,10 @@ static int ToInt(std::string key, const nlohmann::json &json)
 static size_t ToUnsignedInt(std::string key, const nlohmann::json &json)
 {
   if (json.find(key) == json.end())
-    Error("Missing field '" + key + "' in JSON file.");
+    error("Missing field '" + key + "' in JSON file.");
   long int value = json[key];
   if (value < 0)
-    Error("Expecting non-negative integer for field '" + key + "'");
+    error("Expecting non-negative integer for field '" + key + "'");
   return static_cast<size_t>(value);
 }
 
@@ -114,7 +114,7 @@ static size_t ToUnsignedInt(std::string key, const nlohmann::json &json)
 static double ToDouble(std::string key, const nlohmann::json &json)
 {
   if (json.find(key) == json.end())
-    Error("Missing field '" + key + "' in JSON file.");
+    error("Missing field '" + key + "' in JSON file.");
   return json[key];
 }
 
@@ -122,7 +122,7 @@ static double ToDouble(std::string key, const nlohmann::json &json)
 static std::string ToString(std::string key, const nlohmann::json &json)
 {
   if (json.find(key) == json.end())
-    Error("Missing field '" + key + "' in JSON file.");
+    error("Missing field '" + key + "' in JSON file.");
   return json[key];
 }
 
@@ -140,6 +140,6 @@ static nlohmann::json GetObjectByAttribute(const std::string key,
   for (const auto &jsonObj : jsonArray)
     if (jsonObj[key] == value)
       return jsonObj;
-  Error("No object with key " + key + " and value " + value + " in JSON array");
+  error("No object with key " + key + " and value " + value + " in JSON array");
   return nullptr;
 }

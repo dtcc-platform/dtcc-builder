@@ -1,6 +1,6 @@
 {
     "Type": "Parameters",
-    "DataDirectory": "/home/dtcc/core/data/Eman2021",
+    "DataDirectory": "/home/dtcc/dtcc-builder/data/Eman2021",
     "DomainHeight": 50.0,
     "ElevationModelResolution": 1.0,
     "MeshResolution": 20.0,
@@ -22,5 +22,6 @@
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
     "WriteVTK": true,
-    "Debug": true
+    "Debug": true,
+    "BuildingRemoveOutlier":true
 }

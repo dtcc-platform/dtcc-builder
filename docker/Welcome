@@ -8,5 +8,4 @@ Welcome to the Digital Twin Cities Platform
   ██████╔╝   ██║   ╚██████╗╚██████╗
   ╚═════╝    ╚═╝    ╚═════╝ ╚═════╝
 
-This image provides a common development and runtime environment
-for the Digital Twin Cities Platform.
+This Docker image provides a development environment for DTCC Builder.

@@ -153,16 +153,26 @@ public:
   static double SquaredDistance2D(const Polygon &polygon0,
                                   const Polygon &polygon1)
   {
+    //    std::cout << "Checking polygon with " << polygon0.Vertices.size()
+    //              << " vertices" << std::endl;
+    //    std::cout << "Checking polygon with " << polygon1.Vertices.size()
+    //             << " vertices" << std::endl;
     double d2Min = std::numeric_limits<double>::max();
 
     // Check all vertices in first polygon
     for (auto const &p : polygon0.Vertices)
+    {
+      //     std::cout << "Point of polygon0 " << str(p) << std::endl;
       d2Min = std::min(d2Min, SquaredDistance2D(polygon1, p));
-
+      //     std::cout << "D2min " << d2Min << std::endl;
+    }
     // Check all vertices in second polygon
     for (auto const &p : polygon1.Vertices)
+    {
+      //      std::cout << "Point of polygon1 " << str(p) << std::endl;
       d2Min = std::min(d2Min, SquaredDistance2D(polygon0, p));
-
+      //      std::cout << "D2min " << d2Min << std::endl;
+    }
     return d2Min;
   }
 
@@ -315,6 +325,19 @@ public:
     return 0.5 * std::abs(PolygonDeterminant2D(polygon));
   }
 
+  // Computer Perimeter of polygon (2D)
+  static double PolygonPerimeter2D(const Polygon &polygon)
+  {
+    double sum = 0.0;
+    for (size_t i = 0; i < polygon.Vertices.size(); i++)
+    {
+      Point2D p0 = polygon.Vertices[i];
+      Point2D p1 = polygon.Vertices[(i + 1) % polygon.Vertices.size()];
+      sum += Geometry::Distance2D(p0, p1);
+    }
+    return sum;
+  }
+
   // Compute center of polygon (2D)
   static Point2D PolygonCenter2D(const Polygon &polygon)
   {
@@ -411,6 +434,29 @@ public:
   {
     return (bboxA.P.x <= bboxB.Q.x && bboxB.P.x <= bboxA.Q.x &&
             bboxA.P.y <= bboxB.Q.y && bboxB.P.y <= bboxA.Q.y);
+  }
+
+  // Check whether polygon intersects with polygon (2D)
+  static bool Intersects2D(const Polygon &polygonA, const Polygon &polygonB)
+  {
+    // Check if bounding boxes intersect
+    if (!Intersect2D(BoundingBox2D(polygonA), BoundingBox2D(polygonB)))
+      return false;
+
+    // Check if any edge of polygonA intersects with any edge of polygonB
+    for (const auto &p0 : polygonA.Vertices)
+      for (const auto &p1 : polygonA.Vertices)
+        for (const auto &q0 : polygonB.Vertices)
+          for (const auto &q1 : polygonB.Vertices)
+            if (Intersects2D(p0, p1, q0, q1))
+              return true;
+
+    // Check if one polygon contains the other.
+    if (PolygonContains2D(polygonA, polygonB.Vertices[0]) ||
+        PolygonContains2D(polygonB, polygonA.Vertices[0]))
+      return true;
+
+    return false;
   }
 
   // Compute intersection between edges p0 - p1 and q0 - q1 (2D)

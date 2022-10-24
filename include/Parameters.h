@@ -24,17 +24,21 @@ public:
   {
     Map.clear();
 
-    Add("AutoDomain", false);
+    Add("ModelName", "");
+    Add("AutoDomain", true);
     Add("GenerateSurfaceMeshes", true);
     Add("GenerateVolumeMeshes", true);
     Add("WriteJSON", true);
     Add("WriteVTK", true);
+    Add("WriteOBJ", true);
+    Add("WriteSTL", true);
+    Add("WriteMatrix", false);
     Add("Debug", false);
 
     Add("GroundSmoothing", 5);
     Add("NumRandomBuildings", 25);
 
-    Add("DomainMargin", 0.0);
+    Add("DomainMargin", 10.0);
     Add("X0", 0.0);
     Add("Y0", 0.0);
     Add("XMin", 0.0);
@@ -49,9 +53,20 @@ public:
     Add("DomainHeight", 100.0);
     Add("GroundPercentile", 0.1);
     Add("RoofPercentile", 0.9);
-    Add("OutlierMargin", 0.2);
+    Add("OutlierMargin", 2.0);
+    Add("MinBuildingSize", 15.0);
 
+    Add("StatisticalOutlierRemover", true);
+    Add("OutlierNeighbors", 5);
+    Add("OutlierSTD", 1.5);
+
+    Add("RANSACOutlierRemover", true);
+    Add("RANSACOutlierMargin", 3.0);
+    Add("RANSACIterations", 250);
+
+    Add("NaiveVegitationFilter", true);
     Add("DataDirectory", "");
+    Add("OutputDirectory", "");
   }
 
   // Map (dictionary) of parameters
@@ -65,7 +80,7 @@ public:
   {
     auto it = Map.find(key);
     if (it == Map.end())
-      Error("Unknown parameter: \"" + key + "\"");
+      error("Unknown parameter: \"" + key + "\"");
     return it->second;
   }
 
@@ -74,7 +89,7 @@ public:
   {
     auto it = Map.find(key);
     if (it == Map.end())
-      Error("Unknown parameter: \"" + key + "\"");
+      error("Unknown parameter: \"" + key + "\"");
     return it->second;
   }
 
@@ -88,7 +103,7 @@ public:
   void Add(const std::string &key, bool value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::Bool, key);
     p = value;
     Map[key] = p;
@@ -98,7 +113,7 @@ public:
   void Add(const std::string &key, int value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::Int, key);
     p = value;
     Map[key] = p;
@@ -108,7 +123,7 @@ public:
   void Add(const std::string &key, double value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::Float, key);
     p = value;
     Map[key] = p;
@@ -118,7 +133,7 @@ public:
   void Add(const std::string &key, const std::string &value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::String, key);
     p = value;
     Map[key] = p;
@@ -128,7 +143,7 @@ public:
   void Add(const std::string &key, const char *value)
   {
     if (HasKey(key))
-      Error("Unable to add parameter; key \"" + key + "\" already exists");
+      error("Unable to add parameter; key \"" + key + "\" already exists");
     Parameter p(ParameterType::String, key);
     p = std::string(value);
     Map[key] = p;
@@ -170,7 +185,7 @@ public:
     // Return table string
     return str(table);
   }
-  };
+};
 
 } // namespace DTCC
 

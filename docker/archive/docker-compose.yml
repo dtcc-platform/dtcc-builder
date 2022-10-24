@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  builder:
+    build:
+      context: ../
+      dockerfile: './dtcc-model/docker/Dockerfile'
+      target: dev
+    working_dir: ${WORKING_DIR}
+    container_name: dtcc-builder
+    image: dtcc-builder-image
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../:${WORKING_DIR}
+      - docker_dtcc-core-shared-data:${SHARED_DATA_DIR}:rw
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
+
+volumes:
+  docker_dtcc-core-shared-data:
+    external: true
+
+networks:
+  default:
+    external: true
+    name: docker_dtcc-core-network

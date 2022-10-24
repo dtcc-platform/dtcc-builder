@@ -8,13 +8,13 @@ TEST_CASE("Hashing")
   SECTION("Hash Point2D")
   {
     Point2D p(1, 2);
-    Info(Hashing::Hex(Hashing::Hash(p)));
+    info(Hashing::Hex(Hashing::Hash(p)));
   }
 
   SECTION("Hash Point3D")
   {
     Point3D p(1, 2, 3);
-    Info(Hashing::Hex(Hashing::Hash(p)));
+    info(Hashing::Hex(Hashing::Hash(p)));
   }
 }
 
@@ -34,5 +34,5 @@ TEST_CASE("Get Filename from path")
   REQUIRE(Utils::GetFilename(path, true) == "fileName");
   REQUIRE(Utils::GetFilename(pathFileOnly) == "fileName.json");
   REQUIRE(Utils::GetFilename(pathFileOnly, true) == "fileName");
-  REQUIRE(Utils::GetFilename(pathNoFile) == "");
+  REQUIRE(Utils::GetFilename(pathNoFile) == "dir");
 }

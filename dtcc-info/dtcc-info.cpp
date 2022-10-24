@@ -3,23 +3,21 @@
 
 #include <iostream>
 
+#include "CommandLine.h"
 #include "JSON.h"
 #include "LAS.h"
-#include "CommandLine.h"
 #include "Logging.h"
+#include "Utils.h"
 
 using namespace DTCC;
 
-void Help()
-{
-  Error("Usage: dtcc-info Data.[json,las]");
-}
+void Help() { error("Usage: dtcc-info Data.[json,las]"); }
 
-template <class T> void Info(nlohmann::json json)
+template <class T> void info(nlohmann::json json)
 {
   T t;
   JSON::Deserialize(t, json);
-  Info(t);
+  info(t);
 }
 
 int main(int argc, char *argv[])
@@ -35,7 +33,7 @@ int main(int argc, char *argv[])
   const std::string fileName(argv[1]);
 
   // Check file type
-  if (CommandLine::EndsWith(fileName, "json"))
+  if (Utils::EndsWith(fileName, "json"))
   {
     // Read JSON and get type
     nlohmann::json json;
@@ -44,45 +42,45 @@ int main(int argc, char *argv[])
 
     // Check type
     if (typeName == "Parameters")
-      Info<Parameters>(json);
+      info<Parameters>(json);
     else if (typeName == "BoundingBox2D")
-      Info<BoundingBox2D>(json);
+      info<BoundingBox2D>(json);
     else if (typeName == "BoundingBox3D")
-      Info<BoundingBox3D>(json);
+      info<BoundingBox3D>(json);
     else if (typeName == "Grid2D")
-      Info<Grid2D>(json);
+      info<Grid2D>(json);
     else if (typeName == "Grid3D")
-      Info<Grid3D>(json);
+      info<Grid3D>(json);
     else if (typeName == "Mesh2D")
-      Info<Mesh2D>(json);
+      info<Mesh2D>(json);
     else if (typeName == "Mesh3D")
-      Info<Mesh3D>(json);
+      info<Mesh3D>(json);
     else if (typeName == "GridField2D")
-      Info<GridField2D>(json);
+      info<GridField2D>(json);
     else if (typeName == "GridField3D")
-      Info<GridField3D>(json);
+      info<GridField3D>(json);
     else if (typeName == "GridVectorField2D")
-      Info<GridVectorField2D>(json);
+      info<GridVectorField2D>(json);
     else if (typeName == "GridVectorField3D")
-      Info<GridVectorField3D>(json);
+      info<GridVectorField3D>(json);
     else if (typeName == "CityModel")
-      Info<CityModel>(json);
+      info<CityModel>(json);
     else if (typeName == "RoadNetwork")
-      Info<RoadNetwork>(json);
+      info<RoadNetwork>(json);
     else
     {
-      Error("Unknown JSON type: '" + typeName + "'");
+      error("Unknown JSON type: '" + typeName + "'");
     }
   }
-  else if (CommandLine::EndsWith(fileName, "las"))
+  else if (Utils::EndsWith(fileName, "las"))
   {
     PointCloud pointCloud;
     LAS::Read(pointCloud, fileName);
-    Info(pointCloud);
+    info(pointCloud);
   }
   else
   {
-    Error("Unhandled file type.");
+    error("Unhandled file type.");
   }
 
   return 0;

@@ -5,10 +5,16 @@
 #define DTCC_CITY_MODEL_GENERATOR_H
 
 #include <iostream>
+#include <map>
 #include <queue>
+#include <set>
+#include <unordered_set>
 #include <vector>
 
+#include "BuildingProcessor.h"
+#include "GEOS.h"
 #include "GridField.h"
+#include "Logging.h"
 #include "Plotting.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
@@ -17,6 +23,8 @@
 #include "Timer.h"
 #include "Vector.h"
 #include "datamodel/CityModel.h"
+
+#include "KDTreeVectorOfVectorsAdaptor.h"
 
 namespace DTCC
 {
@@ -40,9 +48,10 @@ public:
                                 const std::vector<std::string> &UUIDs,
                                 const std::vector<int> &entityIDs,
                                 const BoundingBox2D &bbox,
-                                double minBuildingDistance)
+                                double minBuildingDistance,
+                                double minBuildingSize)
   {
-    Info("CityModelGenerator: Generating city model...");
+    info("CityModelGenerator: Generating city model...");
     Timer timer("GenerateCityModel");
 
     // Clear data
@@ -55,7 +64,7 @@ public:
       if (!Geometry::BoundingBoxContains2D(bbox, footprints[i],
                                            minBuildingDistance))
       {
-        Warning("Skipping building " + UUIDs[i] +
+        warning("Skipping building " + UUIDs[i] +
                 "; outside domain or too close to boundary");
         continue;
       }
@@ -65,10 +74,15 @@ public:
       building.Footprint = footprints[i];
       building.UUID = UUIDs[i];
       building.SHPFileID = entityIDs[i];
+      if (Geometry::PolygonArea(building.Footprint) < minBuildingSize)
+      {
+        building.error |= BuildingError::BUILDING_TOO_SMALL;
+      }
+
       cityModel.Buildings.push_back(building);
     }
 
-    Info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
+    info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
          str(footprints.size()) + " buildings inside bounding box");
   }
 
@@ -81,7 +95,7 @@ public:
   /// Developer note: This may be optimized by avoiding copying
   static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
   {
-    Info("CityModelGenerator: Cleaning city model...");
+    info("CityModelGenerator: Cleaning city model...");
     Timer timer("CleanCityModel");
 
     // Clear search tree (since it might become invalid)
@@ -129,15 +143,15 @@ public:
         numRemoved++;
     }
 
-    Info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
+    info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not closed");
-    Info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
+    info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
          str(cityModel.Buildings.size()) + " polygons that were not oriented");
-    Info("CityModelGenerator: Merged vertices for " + str(numVertexMerged) +
+    info("CityModelGenerator: Merged vertices for " + str(numVertexMerged) +
          "/" + str(cityModel.Buildings.size()) + " polygons");
-    Info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
+    info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
          str(cityModel.Buildings.size()) + " polygons");
-    Info("CityModelGenerator: Removed " + str(numRemoved) + "/" +
+    info("CityModelGenerator: Removed " + str(numRemoved) + "/" +
          str(cityModel.Buildings.size()) +
          " buildings (invalid/too small after cleaning)");
   }
@@ -147,17 +161,18 @@ public:
   /// will decrease. Ground points and roof points are also merged and
   /// heights are set to min/max values of the merged buildings.
   static void SimplifyCityModel(CityModel &cityModel,
+                                const BoundingBox2D &bbox,
                                 double minimalBuildingDistance,
                                 double minimalVertexDistance)
   {
-    Info("CityModelGenerator: Simplifying city model...");
+    info("CityModelGenerator: Simplifying city model...");
     Timer timer("SimplifyCityModel");
 
     // Clear search tree (since it might become invalid)
     cityModel.bbtree.Clear();
 
     // Merge buildings if too close
-    MergeCityModel(cityModel, minimalBuildingDistance);
+    MergeCityModel(cityModel, bbox, minimalBuildingDistance);
   }
 
   /// Extract ground and roof points from point cloud.
@@ -178,81 +193,107 @@ public:
   static void ExtractBuildingPoints(CityModel &cityModel,
                                     const PointCloud &pointCloud,
                                     double groundMargin,
-                                    double outlierMargin)
+                                    double groundOutlierMargin)
+
   {
-    Info("CityModelGenerator: Extracting building points...");
+    info("CityModelGenerator: Extracting building points...");
     Timer timer("ExtractBuildingPoints");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
-      Error("Empty point cloud");
+      error("Empty point cloud");
 
     // Check that point cloud has classifications
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
-      Error("Missing classifications for point cloud");
+      error("Missing classifications for point cloud");
 
-    // Build search trees
-    pointCloud.BuildSearchTree(true);
-    cityModel.BuildSearchTree(true, groundMargin);
+    bool classifedBuildings = pointCloud.HasClassification(6);
 
-    // Compute bounding box tree collisions
-    const auto collisions = pointCloud.bbtree.Find(cityModel.bbtree);
+    auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
+    // build a kd-tree for radius search
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+                                         2 /* dims */>
+        my_kd_tree_t;
+    my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
 
-    // Clear old building points (if any)
+    kdt_timer.Stop();
     for (auto &building : cityModel.Buildings)
     {
       building.GroundPoints.clear();
       building.RoofPoints.clear();
-    }
 
-    // Squared margin for detecting ground points
-    const double d2 = groundMargin * groundMargin;
+      auto centerPoint = Geometry::PolygonCenter2D(building.Footprint);
+      double radius =
+          Geometry::PolygonRadius2D(building.Footprint, centerPoint);
+      radius *= radius;
+      radius += groundMargin;
 
-    // Iterate over collisions and extract points
-    for (auto &index : collisions)
-    {
-      // Get point and building
-      const Point3D &p3D = pointCloud.Points[index.first];
-      const Point2D p2D{p3D.x, p3D.y};
-      const uint8_t clf = pointCloud.Classifications[index.first];
-      Building &building = cityModel.Buildings[index.second];
-
-      // Check for ground points
-      if (clf == 2 || clf == 9)
+      std::vector<double> query_pt{centerPoint.x, centerPoint.y};
+      auto radius_t = Timer("RadiusQuery");
+      auto indices_dists = pc_index.radiusQuery(&query_pt[0], radius);
+      radius_t.Stop();
+      for (auto const &ind_pt : indices_dists)
       {
-        if (Geometry::SquaredDistance2D(building.Footprint, p2D) < d2)
+        size_t idx = ind_pt.first;
+        const uint8_t clf = pointCloud.Classifications[idx];
+        const Point3D &p3D = pointCloud.Points[idx];
+        const Point2D p2D{p3D.x, p3D.y};
+
+        if (clf == 2 || clf == 9)
+        {
           building.GroundPoints.push_back(p3D);
-      }
-
-      // Check for roof points
-      // else if (clf == 6)
-      else
-      {
-        if (Geometry::PolygonContains2D(building.Footprint, p2D))
-          building.RoofPoints.push_back(p3D);
+        }
+        else if (clf == 6 || (!classifedBuildings && clf < 2))
+        {
+          auto pc_timer = Timer("PolygoCOntains2D");
+          if (Geometry::PolygonContains2D(building.Footprint, p2D))
+          {
+            building.RoofPoints.push_back(p3D);
+          }
+          pc_timer.Stop();
+        }
       }
     }
 
-    // Remove outliers
-    size_t numPoints = 0;
-    size_t numOutliers = 0;
+    // Remove ground outliers
+    size_t numGroundPoints = 0;
+    size_t numGroundOutliers = 0;
     for (auto &building : cityModel.Buildings)
     {
       // Count total number of points
-      numPoints += building.GroundPoints.size();
-      numPoints += building.RoofPoints.size();
+      numGroundPoints += building.GroundPoints.size();
 
       // Remove outliers and count total number of outliers
-      numOutliers += PointCloudProcessor::RemoveOutliers(building.GroundPoints,
-                                                         outlierMargin)
-                         .size();
-      numOutliers += PointCloudProcessor::RemoveOutliers(building.RoofPoints,
-                                                         outlierMargin)
-                         .size();
+      numGroundOutliers += PointCloudProcessor::RemoveOutliers(
+                               building.GroundPoints, groundOutlierMargin)
+                               .size();
     }
-    const double outlierPercentage = (100.0 * numOutliers) / numPoints;
-    Info("CityModelGenerator: Removed outliers (" + str(outlierPercentage) +
-         "%)");
+    const double outlierGroundPercentage =
+        (100.0 * numGroundOutliers) / numGroundPoints;
+    info("CityModelGenerator: Removed ground point outliers (" +
+         str(outlierGroundPercentage) + "%)");
+
+    double ptsPrSqm;
+    double pointCoverage;
+    size_t tooFew = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      ptsPrSqm = static_cast<double>(building.RoofPoints.size()) /
+                 Geometry::PolygonArea(building.Footprint);
+      if (ptsPrSqm < 0.25)
+      {
+        building.error |= BuildingError::BUILDING_TOO_FEW_POINTS;
+        tooFew++;
+      }
+      pointCoverage = BuildingProcessor::PointCoverage(building, 2.0);
+      info("PointCoverage: " + str(pointCoverage));
+      if (pointCoverage < 0.5)
+      {
+        building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
+      }
+    }
+    info("CityModelGenerator: Number of buildings with too few roof points: " +
+         str(tooFew));
 
     // Sort points by height
     for (auto &building : cityModel.Buildings)
@@ -287,10 +328,10 @@ public:
     const double meanG = static_cast<double>(sumG) / cityModel.Buildings.size();
     const double meanR = static_cast<double>(sumR) / cityModel.Buildings.size();
 
-    Info("CityModelGenerator: min/mean/max number of ground points per "
+    info("CityModelGenerator: min/mean/max number of ground points per "
          "building is " +
          str(minG) + "/" + str(meanG) + "/" + str(maxG));
-    Info("CityModelGenerator: min/mean/max number of roof points per building "
+    info("CityModelGenerator: min/mean/max number of roof points per building "
          "is " +
          str(minR) + "/" + str(meanR) + "/" + str(maxR));
   }
@@ -309,7 +350,7 @@ public:
                                      double groundPercentile,
                                      double roofPercentile)
   {
-    Info("CityModelGenerator: Computing building heights...");
+    info("CityModelGenerator: Computing building heights...");
     Timer timer("ComputeBuildingHeights");
 
     // FIXME: Make this a parameter
@@ -330,14 +371,19 @@ public:
       double h0{0};
       if (building.GroundPoints.empty())
       {
-        Warning("Missing ground points for building " + building.UUID);
-        Info("CityModelGenerator: Setting ground height from DTM");
+        warning("Missing ground points for building " + building.UUID);
+        info("CityModelGenerator: Setting ground height from DTM");
         h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
         numMissingGroundPoints++;
+        building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
       }
       else
       {
         // Pick percentile from ground points
+        sort(building.GroundPoints.begin(), building.GroundPoints.end(),
+             [](const Point3D &lhs, const Point3D &rhs) {
+               return lhs.z < rhs.z;
+             });
         h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
       }
 
@@ -345,31 +391,42 @@ public:
       double h1{0};
       if (building.RoofPoints.empty())
       {
-        Warning("Missing roof points for building " + building.UUID);
-        Info("CityModelGenerator: Setting building height to " +
+        warning("Missing roof points for building " + building.UUID);
+        info("CityModelGenerator: Setting building height to " +
              str(minBuildingHeight) + "m");
         h1 = h0 + minBuildingHeight;
         numMissingRoofPoints++;
+        building.error |= BuildingError::BUILDING_NO_ROOF_POINTS;
       }
       else
       {
-        // Pick percentile from ground points
+        sort(building.RoofPoints.begin(), building.RoofPoints.end(),
+             [](const Point3D &lhs, const Point3D &rhs) {
+               return lhs.z < rhs.z;
+             });
         h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
       }
 
       // Check that h0 < h1
       if (h1 < h0 + minBuildingHeight)
       {
-        Warning("Height too small for building " + building.UUID);
-        Info("CitModelGenerator: Setting building height to " +
-             str(minBuildingHeight));
+        // warning("Height too small for building " + building.UUID);
+        // info("CitModelGenerator: Setting building height to " +
+        //     str(minBuildingHeight));
         h1 = h0 + minBuildingHeight;
         numSmallHeights++;
+        building.error |= BuildingError::BUILDING_HEIGHT_TOO_LOW;
       }
 
       // Set building height(s)
       building.Height = h1 - h0;
       building.GroundHeight = h0;
+
+      if (building.Height / sqrt(Geometry::PolygonArea(building.Footprint)) >
+          25)
+      {
+        building.error |= BuildingError::BUILDING_BAD_ASPECT_RATIO;
+      }
 
       // Uncomment for debugging
       // Plotting::Plot(building);
@@ -377,11 +434,11 @@ public:
 
     // Print some statistics
     const size_t n = cityModel.Buildings.size();
-    Info("CityModelGenerator: Missing ground points for " +
+    info("CityModelGenerator: Missing ground points for " +
          str(numMissingGroundPoints) + "/" + str(n) + " building(s)");
-    Info("CityModelGenerator: Missing roof points for " +
+    info("CityModelGenerator: Missing roof points for " +
          str(numMissingRoofPoints) + "/" + str(n) + " building(s)");
-    Info("CityModelGenerator: Height too small (adjusted) for " +
+    info("CityModelGenerator: Height too small (adjusted) for " +
          str(numSmallHeights) + "/" + str(n) + " building(s)");
   }
 
@@ -394,7 +451,7 @@ public:
                                  const GridField2D &dtm,
                                  size_t numBuildings)
   {
-    Info("CityModelGenerator: Randomizing city model...");
+    info("CityModelGenerator: Randomizing city model...");
 
     // Some hard-coded dimensions
     const double A = 20.0;  // Maximum building side length
@@ -417,8 +474,8 @@ public:
         // Check number of attempts
         if (++counter > N)
         {
-          Info("Try setting a smaller number of random buildings.");
-          Error("Unable to randomize city model; reached maximum number of "
+          info("Try setting a smaller number of random buildings.");
+          error("Unable to randomize city model; reached maximum number of "
                 "attempts.");
         }
 
@@ -459,7 +516,7 @@ public:
         cityModel.Buildings.push_back(building);
         centers.push_back(c);
 
-        Info("Creating random building " + str(i + 1) + "/" +
+        info("Creating random building " + str(i + 1) + "/" +
              str(numBuildings) + " at c = " + str(c));
         break;
       }
@@ -500,21 +557,61 @@ public:
     return building;
   }
 
-private:
-  // Get percentile object from array. It is assumed that the array is ordered.
-  template <class T>
-  static T GetPercentile(const std::vector<T> &array, double percentile)
+  static void BuildingPointsOutlierRemover(CityModel &cityModel,
+                                           size_t neighbours,
+                                           double outlierMargin,
+                                           bool verbose = false)
   {
-    size_t index = std::max(0.0, percentile * array.size());
-    index = std::min(index, array.size() - 1);
-    return array[index];
+    if (verbose)
+      info("CityModelGenerator: BuildingPointsOutlierRemover");
+    Timer("BuildingPointsOutlierRemover");
+    size_t totalRemoved = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      size_t beforeFilter = building.RoofPoints.size();
+      PointCloudProcessor::StatisticalOutlierRemover(
+          building.RoofPoints, neighbours, outlierMargin, verbose);
+      totalRemoved += (beforeFilter - building.RoofPoints.size());
+    }
+    if (verbose)
+    {
+      info("BuildingPointsOutlierRemove filtered a total of " +
+           str(totalRemoved) + " points from  " +
+           str(cityModel.Buildings.size()) + " buildings");
+    }
   }
+
+  static void BuildingPointsRANSACOutlierRemover(CityModel &cityModel,
+                                                 double distanceThershold,
+                                                 size_t iterations,
+                                                 bool verbose = false)
+  {
+    if (verbose)
+      info("CityModelGenerator: BuildingPointsRANSACOutlierRemover");
+    Timer("BuildingPointsRANSACOutlierRemover");
+    size_t totalRemoved = 0;
+    for (auto &building : cityModel.Buildings)
+    {
+      size_t beforeFilter = building.RoofPoints.size();
+      PointCloudProcessor::RANSAC_OutlierRemover(building.RoofPoints,
+                                                 distanceThershold, iterations);
+      totalRemoved += (beforeFilter - building.RoofPoints.size());
+    }
+    info("BuildingPointsRANSACOutlierRemover remove " + str(totalRemoved) +
+         " points");
+  }
+
+private:
 
   // Merge all buildings closer than a given distance
   static void MergeCityModel(CityModel &cityModel,
+                             const BoundingBox2D &bbox,
                              double minimalBuildingDistance)
   {
-    Info("CityModelGenerator: Merging buildings...");
+    info("CityModelGenerator: Merging buildings...");
+
+    // Initialize GEOS
+    GEOS::Init();
 
     // Avoid using sqrt for efficiency
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
@@ -522,21 +619,43 @@ private:
     // Get buildings
     std::vector<Building> &buildings = cityModel.Buildings;
 
+    // Counters
+    size_t numMerged = 0;
+    size_t numCompared = 0;
+
+    // Initialize grid
+    // Note: Grid size needs to be *at least* minimal distance
+    // Note: Factor 4 seems to be a good choice (tested using dtcc-bench-run)
+    double h = 4.0 * ComputeMeanBuildingSize(buildings);
+    h = std::max(h, minimalBuildingDistance + Parameters::Epsilon);
+    const size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
+    const size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
+    Grid2D grid(bbox, nX, nY);
+
+    // Initialize bins
+    std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
+    std::vector<std::unordered_set<size_t>> bin2buildings{grid.NumVertices()};
+    for (size_t i = 0; i < buildings.size(); i++)
+      UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
+
     // Create queue of indices to check
-    std::queue<size_t> indices;
+    std::queue<size_t> indices{};
     for (size_t i = 0; i < buildings.size(); i++)
       indices.push(i);
 
     // Process queue until empty
-    size_t numMerged = 0;
     while (!indices.empty())
     {
       // Pop index of next building to check
       const size_t i = indices.front();
       indices.pop();
 
-      // Iterate over all other buildings
-      for (size_t j = 0; j < buildings.size(); j++)
+      // Get neighbor indices
+      std::unordered_set<size_t> neighbors{
+          GetNeighbors(i, building2bins, bin2buildings)};
+
+      // Iterate over neighbors
+      for (size_t j : neighbors)
       {
         // Skip building itself
         if (i == j)
@@ -546,22 +665,27 @@ private:
         if (buildings[j].Empty())
           continue;
 
-        // Compute squared distance between polygons
+        // Compute distance
         const Polygon &Pi = buildings[i].Footprint;
         const Polygon &Pj = buildings[j].Footprint;
         const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
+        numCompared++;
 
         // Merge if distance is small
         if (d2 < tol2)
         {
-          Progress("CityModelGenerator: Buildings " + str(i) + " and " +
-                   str(j) + " are too close, merging");
+          debug("CityModelGenerator: Buildings " + str(i) + " and " + str(j) +
+                " are too close, merging");
 
           // Merge buildings
+          buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
           MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
           numMerged++;
 
-          // Add building i to queue
+          // Update binning
+          UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
+
+          // Add building back to queue
           indices.push(i);
         }
       }
@@ -574,15 +698,120 @@ private:
       if (building.Valid())
         mergedBuildings.push_back(building);
       else if (!building.Empty())
-        Warning("Building " + building.UUID +
+        warning("Building " + building.UUID +
                 " has non-empty footprint but less than 3 vertices, skipping");
     }
 
     // Overwrite buildings
     cityModel.Buildings = mergedBuildings;
 
-    Info("CityModelGenerator: " + str(numMerged) +
+    // Finish GEOS
+    GEOS::Finish();
+
+    info("CityModelGenerator: " + str(numMerged) +
          " building pair(s) were merged");
+    info("CityModelGenerator: " + str(numCompared) +
+         " pair(s) of buildings were checked");
+  }
+
+  // Compute mean building size (from bounding boxes)
+  static double ComputeMeanBuildingSize(std::vector<Building> &buildings)
+  {
+    double meanBuildingSize = 0.0;
+    for (const auto &building : buildings)
+    {
+      BoundingBox2D bbox(building.Footprint.Vertices);
+      meanBuildingSize += std::max(bbox.Q.x - bbox.P.x, bbox.Q.y - bbox.P.y);
+    }
+    meanBuildingSize /= static_cast<double>(buildings.size());
+    return meanBuildingSize;
+  }
+
+  // Update binning for for building
+  static void
+  UpdateBinning(std::vector<std::unordered_set<size_t>> &building2bins,
+                std::vector<std::unordered_set<size_t>> &bin2buildings,
+                size_t buildingIndex,
+                const Building &building,
+                const Grid2D &grid)
+  {
+    // Compute bounding box of building
+    BoundingBox2D bbox(building.Footprint.Vertices);
+
+    // Get grid cell size
+    const double hx = grid.XStep;
+    const double hy = grid.YStep;
+
+    // Get grid indices for bounding box
+    long int ixMin{}, iyMin{};
+    long int ixMax{}, iyMax{};
+    grid.Point2Index(ixMin, iyMin, bbox.P);
+    grid.Point2Index(ixMax, iyMax, bbox.Q);
+
+    // Check margin
+    double xMin = grid.BoundingBox.P.x + ixMin * hx;
+    double yMin = grid.BoundingBox.P.y + iyMin * hy;
+    double xMax = grid.BoundingBox.P.x + ixMax * hx;
+    double yMax = grid.BoundingBox.P.y + iyMax * hy;
+    if (xMin - bbox.P.x + Parameters::Epsilon > 0.0)
+      ixMin -= 1;
+    if (yMin - bbox.P.y + Parameters::Epsilon > 0.0)
+      iyMin -= 1;
+    if (bbox.Q.x - xMax + Parameters::Epsilon > 0.0)
+      ixMax += 1;
+    if (bbox.Q.y - yMax + Parameters::Epsilon > 0.0)
+      iyMax += 1;
+
+    // Check overflow
+    if (ixMin < 0)
+      ixMin = 0;
+    if (iyMin < 0)
+      iyMin = 0;
+    if (ixMax >= grid.XSize)
+      ixMax = grid.XSize - 1;
+    if (iyMax >= grid.YSize)
+      iyMax = grid.YSize - 1;
+
+    // Add to bins
+    for (long int ix = ixMin; ix <= ixMax; ix++)
+    {
+      for (long int iy = iyMin; iy <= iyMax; iy++)
+      {
+        const long int binIndex = grid.Index2Index(ix, iy);
+        building2bins[buildingIndex].insert(binIndex);
+        bin2buildings[binIndex].insert(buildingIndex);
+      }
+    }
+
+    // Sanity check: These numbers should never be larger
+    // than 0 and only rarely smaller than -0.5
+    const long int minIndex = grid.Index2Index(ixMin, iyMin);
+    const long int maxIndex = grid.Index2Index(ixMax, iyMax);
+    const Point2D P = grid.Index2Point(minIndex);
+    const Point2D Q = grid.Index2Point(maxIndex);
+    const double dxMin = (P.x - bbox.P.x) / hx;
+    const double dxMax = (bbox.Q.x - Q.x) / hx;
+    const double dyMin = (P.y - bbox.P.y) / hy;
+    const double dyMax = (bbox.Q.y - Q.y) / hy;
+    // std::cout << "CHECK: " << dxMin << " " << dxMax << " " << dyMin << " " <<
+    //  dyMax << std::endl;
+    assert(dxMin < 0.0);
+    assert(dxMax < 0.0);
+    assert(dyMin < 0.0);
+    assert(dyMax < 0.0);
+  }
+
+  // Get neighbors of building (buildings with overlapping bins)
+  static std::unordered_set<size_t>
+  GetNeighbors(size_t buildingIndex,
+               const std::vector<std::unordered_set<size_t>> &building2bins,
+               const std::vector<std::unordered_set<size_t>> &bin2buildings)
+  {
+    std::unordered_set<size_t> indices{};
+    for (const auto binIndex : building2bins[buildingIndex])
+      for (const auto index : bin2buildings[binIndex])
+        indices.insert(index);
+    return indices;
   }
 
   // Merge two buildings, replacing the first building and clearing the second.
@@ -591,8 +820,12 @@ private:
                              Building &building1,
                              double minimalBuildingDistance)
   {
-    // Compute merged polygon
-    Polygon mergedPolygon = Polyfix::MergePolygons(
+    // Compute merged polygon (old implementation)
+    // Polygon mergedPolygon = Polyfix::MergePolygons(
+    //  building0.Footprint, building1.Footprint, minimalBuildingDistance);
+
+    // Compute merged polygon (using GEOS)
+    Polygon mergedPolygon = GEOS::MergePolygons(
         building0.Footprint, building1.Footprint, minimalBuildingDistance);
 
     // Set merged polygon
@@ -650,6 +883,15 @@ private:
 
     // Compute convex hull
     return Geometry::ConvexHull2D(uniquePoints);
+  }
+
+  // Get percentile object from array. It is assumed that the array is ordered.
+  template <class T>
+  static T GetPercentile(const std::vector<T> &array, double percentile)
+  {
+    size_t index = std::max(0.0, percentile * array.size());
+    index = std::min(index, array.size() - 1);
+    return array[index];
   }
 };
 

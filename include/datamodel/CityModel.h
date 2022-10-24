@@ -30,7 +30,7 @@ public:
   /// Set new origin (subtract offset)
   void SetOrigin(const Point2D &origin)
   {
-    Info("CityModel: Setting new origin to " + str(origin));
+    info("CityModel: Setting new origin to " + str(origin));
     for (auto &building : Buildings)
       building.SetOrigin(origin);
   }
@@ -44,7 +44,7 @@ public:
     // Skip if already built or force rebuild
     if (!bbtree.Empty() && !rebuild)
     {
-      Info("Search tree already built; set rebuild flag to force rebuild.");
+      info("Search tree already built; set rebuild flag to force rebuild.");
       return;
     }
 
@@ -58,7 +58,7 @@ public:
 
     // Build bounding box tree
     bbtree.Build(bboxes);
-    Progress(str(bbtree));
+    debug(str(bbtree));
   }
 
   // Find building containing point (inside footprint), returning -1
@@ -68,7 +68,7 @@ public:
     // Check that search tree has been created
     if (bbtree.Empty())
     {
-      Warning("Warning: Empty search tree; call BuildSearchTree()");
+      warning("Warning: Empty search tree; call BuildSearchTree()");
       return -1;
     }
 

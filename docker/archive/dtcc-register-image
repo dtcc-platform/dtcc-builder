@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+docker login registry.gitlab.com
+docker-compose build builder 
+docker tag dtcc-builder-image registry.gitlab.com/dtcc-platform/dtcc-builder
+#docker build -t registry.gitlab.com/dtcc-platform/dtcc-builder .
+docker push registry.gitlab.com/dtcc-platform/dtcc-builder

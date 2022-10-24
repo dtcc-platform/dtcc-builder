@@ -31,9 +31,10 @@ namespace DTCC
                              const CityModel &cityModel,
                              const GridField2D &dem,
                              double topHeight,
-                             bool fixBuildings)
+                             bool fixBuildings,
+                             bool writeMatrix)
     {
-      Info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing)...");
+      info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing)...");
       Timer timer("SmoothMesh3D");
 
       // Convert to FEniCS mesh
@@ -90,6 +91,54 @@ namespace DTCC
       bc2->apply(*A, *b);
       bc1->apply(*A, *b);
 
+      // Write matrix to file (used for testing/development)
+      // Loadin data in MATLAB:
+      //
+      // load matrix.dat
+      // load vector.dat
+      // A = spconvert(matrix);
+      // b = vector;
+      if (writeMatrix)
+      {
+        // Write matrix
+        {
+          const size_t M = A->size(0);
+          const size_t N = A->size(1);
+          info("LaplacianSmoother: Writing matrix of size " + str(M) + " x " +
+               str(N) + " to file matrix.dat");
+          std::stringstream ss;
+          for (size_t i = 0; i < M; i++)
+          {
+            std::vector<std::size_t> columns{};
+            std::vector<double> values{};
+            A->getrow(i, columns, values);
+            for (size_t j = 0; j < columns.size(); j++)
+              ss << (i + 1) << " " << (columns[j] + 1) << " " << values[j]
+                 << std::endl;
+          }
+          std::ofstream fs;
+          fs.open("matrix.dat");
+          fs << ss.rdbuf();
+          fs.close();
+        }
+
+        // Write vector
+        {
+          const size_t M = A->size(0);
+          info("LaplacianSmoother: Writing vector of size " + str(M) +
+               " to file vector.dat");
+          std::stringstream ss;
+          std::vector<double> values{};
+          b->get_local(values);
+          for (size_t i = 0; i < M; i++)
+            ss << values[i] << std::endl;
+          std::ofstream fs;
+          fs.open("vector.dat");
+          fs << ss.rdbuf();
+          fs.close();
+        }
+      }
+
       // Create linear solver
       dolfin::KrylovSolver solver(_mesh3D.mpi_comm(), "bicgstab", "amg");
       solver.parameters["nonzero_initial_guess"] = true;
@@ -117,7 +166,7 @@ namespace DTCC
                                   const std::vector<int> &domainMarkers,
                                   double h)
     {
-      Warning("Elastic smoothing not (yet) implemented.");
+      warning("Elastic smoothing not (yet) implemented.");
     }
 
     // Generate elevation function (used only for testing/visualization)
@@ -397,11 +446,11 @@ namespace DTCC
       }
 
       const size_t k4 = subDomains.size() - (k0 + k1 + k2 + k3);
-      Info("LaplacianSmoother: Found " + str(k0) + " building boundary facets");
-      Info("LaplacianSmoother: Found " + str(k1) + " ground boundary facets");
-      Info("LaplacianSmoother: Found " + str(k2) + " halo boundary facets");
-      Info("LaplacianSmoother: Found " + str(k3) + " top boundary facets");
-      Info("LaplacianSmoother: Found " + str(k4) + " Neumann boundary facets");
+      info("LaplacianSmoother: Found " + str(k0) + " building boundary facets");
+      info("LaplacianSmoother: Found " + str(k1) + " ground boundary facets");
+      info("LaplacianSmoother: Found " + str(k2) + " halo boundary facets");
+      info("LaplacianSmoother: Found " + str(k3) + " top boundary facets");
+      info("LaplacianSmoother: Found " + str(k4) + " Neumann boundary facets");
     }
   };
 

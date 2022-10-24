@@ -13,10 +13,7 @@
 
 using namespace DTCC;
 
-void Help()
-{
-  Error("Usage: dtcc-smooth-surface-mesh Parameters.json");
-}
+void Help() { error("Usage: dtcc-smooth-surface-mesh Parameters.json"); }
 
 int main(int argc, char *argv[])
 {
@@ -30,7 +27,7 @@ int main(int argc, char *argv[])
   // Read parameters
   Parameters p;
   JSON::Read(p, argv[1]);
-  Info(p);
+  info(p);
 
   // Get data directory
   std::string dataDirectory = p["DataDirectory"];
@@ -42,7 +39,7 @@ int main(int argc, char *argv[])
   // Read ground mesh
   Surface3D groundMesh;
   JSON::Read(groundMesh, dataDirectory + "GroundMesh.json");
-  Info(groundMesh);
+  info(groundMesh);
 
   // Smooth ground mesh
   VertexSmoother::SmoothSurface(groundMesh, p["GroundSmoothing"]);
@@ -54,7 +51,7 @@ int main(int argc, char *argv[])
 
   // Report timings and parameters
   Timer::Report("dtcc-smooth-ground-mesh", dataDirectory);
-  Info(p);
+  info(p);
 
   return 0;
 }

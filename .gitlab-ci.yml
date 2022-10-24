@@ -13,7 +13,7 @@ build:
   stage: build
   script:
     #- sudo apt-get install lftp -y # add extra (outside of registered Docker file) dependencies here
-    - pwd && mkdir build && cd build && cmake .. && make all && make install
+    - pwd && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make all && make install
   artifacts:
     paths:
       - build/
@@ -26,9 +26,12 @@ test:
     #- pwd && ls -alt && cd ../data && ls -alt && bash dtcc-download-data-unittests
     #- cd unittests/ && wget ftps://cloud.dtcc.chalmers.se/Unittests/Unittests.zip --no-check-certificate && unzip -f Unittests.zip
     # Fix below in order to work on Docker and CI
-    - sudo mkdir -p /home/dtcc/core/
-    - sudo cp -R /builds/dtcc-platform/dtcc-builder/unittests/ /home/dtcc/core/unittests/
-    - sudo chmod -R a+rw /home/dtcc/core/unittests/data/*
+    #- ls -altR
+    - sudo mkdir -p /home/dtcc/dtcc-builder/
+    #- cd /builds/
+    #- %ls -altR
+    - sudo cp -R /builds/dtcc-platform/dtcc-builder/unittests/ /home/dtcc/dtcc-builder/unittests/
+    - sudo chmod -R a+rw /home/dtcc/dtcc-builder/unittests/data/*
     - pwd && ls -alt && cd build/ && ./unittests/run-unittests
   dependencies:
     - build

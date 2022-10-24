@@ -1,0 +1,3 @@
+[submodule "dtcc-model"]
+	path = dtcc-model
+	url = https://gitlab.com/dtcc-platform/dtcc-model.git

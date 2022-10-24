@@ -11,15 +11,21 @@
 #include "Logging.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
+#include "MeshIO.h"
 #include "MeshProcessor.h"
 #include "OBJ.h"
+#include "ParameterProcessor.h"
 #include "Parameters.h"
+#include "Utils.h"
 #include "VTK.h"
 #include "VertexSmoother.h"
 
+#include "LAS.h"
+#include "SHP.h"
+
 using namespace DTCC;
 
-void Help() { Error("Usage: dtcc-generate-simulation-mesh Parameters.json"); }
+void Help() { error("Usage: dtcc-generate-mesh Parameters.json"); }
 
 // Generate surface meshes (non-matching, used for visualization)
 void GenerateSurfaceMeshes(const CityModel &cityModel,
@@ -27,8 +33,7 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
                            const Parameters &p)
 {
   // Get data directory
-  std::string dataDirectory = p["DataDirectory"];
-  dataDirectory += "/";
+  const std::string dataDirectory = p["DataDirectory"];
 
   // Get origin (for serialization purposes)
   Point2D origin({p["X0"], p["Y0"]});
@@ -57,6 +62,22 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
     VTK::Write(groundSurface, dataDirectory + "GroundSurface.vtu");
     VTK::Write(buildingSurface, dataDirectory + "BuildingSurface.vtu");
   }
+
+  if (p["WriteSTL"])
+  {
+    MeshIO::Write(groundSurface, dataDirectory + "GroundSurface.stl", "stl",
+                  false);
+    MeshIO::Write(buildingSurface, dataDirectory + "BuildingSurface.stl", "stl",
+                  false);
+  }
+
+  if (p["WriteOBJ"])
+  {
+    MeshIO::Write(groundSurface, dataDirectory + "GroundSurface.obj", "obj",
+                  true);
+    MeshIO::Write(buildingSurface, dataDirectory + "BuildingSurface.obj", "obj",
+                  true);
+  }
 }
 
 // Generate volume meshes (matching, used for simulation)
@@ -64,9 +85,9 @@ void GenerateVolumeMeshes(CityModel &cityModel,
                           const GridField2D &dtm,
                           const Parameters &p)
 {
-  // Get data directory
-  std::string dataDirectory = p["DataDirectory"];
-  dataDirectory += "/";
+  // Get directories
+  const std::string dataDirectory = p["DataDirectory"];
+  const std::string outputDirectory = p["OutputDirectory"];
 
   // Get origin (for serialization purposes)
   Point2D origin({p["X0"], p["Y0"]});
@@ -78,16 +99,17 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Step 2.1: Merge building footprints
   {
     Timer timer("Step 2.1: Merge building footprints");
-    CityModelGenerator::SimplifyCityModel(cityModel, p["MinBuildingDistance"],
+    CityModelGenerator::SimplifyCityModel(cityModel, dtm.Grid.BoundingBox,
+                                          p["MinBuildingDistance"],
                                           p["MinVertexDistance"]);
-    Info(cityModel);
+    info(cityModel);
   }
 
   // Step 2.2: Clean building footprints
   {
     Timer timer("Step 2.2: Clean building footprints");
     CityModelGenerator::CleanCityModel(cityModel, p["MinVertexDistance"]);
-    Info(cityModel);
+    info(cityModel);
   }
 
   // Step 2.3: Compute building heights
@@ -95,7 +117,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 2.3: Compute building heights");
     CityModelGenerator::ComputeBuildingHeights(
         cityModel, dtm, p["GroundPercentile"], p["RoofPercentile"]);
-    Info(cityModel);
+    info(cityModel);
   }
 
   // Write JSON
@@ -110,7 +132,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 3.1: Generate 2D mesh");
     MeshGenerator::GenerateMesh2D(mesh2D, cityModel, dtm.Grid.BoundingBox,
                                   p["MeshResolution"]);
-    Info(mesh2D);
+    info(mesh2D);
   }
 
   // Write VTK
@@ -126,7 +148,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 3.2: Generate 3D mesh");
     numLayers = MeshGenerator::GenerateMesh3D(mesh, mesh2D, p["DomainHeight"],
                                               p["MeshResolution"]);
-    Info(mesh);
+    info(mesh);
   }
 
   // Write VTK
@@ -134,7 +156,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
-    VTK::Write(mesh, dataDirectory + "Step32Mesh.vtu");
+    VTK::Write(mesh, outputDirectory + "Step32Mesh.vtu");
     VTK::Write(boundary, dataDirectory + "Step32Boundary.vtu");
   };
 
@@ -143,8 +165,9 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Timer timer("Step 3.3: Smooth 3D mesh");
     topHeight = dtm.Mean() + static_cast<double>(p["DomainHeight"]);
-    LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false);
-    Info(mesh);
+    LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false,
+                                    false);
+    info(mesh);
   }
 
   // Write VTK
@@ -152,15 +175,15 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
-    VTK::Write(mesh, dataDirectory + "Step33Mesh.vtu");
-    VTK::Write(boundary, dataDirectory + "Step33Boundary.vtu");
+    VTK::Write(mesh, outputDirectory + "Step33Mesh.vtu");
+    VTK::Write(boundary, outputDirectory + "Step33Boundary.vtu");
   }
 
   // Step 3.4: Trim 3D mesh (remove building interiors)
   {
     Timer timer("Step 3.4: Trim 3D mesh");
     MeshGenerator::TrimMesh3D(mesh, mesh2D, cityModel, numLayers);
-    Info(mesh);
+    info(mesh);
   }
 
   // Write VTK
@@ -168,15 +191,16 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
-    VTK::Write(mesh, dataDirectory + "Step34Mesh.vtu");
-    VTK::Write(boundary, dataDirectory + "Step34Boundary.vtu");
+    VTK::Write(mesh, outputDirectory + "Step34Mesh.vtu");
+    VTK::Write(boundary, outputDirectory + "Step34Boundary.vtu");
   }
 
   // Step 3.5: Smooth 3D mesh (set ground and building heights)"
   {
     Timer timer("Step 3.5: Smooth 3D mesh");
-    LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true);
-    Info(mesh);
+    LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
+                                    p["WriteMatrix"]);
+    info(mesh);
   }
 
   // Write VTK
@@ -184,14 +208,14 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Surface3D boundary;
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
-    VTK::Write(mesh, dataDirectory + "Step35Mesh.vtu");
-    VTK::Write(boundary, dataDirectory + "Step35Boundary.vtu");
+    VTK::Write(mesh, outputDirectory + "Step35Mesh.vtu");
+    VTK::Write(boundary, outputDirectory + "Step35Boundary.vtu");
   }
 
   // Extract boundary of final mesh
   Surface3D boundary;
   Surface3D surface;
-  if (p["WriteJSON"] || p["WriteVTK"])
+  if (p["WriteJSON"] || p["WriteVTK"] || p["WriteSTL"] || p["WriteOBJ"])
   {
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
     MeshProcessor::ExtractOpenSurface3D(surface, boundary);
@@ -200,45 +224,53 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Write JSON
   if (p["WriteJSON"])
   {
-    JSON::Write(mesh, dataDirectory + "CityMesh.json", origin);
-    JSON::Write(surface, dataDirectory + "CitySurface.json", origin);
+    JSON::Write(mesh, outputDirectory + "CityMesh.json", origin);
+    JSON::Write(surface, outputDirectory + "CitySurface.json", origin);
   }
 
   // Write VTK
   if (p["WriteVTK"])
   {
-    VTK::Write(mesh, dataDirectory + "CityMesh.vtu");
-    VTK::Write(surface, dataDirectory + "CitySurface.vtu");
+    VTK::Write(mesh, outputDirectory + "CityMesh.vtu");
+    VTK::Write(surface, outputDirectory + "CitySurface.vtu");
+  }
+
+  if (p["WriteSTL"])
+  {
+    MeshIO::Write(surface, outputDirectory + "CitySurface.stl", "stl");
+  }
+
+  if (p["WriteOBJ"])
+  {
+    MeshIO::Write(surface, outputDirectory + "CitySurface.obj", "obj", true);
   }
 }
 
 int main(int argc, char *argv[])
 {
   // Check command-line arguments
-  if (argc != 2)
+  if (CommandLine::HasOption("-h", argc, argv))
   {
     Help();
-    return 1;
+    return 0;
   }
+  Parameters p = ParameterProcessor::ProcessArgs(argc, argv);
 
-  // Read parameters
-  Parameters p;
-  JSON::Read(p, argv[1]);
-  Info(p);
-
-  // Get data directory
-  std::string dataDirectory = p["DataDirectory"];
-  dataDirectory += "/";
+  // Get directories
+  const std::string dataDirectory = p["DataDirectory"];
+  const std::string outputDirectory = p["OutputDirectory"];
+  info("Loding data from directory: " + dataDirectory);
+  info("Saving data to directory:   " + outputDirectory);
 
   // Read city model
   CityModel cityModel;
-  JSON::Read(cityModel, dataDirectory + "CityModel.json");
-  Info(cityModel);
+  JSON::Read(cityModel, outputDirectory + "CityModel.json");
+  info(cityModel);
 
   // Read elevation model (only DTM is used)
   GridField2D dtm;
-  JSON::Read(dtm, dataDirectory + "DTM.json");
-  Info(dtm);
+  JSON::Read(dtm, outputDirectory + "DTM.json");
+  info(dtm);
 
   // Generate surface meshes (non-matching, used for visualization)
   if (p["GenerateSurfaceMeshes"])
@@ -253,8 +285,10 @@ int main(int argc, char *argv[])
   }
 
   // Report timings and parameters
-  Timer::Report("dtcc-generate-mesh", dataDirectory);
-  Info(p);
+  const std::string prefix = outputDirectory + "/dtcc-generate-mesh";
+  Timer::Report("Timings for dtcc-generate-mesh", prefix + "-timings.json");
+  JSON::Write(p, prefix + "-parameters.json", 4);
+  info(p);
 
   return 0;
 }

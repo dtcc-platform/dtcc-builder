@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+docker start dtcc-builder
+#docker attach dtcc-builder
+docker exec --user "$(id -u):$(id -g)" -it dtcc-builder bash
