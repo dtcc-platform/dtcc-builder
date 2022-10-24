@@ -11,6 +11,7 @@
 #include "Logging.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
+#include "MeshIO.h"
 #include "MeshProcessor.h"
 #include "OBJ.h"
 #include "ParameterProcessor.h"
@@ -60,6 +61,22 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   {
     VTK::Write(groundSurface, dataDirectory + "GroundSurface.vtu");
     VTK::Write(buildingSurface, dataDirectory + "BuildingSurface.vtu");
+  }
+
+  if (p["WriteSTL"])
+  {
+    MeshIO::Write(groundSurface, dataDirectory + "GroundSurface.stl", "stl",
+                  false);
+    MeshIO::Write(buildingSurface, dataDirectory + "BuildingSurface.stl", "stl",
+                  false);
+  }
+
+  if (p["WriteOBJ"])
+  {
+    MeshIO::Write(groundSurface, dataDirectory + "GroundSurface.obj", "obj",
+                  true);
+    MeshIO::Write(buildingSurface, dataDirectory + "BuildingSurface.obj", "obj",
+                  true);
   }
 }
 
@@ -198,7 +215,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Extract boundary of final mesh
   Surface3D boundary;
   Surface3D surface;
-  if (p["WriteJSON"] || p["WriteVTK"])
+  if (p["WriteJSON"] || p["WriteVTK"] || p["WriteSTL"] || p["WriteOBJ"])
   {
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
     MeshProcessor::ExtractOpenSurface3D(surface, boundary);
@@ -216,6 +233,16 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     VTK::Write(mesh, outputDirectory + "CityMesh.vtu");
     VTK::Write(surface, outputDirectory + "CitySurface.vtu");
+  }
+
+  if (p["WriteSTL"])
+  {
+    MeshIO::Write(surface, outputDirectory + "CitySurface.stl", "stl");
+  }
+
+  if (p["WriteOBJ"])
+  {
+    MeshIO::Write(surface, outputDirectory + "CitySurface.obj", "obj", true);
   }
 }
 
@@ -259,8 +286,7 @@ int main(int argc, char *argv[])
 
   // Report timings and parameters
   const std::string prefix = outputDirectory + "/dtcc-generate-mesh";
-  Timer::Report("Timings for dtcc-generate-mesh",
-                prefix + "-timings.json");
+  Timer::Report("Timings for dtcc-generate-mesh", prefix + "-timings.json");
   JSON::Write(p, prefix + "-parameters.json", 4);
   info(p);
 

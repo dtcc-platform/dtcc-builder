@@ -380,6 +380,10 @@ public:
       else
       {
         // Pick percentile from ground points
+        sort(building.GroundPoints.begin(), building.GroundPoints.end(),
+             [](const Point3D &lhs, const Point3D &rhs) {
+               return lhs.z < rhs.z;
+             });
         h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
       }
 
@@ -396,7 +400,10 @@ public:
       }
       else
       {
-        // Pick percentile from ground points
+        sort(building.RoofPoints.begin(), building.RoofPoints.end(),
+             [](const Point3D &lhs, const Point3D &rhs) {
+               return lhs.z < rhs.z;
+             });
         h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
       }
 

@@ -30,6 +30,8 @@ public:
     Add("GenerateVolumeMeshes", true);
     Add("WriteJSON", true);
     Add("WriteVTK", true);
+    Add("WriteOBJ", true);
+    Add("WriteSTL", true);
     Add("WriteMatrix", false);
     Add("Debug", false);
 
