@@ -14,11 +14,11 @@ authors:
     equal-contrib: true
     affiliation: "1, 4"
   - name: Vasilis Naserentin
-	orcid: 0000-0002-3485-9329
+    orcid: 0000-0002-3485-9329
     equal-contrib: true
     affiliation: "1, 2, 4"
   - name: Dag Wästberg
-	orcid: FIXME
+    orcid: FIXME
     equal-contrib: true
     affiliation: "3, 4"
 affiliations:
