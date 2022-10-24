@@ -18,7 +18,7 @@ authors:
     equal-contrib: true
     affiliation: "1, 2, 4"
   - name: Dag Wästberg
-    orcid: FIXME
+    orcid: 0000-0002-8630-8262
     equal-contrib: true
     affiliation: "3, 4"
 affiliations:
