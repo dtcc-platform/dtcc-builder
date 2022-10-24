@@ -4,11 +4,11 @@
 
 To download the software, clone the Git repository by the following command:
 
-    git clone https://gitlab.com/dtcc-platform/dtcc-builder.git -b develop
+    git clone https://gitlab.com/dtcc-platform/dtcc-builder.git
 
 Alternatively, you may want to use the SSH protocol:
 
-    git clone git@gitlab.com:dtcc-platform/dtcc-builder.git -b develop
+    git clone git@gitlab.com:dtcc-platform/dtcc-builder.git
 
 This will create a directory named `dtcc-builder` containing the full
 source code of DTCC Builder.
@@ -47,11 +47,6 @@ directory.
 > **Note:** These commands should be run from inside the Docker
 > container provided for DTCC Builder.
 
-[DTCC
-Docker](https://gitlab.com/dtcc-platform/dtcc-docker) container for
-DTCC Builder. This documentation assumes that all commands are run
-from within the Docker container.
-
 ## Downloading demo data
 
 DTCC builder requires data to run. The demo data are not part of the
@@ -62,6 +57,4 @@ data, enter the `data` directory and issue the following command:
 
 > **Note:** The command `dtcc-download-demo-data` provides additional
 > datasets that may not be shared publicly (because of license
-> restrictions from the data owners). Access to no-public data is
-> provided to developers on request. Contact the maintainers of DTCC
-> Builder for more info.
+> restrictions from the data owners).
