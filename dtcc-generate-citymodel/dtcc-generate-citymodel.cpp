@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
   std::vector<std::string> UUIDs;
   std::vector<int> entityIDs;
 
+  auto loading_timer = Timer("load data");
   SHP::Read(footprints, dataDirectory + "PropertyMap.shp", &UUIDs, &entityIDs);
   info("Loaded " + str(footprints.size()) + " building footprints");
 
@@ -98,9 +99,11 @@ int main(int argc, char *argv[])
   }
 
   // Read point cloud (only points inside bounding box)
+  auto loadlas_timer = Timer("Reaing LAS");
   PointCloud pointCloud;
   LAS::ReadDirectory(pointCloud, dataDirectory, bbox,
                      p["NaiveVegitationFilter"]);
+  loadlas_timer.Stop();
 
   // Check point cloud
   if (pointCloud.Empty())

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+echo "Uninstalling Docker image and container for DTCC Builder..."
+
+docker container rm dtcc-builder -f
+docker image rm dtcc-builder-image -f

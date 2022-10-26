@@ -1,3 +1,0 @@
-REDIS_PASSWORD=dtcc_redis
-REDIS_PORT=6879
-WORKING_DIR=/home/dtcc/dtcc-builder

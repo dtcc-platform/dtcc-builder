@@ -14,6 +14,7 @@
 #include "BuildingProcessor.h"
 #include "GEOS.h"
 #include "GridField.h"
+#include "Logging.h"
 #include "Plotting.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
@@ -244,10 +245,12 @@ public:
         }
         else if (clf == 6 || (!classifedBuildings && clf < 2))
         {
+          auto pc_timer = Timer("PolygoCOntains2D");
           if (Geometry::PolygonContains2D(building.Footprint, p2D))
           {
             building.RoofPoints.push_back(p3D);
           }
+          pc_timer.Stop();
         }
       }
     }
@@ -594,6 +597,8 @@ public:
                                                  distanceThershold, iterations);
       totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
+    info("BuildingPointsRANSACOutlierRemover remove " + str(totalRemoved) +
+         " points");
   }
 
 private:
@@ -669,8 +674,8 @@ private:
         // Merge if distance is small
         if (d2 < tol2)
         {
-          debug("CityModelGenerator: Buildings " + str(i) + " and " +
-		str(j) + " are too close, merging");
+          debug("CityModelGenerator: Buildings " + str(i) + " and " + str(j) +
+                " are too close, merging");
 
           // Merge buildings
           buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);

@@ -14,10 +14,7 @@
 
 using namespace DTCC;
 
-void Help()
-{
-  error("Usage: dtcc-generate-roadnetwork fileName.shp");
-}
+void Help() { error("Usage: dtcc-generate-roadnetwork fileName.shp"); }
 
 std::string GetDataDirectory(const std::string &filename);
 void OffsetCoordinates(RoadNetwork &network,
