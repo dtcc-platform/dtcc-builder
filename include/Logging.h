@@ -13,37 +13,35 @@
 #define DTCC_LOGGING_H
 
 #include <chrono>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
 namespace DTCC
 {
   // Log levels
-  enum LogLevel
-  {
-    DEBUG = 10,
-    INFO = 20,
-    WARNING = 30,
-    ERROR = 40,
-    PROGRESS = 25
-  };
+enum LogLevel
+{
+  DEBUG = 10,
+  INFO = 20,
+  WARNING = 30,
+  ERROR = 40,
+  PROGRESS = 25
+};
 
-  // Global log level
-  LogLevel __log_level__ = INFO;
+// Global log level
+LogLevel __log_level__ = INFO;
 
-  // Interface for printable objects
-  class Printable
-  {
-  public:
+// Interface for printable objects
+class Printable
+{
+public:
+  // Convert to string (pretty-print)
+  virtual std::string __str__() const = 0;
 
-    // Convert to string (pretty-print)
-    virtual std::string __str__() const = 0;
-
-    // Conversion operator
-    operator std::string() const { return __str__(); }
-
+  // Conversion operator
+  operator std::string() const { return __str__(); }
   };
 
   // Return current time
@@ -62,14 +60,14 @@ namespace DTCC
   }
 
   // Format message
-  std::string __format__(LogLevel log_level, const std::string& message)
+  std::string __format__(LogLevel log_level, const std::string &message)
   {
     // Set component (hard-coded for now)
     std::string component{"[dtcc-builder]"};
 
     // Format level
     std::string level{};
-    switch(log_level)
+    switch (log_level)
     {
     case DEBUG:
       level = "[DEBUG]";
@@ -94,7 +92,7 @@ namespace DTCC
   }
 
   // Print message to stdout
-  void __print__(const std::string& message)
+  void __print__(const std::string &message)
   {
     std::cout << message << std::endl;
   }
@@ -102,10 +100,7 @@ namespace DTCC
   //--- Public interface of logging system ---
 
   // Set log level
-  void set_log_level(LogLevel log_level)
-  {
-    __log_level__ = log_level;
-  }
+  void set_log_level(LogLevel log_level) { __log_level__ = log_level; }
 
   // Print message at given log level
   void log(LogLevel log_level, const std::string &message = "")
@@ -120,25 +115,16 @@ namespace DTCC
   }
 
   // Print debug message
-  void debug(const std::string& message)
-  {
-    log(DEBUG, message);
-  }
+  void debug(const std::string &message) { log(DEBUG, message); }
 
   // Print information message (string)
-  void info(const std::string &message = "")
-  {
-    log(INFO, message);
-  }
+  void info(const std::string &message = "") { log(INFO, message); }
 
   // Print warning message
-  void warning(const std::string& message)
-  {
-    log(WARNING, message);
-  }
+  void warning(const std::string &message) { log(WARNING, message); }
 
   // Print error message and throw exception
-  void error(const std::string& message)
+  void error(const std::string &message)
   {
     log(ERROR, message);
     throw std::runtime_error(message);
@@ -149,7 +135,7 @@ namespace DTCC
   {
     x = std::max(0.0, std::min(1.0, x));
     std::ostringstream ss{};
-    ss << std::setprecision(2) << std::fixed << 100.0*x << "%";
+    ss << std::setprecision(2) << std::fixed << 100.0 * x << "%";
     log(PROGRESS, ss.str());
   }
 

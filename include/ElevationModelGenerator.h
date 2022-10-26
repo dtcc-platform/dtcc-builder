@@ -193,7 +193,7 @@ public:
       throw std::runtime_error("No points inside height map domain.");
 
     debug("ElevationModelGenerator: Filling in missing grid points (" +
-             str(numMissing) + "/" + str(numGridPoints) + ")");
+          str(numMissing) + "/" + str(numGridPoints) + ")");
 
     // Reuse vector numLocalPoints to indicate which points have been
     // visited: 0 = empty, 1 = boundary, 2 = filled

@@ -13,10 +13,7 @@
 
 using namespace DTCC;
 
-void Help()
-{
-  error("Usage: dtcc-smooth-surface-mesh Parameters.json");
-}
+void Help() { error("Usage: dtcc-smooth-surface-mesh Parameters.json"); }
 
 int main(int argc, char *argv[])
 {

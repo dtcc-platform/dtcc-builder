@@ -11,10 +11,7 @@
 
 using namespace DTCC;
 
-void Help()
-{
-  error("Usage: dtcc-info Data.[json,las]");
-}
+void Help() { error("Usage: dtcc-info Data.[json,las]"); }
 
 template <class T> void info(nlohmann::json json)
 {

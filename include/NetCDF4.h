@@ -84,7 +84,8 @@ public:
       size_t dims = dim.getSize();
       Dimensions.push_back(dims);
 
-      debug("Dim is " + str(dims) + " of " + str(numDims) + " with name " + dim.getName());
+      debug("Dim is " + str(dims) + " of " + str(numDims) + " with name " +
+            dim.getName());
       CoordinateNames.push_back(dim.getName());
 
       // NcVar tempvar=iFile.getVar(dim.getName());

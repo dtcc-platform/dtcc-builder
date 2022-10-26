@@ -653,8 +653,10 @@ namespace DTCC
     static void PrintTriangleIO(const struct triangulateio& io)
     {
       info("Triangle I/O data: ");
-      info("  pointlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointlist)));
-      info("  pointmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.pointmarkerlist)));
+      info("  pointlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.pointlist)));
+      info("  pointmarkerlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.pointmarkerlist)));
       if (io.pointmarkerlist)
       {
         std::stringstream stringBuilder{};
@@ -666,15 +668,22 @@ namespace DTCC
       }
       info("  numberofpoints = " + str(io.numberofpoints));
       info("  numberofpointattributes = " + str(io.numberofpointattributes));
-      info("  trianglelist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglelist)));
-      info("  triangleattributelist = " + str(reinterpret_cast<std::uintptr_t>(io.triangleattributelist)));
-      info("  trianglearealist = " + str(reinterpret_cast<std::uintptr_t>(io.trianglearealist)));
-      info("  neighborlist = " + str(reinterpret_cast<std::uintptr_t>(io.neighborlist)));
+      info("  trianglelist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.trianglelist)));
+      info("  triangleattributelist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.triangleattributelist)));
+      info("  trianglearealist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.trianglearealist)));
+      info("  neighborlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.neighborlist)));
       info("  numberoftriangles = " + str(io.numberoftriangles));
       info("  numberofcorners = " + str(io.numberofcorners));
-      info("  numberoftriangleattributes = " + str(io.numberoftriangleattributes));
-      info("  segmentlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentlist)));
-      info("  segmentmarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.segmentmarkerlist)));
+      info("  numberoftriangleattributes = " +
+           str(io.numberoftriangleattributes));
+      info("  segmentlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.segmentlist)));
+      info("  segmentmarkerlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.segmentmarkerlist)));
       if (io.segmentmarkerlist)
       {
         std::stringstream stringBuilder{};
@@ -685,13 +694,18 @@ namespace DTCC
         info(stringBuilder.str());
       }
       info("  numberofsegments = " + str(io.numberofsegments));
-      info("  holelist = " + str(reinterpret_cast<std::uintptr_t>(io.holelist)));
+      info("  holelist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.holelist)));
       info("  numberofholes = " + str(io.numberofholes));
-      info("  regionlist = " + str(reinterpret_cast<std::uintptr_t>(io.regionlist)));
+      info("  regionlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.regionlist)));
       info("  numberofregions = " + str(io.numberofregions));
-      info("  edgelist = " + str(reinterpret_cast<std::uintptr_t>(io.edgelist)));
-      info("  edgemarkerlist = " + str(reinterpret_cast<std::uintptr_t>(io.edgemarkerlist)));
-      info("  normlist = " + str(reinterpret_cast<std::uintptr_t>(io.normlist)));
+      info("  edgelist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.edgelist)));
+      info("  edgemarkerlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.edgemarkerlist)));
+      info("  normlist = " +
+           str(reinterpret_cast<std::uintptr_t>(io.normlist)));
       info("  numberofedges = " + str(io.numberofedges));
     }
 

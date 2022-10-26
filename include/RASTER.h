@@ -49,8 +49,6 @@ public:
     geoRaster.Bounds.Q.x = gt[0]+(XSize*gt[1]);
     geoRaster.Bounds.Q.y = gt[3];
 
-
-
     if (bands.size() == 0) // load all bands in order
     {
       // bands 1-indexed in GDAL
@@ -60,7 +58,8 @@ public:
       }
     }
 
-    info( "GeoRaster: Reading ("+str(XSize)+","+str(YSize)+","+str(bands.size())+") raster");
+    info("GeoRaster: Reading (" + str(XSize) + "," + str(YSize) + "," +
+         str(bands.size()) + ") raster");
     info("GeoRaster: bounded by " + str(geoRaster.Bounds));
 
     for (auto band : bands)
@@ -76,12 +75,12 @@ public:
       }
 
       // GDAL loads data top to bottom, GeoRaster Assumes bottom to top
-      for (size_t i = 0;i<YSize/2;i++) {
+      for (size_t i = 0; i < YSize / 2; i++)
+      {
         std::vector<double> tempdata(data.Values.begin() + (i*XSize),data.Values.begin() + ( (i+1)*XSize ) );
         std::copy(data.Values.end() - ( (i+1)*XSize ), data.Values.end() - ( (i)*XSize ), data.Values.begin() + (i*XSize)  );
         std::copy(tempdata.begin(),tempdata.end(),data.Values.end() - ( (i+1)*XSize ));
       }
-
 
       geoRaster.Values.push_back(data);
     }
@@ -89,7 +88,6 @@ public:
     geoRaster.Bands = bands.size();
     geoRaster.XSize = XSize;
     geoRaster.YSize = YSize;
-
 
     // accepted method of closing a GDAL dataset according to docs
     rasterDataset->~GDALDataset();
