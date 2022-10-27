@@ -18,7 +18,7 @@
 #include "Simplex.h"
 #include "Surface.h"
 
-namespace DTCC
+namespace DTCC_BUILDER
 {
 
 class MeshIO
@@ -144,6 +144,6 @@ private:
   }
 };
 
-} // namespace DTCC
+} // namespace DTCC_BUILDER
 
 #endif

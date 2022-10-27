@@ -31,9 +31,15 @@ apt-get update && apt-get install -y \
     unzip \
     jq \
     uuid-dev \
-    dialog
+    dialog \
+    python3 \
+    python3-pip \
+    python3-dev \
+    libprotobuf-dev \
+    protobuf-compiler
 
 ./install_assimp.sh
 ./install_libgeos.sh
 ./install_libLAS.sh
 ./install_VTK.sh
+./install_py_libs.sh

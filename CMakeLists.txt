@@ -25,6 +25,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 # Add clang tools
 include(cmake/clang-cxx-dev-tools.cmake)
 
+set(pybind11_DIR /usr/lib/cmake/pybind11)
+find_package(pybind11 REQUIRED)
+
 # Find packages
 find_package(ShapeLib REQUIRED)
 find_package(LibLAS)
@@ -37,6 +40,10 @@ find_package(assimp REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(PNG REQUIRED)
 find_package(LibGEOS REQUIRED)
+
+find_package(Protobuf REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
@@ -59,6 +66,14 @@ endif()
 # Find VTK
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
+
+# build protobuf
+ADD_SUBDIRECTORY(dtcc-model/protobuf)
+include_directories(${PROTOBUF_INCLUDE_DIRS}) 
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/dtcc-model)
+include_directories(${CMAKE_SOURCE_DIR}/dtcc-model)
+
+ADD_SUBDIRECTORY(dtcc-model/datamodel_io)
 
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -100,6 +115,8 @@ add_subdirectory(unittests)
 # foreach (_variableName ${_variableNames})
 # message(STATUS "${_variableName}=${${_variableName}}")
 # endforeach()
+
+message("libgeos " ${LIBGEOS_LIBRARIES})
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")
