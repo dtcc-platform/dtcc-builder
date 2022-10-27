@@ -5,6 +5,8 @@
 !/data/testCase/
 !/data/sampleCityJSON/
 
+*.so
+
 .idea/
 .vscode/
 cmake-build-debug/

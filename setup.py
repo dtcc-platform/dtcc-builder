@@ -28,7 +28,7 @@ setup_kwargs = {
 
 def build(setup_kwargs):
     ext_modules = [
-        Pybind11Extension("_pybuildier", ["pybind/src/pybind_builder.cpp"],
+        Pybind11Extension("_pybuilder", ["pybind/src/pybind_builder.cpp"],
         include_dirs = ["include","pybind/include"],
         extra_compile_args=['-std=c++1y']),
     ]
