@@ -12,6 +12,8 @@ endif()
 
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Set build flags
 set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")

@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+
+  dtcc-builder:
+    build:
+      context: .
+      dockerfile: 'Dockerfile'
+      target: dev
+      args:
+        - _uid=${_UID}
+        - gid=${GID}
+    working_dir: ${WORKING_DIR_BUILDER}
+    container_name: dtcc-builder
+    image: dtcc-builder-image
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../:${WORKING_DIR_BUILDER}:rw
+      - dtcc-platform-shared-data:${SHARED_DATA_DIR}:rw
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
+
+volumes:
+  dtcc-platform-shared-data:
+
+
