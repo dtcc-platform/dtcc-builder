@@ -6,3 +6,5 @@ python3 -m pip install \
     protobuf==3.20.* \
 	pybind11==2.10.* \
 	shapely
+
+apt-get install -y python3-fiona

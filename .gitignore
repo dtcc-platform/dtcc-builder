@@ -6,6 +6,8 @@
 !/data/sampleCityJSON/
 
 *.so
+*.o
+/pybuilder/build
 
 .idea/
 .vscode/
