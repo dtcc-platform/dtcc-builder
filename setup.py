@@ -29,8 +29,9 @@ setup_kwargs = {
 def build(setup_kwargs):
     ext_modules = [
         Pybind11Extension("_pybuilder", ["pybind/src/pybind_builder.cpp"],
-        include_dirs = ["include","pybind/include"],
-        extra_compile_args=['-std=c++1y']),
+        include_dirs = ["include","pybind/include", "external", "/usr/include/nlohmann/", "/usr/local/include", "/usr/include", ],
+        extra_compile_args=['-std=c++1y'],
+        extra_link_args=['-luuid','-lshp']),
     ]
     setup_kwargs.update({
         "ext_modules": ext_modules,
