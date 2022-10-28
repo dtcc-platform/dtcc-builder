@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
+from pathlib import Path
+import os
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 
@@ -27,11 +29,12 @@ setup_kwargs = {
 
 
 def build(setup_kwargs):
+    project_root = str((Path(__file__).parent / "..").resolve() )
     ext_modules = [
-        Pybind11Extension("_pybuilder", ["pybind/src/pybind_builder.cpp"],
-        include_dirs = ["include","pybind/include", "external", "/usr/include/nlohmann/", "/usr/local/include", "/usr/include", ],
+        Pybind11Extension("_pybuilder", ["pybindings/src/pybind_builder.cpp"],
+        include_dirs = [os.path.join(project_root, "include"), os.path.join(project_root,"external"), "/usr/include/nlohmann/", "/usr/local/include", "/usr/include", ],
         extra_compile_args=['-std=c++1y'],
-        extra_link_args=['-luuid','-lshp']),
+        extra_link_args=['-luuid','-lshp', '-llas', '-lstdc++fs']),
     ]
     setup_kwargs.update({
         "ext_modules": ext_modules,

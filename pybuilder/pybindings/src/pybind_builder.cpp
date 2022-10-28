@@ -11,6 +11,7 @@
 #include "Logging.h"
 #include "ParameterProcessor.h"
 #include "Parameters.h"
+#include "PointCloud.h"
 #include "Polygon.h"
 #include "SHP.h"
 #include "Timer.h"
@@ -35,10 +36,30 @@ CityModel GenerateCityModel(std::string shp_file, double minBuildingDistance,dou
   CityModel cityModel;
 
   return cityModel;
-
-
-
 }
+
+PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
+{
+  PointCloud pc;
+  LAS::ReadDirectory(pc, las_directory, extra_data);
+  return pc;
+}
+
+PointCloud LASReadFile(std::string las_file, bool extra_data = true)
+{
+  PointCloud pc;
+  LAS::Read(pc, las_file, extra_data);
+  return pc;
+}
+
+py::tuple LASBounds(std::string las_directory)
+{
+  BoundingBox2D bb;
+  LAS::BoundsDirectory(bb, las_directory);
+  py::tuple bbox = py::make_tuple(bb.P.x, bb.P.y, bb.Q.x, bb.Q.y);
+  return bbox;
+}
+
 } // namespace DTCC_BUILDER
 
 
@@ -52,10 +73,20 @@ PYBIND11_MODULE(_pybuilder, m) {
     py::class_<DTCC_BUILDER::CityModel>(m,"CityModel")
         .def(py::init<>());
 
+    py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud").def(py::init<>());
+
     m.doc() = "python bindings for dtcc-builder"; 
 
     m.def("add", &add, "A function that adds two numbers");
 
     m.def("GenerateCityModel", &DTCC_BUILDER::GenerateCityModel, 
       "load shp file into city model");
+
+    m.def("LASReadDirectory", &DTCC_BUILDER::LASReadDirectory,
+          "load all .las files in directory");
+
+    m.def("LASReadFile", &DTCC_BUILDER::LASReadFile, "load .las file");
+
+    m.def("LASBounds", &DTCC_BUILDER::LASBounds,
+          "calculate bounding box of all .las files in directorty");
 }

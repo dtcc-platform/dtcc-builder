@@ -48,7 +48,7 @@ _parameters["BuildingsFileName"] = "PropertyMap.shp"
 _parameters["PointCloudDirectory"] = ""
 _parameters["OutputDirectory"] = ""
 
-def loadParameters(file_path):
+def loadParameters(file_path=None):
     global _parameters
     if file_path is None:
         return _parameters
