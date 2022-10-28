@@ -23,7 +23,10 @@ namespace py = pybind11;
 namespace DTCC_BUILDER
 {
 
-CityModel GenerateCityModel(std::string shp_file, double minBuildingDistance,double minBuildingSize)
+CityModel GenerateCityModel(std::string shp_file,
+                            py::tuple bounds,
+                            double minBuildingDistance,
+                            double minBuildingSize)
 {
   std::vector<Polygon> footprints;
   std::vector<std::string> UUIDs;
@@ -34,6 +37,15 @@ CityModel GenerateCityModel(std::string shp_file, double minBuildingDistance,dou
   info("Loaded " + str(footprints.size()) + " building footprints");
 
   CityModel cityModel;
+  double px = bounds[0].cast<double>();
+  double py = bounds[1].cast<double>();
+  double qx = bounds[2].cast<double>();
+  double qy = bounds[3].cast<double>();
+  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
+
+  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
+                                        bbox, minBuildingDistance,
+                                        minBuildingSize);
 
   return cityModel;
 }
@@ -62,31 +74,27 @@ py::tuple LASBounds(std::string las_directory)
 
 } // namespace DTCC_BUILDER
 
+int add(int i, int j) { return i + j; }
 
-int add(int i, int j) {
-    return i + j;
-}
+PYBIND11_MODULE(_pybuilder, m)
+{
 
+  py::class_<DTCC_BUILDER::CityModel>(m, "CityModel").def(py::init<>());
 
-PYBIND11_MODULE(_pybuilder, m) {
+  py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud").def(py::init<>());
 
-    py::class_<DTCC_BUILDER::CityModel>(m,"CityModel")
-        .def(py::init<>());
+  m.doc() = "python bindings for dtcc-builder";
 
-    py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud").def(py::init<>());
+  m.def("add", &add, "A function that adds two numbers");
 
-    m.doc() = "python bindings for dtcc-builder"; 
+  m.def("GenerateCityModel", &DTCC_BUILDER::GenerateCityModel,
+        "load shp file into city model");
 
-    m.def("add", &add, "A function that adds two numbers");
+  m.def("LASReadDirectory", &DTCC_BUILDER::LASReadDirectory,
+        "load all .las files in directory");
 
-    m.def("GenerateCityModel", &DTCC_BUILDER::GenerateCityModel, 
-      "load shp file into city model");
+  m.def("LASReadFile", &DTCC_BUILDER::LASReadFile, "load .las file");
 
-    m.def("LASReadDirectory", &DTCC_BUILDER::LASReadDirectory,
-          "load all .las files in directory");
-
-    m.def("LASReadFile", &DTCC_BUILDER::LASReadFile, "load .las file");
-
-    m.def("LASBounds", &DTCC_BUILDER::LASBounds,
-          "calculate bounding box of all .las files in directorty");
+  m.def("LASBounds", &DTCC_BUILDER::LASBounds,
+        "calculate bounding box of all .las files in directorty");
 }
