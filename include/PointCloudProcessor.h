@@ -120,7 +120,7 @@ public:
 
     // Remove outliers from points
     std::vector<size_t> outliers =
-        RemoveOutliers(pointCloud.Points, outlierMargin, true);
+        FindGlobalOutliers(pointCloud.Points, outlierMargin);
 
     FilterPointCloud(pointCloud, outliers);
 
@@ -140,6 +140,40 @@ public:
 
     info("PointCloudProcessor: " + str(outliers.size()) +
          " outliers removed from point cloud");
+  }
+
+  /// Find index of outlier from vector of points more than a
+  /// given number of standard deviations from the mean for the z-coordinate.
+  ///
+  /// @param points The vector of points
+  /// @param outlierMargin Number of standard deviations
+  /// @return Vector of indices for removed points
+  static std::vector<size_t>
+  FindGlobalOutliers(const std::vector<Point3D> &points, double outlierMargin)
+  {
+    // Compute mean
+    double mean{0};
+    for (const auto p : points)
+      mean += p.z;
+    mean /= points.size();
+
+    // Compute standard deviation
+    double std{0};
+    for (const auto p : points)
+      std += (p.z - mean) * (p.z - mean);
+    std /= points.size() - 1;
+    std = std::sqrt(std);
+    std::vector<size_t> outliers;
+
+    for (size_t i = 0; i < points.size(); i++)
+    {
+      if (std::abs(points[i].z - mean) > outlierMargin * std)
+      {
+        outliers.push_back(i);
+      }
+    }
+
+    return outliers;
   }
 
   /// Remove outliers from vector of points by removing all points more than a
