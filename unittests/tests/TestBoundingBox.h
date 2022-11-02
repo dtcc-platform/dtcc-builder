@@ -1,5 +1,7 @@
 #include "BoundingBox.h"
 
+using namespace DTCC;
+
 TEST_CASE("BoundingBox2D")
 {
   Polygon p;
