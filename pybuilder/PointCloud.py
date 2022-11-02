@@ -18,4 +18,7 @@ def getLasBounds(las_path):
         return None
     bbox = _pybuilder.LASBounds(las_path)
     return bbox
- 
+
+def globalOutlierRemover(point_cloud, outlierMargin):
+    point_cloud = _pybuilder.GlobalOutlierRemover(point_cloud,outlierMargin)
+    return point_cloud

@@ -24,8 +24,7 @@ class TestCityModel(unittest.TestCase):
         px, py, qx, qy = bbox
         self.assertAlmostEqual(px,-15.14247441879)
         self.assertAlmostEqual(qy, 8.90185303782)
-
-        
+       
 
     def test_load(self):
         shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"

@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "datamodel/CityModel.h"
 // DTCC includes
@@ -23,6 +24,7 @@ namespace py = pybind11;
 namespace DTCC_BUILDER
 {
 
+// CityModel
 CityModel GenerateCityModel(std::string shp_file,
                             py::tuple bounds,
                             double minBuildingDistance,
@@ -50,6 +52,7 @@ CityModel GenerateCityModel(std::string shp_file,
   return cityModel;
 }
 
+// PointCloud
 PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
 {
   PointCloud pc;
@@ -72,6 +75,23 @@ py::tuple LASBounds(std::string las_directory)
   return bbox;
 }
 
+PointCloud GlobalOutlierRemover(PointCloud &pointCloud, double outlierMargin)
+{
+  PointCloudProcessor::RemoveOutliers(pointCloud, outlierMargin);
+  return pointCloud;
+}
+
+// GridField
+GridField2D GenerateElevationModel(const PointCloud &pointCloud,
+                                   double resolution,
+                                   std::vector<int> classifications)
+{
+  GridField2D dem;
+  ElevationModelGenerator::GenerateElevationModel(dem, pointCloud,
+                                                  classifications, resolution);
+  return dem;
+}
+
 } // namespace DTCC_BUILDER
 
 int add(int i, int j) { return i + j; }
@@ -82,6 +102,8 @@ PYBIND11_MODULE(_pybuilder, m)
   py::class_<DTCC_BUILDER::CityModel>(m, "CityModel").def(py::init<>());
 
   py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud").def(py::init<>());
+
+  py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D").def(py::init<>());
 
   m.doc() = "python bindings for dtcc-builder";
 
@@ -97,4 +119,11 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("LASBounds", &DTCC_BUILDER::LASBounds,
         "calculate bounding box of all .las files in directorty");
+
+  m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
+        "generate height field from point cloud");
+
+  m.def("GlobalOutlierRemover", &DTCC_BUILDER::GlobalOutlierRemover,
+        "Remove all points more than a given number of standard deviations "
+        "from the mean for the z-coordinate");
 }

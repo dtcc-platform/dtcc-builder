@@ -11,7 +11,7 @@ import PointCloud
 data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
 p = Parameters.loadParameters()
 
-class TestPointCloud(unittest.TestCase):
+class TestLoadPointCloud(unittest.TestCase):
 
     def test_load_dir(self):
         pc = PointCloud.readLasFiles(data_dir / "MinimalCase")
@@ -24,7 +24,16 @@ class TestPointCloud(unittest.TestCase):
         self.assertIsNotNone(bbox)
         px,py,qx,qy = bbox
         self.assertAlmostEqual(px,-8.017474418)
-        self.assertAlmostEqual(qy, 8.90185303782)
+        self.assertAlmostEqual(qy,1.838260469410343)
 
+class TestOutlierRemover(unittest.TestCase):
+    def setUp(self) -> None:
+        self.pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
+    
+    def test_remove_outliers(self):
+        filtered_pc = PointCloud.globalOutlierRemover(self.pc,1)
+        self.assertIsInstance(filtered_pc,_pybuilder.PointCloud)
+        
+        
 if __name__ == '__main__':
     unittest.main()
