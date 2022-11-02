@@ -1,5 +1,6 @@
 import _pybuilder
 import os
+import numpy
 
 def readLasFiles(las_path, extra_data = True):
     las_path = str(las_path)
@@ -26,3 +27,8 @@ def globalOutlierRemover(point_cloud, outlierMargin):
 def VegetationFilter(point_cloud):
     point_cloud = _pybuilder.VegetationFilter(point_cloud)
     return point_cloud
+
+def pointCloud2numpy(point_cloud):
+    pts = point_cloud.points
+    pts = [[p.x,p.y,p.z] for p in pts]
+    return numpy.array(pts)

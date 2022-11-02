@@ -128,12 +128,19 @@ PYBIND11_MODULE(_pybuilder, m)
 
   py::class_<DTCC_BUILDER::CityModel>(m, "CityModel").def(py::init<>());
 
-  py::class_<DTCC_BUILDER::Point3D>(m, "Point3D").def(py::init<>());
+  py::class_<DTCC_BUILDER::Point3D>(m, "Point3D")
+      .def(py::init<>())
+      .def_readonly("x", &DTCC_BUILDER::Point3D::x)
+      .def_readonly("y", &DTCC_BUILDER::Point3D::y)
+      .def_readonly("z", &DTCC_BUILDER::Point3D::z);
 
   py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud")
       .def(py::init<>())
       .def("__len__",
-           [](const DTCC_BUILDER::PointCloud &p) { return p.Points.size(); });
+           [](const DTCC_BUILDER::PointCloud &p) { return p.Points.size(); })
+      .def_readonly("points", &DTCC_BUILDER::PointCloud::Points)
+      .def_readonly("classifications",
+                    &DTCC_BUILDER::PointCloud::Classifications);
 
   py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D").def(py::init<>());
 

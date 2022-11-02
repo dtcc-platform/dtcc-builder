@@ -42,6 +42,14 @@ class TestFilters(unittest.TestCase):
         filtered_pc = PointCloud.VegetationFilter(pc)
         self.assertIsInstance(filtered_pc,_pybuilder.PointCloud)
         
-        
+class TestConvert(unittest.TestCase):
+
+    def test_convert2numpy(self):
+        pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
+        pts_array = PointCloud.pointCloud2numpy(pc)
+        l,d = pts_array.shape
+        self.assertEqual(l,8148)
+        self.assertEqual(d,3)
+
 if __name__ == '__main__':
     unittest.main()
