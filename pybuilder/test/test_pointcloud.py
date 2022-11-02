@@ -19,6 +19,8 @@ class TestLoadPointCloud(unittest.TestCase):
     def test_load_file(self):
         pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
         self.assertIsInstance(pc, _pybuilder.PointCloud)
+        self.assertEqual(len(pc),8148)
+
     def test_las_bounds(self):
         bbox = PointCloud.getLasBounds(data_dir / "MinimalCase")
         self.assertIsNotNone(bbox)
@@ -26,12 +28,18 @@ class TestLoadPointCloud(unittest.TestCase):
         self.assertAlmostEqual(px,-8.017474418)
         self.assertAlmostEqual(qy,1.838260469410343)
 
-class TestOutlierRemover(unittest.TestCase):
-    def setUp(self) -> None:
-        self.pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
+class TestFilters(unittest.TestCase):
     
     def test_remove_outliers(self):
-        filtered_pc = PointCloud.globalOutlierRemover(self.pc,1)
+        pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
+        # print(len(pc))
+        filtered_pc = PointCloud.globalOutlierRemover(pc,1)
+        self.assertIsInstance(filtered_pc,_pybuilder.PointCloud)
+        self.assertEqual(len(filtered_pc),8148 - 1183)
+    
+    def test_remove_vegetation(self):
+        pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
+        filtered_pc = PointCloud.VegetationFilter(pc)
         self.assertIsInstance(filtered_pc,_pybuilder.PointCloud)
         
         

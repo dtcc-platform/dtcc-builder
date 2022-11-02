@@ -19,3 +19,8 @@ def generateCityModel(shp_footprint_file, parameteres, bounds=None):
     return city_model
 
 
+def cleanCityModel(city_model, min_vert_distance):
+    return _pybuilder.CleanCityModel(city_model, min_vert_distance)
+
+def extractBuildingPoints(city_model, point_cloud, ground_margins):
+    return _pybuilder.ExtractBuildingPoints(city_model, point_cloud, ground_margins)

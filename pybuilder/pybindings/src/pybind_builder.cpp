@@ -51,6 +51,22 @@ CityModel GenerateCityModel(std::string shp_file,
   return cityModel;
 }
 
+CityModel CleanCityModel(CityModel &cityModel, double minVertDistance)
+{
+  CityModelGenerator::CleanCityModel(cityModel, minVertDistance);
+  return cityModel;
+}
+
+CityModel ExtractBuildingPoints(CityModel &cityModel,
+                                const PointCloud &pointCloud,
+                                double groundMargin,
+                                double groundOutlierMargin)
+{
+  CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud, groundMargin,
+                                            groundOutlierMargin);
+  return cityModel;
+}
+
 // PointCloud
 PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
 {
@@ -114,7 +130,10 @@ PYBIND11_MODULE(_pybuilder, m)
 
   py::class_<DTCC_BUILDER::Point3D>(m, "Point3D").def(py::init<>());
 
-  py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud").def(py::init<>());
+  py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud")
+      .def(py::init<>())
+      .def("__len__",
+           [](const DTCC_BUILDER::PointCloud &p) { return p.Points.size(); });
 
   py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D").def(py::init<>());
 
@@ -124,6 +143,12 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("GenerateCityModel", &DTCC_BUILDER::GenerateCityModel,
         "load shp file into city model");
+
+  m.def("CleanCityModel", &DTCC_BUILDER::CleanCityModel,
+        "clean city model polygons");
+
+  m.def("ExtractBuildingPoints", &DTCC_BUILDER::ExtractBuildingPoints,
+        "extarct points from point cloud for each building");
 
   m.def("LASReadDirectory", &DTCC_BUILDER::LASReadDirectory,
         "load all .las files in directory");
