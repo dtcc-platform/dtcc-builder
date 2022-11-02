@@ -8,6 +8,7 @@
 const std::string RootPath{"/home/dtcc/dtcc-builder/unittests/"};
 
 // Run these tests. You can comment out any test you don't want run
+#include "tests/TestBoundingBox.h"
 #include "tests/TestBuilding.h"
 #include "tests/TestCityModel.h"
 #include "tests/TestColormaps.h"
