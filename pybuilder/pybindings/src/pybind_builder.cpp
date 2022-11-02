@@ -10,8 +10,7 @@
 #include "JSON.h"
 #include "LAS.h"
 #include "Logging.h"
-#include "ParameterProcessor.h"
-#include "Parameters.h"
+#include "Point.h"
 #include "PointCloud.h"
 #include "Polygon.h"
 #include "SHP.h"
@@ -81,6 +80,12 @@ PointCloud GlobalOutlierRemover(PointCloud &pointCloud, double outlierMargin)
   return pointCloud;
 }
 
+PointCloud VegetationFilter(PointCloud &pointCloud)
+{
+  PointCloudProcessor::NaiveVegetationFilter(pointCloud);
+  return pointCloud;
+}
+
 // GridField
 GridField2D GenerateElevationModel(const PointCloud &pointCloud,
                                    double resolution,
@@ -92,6 +97,12 @@ GridField2D GenerateElevationModel(const PointCloud &pointCloud,
   return dem;
 }
 
+GridField2D SmoothElevation(GridField2D &dem, size_t numSmoothings)
+{
+  VertexSmoother::SmoothField(dem, numSmoothings);
+  return dem;
+}
+
 } // namespace DTCC_BUILDER
 
 int add(int i, int j) { return i + j; }
@@ -100,6 +111,8 @@ PYBIND11_MODULE(_pybuilder, m)
 {
 
   py::class_<DTCC_BUILDER::CityModel>(m, "CityModel").def(py::init<>());
+
+  py::class_<DTCC_BUILDER::Point3D>(m, "Point3D").def(py::init<>());
 
   py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud").def(py::init<>());
 
@@ -120,10 +133,16 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("LASBounds", &DTCC_BUILDER::LASBounds,
         "calculate bounding box of all .las files in directorty");
 
-  m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
-        "generate height field from point cloud");
-
   m.def("GlobalOutlierRemover", &DTCC_BUILDER::GlobalOutlierRemover,
         "Remove all points more than a given number of standard deviations "
         "from the mean for the z-coordinate");
+
+  m.def("VegetationFilter", &DTCC_BUILDER::VegetationFilter,
+        "Remove possible vegetation filters");
+
+  m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
+        "generate height field from point cloud");
+
+  m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
+        "Smooth  elevation grid field");
 }

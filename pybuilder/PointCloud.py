@@ -22,3 +22,7 @@ def getLasBounds(las_path):
 def globalOutlierRemover(point_cloud, outlierMargin):
     point_cloud = _pybuilder.GlobalOutlierRemover(point_cloud,outlierMargin)
     return point_cloud
+
+def VegetationFilter(point_cloud):
+    point_cloud = _pybuilder.VegetationFilter(point_cloud)
+    return point_cloud
