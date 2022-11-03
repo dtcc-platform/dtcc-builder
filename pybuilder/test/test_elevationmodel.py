@@ -25,3 +25,4 @@ class TestCreateDEM(unittest.TestCase):
     def test_smooth_elevation(self):
         smooth_dem = ElevationModel.smoothElevationModel(self.dem,5)
         self.assertIsInstance(smooth_dem, _pybuilder.GridField2D)
+    

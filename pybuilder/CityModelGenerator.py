@@ -45,13 +45,17 @@ def extractBuildingPoints(
 def buildingPointsRANSACOutlierRemover(
     city_model: _pybuilder.CityModel, outlier_margin: float, interations: int
 ) -> _pybuilder.CityModel:
-    return _pybuilder.BuildingPointsRANSACOutlierRemover(city_model,outlier_margin, interations)
+    return _pybuilder.BuildingPointsRANSACOutlierRemover(
+        city_model, outlier_margin, interations
+    )
+
 
 def buildingPointsStatisticalOutlierRemover(
     city_model: _pybuilder.CityModel, neighbors: int, outlier_margin: float
 ) -> _pybuilder.CityModel:
-    return _pybuilder.BuildingPointsOutlierRemover(city_model,neighbors,outlier_margin)
-
+    return _pybuilder.BuildingPointsOutlierRemover(
+        city_model, neighbors, outlier_margin
+    )
 
 
 def getBuildingRoofPoints(building: _pybuilder.Building):
