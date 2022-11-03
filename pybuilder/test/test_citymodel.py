@@ -43,10 +43,16 @@ class TestCityModel(unittest.TestCase):
         shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
         cm = CityModelGenerator.generateCityModel(shp_file,p)
         clean_cm = CityModelGenerator.cleanCityModel(cm,0.5)
+        self.assertIsInstance(clean_cm,_pybuilder.CityModel)
 
     def test_extarct_points(self):
         cm_with_points = CityModelGenerator.extractBuildingPoints(self.cm,self.pc,1.0,2.0)
         self.assertIsInstance(cm_with_points,_pybuilder.CityModel)
+        b0 = cm_with_points.buildings[0]
+        roof_pts = CityModelGenerator.getBuildingRoofPoints(b0)
+        l,d = roof_pts.shape
+        self.assertEqual(l,220)
+        self.assertEqual(d,3)
 
 if __name__ == '__main__':
     unittest.main()

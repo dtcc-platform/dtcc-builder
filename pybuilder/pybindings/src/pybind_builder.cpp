@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
 // DTCC includes
 #include "CityModelGenerator.h"
@@ -126,10 +127,31 @@ int add(int i, int j) { return i + j; }
 PYBIND11_MODULE(_pybuilder, m)
 {
 
-  py::class_<DTCC_BUILDER::CityModel>(m, "CityModel").def(py::init<>());
+  py::class_<DTCC_BUILDER::CityModel>(m, "CityModel")
+      .def(py::init<>())
+      .def(
+          "__len__",
+          [](const DTCC_BUILDER::CityModel &cm) { return cm.Buildings.size(); })
+      .def_readonly("buildings", &DTCC_BUILDER::CityModel::Buildings);
+
+  py::class_<DTCC_BUILDER::Building>(m, "Building")
+      .def(py::init<>())
+      .def_readwrite("error", &DTCC_BUILDER::Building::error)
+      .def_readwrite("uuid", &DTCC_BUILDER::Building::UUID)
+      .def_readwrite("propertyUUID", &DTCC_BUILDER::Building::PropertyUUID)
+      .def_readwrite("height", &DTCC_BUILDER::Building::Height)
+      .def_readwrite("groundHeight", &DTCC_BUILDER::Building::GroundHeight)
+      .def_readonly("grounPoints", &DTCC_BUILDER::Building::GroundPoints)
+      .def_readonly("roofPoints", &DTCC_BUILDER::Building::RoofPoints);
 
   py::class_<DTCC_BUILDER::Point3D>(m, "Point3D")
       .def(py::init<>())
+      .def("__repr__",
+           [](const DTCC_BUILDER::Point3D &p) {
+             return "<Point3D (" + DTCC_BUILDER::str(p.x) + ", " +
+                    DTCC_BUILDER::str(p.y) + ", " + DTCC_BUILDER::str(p.z) +
+                    ")>";
+           })
       .def_readonly("x", &DTCC_BUILDER::Point3D::x)
       .def_readonly("y", &DTCC_BUILDER::Point3D::y)
       .def_readonly("z", &DTCC_BUILDER::Point3D::z);
