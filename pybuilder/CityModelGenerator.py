@@ -25,23 +25,36 @@ def generateCityModel(shp_footprint_file, parameteres, bounds=None):
     return city_model
 
 
-def cleanCityModel(city_model, min_vert_distance):
+def cleanCityModel(
+    city_model: _pybuilder.CityModel, min_vert_distance
+) -> _pybuilder.CityModel:
     return _pybuilder.CleanCityModel(city_model, min_vert_distance)
 
 
 def extractBuildingPoints(
     city_model: _pybuilder.CityModel,
     point_cloud: _pybuilder.PointCloud,
-    ground_margins,
-    groundOutlierMargin,
-):
+    ground_margins: float,
+    groundOutlierMargin: float,
+) -> _pybuilder.CityModel:
     return _pybuilder.ExtractBuildingPoints(
         city_model, point_cloud, ground_margins, groundOutlierMargin
     )
 
 
+def buildingPointsRANSACOutlierRemover(
+    city_model: _pybuilder.CityModel, outlier_margin: float, interations: int
+) -> _pybuilder.CityModel:
+    return _pybuilder.BuildingPointsRANSACOutlierRemover(city_model,outlier_margin, interations)
+
+def buildingPointsStatisticalOutlierRemover(
+    city_model: _pybuilder.CityModel, neighbors: int, outlier_margin: float
+) -> _pybuilder.CityModel:
+    return _pybuilder.BuildingPointsOutlierRemover(city_model,neighbors,outlier_margin)
+
+
+
 def getBuildingRoofPoints(building: _pybuilder.Building):
     roof_pts = building.roofPoints
     roof_pts = [[p.x, p.y, p.z] for p in roof_pts]
-
     return numpy.array(roof_pts)

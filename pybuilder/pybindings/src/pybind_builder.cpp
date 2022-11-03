@@ -68,6 +68,24 @@ CityModel ExtractBuildingPoints(CityModel &cityModel,
   return cityModel;
 }
 
+CityModel BuildingPointsRANSACOutlierRemover(CityModel &cityModel,
+                                             double outlier_margin,
+                                             size_t iterations)
+{
+  CityModelGenerator::BuildingPointsRANSACOutlierRemover(
+      cityModel, outlier_margin, iterations);
+  return cityModel;
+}
+
+CityModel BuildingPointsOutlierRemover(CityModel &cityModel,
+                                       size_t neighbors,
+                                       double outlier_margin)
+{
+  CityModelGenerator::BuildingPointsOutlierRemover(cityModel, neighbors,
+                                                   outlier_margin);
+  return cityModel;
+}
+
 // PointCloud
 PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
 {
@@ -122,8 +140,6 @@ GridField2D SmoothElevation(GridField2D &dem, size_t numSmoothings)
 
 } // namespace DTCC_BUILDER
 
-int add(int i, int j) { return i + j; }
-
 PYBIND11_MODULE(_pybuilder, m)
 {
 
@@ -168,8 +184,6 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.doc() = "python bindings for dtcc-builder";
 
-  m.def("add", &add, "A function that adds two numbers");
-
   m.def("GenerateCityModel", &DTCC_BUILDER::GenerateCityModel,
         "load shp file into city model");
 
@@ -193,6 +207,15 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("VegetationFilter", &DTCC_BUILDER::VegetationFilter,
         "Remove possible vegetation filters");
+
+  m.def(
+      "BuildingPointsRANSACOutlierRemover",
+      &DTCC_BUILDER::BuildingPointsRANSACOutlierRemover,
+      "Use RANSAC to remove extreme outliers. Only useful on very noisy data");
+
+  m.def("BuildingPointsOutlierRemover",
+        &DTCC_BUILDER::BuildingPointsOutlierRemover,
+        "remove outliers from roof points using statistcal outlier algorithm");
 
   m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
         "generate height field from point cloud");
