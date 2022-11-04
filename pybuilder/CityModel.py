@@ -81,8 +81,8 @@ def getBuildingFootprint(building: _pybuilder.Building):
 
 
 def toJSON(city_model: _pybuilder.CityModel, outfile):
-    pass
+    _pybuilder.WriteCityModelJSON(city_model,outfile)
 
 
-def fromJSON(city_model: _pybuilder.CityModel, infile):
-    pass
+def fromJSON(infile) -> _pybuilder.CityModel:
+    return _pybuilder.ReadCityModelJSON(infile)

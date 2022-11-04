@@ -96,6 +96,18 @@ CityModel ComputeBuildingHeights(CityModel &cityModel,
   return cityModel;
 }
 
+void WriteCityModelJSON(const CityModel &cityModel, std::string path)
+{
+  JSON::Write(cityModel, path, cityModel.Origin);
+}
+
+CityModel ReadCityModelJSON(std::string path)
+{
+  CityModel cityModel;
+  JSON::Read(cityModel, path);
+  return cityModel;
+}
+
 // PointCloud
 PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
 {
@@ -244,6 +256,12 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("ComputeBuildingHeights", &DTCC_BUILDER::ComputeBuildingHeights,
         "Calculate building heights based on point cloud and dtm data");
+
+  m.def("WriteCityModelJSON", &DTCC_BUILDER::WriteCityModelJSON,
+        "Write CityModel to JSON");
+
+  m.def("ReadCityModelJSON", &DTCC_BUILDER::ReadCityModelJSON,
+        "Load CityModel from JSON");
 
   m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
         "generate height field from point cloud");

@@ -27,12 +27,15 @@ public:
   /// Array of buildings
   std::vector<Building> Buildings;
 
+  Point2D Origin = Point2D(0, 0);
+
   /// Set new origin (subtract offset)
   void SetOrigin(const Point2D &origin)
   {
     info("CityModel: Setting new origin to " + str(origin));
     for (auto &building : Buildings)
       building.SetOrigin(origin);
+    Origin = origin;
   }
 
   /// Build search tree (bounding box tree), required for search queries.

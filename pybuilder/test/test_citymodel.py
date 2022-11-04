@@ -1,5 +1,5 @@
 import unittest
-import sys
+import sys, os
 from pathlib import Path
 
 sys.path.append(str((Path(__file__).parent / "..").resolve()))
@@ -84,6 +84,12 @@ class TestCityModel(unittest.TestCase):
         self.assertIsInstance(cm_with_height,_pybuilder.CityModel)
         self.assertEqual(cm_with_height.buildings[0].height, 5)
         self.assertEqual(cm_with_height.buildings[3].height, 10)
+
+    def test_readwrite_json(self):
+        CityModel.toJSON(self.cm,"tmpCM.json")
+        read_cm = CityModel.fromJSON("tmpCM.json")
+        self.assertIsInstance(read_cm,_pybuilder.CityModel)
+        os.unlink("tmpCM.json")
 
 if __name__ == "__main__":
     unittest.main()
