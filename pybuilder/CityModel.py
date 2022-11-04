@@ -2,6 +2,7 @@ import _pybuilder
 
 import numpy
 import fiona
+from shapely.geometry import Polygon
 
 
 def buildingBounds(shp_footprint_file, buffer=0):
@@ -58,7 +59,30 @@ def buildingPointsStatisticalOutlierRemover(
     )
 
 
+def computeBuildingHeights(
+    city_model: _pybuilder.CityModel,
+    dtm: _pybuilder.GridField2D,
+    groundPercentile: float,
+    roofPercentile: float,
+) -> _pybuilder.CityModel:
+    return _pybuilder.ComputeBuildingHeights(
+        city_model, dtm, groundPercentile, roofPercentile
+    )
+
+
 def getBuildingRoofPoints(building: _pybuilder.Building):
     roof_pts = building.roofPoints
     roof_pts = [[p.x, p.y, p.z] for p in roof_pts]
     return numpy.array(roof_pts)
+
+
+def getBuildingFootprint(building: _pybuilder.Building):
+    footprint = building.footprint
+
+
+def toJSON(city_model: _pybuilder.CityModel, outfile):
+    pass
+
+
+def fromJSON(city_model: _pybuilder.CityModel, infile):
+    pass
