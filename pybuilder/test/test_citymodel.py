@@ -7,7 +7,9 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 import _pybuilder
 import Parameters
 import PointCloud
+import ElevationModel
 import CityModel
+
 
 data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
 p = Parameters.loadParameters()
@@ -73,6 +75,15 @@ class TestCityModel(unittest.TestCase):
         )
         self.assertIsInstance(so_filtered, _pybuilder.CityModel)
 
+    def test_compute_building_heights(self):
+        cm_with_points = CityModel.extractBuildingPoints(
+            self.cm, self.pc, 1.0, 2.0
+        )
+        dtm = ElevationModel.generateElevationModel(self.pc, 0.5, [2, 9])
+        cm_with_height = CityModel.computeBuildingHeights(cm_with_points, dtm, 0.9, 0.95)
+        self.assertIsInstance(cm_with_height,_pybuilder.CityModel)
+        self.assertEqual(cm_with_height.buildings[0].height, 5)
+        self.assertEqual(cm_with_height.buildings[3].height, 10)
 
 if __name__ == "__main__":
     unittest.main()

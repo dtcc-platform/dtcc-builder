@@ -9,7 +9,12 @@ packages = ["pybuilder"]
 
 package_data = {"": ["*"], "pybuilder": ["include/*", "pybind/src/*"]}
 
-install_requires = ["numpy>=1.23.3,<2.0.0", "pybind11>=2.10.0,<3.0.0"]
+install_requires = [
+    "numpy>=1.23.3,<2.0.0",
+    "pybind11>=2.10.0,<3.0.0",
+    "Fiona>=1.8.0<2.0.0",
+    "Shapely>=1.8.0<2.0.0",
+]
 
 setup_kwargs = {
     "name": "pybuilder",

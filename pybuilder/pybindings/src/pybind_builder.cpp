@@ -86,6 +86,16 @@ CityModel BuildingPointsOutlierRemover(CityModel &cityModel,
   return cityModel;
 }
 
+CityModel ComputeBuildingHeights(CityModel &cityModel,
+                                 const GridField2D &dtm,
+                                 double groundPercentile,
+                                 double roofPercentile)
+{
+  CityModelGenerator::ComputeBuildingHeights(cityModel, dtm, groundPercentile,
+                                             roofPercentile);
+  return cityModel;
+}
+
 // PointCloud
 PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
 {
@@ -157,8 +167,19 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readwrite("propertyUUID", &DTCC_BUILDER::Building::PropertyUUID)
       .def_readwrite("height", &DTCC_BUILDER::Building::Height)
       .def_readwrite("groundHeight", &DTCC_BUILDER::Building::GroundHeight)
+      .def_readonly("footprint", &DTCC_BUILDER::Building::Footprint)
       .def_readonly("grounPoints", &DTCC_BUILDER::Building::GroundPoints)
       .def_readonly("roofPoints", &DTCC_BUILDER::Building::RoofPoints);
+
+  py::class_<DTCC_BUILDER::Point2D>(m, "Point2D")
+      .def(py::init<>())
+      .def("__repr__",
+           [](const DTCC_BUILDER::Point3D &p) {
+             return "<Point3D (" + DTCC_BUILDER::str(p.x) + ", " +
+                    DTCC_BUILDER::str(p.y) + ")>";
+           })
+      .def_readonly("x", &DTCC_BUILDER::Point2D::x)
+      .def_readonly("y", &DTCC_BUILDER::Point2D::y);
 
   py::class_<DTCC_BUILDER::Point3D>(m, "Point3D")
       .def(py::init<>())
@@ -171,6 +192,10 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readonly("x", &DTCC_BUILDER::Point3D::x)
       .def_readonly("y", &DTCC_BUILDER::Point3D::y)
       .def_readonly("z", &DTCC_BUILDER::Point3D::z);
+
+  py::class_<DTCC_BUILDER::Polygon>(m, "Polygon")
+      .def(py::init<>())
+      .def_readonly("vertices", &DTCC_BUILDER::Polygon::Vertices);
 
   py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud")
       .def(py::init<>())
@@ -216,6 +241,9 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("BuildingPointsOutlierRemover",
         &DTCC_BUILDER::BuildingPointsOutlierRemover,
         "remove outliers from roof points using statistcal outlier algorithm");
+
+  m.def("ComputeBuildingHeights", &DTCC_BUILDER::ComputeBuildingHeights,
+        "Calculate building heights based on point cloud and dtm data");
 
   m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
         "generate height field from point cloud");
