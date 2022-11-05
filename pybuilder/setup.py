@@ -45,7 +45,14 @@ def build(setup_kwargs):
                 "/usr/include",
             ],
             extra_compile_args=["-std=c++1y"],
-            extra_link_args=["-luuid", "-lshp", "-llas", "-lstdc++fs"],
+            extra_link_args=[
+                "-luuid",
+                "-lshp",
+                "-llas",
+                "-lstdc++fs",
+                "-ldolfin",
+                "-ltriangle"
+            ],
         ),
     ]
     setup_kwargs.update({"ext_modules": ext_modules, "zip_safe": False})
