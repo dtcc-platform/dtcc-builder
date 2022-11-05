@@ -1,6 +1,7 @@
 import _pybuilder
 import os
 import numpy
+from typing import List, Tuple
 
 
 def readLasFiles(las_path, extra_data=True):
@@ -12,6 +13,12 @@ def readLasFiles(las_path, extra_data=True):
     elif os.path.isfile(las_path):
         pc = _pybuilder.LASReadFile(las_path, extra_data)
     return pc
+
+
+def setOrigin(
+    point_cloud: _pybuilder.PointCloud, origin: Tuple[float, float]
+) -> _pybuilder.PointCloud:
+    return _pybuilder.SetPointCloudOrigin(point_cloud, origin)
 
 
 def getLasBounds(las_path):
@@ -37,3 +44,10 @@ def pointCloud2numpy(point_cloud):
     pts = point_cloud.points
     pts = [[p.x, p.y, p.z] for p in pts]
     return numpy.array(pts)
+
+
+def getBounds(point_cloud):
+    pts = pointCloud2numpy(point_cloud)
+    x_min, y_min, z_min = pts.min(axis=0)
+    x_max, y_max, z_max = pts.max(axis=0)
+    return (x_min, y_min, x_max, y_max)

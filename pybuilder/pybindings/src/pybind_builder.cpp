@@ -57,6 +57,16 @@ CityModel GenerateCityModel(std::string shp_file,
   return cityModel;
 }
 
+CityModel SetCityModelOrigin(CityModel &cityModel, py::tuple origin)
+{
+  double px = origin[0].cast<double>();
+  double py = origin[1].cast<double>();
+  Point2D o = Point2D(px, py);
+  cityModel.SetOrigin(o);
+
+  return cityModel;
+}
+
 CityModel CleanCityModel(CityModel &cityModel, double minVertDistance)
 {
   CityModelGenerator::CleanCityModel(cityModel, minVertDistance);
@@ -134,6 +144,15 @@ py::tuple LASBounds(std::string las_directory)
   LAS::BoundsDirectory(bb, las_directory);
   py::tuple bbox = py::make_tuple(bb.P.x, bb.P.y, bb.Q.x, bb.Q.y);
   return bbox;
+}
+
+PointCloud SetPointCloudOrigin(PointCloud &pointCloud, py::tuple origin)
+{
+  double px = origin[0].cast<double>();
+  double py = origin[1].cast<double>();
+  Point2D o = Point2D(px, py);
+  pointCloud.SetOrigin(o);
+  return pointCloud;
 }
 
 PointCloud GlobalOutlierRemover(PointCloud &pointCloud, double outlierMargin)
@@ -319,6 +338,9 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("GenerateCityModel", &DTCC_BUILDER::GenerateCityModel,
         "load shp file into city model");
 
+  m.def("SetCityModelOrigin", &DTCC_BUILDER::SetCityModelOrigin,
+        "Set Origin on CityModel");
+
   m.def("CleanCityModel", &DTCC_BUILDER::CleanCityModel,
         "clean city model polygons");
 
@@ -332,6 +354,9 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("LASBounds", &DTCC_BUILDER::LASBounds,
         "calculate bounding box of all .las files in directorty");
+
+  m.def("SetPointCloudOrigin", &DTCC_BUILDER::SetPointCloudOrigin,
+        "set point cloud origin");
 
   m.def("GlobalOutlierRemover", &DTCC_BUILDER::GlobalOutlierRemover,
         "Remove all points more than a given number of standard deviations "

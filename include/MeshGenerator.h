@@ -70,8 +70,9 @@ namespace DTCC_BUILDER
       boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
 
       // Generate 2D mesh
+      info("Entering CallTriangle");
       CallTriangle(mesh2D, boundary, subDomains, resolution, true);
-
+      info("Leaving CallTriangle");
       // Mark subdomains
       ComputeDomainMarkers(mesh2D, cityModel);
     }
@@ -586,8 +587,9 @@ namespace DTCC_BUILDER
       struct triangulateio vorout = CreateTriangleIO();
 
       // Call Triangle
+      info("Calling triangulate");
       triangulate(triswitches, &in, &out, &vorout);
-
+      info("triangulate done!");
       // Uncomment for debugging
       //PrintTriangleIO(out);
       //PrintTriangleIO(vorout);

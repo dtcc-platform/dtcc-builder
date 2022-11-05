@@ -6,7 +6,6 @@ from shapely.geometry import Polygon
 from typing import List, Tuple
 
 
-
 def buildingBounds(shp_footprint_file, buffer=0):
     with fiona.open(shp_footprint_file) as c:
         bbox = c.bounds
@@ -27,8 +26,11 @@ def generateCityModel(shp_footprint_file, parameteres, bounds=None):
     )
     return city_model
 
-def setOrigin(city_model:_pybuilder.CityModel,origin: Tuple[float,float]) -> _pybuilder.CityModel:
-    pass
+
+def setOrigin(
+    city_model: _pybuilder.CityModel, origin: Tuple[float, float]
+) -> _pybuilder.CityModel:
+    return _pybuilder.SetCityModelOrigin(city_model, origin)
 
 
 def cleanCityModel(
@@ -86,7 +88,7 @@ def getBuildingFootprint(building: _pybuilder.Building):
 
 
 def toJSON(city_model: _pybuilder.CityModel, outfile):
-    _pybuilder.WriteCityModelJSON(city_model,outfile)
+    _pybuilder.WriteCityModelJSON(city_model, outfile)
 
 
 def fromJSON(infile) -> _pybuilder.CityModel:
