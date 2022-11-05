@@ -10,11 +10,16 @@
 #include "GridField.h"
 #include "JSON.h"
 #include "LAS.h"
+#include "LaplacianSmoother.h"
 #include "Logging.h"
+#include "Mesh.h"
+#include "MeshGenerator.h"
+#include "MeshProcessor.h"
 #include "Point.h"
 #include "PointCloud.h"
 #include "Polygon.h"
 #include "SHP.h"
+#include "Surface.h"
 #include "Timer.h"
 #include "Utils.h"
 #include "VertexSmoother.h"
@@ -160,6 +165,86 @@ GridField2D SmoothElevation(GridField2D &dem, size_t numSmoothings)
   return dem;
 }
 
+// Meshing
+
+Mesh2D
+GenerateMesh2D(const CityModel &cityModel, py::tuple bounds, double resolution)
+{
+  Mesh2D mesh;
+  double px = bounds[0].cast<double>();
+  double py = bounds[1].cast<double>();
+  double qx = bounds[2].cast<double>();
+  double qy = bounds[3].cast<double>();
+  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
+
+  MeshGenerator::GenerateMesh2D(mesh, cityModel, bbox, resolution);
+
+  return mesh;
+}
+
+Mesh3D
+GenerateMesh3D(const Mesh2D &mesh2D, double domainHeight, double meshResolution)
+{
+  Mesh3D mesh;
+  MeshGenerator::GenerateMesh3D(mesh, mesh2D, domainHeight, meshResolution);
+
+  return mesh;
+}
+
+// _pybuilder.SmoothMesh3D(mesh,city_model,dem,top_height,fix_buildings)
+Mesh3D SmoothMesh3D(Mesh3D &mesh3D,
+                    const CityModel &cityModel,
+                    const GridField2D &dem,
+                    double topHeight,
+                    bool fixBuildings)
+{
+  LaplacianSmoother::SmoothMesh3D(mesh3D, cityModel, dem, topHeight,
+                                  fixBuildings, false);
+  return mesh3D;
+}
+
+std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
+                                          const GridField2D &dtm,
+                                          double resolution)
+{
+  Surface3D groundSurface;
+  std::vector<Surface3D> buildingSurfaces;
+  MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
+                                    dtm, resolution);
+  buildingSurfaces.insert(buildingSurfaces.begin(), groundSurface);
+  return buildingSurfaces;
+}
+
+Mesh3D TrimMesh3D(Mesh3D &mesh3D,
+                  const Mesh2D &mesh2D,
+                  const CityModel &cityModel,
+                  size_t numLayers)
+{
+  MeshGenerator::TrimMesh3D(mesh3D, mesh2D, cityModel, numLayers);
+  return mesh3D;
+}
+
+Surface3D ExtractBoundary3D(const Mesh3D &mesh)
+{
+  Surface3D surface;
+  MeshProcessor::ExtractBoundary3D(surface, mesh);
+  return surface;
+}
+
+Surface3D ExtractOpenSurface3D(const Surface3D &boundary)
+{
+  Surface3D surface;
+  MeshProcessor::ExtractOpenSurface3D(surface, boundary);
+  return surface;
+}
+
+Surface3D MergeSurfaces3D(const std::vector<Surface3D> &surfaces)
+{
+  Surface3D surface;
+  MeshProcessor::MergeSurfaces3D(surface, surfaces);
+  return surface;
+}
+
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_pybuilder, m)
@@ -217,7 +302,17 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readonly("classifications",
                     &DTCC_BUILDER::PointCloud::Classifications);
 
+  py::class_<DTCC_BUILDER::Simplex2D>(m, "Simplex2D").def(py::init<>());
+
+  py::class_<DTCC_BUILDER::Simplex3D>(m, "Simplex3D").def(py::init<>());
+
   py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D").def(py::init<>());
+
+  py::class_<DTCC_BUILDER::Mesh2D>(m, "Mesh2D").def(py::init<>());
+
+  py::class_<DTCC_BUILDER::Mesh3D>(m, "Mesh3D").def(py::init<>());
+
+  py::class_<DTCC_BUILDER::Surface3D>(m, "Surface3D").def(py::init<>());
 
   m.doc() = "python bindings for dtcc-builder";
 
@@ -268,4 +363,28 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
         "Smooth  elevation grid field");
+
+  m.def("GenerateMesh2D", &DTCC_BUILDER::GenerateMesh2D, "Generate 2D mesh");
+
+  m.def("GenerateMesh3D", &DTCC_BUILDER::GenerateMesh3D, "Generate 3D mesh");
+
+  m.def("SmoothMesh3D", &DTCC_BUILDER::SmoothMesh3D,
+        "Laplacian smooth 3D mesh");
+
+  m.def("TrimMesh3D", &DTCC_BUILDER::TrimMesh3D,
+        "Trim 3D mesh. The mesh is trimmed by removing tetrahedra inside "
+        "building shape.");
+
+  m.def("GenerateSurfaces3D", &DTCC_BUILDER::GenerateSurfaces3D,
+        "Generate 3D surface meshes for visualization. Returns a list of "
+        "surfaces. The first surface is the ground followed buy each building");
+
+  m.def("ExtractBoundary3D", &DTCC_BUILDER::ExtractBoundary3D,
+        "Extract the boundary of a 3D mesh as a 3D surface.");
+
+  m.def("ExtractOpenSurface3D", &DTCC_BUILDER::ExtractOpenSurface3D,
+        "Extract an open surface from a boundary, excluding top and sides");
+
+  m.def("MergeSurfaces3D", &DTCC_BUILDER::MergeSurfaces3D,
+        "Merge surfaces into a single surface");
 }

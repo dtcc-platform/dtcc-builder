@@ -3,6 +3,8 @@ import _pybuilder
 import numpy
 import fiona
 from shapely.geometry import Polygon
+from typing import List, Tuple
+
 
 
 def buildingBounds(shp_footprint_file, buffer=0):
@@ -24,6 +26,9 @@ def generateCityModel(shp_footprint_file, parameteres, bounds=None):
         float(parameteres["MinBuildingSize"]),
     )
     return city_model
+
+def setOrigin(city_model:_pybuilder.CityModel,origin: Tuple[float,float]) -> _pybuilder.CityModel:
+    pass
 
 
 def cleanCityModel(

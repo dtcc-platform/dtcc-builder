@@ -41,6 +41,7 @@ def build(setup_kwargs):
                 os.path.join(project_root, "external"),
                 "/usr/include/nlohmann/",
                 "/usr/local/include",
+                "/usr/include/eigen3",
                 "/usr/include",
             ],
             extra_compile_args=["-std=c++1y"],
