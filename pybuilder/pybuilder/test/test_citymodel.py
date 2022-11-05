@@ -11,7 +11,7 @@ import ElevationModel
 import CityModel
 
 
-data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
+data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
 p = Parameters.loadParameters()
 
 
