@@ -7,8 +7,11 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 import _pybuilder
 import ElevationModel
 import PointCloud
-import Meshing
 import CityModel
+import Parameters
+
+import Meshing
+
 
 data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
 p = Parameters.loadParameters()

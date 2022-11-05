@@ -1,6 +1,6 @@
 #include "BoundingBox.h"
 
-using namespace DTCC;
+using namespace DTCC_BUILDER;
 
 TEST_CASE("BoundingBox2D")
 {
