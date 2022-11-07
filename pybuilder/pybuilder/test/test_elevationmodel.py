@@ -26,3 +26,6 @@ class TestCreateDEM(unittest.TestCase):
         smooth_dem = ElevationModel.smoothElevationModel(self.dem,5)
         self.assertIsInstance(smooth_dem, _pybuilder.GridField2D)
     
+    def test_get_bounds(self):
+        bounds = ElevationModel.getBounds(self.dem)
+        self.assertEquals(bounds,(0,0,1,1))

@@ -17,23 +17,28 @@ p = Parameters.loadParameters()
 
 class TestCityModel(unittest.TestCase):
     def setUp(self):
-        shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
-        self.cm = CityModel.generateCityModel(shp_file, p)
+        self.shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
+        self.cm = CityModel.generateCityModel(self.shp_file, p)
         self.pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
 
     def test_bounds(self):
-        shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
-        bbox = CityModel.buildingBounds(shp_file)
+        bbox = CityModel.buildingBounds(self.shp_file)
         px, py, qx, qy = bbox
         self.assertAlmostEqual(px, -5.14247441879)
         self.assertAlmostEqual(qy, -1.09814696217)
 
     def test_padded_bounds(self):
-        shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
-        bbox = CityModel.buildingBounds(shp_file, 10)
+        bbox = CityModel.buildingBounds(self.shp_file, 10)
         px, py, qx, qy = bbox
         self.assertAlmostEqual(px, -15.14247441879)
         self.assertAlmostEqual(qy, 8.90185303782)
+
+    def test_set_origin(self):
+        bbox = CityModel.buildingBounds(self.shp_file, 10)
+        cm_with_origin = CityModel.setOrigin(self.cm,bbox)
+        self.assertIsInstance(cm_with_origin, _pybuilder.CityModel)
+
+
 
     def test_load(self):
         shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"

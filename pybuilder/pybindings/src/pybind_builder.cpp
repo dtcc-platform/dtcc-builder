@@ -309,6 +309,11 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readonly("y", &DTCC_BUILDER::Point3D::y)
       .def_readonly("z", &DTCC_BUILDER::Point3D::z);
 
+  py::class_<DTCC_BUILDER::BoundingBox2D>(m, "BoundingBox")
+      .def(py::init<>())
+      .def_readonly("P", &DTCC_BUILDER::BoundingBox2D::P)
+      .def_readonly("Q", &DTCC_BUILDER::BoundingBox2D::Q);
+
   py::class_<DTCC_BUILDER::Polygon>(m, "Polygon")
       .def(py::init<>())
       .def_readonly("vertices", &DTCC_BUILDER::Polygon::Vertices);
@@ -325,7 +330,17 @@ PYBIND11_MODULE(_pybuilder, m)
 
   py::class_<DTCC_BUILDER::Simplex3D>(m, "Simplex3D").def(py::init<>());
 
-  py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D").def(py::init<>());
+  py::class_<DTCC_BUILDER::Grid2D>(m, "Grid2D")
+      .def(py::init<>())
+      .def_readonly("BoundingBox", &DTCC_BUILDER::Grid2D::BoundingBox)
+      .def_readonly("XSize", &DTCC_BUILDER::Grid2D::XSize)
+      .def_readonly("YSize", &DTCC_BUILDER::Grid2D::YSize)
+      .def_readonly("XStep", &DTCC_BUILDER::Grid2D::XStep)
+      .def_readonly("XStep", &DTCC_BUILDER::Grid2D::YStep);
+
+  py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D")
+      .def(py::init<>())
+      .def_readonly("Grid", &DTCC_BUILDER::GridField2D::Grid);
 
   py::class_<DTCC_BUILDER::Mesh2D>(m, "Mesh2D").def(py::init<>());
 

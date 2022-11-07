@@ -480,6 +480,23 @@ namespace DTCC_BUILDER
     {
       Timer timer("CallTriangle");
 
+      info("&boundary");
+      for (auto &p : boundary)
+      {
+        info(str(p));
+      }
+
+      info("&subDOmains");
+      size_t num_subdomains = subDomains.size();
+      for (size_t i = 0; i < num_subdomains; i++)
+      {
+        info("Sub Domain " + str(i));
+        for (auto &p : subDomains[i])
+        {
+          info(str(p));
+        }
+      }
+
       // Set area constraint to control mesh size
       const double maxArea = 0.5 * h * h;
 

@@ -12,3 +12,8 @@ def generateElevationModel(point_cloud, resolution, included_classifications=[])
 def smoothElevationModel(grid_field, num_passes):
     smoothed_field = _pybuilder.SmoothElevation(grid_field, num_passes)
     return smoothed_field
+
+def getBounds(grid_field):
+    p = grid_field.Grid.BoundingBox.P
+    q = grid_field.Grid.BoundingBox.Q
+    return (p.x,p.y,q.x,q.y)

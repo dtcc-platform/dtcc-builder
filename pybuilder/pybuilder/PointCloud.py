@@ -45,6 +45,8 @@ def pointCloud2numpy(point_cloud):
     pts = [[p.x, p.y, p.z] for p in pts]
     return numpy.array(pts)
 
+def setOrigin(point_cloud, origin):
+    return _pybuilder.SetPointCloudOrigin(point_cloud,origin)
 
 def getBounds(point_cloud):
     pts = pointCloud2numpy(point_cloud)
