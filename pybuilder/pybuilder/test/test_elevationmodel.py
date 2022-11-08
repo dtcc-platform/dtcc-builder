@@ -11,21 +11,29 @@ import Parameters
 import PointCloud
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
-p = Parameters.loadParameters()
+p = Parameters.load_parameters()
 
 
 class TestCreateDEM(unittest.TestCase):
     def setUp(self):
-        self.pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
-        self.dem = ElevationModel.generateElevationModel(self.pc, 0.5, [2, 9])
+        self.pc = PointCloud.read_las_files(data_dir / "MinimalCase" / "pointcloud.las")
+        self.dem = ElevationModel.generate_elevation_model(self.pc, 0.5, [2, 9])
 
     def test_generate_dem(self):
         self.assertIsInstance(self.dem, _pybuilder.GridField2D)
 
     def test_smooth_elevation(self):
-        smooth_dem = ElevationModel.smoothElevationModel(self.dem,5)
+        smooth_dem = ElevationModel.smooth_elevation_model(self.dem, 5)
         self.assertIsInstance(smooth_dem, _pybuilder.GridField2D)
-    
+
     def test_get_bounds(self):
-        bounds = ElevationModel.getBounds(self.dem)
-        self.assertEquals(bounds,(0,0,1,1))
+        bounds = ElevationModel.get_bounds(self.dem)
+        self.assertEquals(
+            bounds,
+            (
+                -8.01747441879072,
+                -18.8503320990088,
+                15.923729412288978,
+                1.8382604694103435,
+            ),
+        )

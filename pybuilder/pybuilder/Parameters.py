@@ -1,6 +1,7 @@
 import json
 
-from symbol import parameters 
+from symbol import parameters
+
 _parameters = {}
 
 _parameters["ModelName"] = "DTCC"
@@ -11,7 +12,7 @@ _parameters["WriteJSON"] = True
 _parameters["WriteVTK"] = True
 _parameters["Debug"] = False
 
-_parameters["GroundSmoothing"] =  5
+_parameters["GroundSmoothing"] = 5
 _parameters["NumRandomBuildings"] = 25
 
 _parameters["DomainMargin"] = 10.0
@@ -31,7 +32,7 @@ _parameters["GroundPercentile"] = 0.1
 _parameters["RoofPercentile"] = 0.9
 _parameters["OutlierMargin"] = 2.0
 _parameters["MinBuildingSize"] = 15.0
-_parameters["UUIDField"] = 'uuid'
+_parameters["UUIDField"] = "uuid"
 _parameters["HeightField"] = ""
 
 _parameters["StatisticalOutlierRemover"] = True
@@ -48,7 +49,8 @@ _parameters["BuildingsFileName"] = "PropertyMap.shp"
 _parameters["PointCloudDirectory"] = ""
 _parameters["OutputDirectory"] = ""
 
-def loadParameters(file_path=None):
+
+def load_parameters(file_path=None):
     global _parameters
     if file_path is None:
         return _parameters
@@ -56,5 +58,3 @@ def loadParameters(file_path=None):
         loaded_parameters = json.load(src)
     _parameters.update(loaded_parameters)
     return _parameters
-
-  

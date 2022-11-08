@@ -4,7 +4,7 @@ import numpy
 from typing import List, Tuple
 
 
-def generateMesh2D(
+def generate_mesh2D(
     city_model: _pybuilder.CityModel,
     bbox: Tuple[float, float, float, float],
     resolution,
@@ -12,13 +12,13 @@ def generateMesh2D(
     return _pybuilder.GenerateMesh2D(city_model, bbox, resolution)
 
 
-def generateMesh3D(
+def generate_mesh3D(
     mesh: _pybuilder.Mesh2D, domain_height, mesh_resolution
 ) -> _pybuilder.Mesh3D:
     return _pybuilder.GenerateMesh3D(mesh, domain_height, mesh_resolution)
 
 
-def smoothMesh3D(
+def smooth_mesh3D(
     mesh: _pybuilder.Mesh3D,
     city_model: _pybuilder.CityModel,
     dem: _pybuilder.GridField2D,
@@ -28,13 +28,13 @@ def smoothMesh3D(
     return _pybuilder.SmoothMesh3D(mesh, city_model, dem, top_height, fix_buildings)
 
 
-def generateSurface3D(
+def generate_surface3D(
     city_model: _pybuilder.CityModel, dtm: _pybuilder.GridField2D, resolution
 ):
     return _pybuilder.GenerateSurfaces3D(city_model, dtm, resolution)
 
 
-def trimMesh3D(
+def trim_mesh3D(
     mesh: _pybuilder.Mesh3D,
     mesh2D: _pybuilder.Mesh2D,
     city_model: _pybuilder.CityModel,
@@ -43,27 +43,27 @@ def trimMesh3D(
     return _pybuilder.TrimMesh3D(mesh, mesh2D, city_model, num_layers)
 
 
-def extractBoundary3D(mesh: _pybuilder.Mesh3D) -> _pybuilder.Surface3D:
+def extract_boundary3D(mesh: _pybuilder.Mesh3D) -> _pybuilder.Surface3D:
     return _pybuilder.ExtractBoundary3D(mesh)
 
 
-def extractOpenSurface3D(boundary: _pybuilder.Surface3D) -> _pybuilder.Surface3D:
+def extract_open_surface3D(boundary: _pybuilder.Surface3D) -> _pybuilder.Surface3D:
     return _pybuilder.ExtractOpenSurface3D(boundary)
 
 
-def mergeSurfaces3D(surfaces: List[_pybuilder.Surface3D]) -> _pybuilder.Surface3D:
+def merge_surfaces3D(surfaces: List[_pybuilder.Surface3D]) -> _pybuilder.Surface3D:
     return _pybuilder.MergeSurfaces3D(surfaces)
 
 
-def writeVTKMesh3D(mesh: _pybuilder.Mesh3D, out_file):
+def write_VTK_mesh3D(mesh: _pybuilder.Mesh3D, out_file):
     return _pybuilder.WriteVTKMesh3D(mesh, out_file)
 
 
-def writeVTKMesh2D(mesh: _pybuilder.Mesh2D, out_file):
+def write_VTK_mesh2D(mesh: _pybuilder.Mesh2D, out_file):
     return _pybuilder.WriteVTKMesh2D(mesh, out_file)
 
 
-def writeSurface(surface, file_name, format="obj", y_up=None):
+def write_surface(surface, file_name, format="obj", y_up=None):
     supported_formats = ["obj", "stl", "gltf"]
     y_up_format = ["obj", "gltf"]
     if format not in supported_formats:

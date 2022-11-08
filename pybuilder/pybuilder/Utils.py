@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 
-def boundsUnion(
+def bounds_union(
     a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]
 ):
     px = min(a[0], b[0])
@@ -11,7 +11,7 @@ def boundsUnion(
     return (px, py, qx, qy)
 
 
-def boundsIntersect(
+def bounds_intersect(
     a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]
 ):
     px = max(a[0], b[0])
