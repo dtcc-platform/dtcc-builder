@@ -14,6 +14,7 @@
 #include "Logging.h"
 #include "Mesh.h"
 #include "MeshGenerator.h"
+#include "MeshIO.h"
 #include "MeshProcessor.h"
 #include "Point.h"
 #include "PointCloud.h"
@@ -265,6 +266,27 @@ Surface3D MergeSurfaces3D(const std::vector<Surface3D> &surfaces)
   return merged_surface;
 }
 
+bool WriteSurface3D(const Surface3D &surface,
+                    std::string fileName,
+                    std::string format,
+                    bool YUp)
+{
+  MeshIO::Write(surface, fileName, format, YUp);
+  return true;
+}
+
+// bool WriteVTKMesh3D(const Mesh3D &mesh, std::string filepath)
+// {
+//   VTK::Write(mesh,filepath);
+//   return true;
+// }
+
+// bool WriteVTKMesh2D(const Mesh2D &mesh, std::string filepath)
+// {
+//   VTK::Write(mesh,filepath);
+//   return true;
+// }
+
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_pybuilder, m)
@@ -430,4 +452,13 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("MergeSurfaces3D", &DTCC_BUILDER::MergeSurfaces3D,
         "Merge surfaces into a single surface");
+
+  m.def("WriteSurface3D", &DTCC_BUILDER::WriteSurface3D,
+        "Write surface to file");
+
+  // m.def("WriteVTKMesh3D", &DTCC_BUILDER::WriteVTKMesh3D, "Write 3D mesh to
+  // VTK format");
+
+  // m.def("WriteVTKMesh2D", &DTCC_BUILDER::WriteVTKMesh2D, "Write 3D mesh to
+  // VTK format");
 }

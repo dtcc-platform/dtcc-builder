@@ -111,3 +111,16 @@ class TestMeshing(unittest.TestCase):
         boundary = Meshing.extractBoundary3D(mesh3D)
         open_surface = Meshing.extractOpenSurface3D(boundary)
         self.assertIsInstance(open_surface, _pybuilder.Surface3D)
+
+    def test_write_mesh(self):
+        mesh2D = Meshing.generateMesh2D(
+            self.cm, ElevationModel.getBounds(self.dtm), p["MeshResolution"]
+        )
+        mesh3D = Meshing.generateMesh3D(mesh2D, p["DomainHeight"], p["MeshResolution"])
+        boundary = Meshing.extractBoundary3D(mesh3D)
+
+        out_file = "test.obj"
+        done = Meshing.writeSurface(boundary, out_file, "obj")
+        self.assertTrue(done)
+        self.assertTrue(os.path.isfile(out_file))
+        os.unlink(out_file)

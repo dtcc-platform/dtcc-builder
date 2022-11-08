@@ -53,3 +53,23 @@ def extractOpenSurface3D(boundary: _pybuilder.Surface3D) -> _pybuilder.Surface3D
 
 def mergeSurfaces3D(surfaces: List[_pybuilder.Surface3D]) -> _pybuilder.Surface3D:
     return _pybuilder.MergeSurfaces3D(surfaces)
+
+
+def writeVTKMesh(mesh: _pybuilder.Mesh3D, out_file):
+    pass
+
+
+def writeSurface(surface, file_name, format="obj", y_up=None):
+    supported_formats = ["obj", "stl", "gltf"]
+    y_up_format = ["obj", "gltf"]
+    if format not in supported_formats:
+        print(f"format {format} not supported, please use one of {supported_formats}")
+        return False
+    if y_up is None:
+        if format in y_up_format:
+            y_up = True
+        else:
+            y_up = False
+    if format == "gltf":
+        format = "gltf2"
+    return _pybuilder.WriteSurface3D(surface, file_name, format, y_up)
