@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "converter/ProtobufConverter.h"
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
 
@@ -168,6 +169,16 @@ PointCloud VegetationFilter(PointCloud &pointCloud)
 {
   PointCloudProcessor::NaiveVegetationFilter(pointCloud);
   return pointCloud;
+}
+
+PointCloud loadPointCloudProtobuf(std::string protobuf_string)
+{
+  return DTCC_BUILDER::ProtobufConverter::LoadPointCloud(protobuf_string);
+}
+
+py::bytes convertPointCloudToProtobuf(const PointCloud &pc)
+{
+  return DTCC_BUILDER::ProtobufConverter::ExportPointCloud(pc);
 }
 
 // GridField
@@ -415,6 +426,13 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("BuildingPointsOutlierRemover",
         &DTCC_BUILDER::BuildingPointsOutlierRemover,
         "remove outliers from roof points using statistcal outlier algorithm");
+
+  m.def("loadPointCloudProtobuf", &DTCC_BUILDER::loadPointCloudProtobuf,
+        "load pointCloud from protobuf");
+
+  m.def("convertPointCloudToProtobuf",
+        &DTCC_BUILDER::convertPointCloudToProtobuf,
+        "Cobnver builder PointCloud to protobuf string");
 
   m.def("ComputeBuildingHeights", &DTCC_BUILDER::ComputeBuildingHeights,
         "Calculate building heights based on point cloud and dtm data");

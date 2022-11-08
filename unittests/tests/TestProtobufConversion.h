@@ -23,7 +23,7 @@ TEST_CASE("Protobuf to PointCloud")
     DTCC::PointCloud pb_pointCloud;
     std::fstream input(pbFilePath, std::ios::in | std::ios::binary);
     pb_pointCloud.ParseFromIstream(&input);
-    PointCloud pc = ProtobufConverter::ConvertPointCloud(pb_pointCloud);
+    PointCloud pc = ProtobufConverter::LoadPointCloud(pb_pointCloud);
 
     REQUIRE(pc.Points.size() == 8148);
     REQUIRE(pc.Classifications.size() == 8148);

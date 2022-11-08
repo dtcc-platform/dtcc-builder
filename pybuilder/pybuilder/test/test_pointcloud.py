@@ -53,6 +53,19 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(l, 8148)
         self.assertEqual(d, 3)
 
+    def test_to_protobuf(self):
+        pb_pc = str(data_dir / "MinimalCase" / "pointcloud.las.pb")
+        with open(pb_pc, "rb") as src:
+            pb_string = src.read()
+        pc = PointCloud.loadProtobuf(pb_string)
+        self.assertIsInstance(pc, _pybuilder.PointCloud)
+        self.assertEquals(len(pc.points), 8148)
+
+    def test_to_protobuf(self):
+        pc = PointCloud.readLasFiles(data_dir / "MinimalCase" / "pointcloud.las")
+        protobuf = PointCloud.toProtobuf(pc)
+        self.assertIsInstance(protobuf, bytes)
+
 
 if __name__ == "__main__":
     unittest.main()

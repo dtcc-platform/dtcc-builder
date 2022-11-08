@@ -45,11 +45,21 @@ def pointCloud2numpy(point_cloud):
     pts = [[p.x, p.y, p.z] for p in pts]
     return numpy.array(pts)
 
+
 def setOrigin(point_cloud, origin):
-    return _pybuilder.SetPointCloudOrigin(point_cloud,origin)
+    return _pybuilder.SetPointCloudOrigin(point_cloud, origin)
+
 
 def getBounds(point_cloud):
     pts = pointCloud2numpy(point_cloud)
     x_min, y_min, z_min = pts.min(axis=0)
     x_max, y_max, z_max = pts.max(axis=0)
     return (x_min, y_min, x_max, y_max)
+
+
+def loadProtobuf(protobuf_string: str) -> _pybuilder.PointCloud:
+    return _pybuilder.loadPointCloudProtobuf(protobuf_string)
+
+
+def toProtobuf(pc: _pybuilder.PointCloud) -> str:
+    return _pybuilder.convertPointCloudToProtobuf(pc)

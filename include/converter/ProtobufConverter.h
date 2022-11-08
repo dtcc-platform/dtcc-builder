@@ -18,7 +18,14 @@ namespace DTCC_BUILDER
 class ProtobufConverter
 {
 public:
-  static PointCloud ConvertPointCloud(DTCC::PointCloud pb_pc)
+  static PointCloud LoadPointCloud(std::string protobuf_string)
+  {
+    DTCC::PointCloud pc;
+    pc.ParseFromString(protobuf_string);
+    return LoadPointCloud(pc);
+  }
+
+  static PointCloud LoadPointCloud(DTCC::PointCloud pb_pc)
   {
     PointCloud pc;
 
@@ -61,6 +68,24 @@ public:
     }
     
     return pc;
+  }
+
+  static std::string ExportPointCloud(const PointCloud &pointCloud)
+  {
+    std::vector<DTCC::Vector3D> pb_pts;
+    for (const auto &pt : pointCloud.Points)
+    {
+      pb_pts.push_back(DTCC::Point(pt.x, pt.y, pt.z));
+    }
+    std::vector<int> classifications;
+    for (const auto c : pointCloud.Classifications)
+      classifications.push_back(c);
+    auto pb_pc = DTCC::CreatePointCloud(pb_pts, classifications);
+
+    std::string pb_string;
+    pb_pc.SerializeToString(&pb_string);
+
+    return pb_string;
   }
 };    
 }
