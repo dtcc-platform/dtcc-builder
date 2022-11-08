@@ -112,7 +112,29 @@ class TestMeshing(unittest.TestCase):
         open_surface = Meshing.extractOpenSurface3D(boundary)
         self.assertIsInstance(open_surface, _pybuilder.Surface3D)
 
-    def test_write_mesh(self):
+    def test_write_mesh2D(self):
+        mesh2D = Meshing.generateMesh2D(
+            self.cm, ElevationModel.getBounds(self.dtm), p["MeshResolution"]
+        )
+        out_file = "test_2D.vtk"
+        done = Meshing.writeVTKMesh2D(mesh2D, out_file)
+        self.assertTrue(done)
+        self.assertTrue(os.path.isfile(out_file))
+        os.unlink(out_file)
+
+    def test_write_mesh3D(self):
+        mesh2D = Meshing.generateMesh2D(
+            self.cm, ElevationModel.getBounds(self.dtm), p["MeshResolution"]
+        )
+        mesh3D = Meshing.generateMesh3D(mesh2D, p["DomainHeight"], p["MeshResolution"])
+
+        out_file = "test_3D.vtk"
+        done = Meshing.writeVTKMesh3D(mesh3D, out_file)
+        self.assertTrue(done)
+        self.assertTrue(os.path.isfile(out_file))
+        os.unlink(out_file)
+
+    def test_surface_mesh(self):
         mesh2D = Meshing.generateMesh2D(
             self.cm, ElevationModel.getBounds(self.dtm), p["MeshResolution"]
         )

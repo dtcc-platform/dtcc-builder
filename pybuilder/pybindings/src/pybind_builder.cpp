@@ -3,9 +3,13 @@
 
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
+
+// Needs to come before JSON (nlohmann) include because of sloppy
+// namespacing in VTK (typedef detail)...
+#include "VTK.h"
+
 // DTCC includes
 #include "CityModelGenerator.h"
-#include "CommandLine.h"
 #include "ElevationModelGenerator.h"
 #include "GridField.h"
 #include "JSON.h"
@@ -21,8 +25,6 @@
 #include "Polygon.h"
 #include "SHP.h"
 #include "Surface.h"
-#include "Timer.h"
-#include "Utils.h"
 #include "VertexSmoother.h"
 
 namespace py = pybind11;
@@ -275,17 +277,17 @@ bool WriteSurface3D(const Surface3D &surface,
   return true;
 }
 
-// bool WriteVTKMesh3D(const Mesh3D &mesh, std::string filepath)
-// {
-//   VTK::Write(mesh,filepath);
-//   return true;
-// }
+bool WriteVTKMesh3D(const Mesh3D &mesh, std::string filepath)
+{
+  VTK::Write(mesh, filepath);
+  return true;
+}
 
-// bool WriteVTKMesh2D(const Mesh2D &mesh, std::string filepath)
-// {
-//   VTK::Write(mesh,filepath);
-//   return true;
-// }
+bool WriteVTKMesh2D(const Mesh2D &mesh, std::string filepath)
+{
+  VTK::Write(mesh, filepath);
+  return true;
+}
 
 } // namespace DTCC_BUILDER
 
@@ -456,9 +458,9 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("WriteSurface3D", &DTCC_BUILDER::WriteSurface3D,
         "Write surface to file");
 
-  // m.def("WriteVTKMesh3D", &DTCC_BUILDER::WriteVTKMesh3D, "Write 3D mesh to
-  // VTK format");
+  m.def("WriteVTKMesh3D", &DTCC_BUILDER::WriteVTKMesh3D,
+        "Write 3D mesh to VTK format");
 
-  // m.def("WriteVTKMesh2D", &DTCC_BUILDER::WriteVTKMesh2D, "Write 3D mesh to
-  // VTK format");
+  m.def("WriteVTKMesh2D", &DTCC_BUILDER::WriteVTKMesh2D,
+        "Write 3D mesh to VTK format");
 }
