@@ -12,12 +12,78 @@
 #include "Point.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
+
+#include "datamodel/Building.h"
+#include "datamodel/CityModel.h"
+
 namespace DTCC_BUILDER
 {
 
 class ProtobufConverter
 {
 public:
+  static CityModel LoadCityModel(std::string protobuf_string)
+  {
+    DTCC::CityModel cm;
+    cm.ParseFromString(protobuf_string);
+    return LoadCityModel(cm);
+  }
+
+  static CityModel LoadCityModel(DTCC::CityModel pb_cm)
+  {
+    CityModel cm;
+    auto pb_buildings = pb_cm.buildings();
+    for (const auto &pb_building : pb_buildings)
+    {
+      Building b;
+      b.UUID = pb_building.uuid();
+      auto pb_footprint = pb_building.footprint().shell().vertices();
+      for (const auto &v : pb_footprint)
+      {
+        b.Footprint.Vertices.push_back(Point2D(v.x(), v.y()));
+      }
+
+      cm.Buildings.push_back(b);
+    }
+
+    return cm;
+  }
+
+  static std::string ExportCityModel(const CityModel &cityModel)
+  {
+    DTCC::CityModel pb_cm;
+
+    std::vector<DTCC::Building> pb_buildings;
+    info("Serializing " + str(cityModel.Buildings.size()) + " buildings");
+    for (const auto &building : cityModel.Buildings)
+    {
+      DTCC::Building pb_bld;
+      pb_bld.set_height(building.Height);
+      pb_bld.set_uuid(building.UUID);
+      pb_bld.set_error(building.error);
+
+      std::vector<DTCC::Vector2D> pb_verts;
+      for (const auto &vert : building.Footprint.Vertices)
+      {
+        pb_verts.push_back(DTCC::Vertex(vert.x, vert.y));
+      }
+
+      pb_bld.mutable_footprint()->CopyFrom(CreatePolygon(pb_verts));
+      pb_buildings.push_back(pb_bld);
+    }
+
+    google::protobuf::RepeatedPtrField<DTCC::Building> building_data(
+        pb_buildings.begin(), pb_buildings.end());
+
+    pb_cm.mutable_buildings()->Swap(&building_data);
+
+    std::string pb_string;
+    pb_cm.SerializeToString(&pb_string);
+    info("CityModel Serialized: " + str(pb_string.size()));
+
+    return pb_string;
+  }
+
   static PointCloud LoadPointCloud(std::string protobuf_string)
   {
     DTCC::PointCloud pc;

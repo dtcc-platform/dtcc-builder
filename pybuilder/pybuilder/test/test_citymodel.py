@@ -35,10 +35,8 @@ class TestCityModel(unittest.TestCase):
 
     def test_set_origin(self):
         bbox = CityModel.buildingBounds(self.shp_file, 10)
-        cm_with_origin = CityModel.setOrigin(self.cm,bbox)
+        cm_with_origin = CityModel.setOrigin(self.cm, bbox)
         self.assertIsInstance(cm_with_origin, _pybuilder.CityModel)
-
-
 
     def test_load(self):
         shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
@@ -52,9 +50,7 @@ class TestCityModel(unittest.TestCase):
         self.assertIsInstance(clean_cm, _pybuilder.CityModel)
 
     def test_extarct_points(self):
-        cm_with_points = CityModel.extractBuildingPoints(
-            self.cm, self.pc, 1.0, 2.0
-        )
+        cm_with_points = CityModel.extractBuildingPoints(self.cm, self.pc, 1.0, 2.0)
         self.assertIsInstance(cm_with_points, _pybuilder.CityModel)
         b0 = cm_with_points.buildings[0]
         roof_pts = CityModel.getBuildingRoofPoints(b0)
@@ -63,38 +59,47 @@ class TestCityModel(unittest.TestCase):
         self.assertEqual(d, 3)
 
     def test_ransac_filter(self):
-        cm_with_points = CityModel.extractBuildingPoints(
-            self.cm, self.pc, 1.0, 2.0
-        )
+        cm_with_points = CityModel.extractBuildingPoints(self.cm, self.pc, 1.0, 2.0)
         ransac_filtered = CityModel.buildingPointsRANSACOutlierRemover(
             cm_with_points, 3, 250
         )
         self.assertIsInstance(ransac_filtered, _pybuilder.CityModel)
 
     def test_statistical_outlier_filter(self):
-        cm_with_points = CityModel.extractBuildingPoints(
-            self.cm, self.pc, 1.0, 2.0
-        )
+        cm_with_points = CityModel.extractBuildingPoints(self.cm, self.pc, 1.0, 2.0)
         so_filtered = CityModel.buildingPointsStatisticalOutlierRemover(
             cm_with_points, 5, 1.5
         )
         self.assertIsInstance(so_filtered, _pybuilder.CityModel)
 
     def test_compute_building_heights(self):
-        cm_with_points = CityModel.extractBuildingPoints(
-            self.cm, self.pc, 1.0, 2.0
-        )
+        cm_with_points = CityModel.extractBuildingPoints(self.cm, self.pc, 1.0, 2.0)
         dtm = ElevationModel.generateElevationModel(self.pc, 0.5, [2, 9])
-        cm_with_height = CityModel.computeBuildingHeights(cm_with_points, dtm, 0.9, 0.95)
-        self.assertIsInstance(cm_with_height,_pybuilder.CityModel)
+        cm_with_height = CityModel.computeBuildingHeights(
+            cm_with_points, dtm, 0.9, 0.95
+        )
+        self.assertIsInstance(cm_with_height, _pybuilder.CityModel)
         self.assertEqual(cm_with_height.buildings[0].height, 5)
         self.assertEqual(cm_with_height.buildings[3].height, 10)
 
     def test_readwrite_json(self):
-        CityModel.toJSON(self.cm,"tmpCM.json")
+        CityModel.toJSON(self.cm, "tmpCM.json")
         read_cm = CityModel.fromJSON("tmpCM.json")
-        self.assertIsInstance(read_cm,_pybuilder.CityModel)
+        self.assertIsInstance(read_cm, _pybuilder.CityModel)
         os.unlink("tmpCM.json")
+
+    def test_read_protobuf(self):
+        pb_file = data_dir / "MinimalCase" / "PropertyMap.shp.pb"
+        with open(pb_file, "rb") as src:
+            pb_data = src.read()
+        cm = CityModel.loadProtobuf(pb_data)
+        self.assertIsInstance(cm, _pybuilder.CityModel)
+        self.assertEqual(len(cm.buildings), 5)
+
+    def test_convert_to_protobuf(self):
+        pb_str = CityModel.toProtobuf(self.cm)
+        self.assertGreater(len(pb_str), 100)
+
 
 if __name__ == "__main__":
     unittest.main()

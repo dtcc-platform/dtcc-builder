@@ -95,5 +95,9 @@ def fromJSON(infile) -> _pybuilder.CityModel:
     return _pybuilder.ReadCityModelJSON(infile)
 
 
-def toProtobuf(city_model: _pybuilder.CityModel, outfile):
-    _pybuilder.writeCityModelProtobuf(city_model, outfile)
+def loadProtobuf(protobuf_string: str) -> _pybuilder.CityModel:
+    return _pybuilder.loadCityModelProtobuf(protobuf_string)
+
+
+def toProtobuf(cm: _pybuilder.CityModel) -> str:
+    return _pybuilder.convertCityModelToProtobuf(cm)

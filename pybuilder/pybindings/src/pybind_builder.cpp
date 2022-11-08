@@ -127,6 +127,16 @@ CityModel ReadCityModelJSON(std::string path)
   return cityModel;
 }
 
+CityModel loadCityModelProtobuf(std::string protobuf_string)
+{
+  return DTCC_BUILDER::ProtobufConverter::LoadCityModel(protobuf_string);
+}
+
+py::bytes convertCityModelToProtobuf(const CityModel &cm)
+{
+  return DTCC_BUILDER::ProtobufConverter::ExportCityModel(cm);
+}
+
 // PointCloud
 PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
 {
@@ -396,6 +406,12 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("CleanCityModel", &DTCC_BUILDER::CleanCityModel,
         "clean city model polygons");
+
+  m.def("loadCityModelProtobuf", &DTCC_BUILDER::loadCityModelProtobuf,
+        "Load CityModel from Protobuf");
+
+  m.def("convertCityModelToProtobuf", &DTCC_BUILDER::convertCityModelToProtobuf,
+        "convert CityModel to protobuf");
 
   m.def("ExtractBuildingPoints", &DTCC_BUILDER::ExtractBuildingPoints,
         "extarct points from point cloud for each building");
