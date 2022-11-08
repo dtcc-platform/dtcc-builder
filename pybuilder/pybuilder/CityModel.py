@@ -3,6 +3,7 @@ import _pybuilder
 import numpy
 import fiona
 from shapely.geometry import Polygon
+from PointCloud import PointCloud
 from typing import List, Tuple
 
 
@@ -52,7 +53,7 @@ class CityModel:
 
     def extract_building_points(
         self,
-        point_cloud: _pybuilder.PointCloud,
+        point_cloud: PointCloud,
         ground_margins=None,
         ground_outlier_margin=None,
     ):
@@ -63,7 +64,10 @@ class CityModel:
             ground_outlier_margin = self.paramaters["OutlierMargin"]
 
         self._builder_cm = _pybuilder.ExtractBuildingPoints(
-            self._builder_cm, point_cloud, ground_margins, ground_outlier_margin
+            self._builder_cm,
+            point_cloud._builder_pc,
+            ground_margins,
+            ground_outlier_margin,
         )
         self.extracted_points = True
 
