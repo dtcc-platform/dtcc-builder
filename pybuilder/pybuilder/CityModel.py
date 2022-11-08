@@ -4,6 +4,7 @@ import numpy
 import fiona
 from shapely.geometry import Polygon
 from PointCloud import PointCloud
+from ElevationModel import ElevationModel
 from typing import List, Tuple
 
 
@@ -97,7 +98,7 @@ class CityModel:
         )
 
     def compute_building_heights(
-        self, dtm: _pybuilder.GridField2D, ground_percentile=None, roof_percentile=None
+        self, dtm: ElevationModel, ground_percentile=None, roof_percentile=None
     ):
 
         if ground_percentile is None:
@@ -106,7 +107,7 @@ class CityModel:
             roof_percentile = self.paramaters["RoofPercentile"]
 
         self._builder_cm = _pybuilder.ComputeBuildingHeights(
-            self._builder_cm, dtm, ground_percentile, roof_percentile
+            self._builder_cm, dtm._grid_field, ground_percentile, roof_percentile
         )
 
     def to_JSON(self, outfile):
