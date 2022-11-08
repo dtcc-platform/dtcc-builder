@@ -205,8 +205,9 @@ Mesh3D
 GenerateMesh3D(const Mesh2D &mesh2D, double domainHeight, double meshResolution)
 {
   Mesh3D mesh;
-  MeshGenerator::GenerateMesh3D(mesh, mesh2D, domainHeight, meshResolution);
-
+  auto num_layers =
+      MeshGenerator::GenerateMesh3D(mesh, mesh2D, domainHeight, meshResolution);
+  mesh.NumLayers = num_layers;
   return mesh;
 }
 
@@ -259,9 +260,9 @@ Surface3D ExtractOpenSurface3D(const Surface3D &boundary)
 
 Surface3D MergeSurfaces3D(const std::vector<Surface3D> &surfaces)
 {
-  Surface3D surface;
-  MeshProcessor::MergeSurfaces3D(surface, surfaces);
-  return surface;
+  Surface3D merged_surface;
+  MeshProcessor::MergeSurfaces3D(merged_surface, surfaces);
+  return merged_surface;
 }
 
 } // namespace DTCC_BUILDER
@@ -344,7 +345,9 @@ PYBIND11_MODULE(_pybuilder, m)
 
   py::class_<DTCC_BUILDER::Mesh2D>(m, "Mesh2D").def(py::init<>());
 
-  py::class_<DTCC_BUILDER::Mesh3D>(m, "Mesh3D").def(py::init<>());
+  py::class_<DTCC_BUILDER::Mesh3D>(m, "Mesh3D")
+      .def(py::init<>())
+      .def_readonly("numLayers", &DTCC_BUILDER::Mesh3D::NumLayers);
 
   py::class_<DTCC_BUILDER::Surface3D>(m, "Surface3D").def(py::init<>());
 

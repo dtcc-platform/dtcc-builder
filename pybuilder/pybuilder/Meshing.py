@@ -51,5 +51,5 @@ def extractOpenSurface3D(boundary: _pybuilder.Surface3D) -> _pybuilder.Surface3D
     return _pybuilder.ExtractOpenSurface3D(boundary)
 
 
-def mergeSurface3D(surfaces: List[_pybuilder.Surface3D]) -> _pybuilder.Surface3D:
-    return _pybuilder.MergeSurface3D(surfaces)
+def mergeSurfaces3D(surfaces: List[_pybuilder.Surface3D]) -> _pybuilder.Surface3D:
+    return _pybuilder.MergeSurfaces3D(surfaces)
