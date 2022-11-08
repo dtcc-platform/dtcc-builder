@@ -1,9 +1,9 @@
 {
     "Type": "Parameters",
-    "OutputDirectory": "/home/dtcc/core/data/output/MinimalCase",
+    "OutputDirectory": "/home/dtcc/dtcc-builder/data/output/MinimalCase",
     "DomainHeight": 50.0,
     "ElevationModelResolution": 1.0,
-    "MeshResolution": 5.0,
+    "MeshResolution": 2.0,
     "X0": 0,
     "Y0": 0,
     "AutoDomain": true,
