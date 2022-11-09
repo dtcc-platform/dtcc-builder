@@ -17,6 +17,7 @@ class PointCloud:
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds
+        self.used_classifications = {}
         if las_path is not None:
             self.read_las_files(las_path)
 
@@ -42,6 +43,7 @@ class PointCloud:
         elif os.path.isfile(las_path):
             pc = _pybuilder.LASReadFile(las_path, self.bounds, extra_data)
         self._builder_pc = pc
+        self.used_classification = set(self._builder_pc.classifications)
 
     def set_origin(self, origin: Tuple[float, float]):
         self.origin = origin

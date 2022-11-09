@@ -12,5 +12,7 @@ class ElevationModel:
         q = self._grid_field.Grid.BoundingBox.Q
         self.bounds = (p.x, p.y, q.x, q.y)
 
-    def smooth_elevation_model(self, num_passes):
+    def smooth_elevation_model(self, num_passes=5):
+        if num_passes<1:
+            return
         self._grid_field = _pybuilder.SmoothElevation(self._grid_field, num_passes)

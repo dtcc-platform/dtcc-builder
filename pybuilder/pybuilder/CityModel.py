@@ -10,6 +10,7 @@ import Parameters
 
 
 def building_bounds(shp_footprint_file, buffer=0):
+    """calculate the bounding box of a shp file without loading it"""
     with fiona.open(shp_footprint_file) as c:
         bbox = c.bounds
     if buffer != 0:
@@ -44,6 +45,7 @@ class CityModel:
     buildings = property(get_buildings)
 
     def generate_citymodel(self, shp_footprint_file):
+        """load shp file of building footprints"""
         if self.bounds is None:
             self.bounds = building_bounds(
                 shp_footprint_file, self.parameters["DomainMargin"]
@@ -56,10 +58,12 @@ class CityModel:
         )
 
     def set_origin(self, origin: Tuple[float, float]):
+        """set the origin for the city model. Everything will be offset so that origin is at (0,0)"""
         self._builder_cm = _pybuilder.SetCityModelOrigin(self._builder_cm, origin)
         self.origin = origin
 
     def clean_citymodel(self, min_vert_distance=None):
+        """fix any errors in the building polygons and simplify complex polygons"""
         if min_vert_distance is None:
             min_vert_distance = self.parameters["MinVertexDistance"]
         self._builder_cm = _pybuilder.CleanCityModel(
@@ -73,6 +77,7 @@ class CityModel:
         ground_margins=None,
         ground_outlier_margin=None,
     ):
+        """Extract roof and ground points from the point cloud for each building footprint"""
 
         if ground_margins is None:
             ground_margins = self.parameters["GroundMargin"]
@@ -90,6 +95,7 @@ class CityModel:
     def building_points_RANSAC_outlier_remover(
         self, outlier_margin=None, interations=None
     ):
+    """use RANSAC to filter extreme outliers from roof points. Only use this on very noisy and unclassified data. On clean data it can make things worse"""
 
         if outlier_margin is None:
             outlier_margin = self.parameters["RANSACOutlierMargin"]
@@ -103,6 +109,7 @@ class CityModel:
     def building_points_statistical_outlier_remover(
         self, neighbors=None, outlier_margin=None
     ):
+        """use statistical outlier method to filter roof points for each building"""
 
         if neighbors is None:
             neighbors = self.parameters["OutlierNeighbors"]
@@ -114,8 +121,9 @@ class CityModel:
 
     def compute_building_heights(
         self, dtm: ElevationModel, ground_percentile=None, roof_percentile=None
-    ):
-
+    ):  
+        """compute the height of each building based on the roof and ground points. 
+        building_points_statistical_outlier_remover must have been called before calling this method"""
         if ground_percentile is None:
             ground_percentile = self.parameters["GroundPercentile"]
         if roof_percentile is None:
@@ -126,15 +134,19 @@ class CityModel:
         )
 
     def to_JSON(self, outfile):
+        """serialize CItyModel to a JSON file"""
         _pybuilder.WriteCityModelJSON(self._builder_cm, str(outfile))
 
     def from_JSON(self, infile):
+        """Load CityModel from JSON file"""
         self._builder_cm = _pybuilder.ReadCityModelJSON(str(infile))
 
     def load_protobuf(self, protobuf_string: str):
+        """load CityModel from a CityModel protobuf string"""
         self._builder_cm = _pybuilder.loadCityModelProtobuf(protobuf_string)
 
     def to_protobuf(self) -> str:
+        """convert CityModel to protobuf string"""
         return _pybuilder.convertCityModelToProtobuf(self._builder_cm)
 
 
