@@ -126,10 +126,10 @@ class CityModel:
         )
 
     def to_JSON(self, outfile):
-        _pybuilder.WriteCityModelJSON(self._builder_cm, outfile)
+        _pybuilder.WriteCityModelJSON(self._builder_cm, str(outfile))
 
     def from_JSON(self, infile):
-        self._builder_cm = _pybuilder.ReadCityModelJSON(infile)
+        self._builder_cm = _pybuilder.ReadCityModelJSON(str(infile))
 
     def load_protobuf(self, protobuf_string: str):
         self._builder_cm = _pybuilder.loadCityModelProtobuf(protobuf_string)

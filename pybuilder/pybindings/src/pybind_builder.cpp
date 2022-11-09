@@ -138,17 +138,44 @@ py::bytes convertCityModelToProtobuf(const CityModel &cm)
 }
 
 // PointCloud
-PointCloud LASReadDirectory(std::string las_directory, bool extra_data = true)
+PointCloud LASReadDirectory(std::string las_directory,
+                            py::tuple bounds,
+                            bool extra_data = true)
 {
   PointCloud pc;
-  LAS::ReadDirectory(pc, las_directory, extra_data);
+  if (bounds.size() == 4)
+  {
+    double px = bounds[0].cast<double>();
+    double py = bounds[1].cast<double>();
+    double qx = bounds[2].cast<double>();
+    double qy = bounds[3].cast<double>();
+    auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
+    LAS::ReadDirectory(pc, las_directory, bbox, extra_data);
+  }
+  else
+  {
+    LAS::ReadDirectory(pc, las_directory, extra_data);
+  }
   return pc;
 }
 
-PointCloud LASReadFile(std::string las_file, bool extra_data = true)
+PointCloud
+LASReadFile(std::string las_file, py::tuple bounds, bool extra_data = true)
 {
   PointCloud pc;
-  LAS::Read(pc, las_file, extra_data);
+  if (bounds.size() == 4)
+  {
+    double px = bounds[0].cast<double>();
+    double py = bounds[1].cast<double>();
+    double qx = bounds[2].cast<double>();
+    double qy = bounds[3].cast<double>();
+    auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
+    LAS::Read(pc, las_file, bbox, extra_data);
+  }
+  else
+  {
+    LAS::Read(pc, las_file, extra_data);
+  }
   return pc;
 }
 
