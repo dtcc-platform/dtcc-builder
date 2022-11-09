@@ -19,3 +19,7 @@ def bounds_intersect(
     py = max(a[1], b[1])
     qy = min(a[3], b[3])
     return (px, py, qx, qy)
+
+
+def bounds_area(b: Tuple[float, float, float, float]) -> float:
+    return (b[2] - b[0]) * (b[3] - b[1])

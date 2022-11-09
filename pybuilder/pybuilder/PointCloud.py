@@ -13,10 +13,10 @@ def calc_las_bounds(las_path):
     return bbox
 
 class PointCloud:
-    def __init__(self, las_path=None):
+    def __init__(self, las_path=None, bounds = ()):
         self._builder_pc = None
         self.origin = (0, 0)
-        self.bounds = None
+        self.bounds = bounds
         if las_path is not None:
             self.read_las_files(las_path)
 
@@ -38,9 +38,9 @@ class PointCloud:
 
         # print(f"loading las from {las_path}")
         if os.path.isdir(las_path):
-            pc = _pybuilder.LASReadDirectory(las_path, extra_data)
+            pc = _pybuilder.LASReadDirectory(las_path, self.bounds, extra_data)
         elif os.path.isfile(las_path):
-            pc = _pybuilder.LASReadFile(las_path, extra_data)
+            pc = _pybuilder.LASReadFile(las_path, self.bounds, extra_data)
         self._builder_pc = pc
 
     def set_origin(self, origin: Tuple[float, float]):

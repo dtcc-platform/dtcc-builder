@@ -1,7 +1,5 @@
 import json
 
-from symbol import parameters
-
 _parameters = {}
 
 _parameters["ModelName"] = "DTCC"
@@ -52,6 +50,7 @@ _parameters["OutputDirectory"] = ""
 
 def load_parameters(file_path=None):
     global _parameters
+    print(file_path)
     if file_path is None:
         return _parameters
     with open(file_path) as src:

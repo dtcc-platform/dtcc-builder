@@ -23,12 +23,23 @@ class TestLoadPointCloud(unittest.TestCase):
         self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
         self.assertEqual(len(pc), 8148)
 
+    def test_load_file_bounded(self):
+        pc = PointCloud(data_dir / "MinimalCase" / "pointcloud.las", bounds=(-2,-2,0,0))
+        self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
+        self.assertEqual(len(pc), 64)
+
+    def test_load_dir_bounded(self):
+        pc = PointCloud(data_dir / "MinimalCase", bounds=(-2,-2,0,0))
+        self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
+        self.assertEqual(len(pc), 64)
+
     def test_las_bounds(self):
         bbox = calc_las_bounds(data_dir / "MinimalCase")
         self.assertIsNotNone(bbox)
         px, py, qx, qy = bbox
         self.assertAlmostEqual(px, -8.017474418)
         self.assertAlmostEqual(qy, 1.838260469)
+
 
 
 class TestFilters(unittest.TestCase):
