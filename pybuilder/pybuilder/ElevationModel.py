@@ -6,7 +6,7 @@ class ElevationModel:
         self.included_classifications = list(map(int, included_classifications))
         self.resolution = resolution
         self._grid_field = _pybuilder.GenerateElevationModel(
-            point_cloud, resolution, included_classifications
+            point_cloud._builder_pc, resolution, included_classifications
         )
         p = self._grid_field.Grid.BoundingBox.P
         q = self._grid_field.Grid.BoundingBox.Q

@@ -6,6 +6,7 @@ from shapely.geometry import Polygon
 from PointCloud import PointCloud
 from ElevationModel import ElevationModel
 from typing import List, Tuple
+import Parameters
 
 
 def building_bounds(shp_footprint_file, buffer=0):
@@ -18,26 +19,40 @@ def building_bounds(shp_footprint_file, buffer=0):
 
 
 class CityModel:
-    def __init__(self, shp_footprints, parameters, bounds):
-        self.paramaters = parameters
+    def __init__(self, shp_footprints=None, parameters=None, bounds=None):
+        if parameters is None:
+            parameters = Parameters.load_parameters()
+        self.parameters = parameters
         self.bounds = bounds
         self._builder_cm = None
-        self.generate_citymodel(shp_footprints)
         self.origin = (0, 0)
         self.cleaned = False
         self.extracted_points = False
         self.calculated_heights = False
+        if shp_footprints is not None:
+            self.generate_citymodel(shp_footprints)
+
+    def get_buildings(self):
+        if self._builder_cm is None:
+            return None
+        else:
+            return self._builder_cm.buildings
+
+    def set_buildings(self, b):
+        return None
+
+    buildings = property(get_buildings)
 
     def generate_citymodel(self, shp_footprint_file):
         if self.bounds is None:
             self.bounds = building_bounds(
-                shp_footprint_file, self.parameteres["DomainMargin"]
+                shp_footprint_file, self.parameters["DomainMargin"]
             )
         self._builder_cm = _pybuilder.GenerateCityModel(
             str(shp_footprint_file),
             self.bounds,
-            float(self.arameteres["MinBuildingDistance"]),
-            float(self.parameteres["MinBuildingSize"]),
+            float(self.parameters["MinBuildingDistance"]),
+            float(self.parameters["MinBuildingSize"]),
         )
 
     def set_origin(self, origin: Tuple[float, float]):
@@ -46,7 +61,7 @@ class CityModel:
 
     def clean_citymodel(self, min_vert_distance=None):
         if min_vert_distance is None:
-            min_vert_distance = self.paramaters["MinVertexDistance"]
+            min_vert_distance = self.parameters["MinVertexDistance"]
         self._builder_cm = _pybuilder.CleanCityModel(
             self._builder_cm, min_vert_distance
         )
@@ -60,9 +75,9 @@ class CityModel:
     ):
 
         if ground_margins is None:
-            ground_margins = self.paramaters["GroundMargin"]
+            ground_margins = self.parameters["GroundMargin"]
         if ground_outlier_margin is None:
-            ground_outlier_margin = self.paramaters["OutlierMargin"]
+            ground_outlier_margin = self.parameters["OutlierMargin"]
 
         self._builder_cm = _pybuilder.ExtractBuildingPoints(
             self._builder_cm,
@@ -77,9 +92,9 @@ class CityModel:
     ):
 
         if outlier_margin is None:
-            outlier_margin = self.paramaters["RANSACOutlierMargin"]
+            outlier_margin = self.parameters["RANSACOutlierMargin"]
         if interations is None:
-            interations = self.paramaters["RANSACIterations"]
+            interations = self.parameters["RANSACIterations"]
 
         self._builder_cm = _pybuilder.BuildingPointsRANSACOutlierRemover(
             self._builder_cm, outlier_margin, interations
@@ -90,9 +105,9 @@ class CityModel:
     ):
 
         if neighbors is None:
-            neighbors = self.paramaters["OutlierNeighbors"]
+            neighbors = self.parameters["OutlierNeighbors"]
         if outlier_margin is None:
-            outlier_margin = self.paramaters["OutlierSTD"]
+            outlier_margin = self.parameters["OutlierSTD"]
         self._builder_cm = _pybuilder.BuildingPointsOutlierRemover(
             self._builder_cm, neighbors, outlier_margin
         )
@@ -102,9 +117,9 @@ class CityModel:
     ):
 
         if ground_percentile is None:
-            ground_percentile = self.paramaters["GroundPercentile"]
+            ground_percentile = self.parameters["GroundPercentile"]
         if roof_percentile is None:
-            roof_percentile = self.paramaters["RoofPercentile"]
+            roof_percentile = self.parameters["RoofPercentile"]
 
         self._builder_cm = _pybuilder.ComputeBuildingHeights(
             self._builder_cm, dtm._grid_field, ground_percentile, roof_percentile
@@ -114,7 +129,7 @@ class CityModel:
         _pybuilder.WriteCityModelJSON(self._builder_cm, outfile)
 
     def from_JSON(self, infile):
-        self._builder_pc = _pybuilder.ReadCityModelJSON(infile)
+        self._builder_cm = _pybuilder.ReadCityModelJSON(infile)
 
     def load_protobuf(self, protobuf_string: str):
         self._builder_cm = _pybuilder.loadCityModelProtobuf(protobuf_string)
