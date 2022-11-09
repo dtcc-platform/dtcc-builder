@@ -12,7 +12,6 @@ def calc_las_bounds(las_path):
     bbox = _pybuilder.LASBounds(las_path)
     return bbox
 
-
 class PointCloud:
     def __init__(self, las_path=None):
         self._builder_pc = None
@@ -20,6 +19,19 @@ class PointCloud:
         self.bounds = None
         if las_path is not None:
             self.read_las_files(las_path)
+
+    def __len__(self):
+        if self._builder_pc is None:
+            return 0
+        else:
+            return len(self._builder_pc)
+    
+    def points_as_numpy(self):
+        pts = self._builder_pc.points
+        pts = [[p.x, p.y, p.z] for p in pts]
+        return numpy.array(pts)
+
+    points = property(points_as_numpy)
 
     def read_las_files(self, las_path, extra_data=True):
         las_path = str(las_path)
@@ -43,10 +55,6 @@ class PointCloud:
     def vegetation_filter(self):
         self._builder_pc = _pybuilder.VegetationFilter(self._builder_pc)
 
-    def points_as_numpy(self):
-        pts = self._builder_pc.points
-        pts = [[p.x, p.y, p.z] for p in pts]
-        return numpy.array(pts)
 
     def get_bounds(self):
         pts = pointcloud_to_numpy(self._builder_pc)
