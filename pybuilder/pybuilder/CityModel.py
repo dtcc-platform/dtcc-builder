@@ -95,7 +95,7 @@ class CityModel:
     def building_points_RANSAC_outlier_remover(
         self, outlier_margin=None, interations=None
     ):
-    """use RANSAC to filter extreme outliers from roof points. Only use this on very noisy and unclassified data. On clean data it can make things worse"""
+        """use RANSAC to filter extreme outliers from roof points. Only use this on very noisy and unclassified data. On clean data it can make things worse"""
 
         if outlier_margin is None:
             outlier_margin = self.parameters["RANSACOutlierMargin"]
@@ -121,8 +121,8 @@ class CityModel:
 
     def compute_building_heights(
         self, dtm: ElevationModel, ground_percentile=None, roof_percentile=None
-    ):  
-        """compute the height of each building based on the roof and ground points. 
+    ):
+        """compute the height of each building based on the roof and ground points.
         building_points_statistical_outlier_remover must have been called before calling this method"""
         if ground_percentile is None:
             ground_percentile = self.parameters["GroundPercentile"]
