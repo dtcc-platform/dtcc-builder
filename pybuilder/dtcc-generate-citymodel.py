@@ -6,6 +6,7 @@ sys.path.append("pybuilder")
 
 from pathlib import Path
 import os
+import re
 
 from pybuilder.CityModel import CityModel, building_bounds
 from pybuilder.PointCloud import PointCloud, calc_las_bounds
@@ -14,6 +15,43 @@ from pybuilder.Parameters import load_parameters
 from pybuilder.Utils import bounds_intersect, bounds_area
 
 from pybuilder import Meshing
+
+
+def camel_to_kebab(name):
+    name = re.sub("(.)([A-Z][a-z]+)", r"\1-\2", name)
+    return re.sub("([a-z0-9])([A-Z])", r"\1-\2", name).lower()
+
+
+def create_parameters_options(parser):
+    type_map = {"str": str, "float": float, "int": int, "bool": bool}
+
+    name_translator = {}
+    p = load_parameters()
+    for k, v in p.items():
+        kebab_name = camel_to_kebab(k)
+        name_translator[k] = kebab_name
+        name_translator[kebab_name] = k
+        val_type = type(v).__name__
+        if val_type == "bool":
+            parser.add_argument(f"--{kebab_name}", default=v, action="store_true")
+        else:
+            parser.add_argument(
+                f"--{kebab_name}", default=None, type=type_map[val_type]
+            )
+    return parser, name_translator
+
+
+def update_parameters_from_options(p, args, name_translator):
+    for k, v in p.items():
+        print(k)
+        snake_name = name_translator.get(k)
+        if snake_name is None:
+            continue
+        snake_name = name_translator[k].replace("-", "_")
+        parser_val = getattr(args, snake_name)
+        if parser_val is not None:
+            p[k] = parser_val
+    return p
 
 
 def get_project_paths(path):
@@ -228,6 +266,8 @@ if __name__ == "__main__":
     parser.add_argument("--mesh-only", action="store_true")
     parser.add_argument("projectpath", nargs="?", default=os.getcwd())
 
+    parser, name_translator = create_parameters_options(parser)
+
     args = parser.parse_args()
 
     parameters_file, project_path = get_project_paths(args.projectpath)
@@ -238,4 +278,5 @@ if __name__ == "__main__":
     else:
         parameters = load_parameters(parameters_file)
 
+    parameters = update_parameters_from_options(parameters, args, name_translator)
     main(parameters, project_path, args.citymodel_only, args.mesh_only)

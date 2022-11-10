@@ -9,12 +9,11 @@ _parameters["GenerateVolumeMeshes"] = True
 _parameters["WriteJSON"] = True
 _parameters["WriteVTK"] = True
 _parameters["WriteSTL"] = True
-_parameters["WriteOBJ"] = True
+_parameters["WriteOBJ"] = False
 
 _parameters["Debug"] = False
 
 _parameters["GroundSmoothing"] = 5
-_parameters["NumRandomBuildings"] = 25
 
 _parameters["DomainMargin"] = 10.0
 _parameters["X0"] = 0.0
