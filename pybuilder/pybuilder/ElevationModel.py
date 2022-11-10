@@ -2,13 +2,14 @@ from pybuilder import _pybuilder
 
 
 class ElevationModel:
-    def __init__(self, point_cloud, resolution, included_classifications=[]):
+    def __init__(self, point_cloud=None, resolution=1, included_classifications=[]):
         self.included_classifications = list(map(int, included_classifications))
         self.resolution = resolution
-        self._grid_field = _pybuilder.GenerateElevationModel(
-            point_cloud._builder_pc, resolution, included_classifications
-        )
-        self.calc_bounds()
+        if point_cloud is not None:
+            self._grid_field = _pybuilder.GenerateElevationModel(
+                point_cloud._builder_pc, resolution, included_classifications
+            )
+            self.calc_bounds()
 
     def calc_bounds(self):
         p = self._grid_field.Grid.BoundingBox.P

@@ -184,7 +184,6 @@ def main(p, project_path, citymodel_only=False, mesh_only=False):
     p = set_directories(p, project_path)
 
     if not mesh_only:
-
         cm, dtm = generate_citymodel(p)
         if p["WriteJSON"]:
             cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
@@ -199,6 +198,21 @@ def main(p, project_path, citymodel_only=False, mesh_only=False):
 
         ground_surface, builing_surface = generate_surface_mesh(cm, dtm, p)
         volume_mesh = generate_volume_mesh(cm, dtm, p)
+
+        boundary = Meshing.extract_boundary3D(volume_mesh)
+        surface = Meshing.extract_open_surface3D(boundary)
+
+        if p["WriteVTK"]:
+            Meshing.write_VTK_mesh3D(volume_mesh, p["OutputDirectory"] / "CityMesh.vtu")
+            Meshing.write_VTK_surface3D(
+                surface, p["OutputDirectory"] / "CitySurface.vtu"
+            )
+
+        if p["WriteSTL"]:
+            Meshing.write_surface(surface, p["OutputDirectory"] / "CitySurface.stl")
+
+        if p["WriteOBJ"]:
+            Meshing.write_surface(surface, p["OutputDirectory"] / "CitySurface.obj")
 
 
 if __name__ == "__main__":
