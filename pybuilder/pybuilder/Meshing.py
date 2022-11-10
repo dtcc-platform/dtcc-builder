@@ -60,11 +60,15 @@ def merge_surfaces3D(surfaces: List[_pybuilder.Surface3D]) -> _pybuilder.Surface
 
 
 def write_VTK_mesh3D(mesh: _pybuilder.Mesh3D, out_file):
-    return _pybuilder.WriteVTKMesh3D(mesh, out_file)
+    return _pybuilder.WriteVTKMesh3D(mesh, str(out_file))
 
 
 def write_VTK_mesh2D(mesh: _pybuilder.Mesh2D, out_file):
-    return _pybuilder.WriteVTKMesh2D(mesh, out_file)
+    return _pybuilder.WriteVTKMesh2D(mesh, str(out_file))
+
+
+def write_VTK_surface3D(surface: _pybuilder.Surface3D, out_file):
+    return _pybuilder.WriteVTKSurface3D
 
 
 def write_surface(surface, file_name, format="obj", y_up=None):
@@ -80,4 +84,4 @@ def write_surface(surface, file_name, format="obj", y_up=None):
             y_up = False
     if format == "gltf":
         format = "gltf2"
-    return _pybuilder.WriteSurface3D(surface, file_name, format, y_up)
+    return _pybuilder.WriteSurface3D(surface, str(file_name), format, y_up)

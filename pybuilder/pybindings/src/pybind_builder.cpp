@@ -77,6 +77,21 @@ CityModel CleanCityModel(CityModel &cityModel, double minVertDistance)
   return cityModel;
 }
 
+CityModel SimplifyCityModel(CityModel &cityModel,
+                            py::tuple bounds,
+                            double minimalBuildingDistance,
+                            double minimalVertexDistance)
+{
+  double px = bounds[0].cast<double>();
+  double py = bounds[1].cast<double>();
+  double qx = bounds[2].cast<double>();
+  double qy = bounds[3].cast<double>();
+  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
+  CityModelGenerator::SimplifyCityModel(
+      cityModel, bbox, minimalBuildingDistance, minimalVertexDistance);
+  return cityModel;
+}
+
 CityModel ExtractBuildingPoints(CityModel &cityModel,
                                 const PointCloud &pointCloud,
                                 double groundMargin,
@@ -235,6 +250,12 @@ GridField2D SmoothElevation(GridField2D &dem, size_t numSmoothings)
   return dem;
 }
 
+double MeanElevation(const GridField2D &gf) { return gf.Mean(); }
+
+double MinElevation(const GridField2D &gf) { return gf.Min(); }
+
+double MaxElevation(const GridField2D &gf) { return gf.Max(); }
+
 // Meshing
 
 Mesh2D
@@ -337,6 +358,12 @@ bool WriteVTKMesh2D(const Mesh2D &mesh, std::string filepath)
   return true;
 }
 
+bool WriteVTKSurface3D(const Surface3D &surface, std::string filepath)
+{
+  VTK::Write(surface, filepath);
+  return true;
+}
+
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_pybuilder, m)
@@ -434,6 +461,10 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("CleanCityModel", &DTCC_BUILDER::CleanCityModel,
         "clean city model polygons");
 
+  m.def("SimplifyCityModel", &DTCC_BUILDER::SimplifyCityModel,
+        "Simplify city model by merging all buildings that are closer than a "
+        "given distance");
+
   m.def("loadCityModelProtobuf", &DTCC_BUILDER::loadCityModelProtobuf,
         "Load CityModel from Protobuf");
 
@@ -492,6 +523,12 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
         "Smooth  elevation grid field");
 
+  m.def("MeanElevation", &DTCC_BUILDER::MeanElevation, "Mean elevation");
+
+  m.def("MaxElevation", &DTCC_BUILDER::MaxElevation, "Max elevation");
+
+  m.def("MinElevation", &DTCC_BUILDER::MinElevation, "Min elevation");
+
   m.def("GenerateMesh2D", &DTCC_BUILDER::GenerateMesh2D, "Generate 2D mesh");
 
   m.def("GenerateMesh3D", &DTCC_BUILDER::GenerateMesh3D, "Generate 3D mesh");
@@ -523,5 +560,8 @@ PYBIND11_MODULE(_pybuilder, m)
         "Write 3D mesh to VTK format");
 
   m.def("WriteVTKMesh2D", &DTCC_BUILDER::WriteVTKMesh2D,
-        "Write 3D mesh to VTK format");
+        "Write 2D mesh to VTK format");
+
+  m.def("WriteVTKSurface3D", &DTCC_BUILDER::WriteVTKSurface3D,
+        "Write 3D surface to VTK format");
 }

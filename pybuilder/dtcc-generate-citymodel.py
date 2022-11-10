@@ -13,6 +13,8 @@ from pybuilder.ElevationModel import ElevationModel
 from pybuilder.Parameters import load_parameters
 from pybuilder.Utils import bounds_intersect, bounds_area
 
+from pybuilder import Meshing
+
 
 def get_project_paths(args):
     if len(args) == 1:
@@ -30,6 +32,7 @@ def get_project_paths(args):
             parameters_file = project_path / "Parameters.json"
 
     return (parameters_file, project_path)
+
 
 def calc_project_domain(p):
     if p["AutoDomain"]:
@@ -56,15 +59,7 @@ def calc_project_domain(p):
     return (origin, domain_bounds)
 
 
-def main(args):
-    parameters_file, project_path = get_project_paths(args)
-
-    if not parameters_file.is_file():
-        print(f"Warning!: cannot find {parameters_file} using default parameters")
-        p = load_parameters()
-    else:
-        p = load_parameters(parameters_file)
-
+def set_directories(p, project_path):
     if p["DataDirectory"] == "":
         p["DataDirectory"] = project_path
     if p["OutputDirectory"] == "":
@@ -74,13 +69,16 @@ def main(args):
     p["OutputDirectory"] = Path(p["OutputDirectory"])
     if p["PointCloudDirectory"] == "":
         p["PointCloudDirectory"] = p["DataDirectory"]
+    return p
 
+
+def generate_citymodel(p):
     origin, domain_bounds = calc_project_domain(p)
 
     if bounds_area(domain_bounds) < 100:
         print("Domain too small to generate a city model")
         sys.exit(1)
-    
+
     pc = PointCloud(p["PointCloudDirectory"], domain_bounds)
     if len(pc) == 0:
         print("Error: Point cloud in domain is empty")
@@ -91,28 +89,107 @@ def main(args):
 
     if p["NaiveVegitationFilter"]:
         pc.vegetation_filter()
-    
 
-    cm = CityModel(p["DataDirectory"] / p["BuildingsFileName"] )
+    cm = CityModel(p["DataDirectory"] / p["BuildingsFileName"])
     cm.set_origin(origin)
     cm.clean_citymodel()
 
-    dtm = ElevationModel(pc,p["ElevationModelResolution"],[2,9])
-    dsm = ElevationModel(pc,p["ElevationModelResolution"])
+    dtm = ElevationModel(pc, p["ElevationModelResolution"], [2, 9])
+    dsm = ElevationModel(pc, p["ElevationModelResolution"])
     dtm.smooth_elevation_model(p["GroundSmoothing"])
 
     cm.extract_building_points(pc)
 
-    #6 is building classification
+    # 6 is building classification
     if 6 not in pc.used_classifications and p["RANSACOutlierRemover"]:
         cm.building_points_RANSAC_outlier_remover()
-    
+
     if p["StatisticalOutlierRemover"]:
         cm.building_points_statistical_outlier_remover()
 
     cm.compute_building_heights(dtm)
 
-    cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
+    return cm, dtm
+
+
+def generate_surface_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
+    surfaces = Meshing.generate_surface3D(cm, dtm, p["MeshResolution"])
+    ground_surface = surfaces[0]
+    building_surfaces = surfaces[1:]
+    building_surfaces = Meshing.merge_surfaces3D(building_surfaces)
+
+    return ground_surface, building_surfaces
+
+
+def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
+    if not cm.cleaned:
+        cm.clean_citymodel()
+    if not cm.simplified:
+        print(dtm.bounds)
+        cm.simplify_citymodel(dtm.bounds)
+    if not cm.calculated_heights:
+        cm.compute_building_heights(dtm)
+
+    # Step 3.1: Generate 2D mesh
+    mesh_2D = Meshing.generate_mesh2D(cm, dtm.bounds, p["MeshResolution"])
+
+    if p["WriteVTK"]:
+        Meshing.write_VTK_mesh2D(mesh_2D, p["OutputDirectory"] / "Step31Mesh.vtu")
+
+    # Step 3.2: Generate 3D mesh (layer 3D mesh)
+    mesh_3D = Meshing.generate_mesh3D(mesh_2D, p["DomainHeight"], p["MeshResolution"])
+    if p["WriteVTK"]:
+        mesh_3D_boundary = Meshing.extract_boundary3D(mesh_3D)
+        Meshing.write_VTK_surface3D(
+            mesh_3D_boundary, p["OutputDirectory"] / "Step32Boundary.vtu"
+        )
+        Meshing.write_VTK_mesh3D(mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu")
+
+    # Step 3.3: Smooth 3D mesh (set ground height)
+    top_height = dtm.mean() + p["DomainHeight"]
+    mesh_3D = Meshing.smooth_mesh3D(mesh_3D, cm, dtm, top_height, False)
+
+    if p["WriteVTK"]:
+        mesh_3D_boundary = Meshing.extract_boundary3D(mesh_3D)
+        Meshing.write_VTK_surface3D(
+            mesh_3D_boundary, p["OutputDirectory"] / "Step33Boundary.vtu"
+        )
+        Meshing.write_VTK_mesh3D(mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu")
+
+    # Step 3.4: Trim 3D mesh (remove building interiors)
+    mesh_3D = Meshing.trim_mesh3D(mesh_3D, mesh_2D, cm, mesh_3D.numLayers)
+
+    # Step 3.5: Smooth 3D mesh (set ground and building heights)
+    mesh_3D = Meshing.smooth_mesh3D(mesh_3D, cm, dtm, top_height, True)
+
+    if p["WriteVTK"]:
+        mesh_3D_boundary = Meshing.extract_boundary3D(mesh_3D)
+        Meshing.write_VTK_surface3D(
+            mesh_3D_boundary, p["OutputDirectory"] / "Step35Boundary.vtu"
+        )
+        Meshing.write_VTK_mesh3D(mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu")
+
+    return mesh_3D
+
+
+def main(args):
+    parameters_file, project_path = get_project_paths(args)
+
+    if not parameters_file.is_file():
+        print(f"Warning!: cannot find {parameters_file} using default parameters")
+        p = load_parameters()
+    else:
+        p = load_parameters(parameters_file)
+
+    p = set_directories(p, project_path)
+
+    cm, dtm = generate_citymodel(p)
+    if p["WriteJSON"]:
+        cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
+        # dtm.to_JSON(p["OutputDirectory"] / "DTM.json")
+
+    ground_surface, builing_surface = generate_surface_mesh(cm, dtm, p)
+    volume_mesh = generate_volume_mesh(cm, dtm, p)
 
 
 if __name__ == "__main__":

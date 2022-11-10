@@ -28,6 +28,7 @@ class CityModel:
         self._builder_cm = None
         self.origin = (0, 0)
         self.cleaned = False
+        self.simplified = False
         self.extracted_points = False
         self.calculated_heights = False
         if shp_footprints is not None:
@@ -70,6 +71,15 @@ class CityModel:
             self._builder_cm, min_vert_distance
         )
         self.cleaned = True
+
+    def simplify_citymodel(self, bounds):
+        self._builder_cm = _pybuilder.SimplifyCityModel(
+            self._builder_cm,
+            bounds,
+            self.parameters["MinBuildingDistance"],
+            self.parameters["MinVertexDistance"],
+        )
+        self.simplified = True
 
     def extract_building_points(
         self,

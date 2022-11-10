@@ -13,6 +13,15 @@ class ElevationModel:
         self.bounds = (p.x, p.y, q.x, q.y)
 
     def smooth_elevation_model(self, num_passes=5):
-        if num_passes<1:
+        if num_passes < 1:
             return
         self._grid_field = _pybuilder.SmoothElevation(self._grid_field, num_passes)
+
+    def mean(self):
+        return _pybuilder.MeanElevation(self._grid_field)
+
+    def min(self):
+        return _pybuilder.MinElevation(self._grid_field)
+
+    def max(self):
+        return _pybuilder.MaxElevation(self._grid_field)
