@@ -8,6 +8,9 @@ _parameters["GenerateSurfaceMeshes"] = True
 _parameters["GenerateVolumeMeshes"] = True
 _parameters["WriteJSON"] = True
 _parameters["WriteVTK"] = True
+_parameters["WriteSTL"] = True
+_parameters["WriteOBJ"] = True
+
 _parameters["Debug"] = False
 
 _parameters["GroundSmoothing"] = 5

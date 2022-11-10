@@ -71,9 +71,11 @@ def write_VTK_surface3D(surface: _pybuilder.Surface3D, out_file):
     return _pybuilder.WriteVTKSurface3D
 
 
-def write_surface(surface, file_name, format="obj", y_up=None):
+def write_surface(surface, file_name, format="", y_up=None):
     supported_formats = ["obj", "stl", "gltf"]
     y_up_format = ["obj", "gltf"]
+    if not format:
+        format = os.path.splitext(file_name)[-1][1:].lower()
     if format not in supported_formats:
         print(f"format {format} not supported, please use one of {supported_formats}")
         return False
