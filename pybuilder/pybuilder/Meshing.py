@@ -2,14 +2,15 @@ import _pybuilder
 import os
 import numpy
 from typing import List, Tuple
+from CityModel import CityModel
 
 
 def generate_mesh2D(
-    city_model: _pybuilder.CityModel,
+    city_model: CityModel,
     bbox: Tuple[float, float, float, float],
     resolution,
 ) -> _pybuilder.Mesh2D:
-    return _pybuilder.GenerateMesh2D(city_model, bbox, resolution)
+    return _pybuilder.GenerateMesh2D(city_model._builder_cm, bbox, resolution)
 
 
 def generate_mesh3D(
