@@ -186,7 +186,7 @@ def main(args):
     cm, dtm = generate_citymodel(p)
     if p["WriteJSON"]:
         cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
-        # dtm.to_JSON(p["OutputDirectory"] / "DTM.json")
+        dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
 
     ground_surface, builing_surface = generate_surface_mesh(cm, dtm, p)
     volume_mesh = generate_volume_mesh(cm, dtm, p)
@@ -194,6 +194,7 @@ def main(args):
 
 if __name__ == "__main__":
     import sys
+    import argparse
 
     args = sys.argv
     print(args)

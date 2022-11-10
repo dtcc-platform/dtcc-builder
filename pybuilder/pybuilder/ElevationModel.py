@@ -8,6 +8,9 @@ class ElevationModel:
         self._grid_field = _pybuilder.GenerateElevationModel(
             point_cloud._builder_pc, resolution, included_classifications
         )
+        self.calc_bounds()
+
+    def calc_bounds(self):
         p = self._grid_field.Grid.BoundingBox.P
         q = self._grid_field.Grid.BoundingBox.Q
         self.bounds = (p.x, p.y, q.x, q.y)
@@ -25,3 +28,10 @@ class ElevationModel:
 
     def max(self):
         return _pybuilder.MaxElevation(self._grid_field)
+
+    def to_JSON(self, outfile, origin):
+        _pybuilder.WriteElevationModelJSON(self._grid_field, str(outfile), origin)
+
+    def from_JSON(self, infile):
+        self._grid_field = _pybuilder.LoadElevationModelJSON(str(infile))
+        self.calc_bounds()

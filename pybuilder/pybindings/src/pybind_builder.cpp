@@ -256,6 +256,23 @@ double MinElevation(const GridField2D &gf) { return gf.Min(); }
 
 double MaxElevation(const GridField2D &gf) { return gf.Max(); }
 
+bool WriteElevationModelJSON(const GridField2D &gf,
+                             std::string(outfile),
+                             py::tuple origin)
+{
+  double px = origin[0].cast<double>();
+  double py = origin[1].cast<double>();
+  JSON::Write(gf, outfile, Point2D(px, py));
+  return true;
+}
+
+GridField2D LoadElevationModelJSON(std::string infile)
+{
+  GridField2D gf;
+  JSON::Read(gf, infile);
+  return gf;
+}
+
 // Meshing
 
 Mesh2D
@@ -522,6 +539,12 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
         "Smooth  elevation grid field");
+
+  m.def("WriteElevationModelJSON", &DTCC_BUILDER::WriteElevationModelJSON,
+        "Write elevation model to JSON");
+
+  m.def("LoadElevationModelJSON", &DTCC_BUILDER::LoadElevationModelJSON,
+        "Load elevation model from JSON");
 
   m.def("MeanElevation", &DTCC_BUILDER::MeanElevation, "Mean elevation");
 
