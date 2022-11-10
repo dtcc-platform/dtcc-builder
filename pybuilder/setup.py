@@ -5,10 +5,11 @@ import os, pathlib, sys
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 
-packages = \
-['pybuilder', 'pybuilder.*', ]
+packages = [
+    "pybuilder",
+]
 
-package_data = {"": ["*"], "pybuilder": ["include/*", "pybind/src/*"]}
+package_data = {"": ["*"]}
 
 install_requires = [
     "numpy>=1.23.3,<2.0.0",
@@ -18,16 +19,16 @@ install_requires = [
 ]
 
 setup_kwargs = {
-    'name': 'pybuilder',
-    'version': '0.1.0',
-    'description': 'python bindings for dtcc-builder',
-    'author': 'Dag Wästberg',
-    'author_email': 'dwastberg@gmail.com',
-    'url': 'https://gitlab.com/dtcc-platform/dtcc-builder',
+    "name": "pybuilder",
+    "version": "0.2.3",
+    "description": "python bindings for dtcc-builder",
+    "author": "Dag Wästberg",
+    "author_email": "dwastberg@gmail.com",
+    "url": "https://gitlab.com/dtcc-platform/dtcc-builder",
     # 'packages': packages,
-    'package_data': package_data,
-    'install_requires': install_requires,
-    'python_requires': '>=3.8,<4.0',
+    "package_data": package_data,
+    "install_requires": install_requires,
+    "python_requires": ">=3.8,<4.0",
 }
 
 
@@ -52,16 +53,13 @@ def build(setup_kwargs):
                 "-llas",
                 "-lstdc++fs",
                 "-ldolfin",
-                "-ltriangle"
+                "-ltriangle",
             ],
         ),
     ]
-    setup_kwargs.update({
-        "ext_modules": ext_modules,
-        "zip_safe": False
-    })
+    setup_kwargs.update({"ext_modules": ext_modules, "zip_safe": False})
 
 
-build(setup_kwargs)
+# build(setup_kwargs)
 
-setup(**setup_kwargs, packages=find_packages('pybuilder', exclude=['test']))
+setup(**setup_kwargs, packages=find_packages(".", exclude=["pybuilder.test"]))
