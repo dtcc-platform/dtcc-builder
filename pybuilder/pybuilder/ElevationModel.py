@@ -1,4 +1,4 @@
-import _pybuilder
+from pybuilder import _pybuilder
 
 
 class ElevationModel:

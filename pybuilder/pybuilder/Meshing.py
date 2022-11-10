@@ -1,9 +1,9 @@
-import _pybuilder
+from pybuilder import _pybuilder
 import os
 import numpy
 from typing import List, Tuple
-from CityModel import CityModel
-from ElevationModel import ElevationModel
+from pybuilder.CityModel import CityModel
+from pybuilder.ElevationModel import ElevationModel
 
 
 def generate_mesh2D(

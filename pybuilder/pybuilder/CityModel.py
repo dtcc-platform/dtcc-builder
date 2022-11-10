@@ -1,12 +1,12 @@
-import _pybuilder
+from pybuilder import _pybuilder
 
 import numpy
 import fiona
 from shapely.geometry import Polygon
-from PointCloud import PointCloud
-from ElevationModel import ElevationModel
+from pybuilder.PointCloud import PointCloud
+from pybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple
-import Parameters
+from pybuilder.Parameters import load_parameters
 
 
 def building_bounds(shp_footprint_file, buffer=0):
@@ -22,7 +22,7 @@ def building_bounds(shp_footprint_file, buffer=0):
 class CityModel:
     def __init__(self, shp_footprints=None, parameters=None, bounds=None):
         if parameters is None:
-            parameters = Parameters.load_parameters()
+            parameters = load_parameters()
         self.parameters = parameters
         self.bounds = bounds
         self._builder_cm = None

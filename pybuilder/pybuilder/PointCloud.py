@@ -1,4 +1,4 @@
-import _pybuilder
+from pybuilder import _pybuilder
 import os
 import numpy
 from typing import List, Tuple
@@ -12,8 +12,9 @@ def calc_las_bounds(las_path):
     bbox = _pybuilder.LASBounds(las_path)
     return bbox
 
+
 class PointCloud:
-    def __init__(self, las_path=None, bounds = ()):
+    def __init__(self, las_path=None, bounds=()):
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds
@@ -26,7 +27,7 @@ class PointCloud:
             return 0
         else:
             return len(self._builder_pc)
-    
+
     def points_as_numpy(self):
         pts = self._builder_pc.points
         pts = [[p.x, p.y, p.z] for p in pts]
@@ -56,7 +57,6 @@ class PointCloud:
 
     def vegetation_filter(self):
         self._builder_pc = _pybuilder.VegetationFilter(self._builder_pc)
-
 
     def get_bounds(self):
         pts = pointcloud_to_numpy(self._builder_pc)

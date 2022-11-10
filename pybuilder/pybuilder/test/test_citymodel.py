@@ -4,14 +4,15 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
-import _pybuilder
-import Parameters
-from PointCloud import PointCloud
-from ElevationModel import ElevationModel
-from CityModel import CityModel, building_bounds, get_building_roof_points
+from pybuilder import _pybuilder
+
+from pybuilder.Parameters import load_parameters
+from pybuilder.PointCloud import PointCloud
+from pybuilder.ElevationModel import ElevationModel
+from pybuilder.CityModel import CityModel, building_bounds, get_building_roof_points
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
-p = Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")
+p = load_parameters(data_dir / "MinimalCase" / "Parameters.json")
 
 
 class TestCityModel(unittest.TestCase):

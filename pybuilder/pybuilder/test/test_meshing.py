@@ -4,18 +4,18 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
-import _pybuilder
-from ElevationModel import ElevationModel
+from pybuilder import _pybuilder
 
-from PointCloud import PointCloud, calc_las_bounds
-from CityModel import CityModel, building_bounds
-import Parameters
-from Utils import bounds_intersect
-import Meshing
+from pybuilder.ElevationModel import ElevationModel
+from pybuilder.PointCloud import PointCloud, calc_las_bounds
+from pybuilder.CityModel import CityModel, building_bounds
+from pybuilder.Parameters import load_parameters
+from pybuilder.Utils import bounds_intersect
+from pybuilder import Meshing
 
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
-p = Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")
+p = load_parameters(data_dir / "MinimalCase" / "Parameters.json")
 
 
 class TestMeshing(unittest.TestCase):

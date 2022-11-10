@@ -5,12 +5,13 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import unittest
 
-import _pybuilder
-import Parameters
-from PointCloud import PointCloud, calc_las_bounds
+from pybuilder import _pybuilder
+from pybuilder.Parameters import load_parameters
+
+from pybuilder.PointCloud import PointCloud, calc_las_bounds
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
-p = Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")
+p = load_parameters(data_dir / "MinimalCase" / "Parameters.json")
 
 
 class TestLoadPointCloud(unittest.TestCase):
@@ -24,12 +25,14 @@ class TestLoadPointCloud(unittest.TestCase):
         self.assertEqual(len(pc), 8148)
 
     def test_load_file_bounded(self):
-        pc = PointCloud(data_dir / "MinimalCase" / "pointcloud.las", bounds=(-2,-2,0,0))
+        pc = PointCloud(
+            data_dir / "MinimalCase" / "pointcloud.las", bounds=(-2, -2, 0, 0)
+        )
         self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
         self.assertEqual(len(pc), 64)
 
     def test_load_dir_bounded(self):
-        pc = PointCloud(data_dir / "MinimalCase", bounds=(-2,-2,0,0))
+        pc = PointCloud(data_dir / "MinimalCase", bounds=(-2, -2, 0, 0))
         self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
         self.assertEqual(len(pc), 64)
 
@@ -39,7 +42,6 @@ class TestLoadPointCloud(unittest.TestCase):
         px, py, qx, qy = bbox
         self.assertAlmostEqual(px, -8.017474418)
         self.assertAlmostEqual(qy, 1.838260469)
-
 
 
 class TestFilters(unittest.TestCase):
@@ -67,7 +69,7 @@ class TestConvert(unittest.TestCase):
         pb_pc = str(data_dir / "MinimalCase" / "pointcloud.las.pb")
         with open(pb_pc, "rb") as src:
             pb_string = src.read()
-        pc=PointCloud()
+        pc = PointCloud()
         pc.load_protobuf(pb_string)
         self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
         self.assertEquals(len(pc), 8148)

@@ -5,13 +5,14 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import unittest
 
-import _pybuilder
-from ElevationModel import ElevationModel
-import Parameters
-from PointCloud import PointCloud
+from pybuilder import _pybuilder
+
+from pybuilder.ElevationModel import ElevationModel
+from pybuilder.Parameters import load_parameters
+from pybuilder.PointCloud import PointCloud
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
-p = Parameters.load_parameters()
+p = load_parameters()
 
 
 class TestCreateDEM(unittest.TestCase):
@@ -28,13 +29,8 @@ class TestCreateDEM(unittest.TestCase):
 
     def test_get_bounds(self):
         bounds = self.dem.bounds
-        
-        self.assertAlmostEquals(
-            bounds[0],-8.0174744, places=4)
-        self.assertAlmostEquals(
-            bounds[1],-18.850332, places=4)
-        self.assertAlmostEquals(
-            bounds[2],15.923729412, places=4)
-        self.assertAlmostEquals(
-            bounds[3],1.838260469, places=4)
 
+        self.assertAlmostEquals(bounds[0], -8.0174744, places=4)
+        self.assertAlmostEquals(bounds[1], -18.850332, places=4)
+        self.assertAlmostEquals(bounds[2], 15.923729412, places=4)
+        self.assertAlmostEquals(bounds[3], 1.838260469, places=4)
