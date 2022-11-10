@@ -3,6 +3,7 @@ import os
 import numpy
 from typing import List, Tuple
 from CityModel import CityModel
+from ElevationModel import ElevationModel
 
 
 def generate_mesh2D(
@@ -21,27 +22,29 @@ def generate_mesh3D(
 
 def smooth_mesh3D(
     mesh: _pybuilder.Mesh3D,
-    city_model: _pybuilder.CityModel,
-    dem: _pybuilder.GridField2D,
+    city_model: CityModel,
+    dtm: ElevationModel,
     top_height: float,
     fix_buildings: bool,
 ):
-    return _pybuilder.SmoothMesh3D(mesh, city_model, dem, top_height, fix_buildings)
+    return _pybuilder.SmoothMesh3D(
+        mesh, city_model._builder_cm, dtm._grid_field, top_height, fix_buildings
+    )
 
 
-def generate_surface3D(
-    city_model: _pybuilder.CityModel, dtm: _pybuilder.GridField2D, resolution
-):
-    return _pybuilder.GenerateSurfaces3D(city_model, dtm, resolution)
+def generate_surface3D(city_model: CityModel, dtm: ElevationModel, resolution):
+    return _pybuilder.GenerateSurfaces3D(
+        city_model._builder_cm, dtm._grid_field, resolution
+    )
 
 
 def trim_mesh3D(
     mesh: _pybuilder.Mesh3D,
     mesh2D: _pybuilder.Mesh2D,
-    city_model: _pybuilder.CityModel,
+    city_model: CityModel,
     num_layers,
 ) -> _pybuilder.Mesh3D:
-    return _pybuilder.TrimMesh3D(mesh, mesh2D, city_model, num_layers)
+    return _pybuilder.TrimMesh3D(mesh, mesh2D, city_model._builder_cm, num_layers)
 
 
 def extract_boundary3D(mesh: _pybuilder.Mesh3D) -> _pybuilder.Surface3D:
