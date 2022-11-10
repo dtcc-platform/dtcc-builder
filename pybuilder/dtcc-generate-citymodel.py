@@ -16,12 +16,12 @@ from pybuilder.Utils import bounds_intersect, bounds_area
 from pybuilder import Meshing
 
 
-def get_project_paths(args):
-    if len(args) == 1:
+def get_project_paths(path):
+    if not path:
         project_path = Path.cwd()
         parameters_file = project_path / "Parameters.json"
     else:
-        arg_path = Path(args[1])
+        arg_path = Path(path).resolve()
         if not arg_path.exists():
             raise FileNotFoundError(f"cannot find project path {arg_path}")
         if arg_path.is_file():
@@ -172,33 +172,56 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
     return mesh_3D
 
 
-def main(args):
-    parameters_file, project_path = get_project_paths(args)
+def main(p, project_path, citymodel_only=False, mesh_only=False):
+    # parameters_file, project_path = get_project_paths(args)
 
-    if not parameters_file.is_file():
-        print(f"Warning!: cannot find {parameters_file} using default parameters")
-        p = load_parameters()
-    else:
-        p = load_parameters(parameters_file)
+    # if not parameters_file.is_file():
+    #     print(f"Warning!: cannot find {parameters_file} using default parameters")
+    #     p = load_parameters()
+    # else:
+    #     p = load_parameters(parameters_file)
 
     p = set_directories(p, project_path)
 
-    cm, dtm = generate_citymodel(p)
-    if p["WriteJSON"]:
-        cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
-        dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
+    if not mesh_only:
 
-    ground_surface, builing_surface = generate_surface_mesh(cm, dtm, p)
-    volume_mesh = generate_volume_mesh(cm, dtm, p)
+        cm, dtm = generate_citymodel(p)
+        if p["WriteJSON"]:
+            cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
+            dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
+
+    if not citymodel_only:
+        if mesh_only:
+            cm = CityModel()
+            cm.from_JSON((p["OutputDirectory"] / "CityModel.json"))
+            dtm = ElevationModel()
+            dtm.from_JSON(p["OutputDirectory"] / "DTM.json")
+
+        ground_surface, builing_surface = generate_surface_mesh(cm, dtm, p)
+        volume_mesh = generate_volume_mesh(cm, dtm, p)
 
 
 if __name__ == "__main__":
     import sys
     import argparse
 
-    args = sys.argv
-    print(args)
-    if "-h" in args:
-        print("Usage: dtcc-generate-citymodel.py Parameters.json")
-        sys.exit(0)
-    main(args)
+    parser = argparse.ArgumentParser(
+        prog="pybuilder",
+        description="Build LoD1 CItyModel mesh fromm footprint and pointcloud",
+    )
+
+    parser.add_argument("--citymodel-only", action="store_true")
+    parser.add_argument("--mesh-only", action="store_true")
+    parser.add_argument("projectpath", nargs="?", default=os.getcwd())
+
+    args = parser.parse_args()
+
+    parameters_file, project_path = get_project_paths(args.projectpath)
+
+    if not parameters_file.is_file():
+        print(f"Warning!: cannot find {parameters_file} using default parameters")
+        parameters = load_parameters()
+    else:
+        parameters = load_parameters(parameters_file)
+
+    main(parameters, project_path, args.citymodel_only, args.mesh_only)
