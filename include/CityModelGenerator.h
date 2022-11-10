@@ -602,7 +602,6 @@ public:
   }
 
 private:
-
   // Merge all buildings closer than a given distance
   static void MergeCityModel(CityModel &cityModel,
                              const BoundingBox2D &bbox,
@@ -628,8 +627,16 @@ private:
     // Note: Factor 4 seems to be a good choice (tested using dtcc-bench-run)
     double h = 4.0 * ComputeMeanBuildingSize(buildings);
     h = std::max(h, minimalBuildingDistance + Parameters::Epsilon);
-    const size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
-    const size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
+    size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
+    size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
+
+    if (nX <= 1 || nY <= 1)
+    {
+      // needed for meshing small areas
+      nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / (h / 4)) + 1;
+      nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / (h / 4)) + 1;
+    }
+
     Grid2D grid(bbox, nX, nY);
 
     // Initialize bins
