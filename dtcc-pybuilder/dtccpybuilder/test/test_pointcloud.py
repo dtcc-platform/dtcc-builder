@@ -5,10 +5,10 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import unittest
 
-from pybuilder import _pybuilder
-from pybuilder.Parameters import load_parameters
+from dtccpybuilder import _pybuilder
+from dtccpybuilder.Parameters import load_parameters
 
-from pybuilder.PointCloud import PointCloud, calc_las_bounds
+from dtccpybuilder.PointCloud import PointCloud, calc_las_bounds
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
 p = load_parameters(data_dir / "MinimalCase" / "Parameters.json")

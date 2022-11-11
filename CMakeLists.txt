@@ -93,7 +93,7 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 # add_subdirectory(dtcc-plot)
 add_subdirectory(dtcc-generate-citymodel)
 add_subdirectory(dtcc-generate-mesh)
-add_subdirectory(pybuilder)
+add_subdirectory(dtcc-pybuilder)
 
 # add_subdirectory(dtcc-generate-roadnetwork)
 # add_subdirectory(dtcc-randomize-citymodel)

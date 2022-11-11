@@ -4,14 +4,14 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
-from pybuilder import _pybuilder
+from dtccpybuilder import _pybuilder
 
-from pybuilder.ElevationModel import ElevationModel
-from pybuilder.PointCloud import PointCloud, calc_las_bounds
-from pybuilder.CityModel import CityModel, building_bounds
-from pybuilder.Parameters import load_parameters
-from pybuilder.Utils import bounds_intersect
-from pybuilder import Meshing
+from dtccpybuilder.ElevationModel import ElevationModel
+from dtccpybuilder.PointCloud import PointCloud, calc_las_bounds
+from dtccpybuilder.CityModel import CityModel, building_bounds
+from dtccpybuilder.Parameters import load_parameters
+from dtccpybuilder.Utils import bounds_intersect
+from dtccpybuilder import Meshing
 
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()

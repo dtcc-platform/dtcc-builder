@@ -6,7 +6,7 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 
 packages = [
-    "pybuilder",
+    "dtccpybuilder",
 ]
 
 package_data = {"": ["*"]}
@@ -19,8 +19,8 @@ install_requires = [
 ]
 
 setup_kwargs = {
-    "name": "pybuilder",
-    "version": "0.2.8",
+    "name": "dtccpybuilder",
+    "version": "0.3.1",
     "description": "python bindings for dtcc-builder",
     "author": "Dag Wästberg",
     "author_email": "dwastberg@gmail.com",
@@ -37,7 +37,7 @@ def build(setup_kwargs):
     ext_modules = [
         Pybind11Extension(
             "_pybuilder",
-            ["pybindings/src/pybind_builder.cpp"],
+            ["dtcc-pybindings/src/pybind_builder.cpp"],
             include_dirs=[
                 os.path.join(project_root, "include"),
                 os.path.join(project_root, "external"),
@@ -62,4 +62,4 @@ def build(setup_kwargs):
 
 # build(setup_kwargs)
 
-setup(**setup_kwargs, packages=find_packages(".", exclude=["pybuilder.test"]))
+setup(**setup_kwargs, packages=find_packages(".", exclude=["dtccpybuilder.test"]))

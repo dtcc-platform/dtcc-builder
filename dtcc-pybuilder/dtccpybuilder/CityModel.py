@@ -1,12 +1,12 @@
-from pybuilder import _pybuilder
+from dtccpybuilder import _pybuilder
 
 import numpy
 import fiona
 from shapely.geometry import Polygon
-from pybuilder.PointCloud import PointCloud
-from pybuilder.ElevationModel import ElevationModel
+from dtccpybuilder.PointCloud import PointCloud
+from dtccpybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple
-from pybuilder.Parameters import load_parameters
+from dtccpybuilder.Parameters import load_parameters
 
 
 def building_bounds(shp_footprint_file, buffer=0):

@@ -1,4 +1,4 @@
-from pybuilder import _pybuilder
+from dtccpybuilder import _pybuilder
 import os
 import numpy
 from typing import List, Tuple

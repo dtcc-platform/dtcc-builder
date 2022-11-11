@@ -5,11 +5,11 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import unittest
 
-from pybuilder import _pybuilder
+from dtccpybuilder import _pybuilder
 
-from pybuilder.ElevationModel import ElevationModel
-from pybuilder.Parameters import load_parameters
-from pybuilder.PointCloud import PointCloud
+from dtccpybuilder.ElevationModel import ElevationModel
+from dtccpybuilder.Parameters import load_parameters
+from dtccpybuilder.PointCloud import PointCloud
 
 data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
 p = load_parameters()
