@@ -147,7 +147,7 @@ def generate_citymodel(p):
 
     cm.compute_building_heights(dtm)
 
-    return cm, dtm
+    return cm, pc, dtm
 
 
 def generate_surface_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
@@ -222,10 +222,15 @@ def main(p, project_path, citymodel_only=False, mesh_only=False):
     p = set_directories(p, project_path)
 
     if not mesh_only:
-        cm, dtm = generate_citymodel(p)
+        cm, pc, dtm = generate_citymodel(p)
         if p["WriteJSON"]:
             cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
             dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
+        if p["WriteProtobuf"]:
+            with open(p["OutputDirectory"] / "CityModel.pb", "wb") as dst:
+                dst.write(cm.to_protobuf())
+            with open(p["OutputDirectory"] / "PointCloud.pb", "wb") as dst:
+                dst.write(pc.to_protobuf())
 
     if not citymodel_only:
         if mesh_only:

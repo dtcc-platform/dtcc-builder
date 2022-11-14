@@ -10,6 +10,7 @@ _parameters["WriteJSON"] = True
 _parameters["WriteVTK"] = True
 _parameters["WriteSTL"] = True
 _parameters["WriteOBJ"] = False
+_parameters["WriteProtobuf"] = True
 
 _parameters["Debug"] = False
 
