@@ -9,12 +9,11 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
   message(STATUS "Build type not specified, using Release by default")
 endif()
-
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
+# Set build flags
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# Set build flags
 set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -24,9 +23,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # Add clang tools
 include(cmake/clang-cxx-dev-tools.cmake)
-
-set(pybind11_DIR /usr/lib/cmake/pybind11)
-find_package(pybind11 REQUIRED)
 
 # Find packages
 find_package(ShapeLib REQUIRED)
@@ -41,6 +37,11 @@ find_package(GDAL REQUIRED)
 find_package(PNG REQUIRED)
 find_package(LibGEOS REQUIRED)
 
+# Find pybind11
+set(pybind11_DIR /usr/lib/cmake/pybind11)
+find_package(pybind11 REQUIRED)
+
+# Find protobuf
 find_package(Protobuf REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -67,9 +68,9 @@ endif()
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
-# build protobuf
+# Build protobuf
 ADD_SUBDIRECTORY(dtcc-model/protobuf)
-include_directories(${PROTOBUF_INCLUDE_DIRS}) 
+include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/dtcc-model)
 include_directories(${CMAKE_SOURCE_DIR}/dtcc-model)
 
@@ -116,8 +117,6 @@ add_subdirectory(unittests)
 # foreach (_variableName ${_variableNames})
 # message(STATUS "${_variableName}=${${_variableName}}")
 # endforeach()
-
-message("libgeos " ${LIBGEOS_LIBRARIES})
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")
