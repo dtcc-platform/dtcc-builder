@@ -14,7 +14,11 @@ def calc_las_bounds(las_path):
 
 
 class PointCloud:
+    """Class for storing point cloud object"""
     def __init__(self, las_path=None, bounds=()):
+        """
+        
+        """
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds
@@ -28,12 +32,12 @@ class PointCloud:
         else:
             return len(self._builder_pc)
 
-    def points_as_numpy(self):
+    def _points_as_numpy(self):
         pts = self._builder_pc.points
         pts = [[p.x, p.y, p.z] for p in pts]
         return numpy.array(pts)
 
-    points = property(points_as_numpy)
+    points = property(_points_as_numpy)
 
     def read_las_files(self, las_path, extra_data=True):
         las_path = str(las_path)

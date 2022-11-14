@@ -8,13 +8,13 @@ from pathlib import Path
 import os
 import re
 
-from pybuilder.CityModel import CityModel, building_bounds
-from pybuilder.PointCloud import PointCloud, calc_las_bounds
-from pybuilder.ElevationModel import ElevationModel
-from pybuilder.Parameters import load_parameters
-from pybuilder.Utils import bounds_intersect, bounds_area
+from dtccpybuilder.CityModel import CityModel, building_bounds
+from dtccpybuilder.PointCloud import PointCloud, calc_las_bounds
+from dtccpybuilder.ElevationModel import ElevationModel
+from dtccpybuilder.Parameters import load_parameters
+from dtccpybuilder.Utils import bounds_intersect, bounds_area
 
-from pybuilder import Meshing
+from dtccpybuilder import Meshing
 
 
 def camel_to_kebab(name):
