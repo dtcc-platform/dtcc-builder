@@ -63,6 +63,7 @@ public:
       pb_bld.set_height(building.Height);
       pb_bld.set_uuid(building.UUID);
       pb_bld.set_error(building.error);
+      pb_bld.set_groundheight(building.GroundHeight);
 
       std::vector<DTCC::Vector2D> pb_verts;
       for (const auto &vert : building.Footprint.Vertices)
@@ -86,7 +87,7 @@ public:
 
     std::string pb_string;
     pb_cm.SerializeToString(&pb_string);
-    info("CityModel Serialized: " + str(pb_string.size()));
+    // info("CityModel Serialized: " + str(pb_string.size()));
 
     return pb_string;
   }
