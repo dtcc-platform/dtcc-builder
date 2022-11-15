@@ -71,6 +71,12 @@ def write_VTK_surface3D(surface: _pybuilder.Surface3D, out_file):
     return _pybuilder.WriteVTKSurface3D
 
 
+def write_Protobuf_surface3D(surface: _pybuilder.Surface3D, out_file):
+    with open(out_file, 'wb') as f:
+        pb = _pybuilder.convertSurface3DToProtobuf(surface)
+        f.write(pb)
+
+
 def write_surface(surface, file_name, format="", y_up=None):
     supported_formats = ["obj", "stl", "gltf"]
     y_up_format = ["obj", "gltf"]

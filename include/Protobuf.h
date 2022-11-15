@@ -1,8 +1,10 @@
 // Copyright (C) 2022 Dag Wästberg
 // Licensed under the MIT License
+//
+//  Modified by Anders Logg 2022
 
-#ifndef DTCC_PROTOBUF_CONVERTER
-#define DTCC_PROTOBUF_CONVERTER
+#ifndef DTCC_PROTOBUF
+#define DTCC_PROTOBUF
 
 #include "protobuf/dtcc.pb.h"
 #include "protobuf/include/PointCloudMethods.h"
@@ -12,6 +14,7 @@
 #include "Point.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
+#include "Surface.h"
 
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
@@ -19,36 +22,35 @@
 namespace DTCC_BUILDER
 {
 
-class ProtobufConverter
+class Protobuf
 {
 public:
-  static CityModel LoadCityModel(std::string protobuf_string)
+  // Developer note: Started but not completed migration to read/write functions
+  // (issue #52) Developer note: DTCC Builder object / DTCC Protobuf _object
+
+  // Read CityModel from Protobuf string
+  static void read(CityModel &city_model, const std::string &pb)
   {
-    DTCC::CityModel cm;
-    cm.ParseFromString(protobuf_string);
-    return LoadCityModel(cm);
+    DTCC::CityModel _city_model{};
+    _city_model.ParseFromString(pb);
+    read(city_model, _city_model);
   }
 
-  static CityModel LoadCityModel(DTCC::CityModel pb_cm)
+  // Read CityModel from Protobuf object
+  static void read(CityModel &city_model, const DTCC::CityModel &_city_model)
   {
-    CityModel cm;
-    auto pb_buildings = pb_cm.buildings();
-    for (const auto &pb_building : pb_buildings)
+    for (const auto &_building : _city_model.buildings())
     {
-      Building b;
-      b.UUID = pb_building.uuid();
-      auto pb_footprint = pb_building.footprint().shell().vertices();
-      for (const auto &v : pb_footprint)
-      {
-        b.Footprint.Vertices.push_back(Point2D(v.x(), v.y()));
-      }
-
-      cm.Buildings.push_back(b);
+      Building building{};
+      building.UUID = _building.uuid();
+      for (const auto &_vertex : _building.footprint().shell().vertices())
+        building.Footprint.Vertices.push_back(
+            Point2D(_vertex.x(), _vertex.y()));
+      city_model.Buildings.push_back(building);
     }
-
-    return cm;
   }
 
+  // FIXME: Rename to void write()
   static std::string ExportCityModel(const CityModel &cityModel)
   {
     DTCC::CityModel pb_cm;
@@ -84,6 +86,7 @@ public:
     return pb_string;
   }
 
+  // FIXME: Rename to void read()
   static PointCloud LoadPointCloud(std::string protobuf_string)
   {
     DTCC::PointCloud pc;
@@ -91,6 +94,7 @@ public:
     return LoadPointCloud(pc);
   }
 
+  // FIXME: Rename to void read()
   static PointCloud LoadPointCloud(DTCC::PointCloud pb_pc)
   {
     PointCloud pc;
@@ -120,22 +124,22 @@ public:
       }
     }
 
-    if (pb_pc.returnnumber_size()>0)
+    if (pb_pc.returnnumber_size() > 0)
     {
-      if (pb_pc.returnnumber_size() != num_pts || 
+      if (pb_pc.returnnumber_size() != num_pts ||
           pb_pc.numreturns_size() != num_pts)
         error("number of scan flags not equal to number of points!");
       for (size_t i = 0; i < num_pts; i++)
       {
         pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(
-          pb_pc.returnnumber(i) ,pb_pc.numreturns(i)));
+            pb_pc.returnnumber(i), pb_pc.numreturns(i)));
       }
-      
     }
-    
+
     return pc;
   }
 
+  // FIXME: Rename to void write()
   static std::string ExportPointCloud(const PointCloud &pointCloud)
   {
     std::vector<DTCC::Vector3D> pb_pts;
@@ -153,6 +157,54 @@ public:
 
     return pb_string;
   }
-};    
-}
+
+  // Read Surface3D from Protobuf string
+  static void read(Surface3D &surface, const std::string &pb)
+  {
+    error("Reading Surface3D from Protobuf not implemented");
+  }
+
+  // Read Surface3D from Protobuf object
+  static void read(Surface3D &surface, const DTCC::Surface3D &_surface)
+  {
+    error("Reading Surface3D from Protobuf not implemented");
+  }
+
+  // Write Surface3D to Protobuf string
+  static void write(const Surface3D &surface, std::string &pb)
+  {
+    DTCC::Surface3D _surface{};
+
+    // Write vertices
+    for (const auto &vertex : surface.Vertices)
+    {
+      auto _vertex = _surface.add_vertices();
+      _vertex->set_x(vertex.x);
+      _vertex->set_y(vertex.y);
+      _vertex->set_z(vertex.z);
+    }
+
+    // Write faces
+    for (const auto &face : surface.Faces)
+    {
+      auto _face = _surface.add_faces();
+      _face->set_v0(face.v0);
+      _face->set_v1(face.v1);
+      _face->set_v2(face.v2);
+    }
+
+    // Write normals
+    for (const auto &normal : surface.Normals)
+    {
+      auto _normal = _surface.add_normals();
+      _normal->set_x(normal.x);
+      _normal->set_y(normal.y);
+      _normal->set_z(normal.z);
+    }
+
+    // Write to Protobuf string
+    _surface.SerializeToString(&pb);
+  }
+};
+} // namespace DTCC_BUILDER
 #endif

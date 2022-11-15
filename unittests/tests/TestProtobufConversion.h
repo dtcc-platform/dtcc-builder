@@ -2,7 +2,7 @@
 #include "protobuf/include/PointCloudMethods.h"
 
 #include "PointCloud.h"
-#include "converter/ProtobufConverter.h"
+#include "Protobuf.h"
 
 using namespace DTCC_BUILDER;
 
@@ -23,7 +23,7 @@ TEST_CASE("Protobuf to PointCloud")
     DTCC::PointCloud pb_pointCloud;
     std::fstream input(pbFilePath, std::ios::in | std::ios::binary);
     pb_pointCloud.ParseFromIstream(&input);
-    PointCloud pc = ProtobufConverter::LoadPointCloud(pb_pointCloud);
+    PointCloud pc = Protobuf::LoadPointCloud(pb_pointCloud);
 
     REQUIRE(pc.Points.size() == 8148);
     REQUIRE(pc.Classifications.size() == 8148);

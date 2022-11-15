@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "converter/ProtobufConverter.h"
+#include "Protobuf.h"
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
 
@@ -144,12 +144,23 @@ CityModel ReadCityModelJSON(std::string path)
 
 CityModel loadCityModelProtobuf(std::string protobuf_string)
 {
-  return DTCC_BUILDER::ProtobufConverter::LoadCityModel(protobuf_string);
+  CityModel city_model{};
+  DTCC_BUILDER::Protobuf::read(city_model, protobuf_string);
+  return city_model;
 }
 
 py::bytes convertCityModelToProtobuf(const CityModel &cm)
 {
-  return DTCC_BUILDER::ProtobufConverter::ExportCityModel(cm);
+  return DTCC_BUILDER::Protobuf::ExportCityModel(cm);
+}
+
+// FIXME: This and other wrapper functions here should not be needed
+// Should be dtcc.builder.io.protobuf.read/write
+py::bytes convertSurface3DToProtobuf(const Surface3D &surface)
+{
+  std::string pb{};
+  DTCC_BUILDER::Protobuf::write(surface, pb);
+  return pb;
 }
 
 // PointCloud
@@ -225,12 +236,12 @@ PointCloud VegetationFilter(PointCloud &pointCloud)
 
 PointCloud loadPointCloudProtobuf(std::string protobuf_string)
 {
-  return DTCC_BUILDER::ProtobufConverter::LoadPointCloud(protobuf_string);
+  return DTCC_BUILDER::Protobuf::LoadPointCloud(protobuf_string);
 }
 
 py::bytes convertPointCloudToProtobuf(const PointCloud &pc)
 {
-  return DTCC_BUILDER::ProtobufConverter::ExportPointCloud(pc);
+  return DTCC_BUILDER::Protobuf::ExportPointCloud(pc);
 }
 
 // GridField
@@ -487,6 +498,9 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("convertCityModelToProtobuf", &DTCC_BUILDER::convertCityModelToProtobuf,
         "convert CityModel to protobuf");
+
+  m.def("convertSurface3DToProtobuf", &DTCC_BUILDER::convertSurface3DToProtobuf,
+        "convert Surface3D to protobuf");
 
   m.def("ExtractBuildingPoints", &DTCC_BUILDER::ExtractBuildingPoints,
         "extarct points from point cloud for each building");
