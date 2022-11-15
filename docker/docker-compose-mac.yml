@@ -27,4 +27,5 @@ services:
 volumes:
   dtcc-platform-shared-data:
   data_sync:
+    external: true
 

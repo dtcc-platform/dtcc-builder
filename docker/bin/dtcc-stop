@@ -6,7 +6,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 
+export _UID=$(id -g)
 if [[ "$OSTYPE" == "darwin"* ]]; then
+    export GID=1003
     DOCKER_COMPOSE_FILE="docker-compose-mac.yml"
     echo "Using docker-compose-mac.yml for build "
     if ! command -v docker-sync &> /dev/null
@@ -16,11 +18,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     else
         echo "Stopping docker-sync for macOSx"
         docker-sync stop --config=./data-sync.yml
-        docker-sync clean --config=./data-sync.yml
     fi
+else
+    export GID=$(id -g)
 fi
 
 docker-compose -f ${SCRIPT_DIR}/../${DOCKER_COMPOSE_FILE} down
 
-docker container rm dtcc-builder -f
-docker image rm dtcc-builder-image -f
+# docker container rm dtcc-builder -f
+# docker image rm dtcc-builder-image -f
