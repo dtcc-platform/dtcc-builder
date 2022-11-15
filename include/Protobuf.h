@@ -79,6 +79,11 @@ public:
 
     pb_cm.mutable_buildings()->Swap(&building_data);
 
+    pb_cm.mutable_georeference()->set_x0(cityModel.Origin.x);
+    pb_cm.mutable_georeference()->set_y0(cityModel.Origin.y);
+
+    info(pb_cm.DebugString());
+
     std::string pb_string;
     pb_cm.SerializeToString(&pb_string);
     info("CityModel Serialized: " + str(pb_string.size()));
@@ -151,6 +156,9 @@ public:
     for (const auto c : pointCloud.Classifications)
       classifications.push_back(c);
     auto pb_pc = DTCC::CreatePointCloud(pb_pts, classifications);
+
+    pb_pc.mutable_georeference()->set_x0(pointCloud.Origin.x);
+    pb_pc.mutable_georeference()->set_y0(pointCloud.Origin.y);
 
     std::string pb_string;
     pb_pc.SerializeToString(&pb_string);

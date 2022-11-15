@@ -38,6 +38,8 @@ public:
   /// Bounding box
   BoundingBox2D BoundingBox{};
 
+  Point2D Origin = Point2D(0, 0);
+
   /// Check if point cloud is empty
   bool Empty() const { return Points.empty(); }
 
@@ -61,6 +63,8 @@ public:
       p -= v3D;
     BoundingBox.P -= v2D;
     BoundingBox.Q -= v2D;
+    Origin.x = origin.x;
+    Origin.y = origin.y;
   }
 
   /// set a default color to all points
