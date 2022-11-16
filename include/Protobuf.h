@@ -83,8 +83,6 @@ public:
     pb_cm.mutable_georeference()->set_x0(cityModel.Origin.x);
     pb_cm.mutable_georeference()->set_y0(cityModel.Origin.y);
 
-    info(pb_cm.DebugString());
-
     std::string pb_string;
     pb_cm.SerializeToString(&pb_string);
     // info("CityModel Serialized: " + str(pb_string.size()));
