@@ -6,3 +6,5 @@ syncs:
     host_disk_mount_mode: 'cached'
     watch_excludes: ['.*/.git', '.*/node_modules', '.gitignore']
     sync_excludes: ['Gemfile.lock', 'Gemfile', 'config.rb', 'package.json', 'Gruntfile*', 'bower_components', 'node_modules', '.git', '*.coffee', '*.scss', '*.sass']
+    sync_userid: ${_UID}
+    sync_groupid: ${GID}
