@@ -15,8 +15,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         exit
     else
         echo "Stopping docker-sync for macOSx"
-        docker-sync stop --config=./data-sync.yml
-        docker-sync clean --config=./data-sync.yml
+        docker-sync stop --config=./docker-sync.yml
+        docker-sync clean --config=./docker-sync.yml
     fi
 fi
 

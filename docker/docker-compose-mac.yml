@@ -17,7 +17,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - data_sync:${WORKING_DIR_BUILDER}
+      - data_sync:${WORKING_DIR_BUILDER}:rw
       - dtcc-platform-shared-data:${SHARED_DATA_DIR}:rw
     security_opt:
       - seccomp:unconfined
