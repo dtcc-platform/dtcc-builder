@@ -18,6 +18,8 @@ build:
     paths:
       - build/
       - unittests/
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
 
 test:
   stage: test
