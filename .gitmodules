@@ -2,5 +2,5 @@
 	path = dtcc-model
 	url = https://gitlab.com/dtcc-platform/dtcc-model.git
 [submodule "dtcc-docker"]
- 2     path = dtcc-docker
- 3     url = https://gitlab.com/dtcc-platform/dtcc-docker.git
+    path = dtcc-docker
+    url = https://gitlab.com/dtcc-platform/dtcc-docker.git
