@@ -45,11 +45,13 @@ public:
       error("Empty point cloud");
 
     // Check that point cloud has classifications
-    if (pointCloud.Points.size() != pointCloud.Classifications.size())
-      error("Missing classifications for point cloud");
+    bool has_classification =
+        (pointCloud.Points.size() == pointCloud.Classifications.size());
+    if (!has_classification)
+      warning("Missing classifications for point cloud, using all points");
 
     // Print classifications
-    if (classifications.size() > 0)
+    if (has_classification && classifications.size() > 0)
     {
       std::string msg{"ElevationModelGenerator: Using classifications "};
       for (size_t i = 0; i < classifications.size(); i++)
@@ -121,14 +123,16 @@ public:
     {
       // Get point and classification
       const Point3D &p3D{pointCloud.Points[i]};
-      const uint8_t clf{pointCloud.Classifications[i]};
+      uint8_t clf = 0;
+      if (has_classification)
+        clf = {pointCloud.Classifications[i]};
 
       // Get 2D Point
       const Point2D p2D{p3D.x, p3D.y};
 
       // Check classification (accept all classifications if empty list)
       bool match = true;
-      if (classifications.size() > 0)
+      if (has_classification && classifications.size() > 0)
       {
         match = false;
         for (const auto c : classifications)

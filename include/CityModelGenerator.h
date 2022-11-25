@@ -207,7 +207,11 @@ public:
     if (pointCloud.Points.size() != pointCloud.Classifications.size())
       error("Missing classifications for point cloud");
 
-    bool classifedBuildings = pointCloud.HasClassification(6);
+    bool classifiedPoints =
+        (pointCloud.Points.size() == pointCloud.Classifications.size());
+    bool classifedBuildings = false;
+    if (classifiedPoints)
+      classifedBuildings = pointCloud.HasClassification(6);
 
     auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
     // build a kd-tree for radius search
@@ -239,18 +243,33 @@ public:
         const Point3D &p3D = pointCloud.Points[idx];
         const Point2D p2D{p3D.x, p3D.y};
 
-        if (clf == 2 || clf == 9)
+        if (classifiedPoints)
         {
-          building.GroundPoints.push_back(p3D);
+          if (clf == 2 || clf == 9)
+          {
+            building.GroundPoints.push_back(p3D);
+          }
+          else if (clf == 6 || (!classifedBuildings && clf < 2))
+          {
+            // auto pc_timer = Timer("PolygoCOntains2D");
+            if (Geometry::PolygonContains2D(building.Footprint, p2D))
+            {
+              building.RoofPoints.push_back(p3D);
+            }
+            // pc_timer.Stop();
+          }
         }
-        else if (clf == 6 || (!classifedBuildings && clf < 2))
+        else // unclassified data
         {
-          auto pc_timer = Timer("PolygoCOntains2D");
           if (Geometry::PolygonContains2D(building.Footprint, p2D))
           {
             building.RoofPoints.push_back(p3D);
           }
-          pc_timer.Stop();
+          else
+          {
+            // all points not in the roof polygon are considered ground
+            building.GroundPoints.push_back(p3D);
+          }
         }
       }
     }
