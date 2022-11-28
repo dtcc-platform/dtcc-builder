@@ -70,9 +70,8 @@ namespace DTCC_BUILDER
       boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
 
       // Generate 2D mesh
-      info("Entering CallTriangle");
       CallTriangle(mesh2D, boundary, subDomains, resolution, true);
-      info("Leaving CallTriangle");
+
       // Mark subdomains
       ComputeDomainMarkers(mesh2D, cityModel);
     }
@@ -486,16 +485,16 @@ namespace DTCC_BUILDER
         info(str(p));
       }
 
-      info("&subDOmains");
-      size_t num_subdomains = subDomains.size();
-      for (size_t i = 0; i < num_subdomains; i++)
-      {
-        info("Sub Domain " + str(i));
-        for (auto &p : subDomains[i])
-        {
-          info(str(p));
-        }
-      }
+      // info("&subDOmains");
+      // size_t num_subdomains = subDomains.size();
+      // for (size_t i = 0; i < num_subdomains; i++)
+      // {
+      //   info("Sub Domain " + str(i));
+      //   for (auto &p : subDomains[i])
+      //   {
+      //     info(str(p));
+      //   }
+      // }
 
       // Set area constraint to control mesh size
       const double maxArea = 0.5 * h * h;
