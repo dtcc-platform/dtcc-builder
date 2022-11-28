@@ -305,7 +305,7 @@ public:
         tooFew++;
       }
       pointCoverage = BuildingProcessor::PointCoverage(building, 2.0);
-      info("PointCoverage: " + str(pointCoverage));
+      // info("PointCoverage: " + str(pointCoverage));
       if (pointCoverage < 0.5)
       {
         building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
@@ -390,8 +390,8 @@ public:
       double h0{0};
       if (building.GroundPoints.empty())
       {
-        warning("Missing ground points for building " + building.UUID);
-        info("CityModelGenerator: Setting ground height from DTM");
+        // warning("Missing ground points for building " + building.UUID);
+        // info("CityModelGenerator: Setting ground height from DTM");
         h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
         numMissingGroundPoints++;
         building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
@@ -410,9 +410,9 @@ public:
       double h1{0};
       if (building.RoofPoints.empty())
       {
-        warning("Missing roof points for building " + building.UUID);
-        info("CityModelGenerator: Setting building height to " +
-             str(minBuildingHeight) + "m");
+        // warning("Missing roof points for building " + building.UUID);
+        // info("CityModelGenerator: Setting building height to " +
+        //     str(minBuildingHeight) + "m");
         h1 = h0 + minBuildingHeight;
         numMissingRoofPoints++;
         building.error |= BuildingError::BUILDING_NO_ROOF_POINTS;
