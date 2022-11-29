@@ -479,7 +479,7 @@ namespace DTCC_BUILDER
     {
       Timer timer("CallTriangle");
 
-      info("&boundary");
+      // info("&boundary");
       for (auto &p : boundary)
       {
         info(str(p));
@@ -603,12 +603,12 @@ namespace DTCC_BUILDER
       struct triangulateio vorout = CreateTriangleIO();
 
       // Call Triangle
-      info("Calling triangulate");
+      // info("Calling triangulate");
       triangulate(triswitches, &in, &out, &vorout);
-      info("triangulate done!");
+      // info("triangulate done!");
       // Uncomment for debugging
-      //PrintTriangleIO(out);
-      //PrintTriangleIO(vorout);
+      // PrintTriangleIO(out);
+      // PrintTriangleIO(vorout);
 
       // Extract points
       mesh2D.Vertices.reserve(out.numberofpoints);

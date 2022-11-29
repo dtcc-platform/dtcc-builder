@@ -142,6 +142,7 @@ class CityModel:
         self._builder_cm = _pybuilder.ComputeBuildingHeights(
             self._builder_cm, dtm._grid_field, ground_percentile, roof_percentile
         )
+        self.calculated_heights = True
 
     def to_JSON(self, outfile):
         """serialize CItyModel to a JSON file"""
