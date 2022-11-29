@@ -480,10 +480,6 @@ namespace DTCC_BUILDER
       Timer timer("CallTriangle");
 
       // info("&boundary");
-      for (auto &p : boundary)
-      {
-        info(str(p));
-      }
 
       // info("&subDOmains");
       // size_t num_subdomains = subDomains.size();
