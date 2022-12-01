@@ -1,6 +1,4 @@
 #include "BoundingBox.h"
-#include "CSV.h"
-#include "LAS.h"
 #include "Point.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
@@ -9,25 +7,6 @@ using namespace DTCC_BUILDER;
 
 TEST_CASE("POINT_CLOUD")
 {
-  SECTION("READ LAS")
-  {
-    PointCloud pc;
-    LAS::Read(pc, RootPath + "data/minimal_las.las");
-
-    REQUIRE(pc.Points.size() == 10);
-    for (size_t i = 0; i < pc.Points.size(); i++)
-    {
-      REQUIRE(pc.Classifications[i] == Approx(pc.Points[i].x).margin(1e-6));
-    }
-  }
-
-  SECTION("BOUNDS")
-  {
-    BoundingBox2D bb;
-    LAS::Bounds(bb, RootPath + "data/minimal_las.las");
-    REQUIRE(bb.P.x == 0);
-    REQUIRE(bb.Q.x == 9);
-  }
 
   SECTION("ClassificationFilter")
   {
@@ -70,61 +49,6 @@ TEST_CASE("POINT_CLOUD")
     REQUIRE(pc.HasClassification(1));
     REQUIRE(pc.HasClassification(2));
     REQUIRE(!pc.HasClassification(3));
-  }
-}
-
-
-
-TEST_CASE("Read from CSV instead of LAS/LAZ")
-{
-  std::string filename =
-      RootPath + "data/read-from-csv-instead-of-laz/PointCloudTest.csv";
-  PointCloud pointCloud;
-  CSV::Read(pointCloud, filename);
-
-  SECTION("PointCloud vertices")
-  {
-    Point3D v1 = pointCloud.Points[0];
-    REQUIRE(v1.x == 317228.73);
-    REQUIRE(v1.y == 6397500.00);
-    REQUIRE(v1.z == 26.16);
-  }
-
-  SECTION("PointCloud colors")
-  {
-    Color c1 = pointCloud.Colors[0];
-    for (double ch : {c1.R, c1.G, c1.B})
-      REQUIRE(ch == 0);
-  }
-
-  SECTION("PointCloud classification")
-  {
-    auto classification = pointCloud.Classifications[0];
-    REQUIRE(classification == 1);
-  }
-
-  SECTION("Read points only within bounding box")
-  {
-    pointCloud.Clear();
-    BoundingBox2D bbox(Point2D(315500, 6397510), Point2D(317000, 6399000));
-    CSV::Read(pointCloud, filename, bbox);
-    for (const auto &p : pointCloud.Points)
-    {
-      REQUIRE(p.x >= bbox.P.x);
-      REQUIRE(p.y >= bbox.P.y);
-      REQUIRE(p.x <= bbox.Q.x);
-      REQUIRE(p.y <= bbox.Q.y);
-    }
-  }
-
-  SECTION("Read only points of certain classification")
-  {
-    pointCloud.Clear();
-    std::vector<int> groundWaterPts{2, 9};
-    CSV::Read(pointCloud, filename, groundWaterPts);
-    // 1 is only other present classification
-    for (const auto &c : pointCloud.Classifications)
-      REQUIRE(c != 1);
   }
 }
 
