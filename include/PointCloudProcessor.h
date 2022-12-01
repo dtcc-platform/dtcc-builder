@@ -4,6 +4,7 @@
 #ifndef DTCC_POINT_CLOUD_PROCESSOR_H
 #define DTCC_POINT_CLOUD_PROCESSOR_H
 
+#include <Eigen/SVD>
 #include <math.h>
 #include <random>
 
@@ -16,6 +17,8 @@
 #include "PointCloud.h"
 #include "Timer.h"
 #include "Vector.h"
+
+template <typename T> int sign(T val) { return (T(0) < val) - (val < T(0)); }
 
 namespace DTCC_BUILDER
 {
@@ -355,6 +358,87 @@ public:
     return outliers;
   }
 
+  /// Returns the Distance to the K nearest neighbors for each point in
+  /// points
+  static std::vector<std::vector<double>>
+  KNNNearestNeighboursDist(std::vector<Point3D> &points, size_t neighbours)
+  {
+    size_t pc_size = points.size();
+    std::vector<std::vector<double>> neighbourDist(pc_size);
+
+    if (neighbours <= 0 or neighbours > pc_size)
+    {
+      neighbours = pc_size;
+    }
+    neighbours++; // N neighbours other than ourselves
+
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+                                         3 /* dims */>
+        my_kd_tree_t;
+    my_kd_tree_t pc_index(3 /*dim*/, points, 10 /* max leaf */);
+    pc_index.index->buildIndex();
+    std::vector<size_t> ret_indexes(neighbours);
+    std::vector<double> out_dists_sqr(neighbours);
+    nanoflann::KNNResultSet<double> resultSet(neighbours);
+    resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
+
+    size_t idx = 0;
+    for (auto const &pt : points)
+    {
+      std::vector<double> query_pt{pt.x, pt.y, pt.z};
+      pc_index.query(&query_pt[0], neighbours, &ret_indexes[0],
+                     &out_dists_sqr[0]);
+      for (size_t i = 1; i < neighbours;
+           i++) // start from 1 since 0 is the query point
+      {
+        neighbourDist[idx].push_back(std::sqrt(out_dists_sqr[i]));
+      }
+      idx++;
+    }
+
+    return neighbourDist;
+  }
+
+  /// Returns the index of the K nearest neighbors for each point in
+  /// points
+  static std::vector<std::vector<size_t>>
+  KNNNearestNeighboursIdx(std::vector<Point3D> &points, size_t neighbours)
+  {
+    size_t pc_size = points.size();
+    std::vector<std::vector<size_t>> neighbourIdx(pc_size);
+
+    if (neighbours <= 0 or neighbours > pc_size)
+    {
+      neighbours = pc_size;
+    }
+    neighbours++; // N neighbours other than ourselves
+
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+                                         3 /* dims */>
+        my_kd_tree_t;
+    my_kd_tree_t pc_index(3 /*dim*/, points, 10 /* max leaf */);
+    pc_index.index->buildIndex();
+    std::vector<size_t> ret_indexes(neighbours);
+    std::vector<double> out_dists_sqr(neighbours);
+    nanoflann::KNNResultSet<double> resultSet(neighbours);
+    resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
+    size_t idx = 0;
+    for (auto const &pt : points)
+    {
+      std::vector<double> query_pt{pt.x, pt.y, pt.z};
+      pc_index.query(&query_pt[0], neighbours, &ret_indexes[0],
+                     &out_dists_sqr[0]);
+      for (size_t i = 1; i < neighbours;
+           i++) // start from 1 since 0 is the query point
+      {
+        neighbourIdx[idx].push_back(ret_indexes[i]);
+      }
+      idx++;
+    }
+
+    return neighbourIdx;
+  }
+
   /// Remove outliers from Vector<Point3d> using Statistical Outlier algorithm
   ///
   /// @param points vector of points to filter
@@ -511,24 +595,17 @@ public:
   {
     std::sort(ptsToRemove.begin(), ptsToRemove.end());
     std::vector<Point3D> newPoints;
+    std::vector<Vector3D> newNormals;
     std::vector<Color> newColors{};
     std::vector<uint8_t> newClassifications{};
     std::vector<uint16_t> newIntensities{};
     std::vector<uint8_t> newScanFlags{};
 
-    bool hasColor = false;
-    bool hasClass = false;
-    bool hasIntensity = false;
-    bool hasScanflags = false;
-
-    if (pointCloud.Colors.size() > 0)
-      hasColor = true;
-    if (pointCloud.Classifications.size() > 0)
-      hasClass = true;
-    if (pointCloud.Intensities.size() > 0)
-      hasIntensity = true;
-    if (pointCloud.ScanFlags.size() > 0)
-      hasScanflags = true;
+    bool hasNormals = pointCloud.Normals.size() > 0;
+    bool hasColor = pointCloud.Colors.size() > 0;
+    bool hasClass = pointCloud.Classifications.size() > 0;
+    bool hasIntensity = pointCloud.Intensities.size() > 0;
+    bool hasScanflags = pointCloud.ScanFlags.size() > 0;
 
     size_t k = 0;
     for (size_t i = 0; i < pointCloud.Points.size(); i++)
@@ -537,6 +614,8 @@ public:
       {
         newPoints.push_back(pointCloud.Points[i]);
 
+        if (hasNormals)
+          newNormals.push_back(pointCloud.Normals[i]);
         if (hasColor)
           newColors.push_back(pointCloud.Colors[i]);
         if (hasClass)
@@ -554,6 +633,8 @@ public:
     // Assign new to old
     pointCloud.Points = newPoints;
 
+    if (hasNormals)
+      pointCloud.Normals = newNormals;
     if (hasColor)
       pointCloud.Colors = newColors;
     if (hasClass)
@@ -606,6 +687,55 @@ public:
       }
     }
     FilterPointCloud(pointCloud, pointsToRemove);
+  }
+
+  static void EstimateNormalsKNN(PointCloud &pointCloud, size_t neighbours)
+  {
+    auto normals = EstimateNormalsKNN(pointCloud.Points, neighbours);
+    pointCloud.Normals = normals;
+  };
+
+  static std::vector<Vector3D> EstimateNormalsKNN(std::vector<Point3D> points,
+                                                  size_t neighbours)
+  {
+    std::vector<Vector3D> normals;
+    auto neigboursIdx = KNNNearestNeighboursIdx(points, neighbours);
+    size_t idx = 0;
+    Eigen::RowVector3d dir(0.0, 0.0, 1.0);
+    for (auto const &query_pt : points)
+    {
+      size_t found = neigboursIdx[idx].size();
+      if (found < 3) // not enough neighbours to estimate normal
+      {
+        normals.push_back(Vector3D(0, 0, 0));
+        idx++;
+        continue;
+      }
+
+      Eigen::MatrixXd neighbors(found, 3);
+      for (int i = 0; i < found; i++)
+      {
+        auto pt = points[neigboursIdx[idx][i]];
+        neighbors(i, 0) = pt.x - query_pt.x;
+        neighbors(i, 1) = pt.y - query_pt.y;
+        neighbors(i, 2) = pt.z - query_pt.z;
+      }
+      Eigen::RowVector3d normal;
+      Eigen::JacobiSVD<Eigen::MatrixXd> svd(neighbors, Eigen::ComputeThinV);
+      Eigen::MatrixXd V = svd.matrixV();
+      for (int l = 0; l < 3; l++)
+      {
+        normal[l] = V(l, 2);
+      }
+      normal *= sign(normal.dot(dir));
+      auto n = Vector3D(normal[0], normal[1], normal[2]);
+      // Info("Normal: " + str(n));
+      normals.push_back(n);
+
+      idx++;
+    }
+
+    return normals;
   }
 };
 

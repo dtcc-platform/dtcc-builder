@@ -20,6 +20,7 @@ const std::string RootPath{"/home/dtcc/dtcc-builder/unittests/"};
 #include "tests/TestPolygon.h"
 #include "tests/TestProtobufConversion.h"
 #include "tests/TestRoadnetworks.h"
+#include "tests/TestRoofSegmentation.h"
 #include "tests/TestSHP.h"
 #include "tests/TestUUID.h"
 #include "tests/TestUtils.h"

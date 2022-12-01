@@ -23,6 +23,9 @@ public:
   /// Array of points
   std::vector<Point3D> Points{};
 
+  /// Array of Normals
+  std::vector<Vector3D> Normals{};
+
   /// Array of colors (one per point)
   std::vector<Color> Colors{};
 
@@ -134,6 +137,7 @@ public:
   void Clear()
   {
     Points.clear();
+    Normals.clear();
     Colors.clear();
     Classifications.clear();
     UsedClassifications.clear();
