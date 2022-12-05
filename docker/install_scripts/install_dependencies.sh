@@ -36,10 +36,12 @@ apt-get update && apt-get install -y \
     python3-pip \
     python3-dev \
     libprotobuf-dev \
-    protobuf-compiler
+    protobuf-compiler \
+    libeigen3-dev
 
-./install_assimp.sh
+#./install_assimp.sh
 ./install_libgeos.sh
-./install_libLAS.sh
-./install_VTK.sh
+#./install_libLAS.sh
+#./install_VTK.sh
 ./install_py_libs.sh
+./install_dtccio.sh
