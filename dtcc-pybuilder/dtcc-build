@@ -13,7 +13,9 @@ from pathlib import Path
 import os
 import re
 
-from dtccpybuilder.CityModel import CityModel, building_bounds
+from dtcc.io import PointCloudIO, CityModelIO, MeshIO, ElevationModelIO
+
+from dtccpybuilder.CityModel import CityModel
 from dtccpybuilder.PointCloud import PointCloud, calc_las_bounds
 from dtccpybuilder.ElevationModel import ElevationModel
 from dtccpybuilder.Parameters import load_parameters
@@ -79,7 +81,7 @@ def get_project_paths(path):
 
 def calc_project_domain(p):
     if p["AutoDomain"]:
-        footprint_bounds = building_bounds(
+        footprint_bounds = CityModelIO.building_bounds(
             p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
         )
         las_bounds = calc_las_bounds(p["DataDirectory"])
@@ -89,8 +91,8 @@ def calc_project_domain(p):
         p["Y0"] = origin[1]
         p["XMin"] = 0.0
         p["YMin"] = 0.0
-        p["XMax"] = domain_bounds[0] - domain_bounds[2]
-        p["YMax"] = domain_bounds[1] - domain_bounds[3]
+        p["XMax"] = domain_bounds[2] - domain_bounds[0]
+        p["YMax"] = domain_bounds[3] - domain_bounds[1]
     else:
         origin = (p["X0"], p["Y0"])
         domain_bounds = (
@@ -144,6 +146,7 @@ def generate_citymodel(p):
     cm.extract_building_points(pc)
 
     # 6 is building classification
+    # if buildings are classified then we generally don't need this step
     if 6 not in pc.used_classifications and p["RANSACOutlierRemover"]:
         cm.building_points_RANSAC_outlier_remover()
 

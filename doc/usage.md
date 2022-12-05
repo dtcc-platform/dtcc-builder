@@ -28,7 +28,7 @@ and how to visualize the generated city models and meshes are
 described in detail below.
 
 > **Note:** Running `dtcc-generate-mesh` on an Apple M1 processor is 
-> currently not fully supported due to problems with the M1 processor and 
+> currently not supported due to problems with the M1 processor and 
 > the triangle library. 
  
 > **Note:** To run the demo, you first need to build and install DTCC Builder. You

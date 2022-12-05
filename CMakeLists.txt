@@ -23,20 +23,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # Add clang tools
 include(cmake/clang-cxx-dev-tools.cmake)
+include(cmake/FindLibGEOS.cmake)
 
 # Find packages
-find_package(ShapeLib REQUIRED)
-find_package(LibLAS)
 find_package(PugiXML REQUIRED)
 find_package(PROJ4 REQUIRED)
 find_package(Triangle REQUIRED)
-find_package(netCDF REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(assimp REQUIRED)
-find_package(GDAL REQUIRED)
-find_package(PNG REQUIRED)
-find_package(LibGEOS REQUIRED)
+find_package(LibGEOS 3.16 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
+message("libgeos library "${LIBGEOS_LIBRARIES})
 # Find pybind11
 set(pybind11_DIR /usr/lib/cmake/pybind11)
 find_package(pybind11 REQUIRED)
@@ -82,6 +80,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(/usr/include/nlohmann/)
+include_directories(/usr/include/eigen3/)
+
 
 link_directories(/usr/local/lib) # Equivalent of ldconfig /usr/local/lib in Dockerfile
 
@@ -92,8 +92,8 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 # Add subdirectories
 # add_subdirectory(dtcc-info)
 # add_subdirectory(dtcc-plot)
-add_subdirectory(dtcc-generate-citymodel)
-add_subdirectory(dtcc-generate-mesh)
+#add_subdirectory(dtcc-generate-citymodel)
+#add_subdirectory(dtcc-generate-mesh)
 add_subdirectory(dtcc-pybuilder)
 
 # add_subdirectory(dtcc-generate-roadnetwork)

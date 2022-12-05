@@ -2,25 +2,17 @@ from dtccpybuilder import _pybuilder
 
 import numpy
 import fiona
+
+from dtcc.io import CityModelIO
+
 from shapely.geometry import Polygon
 from dtccpybuilder.PointCloud import PointCloud
 from dtccpybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple
 from dtccpybuilder.Parameters import load_parameters
 
-
-def building_bounds(shp_footprint_file, buffer=0):
-    """calculate the bounding box of a shp file without loading it"""
-    with fiona.open(shp_footprint_file) as c:
-        bbox = c.bounds
-    if buffer != 0:
-        px, py, qx, qy = bbox
-        bbox = (px - buffer, py - buffer, qx + buffer, qy + buffer)
-    return bbox
-
-
 class CityModel:
-    def __init__(self, shp_footprints=None, parameters=None, bounds=None):
+    def __init__(self, footprints_file=None, parameters=None, bounds=None):
         if parameters is None:
             parameters = load_parameters()
         self.parameters = parameters
@@ -31,8 +23,10 @@ class CityModel:
         self.simplified = False
         self.extracted_points = False
         self.calculated_heights = False
-        if shp_footprints is not None:
-            self.generate_citymodel(shp_footprints)
+        if footprints_file is not None:
+            cm_pb = CityModelIO.read(footprints_file,id=parameters["UUIDField"],area_filter=p["MinBuildingSize"], bounds= bounds,min_edge_distance = p["MinBuildingDistance"], return_serialized = True)
+            self.load_protobuf(cm_pb)
+
 
     def get_buildings(self):
         if self._builder_cm is None:

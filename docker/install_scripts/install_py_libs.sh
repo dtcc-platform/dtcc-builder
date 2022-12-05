@@ -6,6 +6,7 @@ python3 -m pip install \
     protobuf==3.20.* \
 	pybind11==2.10.* \
 	shapely \
-    setuptools
+    setuptools \
+    meshio
 
-apt-get install -y python3-fiona
+apt-get install -y python3-fiona python3-rasterio
