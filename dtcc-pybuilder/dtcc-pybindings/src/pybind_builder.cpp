@@ -14,7 +14,6 @@
 #include "ElevationModelGenerator.h"
 #include "GridField.h"
 #include "JSON.h"
-#include "LAS.h"
 #include "LaplacianSmoother.h"
 #include "Logging.h"
 #include "Mesh.h"
@@ -24,7 +23,7 @@
 #include "Point.h"
 #include "PointCloud.h"
 #include "Polygon.h"
-#include "SHP.h"
+#include "Protobuf.h"
 #include "Surface.h"
 #include "VertexSmoother.h"
 
@@ -34,32 +33,6 @@ namespace DTCC_BUILDER
 {
 
 // CityModel
-CityModel GenerateCityModel(std::string shp_file,
-                            py::tuple bounds,
-                            double minBuildingDistance,
-                            double minBuildingSize)
-{
-  std::vector<Polygon> footprints;
-  std::vector<std::string> UUIDs;
-  std::vector<int> entityIDs;
-
-  auto loading_timer = Timer("load data");
-  SHP::Read(footprints, shp_file, &UUIDs, &entityIDs);
-  info("Loaded " + str(footprints.size()) + " building footprints");
-
-  CityModel cityModel;
-  double px = bounds[0].cast<double>();
-  double py = bounds[1].cast<double>();
-  double qx = bounds[2].cast<double>();
-  double qy = bounds[3].cast<double>();
-  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
-
-  CityModelGenerator::GenerateCityModel(cityModel, footprints, UUIDs, entityIDs,
-                                        bbox, minBuildingDistance,
-                                        minBuildingSize);
-
-  return cityModel;
-}
 
 CityModel SetCityModelOrigin(CityModel &cityModel, py::tuple origin)
 {
@@ -163,55 +136,13 @@ py::bytes convertSurface3DToProtobuf(const Surface3D &surface)
   return pb;
 }
 
-// PointCloud
-PointCloud LASReadDirectory(std::string las_directory,
-                            py::tuple bounds,
-                            bool extra_data = true)
-{
-  PointCloud pc;
-  if (bounds.size() == 4)
-  {
-    double px = bounds[0].cast<double>();
-    double py = bounds[1].cast<double>();
-    double qx = bounds[2].cast<double>();
-    double qy = bounds[3].cast<double>();
-    auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
-    LAS::ReadDirectory(pc, las_directory, bbox, extra_data);
-  }
-  else
-  {
-    LAS::ReadDirectory(pc, las_directory, extra_data);
-  }
-  return pc;
-}
-
-PointCloud
-LASReadFile(std::string las_file, py::tuple bounds, bool extra_data = true)
-{
-  PointCloud pc;
-  if (bounds.size() == 4)
-  {
-    double px = bounds[0].cast<double>();
-    double py = bounds[1].cast<double>();
-    double qx = bounds[2].cast<double>();
-    double qy = bounds[3].cast<double>();
-    auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
-    LAS::Read(pc, las_file, bbox, extra_data);
-  }
-  else
-  {
-    LAS::Read(pc, las_file, extra_data);
-  }
-  return pc;
-}
-
-py::tuple LASBounds(std::string las_directory)
-{
-  BoundingBox2D bb;
-  LAS::BoundsDirectory(bb, las_directory);
-  py::tuple bbox = py::make_tuple(bb.P.x, bb.P.y, bb.Q.x, bb.Q.y);
-  return bbox;
-}
+// py::tuple LASBounds(std::string las_directory)
+// {
+//   BoundingBox2D bb;
+//   LAS::BoundsDirectory(bb, las_directory);
+//   py::tuple bbox = py::make_tuple(bb.P.x, bb.P.y, bb.Q.x, bb.Q.y);
+//   return bbox;
+// }
 
 PointCloud SetPointCloudOrigin(PointCloud &pointCloud, py::tuple origin)
 {
@@ -480,9 +411,6 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.doc() = "python bindings for dtcc-builder";
 
-  m.def("GenerateCityModel", &DTCC_BUILDER::GenerateCityModel,
-        "load shp file into city model");
-
   m.def("SetCityModelOrigin", &DTCC_BUILDER::SetCityModelOrigin,
         "Set Origin on CityModel");
 
@@ -504,14 +432,6 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("ExtractBuildingPoints", &DTCC_BUILDER::ExtractBuildingPoints,
         "extarct points from point cloud for each building");
-
-  m.def("LASReadDirectory", &DTCC_BUILDER::LASReadDirectory,
-        "load all .las files in directory");
-
-  m.def("LASReadFile", &DTCC_BUILDER::LASReadFile, "load .las file");
-
-  m.def("LASBounds", &DTCC_BUILDER::LASBounds,
-        "calculate bounding box of all .las files in directorty");
 
   m.def("SetPointCloudOrigin", &DTCC_BUILDER::SetPointCloudOrigin,
         "set point cloud origin");
