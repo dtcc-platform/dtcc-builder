@@ -1,3 +1,6 @@
+# Copyright (C) 2022 Dag Wästberg
+# Licensed under the MIT License
+
 from dtccpybuilder import _pybuilder
 
 
