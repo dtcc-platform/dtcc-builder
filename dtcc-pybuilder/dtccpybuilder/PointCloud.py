@@ -15,10 +15,9 @@ def calc_las_bounds(las_path):
 
 class PointCloud:
     """Class for storing point cloud object"""
+
     def __init__(self, las_path=None, bounds=()):
-        """
-        
-        """
+        """ """
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds
