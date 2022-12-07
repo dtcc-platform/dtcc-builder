@@ -1,6 +1,6 @@
 # Project configuration
 cmake_minimum_required(VERSION 3.5)
-project(Core)
+project(Builder)
 
 # Note: To building in Debug mode, use cmake .. -DCMAKE_BUILD_TYPE=Debug
 
@@ -26,15 +26,12 @@ include(cmake/clang-cxx-dev-tools.cmake)
 include(cmake/FindLibGEOS.cmake)
 
 # Find packages
-find_package(PugiXML REQUIRED)
-find_package(PROJ4 REQUIRED)
 find_package(Triangle REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(assimp REQUIRED)
 find_package(LibGEOS 3.16 REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-message("libgeos library "${LIBGEOS_LIBRARIES})
 # Find pybind11
 set(pybind11_DIR /usr/lib/cmake/pybind11)
 find_package(pybind11 REQUIRED)
@@ -68,16 +65,16 @@ include(${VTK_USE_FILE})
 
 # Build protobuf
 ADD_SUBDIRECTORY(dtcc-model/protobuf)
+INCLUDE(FindProtobuf)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/dtcc-model)
 include_directories(${CMAKE_SOURCE_DIR}/dtcc-model)
 
-ADD_SUBDIRECTORY(dtcc-model/datamodel_io)
+#ADD_SUBDIRECTORY(dtcc-model/datamodel_io)
 
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
-include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)
@@ -95,20 +92,6 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 #add_subdirectory(dtcc-generate-citymodel)
 #add_subdirectory(dtcc-generate-mesh)
 add_subdirectory(dtcc-pybuilder)
-
-# add_subdirectory(dtcc-generate-roadnetwork)
-# add_subdirectory(dtcc-randomize-citymodel)
-# add_subdirectory(dtcc-smooth-ground-mesh)
-# add_subdirectory(dtcc-color-pointcloud)
-# add_subdirectory(dtcc-convert-shp2geojson)
-# add_subdirectory(dtcc-convert-geojson2shp)
-# add_subdirectory(dtcc-assimp-hello-world)
-# add_subdirectory(dtcc-assimp-normals)
-# add_subdirectory(dtcc-generate-cityjson-from-mesh)
-# add_subdirectory(dtcc-offset-geojson)
-# add_subdirectory(dtcc-read-netcdf)
-# add_subdirectory(dtcc-sandbox)
-# add_subdirectory(dtcc-iotools)
 add_subdirectory(unittests)
 
 # Print all variables (uncomment for CMake debugging)

@@ -1,11 +1,9 @@
 from dtccpybuilder import _pybuilder
 
 import numpy
-import fiona
 
 from dtcc import io
 
-from shapely.geometry import Polygon
 from dtccpybuilder.PointCloud import PointCloud
 from dtccpybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple

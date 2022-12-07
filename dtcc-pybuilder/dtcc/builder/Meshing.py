@@ -1,6 +1,5 @@
 from dtccpybuilder import _pybuilder
 import os
-import numpy
 from typing import List, Tuple
 from dtccpybuilder.CityModel import CityModel
 from dtccpybuilder.ElevationModel import ElevationModel

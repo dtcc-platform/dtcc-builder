@@ -15,7 +15,6 @@
 #include "GEOS.h"
 #include "GridField.h"
 #include "Logging.h"
-#include "Plotting.h"
 #include "PointCloud.h"
 #include "PointCloudProcessor.h"
 #include "Polyfix.h"

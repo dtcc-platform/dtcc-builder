@@ -13,7 +13,6 @@
 #include "CityModelGenerator.h"
 #include "ElevationModelGenerator.h"
 #include "GridField.h"
-#include "JSON.h"
 #include "LaplacianSmoother.h"
 #include "Logging.h"
 #include "Mesh.h"
@@ -103,17 +102,17 @@ CityModel ComputeBuildingHeights(CityModel &cityModel,
   return cityModel;
 }
 
-void WriteCityModelJSON(const CityModel &cityModel, std::string path)
-{
-  JSON::Write(cityModel, path, cityModel.Origin);
-}
+// void WriteCityModelJSON(const CityModel &cityModel, std::string path)
+// {
+//   JSON::Write(cityModel, path, cityModel.Origin);
+// }
 
-CityModel ReadCityModelJSON(std::string path)
-{
-  CityModel cityModel;
-  JSON::Read(cityModel, path);
-  return cityModel;
-}
+// CityModel ReadCityModelJSON(std::string path)
+// {
+//   CityModel cityModel;
+//   JSON::Read(cityModel, path);
+//   return cityModel;
+// }
 
 CityModel loadCityModelProtobuf(std::string protobuf_string)
 {
@@ -191,22 +190,22 @@ double MinElevation(const GridField2D &gf) { return gf.Min(); }
 
 double MaxElevation(const GridField2D &gf) { return gf.Max(); }
 
-bool WriteElevationModelJSON(const GridField2D &gf,
-                             std::string(outfile),
-                             py::tuple origin)
-{
-  double px = origin[0].cast<double>();
-  double py = origin[1].cast<double>();
-  JSON::Write(gf, outfile, Point2D(px, py));
-  return true;
-}
+// bool WriteElevationModelJSON(const GridField2D &gf,
+//                              std::string(outfile),
+//                              py::tuple origin)
+// {
+//   double px = origin[0].cast<double>();
+//   double py = origin[1].cast<double>();
+//   JSON::Write(gf, outfile, Point2D(px, py));
+//   return true;
+// }
 
-GridField2D LoadElevationModelJSON(std::string infile)
-{
-  GridField2D gf;
-  JSON::Read(gf, infile);
-  return gf;
-}
+// GridField2D LoadElevationModelJSON(std::string infile)
+// {
+//   GridField2D gf;
+//   JSON::Read(gf, infile);
+//   return gf;
+// }
 
 // Meshing
 
@@ -455,11 +454,11 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("ComputeBuildingHeights", &DTCC_BUILDER::ComputeBuildingHeights,
         "Calculate building heights based on point cloud and dtm data");
 
-  m.def("WriteCityModelJSON", &DTCC_BUILDER::WriteCityModelJSON,
-        "Write CityModel to JSON");
+  // m.def("WriteCityModelJSON", &DTCC_BUILDER::WriteCityModelJSON,
+  //       "Write CityModel to JSON");
 
-  m.def("ReadCityModelJSON", &DTCC_BUILDER::ReadCityModelJSON,
-        "Load CityModel from JSON");
+  // m.def("ReadCityModelJSON", &DTCC_BUILDER::ReadCityModelJSON,
+  //       "Load CityModel from JSON");
 
   m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
         "generate height field from point cloud");
@@ -467,11 +466,11 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
         "Smooth  elevation grid field");
 
-  m.def("WriteElevationModelJSON", &DTCC_BUILDER::WriteElevationModelJSON,
-        "Write elevation model to JSON");
+  // m.def("WriteElevationModelJSON", &DTCC_BUILDER::WriteElevationModelJSON,
+  //       "Write elevation model to JSON");
 
-  m.def("LoadElevationModelJSON", &DTCC_BUILDER::LoadElevationModelJSON,
-        "Load elevation model from JSON");
+  // m.def("LoadElevationModelJSON", &DTCC_BUILDER::LoadElevationModelJSON,
+  //       "Load elevation model from JSON");
 
   m.def("MeanElevation", &DTCC_BUILDER::MeanElevation, "Mean elevation");
 

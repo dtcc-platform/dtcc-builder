@@ -5,6 +5,7 @@
 #define DTCC_POINT_CLOUD_PROCESSOR_H
 
 #include <Eigen/SVD>
+#include <fstream>
 #include <math.h>
 #include <random>
 

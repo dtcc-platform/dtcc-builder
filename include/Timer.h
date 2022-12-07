@@ -8,7 +8,7 @@
 #include <map>
 #include <utility>
 
-#include "JSON.h"
+// #include "JSON.h"
 
 namespace DTCC_BUILDER
 {
@@ -108,7 +108,7 @@ public:
     info(table);
 
     // Write JSON
-    JSON::Write(timings, fileName, 4);
+    // JSON::Write(timings, fileName, 4);
   }
 
 private:

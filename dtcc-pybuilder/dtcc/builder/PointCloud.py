@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy
 from typing import List, Tuple
-from Utils import bounds_union
 
 
 class PointCloud:
