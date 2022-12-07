@@ -81,10 +81,10 @@ def get_project_paths(path):
 
 def calc_project_domain(p):
     if p["AutoDomain"]:
-        footprint_bounds = CityModelIO.building_bounds(
+        footprint_bounds = Citbuilding_bounds(
             p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
         )
-        las_bounds = calc_las_bounds(p["DataDirectory"])
+        las_bounds = PointCloudIO.calc_las_bounds(p["DataDirectory"])
         domain_bounds = bounds_intersect(footprint_bounds, las_bounds)
         origin = domain_bounds[:2]
         p["X0"] = origin[0]

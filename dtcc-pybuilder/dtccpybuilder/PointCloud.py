@@ -1,24 +1,18 @@
 from dtccpybuilder import _pybuilder
 import os
+
+from pathlib import Path
+
 import numpy
 from typing import List, Tuple
-
-
-def calc_las_bounds(las_path):
-    las_path = str(las_path)
-    if not os.path.isdir(las_path):
-        print(f"{las_path} is not a directory")
-        return None
-    bbox = _pybuilder.LASBounds(las_path)
-    return bbox
+from Utils import bounds_union
 
 
 class PointCloud:
     """Class for storing point cloud object"""
+
     def __init__(self, las_path=None, bounds=()):
-        """
-        
-        """
+        """ """
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds
@@ -68,7 +62,7 @@ class PointCloud:
         x_max, y_max, z_max = pts.max(axis=0)
         return (x_min, y_min, x_max, y_max)
 
-    def init_with_protobuf(self, protobuf_string: str):
+    def from_protobuf(self, protobuf_string: bytes):
         self._builder_pc = _pybuilder.loadPointCloudProtobuf(protobuf_string)
 
     def to_protobuf(self) -> str:

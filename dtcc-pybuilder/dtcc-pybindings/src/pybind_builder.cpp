@@ -136,13 +136,6 @@ py::bytes convertSurface3DToProtobuf(const Surface3D &surface)
   return pb;
 }
 
-// py::tuple LASBounds(std::string las_directory)
-// {
-//   BoundingBox2D bb;
-//   LAS::BoundsDirectory(bb, las_directory);
-//   py::tuple bbox = py::make_tuple(bb.P.x, bb.P.y, bb.Q.x, bb.Q.y);
-//   return bbox;
-// }
 
 PointCloud SetPointCloudOrigin(PointCloud &pointCloud, py::tuple origin)
 {

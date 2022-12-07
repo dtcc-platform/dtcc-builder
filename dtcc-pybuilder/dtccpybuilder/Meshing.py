@@ -72,7 +72,7 @@ def write_VTK_surface3D(surface: _pybuilder.Surface3D, out_file):
 
 
 def write_Protobuf_surface3D(surface: _pybuilder.Surface3D, out_file):
-    with open(out_file, 'wb') as f:
+    with open(out_file, "wb") as f:
         pb = _pybuilder.convertSurface3DToProtobuf(surface)
         f.write(pb)
 

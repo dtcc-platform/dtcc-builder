@@ -11,6 +11,7 @@ from dtccpybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple
 from dtccpybuilder.Parameters import load_parameters
 
+
 class CityModel:
     def __init__(self, footprints_file=None, parameters=None, bounds=None):
         if parameters is None:
@@ -24,9 +25,15 @@ class CityModel:
         self.extracted_points = False
         self.calculated_heights = False
         if footprints_file is not None:
-            cm_pb = CityModelIO.read(footprints_file,id=parameters["UUIDField"],area_filter=p["MinBuildingSize"], bounds= bounds,min_edge_distance = p["MinBuildingDistance"], return_serialized = True)
+            cm_pb = CityModelIO.read(
+                footprints_file,
+                id=parameters["UUIDField"],
+                area_filter=p["MinBuildingSize"],
+                bounds=bounds,
+                min_edge_distance=p["MinBuildingDistance"],
+                return_serialized=True,
+            )
             self.load_protobuf(cm_pb)
-
 
     def get_buildings(self):
         if self._builder_cm is None:
