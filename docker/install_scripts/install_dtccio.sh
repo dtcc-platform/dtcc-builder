@@ -4,10 +4,13 @@ cd dtcc-io
 git submodule update --init --recursive
 cd dtcc-model
 git checkout develop
+git pull
 cd ..
 
 mkdir build && cd build
 cmake ..
 make -j4 && make install
-cd ..
-python3 -m pip install .
+cd ../..
+rm -rf dtcc-io
+
+

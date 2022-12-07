@@ -3,7 +3,7 @@ from dtccpybuilder import _pybuilder
 import numpy
 import fiona
 
-from dtcc.io import CityModelIO
+from dtcc import io
 
 from shapely.geometry import Polygon
 from dtccpybuilder.PointCloud import PointCloud
@@ -25,7 +25,7 @@ class CityModel:
         self.extracted_points = False
         self.calculated_heights = False
         if footprints_file is not None:
-            cm_pb = CityModelIO.read(
+            cm_pb = io.citymodel.read(
                 footprints_file,
                 id=parameters["UUIDField"],
                 area_filter=p["MinBuildingSize"],
@@ -49,7 +49,7 @@ class CityModel:
     def generate_citymodel(self, shp_footprint_file):
         """load shp file of building footprints"""
         if self.bounds is None:
-            self.bounds = building_bounds(
+            self.bounds = io.citymodel.building_bounds(
                 shp_footprint_file, self.parameters["DomainMargin"]
             )
         self._builder_cm = _pybuilder.GenerateCityModel(
