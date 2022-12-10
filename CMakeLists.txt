@@ -109,7 +109,7 @@ add_subdirectory(dtcc-pybuilder)
 # add_subdirectory(dtcc-generate-cityjson-from-mesh)
 # add_subdirectory(dtcc-offset-geojson)
 # add_subdirectory(dtcc-read-netcdf)
-# add_subdirectory(dtcc-sandbox)
+ add_subdirectory(dtcc-sandbox)
 # add_subdirectory(dtcc-iotools)
 add_subdirectory(unittests)
 
