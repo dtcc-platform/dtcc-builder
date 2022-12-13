@@ -1,0 +1,33 @@
+syntax = "proto3";
+package RoadNetwork;
+
+message Vector2D
+{
+  float x = 1;
+  float y = 2;
+}
+
+message Georeference
+{
+  string crs = 1;
+  int32 epsg = 2;
+  float x0 = 3;
+  float y0 = 4;
+}
+
+message Road
+{
+    repeated int32 vertices = 1;
+    int32 type = 2;
+    string name = 3;  
+    float width = 4; 
+    int32 lanes = 5;
+    string id = 6;
+}
+
+message RoadNetwork
+{
+    repeated Vector2D vertex = 1;
+    repeated Road roads = 2;
+    Georeference georeference = 3;
+}
