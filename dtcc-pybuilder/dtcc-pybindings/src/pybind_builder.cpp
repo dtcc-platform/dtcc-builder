@@ -335,8 +335,8 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readwrite("height", &DTCC_BUILDER::Building::Height)
       .def_readwrite("groundHeight", &DTCC_BUILDER::Building::GroundHeight)
       .def_readonly("footprint", &DTCC_BUILDER::Building::Footprint)
-      .def_readonly("grounPoints", &DTCC_BUILDER::Building::GroundPoints)
-      .def_readonly("roofPoints", &DTCC_BUILDER::Building::RoofPoints);
+      .def_readonly("groun_points", &DTCC_BUILDER::Building::GroundPoints)
+      .def_readonly("roof_points", &DTCC_BUILDER::Building::RoofPoints);
 
   py::class_<DTCC_BUILDER::Point2D>(m, "Point2D")
       .def(py::init<>())

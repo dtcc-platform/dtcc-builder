@@ -12,6 +12,7 @@ apt-get update && apt-get install -y \
     libpng++-dev \
     clang-format \
     clang-tidy \
+    libpthread-stubs0-dev \
     doxygen graphviz\
     libgeotiff-dev\
     zlib1g \

@@ -1,4 +1,7 @@
-from dtccpybuilder import _pybuilder
+from google.protobuf.json_format import MessageToJson
+
+from dtcc.builder import _pybuilder
+from dtcc import io
 import os
 
 from pathlib import Path
@@ -10,14 +13,16 @@ from typing import List, Tuple
 class PointCloud:
     """Class for storing point cloud object"""
 
-    def __init__(self, las_path=None, bounds=()):
+    def __init__(self, pointcloud_file=None, pb_sting = None, bounds=()):
         """ """
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds
         self.used_classifications = {}
-        if las_path is not None:
-            self.read_las_files(las_path)
+        if pointcloud_file is not None:
+            self.load_from_path(pointcloud_file)
+        if pb_sting is not None:
+            self.from_protobuf(pb_sting)
 
     def __len__(self):
         if self._builder_pc is None:
@@ -32,16 +37,12 @@ class PointCloud:
 
     points = property(_points_as_numpy)
 
-    def read_las_files(self, las_path, extra_data=True):
-        las_path = str(las_path)
-
-        # print(f"loading las from {las_path}")
-        if os.path.isdir(las_path):
-            pc = _pybuilder.LASReadDirectory(las_path, self.bounds, extra_data)
-        elif os.path.isfile(las_path):
-            pc = _pybuilder.LASReadFile(las_path, self.bounds, extra_data)
-        self._builder_pc = pc
-        self.used_classification = set(self._builder_pc.classifications)
+    def load_from_path(self, las_path, extra_data=True):
+        pb_string = io.pointcloud.read(las_path, points_classification_only = not extra_data, bounds = self.bounds, return_serialized=True)
+        if pb_string is not None:
+            self.from_protobuf(pb_string)
+        else:
+            raise Exception(f"Could not load point cloud from path {las_path}")
 
     def set_origin(self, origin: Tuple[float, float]):
         self.origin = origin
@@ -63,6 +64,13 @@ class PointCloud:
 
     def from_protobuf(self, protobuf_string: bytes):
         self._builder_pc = _pybuilder.loadPointCloudProtobuf(protobuf_string)
+        self.used_classification = set(self._builder_pc.classifications)
 
     def to_protobuf(self) -> str:
         return _pybuilder.convertPointCloudToProtobuf(self._builder_pc)
+
+    def to_json(self, output_path: Path):
+        pbpc = io.dtcc_model.protobuf.dtcc_pb2.PointCloud()
+        with open(output_path, "w") as f:
+            f.write(MessageToJson(pbpc.FromString(self.to_protobuf())))
+        

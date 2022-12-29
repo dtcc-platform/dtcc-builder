@@ -5,13 +5,14 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import unittest
 
-from dtccpybuilder import _pybuilder
-from dtccpybuilder.Parameters import load_parameters
+from dtcc import io
+from dtcc.builder import _pybuilder
+from dtcc.builder import Parameters
 
-from dtccpybuilder.PointCloud import PointCloud, calc_las_bounds
+from dtcc.builder import PointCloud
 
-data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
-p = load_parameters(data_dir / "MinimalCase" / "Parameters.json")
+data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
+p = Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")
 
 
 class TestLoadPointCloud(unittest.TestCase):
@@ -37,7 +38,7 @@ class TestLoadPointCloud(unittest.TestCase):
         self.assertEqual(len(pc), 64)
 
     def test_las_bounds(self):
-        bbox = calc_las_bounds(data_dir / "MinimalCase")
+        bbox = io.pointcloud.calc_las_bounds(data_dir / "MinimalCase")
         self.assertIsNotNone(bbox)
         px, py, qx, qy = bbox
         self.assertAlmostEqual(px, -8.017474418)
@@ -65,12 +66,12 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(l, 8148)
         self.assertEqual(d, 3)
 
-    def test_to_protobuf(self):
+    def test_from_protobuf(self):
         pb_pc = str(data_dir / "MinimalCase" / "pointcloud.las.pb")
         with open(pb_pc, "rb") as src:
             pb_string = src.read()
         pc = PointCloud()
-        pc.load_protobuf(pb_string)
+        pc.from_protobuf(pb_string)
         self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
         self.assertEquals(len(pc), 8148)
 
@@ -78,6 +79,15 @@ class TestConvert(unittest.TestCase):
         pc = PointCloud(data_dir / "MinimalCase" / "pointcloud.las")
         protobuf = pc.to_protobuf()
         self.assertIsInstance(protobuf, bytes)
+
+    def test_roundtrip_protobuf(self):
+        pc = PointCloud(data_dir / "MinimalCase" / "pointcloud.las")
+        protobuf = pc.to_protobuf()
+        pc2 = PointCloud()
+        pc2.from_protobuf(protobuf)
+        self.assertIsInstance(pc2._builder_pc, _pybuilder.PointCloud)
+        self.assertEquals(len(pc2), 8148)
+
 
 
 if __name__ == "__main__":

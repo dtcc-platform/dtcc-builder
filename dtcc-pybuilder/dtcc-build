@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#
+
 # Copyright (C) 2022 Dag Wästberg
 # Licensed under the MIT License
 #
@@ -13,16 +13,8 @@ from pathlib import Path
 import os
 import re
 
-from dtcc.io import PointCloudIO, CityModelIO, MeshIO, ElevationModelIO
-
-from dtccpybuilder.CityModel import CityModel
-from dtccpybuilder.PointCloud import PointCloud, calc_las_bounds
-from dtccpybuilder.ElevationModel import ElevationModel
-from dtccpybuilder.Parameters import load_parameters
-from dtccpybuilder.Utils import bounds_intersect, bounds_area
-
-from dtccpybuilder import Meshing
-
+from dtcc import io
+from dtcc import builder
 
 def camel_to_kebab(name):
     name = re.sub("(.)([A-Z][a-z]+)", r"\1-\2", name)
@@ -81,11 +73,11 @@ def get_project_paths(path):
 
 def calc_project_domain(p):
     if p["AutoDomain"]:
-        footprint_bounds = Citbuilding_bounds(
+        footprint_bounds = io.citymodel.building_bounds(
             p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
         )
-        las_bounds = PointCloudIO.calc_las_bounds(p["DataDirectory"])
-        domain_bounds = bounds_intersect(footprint_bounds, las_bounds)
+        las_bounds = io.pointcloud.calc_las_bounds(p["DataDirectory"])
+        domain_bounds = io.bounds.bounds_intersect(footprint_bounds, las_bounds)
         origin = domain_bounds[:2]
         p["X0"] = origin[0]
         p["Y0"] = origin[1]
@@ -120,11 +112,11 @@ def set_directories(p, project_path):
 def generate_citymodel(p):
     origin, domain_bounds = calc_project_domain(p)
 
-    if bounds_area(domain_bounds) < 100:
+    if io.bounds.bounds_area(domain_bounds) < 100:
         print("Domain too small to generate a city model")
         sys.exit(1)
 
-    pc = PointCloud(p["PointCloudDirectory"], domain_bounds)
+    pc = builder.PointCloud(las_dir = p["PointCloudDirectory"], domain_bounds)
     if len(pc) == 0:
         print("Error: Point cloud in domain is empty")
         sys.exit(1)
@@ -140,7 +132,7 @@ def generate_citymodel(p):
     cm.clean_citymodel()
 
     dtm = ElevationModel(pc, p["ElevationModelResolution"], [2, 9])
-    dsm = ElevationModel(pc, p["ElevationModelResolution"])
+    #dsm = ElevationModel(pc, p["ElevationModelResolution"])
     dtm.smooth_elevation_model(p["GroundSmoothing"])
 
     cm.extract_building_points(pc)
@@ -237,7 +229,7 @@ def main(p, project_path, citymodel_only=False, mesh_only=False):
         # Write data to files
         if p["WriteJSON"]:
             cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
-            dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
+            #dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
         if p["WriteProtobuf"]:
             with open(p["OutputDirectory"] / "CityModel.pb", "wb") as dst:
                 dst.write(cm.to_protobuf())
@@ -298,9 +290,9 @@ if __name__ == "__main__":
 
     if not parameters_file.is_file():
         print(f"Warning!: cannot find {parameters_file} using default parameters")
-        parameters = load_parameters()
+        parameters = builder.Parameters.load_parameters()
     else:
-        parameters = load_parameters(parameters_file)
+        parameters = builder.Parameters.load_parameters(parameters_file)
 
     parameters = update_parameters_from_options(parameters, args, name_translator)
     main(parameters, project_path, args.citymodel_only, args.mesh_only)

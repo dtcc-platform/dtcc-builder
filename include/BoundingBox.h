@@ -61,6 +61,29 @@ namespace DTCC_BUILDER
       Q.y += margin;
     }
 
+    /// Create 2D bounding box of vector of 3D points.
+    ///
+    /// @param points Vector if points
+    /// @param margin Margin to use for bounding box
+    explicit BoundingBox2D(const std::vector<Point3D> &points,
+                           double margin = 0.0)
+    {
+      constexpr double max = std::numeric_limits<double>::max();
+      P.x = P.y = max;
+      Q.x = Q.y = -max;
+      for (const auto &p : points)
+      {
+        P.x = std::min(P.x, p.x);
+        P.y = std::min(P.y, p.y);
+        Q.x = std::max(Q.x, p.x);
+        Q.y = std::max(Q.y, p.y);
+      }
+      P.x -= margin;
+      P.y -= margin;
+      Q.x += margin;
+      Q.y += margin;
+    }
+
     /// Create bounding box of vector of polygons.
     ///
     /// @param points Vector of polygons

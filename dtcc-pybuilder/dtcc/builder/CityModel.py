@@ -1,19 +1,22 @@
-from dtccpybuilder import _pybuilder
+from google.protobuf.json_format import MessageToJson
+
+from dtcc.builder import _pybuilder
 
 import numpy
 
 from dtcc import io
+from dtcc.builder import PointCloud, Parameters, ElevationModel
 
-from dtccpybuilder.PointCloud import PointCloud
-from dtccpybuilder.ElevationModel import ElevationModel
+# from dtccpybuilder.PointCloud import PointCloud
+# from dtccpybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple
-from dtccpybuilder.Parameters import load_parameters
+# from dtccpybuilder.Parameters import load_parameters
 
 
 class CityModel:
-    def __init__(self, footprints_file=None, parameters=None, bounds=None):
+    def __init__(self, footprints_file=None, pb_string = None, parameters=None, bounds=None):
         if parameters is None:
-            parameters = load_parameters()
+            parameters = Parameters.load_parameters()
         self.parameters = parameters
         self.bounds = bounds
         self._builder_cm = None
@@ -25,13 +28,15 @@ class CityModel:
         if footprints_file is not None:
             cm_pb = io.citymodel.read(
                 footprints_file,
-                id=parameters["UUIDField"],
-                area_filter=p["MinBuildingSize"],
+                uuid_field=parameters["UUIDField"],
+                area_filter=self.parameters["MinBuildingSize"],
                 bounds=bounds,
-                min_edge_distance=p["MinBuildingDistance"],
+                min_edge_distance=self.parameters["MinBuildingDistance"],
                 return_serialized=True,
             )
             self.load_protobuf(cm_pb)
+        if pb_string is not None:
+            self.load_protobuf(pb_string)
 
     def get_buildings(self):
         if self._builder_cm is None:
@@ -143,13 +148,21 @@ class CityModel:
         )
         self.calculated_heights = True
 
+    def get_building_roof_points(self, building_idx):
+        roof_pts = self.buildings[building_idx].roof_points
+        roof_pts = [[p.x, p.y, p.z] for p in roof_pts]
+        return numpy.array(roof_pts)
+
     def to_JSON(self, outfile):
         """serialize CItyModel to a JSON file"""
-        _pybuilder.WriteCityModelJSON(self._builder_cm, str(outfile))
+        pbcm = io.dtcc_model.protobuf.dtcc_pb2.CityModel() 
+        with open(outfile, "w") as f:
+            f.write(MessageToJson(pbcm.FromString(self.to_protobuf())))
+        
 
-    def from_JSON(self, infile):
-        """Load CityModel from JSON file"""
-        self._builder_cm = _pybuilder.ReadCityModelJSON(str(infile))
+    # def from_JSON(self, infile):
+    #     """Load CityModel from JSON file"""
+    #     self._builder_cm = _pybuilder.ReadCityModelJSON(str(infile))
 
     def load_protobuf(self, protobuf_string: str):
         """load CityModel from a CityModel protobuf string"""
@@ -159,12 +172,6 @@ class CityModel:
         """convert CityModel to protobuf string"""
         return _pybuilder.convertCityModelToProtobuf(self._builder_cm)
 
-
-###WIP
-def get_building_roof_points(building: _pybuilder.Building):
-    roof_pts = building.roofPoints
-    roof_pts = [[p.x, p.y, p.z] for p in roof_pts]
-    return numpy.array(roof_pts)
 
 
 def get_building_footprint(building: _pybuilder.Building):

@@ -55,6 +55,8 @@ public:
     return static_cast<double>(Points.size()) / BoundingBox.Area();
   }
 
+  void CalculateBoundingBox() { BoundingBox = BoundingBox2D(Points); }
+
   /// Set new origin (subtract offset). Note that this only
   /// affects the x and y coordinates (z unaffected).
   void SetOrigin(const Point2D &origin)

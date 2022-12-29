@@ -1,10 +1,13 @@
-from dtccpybuilder import _pybuilder
+from google.protobuf.json_format import MessageToJson
+
+from dtcc.builder import _pybuilder
 
 
 class ElevationModel:
     def __init__(self, point_cloud=None, resolution=1, included_classifications=[]):
         self.included_classifications = list(map(int, included_classifications))
         self.resolution = resolution
+        self.bounds = (0, 0, 0, 0)
         if point_cloud is not None:
             self._grid_field = _pybuilder.GenerateElevationModel(
                 point_cloud._builder_pc, resolution, included_classifications
@@ -29,10 +32,3 @@ class ElevationModel:
 
     def max(self):
         return _pybuilder.MaxElevation(self._grid_field)
-
-    def to_JSON(self, outfile, origin):
-        _pybuilder.WriteElevationModelJSON(self._grid_field, str(outfile), origin)
-
-    def from_JSON(self, infile):
-        self._grid_field = _pybuilder.LoadElevationModelJSON(str(infile))
-        self.calc_bounds()

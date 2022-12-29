@@ -1,6 +1,8 @@
-import dtcc.builder.CityModel as CityModel
-import dtcc.builder.ElevationModel as ElevationModel
-import dtcc.builder.PointCloud as PointCloud
-import dtcc.builder.Parameters as Parameters
-import dtcc.builder.Meshing as Meshing
+
+from dtcc.builder.CityModel import CityModel
+from dtcc.builder.ElevationModel import ElevationModel
+from dtcc.builder.PointCloud import PointCloud
+from dtcc.builder.PointCloud import PointCloud
+from dtcc.builder import _pybuilder
+
 from dtcc.builder.Parameters import load_parameters

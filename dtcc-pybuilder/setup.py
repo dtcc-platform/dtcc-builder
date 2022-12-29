@@ -18,7 +18,7 @@ install_requires = [
 
 setup_kwargs = {
     "name": "dtcc-pybuilder",
-    "version": "0.4.2",
+    "version": "0.5.1",
     "description": "python bindings for dtcc-builder",
     "author": "Dag Wästberg",
     "author_email": "dwastberg@gmail.com",

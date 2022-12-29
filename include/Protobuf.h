@@ -109,6 +109,7 @@ public:
     {
       pc.Points.push_back(Point3D(pts.x(), pts.y(), pts.z()));
     }
+    pc.CalculateBoundingBox();
 
     if (pb_pc.classification_size() > 0)
     {
