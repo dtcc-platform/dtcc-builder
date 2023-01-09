@@ -15,6 +15,7 @@ supported by Sweden’s Innovation Agency Vinnova under Grant No. 2019-421 00041
 * [Installation](./doc/installation.md)
 * [Usage](./doc/usage.md)
 * [Development](./doc/development.md)
+* [Contributing](./doc/contributing.md)
 
 ## Authors (in order of appearance)
 
