@@ -55,11 +55,3 @@ the ones named `by_get.*` and `vl_*`.
 
 The unit of length is metres relative to the SWEREF99 TM (EPSG:3006)
 coordinate system.
-
-## Tips & tricks
-
-If you are using Windows, you might want to make sure that Git does
-not convert Unix-style file endings on checkout. This can be
-accomplished by:
-
-    git config --global dtcc-builder.autocrlf false
