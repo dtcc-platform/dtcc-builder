@@ -96,7 +96,7 @@ is to utilize the special geometry of city models to reduce the 3D
 mesh generation problem to a 2D problem. A 2D mesh respecting the
 polygonal footprints of buildings is generated and then layered to
 create a 3D mesh. Building heights and ground height are incorporated
-through a PDE-based smoothing process. The method and algorihtms are
+through a PDE-based smoothing process. The method and algorithms are
 described in detail in the paper [@naserentinDigitalTwinsCity2022].
 
 DTCC Builder is implemented in C++ and makes use of several
