@@ -1,3 +1,8 @@
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+
 #include "protobuf/dtcc.pb.h"
 #include "protobuf/include/PointCloudMethods.h"
 
@@ -12,8 +17,10 @@ TEST_CASE("Protobuf to PointCloud")
   {
     std::string pbFilePath = RootPath + "data/MinimalCase/pointcloud.las.pb";
     DTCC::PointCloud pb_pointCloud;
-    std::fstream input(pbFilePath, std::ios::in | std::ios::binary);
-    REQUIRE(pb_pointCloud.ParseFromIstream(&input));
+    std::ifstream input(pbFilePath, std::ios::in | std::ios::binary);
+    std::string pbString(std::istreambuf_iterator<char>(input), {});
+
+    REQUIRE(pb_pointCloud.ParseFromString(pbString));
     REQUIRE(pb_pointCloud.points().size() == 8148);
   }
 
@@ -22,7 +29,8 @@ TEST_CASE("Protobuf to PointCloud")
     std::string pbFilePath = RootPath + "data/MinimalCase/pointcloud.las.pb";
     DTCC::PointCloud pb_pointCloud;
     std::fstream input(pbFilePath, std::ios::in | std::ios::binary);
-    pb_pointCloud.ParseFromIstream(&input);
+    std::string pbString(std::istreambuf_iterator<char>(input), {});
+    pb_pointCloud.ParseFromString(pbString);
     PointCloud pc = Protobuf::LoadPointCloud(pb_pointCloud);
 
     REQUIRE(pc.Points.size() == 8148);
