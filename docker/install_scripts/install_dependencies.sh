@@ -44,4 +44,3 @@ apt-get update && apt-get install -y \
 #./install_libLAS.sh
 #./install_VTK.sh
 ./install_py_libs.sh
-./install_dtccio.sh
