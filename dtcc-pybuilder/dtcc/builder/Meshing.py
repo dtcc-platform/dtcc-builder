@@ -77,7 +77,7 @@ def write_Protobuf_surface3D(surface: _pybuilder.Surface3D, out_file):
 
 
 def write_surface(surface, file_name, format="", y_up=None):
-    supported_formats = ["obj", "stl", "gltf"]
+    supported_formats = ["obj", "stl", "gltf", "gltf2"]
     y_up_format = ["obj", "gltf"]
     if not format:
         format = os.path.splitext(file_name)[-1][1:].lower()

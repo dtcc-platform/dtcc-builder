@@ -7,5 +7,5 @@ set(PROGRAM run-unittests)
 #MESSAGE("${outVar}")
 
 add_executable(${PROGRAM} ${PROGRAM}.cpp)
-target_link_libraries(${PROGRAM} ${PUGIXML_LIBRARIES} ${LIBGEOS_LIBRARIES} ${PROTOBUF_LIBRARY} Threads::Threads shp uuid las dtccproto )
+target_link_libraries(${PROGRAM} ${PUGIXML_LIBRARIES} ${LIBGEOS_LIBRARIES} ${PROTOBUF_LIBRARY} Threads::Threads uuid dtccproto )
 install(TARGETS ${PROGRAM} DESTINATION bin)

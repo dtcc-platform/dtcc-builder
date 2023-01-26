@@ -39,8 +39,8 @@ apt-get update && apt-get install -y \
     libprotobuf-dev \
     protobuf-compiler
 
-./install_assimp.sh
+# ./install_assimp.sh
 ./install_libgeos.sh
-./install_libLAS.sh
+# ./install_libLAS.sh
 ./install_VTK.sh
 ./install_py_libs.sh

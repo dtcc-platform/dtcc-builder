@@ -28,7 +28,7 @@ include(cmake/FindLibGEOS.cmake)
 # Find packages
 find_package(Triangle REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(assimp REQUIRED)
+# find_package(assimp REQUIRED)
 find_package(LibGEOS 3.16 REQUIRED)
 find_package(Eigen3 REQUIRED)
 
