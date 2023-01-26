@@ -116,7 +116,7 @@ def generate_citymodel(p):
         print("Domain too small to generate a city model")
         sys.exit(1)
 
-    pc = builder.PointCloud(las_dir = p["PointCloudDirectory"], domain_bounds)
+    pc = builder.PointCloud(las_dir = p["PointCloudDirectory"], bounds= domain_bounds)
     if len(pc) == 0:
         print("Error: Point cloud in domain is empty")
         sys.exit(1)
