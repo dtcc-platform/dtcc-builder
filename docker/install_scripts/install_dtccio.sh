@@ -1,6 +1,7 @@
 git clone https://gitlab.com/dtcc-platform/dtcc-io
 
 cd dtcc-io
+git checkout develop
 git submodule update --init --recursive
 cd dtcc-model
 git checkout develop

@@ -24,7 +24,7 @@ class TestCityModel(unittest.TestCase):
         self.shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
         self.cm = builder.CityModel(footprints_file= self.shp_file, parameters = p)
 
-        self.pc = builder.PointCloud(pointcloud_file=data_dir / "MinimalCase" / "pointcloud.las")
+        self.pc = builder.PointCloud(pointcloud_path=data_dir / "MinimalCase" / "pointcloud.las")
 
     def test_bounds(self):
         bbox = io.citymodel.building_bounds(self.shp_file)

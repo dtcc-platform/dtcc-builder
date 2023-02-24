@@ -15,6 +15,12 @@ import re
 
 from dtcc import io
 from dtcc import builder
+from dtcc.builder import CityModel
+from dtcc.builder import ElevationModel
+from dtcc.builder import PointCloud
+from dtcc.builder import _pybuilder
+from dtcc.builder import load_parameters
+from dtcc.builder import Meshing
 
 def camel_to_kebab(name):
     name = re.sub("(.)([A-Z][a-z]+)", r"\1-\2", name)
@@ -116,7 +122,7 @@ def generate_citymodel(p):
         print("Domain too small to generate a city model")
         sys.exit(1)
 
-    pc = builder.PointCloud(las_dir = p["PointCloudDirectory"], bounds= domain_bounds)
+    pc = builder.PointCloud(pointcloud_path = p["PointCloudDirectory"], bounds= domain_bounds)
     if len(pc) == 0:
         print("Error: Point cloud in domain is empty")
         sys.exit(1)
