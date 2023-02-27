@@ -82,7 +82,7 @@ def calc_project_domain(p):
         footprint_bounds = io.citymodel.building_bounds(
             p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
         )
-        las_bounds = io.pointcloud.calc_las_bounds(p["DataDirectory"])
+        las_bounds = io.pointcloud.calc_las_bounds(p["PointCloudDirectory"])
         domain_bounds = io.bounds.bounds_intersect(footprint_bounds, las_bounds)
         origin = domain_bounds[:2]
         p["X0"] = origin[0]
@@ -112,6 +112,10 @@ def set_directories(p, project_path):
     p["OutputDirectory"] = Path(p["OutputDirectory"])
     if p["PointCloudDirectory"] == "":
         p["PointCloudDirectory"] = p["DataDirectory"]
+    else:
+        p["PointCloudDirectory"] = Path(p["PointCloudDirectory"])
+        if not p["PointCloudDirectory"].is_absolute():
+            p["PointCloudDirectory"] = p["DataDirectory"] / p["PointCloudDirectory"]
     return p
 
 
