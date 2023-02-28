@@ -72,6 +72,15 @@ public:
       }
 
       pb_bld.mutable_footprint()->CopyFrom(CreatePolygon(pb_verts));
+
+      std::vector<DTCC::Vector3D> pb_pts;
+      for (const auto &pt : building.RoofPoints)
+      {
+        pb_pts.push_back(DTCC::Point(pt.x, pt.y, pt.z));
+      }
+      auto pb_roofpoints = DTCC::CreatePointCloud(pb_pts);
+      pb_bld.mutable_roofpoints()->Swap(&pb_roofpoints);
+
       pb_buildings.push_back(pb_bld);
     }
 
