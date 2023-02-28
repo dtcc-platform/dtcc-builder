@@ -110,12 +110,14 @@ def set_directories(p, project_path):
 
     p["DataDirectory"] = Path(p["DataDirectory"])
     p["OutputDirectory"] = Path(p["OutputDirectory"])
+    p["OutputDirectory"].mkdir(parents=True,exist_ok=True)
     if p["PointCloudDirectory"] == "":
         p["PointCloudDirectory"] = p["DataDirectory"]
     else:
         p["PointCloudDirectory"] = Path(p["PointCloudDirectory"])
         if not p["PointCloudDirectory"].is_absolute():
             p["PointCloudDirectory"] = p["DataDirectory"] / p["PointCloudDirectory"]
+
     return p
 
 
