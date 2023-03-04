@@ -40,10 +40,16 @@ find_package(pybind11 REQUIRED)
 find_package(Protobuf REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
 include(${DOLFIN_USE_FILE})
+
+# Find Dtcc Model
+find_package(DTCCModel REQUIRED)
+get_filename_component(PROTO_HEADER_DIR ${PROTO_HEADER} DIRECTORY)
+include_directories(${PROTO_HEADER_DIR})
 
 # Hack to remove -DNDEBUG from FEniCS flags (shouldn't be there!)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -64,17 +70,13 @@ find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
 # Build protobuf
-ADD_SUBDIRECTORY(dtcc-model/protobuf)
-INCLUDE(FindProtobuf)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/dtcc-model)
-include_directories(${CMAKE_SOURCE_DIR}/dtcc-model)
+
 
 #ADD_SUBDIRECTORY(dtcc-model/datamodel_io)
 
 # Set include directories
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/include/citymodel)
+include_directories(${CMAKE_SOURCE_DIR}/src/include)
+include_directories(${CMAKE_SOURCE_DIR}/src/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)
@@ -91,8 +93,8 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 # add_subdirectory(dtcc-plot)
 #add_subdirectory(dtcc-generate-citymodel)
 #add_subdirectory(dtcc-generate-mesh)
-add_subdirectory(dtcc-pybuilder)
-add_subdirectory(unittests)
+add_subdirectory(src)
+add_subdirectory(tests/tests_cpp)
 
 # Print all variables (uncomment for CMake debugging)
 # get_cmake_property(_variableNames VARIABLES)

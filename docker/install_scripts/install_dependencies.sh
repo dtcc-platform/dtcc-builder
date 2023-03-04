@@ -57,5 +57,5 @@ apt remove -y libgeos-dev
 # ./install_assimp.sh
 # ./install_libLAS.sh
 ./install_VTK.sh
-./install_py_libs.sh
-./install_dtccio.sh
+#./install_py_libs.sh
+#./install_dtccmodel.sh

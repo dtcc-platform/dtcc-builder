@@ -1,0 +1,36 @@
+[build-system]
+requires = ["scikit-build-core", "pybind11==2.10.*"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "dtcc-builder"
+version = "0.5.1"
+description="DTCC CityModel Builder"
+readme = "README.md"
+authors = [
+  { name = "Anders Logg", email = "logg@chalmers.se" },
+  { name = "Vasilis Naserentin", email = "vasilis.naserentin@chalmers.se" },
+  { name = "Dag Wästberg", email = "dwastberg@gmail.com" }
+]
+requires-python = ">=3.8"
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: C++",
+  "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+ "pybind11 >= 2.10.0, < 2.11.0",
+ "numpy>=1.23.3,<2.0.0",
+ "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@dev/new-build-system"
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+dtcc-package-template-main = "dtcc-build:dtcc-build.main"
+
+[tool.scikit-build]
+wheel.expand-macos-universal-tags = true
+
