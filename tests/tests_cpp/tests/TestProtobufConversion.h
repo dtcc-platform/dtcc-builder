@@ -3,7 +3,7 @@
 #include <iterator>
 #include <string>
 
-#include "protobuf/dtcc.pb.h"
+#include "dtcc.pb.h"
 #include "protobuf/include/PointCloudMethods.h"
 
 #include "PointCloud.h"

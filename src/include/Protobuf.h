@@ -6,7 +6,7 @@
 #ifndef DTCC_PROTOBUF
 #define DTCC_PROTOBUF
 
-#include "protobuf/dtcc.pb.h"
+#include "dtcc.pb.h"
 #include "protobuf/include/PointCloudMethods.h"
 #include "protobuf/include/PolygonMethods.h"
 

@@ -14,7 +14,7 @@ find_library(LIBGEOS_LIBRARIES
              NAMES geos_c
              PATHS /usr/local/lib)
 
-find_package_handle_standard_args(LIBGEOS
+find_package_handle_standard_args(LibGEOS
                                   DEFAULT_MSG
                                   LIBGEOS_INCLUDE_DIRS
                                   LIBGEOS_LIBRARIES)

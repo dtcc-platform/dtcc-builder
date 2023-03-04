@@ -48,8 +48,9 @@ include(${DOLFIN_USE_FILE})
 
 # Find Dtcc Model
 find_package(DTCCModel REQUIRED)
-get_filename_component(PROTO_HEADER_DIR ${PROTO_HEADER} DIRECTORY)
-include_directories(${PROTO_HEADER_DIR})
+message("Proto header: " ${DTCCMODEL_INCLUDE_DIRS})
+get_filename_component(PROTO_HEADER_DIR ${DTCCMODEL_INCLUDE_DIRS} DIRECTORY)
+include_directories(${DTCCMODEL_INCLUDE_DIRS})
 
 # Hack to remove -DNDEBUG from FEniCS flags (shouldn't be there!)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -80,6 +81,8 @@ include_directories(${CMAKE_SOURCE_DIR}/src/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)
+include_directories(/usr/local/include)
+
 
 
 link_directories(/usr/local/lib) # Equivalent of ldconfig /usr/local/lib in Dockerfile

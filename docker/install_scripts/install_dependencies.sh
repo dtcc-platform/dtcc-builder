@@ -42,6 +42,9 @@ apt-get update && apt-get install -y \
     libassimp-dev \
     protobuf-compiler
 
+
+apt-get install -y python3-fiona python3-rasterio
+
 #these seem necessary for the python bindings to work
 if [ -f /usr/lib/x86_64-linux-gnu/libassimp.so.5 ]; then
     ln -s /usr/lib/x86_64-linux-gnu/libassimp.so.5 /usr/lib/
@@ -58,4 +61,4 @@ apt remove -y libgeos-dev
 # ./install_libLAS.sh
 ./install_VTK.sh
 #./install_py_libs.sh
-#./install_dtccmodel.sh
+./install_dtccmodel.sh

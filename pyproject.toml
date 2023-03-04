@@ -21,15 +21,12 @@ classifiers = [
 ]
 dependencies = [
  "pybind11 >= 2.10.0, < 2.11.0",
- "numpy>=1.23.3,<2.0.0",
+ "numpy",
  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@dev/new-build-system"
 ]
 
 [project.optional-dependencies]
 test = ["pytest"]
-
-[project.scripts]
-dtcc-package-template-main = "dtcc-build:dtcc-build.main"
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
