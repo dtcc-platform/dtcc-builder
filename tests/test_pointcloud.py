@@ -5,11 +5,11 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import unittest
 
-from dtcc import io
-from dtcc.builder import _pybuilder
-from dtcc.builder import Parameters
+import dtcc_io as io
+from dtcc_builder import _pybuilder
+from dtcc_builder import Parameters
 
-from dtcc.builder import PointCloud
+from dtcc_builder import PointCloud
 
 data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
 p = Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")

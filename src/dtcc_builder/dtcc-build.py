@@ -13,14 +13,14 @@ from pathlib import Path
 import os
 import re
 
-from dtcc import io
+import dtcc_io as io
 from dtcc import builder
-from dtcc.builder import CityModel
-from dtcc.builder import ElevationModel
-from dtcc.builder import PointCloud
-from dtcc.builder import _pybuilder
-from dtcc.builder import load_parameters
-from dtcc.builder import Meshing
+from dtcc_builder import CityModel
+from dtcc_builder import ElevationModel
+from dtcc_builder import PointCloud
+from dtcc_builder import _pybuilder
+from dtcc_builder import load_parameters
+from dtcc_builder import Meshing
 
 def camel_to_kebab(name):
     name = re.sub("(.)([A-Z][a-z]+)", r"\1-\2", name)
@@ -222,7 +222,7 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
     return mesh_3D
 
 
-def main(p, project_path, citymodel_only=False, mesh_only=False):
+def run(p, project_path, citymodel_only=False, mesh_only=False):
     # parameters_file, project_path = get_project_paths(args)
 
     # if not parameters_file.is_file():
@@ -307,4 +307,4 @@ if __name__ == "__main__":
         parameters = builder.Parameters.load_parameters(parameters_file)
 
     parameters = update_parameters_from_options(parameters, args, name_translator)
-    main(parameters, project_path, args.citymodel_only, args.mesh_only)
+    run(parameters, project_path, args.citymodel_only, args.mesh_only)

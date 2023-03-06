@@ -5,9 +5,9 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import unittest
 
-from dtcc.builder import _pybuilder
+from dtcc_builder import _pybuilder
 
-from dtcc.builder import ElevationModel
+from dtcc_builder import ElevationModel
 from dtccpybuilder.Parameters import load_parameters
 from dtccpybuilder.PointCloud import PointCloud
 

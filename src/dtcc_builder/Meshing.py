@@ -1,8 +1,8 @@
-from dtcc.builder import _pybuilder
+from dtcc_builder import _pybuilder
 import os
 from typing import List, Tuple
-from dtcc.builder import CityModel
-from dtcc.builder import ElevationModel
+from dtcc_builder import CityModel
+from dtcc_builder import ElevationModel
 
 
 def generate_mesh2D(

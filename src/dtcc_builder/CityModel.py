@@ -1,11 +1,11 @@
 from google.protobuf.json_format import MessageToJson
 
-from dtcc.builder import _pybuilder
+from dtcc_builder import _pybuilder
 
 import numpy
 
-from dtcc import io
-from dtcc.builder import PointCloud, Parameters, ElevationModel
+import dtcc_io as io
+from dtcc_builder import PointCloud, Parameters, ElevationModel
 
 # from dtccpybuilder.PointCloud import PointCloud
 # from dtccpybuilder.ElevationModel import ElevationModel

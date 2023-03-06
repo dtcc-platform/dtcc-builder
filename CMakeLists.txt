@@ -76,8 +76,8 @@ include(${VTK_USE_FILE})
 #ADD_SUBDIRECTORY(dtcc-model/datamodel_io)
 
 # Set include directories
-include_directories(${CMAKE_SOURCE_DIR}/src/include)
-include_directories(${CMAKE_SOURCE_DIR}/src/include/citymodel)
+include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
+include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)

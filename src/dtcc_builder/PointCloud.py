@@ -1,7 +1,7 @@
 from google.protobuf.json_format import MessageToJson
 
-from dtcc.builder import _pybuilder
-from dtcc import io
+from dtcc_builder import _pybuilder
+import dtcc_io as io
 import os
 
 from pathlib import Path
