@@ -2,7 +2,7 @@ include(FindPackageHandleStandardArgs)
 
 find_path(DTCCMODEL_INCLUDE_DIRS
           NAMES dtcc.pb.h
-          PATHS /usr/local/include/dtcc /usr/local/include /usr/include/dtcc /usr/include)
+          PATHS /usr/local/include/dtcc_model /usr/include/dtcc_model)
 
 find_library(DTCCMODEL_LIBRARIES
              NAMES dtccproto
