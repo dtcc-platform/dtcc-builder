@@ -67,8 +67,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Find VTK
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+# find_package(VTK REQUIRED)
+# include(${VTK_USE_FILE})
 
 # Build protobuf
 

@@ -7,7 +7,7 @@
 
 // Needs to come before JSON (nlohmann) include because of sloppy
 // namespacing in VTK (typedef detail)...
-#include "VTK.h"
+// #include "VTK.h"
 
 // DTCC includes
 #include "CityModelGenerator.h"
@@ -290,19 +290,19 @@ Surface3D MergeSurfaces3D(const std::vector<Surface3D> &surfaces)
 
 bool WriteVTKMesh3D(const Mesh3D &mesh, std::string filepath)
 {
-  VTK::Write(mesh, filepath);
+  // VTK::Write(mesh, filepath);
   return true;
 }
 
 bool WriteVTKMesh2D(const Mesh2D &mesh, std::string filepath)
 {
-  VTK::Write(mesh, filepath);
+  // VTK::Write(mesh, filepath);
   return true;
 }
 
 bool WriteVTKSurface3D(const Surface3D &surface, std::string filepath)
 {
-  VTK::Write(surface, filepath);
+  // VTK::Write(surface, filepath);
   return true;
 }
 
