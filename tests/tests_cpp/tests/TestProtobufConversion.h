@@ -4,7 +4,7 @@
 #include <string>
 
 #include "dtcc.pb.h"
-#include "protobuf/include/PointCloudMethods.h"
+#include "dtcc_model/PointCloudMethods.h"
 
 #include "PointCloud.h"
 #include "Protobuf.h"
