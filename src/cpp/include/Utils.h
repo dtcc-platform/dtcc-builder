@@ -9,7 +9,6 @@
 #ifndef DTCC_UTILS_H
 #define DTCC_UTILS_H
 
-#include <uuid/uuid.h>
 namespace DTCC_BUILDER
 {
 
@@ -51,18 +50,6 @@ namespace DTCC_BUILDER
         }
       }
       return strOut;
-    }
-
-    /// Create and return a UUID string, using libuuid.
-    /// \return UUID string of format 1b4e28ba-2fa1-11d2-883f-0016d3cca427. Case
-    /// is dependent on system local default.
-    static std::string CreateUUID()
-    {
-      uuid_t uuidRaw;
-      uuid_generate(uuidRaw);
-      char uuid[36];
-      uuid_unparse(uuidRaw, uuid);
-      return std::string(uuid);
     }
 
     // Check if a string ends with another string
