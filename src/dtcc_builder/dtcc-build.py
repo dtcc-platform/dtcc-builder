@@ -14,7 +14,7 @@ import os
 import re
 
 import dtcc_io as io
-from dtcc import builder
+import dtcc_builder as builder
 from dtcc_builder import CityModel
 from dtcc_builder import ElevationModel
 from dtcc_builder import PointCloud

@@ -6,7 +6,7 @@ import numpy
 
 import dtcc_io as io
 from dtcc_builder import PointCloud, Parameters, ElevationModel
-
+import dtcc_model as model
 # from dtccpybuilder.PointCloud import PointCloud
 # from dtccpybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple
@@ -155,7 +155,7 @@ class CityModel:
 
     def to_JSON(self, outfile):
         """serialize CItyModel to a JSON file"""
-        pbcm = io.dtcc_model.protobuf.dtcc_pb2.CityModel() 
+        pbcm = model.CityModel() 
         with open(outfile, "w") as f:
             f.write(MessageToJson(pbcm.FromString(self.to_protobuf())))
         

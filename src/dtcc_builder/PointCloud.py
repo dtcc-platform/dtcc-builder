@@ -2,6 +2,7 @@ from google.protobuf.json_format import MessageToJson
 
 from dtcc_builder import _pybuilder
 import dtcc_io as io
+import dtcc_model as model
 import os
 
 from pathlib import Path
@@ -70,7 +71,7 @@ class PointCloud:
         return _pybuilder.convertPointCloudToProtobuf(self._builder_pc)
 
     def to_json(self, output_path: Path):
-        pbpc = io.dtcc_model.protobuf.dtcc_pb2.PointCloud()
+        pbpc = model.PointCloud()
         with open(output_path, "w") as f:
             f.write(MessageToJson(pbpc.FromString(self.to_protobuf())))
         
