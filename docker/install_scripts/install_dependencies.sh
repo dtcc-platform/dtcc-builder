@@ -24,6 +24,9 @@ DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     rsync \
     wget \
     unzip \
+    colordiff \
+    clang-format \
+    clang-tidy 
 
 
 # apt-get install -y python3-fiona python3-rasterio
