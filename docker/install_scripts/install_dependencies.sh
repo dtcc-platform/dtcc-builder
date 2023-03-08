@@ -5,11 +5,9 @@ DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     build-essential \
     git \
     cmake \
-    libpugixml-dev \
     libtriangle-dev \
     nlohmann-json3-dev \
     libpthread-stubs0-dev \
-    libuuid1 \
     libeigen3-dev \
     libgdal-dev \
     python3 \
@@ -40,12 +38,4 @@ if [ -f /usr/lib/aarch64-linux-gnu/libassimp.so.5]; then
     ln -s /usr/lib/aarch64-linux-gnu/libassimp.so.5 /usr/lib/
 fi
 
-# remove old version of libgeos and install new version from source
-# apt remove -y libgeos-dev
-# ./install_libgeos.sh
-
-# ./install_assimp.sh
-# ./install_libLAS.sh
-#./install_VTK.sh
-#./install_py_libs.sh
 ./install_dtccmodel.sh
