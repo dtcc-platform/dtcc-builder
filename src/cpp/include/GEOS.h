@@ -106,6 +106,38 @@ public:
     return polygon;
   }
 
+  /// Simplify a polygon using the Douglas-Peucker algorithm. This
+  /// function is a wrapper around the GEOS function GEOSSimplify(), but
+  /// itguarantees that the result is a polygon. If it fails to simplify
+  /// the polygon, it will return the original polygon.
+  ///
+  /// @param geometry The geometry to simplify
+  /// @param tol The tolerance for the simplification
+  /// @param max_iter The maximum number of iterations to try to simplify
+  /// @return The simplified polygon
+  static GEOSGeometry *
+  SimplifyPolygon(const GEOSGeometry *geometry, double tol, size_t max_iter = 3)
+  {
+
+    for (size_t i = 0; i < max_iter; i++)
+    {
+      GEOSGeometry *simplified = GEOSSimplify(geometry, tol);
+      if (GEOSGeomTypeId(simplified) == GEOS_POLYGON)
+      {
+        return simplified;
+      }
+      else
+      {
+        GEOSGeom_destroy(simplified);
+        tol /= 2;
+      }
+    }
+    GEOSGeometry *simplified = GEOSGeom_clone(geometry);
+
+    warning("Unable to Simplify polygon; revert to originial");
+    return simplified;
+  }
+
   /// Merge polygons. This creates a new polygon that covers the
   /// union of the two polygons and (as much as possible) respects
   /// the geometry of the two polygons.
@@ -126,19 +158,19 @@ public:
 
     // Create A, simplify, and cleanup
     GEOSGeometry *_A = CreateGeometry(polygon0);
-    GEOSGeometry *A = GEOSSimplify(_A, tol);
+    GEOSGeometry *A = SimplifyPolygon(_A, tol);
     GEOSGeom_destroy(_A);
     _A = 0;
 
     // Create B, simplify, and cleanup
     GEOSGeometry *_B = CreateGeometry(polygon1);
-    GEOSGeometry *B = GEOSSimplify(_B, tol);
+    GEOSGeometry *B = SimplifyPolygon(_B, tol);
     GEOSGeom_destroy(_B);
     _B = 0;
 
     // Compute union C, simplify, and cleanup
     GEOSGeometry *_C = GEOSUnionPrec(A, B, EPS);
-    GEOSGeometry *C = GEOSSimplify(_C, tol);
+    GEOSGeometry *C = SimplifyPolygon(_C, tol);
     GEOSGeom_destroy(_C);
     _C = 0;
 
@@ -195,7 +227,7 @@ public:
           // Compute union
           GEOSGeometry *AB = GEOSUnionPrec(A, B, EPS);
           GEOSGeometry *_C = GEOSUnionPrec(AB, P, EPS);
-          C = GEOSSimplify(_C, tol);
+          C = SimplifyPolygon(_C, tol);
 
           // Cleanup
           GEOSGeom_destroy(P);
@@ -227,7 +259,7 @@ public:
       GEOSGeometry *HA = GEOSConvexHull(A);
       GEOSGeometry *HB = GEOSConvexHull(B);
       GEOSGeometry *_C = GEOSUnionPrec(HA, HB, EPS);
-      C = GEOSSimplify(_C, tol);
+      C = SimplifyPolygon(_C, tol);
 
       // Cleanup
       GEOSGeom_destroy(HA);
@@ -254,7 +286,7 @@ public:
       // Compute convex hull of union
       GEOSGeometry *AB = GEOSUnionPrec(A, B, EPS);
       GEOSGeometry *_C = GEOSConvexHull(AB);
-      C = GEOSSimplify(_C, tol);
+      C = SimplifyPolygon(_C, tol);
 
       // Cleanup
       GEOSGeom_destroy(AB);
@@ -298,13 +330,19 @@ private:
                                        std::vector<Vector2D> &projections)
   {
     // Get vertices
+    if (GEOSGeomTypeId(A) != GEOS_POLYGON)
+      info("A is not a polygon");
+    if (GEOSGeomTypeId(B) != GEOS_POLYGON)
+    {
+      info("B is not a polygon");
+      info(str(GEOSGeomTypeId(B)));
+    }
     const GEOSGeometry *rA = GEOSGetExteriorRing(A);
     const GEOSGeometry *rB = GEOSGetExteriorRing(B);
     const GEOSCoordSequence *vA = GEOSGeom_getCoordSeq(rA);
     const GEOSCoordSequence *vB = GEOSGeom_getCoordSeq(rB);
     const int nA = GEOSGetNumCoordinates(rA);
     const int nB = GEOSGetNumCoordinates(rB);
-
     // Iterate over vertices in A
     for (int i = 0; i < (nA - 1); i++)
     {
