@@ -5,7 +5,7 @@
 
 #include "catch.hpp"
 
-const std::string RootPath{"/home/dtcc/dtcc-builder/unittests/"};
+const std::string RootPath{"/home/dtcc/dtcc-builder/tests/"};
 
 // Run these tests. You can comment out any test you don't want run
 #include "tests/TestBoundingBox.h"
