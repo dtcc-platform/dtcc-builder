@@ -50,8 +50,7 @@ public:
     }
   }
 
-  // FIXME: Rename to void write()
-  static std::string ExportCityModel(const CityModel &cityModel)
+  static void write(const CityModel &cityModel, std::string &pb)
   {
     DTCC::CityModel pb_cm;
 
@@ -92,11 +91,7 @@ public:
     pb_cm.mutable_georeference()->set_x0(cityModel.Origin.x);
     pb_cm.mutable_georeference()->set_y0(cityModel.Origin.y);
 
-    std::string pb_string;
-    pb_cm.SerializeToString(&pb_string);
-    // info("CityModel Serialized: " + str(pb_string.size()));
-
-    return pb_string;
+    pb_cm.SerializeToString(&pb);
   }
 
   // FIXME: Rename to void read()
@@ -153,8 +148,7 @@ public:
     return pc;
   }
 
-  // FIXME: Rename to void write()
-  static std::string ExportPointCloud(const PointCloud &pointCloud)
+  static void write(const PointCloud &pointCloud, std::string &pb)
   {
     std::vector<DTCC::Vector3D> pb_pts;
     for (const auto &pt : pointCloud.Points)
@@ -169,10 +163,7 @@ public:
     pb_pc.mutable_georeference()->set_x0(pointCloud.Origin.x);
     pb_pc.mutable_georeference()->set_y0(pointCloud.Origin.y);
 
-    std::string pb_string;
-    pb_pc.SerializeToString(&pb_string);
-
-    return pb_string;
+    pb_pc.SerializeToString(&pb);
   }
 
   // Read Surface3D from Protobuf string
@@ -221,6 +212,40 @@ public:
 
     // Write to Protobuf string
     _surface.SerializeToString(&pb);
+  }
+
+  // Write Mesh3D to Protobuf string
+  static void write(const Mesh3D &mesh, std::string &pb)
+  {
+    DTCC::Mesh3D _mesh{};
+
+    // Write vertices
+    for (const auto &vertex : mesh.Vertices)
+    {
+      auto _vertex = _mesh.add_vertices();
+      _vertex->set_x(vertex.x);
+      _vertex->set_y(vertex.y);
+      _vertex->set_z(vertex.z);
+    }
+
+    // Write faces
+    for (const auto &cell : mesh.Cells)
+    {
+      auto _cell = _mesh.add_cells();
+      _cell->set_v0(cell.v0);
+      _cell->set_v1(cell.v1);
+      _cell->set_v2(cell.v2);
+      _cell->set_v3(cell.v3);
+    }
+
+    // Write markers
+    for (const auto &marker : mesh.Markers)
+    {
+      _mesh.add_markers(marker);
+    }
+
+    // Write to Protobuf string
+    _mesh.SerializeToString(&pb);
   }
 };
 } // namespace DTCC_BUILDER

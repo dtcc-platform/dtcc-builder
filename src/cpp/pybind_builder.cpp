@@ -123,11 +123,11 @@ CityModel loadCityModelProtobuf(std::string protobuf_string)
 
 py::bytes convertCityModelToProtobuf(const CityModel &cm)
 {
-  return DTCC_BUILDER::Protobuf::ExportCityModel(cm);
+  std::string pb{};
+  DTCC_BUILDER::Protobuf::write(cm, pb);
+  return pb;
 }
 
-// FIXME: This and other wrapper functions here should not be needed
-// Should be dtcc.builder.io.protobuf.read/write
 py::bytes convertSurface3DToProtobuf(const Surface3D &surface)
 {
   std::string pb{};
@@ -135,6 +135,12 @@ py::bytes convertSurface3DToProtobuf(const Surface3D &surface)
   return pb;
 }
 
+py::bytes convertMesh3DToProtobuf(const Mesh3D &mesh)
+{
+  std::string pb{};
+  DTCC_BUILDER::Protobuf::write(mesh, pb);
+  return pb;
+}
 
 PointCloud SetPointCloudOrigin(PointCloud &pointCloud, py::tuple origin)
 {
@@ -164,7 +170,9 @@ PointCloud loadPointCloudProtobuf(std::string protobuf_string)
 
 py::bytes convertPointCloudToProtobuf(const PointCloud &pc)
 {
-  return DTCC_BUILDER::Protobuf::ExportPointCloud(pc);
+  std::string pb{};
+  DTCC_BUILDER::Protobuf::write(pc, pb);
+  return pb;
 }
 
 // GridField
@@ -411,6 +419,9 @@ PYBIND11_MODULE(_pybuilder, m)
         "convert CityModel to protobuf");
 
   m.def("convertSurface3DToProtobuf", &DTCC_BUILDER::convertSurface3DToProtobuf,
+        "convert Surface3D to protobuf");
+
+  m.def("convertMesh3DToProtobuf", &DTCC_BUILDER::convertMesh3DToProtobuf,
         "convert Surface3D to protobuf");
 
   m.def("ExtractBuildingPoints", &DTCC_BUILDER::ExtractBuildingPoints,

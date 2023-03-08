@@ -3,6 +3,8 @@ import os
 from typing import List, Tuple
 from dtcc_builder import CityModel
 from dtcc_builder import ElevationModel
+import dtcc_io as io
+import dtcc_model as model
 
 
 def generate_mesh2D(
@@ -57,38 +59,16 @@ def extract_open_surface3D(boundary: _pybuilder.Surface3D) -> _pybuilder.Surface
 def merge_surfaces3D(surfaces: List[_pybuilder.Surface3D]) -> _pybuilder.Surface3D:
     return _pybuilder.MergeSurfaces3D(surfaces)
 
-
-def write_VTK_mesh3D(mesh: _pybuilder.Mesh3D, out_file):
-    return _pybuilder.WriteVTKMesh3D(mesh, str(out_file))
-
-
-def write_VTK_mesh2D(mesh: _pybuilder.Mesh2D, out_file):
-    return _pybuilder.WriteVTKMesh2D(mesh, str(out_file))
-
-
-def write_VTK_surface3D(surface: _pybuilder.Surface3D, out_file):
-    return _pybuilder.WriteVTKSurface3D
-
-
 def write_Protobuf_surface3D(surface: _pybuilder.Surface3D, out_file):
     with open(out_file, "wb") as f:
         pb = _pybuilder.convertSurface3DToProtobuf(surface)
         f.write(pb)
 
 
-def write_surface(surface, file_name, format="", y_up=None):
-    supported_formats = ["obj", "stl", "gltf", "gltf2"]
-    y_up_format = ["obj", "gltf"]
-    if not format:
-        format = os.path.splitext(file_name)[-1][1:].lower()
-    if format not in supported_formats:
-        print(f"format {format} not supported, please use one of {supported_formats}")
-        return False
-    if y_up is None:
-        if format in y_up_format:
-            y_up = True
-        else:
-            y_up = False
-    if format == "gltf":
-        format = "gltf2"
-    return _pybuilder.WriteSurface3D(surface, str(file_name), format, y_up)
+def write_surface(surface:_pybuilder.Surface3D, file_name):
+    pb = _pybuilder.convertSurface3DToProtobuf(surface)
+    io.mesh.write(file_name, pb)
+
+def write_volume_mesh(mesh:_pybuilder.Mesh3D, file_name):
+    pb = _pybuilder.convertMesh3DToProtobuf(mesh)
+    io.mesh.write(file_name, pb, volume_mesh=True)

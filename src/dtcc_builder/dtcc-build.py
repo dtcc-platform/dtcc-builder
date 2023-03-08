@@ -190,10 +190,10 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
     mesh_3D = Meshing.generate_mesh3D(mesh_2D, p["DomainHeight"], p["MeshResolution"])
     if p["Debug"] and p["WriteVTK"]:
         mesh_3D_boundary = Meshing.extract_boundary3D(mesh_3D)
-        Meshing.write_VTK_surface3D(
+        Meshing.write_surface(
             mesh_3D_boundary, p["OutputDirectory"] / "Step32Boundary.vtu"
         )
-        Meshing.write_VTK_mesh3D(mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu")
+        Meshing.write_volume_mesh(mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu")
 
     # Step 3.3: Smooth 3D mesh (set ground height)
     top_height = dtm.mean() + p["DomainHeight"]
@@ -204,7 +204,7 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
         Meshing.write_VTK_surface3D(
             mesh_3D_boundary, p["OutputDirectory"] / "Step33Boundary.vtu"
         )
-        Meshing.write_VTK_mesh3D(mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu")
+        Meshing.write_volume_mesh(mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu")
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
     mesh_3D = Meshing.trim_mesh3D(mesh_3D, mesh_2D, cm, mesh_3D.numLayers)
@@ -217,7 +217,7 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
         Meshing.write_VTK_surface3D(
             mesh_3D_boundary, p["OutputDirectory"] / "Step35Boundary.vtu"
         )
-        Meshing.write_VTK_mesh3D(mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu")
+        Meshing.write_volume_mesh(mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu")
 
     return mesh_3D
 
@@ -264,8 +264,8 @@ def run(p, project_path, citymodel_only=False, mesh_only=False):
 
         # Write data to files
         if p["WriteVTK"]:
-            Meshing.write_VTK_mesh3D(volume_mesh, p["OutputDirectory"] / "CityMesh.vtu")
-            Meshing.write_VTK_surface3D(
+            Meshing.write_volume_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtu")
+            Meshing.write_surface(
                 surface, p["OutputDirectory"] / "CitySurface.vtu"
             )
         if p["WriteSTL"]:
