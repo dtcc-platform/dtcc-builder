@@ -11,6 +11,7 @@ authors = [
   { name = "Anders Logg", email = "logg@chalmers.se" },
   { name = "Vasilis Naserentin", email = "vasilis.naserentin@chalmers.se" },
   { name = "Dag Wästberg", email = "dwastberg@gmail.com" }
+  { name = "George Spaias", email = "gspaiasa@ece.auth.gr"}
 ]
 requires-python = ">=3.8"
 classifiers = [
