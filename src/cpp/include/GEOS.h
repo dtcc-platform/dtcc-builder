@@ -107,9 +107,9 @@ public:
   }
 
   /// Simplify a polygon using the Douglas-Peucker algorithm. This
-  /// function is a wrapper around the GEOS function GEOSSimplify(), but
-  /// itguarantees that the result is a polygon. If it fails to simplify
-  /// the polygon, it will return the original polygon.
+  /// function is a wrapper around the function GEOSSimplify(), but
+  /// it guarantees that the result is a Polygon. If it fails to simplify
+  /// the polygon, it will return the original Polygon.
   ///
   /// @param geometry The geometry to simplify
   /// @param tol The tolerance for the simplification
