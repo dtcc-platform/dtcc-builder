@@ -78,7 +78,7 @@ endif()
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
-include_directories(${CMAKE_SOURCE_DIR}/external)
+include_directories(${CMAKE_SOURCE_DIR}/src/cpp/external)
 include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)
 include_directories(/usr/local/include)
