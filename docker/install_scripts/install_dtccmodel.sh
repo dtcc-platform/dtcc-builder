@@ -1,6 +1,6 @@
 git clone https://github.com/dtcc-platform/dtcc-model.git
 cd dtcc-model
-git checkout dev/new-build-system
+git checkout develop
 
 # make sure we rebuild the protobuf files using the
 # same verion of protoc as installed in the docker image
