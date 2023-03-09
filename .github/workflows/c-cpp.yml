@@ -1,0 +1,18 @@
+name: Testing CI
+
+on:
+  push:
+    branches: [ "dev/develop" ]
+  pull_request:
+    branches: [ "dev/develop" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: configure
+      run: docker pull ghcr.io/dtcc-platform/dtcc-builder/dtcc-builder-image:0.
+   
