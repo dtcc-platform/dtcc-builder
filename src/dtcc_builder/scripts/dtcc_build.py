@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
-
 # Copyright (C) 2022 Dag Wästberg
 # Licensed under the MIT License
 #
 # Modified by Anders Logg 2022
 
 import sys
+import argparse
 
-sys.path.append("pybuilder")
+#sys.path.append("pybuilder")
 
 from pathlib import Path
 import os
@@ -281,10 +280,7 @@ def run(p, project_path, citymodel_only=False, mesh_only=False):
             )
 
 
-if __name__ == "__main__":
-    import sys
-    import argparse
-
+def main():
     parser = argparse.ArgumentParser(
         prog="pybuilder",
         description="Build LoD1 CItyModel mesh fromm footprint and pointcloud",
