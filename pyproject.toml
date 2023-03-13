@@ -32,7 +32,6 @@ test = ["pytest"]
 [project.scripts]
 dtcc-build = "dtcc_builder.scripts:dtcc_build.main"
 
-
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
 

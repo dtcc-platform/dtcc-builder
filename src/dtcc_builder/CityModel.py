@@ -7,14 +7,18 @@ import numpy
 import dtcc_io as io
 from dtcc_builder import PointCloud, Parameters, ElevationModel
 import dtcc_model as model
+
 # from dtccpybuilder.PointCloud import PointCloud
 # from dtccpybuilder.ElevationModel import ElevationModel
 from typing import List, Tuple
+
 # from dtccpybuilder.Parameters import load_parameters
 
 
 class CityModel:
-    def __init__(self, footprints_file=None, pb_string = None, parameters=None, bounds=None):
+    def __init__(
+        self, footprints_file=None, pb_string=None, parameters=None, bounds=None
+    ):
         if parameters is None:
             parameters = Parameters.load_parameters()
         self.parameters = parameters
@@ -155,10 +159,9 @@ class CityModel:
 
     def to_JSON(self, outfile):
         """serialize CItyModel to a JSON file"""
-        pbcm = model.CityModel() 
+        pbcm = model.CityModel()
         with open(outfile, "w") as f:
             f.write(MessageToJson(pbcm.FromString(self.to_protobuf())))
-        
 
     # def from_JSON(self, infile):
     #     """Load CityModel from JSON file"""
@@ -171,7 +174,6 @@ class CityModel:
     def to_protobuf(self) -> str:
         """convert CityModel to protobuf string"""
         return _pybuilder.convertCityModelToProtobuf(self._builder_cm)
-
 
 
 def get_building_footprint(building: _pybuilder.Building):

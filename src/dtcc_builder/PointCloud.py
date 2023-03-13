@@ -14,7 +14,7 @@ from typing import List, Tuple
 class PointCloud:
     """Class for storing point cloud object"""
 
-    def __init__(self, pointcloud_path=None, pb_sting = None, bounds=()):
+    def __init__(self, pointcloud_path=None, pb_sting=None, bounds=()):
         """ """
         self._builder_pc = None
         self.origin = (0, 0)
@@ -39,7 +39,12 @@ class PointCloud:
     points = property(_points_as_numpy)
 
     def load_from_path(self, las_path, extra_data=True):
-        pb_string = io.pointcloud.read(las_path, points_classification_only = not extra_data, bounds = self.bounds, return_serialized=True)
+        pb_string = io.pointcloud.read(
+            las_path,
+            points_classification_only=not extra_data,
+            bounds=self.bounds,
+            return_serialized=True,
+        )
         if pb_string is not None:
             self.from_protobuf(pb_string)
         else:
@@ -74,4 +79,3 @@ class PointCloud:
         pbpc = model.PointCloud()
         with open(output_path, "w") as f:
             f.write(MessageToJson(pbpc.FromString(self.to_protobuf())))
-        

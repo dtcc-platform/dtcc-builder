@@ -6,7 +6,7 @@
 import sys
 import argparse
 
-#sys.path.append("pybuilder")
+# sys.path.append("pybuilder")
 
 from pathlib import Path
 import os
@@ -20,6 +20,7 @@ from dtcc_builder import PointCloud
 from dtcc_builder import _pybuilder
 from dtcc_builder import load_parameters
 from dtcc_builder import Meshing
+
 
 def camel_to_kebab(name):
     name = re.sub("(.)([A-Z][a-z]+)", r"\1-\2", name)
@@ -109,7 +110,7 @@ def set_directories(p, project_path):
 
     p["DataDirectory"] = Path(p["DataDirectory"])
     p["OutputDirectory"] = Path(p["OutputDirectory"])
-    p["OutputDirectory"].mkdir(parents=True,exist_ok=True)
+    p["OutputDirectory"].mkdir(parents=True, exist_ok=True)
     if p["PointCloudDirectory"] == "":
         p["PointCloudDirectory"] = p["DataDirectory"]
     else:
@@ -127,7 +128,9 @@ def generate_citymodel(p):
         print("Domain too small to generate a city model")
         sys.exit(1)
 
-    pc = builder.PointCloud(pointcloud_path = p["PointCloudDirectory"], bounds= domain_bounds)
+    pc = builder.PointCloud(
+        pointcloud_path=p["PointCloudDirectory"], bounds=domain_bounds
+    )
     if len(pc) == 0:
         print("Error: Point cloud in domain is empty")
         sys.exit(1)
@@ -143,7 +146,7 @@ def generate_citymodel(p):
     cm.clean_citymodel()
 
     dtm = ElevationModel(pc, p["ElevationModelResolution"], [2, 9])
-    #dsm = ElevationModel(pc, p["ElevationModelResolution"])
+    # dsm = ElevationModel(pc, p["ElevationModelResolution"])
     dtm.smooth_elevation_model(p["GroundSmoothing"])
 
     cm.extract_building_points(pc)
@@ -240,7 +243,7 @@ def run(p, project_path, citymodel_only=False, mesh_only=False):
         # Write data to files
         if p["WriteJSON"]:
             cm.to_JSON(p["OutputDirectory"] / "CityModel.json")
-            #dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
+            # dtm.to_JSON(p["OutputDirectory"] / "DTM.json", cm.origin)
         if p["WriteProtobuf"]:
             with open(p["OutputDirectory"] / "CityModel.pb", "wb") as dst:
                 dst.write(cm.to_protobuf())
@@ -263,10 +266,10 @@ def run(p, project_path, citymodel_only=False, mesh_only=False):
 
         # Write data to files
         if p["WriteVTK"]:
-            Meshing.write_volume_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtu")
-            Meshing.write_surface(
-                surface, p["OutputDirectory"] / "CitySurface.vtu"
+            Meshing.write_volume_mesh(
+                volume_mesh, p["OutputDirectory"] / "CityMesh.vtu"
             )
+            Meshing.write_surface(surface, p["OutputDirectory"] / "CitySurface.vtu")
         if p["WriteSTL"]:
             Meshing.write_surface(surface, p["OutputDirectory"] / "CitySurface.stl")
         if p["WriteOBJ"]:
