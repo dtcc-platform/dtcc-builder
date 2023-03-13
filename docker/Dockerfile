@@ -5,7 +5,7 @@
 # via the install_dependencies.sh script.
 
 # Use Phusion base image (minimal Docker-friendly Ubuntu)
-FROM phusion/baseimage:master as base
+FROM phusion/baseimage:jammy-1.0.1 as base
 
 # Set some variables
 ENV USER dtcc
@@ -15,7 +15,9 @@ ENV HOME /home/$USER
 COPY install_scripts/ /
 #COPY docker/createbanner.sh /
 
-RUN apt-get update && apt-get install -y locales  sudo 
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y locales  sudo dialog apt-utils
+RUN TZ=Etc/UTC apt-get -y install tzdata
 
 RUN ./install_dependencies.sh
 
