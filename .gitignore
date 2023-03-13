@@ -11,6 +11,7 @@
 
 .idea/
 .vscode/
+.env/
 cmake-build-debug/
 __pycache__
 *.pyc
