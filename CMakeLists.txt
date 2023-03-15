@@ -82,7 +82,7 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
 # Add subdirectories
 add_subdirectory(src)
-add_subdirectory(tests/tests_cpp)
+add_subdirectory(tests/cpp)
 
 # Print all variables (uncomment for CMake debugging)
 # get_cmake_property(_variableNames VARIABLES)

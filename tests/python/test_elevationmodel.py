@@ -7,11 +7,10 @@ import unittest
 
 from dtcc_builder import _pybuilder
 
-from dtcc_builder import ElevationModel
-from dtccpybuilder.Parameters import load_parameters
-from dtccpybuilder.PointCloud import PointCloud
+from dtcc_builder import ElevationModel, PointCloud
+from dtcc_builder.Parameters import load_parameters
 
-data_dir = (Path(__file__).parent / "../../../unittests/data").resolve()
+data_dir = (Path(__file__).parent / "../data").resolve()
 p = load_parameters()
 
 

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+echo "Building Docker image for DTCC Builder..."
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+DOCKER_COMPOSE_FILE="docker-compose.yml"
+export _UID=$(id -u)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export GID=$(id -u)
+    #1003
+    DOCKER_COMPOSE_FILE="docker-compose-mac.yml"
+    echo "Using docker-compose-mac.yml for build "
+else
+    export GID=$(id -g)
+fi
+
+docker-compose -f ${SCRIPT_DIR}/../${DOCKER_COMPOSE_FILE} build dtcc-builder
+# docker-compose -f ${SCRIPT_DIR}/../${DOCKER_COMPOSE_FILE} up -d  dtcc-builder

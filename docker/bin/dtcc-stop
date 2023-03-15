@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+echo "Uninstalling Docker image and container for DTCC Builder..."
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+DOCKER_COMPOSE_FILE="docker-compose.yml"
+
+export _UID=$(id -g)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export GID=$(id -u)
+    DOCKER_COMPOSE_FILE="docker-compose-mac.yml"
+    echo "Using docker-compose-mac.yml for build "
+    if ! command -v docker-sync &> /dev/null
+    then
+        echo "docker-sync could not be found"
+        exit
+    else
+        echo "Stopping docker-sync for macOSx"
+        docker-sync clean --config=./docker-sync.yml
+        docker-sync stop --config=./docker-sync.yml
+    fi
+else
+    export GID=$(id -g)
+fi
+
+docker-compose -f ${SCRIPT_DIR}/../${DOCKER_COMPOSE_FILE} down
+

@@ -8,4 +8,4 @@ set(PROGRAM run-unittests)
 
 add_executable(${PROGRAM} ${PROGRAM}.cpp)
 target_link_libraries(${PROGRAM} ${PUGIXML_LIBRARIES} ${LIBGEOS_LIBRARIES} ${PROTOBUF_LIBRARY} Threads::Threads dtccproto )
-install(TARGETS ${PROGRAM} DESTINATION bin)
+install(TARGETS ${PROGRAM} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)

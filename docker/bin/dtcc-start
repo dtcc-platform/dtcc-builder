@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+echo "Building Docker image for DTCC Builder..."
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+DOCKER_COMPOSE_FILE="docker-compose.yml"
+export _UID=$(id -u)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export GID=$(id -u)
+    #1003
+    DOCKER_COMPOSE_FILE="docker-compose-mac.yml"
+    echo "Using docker-compose-mac.yml for build "
+
+    if ! command -v docker-sync &> /dev/null
+    then
+        echo "docker-sync could not be found"
+        exit
+    else
+        echo "Starting docker-sync for macOSx"
+        docker-sync clean --config=./docker-sync.yml
+        docker-sync start --config=./docker-sync.yml
+    fi
+    
+else
+    export GID=$(id -g)
+fi
+
+docker-compose -f ${SCRIPT_DIR}/../${DOCKER_COMPOSE_FILE} up -d  dtcc-builder

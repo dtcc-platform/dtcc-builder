@@ -11,7 +11,7 @@ from dtcc_builder import Parameters
 
 from dtcc_builder import PointCloud
 
-data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
+data_dir = (Path(__file__).parent / "../data").resolve()
 p = Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")
 
 

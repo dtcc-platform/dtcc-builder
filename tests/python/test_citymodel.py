@@ -6,7 +6,7 @@ sys.path.append(str((Path(__file__).parent / "..").resolve()))
 
 import json
 
-from dtcc import builder
+import dtcc_builder as builder
 import dtcc_io as io
 
 from dtcc_builder import _pybuilder
@@ -15,7 +15,7 @@ from dtcc_builder import CityModel
 from dtcc_builder import ElevationModel
 from dtcc_builder import PointCloud
 
-data_dir = (Path(__file__).parent / "../../unittests/data").resolve()
+data_dir = (Path(__file__).parent / "../data").resolve()
 p = builder.Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")
 
 
