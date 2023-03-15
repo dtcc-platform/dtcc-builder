@@ -21,12 +21,12 @@ for DTCC Builder. To build and start the DTCC Docker image
 (container), enter the `docker` directory and issue the following two
 commands:
 
-    bin/dtcc-build
-    bin/dtcc-start
+    ./docker-build-container
+    ./docker-start-container
 
 The first of these two commands will build a Docker image and
-container for DTCC Builder and the second command will start and
-attach to the container.
+container for DTCC Builder and the second command will start
+the container.
 
 ## Building the software
 
@@ -39,7 +39,7 @@ the top-level directory:
     cd build
     cmake ..
     make -j
-	make install
+    make install
 
 This will build and install all programs into the top-level `bin`
 directory.
@@ -53,8 +53,8 @@ DTCC builder requires data to run. The demo data are not part of the
 repository and must be downloaded separately. To download public demo
 data, enter the `data` directory and issue the following command:
 
-    ./dtcc-download-demo-data-public
+    ./download-demo-data-public
 
-> **Note:** The command `dtcc-download-demo-data` provides additional
+> **Note:** The command `download-demo-data` provides additional
 > datasets that may not be shared publicly (because of license
 > restrictions from the data owners).
