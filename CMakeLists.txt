@@ -28,7 +28,6 @@ include(cmake/FindLibGEOS.cmake)
 # Find packages
 find_package(Triangle REQUIRED)
 find_package(nlohmann_json REQUIRED)
-# find_package(assimp REQUIRED)
 find_package(LibGEOS 3.16 REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -46,7 +45,7 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 find_package(DOLFIN REQUIRED)
 include(${DOLFIN_USE_FILE})
 
-# Find Dtcc Model
+# Find DTCC Model
 find_package(DTCCModel REQUIRED)
 message("Proto header: " ${DTCCMODEL_INCLUDE_DIRS})
 get_filename_component(PROTO_HEADER_DIR ${DTCCMODEL_INCLUDE_DIRS} DIRECTORY)
@@ -66,15 +65,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set_target_properties(dolfin PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${_new_flags}")
 endif()
 
-# Find VTK
-# find_package(VTK REQUIRED)
-# include(${VTK_USE_FILE})
-
-# Build protobuf
-
-
-#ADD_SUBDIRECTORY(dtcc-model/datamodel_io)
-
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
@@ -83,8 +73,7 @@ include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)
 include_directories(/usr/local/include)
 
-
-
+# FIXME: Why is this needed?
 link_directories(/usr/local/lib) # Equivalent of ldconfig /usr/local/lib in Dockerfile
 
 # Set installation directory
@@ -92,10 +81,6 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
 # Add subdirectories
-# add_subdirectory(dtcc-info)
-# add_subdirectory(dtcc-plot)
-#add_subdirectory(dtcc-generate-citymodel)
-#add_subdirectory(dtcc-generate-mesh)
 add_subdirectory(src)
 add_subdirectory(tests/tests_cpp)
 
