@@ -9,9 +9,9 @@
 #include <stack>
 #include <vector>
 
+#include "Constants.h"
 #include "GridField.h"
 #include "Logging.h"
-#include "Parameters.h"
 #include "PointCloud.h"
 #include "Timer.h"
 #include "Vector.h"
@@ -154,7 +154,7 @@ public:
         continue;
 
       // Skip if outlier
-      if (p3D.z - meanElevationRaw > Parameters::PointCloudOutlierThreshold)
+      if (p3D.z - meanElevationRaw > Constants::PointCloudOutlierThreshold)
       {
         numOutliers += 1;
         continue;

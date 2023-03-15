@@ -122,11 +122,11 @@ public:
       const Point3D center = boundary.MidPoint(i);
 
       // Skip if touching bounding box and not pointing upward
-      if (std::abs(center.x - bbox.P.x) < Parameters::Epsilon ||
-          std::abs(center.x - bbox.Q.x) < Parameters::Epsilon ||
-          std::abs(center.y - bbox.P.y) < Parameters::Epsilon ||
-          std::abs(center.y - bbox.Q.y) < Parameters::Epsilon ||
-          std::abs(center.z - bbox.Q.z) < Parameters::Epsilon)
+      if (std::abs(center.x - bbox.P.x) < Constants::Epsilon ||
+          std::abs(center.x - bbox.Q.x) < Constants::Epsilon ||
+          std::abs(center.y - bbox.P.y) < Constants::Epsilon ||
+          std::abs(center.y - bbox.Q.y) < Constants::Epsilon ||
+          std::abs(center.z - bbox.Q.z) < Constants::Epsilon)
       {
         continue;
       }

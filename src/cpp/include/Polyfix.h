@@ -194,7 +194,7 @@ public:
 
     // Avoid using sqrt for efficiency
     // const double tol2 = tol * tol;
-    const double eps = Parameters::Epsilon;
+    const double eps = Constants::Epsilon;
     const double eps2 = eps * eps;
     const double tol2 = tol * tol;
 
@@ -521,7 +521,7 @@ private:
   {
     // Avoid using sqrt for efficiency
     const double tol2 = tol * tol;
-    const double eps2 = Parameters::Epsilon * Parameters::Epsilon;
+    const double eps2 = Constants::Epsilon * Constants::Epsilon;
 
     // Get vertices
     const Point2D &p = vertices[i];
@@ -592,7 +592,7 @@ private:
     const double uv = Geometry::Dot2D(u, v);
     const double u2 = Geometry::SquaredNorm2D(u);
     const double v2 = Geometry::SquaredNorm2D(v);
-    const double eps = Parameters::Epsilon;
+    const double eps = Constants::Epsilon;
     if (uv * uv > (1.0 - eps) * (1.0 - eps) * u2 * v2)
       return;
 

@@ -154,7 +154,7 @@ public:
     Timer timer("MergePolygons (GEOS)");
 
     // Set geometric precision
-    const double EPS = Parameters::Epsilon;
+    const double EPS = Constants::Epsilon;
 
     // Create A, simplify, and cleanup
     GEOSGeometry *_A = CreateGeometry(polygon0);

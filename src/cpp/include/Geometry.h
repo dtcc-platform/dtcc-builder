@@ -12,8 +12,8 @@
 #include <vector>
 
 #include "BoundingBox.h"
+#include "Constants.h"
 #include "Mesh.h"
-#include "Parameters.h"
 #include "Point.h"
 #include "Polygon.h"
 #include "Simplex.h"
@@ -210,9 +210,9 @@ public:
       d0 = std::abs(p0.y - q.y);
       d1 = std::abs(p1.y - q.y);
     }
-    if (d0 > l - Parameters::Epsilon && d0 > d1)
+    if (d0 > l - Constants::Epsilon && d0 > d1)
       return 1;
-    else if (d1 > l - Parameters::Epsilon && d1 > d0)
+    else if (d1 > l - Constants::Epsilon && d1 > d0)
       return -1;
     else
       return 0;
@@ -539,7 +539,7 @@ public:
       const Vector2D v(basePoint, p);
       const double distance = v.Magnitude();
       const double angle =
-          (distance > Parameters::Epsilon ? -v.x / distance : 0.0);
+          (distance > Constants::Epsilon ? -v.x / distance : 0.0);
 
       // Store angle and distance along with index (for sorting)
       angles[k++] = std::make_tuple(angle, distance, i);
@@ -558,7 +558,7 @@ public:
       const size_t currentIndex = std::get<2>(angles[i]);
 
       // Add point or replace last point
-      if (std::abs(currentAngle - lastAngle) > Parameters::Epsilon)
+      if (std::abs(currentAngle - lastAngle) > Constants::Epsilon)
         filteredIndices.push_back(currentIndex);
       else
         filteredIndices[filteredIndices.size() - 1] = currentIndex;
@@ -592,7 +592,7 @@ public:
         const Point2D &p1 = points[i1];
 
         // Check orientation, keep p1 if orientation is positive
-        if (Orient2D(p0, p1, p2) > Parameters::Epsilon)
+        if (Orient2D(p0, p1, p2) > Constants::Epsilon)
         {
           convexHull.push(i1);
           break;

@@ -209,10 +209,10 @@ namespace DTCC_BUILDER
       // Map coordinates to [0, 1] x [0, 1] within grid cell
       x = (_x - ix*XStep) / XStep;
       y = (_y - iy*YStep) / YStep;
-      assert(x >= 0.0 - Parameters::Epsilon);
-      assert(x <= 1.0 + Parameters::Epsilon);
-      assert(y >= 0.0 - Parameters::Epsilon);
-      assert(y <= 1.0 + Parameters::Epsilon);
+      assert(x >= 0.0 - Constants::Epsilon);
+      assert(x <= 1.0 + Constants::Epsilon);
+      assert(y >= 0.0 - Constants::Epsilon);
+      assert(y <= 1.0 + Constants::Epsilon);
       if (x <= 0.0)
         x = 0.0;
       if (x >= 1.0)
@@ -372,12 +372,12 @@ namespace DTCC_BUILDER
       x = (_x - ix * XStep) / XStep;
       y = (_y - iy * YStep) / YStep;
       z = (_z - iz * ZStep) / ZStep;
-      assert(x >= 0.0 - Parameters::Epsilon);
-      assert(x <= 1.0 + Parameters::Epsilon);
-      assert(y >= 0.0 - Parameters::Epsilon);
-      assert(y <= 1.0 + Parameters::Epsilon);
-      assert(z >= 0.0 - Parameters::Epsilon);
-      assert(z <= 1.0 + Parameters::Epsilon);
+      assert(x >= 0.0 - Constants::Epsilon);
+      assert(x <= 1.0 + Constants::Epsilon);
+      assert(y >= 0.0 - Constants::Epsilon);
+      assert(y <= 1.0 + Constants::Epsilon);
+      assert(z >= 0.0 - Constants::Epsilon);
+      assert(z <= 1.0 + Constants::Epsilon);
       if (x <= 0.0)
         x = 0.0;
       if (x >= 1.0)

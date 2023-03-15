@@ -111,7 +111,7 @@ public:
     for (auto &building : cityModel.Buildings)
     {
       // Make closed
-      numClosed += Polyfix::MakeClosed(building.Footprint, Parameters::Epsilon);
+      numClosed += Polyfix::MakeClosed(building.Footprint, Constants::Epsilon);
 
       // Make oriented
       numOriented += Polyfix::MakeOriented(building.Footprint);
@@ -127,7 +127,7 @@ public:
       if (building.Footprint.Vertices.size() > 4)
       {
         numEdgeMerged += Polyfix::MergeEdges(
-            building.Footprint, Parameters::FootprintAngleThreshold);
+            building.Footprint, Constants::FootprintAngleThreshold);
       }
     }
 
@@ -644,7 +644,7 @@ private:
     // Note: Grid size needs to be *at least* minimal distance
     // Note: Factor 4 seems to be a good choice (tested using dtcc-bench-run)
     double h = 4.0 * ComputeMeanBuildingSize(buildings);
-    h = std::max(h, minimalBuildingDistance + Parameters::Epsilon);
+    h = std::max(h, minimalBuildingDistance + Constants::Epsilon);
     size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
     size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
 
@@ -778,13 +778,13 @@ private:
     double yMin = grid.BoundingBox.P.y + iyMin * hy;
     double xMax = grid.BoundingBox.P.x + ixMax * hx;
     double yMax = grid.BoundingBox.P.y + iyMax * hy;
-    if (xMin - bbox.P.x + Parameters::Epsilon > 0.0)
+    if (xMin - bbox.P.x + Constants::Epsilon > 0.0)
       ixMin -= 1;
-    if (yMin - bbox.P.y + Parameters::Epsilon > 0.0)
+    if (yMin - bbox.P.y + Constants::Epsilon > 0.0)
       iyMin -= 1;
-    if (bbox.Q.x - xMax + Parameters::Epsilon > 0.0)
+    if (bbox.Q.x - xMax + Constants::Epsilon > 0.0)
       ixMax += 1;
-    if (bbox.Q.y - yMax + Parameters::Epsilon > 0.0)
+    if (bbox.Q.y - yMax + Constants::Epsilon > 0.0)
       iyMax += 1;
 
     // Check overflow
@@ -894,7 +894,7 @@ private:
       for (auto const &q : uniquePoints)
       {
         const double d = Geometry::Distance2D(p, q);
-        if (d < Parameters::Epsilon)
+        if (d < Constants::Epsilon)
         {
           unique = false;
           break;
