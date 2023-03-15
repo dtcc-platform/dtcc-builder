@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-echo "Building Docker image for DTCC Builder..."
+echo "Building Docker container for DTCC Builder..."
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 DOCKER_COMPOSE_FILE="docker-compose.yml"
+
 export _UID=$(id -u)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     export GID=$(id -u)
@@ -15,5 +15,4 @@ else
     export GID=$(id -g)
 fi
 
-docker-compose -f ${SCRIPT_DIR}/../${DOCKER_COMPOSE_FILE} build dtcc-builder
-# docker-compose -f ${SCRIPT_DIR}/../${DOCKER_COMPOSE_FILE} up -d  dtcc-builder
+docker-compose -f ${SCRIPT_DIR}/${DOCKER_COMPOSE_FILE} build dtcc-builder
