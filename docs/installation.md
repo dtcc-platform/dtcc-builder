@@ -53,8 +53,8 @@ DTCC builder requires data to run. The demo data are not part of the
 repository and must be downloaded separately. To download public demo
 data, enter the `data` directory and issue the following command:
 
-    ./download-demo-data-public
+    ./download-demo-data
 
-> **Note:** The command `download-demo-data` provides additional
+> **Note:** The command `download-demo-data=private` provides additional
 > datasets that may not be shared publicly (because of license
 > restrictions from the data owners).

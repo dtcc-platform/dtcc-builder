@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 
-while [ -z "$username" ]; do
-    read -p "Enter FTP username: " username
-done
+echo "Downloading public demo data from data.dtcc.chalmers.se..."
+wget http://data.dtcc.chalmers.se:5001/demo-data-public -v -O dtcc-demo-data-public.tar.gz
+tar zxfv dtcc-demo-data-public.tar.gz
+rm -f dtcc-demo-data-public.tar.gz
 
-while [ -z "$password" ]; do
-    read -s -p "Enter FTP password: " password
-done
-
-echo "Trying to login to cloud.dtcc.chalmers.se FTP over TLS with username $username ..."
-lftp -e "set ssl:verify-certificate no;set ftp:ssl-allow true;set ftp:ssl-protect-data true;mirror -n --verbose --use-pget-n=8 -c --verbose /Demo-Data/Private/Data/ /home/dtcc/core/data;" < /dev/null -u $username\,$password ftp://cloud.dtcc.chalmers.se
+# Note: Stored at /data/datasets/Public on data server
