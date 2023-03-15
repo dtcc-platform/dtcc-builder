@@ -6,7 +6,6 @@
 import sys
 import argparse
 
-# sys.path.append("pybuilder")
 
 from pathlib import Path
 import os
@@ -38,7 +37,8 @@ def create_parameters_options(parser):
         name_translator[kebab_name] = k
         val_type = type(v).__name__
         if val_type == "bool":
-            parser.add_argument(f"--{kebab_name}", default=v, action="store_true")
+            parser.add_argument(f"--{kebab_name}",
+                                default=v, action="store_true")
         else:
             parser.add_argument(
                 f"--{kebab_name}", default=None, type=type_map[val_type]
@@ -83,7 +83,8 @@ def calc_project_domain(p):
             p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
         )
         las_bounds = io.pointcloud.calc_las_bounds(p["PointCloudDirectory"])
-        domain_bounds = io.bounds.bounds_intersect(footprint_bounds, las_bounds)
+        domain_bounds = io.bounds.bounds_intersect(
+            footprint_bounds, las_bounds)
         origin = domain_bounds[:2]
         p["X0"] = origin[0]
         p["Y0"] = origin[1]
@@ -116,7 +117,8 @@ def set_directories(p, project_path):
     else:
         p["PointCloudDirectory"] = Path(p["PointCloudDirectory"])
         if not p["PointCloudDirectory"].is_absolute():
-            p["PointCloudDirectory"] = p["DataDirectory"] / p["PointCloudDirectory"]
+            p["PointCloudDirectory"] = p["DataDirectory"] / \
+                p["PointCloudDirectory"]
 
     return p
 
@@ -186,16 +188,19 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
     mesh_2D = Meshing.generate_mesh2D(cm, dtm.bounds, p["MeshResolution"])
 
     if p["Debug"] and p["WriteVTK"]:
-        Meshing.write_VTK_mesh2D(mesh_2D, p["OutputDirectory"] / "Step31Mesh.vtu")
+        Meshing.write_VTK_mesh2D(
+            mesh_2D, p["OutputDirectory"] / "Step31Mesh.vtu")
 
     # Step 3.2: Generate 3D mesh (layer 3D mesh)
-    mesh_3D = Meshing.generate_mesh3D(mesh_2D, p["DomainHeight"], p["MeshResolution"])
+    mesh_3D = Meshing.generate_mesh3D(
+        mesh_2D, p["DomainHeight"], p["MeshResolution"])
     if p["Debug"] and p["WriteVTK"]:
         mesh_3D_boundary = Meshing.extract_boundary3D(mesh_3D)
         Meshing.write_surface(
             mesh_3D_boundary, p["OutputDirectory"] / "Step32Boundary.vtu"
         )
-        Meshing.write_volume_mesh(mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu")
+        Meshing.write_volume_mesh(
+            mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu")
 
     # Step 3.3: Smooth 3D mesh (set ground height)
     top_height = dtm.mean() + p["DomainHeight"]
@@ -206,7 +211,8 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
         Meshing.write_VTK_surface3D(
             mesh_3D_boundary, p["OutputDirectory"] / "Step33Boundary.vtu"
         )
-        Meshing.write_volume_mesh(mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu")
+        Meshing.write_volume_mesh(
+            mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu")
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
     mesh_3D = Meshing.trim_mesh3D(mesh_3D, mesh_2D, cm, mesh_3D.numLayers)
@@ -219,7 +225,8 @@ def generate_volume_mesh(cm: CityModel, dtm: ElevationModel, p: dict):
         Meshing.write_VTK_surface3D(
             mesh_3D_boundary, p["OutputDirectory"] / "Step35Boundary.vtu"
         )
-        Meshing.write_volume_mesh(mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu")
+        Meshing.write_volume_mesh(
+            mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu")
 
     return mesh_3D
 
@@ -269,11 +276,14 @@ def run(p, project_path, citymodel_only=False, mesh_only=False):
             Meshing.write_volume_mesh(
                 volume_mesh, p["OutputDirectory"] / "CityMesh.vtu"
             )
-            Meshing.write_surface(surface, p["OutputDirectory"] / "CitySurface.vtu")
+            Meshing.write_surface(
+                surface, p["OutputDirectory"] / "CitySurface.vtu")
         if p["WriteSTL"]:
-            Meshing.write_surface(surface, p["OutputDirectory"] / "CitySurface.stl")
+            Meshing.write_surface(
+                surface, p["OutputDirectory"] / "CitySurface.stl")
         if p["WriteOBJ"]:
-            Meshing.write_surface(surface, p["OutputDirectory"] / "CitySurface.obj")
+            Meshing.write_surface(
+                surface, p["OutputDirectory"] / "CitySurface.obj")
         if p["WriteProtobuf"]:
             Meshing.write_Protobuf_surface3D(
                 surface, p["OutputDirectory"] / "CitySurface.pb"
@@ -300,10 +310,12 @@ def main():
     parameters_file, project_path = get_project_paths(args.projectpath)
 
     if not parameters_file.is_file():
-        print(f"Warning!: cannot find {parameters_file} using default parameters")
+        print(
+            f"Warning!: cannot find {parameters_file} using default parameters")
         parameters = builder.Parameters.load_parameters()
     else:
         parameters = builder.Parameters.load_parameters(parameters_file)
 
-    parameters = update_parameters_from_options(parameters, args, name_translator)
+    parameters = update_parameters_from_options(
+        parameters, args, name_translator)
     run(parameters, project_path, args.citymodel_only, args.mesh_only)
