@@ -1,19 +1,33 @@
 # Installation
 
-## Downloading the software
+DTCC Builder can be easily installed using [`pip`](https://pypi.org/project/pip/).
 
-To download the software, clone the Git repository by the following command:
+To install from the Python Package Index (PyPI):
 
-    git clone https://gitlab.com/dtcc-platform/dtcc-builder.git
+    pip install dtcc-builder
 
-Alternatively, you may want to use the SSH protocol:
+To install from the source directory:
 
-    git clone git@gitlab.com:dtcc-platform/dtcc-builder.git
+    pip install .
 
-This will create a directory named `dtcc-builder` containing the full
-source code of DTCC Builder.
+> **NOTE**: Fix for conflicting versions of `pip` and `python`
+>
+> Sometimes `pip` and `python` may be out of sync which means that `pip` will
+> install a package in a location where it will not be found by `python`.
+> It is therefore safer to replace the `pip` command by `python -m pip`:
+>
+>     python -m pip install [ package-name or . ]
 
-## Installing dependencies
+> **NOTE**: Fix for broken setuptools in Ubuntu 22.04
+>
+> A bug in Ubuntu 22.04 prevents [PEP621](https://peps.python.org/pep-0621/)
+> compliant Python projects from installing properly with `pip`, resulting in
+> package name and version number `UNKNOWN-0.0.0`.
+> To fix this, run the following commmand before `pip install`:
+>
+>     export DEB_PYTHON_INSTALL_LAYOUT=deb_system
+
+# Docker image
 
 DTCC Builder depends on a number of open-source libraries. The easiest
 way to install these dependencies is to use the provided Docker image
@@ -28,26 +42,7 @@ The first of these two commands will build a Docker image and
 container for DTCC Builder and the second command will start
 the container.
 
-## Building the software
-
-DTCC Builder is implemented in C++ and uses
-[CMake](https://cmake.org/) for configuration and build. To create a
-standard out-of-source CMake build, issue the following commands from
-the top-level directory:
-
-    mkdir build
-    cd build
-    cmake ..
-    make -j
-    make install
-
-This will build and install all programs into the top-level `bin`
-directory.
-
-> **Note:** These commands should be run from inside the Docker
-> container provided for DTCC Builder.
-
-## Downloading demo data
+## Demo data
 
 DTCC builder requires data to run. The demo data are not part of the
 repository and must be downloaded separately. To download public demo
