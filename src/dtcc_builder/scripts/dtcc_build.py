@@ -102,14 +102,14 @@ def run(p, project_path, citymodel_only, mesh_only):
     p = set_directories(p, project_path)
     print(p)
     #cm, dtm = None, None
-
     cm, dtm = builder.create_citymodel(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
     if p["WriteJSON"]:
         with open(p["OutputDirectory"]/ "CityModel.json", "w") as dst:
+            print(cm)
             dst.write(MessageToJson(cm))
     if p["WriteProtobuf"]:
         with open(p["OutputDirectory"]/ "CityModel.pb", "wb") as dst:
-            dst.write(cm)
+            dst.write(cm.SerializeToString())
     io.citymodel.write(cm, p["OutputDirectory"] / "CityModel.shp",)
     if not citymodel_only:
         volume_mesh, surface_mesh = builder.create_volume_mesh(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
@@ -122,9 +122,9 @@ def run(p, project_path, citymodel_only, mesh_only):
         
         if p["WriteProtobuf"]:
             with open(p["OutputDirectory"]/ "CitySurface.pb", "wb") as dst:
-                dst.write(surface_mesh)
+                dst.write(surface_mesh.SerilaizeToString())
             with open(p["OutputDirectory"]/ "CityMesh.pb", "wb") as dst:
-                dst.write(volume_mesh)
+                dst.write(volume_mesh.SerializeToString())
         if p["WriteVTK"]:
             io.mesh.write(surface_mesh,p["OutputDirectory"]/ "CitySurface.vtk")
             io.mesh.write(volume_mesh,p["OutputDirectory"]/ "CityMesh.vtk", volume_mesh=True)
@@ -132,7 +132,7 @@ def run(p, project_path, citymodel_only, mesh_only):
             io.mesh.write(surface_mesh,p["OutputDirectory"]/ "CitySurface.obj")
             io.mesh.write(volume_mesh,p["OutputDirectory"]/ "CityMesh.obj", volume_mesh=True)
         if p["WriteSTL"]:
-            io.mesh.write(msurface_mesh,p["OutputDirectory"]/ "CitySurface.stl")
+            io.mesh.write(surface_mesh,p["OutputDirectory"]/ "CitySurface.stl")
             io.mesh.write(volume_mesh,p["OutputDirectory"]/ "CityMesh.stl", volume_mesh=True)
     
 def main():

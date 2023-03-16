@@ -1,4 +1,5 @@
 import dtcc_builder as builder
+import dtcc_model as model
 from dtcc_builder import _pybuilder
 import dtcc_io as io
 from pathlib import Path
@@ -58,30 +59,35 @@ def create_citymodel(
     pc.remove_global_outliers(p["OutlierMargin"])
     if p["NaiveVegitationFilter"]:
         pc.vegetation_filter()
-    cm = builder.CityModel(
+    city_model = builder.CityModel(
         footprints_file=building_footprint_path, parameters=p, bounds=domain_bounds
     )
-    cm.set_origin(origin)
-    cm.clean_citymodel()
+    city_model.set_origin(origin)
+    city_model.clean_citymodel()
 
     dtm = builder.ElevationModel(pc, p["ElevationModelResolution"], [2, 9])
     # dsm = ElevationModel(pc, p["ElevationModelResolution"])
     dtm.smooth_elevation_model(p["GroundSmoothing"])
 
-    cm.extract_building_points(pc)
+    city_model.extract_building_points(pc)
 
     if 6 not in pc.used_classifications and p["RANSACOutlierRemover"]:
-        cm.building_points_RANSAC_outlier_remover()
+        city_model.building_points_RANSAC_outlier_remover()
 
     if p["StatisticalOutlierRemover"]:
-        cm.building_points_statistical_outlier_remover()
+        city_model.building_points_statistical_outlier_remover()
 
-    cm.compute_building_heights(dtm)
+    city_model.compute_building_heights(dtm)
 
     if return_protobuf:
-        cm = cm.to_protobuf()
-        dtm = dtm.to_protobuf()
-    return (cm, dtm)
+        cm = model.CityModel()
+        cm_string = city_model.to_protobuf()
+        print("pb_string", cm_string)
+        #print(f"cm {cm}")
+        city_model = cm.ParseFromString(cm_string)
+        print(f"city_model {city_model}")
+        dtm = "" #dtm.to_protobuf()
+    return (city_model, dtm)
 
 
 def create_surface_meshes(
@@ -111,8 +117,10 @@ def create_surface_meshes(
     building_surfaces = surfaces[1:]
     building_surfaces = builder.Meshing.merge_surfaces3D(building_surfaces)
     if return_protobuf:
-        ground_surface = _pybuilder.convertSurface3DToProtobuf(ground_surface)
-        building_surfaces = _pybuilder.convertSurface3DToProtobuf(building_surfaces)
+        gs = model.Surface3D()
+        bs = model.Surface3D()
+        ground_surface = gs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(ground_surface))
+        building_surfaces = bs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(building_surfaces))
     return ground_surface, building_surfaces
 
 
@@ -187,6 +195,8 @@ def create_mesh(
         )
 
     if return_protobuf:
-        mesh_3D = _pybuilder.convertVolumeMeshToProtobuf(mesh_3D)
-        mesh_3D_boundary = _pybuilder.convertSurface3DToProtobuf(mesh_3D_boundary)
+        m3d = model.VolumeMesh()
+        m3d_b = model.Surface3D()
+        mesh_3D = m3d.ParseFromString(_pybuilder.convertVolumeMeshToProtobuf(mesh_3D))
+        mesh_3D_boundary = m3d_b.ParseFromString(_pybuilder.convertSurface3DToProtobuf(mesh_3D_boundary))
     return mesh_3D, mesh_3D_boundary
