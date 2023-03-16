@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 _parameters = {}
 
@@ -53,8 +54,14 @@ _parameters["OutputDirectory"] = ""
 
 def load_parameters(file_path=None):
     global _parameters
-    print(file_path)
+    #print(file_path)
     if file_path is None:
+        return _parameters
+    file_path = Path(file_path)
+    if file_path.is_dir():
+        file_path = file_path / "Parameters.json"
+    if not file_path.exists():
+        print(f"Parameters file {file_path} does not exist, using default parameters")
         return _parameters
     with open(file_path) as src:
         loaded_parameters = json.load(src)

@@ -32,3 +32,7 @@ class ElevationModel:
 
     def max(self):
         return _pybuilder.MaxElevation(self._grid_field)
+
+    # TODO: Implement this
+    def to_protobuf(self):
+        return ""
