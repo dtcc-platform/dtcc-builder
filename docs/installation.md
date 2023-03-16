@@ -27,7 +27,7 @@ To install from the source directory:
 >
 >     export DEB_PYTHON_INSTALL_LAYOUT=deb_system
 
-# Docker image
+## Docker image
 
 DTCC Builder depends on a number of open-source libraries. The easiest
 way to install these dependencies is to use the provided Docker image
