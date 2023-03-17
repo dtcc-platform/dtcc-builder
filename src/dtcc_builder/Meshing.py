@@ -1,6 +1,6 @@
 from dtcc_builder import _pybuilder
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from dtcc_builder import CityModel
 from dtcc_builder import ElevationModel
 import dtcc_io as io
@@ -65,12 +65,20 @@ def write_Protobuf_surface3D(surface: _pybuilder.Surface3D, out_file):
         pb = _pybuilder.convertSurface3DToProtobuf(surface)
         f.write(pb)
 
-
-def write_surface(surface: _pybuilder.Surface3D, file_name):
-    pb = _pybuilder.convertSurface3DToProtobuf(surface)
-    io.write_mesh(file_name, pb)
-
-
-def write_volume_mesh(mesh: _pybuilder.Mesh3D, file_name):
-    pb = _pybuilder.convertMesh3DToProtobuf(mesh)
-    io.write_mesh(file_name, pb)
+def write_mesh(
+    mesh: _pybuilder.Mesh3D | _pybuilder.Mesh2D | _pybuilder.Surface3D, file_name
+):
+    if isinstance(mesh, _pybuilder.Mesh3D):
+        pb_mesh = model.Mesh3D()
+        pb = _pybuilder.convertMesh3DToProtobuf(mesh)
+        pb_mesh.ParseFromString(pb)
+    elif isinstance(mesh, _pybuilder.Surface3D):
+        pb_mesh = model.Surface3D()
+        pb = _pybuilder.convertSurface3DToProtobuf(mesh)
+        pb_mesh.ParseFromString(pb)
+    elif isinstance(mesh, _pybuilder.Mesh2D):
+        pb_mesh = model.Mesh2D()
+        pb = _pybuilder.convertMesh2DToProtobuf(mesh)
+        pb_mesh.ParseFromString(pb)
+    io.write_mesh(file_name, pb_mesh)
+    return

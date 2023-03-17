@@ -161,10 +161,10 @@ def build_mesh(
     )
     if p["Debug"] and p["WriteVTK"]:
         mesh_3D_boundary = builder.Meshing.extract_boundary3D(mesh_3D)
-        builder.Meshing.write_surface(
+        builder.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step32Boundary.vtu"
         )
-        builder.Meshing.write_volume_mesh(
+        builder.Meshing.write_mesh(
             mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu"
         )
 
@@ -174,10 +174,10 @@ def build_mesh(
 
     if p["Debug"] and p["WriteVTK"]:
         mesh_3D_boundary = builder.Meshing.extract_boundary3D(mesh_3D)
-        builder.Meshing.write_surface(
+        builder.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step33Boundary.vtu"
         )
-        builder.Meshing.write_volume_mesh(
+        builder.Meshing.write_mesh(
             mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu"
         )
 
@@ -188,10 +188,10 @@ def build_mesh(
     mesh_3D = builder.Meshing.smooth_mesh3D(mesh_3D, cm, dtm, top_height, True)
     mesh_3D_boundary = builder.Meshing.extract_boundary3D(mesh_3D)
     if p["Debug"] and p["WriteVTK"]:
-        builder.Meshing.write_surface(
+        builder.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step35Boundary.vtu"
         )
-        builder.Meshing.write_volume_mesh(
+        builder.Meshing.write_mesh(
             mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu"
         )
 
