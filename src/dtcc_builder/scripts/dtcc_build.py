@@ -71,35 +71,8 @@ def get_project_paths(path):
 
     return (parameters_file, project_path)
 
-def set_directories(p, project_path):
-    if p["DataDirectory"] == "":
-        p["DataDirectory"] = project_path
-    if p["OutputDirectory"] == "":
-        p["OutputDirectory"] = project_path
+def run(p, citymodel_only, mesh_only):
 
-    p["DataDirectory"] = Path(p["DataDirectory"])
-    p["OutputDirectory"] = Path(p["OutputDirectory"])
-    p["OutputDirectory"].mkdir(parents=True, exist_ok=True)
-    if p["PointCloudDirectory"] == "":
-        p["PointCloudDirectory"] = p["DataDirectory"]
-    else:
-        p["PointCloudDirectory"] = Path(p["PointCloudDirectory"])
-        if not p["PointCloudDirectory"].is_absolute():
-            p["PointCloudDirectory"] = p["DataDirectory"] / \
-                p["PointCloudDirectory"]
-
-    return p
-
-def run(p, project_path, citymodel_only, mesh_only):
-    # parameters_file, project_path = get_project_paths(args)
-
-    # if not parameters_file.is_file():
-    #     print(f'Warning!: cannot find {parameters_file} using default parameters')
-    #     p = load_parameters()
-    # else:
-    #     p = load_parameters(parameters_file)
-
-    p = set_directories(p, project_path)
     print(p)
     #cm, dtm = None, None
     cm, dtm = builder.create_citymodel(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
@@ -154,10 +127,10 @@ def main():
     if not parameters_file.is_file():
         print(
             f"Warning!: cannot find {parameters_file} using default parameters")
-        parameters = builder.Parameters.load_parameters()
+        parameters = builder.Parameters.load_parameters(None, project_path)
     else:
-        parameters = builder.Parameters.load_parameters(parameters_file)
+        parameters = builder.Parameters.load_parameters(parameters_file, project_path)
 
     parameters = update_parameters_from_options(
         parameters, args, name_translator)
-    run(parameters, project_path, args.citymodel_only, args.mesh_only)
+    run(parameters, args.citymodel_only, args.mesh_only)

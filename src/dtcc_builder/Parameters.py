@@ -52,18 +52,40 @@ _parameters["PointCloudDirectory"] = ""
 _parameters["OutputDirectory"] = ""
 
 
-def load_parameters(file_path=None):
+def load_parameters(file_path=None, project_path="."):
     global _parameters
     #print(file_path)
     if file_path is None:
-        return _parameters
-    file_path = Path(file_path)
-    if file_path.is_dir():
-        file_path = file_path / "Parameters.json"
-    if not file_path.exists():
-        print(f"Parameters file {file_path} does not exist, using default parameters")
-        return _parameters
-    with open(file_path) as src:
-        loaded_parameters = json.load(src)
-    _parameters.update(loaded_parameters)
-    return _parameters
+        p = _parameters
+    else:
+        file_path = Path(file_path)
+        if file_path.is_dir():
+            file_path = file_path / "Parameters.json"
+        if not file_path.exists():
+            print(f"Parameters file {file_path} does not exist, using default parameters")
+            p = _parameters
+        else:
+            with open(file_path) as src:
+                loaded_parameters = json.load(src)
+            _parameters.update(loaded_parameters)
+            p = set_directories(_parameters, project_path)
+    return p
+
+def set_directories(p, project_path):
+    if p["DataDirectory"] == "":
+        p["DataDirectory"] = project_path
+    if p["OutputDirectory"] == "":
+        p["OutputDirectory"] = p["DataDirectory"]
+
+    p["DataDirectory"] = Path(p["DataDirectory"])
+    p["OutputDirectory"] = Path(p["OutputDirectory"])
+    p["OutputDirectory"].mkdir(parents=True, exist_ok=True)
+    if p["PointCloudDirectory"] == "":
+        p["PointCloudDirectory"] = p["DataDirectory"]
+    else:
+        p["PointCloudDirectory"] = Path(p["PointCloudDirectory"])
+        if not p["PointCloudDirectory"].is_absolute():
+            p["PointCloudDirectory"] = p["DataDirectory"] / \
+                p["PointCloudDirectory"]
+
+    return p
