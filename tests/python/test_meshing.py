@@ -124,6 +124,7 @@ class TestMeshing(unittest.TestCase):
         boundary = Meshing.extract_boundary3D(mesh3D)
 
         out_file = "test.obj"
-        done = Meshing.write_surface(boundary, out_file)
+        done = Meshing.write_mesh(boundary, out_file)
+        self.assertTrue(done)
         self.assertTrue(os.path.isfile(out_file))
         os.unlink(out_file)
