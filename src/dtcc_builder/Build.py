@@ -30,7 +30,7 @@ def project_domain(p):
     return (origin, domain_bounds)
 
 
-def create_citymodel(
+def build_citymodel(
     building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
 ):
     """Create a city model from a directory of point clouds and a shapefile of building footprints.
@@ -89,7 +89,7 @@ def create_citymodel(
     return (city_model, dtm)
 
 
-def create_surface_meshes(
+def build_surface_meshes(
     building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
 ):
     """Create a surface mesh from a directory of point clouds and a shapefile of building footprints.
@@ -108,7 +108,7 @@ def create_surface_meshes(
     else:
         p = builder.load_parameters(parameters)
 
-    cm, dtm = create_citymodel(building_footprint_path, pointcloud_path, p, False)
+    cm, dtm = build_citymodel(building_footprint_path, pointcloud_path, p, False)
     if not cm.simplified:
         cm.simplify_citymodel(dtm.bounds)
     surfaces = builder.Meshing.generate_surface3D(cm, dtm, p["MeshResolution"])
@@ -125,7 +125,7 @@ def create_surface_meshes(
     return ground_surface, building_surfaces
 
 
-def create_mesh(
+def build_mesh(
     building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
 ):
     """Create a volume mesh from a directory of point clouds and a shapefile of building footprints.
@@ -144,7 +144,7 @@ def create_mesh(
     else:
         p = builder.load_parameters(parameters)
 
-    cm, dtm = create_citymodel(building_footprint_path, pointcloud_path, p, False)
+    cm, dtm = build_citymodel(building_footprint_path, pointcloud_path, p, False)
     if not cm.simplified:
         cm.simplify_citymodel(dtm.bounds)
 
