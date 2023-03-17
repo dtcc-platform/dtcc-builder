@@ -82,11 +82,10 @@ def create_citymodel(
     if return_protobuf:
         cm = model.CityModel()
         cm_string = city_model.to_protobuf()
-        print("pb_string", cm_string)
-        #print(f"cm {cm}")
-        city_model = cm.ParseFromString(cm_string)
-        print(f"city_model {city_model}")
+        cm.ParseFromString(cm_string)
+        city_model = cm
         dtm = "" #dtm.to_protobuf()
+
     return (city_model, dtm)
 
 
@@ -119,8 +118,10 @@ def create_surface_meshes(
     if return_protobuf:
         gs = model.Surface3D()
         bs = model.Surface3D()
-        ground_surface = gs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(ground_surface))
-        building_surfaces = bs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(building_surfaces))
+        gs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(ground_surface))
+        bs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(building_surfaces))
+        ground_surface = gs
+        building_surfaces = bs
     return ground_surface, building_surfaces
 
 
@@ -197,6 +198,8 @@ def create_mesh(
     if return_protobuf:
         m3d = model.VolumeMesh()
         m3d_b = model.Surface3D()
-        mesh_3D = m3d.ParseFromString(_pybuilder.convertVolumeMeshToProtobuf(mesh_3D))
-        mesh_3D_boundary = m3d_b.ParseFromString(_pybuilder.convertSurface3DToProtobuf(mesh_3D_boundary))
+        m3d.ParseFromString(_pybuilder.convertVolumeMeshToProtobuf(mesh_3D))
+        m3d_b.ParseFromString(_pybuilder.convertSurface3DToProtobuf(mesh_3D_boundary))
+        mesh_3D = m3d
+        mesh_3D_boundary = m3d_b
     return mesh_3D, mesh_3D_boundary

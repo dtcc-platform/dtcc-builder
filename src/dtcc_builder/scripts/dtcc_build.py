@@ -105,14 +105,13 @@ def run(p, project_path, citymodel_only, mesh_only):
     cm, dtm = builder.create_citymodel(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
     if p["WriteJSON"]:
         with open(p["OutputDirectory"]/ "CityModel.json", "w") as dst:
-            print(cm)
             dst.write(MessageToJson(cm))
     if p["WriteProtobuf"]:
         with open(p["OutputDirectory"]/ "CityModel.pb", "wb") as dst:
             dst.write(cm.SerializeToString())
     io.citymodel.write(cm, p["OutputDirectory"] / "CityModel.shp",)
     if not citymodel_only:
-        volume_mesh, surface_mesh = builder.create_volume_mesh(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
+        volume_mesh, surface_mesh = builder.create_mesh(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
 
         if p["WriteJSON"]:
             with open(p["OutputDirectory"]/ "CitySurface.json", "w"):

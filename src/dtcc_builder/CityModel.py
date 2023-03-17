@@ -174,9 +174,7 @@ class CityModel:
     def to_protobuf(self) -> str:
         """convert CityModel to protobuf string"""
         pb_string = _pybuilder.convertCityModelToProtobuf(self._builder_cm)
-        
         return pb_string
-    
 
 
 def get_building_footprint(building: _pybuilder.Building):
