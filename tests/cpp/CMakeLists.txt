@@ -1,4 +1,4 @@
-set(PROGRAM run-unittests)
+set(PROGRAM run-tests)
 
 #MESSAGE("Fetching FTP data for unittests")
 #execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/data/dtcc-download-data-unittests"

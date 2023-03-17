@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+env:
+  BRANCH: develop
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+    # Placeholder for Docker on our Amazon AWS Runner
+    #container:
+    #  image: ubuntu-latest
+    #  options: --user 1000
+
+
+    steps:
+    # VN at 16 March 2023: checkout/v3 causes some weird issues, so went for manual cloning instead...
+    #- uses: actions/checkout@v3
+    - name: clone repo
+      run: git clone https://github.com/dtcc-platform/${{ github.event.repository.name }} -b $BRANCH && pwd
+    - name: pip install
+      run: export "DEB_PYTHON_INSTALL_LAYOUT=deb_system" && pip install ${{ github.event.repository.name }}/
+    #- name: cmake install
+    #  run: cd ${{ github.event.repository.name }}/build/ && cmake .. && make all && sudo make install && cd ..
+    - name: run tests
+      run: cd ${{ github.event.repository.name }}/tests && pwd && ls -alt && sh run-tests
+    - name: cleanup op
+      run : sudo find /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}/. -name . -o -prune -exec rm -rf -- {} + || true
+    # This fails after checkout/v3 was not used
+    #- name: more cleanup ops
+    #  run : pwd && sudo rm -rf /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}

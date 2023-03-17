@@ -21,7 +21,6 @@ fi
 
 # Run demo
 echo "Running demo for data set $DATASET..."
-../bin/dtcc-generate-citymodel $DATA_DIRECTORY
-../bin/dtcc-generate-mesh $DATA_DIRECTORY
+dtcc-build $DATA_DIRECTORY
 echo ""
-echo "Demo completed. Generated data saved to $DATA_DIRECTORY."
+echo "Demo completed. Generated data saved to $DATA_DIRECTORY"
