@@ -98,14 +98,14 @@ def run(p, citymodel_only, mesh_only):
             with open(p["OutputDirectory"]/ "CityMesh.pb", "wb") as dst:
                 dst.write(volume_mesh.SerializeToString())
         if p["WriteVTK"]:
-            io.mesh.write(surface_mesh,p["OutputDirectory"]/ "CitySurface.vtk")
-            io.mesh.write(volume_mesh,p["OutputDirectory"]/ "CityMesh.vtk", volume_mesh=True)
+            io.write_mesh(surface_mesh,p["OutputDirectory"]/ "CitySurface.vtk")
+            io.write_mesh(volume_mesh,p["OutputDirectory"]/ "CityMesh.vtk")
         if p["WriteOBJ"]:
-            io.mesh.write(surface_mesh,p["OutputDirectory"]/ "CitySurface.obj")
-            io.mesh.write(volume_mesh,p["OutputDirectory"]/ "CityMesh.obj", volume_mesh=True)
+            io.write_mesh(surface_mesh,p["OutputDirectory"]/ "CitySurface.obj")
+            io.write_mesh(volume_mesh,p["OutputDirectory"]/ "CityMesh.obj")
         if p["WriteSTL"]:
-            io.mesh.write(surface_mesh,p["OutputDirectory"]/ "CitySurface.stl")
-            io.mesh.write(volume_mesh,p["OutputDirectory"]/ "CityMesh.stl", volume_mesh=True)
+            io.write_mesh(surface_mesh,p["OutputDirectory"]/ "CitySurface.stl")
+            io.write_mesh(volume_mesh,p["OutputDirectory"]/ "CityMesh.stl")
     
 def main():
     parser = argparse.ArgumentParser(
