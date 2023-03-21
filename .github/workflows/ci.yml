@@ -31,6 +31,7 @@ jobs:
     - name: run tests
       run: cd ${{ github.event.repository.name }}/tests && pwd && ls -alt && sh run-tests
     - name: cleanup op
+      if: always()
       run : sudo find /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}/. -name . -o -prune -exec rm -rf -- {} + || true
     # This fails after checkout/v3 was not used
     #- name: more cleanup ops
