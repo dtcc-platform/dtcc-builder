@@ -80,5 +80,5 @@ def write_mesh(
         pb_mesh = model.Mesh2D()
         pb = _pybuilder.convertMesh2DToProtobuf(mesh)
         pb_mesh.ParseFromString(pb)
-    io.write_mesh(file_name, pb_mesh)
+    io.save_mesh(file_name, pb_mesh)
     return

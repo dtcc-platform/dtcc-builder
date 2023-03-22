@@ -321,10 +321,10 @@ PYBIND11_MODULE(_pybuilder, m)
 
   py::class_<DTCC_BUILDER::CityModel>(m, "CityModel")
       .def(py::init<>())
-      .def(
-          "__len__",
-          [](const DTCC_BUILDER::CityModel &cm) { return cm.Buildings.size(); })
-      .def_readonly("buildings", &DTCC_BUILDER::CityModel::Buildings);
+      .def("__len__", [](const DTCC_BUILDER::CityModel &cm)
+           { return cm.Buildings.size(); })
+      .def_readonly("buildings", &DTCC_BUILDER::CityModel::Buildings)
+      .def_readonly("origin", &DTCC_BUILDER::CityModel::Origin);
 
   py::class_<DTCC_BUILDER::Building>(m, "Building")
       .def(py::init<>())
