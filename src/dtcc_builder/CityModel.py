@@ -30,7 +30,7 @@ class CityModel:
         self.extracted_points = False
         self.calculated_heights = False
         if footprints_file is not None:
-            cm_pb = io.citymodel.read(
+            cm_pb = io.load_citymodel(
                 footprints_file,
                 uuid_field=parameters["UUIDField"],
                 area_filter=self.parameters["MinBuildingSize"],
@@ -170,7 +170,9 @@ class CityModel:
     def load_protobuf(self, protobuf_string: str):
         """load CityModel from a CityModel protobuf string"""
         self._builder_cm = _pybuilder.loadCityModelProtobuf(protobuf_string)
-
+        self.origin = (self._builder_cm.origin.x, self._builder_cm.origin.y)
+        
+    
     def to_protobuf(self) -> str:
         """convert CityModel to protobuf string"""
         pb_string = _pybuilder.convertCityModelToProtobuf(self._builder_cm)

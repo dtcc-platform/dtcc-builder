@@ -82,7 +82,7 @@ def run(p, citymodel_only, mesh_only):
     if p["WriteProtobuf"]:
         with open(p["OutputDirectory"]/ "CityModel.pb", "wb") as dst:
             dst.write(cm.SerializeToString())
-    io.citymodel.write(cm, p["OutputDirectory"] / "CityModel.shp",)
+    io.save_citymodel(cm, p["OutputDirectory"] / "CityModel.shp",)
     if not citymodel_only:
         volume_mesh, surface_mesh = builder.build_mesh(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
 

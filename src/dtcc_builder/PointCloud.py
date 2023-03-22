@@ -39,7 +39,7 @@ class PointCloud:
     points = property(_points_as_numpy)
 
     def load_from_path(self, las_path, extra_data=True):
-        pb_string = io.pointcloud.read(
+        pb_string = io.load_pointcloud(
             las_path,
             points_classification_only=not extra_data,
             bounds=self.bounds,
