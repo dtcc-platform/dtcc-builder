@@ -42,7 +42,7 @@ class TestCityModel(unittest.TestCase):
         bbox = io.citymodel.building_bounds(self.shp_file, 10)
         origin = (bbox[0], bbox[1])
         self.cm.set_origin(origin)
-        self.assertEquals(self.cm.origin, origin)
+        self.assertEqual(self.cm.origin, origin)
 
     def test_load(self):
         shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"

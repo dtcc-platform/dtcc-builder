@@ -114,7 +114,7 @@ class TestMeshing(unittest.TestCase):
         mesh3D = Meshing.generate_mesh3D(mesh2D, self.p["DomainHeight"], self.p["MeshResolution"])
 
         out_file = "test_3D.vtk"
-        done = Meshing.write_volume_mesh(mesh3D, out_file)
+        done = Meshing.write_mesh(mesh3D, out_file)
         self.assertTrue(os.path.isfile(out_file))
         os.unlink(out_file)
 

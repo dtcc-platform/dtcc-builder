@@ -73,7 +73,7 @@ class TestConvert(unittest.TestCase):
         pc = PointCloud()
         pc.from_protobuf(pb_string)
         self.assertIsInstance(pc._builder_pc, _pybuilder.PointCloud)
-        self.assertEquals(len(pc), 8148)
+        self.assertEqual(len(pc), 8148)
 
     def test_to_protobuf(self):
         pc = PointCloud(data_dir / "MinimalCase" / "pointcloud.las")
@@ -86,7 +86,7 @@ class TestConvert(unittest.TestCase):
         pc2 = PointCloud()
         pc2.from_protobuf(protobuf)
         self.assertIsInstance(pc2._builder_pc, _pybuilder.PointCloud)
-        self.assertEquals(len(pc2), 8148)
+        self.assertEqual(len(pc2), 8148)
 
 
 
