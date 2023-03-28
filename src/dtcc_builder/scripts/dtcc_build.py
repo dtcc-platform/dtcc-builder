@@ -73,12 +73,15 @@ def get_project_paths(path):
 
 def run(p, citymodel_only):
     print(p)
-    #cm, dtm = None, None
+    footprint_file = Path(p["DataDirectory"]) / p["BuildingsFileName"]
+    output_path = Path(p["OutputDirectory"])
+    pointcloud_path = Path(p["PointCloudDirectory"])
+
     footprint_bounds = io.citymodel.building_bounds(
-            p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
+            footprint_file, p["DomainMargin"]
     )
-    footprints = io.load_footprints(p["DataDirectory"] / p["BuildingsFileName"])
-    pointcloud = io.load_pointcloud(p["PointCloudDirectory"], footprint_bounds)
+    footprints = io.load_footprints(footprint_file)
+    pointcloud = io.load_pointcloud(pointcloud_path, footprint_bounds)
     city_model = builder.build_citymodel(footprints, pointcloud, p)
     if p["WriteJSON"]:
         with open(output_path / "CityModel.json", "w") as dst:
@@ -91,7 +94,7 @@ def run(p, citymodel_only):
         output_path / "CityModel.shp",
     )
     if not citymodel_only:
-        volume_mesh, surface_mesh = builder.build_mesh(cm, dtm, p)
+        volume_mesh, surface_mesh = builder.build_mesh(city_model, p)
 
         if p["WriteJSON"]:
             with open(output_path / "CitySurface.json", "w"):
@@ -137,7 +140,7 @@ def main():
         parameters = builder.Parameters.load_parameters(None, project_path)
     else:
         parameters = builder.Parameters.load_parameters(parameters_file, project_path)
-    print("pre update", parameters)
+    print("pre update", parameters["DataDirectory"])
     parameters = update_parameters_from_options(parameters, args, name_translator)
-    print("post update", parameters)
+    print("post update", parameters["DataDirectory"])
     run(parameters, args.citymodel_only)

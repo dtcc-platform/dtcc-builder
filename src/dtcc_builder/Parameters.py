@@ -53,7 +53,7 @@ _parameters["PointCloudDirectory"] = ""
 _parameters["OutputDirectory"] = ""
 
 
-def load_parameters(file_path=None, project_path="."):
+def load_parameters(file_path=None, project_path=""):
     global _paramethers
     print(project_path)
     if file_path is None:
