@@ -75,16 +75,21 @@ def run(p, citymodel_only, mesh_only):
 
     print(p)
     #cm, dtm = None, None
-    cm, dtm = builder.build_citymodel(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
+    footprint_bounds = io.citymodel.building_bounds(
+            p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
+    )
+    footprints = io.load_footprints(p["DataDirectory"] / p["BuildingsFileName"])
+    pointcloud = io.load_pointcloud(p["PointCloudDirectory"], footprint_bounds)
+    city_model = builder.build_citymodel(footprints, pointcloud, p)
     if p["WriteJSON"]:
         with open(p["OutputDirectory"]/ "CityModel.json", "w") as dst:
-            dst.write(MessageToJson(cm))
+            dst.write(MessageToJson(city_model))
     if p["WriteProtobuf"]:
         with open(p["OutputDirectory"]/ "CityModel.pb", "wb") as dst:
-            dst.write(cm.SerializeToString())
-    io.save_citymodel(cm, p["OutputDirectory"] / "CityModel.shp",)
+            dst.write(city_model.SerializeToString())
+    io.save_citymodel(city_model, p["OutputDirectory"] / "CityModel.shp",)
     if not citymodel_only:
-        volume_mesh, surface_mesh = builder.build_mesh(p["DataDirectory"] / p["BuildingsFileName"],p["PointCloudDirectory"],p )
+        volume_mesh, surface_mesh = builder.build_mesh(city_model,p )
 
         if p["WriteJSON"]:
             with open(p["OutputDirectory"]/ "CitySurface.json", "w"):

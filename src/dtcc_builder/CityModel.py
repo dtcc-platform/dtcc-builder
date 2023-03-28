@@ -17,30 +17,18 @@ from typing import List, Tuple
 
 class CityModel:
     def __init__(
-        self, footprints_file=None, pb_string=None, parameters=None, bounds=None
-    ):
+        self, footprints, parmeters = None):
         if parameters is None:
             parameters = Parameters.load_parameters()
         self.parameters = parameters
-        self.bounds = bounds
         self._builder_cm = None
         self.origin = (0, 0)
         self.cleaned = False
         self.simplified = False
         self.extracted_points = False
         self.calculated_heights = False
-        if footprints_file is not None:
-            cm_pb = io.load_citymodel(
-                footprints_file,
-                uuid_field=parameters["UUIDField"],
-                area_filter=self.parameters["MinBuildingSize"],
-                bounds=bounds,
-                min_edge_distance=self.parameters["MinBuildingDistance"],
-                return_serialized=True,
-            )
-            self.load_protobuf(cm_pb)
-        if pb_string is not None:
-            self.load_protobuf(pb_string)
+        
+        self.load_protobuf(footprints)
 
     def get_buildings(self):
         if self._builder_cm is None:
@@ -53,18 +41,18 @@ class CityModel:
 
     buildings = property(get_buildings)
 
-    def generate_citymodel(self, shp_footprint_file):
-        """load shp file of building footprints"""
-        if self.bounds is None:
-            self.bounds = io.citymodel.building_bounds(
-                shp_footprint_file, self.parameters["DomainMargin"]
-            )
-        self._builder_cm = _pybuilder.GenerateCityModel(
-            str(shp_footprint_file),
-            self.bounds,
-            float(self.parameters["MinBuildingDistance"]),
-            float(self.parameters["MinBuildingSize"]),
-        )
+    # def generate_citymodel(self, shp_footprint_file):
+    #     """load shp file of building footprints"""
+    #     if self.bounds is None:
+    #         self.bounds = io.citymodel.building_bounds(
+    #             shp_footprint_file, self.parameters["DomainMargin"]
+    #         )
+    #     self._builder_cm = _pybuilder.GenerateCityModel(
+    #         str(shp_footprint_file),
+    #         self.bounds,
+    #         float(self.parameters["MinBuildingDistance"]),
+    #         float(self.parameters["MinBuildingSize"]),
+    #     )
 
     def set_origin(self, origin: Tuple[float, float]):
         """set the origin for the city model. Everything will be offset so that origin is at (0,0)"""
@@ -167,9 +155,9 @@ class CityModel:
     #     """Load CityModel from JSON file"""
     #     self._builder_cm = _pybuilder.ReadCityModelJSON(str(infile))
 
-    def load_protobuf(self, protobuf_string: str):
+    def load_protobuf(self, protobuf: model.CityModel):
         """load CityModel from a CityModel protobuf string"""
-        self._builder_cm = _pybuilder.loadCityModelProtobuf(protobuf_string)
+        self._builder_cm = _pybuilder.loadCityModelProtobuf(protobuf.SerializeToString())
         self.origin = (self._builder_cm.origin.x, self._builder_cm.origin.y)
         
     

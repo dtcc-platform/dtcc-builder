@@ -31,7 +31,7 @@ def project_domain(p):
 
 
 def build_citymodel(
-    building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
+    buildings, pc, parameters=None, bounds = (), return_protobuf=True
 ):
     """Create a city model from a directory of point clouds and a shapefile of building footprints.
     Args:
@@ -49,27 +49,26 @@ def build_citymodel(
     else:
         p = builder.load_parameters(parameters)
 
-    origin, domain_bounds = project_domain(p)
-    if io.bounds.bounds_area(domain_bounds) < 100:
-        raise ValueError("Domain too small to generate a city model")
-    pc = builder.PointCloud(pointcloud_path=pointcloud_path, bounds=domain_bounds)
-    if len(pc) == 0:
+
+
+    builder_pc = builder.PointCloud(pc)
+    if len(builder_pc) == 0:
         raise ValueError("No points in point cloud")
-    pc.set_origin(origin)
-    pc.remove_global_outliers(p["OutlierMargin"])
+    builder_pc.set_origin(origin)
+    builder_pc.remove_global_outliers(p["OutlierMargin"])
     if p["NaiveVegitationFilter"]:
-        pc.vegetation_filter()
+        builder_pc.vegetation_filter()
     city_model = builder.CityModel(
-        footprints_file=building_footprint_path, parameters=p, bounds=domain_bounds
-    )
+        buildings,parameters)
+    
     city_model.set_origin(origin)
     city_model.clean_citymodel()
 
-    dtm = builder.ElevationModel(pc, p["ElevationModelResolution"], [2, 9])
+    dtm = builder.ElevationModel(builder_pc, p["ElevationModelResolution"], [2, 9])
     # dsm = ElevationModel(pc, p["ElevationModelResolution"])
     dtm.smooth_elevation_model(p["GroundSmoothing"])
 
-    city_model.extract_building_points(pc)
+    city_model.extract_building_points(builder_pc)
 
     if 6 not in pc.used_classifications and p["RANSACOutlierRemover"]:
         city_model.building_points_RANSAC_outlier_remover()
@@ -126,7 +125,7 @@ def build_surface_meshes(
 
 
 def build_mesh(
-    building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
+    city_model, parameters=None, return_protobuf=True
 ):
     """Create a volume mesh from a directory of point clouds and a shapefile of building footprints.
     Args:
@@ -144,12 +143,13 @@ def build_mesh(
     else:
         p = builder.load_parameters(parameters)
 
-    cm, dtm = build_citymodel(building_footprint_path, pointcloud_path, p, False)
-    if not cm.simplified:
-        cm.simplify_citymodel(dtm.bounds)
+    builder_cm = builder.CityModel(city_model)
+
+    if not builder_cm.simplified:
+        builder_cm.simplify_citymodel(builder_cm.bounds)
 
     # Step 3.1: Generate 2D mesh
-    mesh_2D = builder.Meshing.generate_mesh2D(cm, dtm.bounds, p["MeshResolution"])
+    mesh_2D = builder.Meshing.generate_mesh2D(builder_cm, p["MeshResolution"])
     if p["Debug"] and p["WriteVTK"]:
         pass
         # builder.Meshing.write_surface(

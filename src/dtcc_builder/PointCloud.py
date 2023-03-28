@@ -14,16 +14,13 @@ from typing import List, Tuple
 class PointCloud:
     """Class for storing point cloud object"""
 
-    def __init__(self, pointcloud_path=None, pb_sting=None, bounds=()):
+    def __init__(self, pb_pc, bounds=()):
         """ """
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds
         self.used_classifications = {}
-        if pointcloud_path is not None:
-            self.load_from_path(pointcloud_path)
-        if pb_sting is not None:
-            self.from_protobuf(pb_sting)
+        self.from_protobuf(pb_pc.SerializeToString())
 
     def __len__(self):
         if self._builder_pc is None:
