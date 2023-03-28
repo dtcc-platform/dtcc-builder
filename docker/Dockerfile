@@ -51,6 +51,7 @@ EXPOSE 8090
 RUN mkdir /shared_data
 RUN chown $USER:$USER /shared_data
 RUN chown $USER:$USER /home/$USER
+RUN chown $USER:$USER /usr/local
 
 # Image setup
 FROM base as dev

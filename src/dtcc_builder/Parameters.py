@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import os
 
 _parameters = {}
 
@@ -53,8 +54,8 @@ _parameters["OutputDirectory"] = ""
 
 
 def load_parameters(file_path=None, project_path="."):
-    global _parameters
-    #print(file_path)
+    global _paramethers
+    print(project_path)
     if file_path is None:
         p = _parameters
     else:
@@ -68,24 +69,20 @@ def load_parameters(file_path=None, project_path="."):
             with open(file_path) as src:
                 loaded_parameters = json.load(src)
             _parameters.update(loaded_parameters)
-            p = set_directories(_parameters, project_path)
-    return p
 
-def set_directories(p, project_path):
-    if p["DataDirectory"] == "":
+
+    if not p["DataDirectory"]:
         p["DataDirectory"] = project_path
-    if p["OutputDirectory"] == "":
-        p["OutputDirectory"] = p["DataDirectory"]
 
-    p["DataDirectory"] = Path(p["DataDirectory"])
-    p["OutputDirectory"] = Path(p["OutputDirectory"])
-    p["OutputDirectory"].mkdir(parents=True, exist_ok=True)
-    if p["PointCloudDirectory"] == "":
+    if not p["OutputDirectory"]:
+        p["OutputDirectory"] = p["DataDirectory"]
+    else:
+        if not(Path(p["OutputDirectory"]).is_absolute()):
+            p["OutputDirectory"] = os.path.join(p["DataDirectory"], p["OutputDirectory"])
+         
+    if not p["PointCloudDirectory"]:
         p["PointCloudDirectory"] = p["DataDirectory"]
     else:
-        p["PointCloudDirectory"] = Path(p["PointCloudDirectory"])
-        if not p["PointCloudDirectory"].is_absolute():
-            p["PointCloudDirectory"] = p["DataDirectory"] / \
-                p["PointCloudDirectory"]
-
+        if not(Path(p["PointCloudDirectory"]).is_absolute()):
+            p["PointCloudDirectory"] = os.path.join(p["DataDirectory"], p["PointCloudDirectory"])
     return p
