@@ -124,6 +124,10 @@ public:
         pc.Classifications.push_back(cl);
       }
     }
+    else
+    {
+      warning("No classification data in point cloud!");
+    }
 
     if (pb_pc.intensity_size() > 0)
     {

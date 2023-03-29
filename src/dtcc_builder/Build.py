@@ -49,7 +49,10 @@ def build_citymodel(
     else:
         p = builder.load_parameters(parameters)
 
-
+    if len(bounds) == 0:
+        origin = (0, 0)
+    else:
+        origin = bounds[:2]
 
     builder_pc = builder.PointCloud(pc)
     if len(builder_pc) == 0:

@@ -17,7 +17,7 @@ from typing import List, Tuple
 
 class CityModel:
     def __init__(
-        self, footprints, parmeters = None):
+        self, footprints, parameters = None):
         if parameters is None:
             parameters = Parameters.load_parameters()
         self.parameters = parameters

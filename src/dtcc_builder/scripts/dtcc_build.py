@@ -77,12 +77,21 @@ def run(p, citymodel_only):
     output_path = Path(p["OutputDirectory"])
     pointcloud_path = Path(p["PointCloudDirectory"])
 
-    footprint_bounds = io.citymodel.building_bounds(
-            footprint_file, p["DomainMargin"]
+    footprint_bounds = io.citymodel.building_bounds(footprint_file, p["DomainMargin"])
+    pointcloud_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
+
+    project_bounds = io.bounds.bounds_intersect(footprint_bounds, pointcloud_bounds)
+    if io.bounds.bounds_area(project_bounds) < 100:
+        raise ValueError(
+            "project bounds are too small, make sure your buildings footprints and pointcloud are in the same coordinate system and overlap"
+        )
+    footprints = io.load_footprints(
+        footprint_file, uuid_field=p["UUIDField"], bounds=project_bounds, area_filter = p["MinBuildingSize"]
     )
-    footprints = io.load_footprints(footprint_file)
     pointcloud = io.load_pointcloud(pointcloud_path, footprint_bounds)
-    city_model = builder.build_citymodel(footprints, pointcloud, p)
+    city_model = builder.build_citymodel(
+        footprints, pointcloud, p, bounds=footprint_bounds
+    )
     if p["WriteJSON"]:
         with open(output_path / "CityModel.json", "w") as dst:
             dst.write(MessageToJson(city_model))
@@ -140,7 +149,5 @@ def main():
         parameters = builder.Parameters.load_parameters(None, project_path)
     else:
         parameters = builder.Parameters.load_parameters(parameters_file, project_path)
-    print("pre update", parameters["DataDirectory"])
     parameters = update_parameters_from_options(parameters, args, name_translator)
-    print("post update", parameters["DataDirectory"])
     run(parameters, args.citymodel_only)
