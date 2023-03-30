@@ -107,9 +107,11 @@ private:
       aiFaces[i].mIndices = new uint[3];
 
       auto f = faces[i];
-      V1 = aiVertices[f.v0];
+      // 30/3/2023 VN: Seems to produce inverted normals for walls and not for
+      // ceilings, so we swapped V1 for V3 - Fix for JOSS review
+      V3 = aiVertices[f.v0];
       V2 = aiVertices[f.v1];
-      V3 = aiVertices[f.v2];
+      V1 = aiVertices[f.v2];
 
       // calculate triangle orientation using method from Geometry.h
       if (YUp)
@@ -125,18 +127,21 @@ private:
                    (V1.x - V3.x) * (V1.y + V3.y);
       }
 
-      if (poly_sum < 0)
-      {
-        aiFaces[i].mIndices[0] = f.v0;
-        aiFaces[i].mIndices[1] = f.v1;
-        aiFaces[i].mIndices[2] = f.v2;
-      }
-      else
-      {
-        aiFaces[i].mIndices[0] = f.v0;
-        aiFaces[i].mIndices[1] = f.v2;
-        aiFaces[i].mIndices[2] = f.v1;
-      }
+      // 30/3/2023 VN: Seems to produce inverted normals for walls and not for
+      // ceilings, so we removed... - Fix for JOSS review if (poly_sum > 0)
+      //{
+      aiFaces[i].mIndices[0] = f.v0;
+      aiFaces[i].mIndices[1] = f.v1;
+      aiFaces[i].mIndices[2] = f.v2;
+      // std::cout<<"1flipped"<<std::endl;
+      /*   }
+        else
+        {
+          aiFaces[i].mIndices[0] = f.v2;
+          aiFaces[i].mIndices[1] = f.v1;
+          aiFaces[i].mIndices[2] = f.v0;
+          //std::cout<<"2not flipped"<<std::endl; */
+      //}
     }
     mesh->mFaces = aiFaces;
 

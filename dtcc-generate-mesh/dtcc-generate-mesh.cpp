@@ -74,9 +74,9 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
   if (p["WriteOBJ"])
   {
     MeshIO::Write(groundSurface, dataDirectory + "GroundSurface.obj", "obj",
-                  true);
+                  false);
     MeshIO::Write(buildingSurface, dataDirectory + "BuildingSurface.obj", "obj",
-                  true);
+                  false);
   }
 }
 
