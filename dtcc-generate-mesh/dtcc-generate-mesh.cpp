@@ -242,7 +242,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
 
   if (p["WriteOBJ"])
   {
-    MeshIO::Write(surface, outputDirectory + "CitySurface.obj", "obj", true);
+    MeshIO::Write(surface, outputDirectory + "CitySurface.obj", "obj", false);
   }
 }
 
