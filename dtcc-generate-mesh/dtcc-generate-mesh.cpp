@@ -63,20 +63,17 @@ void GenerateSurfaceMeshes(const CityModel &cityModel,
     VTK::Write(buildingSurface, dataDirectory + "BuildingSurface.vtu");
   }
 
-  if (p["WriteSTL"])
+  if (p["WriteOBJ"])
   {
+
     MeshIO::Write(groundSurface, dataDirectory + "GroundSurface.stl", "stl",
                   false);
     MeshIO::Write(buildingSurface, dataDirectory + "BuildingSurface.stl", "stl",
                   false);
-  }
-
-  if (p["WriteOBJ"])
-  {
-    MeshIO::Write(groundSurface, dataDirectory + "GroundSurface.obj", "obj",
-                  false);
-    MeshIO::Write(buildingSurface, dataDirectory + "BuildingSurface.obj", "obj",
-                  false);
+    MeshIO::Convert(dataDirectory + "BuildingSurface.stl",
+                    dataDirectory + "BuildingSurface.obj", "obj");
+    MeshIO::Convert(dataDirectory + "GroundSurface.stl",
+                    dataDirectory + "GroundSurface.obj", "obj");
   }
 }
 
@@ -215,7 +212,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   // Extract boundary of final mesh
   Surface3D boundary;
   Surface3D surface;
-  if (p["WriteJSON"] || p["WriteVTK"] || p["WriteSTL"] || p["WriteOBJ"])
+  if (p["WriteJSON"] || p["WriteVTK"] || p["WriteOBJ"])
   {
     MeshProcessor::ExtractBoundary3D(boundary, mesh);
     MeshProcessor::ExtractOpenSurface3D(surface, boundary);
@@ -235,14 +232,11 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(surface, outputDirectory + "CitySurface.vtu");
   }
 
-  if (p["WriteSTL"])
-  {
-    MeshIO::Write(surface, outputDirectory + "CitySurface.stl", "stl");
-  }
-
   if (p["WriteOBJ"])
   {
-    MeshIO::Write(surface, outputDirectory + "CitySurface.obj", "obj", false);
+    MeshIO::Write(surface, outputDirectory + "CitySurface.stl", "stl");
+    MeshIO::Convert(dataDirectory + "CitySurface.stl",
+                    dataDirectory + "CitySurface.obj", "obj");
   }
 }
 

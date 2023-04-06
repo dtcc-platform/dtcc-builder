@@ -9,6 +9,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/material.h>
 #include <assimp/mesh.h>
+#include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/vector3.h>
 
@@ -24,6 +25,25 @@ namespace DTCC
 class MeshIO
 {
 public:
+  static void
+  Convert(std::string fileNamein, std::string fileName, std::string format)
+  {
+    Assimp::Importer importer;
+
+    // Read the STL file using the Assimp importer
+    const aiScene *scene = importer.ReadFile(
+        fileNamein, aiProcess_Triangulate | aiProcess_GenNormals);
+
+    // If the read was successful
+    if (scene != nullptr)
+    {
+      // Write the scene to an OBJ file using the Assimp exporter
+      Assimp::Exporter exporter;
+      info("Assimp converting 3D surface " + fileNamein + " to format " +
+           format);
+      exporter.Export(scene, format, fileName);
+    }
+  }
   static void Write(const Surface3D &surface,
                     std::string fileName,
                     std::string format,
