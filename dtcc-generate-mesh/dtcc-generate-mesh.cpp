@@ -195,6 +195,12 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(boundary, outputDirectory + "Step34Boundary.vtu");
   }
 
+   // Write JSON
+  if (p["WriteJSON"])
+  {
+    JSON::Write(cityModel, "CityModelSimple.json", origin);
+    JSON::Write(mesh, "CityMeshSimple.json", origin);
+  }
   // Step 3.5: Smooth 3D mesh (set ground and building heights)"
   {
     Timer timer("Step 3.5: Smooth 3D mesh");

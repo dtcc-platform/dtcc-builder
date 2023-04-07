@@ -5,6 +5,9 @@
 !/data/testCase/
 !/data/sampleCityJSON/
 
+/sandbox/smoothing-2023/data/*
+/sandbox/smoothing-2023/build
+
 .idea/
 .vscode/
 cmake-build-debug/
