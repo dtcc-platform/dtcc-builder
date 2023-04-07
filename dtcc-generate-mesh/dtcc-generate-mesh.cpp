@@ -195,7 +195,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     VTK::Write(boundary, outputDirectory + "Step34Boundary.vtu");
   }
 
-   // Write JSON
+  // Write JSON
   if (p["WriteJSON"])
   {
     JSON::Write(cityModel, "CityModelSimple.json", origin);
