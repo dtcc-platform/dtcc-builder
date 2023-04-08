@@ -1,8 +1,0 @@
---- sandbox/smoothing-2023/include/stiffnessMatrix.hpp	(before formatting)
-+++ sandbox/smoothing-2023/include/stiffnessMatrix.hpp	(after formatting)
-@@ -225,5 +225,4 @@
-   return;
- }
- 
--
- 
