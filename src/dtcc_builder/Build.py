@@ -5,12 +5,26 @@ import dtcc_io as io
 from pathlib import Path
 
 
-def project_domain(p):
+def project_domain(params_or_footprint, las_path=None, params=None):
+    if las_path is None and params is None:
+        p = params_or_footprint
+        building_footprint_path = p["DataDirectory"] / p["BuildingsFileName"]
+        pointcloud_path = p["PointCloudDirectory"]
+    elif (
+        params_or_footprint is not None and las_path is not None and params is not None
+    ):
+        p = params
+        building_footprint_path = params_or_footprint
+        pointcloud_path = las_path
+    else:
+        raise ValueError(
+            "must provide either params only or footprint and las_path and params"
+        )
     if p["AutoDomain"]:
         footprint_bounds = io.citymodel.building_bounds(
-            p["DataDirectory"] / p["BuildingsFileName"], p["DomainMargin"]
+            building_footprint_path, p["DomainMargin"]
         )
-        las_bounds = io.pointcloud.calc_las_bounds(p["PointCloudDirectory"])
+        las_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
         domain_bounds = io.bounds.bounds_intersect(footprint_bounds, las_bounds)
         origin = domain_bounds[:2]
         p["X0"] = origin[0]
@@ -49,7 +63,7 @@ def build_citymodel(
     else:
         p = builder.load_parameters(parameters)
 
-    origin, domain_bounds = project_domain(p)
+    origin, domain_bounds = project_domain(building_footprint_path, pointcloud_path, p)
     if io.bounds.bounds_area(domain_bounds) < 100:
         raise ValueError("Domain too small to generate a city model")
     pc = builder.PointCloud(pointcloud_path=pointcloud_path, bounds=domain_bounds)
