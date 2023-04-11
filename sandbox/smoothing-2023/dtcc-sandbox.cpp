@@ -58,6 +58,9 @@ int main(int argc, char *argv[])
   std::cout << "Number of Markers: " << m.Markers.size() << std::endl;
   std::cout << "Number of Buildings: " << cm.Buildings.size() << std::endl;
 
+  int *vMarkers = new int[m.Vertices.size()];
+  getVerticeMarkers(m, vMarkers);
+
   double topHeight{};
   topHeight = dtm.Mean() + static_cast<double>(100.0);
   {
@@ -68,12 +71,12 @@ int main(int argc, char *argv[])
     timer.Print();
   }
 
-  {
-    Timer timer("Jacobi Smooth 3D mesh");
-    smoothLaplaceJacobi(m, cm, dtm, max_iterations);
-    timer.Stop();
-    timer.Print();
-  }
+  // {
+  //   Timer timer("Jacobi Smooth 3D mesh");
+  //   smoothLaplaceJacobi(m, cm, dtm, max_iterations);
+  //   timer.Stop();
+  //   timer.Print();
+  // }
 
   // {
   //   Timer timer("Jacobi Smooth 3D mesh");
@@ -82,5 +85,6 @@ int main(int argc, char *argv[])
   //   timer.Print();
   // }
 
+  delete[] vMarkers;
   return 0;
 }

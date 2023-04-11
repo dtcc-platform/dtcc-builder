@@ -89,6 +89,8 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
       }
     }
   }
+
+  // Counting all vertice Markers
   for (size_t v = 0; v < nV; v++)
   {
     if (vMarkers[v] >= 0)
@@ -102,12 +104,12 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
   }
 
   int k4 = nV - (k0 + k1 + k2 + k3);
-  std::cout << "k0 :" << k0 << std::endl
-            << "k1 :" << k1 << std::endl
-            << "k2 :" << k2 << std::endl
-            << "k3 :" << k3 << std::endl
-            << "k4 :" << k4 << std::endl
-            << k0 + k1 + k2 + k3 + k4 << "  " << nV << std::endl;
+  std::cout << "Buildings k0 :" << k0 << std::endl
+            << "Halos     k1 :" << k1 << std::endl
+            << "Ground    k2 :" << k2 << std::endl
+            << "Top       k3 :" << k3 << std::endl
+            << "Neuman    k4 :" << k4 << std::endl
+            << k0 + k1 + k2 + k3 + k4 << " / " << nV << std::endl;
 
   return;
 }
