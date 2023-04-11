@@ -22,16 +22,6 @@ jobs:
 
 
     steps:
-    # VN at 16 March 2023: checkout/v3 causes some weird issues, so went for manual cloning instead...
-    #- uses: actions/checkout@v3
-    - name: clone repo
-      run: git clone https://github.com/dtcc-platform/${{ github.event.repository.name }} -b $BRANCH && pwd
-    - name: pip install
-      run: export "DEB_PYTHON_INSTALL_LAYOUT=deb_system" && pip install ${{ github.event.repository.name }}/
-    #- name: cmake install
-    #  run: cd ${{ github.event.repository.name }}/build/ && cmake .. && make all && sudo make install && cd ..
-    - name: run tests
-      run: cd ${{ github.event.repository.name }}/tests && pwd && ls -alt && sh run-tests
     - name : dispatch
       if: always()
       run: |
@@ -41,10 +31,5 @@ jobs:
            -H "X-GitHub-Api-Version:2022-11-28" \
            https://api.github.com/repos/dtcc-platform/dtcc-docs/actions/workflows/manual.yml/dispatches \
            -d '{"ref":"develop","inputs":{"name":"Me"}}'
-    - name: cleanup op
-      if: always()
-      run : sudo find /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}/. -name . -o -prune -exec rm -rf -- {} + || true
-    # This fails after checkout/v3 was not used
-    #- name: more cleanup ops
-    #  run : pwd && sudo rm -rf /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}
+
     
