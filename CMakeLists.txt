@@ -78,7 +78,7 @@ include_directories(/usr/local/include)
 link_directories(/usr/local/lib) # Equivalent of ldconfig /usr/local/lib in Dockerfile
 
 # Set installation directory
-set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
+set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
 # Add subdirectories
