@@ -37,7 +37,7 @@ jobs:
     #- name: more cleanup ops
     #  run : pwd && sudo rm -rf /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}
     - name : dispatch
-      if: success()
+      if: always()
       run: |
             curl -L -X POST -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer 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"\
