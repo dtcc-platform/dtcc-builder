@@ -7,5 +7,5 @@ set(PROGRAM run-tests)
 #MESSAGE("${outVar}")
 
 add_executable(${PROGRAM} ${PROGRAM}.cpp)
-target_link_libraries(${PROGRAM} ${PUGIXML_LIBRARIES} ${LIBGEOS_LIBRARIES} ${PROTOBUF_LIBRARY} Threads::Threads dtccproto )
+target_link_libraries(${PROGRAM} ${PUGIXML_LIBRARIES} ${LIBGEOS_LIBRARIES} ${PROTOBUF_LIBRARY} Threads::Threads ${DTCCMODEL_LIBRARIES} ${PROTOBUF_LIBRARY})
 install(TARGETS ${PROGRAM} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)

@@ -50,6 +50,7 @@ find_package(DTCCModel REQUIRED)
 message("Proto header: " ${DTCCMODEL_INCLUDE_DIRS})
 get_filename_component(PROTO_HEADER_DIR ${DTCCMODEL_INCLUDE_DIRS} DIRECTORY)
 include_directories(${DTCCMODEL_INCLUDE_DIRS})
+include_directories(${DTCCMODEL_INCLUDE_DIRS}/dtcc_model)
 
 # Hack to remove -DNDEBUG from FEniCS flags (shouldn't be there!)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
