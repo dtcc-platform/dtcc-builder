@@ -35,6 +35,8 @@ public:
     Add("WriteMatrix", false);
     Add("Debug", false);
 
+    Add("LaplacianSmootherNew", false);
+
     Add("GroundSmoothing", 5);
     Add("NumRandomBuildings", 25);
 
