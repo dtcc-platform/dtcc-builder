@@ -66,25 +66,26 @@ def write_Protobuf_surface3D(surface: _pybuilder.Surface3D, out_file):
         pb = _pybuilder.convertSurface3DToProtobuf(surface)
         f.write(pb)
 
+
 def write_mesh(
     mesh: _pybuilder.Mesh3D | _pybuilder.Mesh2D | _pybuilder.Surface3D, file_name
 ):
     print(f"Meshing type: {type(mesh)}")
     if isinstance(mesh, _pybuilder.Mesh3D):
         print
-        pb_mesh = model.Mesh3D()
+        pb_mesh = model.VolumeMesh()
         pb = _pybuilder.convertMesh3DToProtobuf(mesh)
         pb_mesh.ParseFromString(pb)
-        io.save_mesh3d(pb_mesh, file_name)
+        io.save_volume_mesh(pb_mesh, file_name)
         return True
     elif isinstance(mesh, _pybuilder.Surface3D):
-        pb_mesh = model.Surface3D()
+        pb_mesh = model.Mesh()
         pb = _pybuilder.convertSurface3DToProtobuf(mesh)
         pb_mesh.ParseFromString(pb)
         io.save_mesh(pb_mesh, file_name)
         return True
     elif isinstance(mesh, _pybuilder.Mesh2D):
-        pb_mesh = model.Mesh2D()
+        pb_mesh = model.Mesh()
         pb = _pybuilder.convertMesh2DToProtobuf(mesh)
         pb_mesh.ParseFromString(pb)
         io.save_mesh(pb_mesh, file_name)

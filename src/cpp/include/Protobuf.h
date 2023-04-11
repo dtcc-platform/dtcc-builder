@@ -173,7 +173,7 @@ public:
   }
 
   // Read Surface3D from Protobuf object
-  static void read(Surface3D &surface, const DTCC::Surface3D &_surface)
+  static void read(Surface3D &surface, const DTCC::Mesh &_surface)
   {
     error("Reading Surface3D from Protobuf not implemented");
   }
@@ -181,7 +181,7 @@ public:
   // Write Surface3D to Protobuf string
   static void write(const Surface3D &surface, std::string &pb)
   {
-    DTCC::Surface3D _surface{};
+    DTCC::Mesh _surface{};
 
     // Write vertices
     for (const auto &vertex : surface.Vertices)
@@ -217,7 +217,7 @@ public:
   // Write Mesh3D to Protobuf string
   static void write(const Mesh3D &mesh, std::string &pb)
   {
-    DTCC::Mesh3D _mesh{};
+    DTCC::VolumeMesh _mesh{};
 
     // Write vertices
     for (const auto &vertex : mesh.Vertices)
