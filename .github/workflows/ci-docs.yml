@@ -1,0 +1,35 @@
+name: CI-docs
+
+on:
+  push:
+    branches: [ "develop" ]
+    paths: ['docs/**']
+  pull_request:
+    branches: [ "develop" ]
+    paths: ['docs/**']
+
+env:
+  BRANCH: develop
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+    # Placeholder for Docker on our Amazon AWS Runner
+    #container:
+    #  image: ubuntu-latest
+    #  options: --user 1000
+
+
+    steps:
+    - name : dispatch
+      if: always()
+      run: |
+           curl -L -X POST \
+           -H "Accept:application/vnd.github+json" \
+           -H "Authorization:token ${{ secrets.TOKEN }}" \
+           -H "X-GitHub-Api-Version:2022-11-28" \
+           https://api.github.com/repos/dtcc-platform/dtcc-docs/actions/workflows/manual.yml/dispatches \
+           -d '{"ref":"develop","inputs":{"variable":"a new one"}}'
+
+    
