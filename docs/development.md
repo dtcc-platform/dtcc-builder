@@ -76,6 +76,6 @@ Then after `develop.dtcc.chalmers.se` appears in the list, click on the connect 
 
 ![image](https://user-images.githubusercontent.com/125367195/231126959-d1dc6498-576b-42aa-95ce-aff8df80c110.png)
 
-Then you can use `Open...` for opening a folder/file (eg /home/<username>/dtcc-builder) and `Terminal-> New terminal` to have a new terminal connected.
+Then you can use `Open...` for opening a folder/file (eg `/home/username/dtcc-builder`) and `Terminal-> New terminal` to have a new terminal connected.
 
 
