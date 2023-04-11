@@ -84,7 +84,7 @@ def build_citymodel(
         cm_string = city_model.to_protobuf()
         cm.ParseFromString(cm_string)
         city_model = cm
-        dtm = "" #dtm.to_protobuf()
+        dtm = ""  # dtm.to_protobuf()
 
     return (city_model, dtm)
 
@@ -116,8 +116,8 @@ def build_surface_meshes(
     building_surfaces = surfaces[1:]
     building_surfaces = builder.Meshing.merge_surfaces3D(building_surfaces)
     if return_protobuf:
-        gs = model.Surface3D()
-        bs = model.Surface3D()
+        gs = model.Mesh()
+        bs = model.Mesh()
         gs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(ground_surface))
         bs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(building_surfaces))
         ground_surface = gs
@@ -164,9 +164,7 @@ def build_mesh(
         builder.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step32Boundary.vtu"
         )
-        builder.Meshing.write_mesh(
-            mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu"
-        )
+        builder.Meshing.write_mesh(mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu")
 
     # Step 3.3: Smooth 3D mesh (set ground height)
     top_height = dtm.mean() + p["DomainHeight"]
@@ -177,9 +175,7 @@ def build_mesh(
         builder.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step33Boundary.vtu"
         )
-        builder.Meshing.write_mesh(
-            mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu"
-        )
+        builder.Meshing.write_mesh(mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu")
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
     mesh_3D = builder.Meshing.trim_mesh3D(mesh_3D, mesh_2D, cm, mesh_3D.numLayers)
@@ -191,14 +187,12 @@ def build_mesh(
         builder.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step35Boundary.vtu"
         )
-        builder.Meshing.write_mesh(
-            mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu"
-        )
+        builder.Meshing.write_mesh(mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu")
 
     if return_protobuf:
         m3d = model.VolumeMesh()
-        m3d_b = model.Surface3D()
-        m3d.ParseFromString(_pybuilder.convertVolumeMeshToProtobuf(mesh_3D))
+        m3d_b = model.Mesh()
+        m3d.ParseFromString(_pybuilder.convertMesh3DToProtobuf(mesh_3D))
         m3d_b.ParseFromString(_pybuilder.convertSurface3DToProtobuf(mesh_3D_boundary))
         mesh_3D = m3d
         mesh_3D_boundary = m3d_b
