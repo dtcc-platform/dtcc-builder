@@ -68,6 +68,8 @@ accomplished by:
 
 On the left-side menu, go to Remote Explorer, on the SSH line press the + sign and add `username@develop.dtcc.chalmers.se` for the case of user `username` and the host being `develop.dtcc.chalmers.se`
 
+Testing new CI
+
 ![image](https://user-images.githubusercontent.com/125367195/231126612-d6031bce-ca2d-4340-b0e5-9e728da57238.png)
 
 Then after `develop.dtcc.chalmers.se` appears in the list, click on the connect to current (right arrow) or new window (plus with folder) signs respectively.
