@@ -115,6 +115,7 @@ class TestMeshing(unittest.TestCase):
 
         out_file = "test_3D.vtk"
         done = Meshing.write_mesh(mesh3D, out_file)
+        self.assertTrue(done)
         self.assertTrue(os.path.isfile(out_file))
         os.unlink(out_file)
 

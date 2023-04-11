@@ -5,6 +5,7 @@ from dtcc_builder import CityModel
 from dtcc_builder import ElevationModel
 import dtcc_io as io
 import dtcc_model as model
+import logging
 
 
 def generate_mesh2D(
@@ -68,17 +69,26 @@ def write_Protobuf_surface3D(surface: _pybuilder.Surface3D, out_file):
 def write_mesh(
     mesh: _pybuilder.Mesh3D | _pybuilder.Mesh2D | _pybuilder.Surface3D, file_name
 ):
+    print(f"Meshing type: {type(mesh)}")
     if isinstance(mesh, _pybuilder.Mesh3D):
+        print
         pb_mesh = model.Mesh3D()
         pb = _pybuilder.convertMesh3DToProtobuf(mesh)
         pb_mesh.ParseFromString(pb)
+        io.save_mesh3d(pb_mesh, file_name)
+        return True
     elif isinstance(mesh, _pybuilder.Surface3D):
         pb_mesh = model.Surface3D()
         pb = _pybuilder.convertSurface3DToProtobuf(mesh)
         pb_mesh.ParseFromString(pb)
+        io.save_mesh(pb_mesh, file_name)
+        return True
     elif isinstance(mesh, _pybuilder.Mesh2D):
         pb_mesh = model.Mesh2D()
         pb = _pybuilder.convertMesh2DToProtobuf(mesh)
         pb_mesh.ParseFromString(pb)
-    io.save_mesh(pb_mesh, file_name)
-    return True
+        io.save_mesh(pb_mesh, file_name)
+        return True
+    else:
+        logging.error("Unknown mesh type")
+        return False
