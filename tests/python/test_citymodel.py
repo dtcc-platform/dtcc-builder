@@ -11,9 +11,6 @@ import dtcc_io as io
 
 from dtcc_builder import _pybuilder
 
-from dtcc_builder import CityModel
-from dtcc_builder import ElevationModel
-from dtcc_builder import PointCloud
 
 data_dir = (Path(__file__).parent / "../data").resolve()
 p = builder.Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.json")
@@ -22,9 +19,11 @@ p = builder.Parameters.load_parameters(data_dir / "MinimalCase" / "Parameters.js
 class TestCityModel(unittest.TestCase):
     def setUp(self):
         self.shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
-        self.cm = builder.CityModel(footprints_file= self.shp_file, parameters = p)
+        self.cm = builder.CityModel(footprints_file=self.shp_file, parameters=p)
 
-        self.pc = builder.PointCloud(pointcloud_path=data_dir / "MinimalCase" / "pointcloud.las")
+        self.pc = builder.PointCloud(
+            pointcloud_path=data_dir / "MinimalCase" / "pointcloud.las"
+        )
 
     def test_bounds(self):
         bbox = io.citymodel.building_bounds(self.shp_file)
@@ -46,11 +45,10 @@ class TestCityModel(unittest.TestCase):
 
     def test_load(self):
         shp_file = data_dir / "MinimalCase" / "PropertyMap.shp"
-        cm = CityModel(footprints_file=shp_file)
+        cm = builder.CityModel(footprints_file=shp_file)
         self.assertIsInstance(cm._builder_cm, _pybuilder.CityModel)
 
     def test_clean(self):
-
         self.cm.clean_citymodel(0.5)
         self.assertIsInstance(self.cm._builder_cm, _pybuilder.CityModel)
         self.assertTrue(self.cm.cleaned)
@@ -65,21 +63,21 @@ class TestCityModel(unittest.TestCase):
         self.assertEqual(d, 3)
 
     def test_ransac_filter(self):
-        cm = CityModel(footprints_file=self.shp_file, parameters = p)
+        cm = builder.CityModel(footprints_file=self.shp_file, parameters=p)
         cm.extract_building_points(self.pc)
         cm.building_points_RANSAC_outlier_remover(3, 250)
         self.assertIsInstance(cm._builder_cm, _pybuilder.CityModel)
 
     def test_statistical_outlier_filter(self):
-        cm = CityModel(footprints_file=self.shp_file, parameters = p)
+        cm = builder.CityModel(footprints_file=self.shp_file, parameters=p)
         cm.extract_building_points(self.pc, 1.0, 2.0)
         cm.building_points_statistical_outlier_remover(5, 1.5)
         self.assertIsInstance(cm._builder_cm, _pybuilder.CityModel)
 
     def test_compute_building_heights(self):
-        cm = CityModel(footprints_file=self.shp_file, parameters = p)
+        cm = builder.CityModel(footprints_file=self.shp_file, parameters=p)
         cm.extract_building_points(self.pc, 1.0, 2.0)
-        dtm = ElevationModel(self.pc, 0.5, [2, 9])
+        dtm = builder.ElevationModel(self.pc, 0.5, [2, 9])
         cm.compute_building_heights(dtm, 0.9, 0.95)
         self.assertIsInstance(self.cm._builder_cm, _pybuilder.CityModel)
         self.assertEqual(cm._builder_cm.buildings[0].height, 5)
@@ -90,7 +88,7 @@ class TestCityModel(unittest.TestCase):
         self.assertTrue(os.path.exists("tmpCM.json"))
         with open("tmpCM.json", "r") as src:
             data = json.load(src)
-        self.assertEqual(len(data['buildings']), 5)
+        self.assertEqual(len(data["buildings"]), 5)
 
         os.unlink("tmpCM.json")
 
@@ -98,7 +96,7 @@ class TestCityModel(unittest.TestCase):
         pb_file = data_dir / "MinimalCase" / "PropertyMap.shp.pb"
         with open(pb_file, "rb") as src:
             pb_data = src.read()
-        cm = CityModel()
+        cm = builder.CityModel()
         cm.load_protobuf(pb_data)
         self.assertIsInstance(cm._builder_cm, _pybuilder.CityModel)
         self.assertEqual(len(cm.buildings), 5)

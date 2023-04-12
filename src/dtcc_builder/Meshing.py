@@ -1,15 +1,15 @@
 from dtcc_builder import _pybuilder
 import os
 from typing import List, Tuple, Union
-from dtcc_builder import CityModel
-from dtcc_builder import ElevationModel
+
 import dtcc_io as io
+import dtcc_builder as builder
 import dtcc_model as model
 import logging
 
 
 def generate_mesh2D(
-    city_model: CityModel,
+    city_model: builder.CityModel,
     bbox: Tuple[float, float, float, float],
     resolution,
 ) -> _pybuilder.Mesh2D:
@@ -24,8 +24,8 @@ def generate_mesh3D(
 
 def smooth_mesh3D(
     mesh: _pybuilder.Mesh3D,
-    city_model: CityModel,
-    dtm: ElevationModel,
+    city_model: builder.CityModel,
+    dtm: builder.ElevationModel,
     top_height: float,
     fix_buildings: bool,
 ):
@@ -34,7 +34,9 @@ def smooth_mesh3D(
     )
 
 
-def generate_surface3D(city_model: CityModel, dtm: ElevationModel, resolution):
+def generate_surface3D(
+    city_model: builder.CityModel, dtm: builder.ElevationModel, resolution
+):
     return _pybuilder.GenerateSurfaces3D(
         city_model._builder_cm, dtm._grid_field, resolution
     )
@@ -43,7 +45,7 @@ def generate_surface3D(city_model: CityModel, dtm: ElevationModel, resolution):
 def trim_mesh3D(
     mesh: _pybuilder.Mesh3D,
     mesh2D: _pybuilder.Mesh2D,
-    city_model: CityModel,
+    city_model: builder.CityModel,
     num_layers,
 ) -> _pybuilder.Mesh3D:
     return _pybuilder.TrimMesh3D(mesh, mesh2D, city_model._builder_cm, num_layers)
