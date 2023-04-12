@@ -9,10 +9,12 @@
 #include <string>
 #include <vector>
 
-#include "GridField.h"
-#include "LaplacianSmoother.h"
-#include "Mesh.h"
-#include "datamodel/CityModel.h"
+// #include "GridField.h"
+// #include "LaplacianSmoother.h"
+//#include "Mesh.h"
+// #include "datamodel/CityModel.h"
+
+using namespace DTCC;
 
 void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
 {

@@ -7,6 +7,8 @@
 #include "Mesh.h"
 #include "Timer.h"
 
+#include "../sandbox/smoothing-2023/include/boundaryConditions.hpp"
+
 namespace DTCC
 {
 
@@ -23,7 +25,10 @@ public:
     info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing NEW)...");
     Timer timer("SmoothMesh3DNew");
 
-    // FIXME: Write code here
+    std::cout << mesh3D.Markers.size() << std::endl;
+
+    int *vMarkers = new int[mesh3D.Vertices.size()];
+    getVerticeMarkers(mesh3D, vMarkers);
   }
 };
 
