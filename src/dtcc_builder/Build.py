@@ -139,7 +139,7 @@ def build_surface_meshes(
     return ground_surface, building_surfaces
 
 
-def build_mesh(
+def build_volume_mesh(
     building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
 ):
     """Create a volume mesh from a directory of point clouds and a shapefile of building footprints.

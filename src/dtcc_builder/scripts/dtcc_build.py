@@ -94,7 +94,7 @@ def run(p, citymodel_only, mesh_only):
         p["OutputDirectory"] / "CityModel.shp",
     )
     if not citymodel_only:
-        volume_mesh, surface_mesh = builder.build_mesh(
+        volume_mesh, surface_mesh = builder.build_volume_mesh(
             p["DataDirectory"] / p["BuildingsFileName"], p["PointCloudDirectory"], p
         )
 

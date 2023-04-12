@@ -23,6 +23,8 @@ class TestBuild(unittest.TestCase):
     def test_build_mesh(self):
         p = load_parameters()
         p["Debug"] = False
-        volume_mesh, surface_mesh = Build.build_mesh(footprint_path, pointcloud_path, p)
+        volume_mesh, surface_mesh = Build.build_volume_mesh(
+            footprint_path, pointcloud_path, p
+        )
         self.assertIsInstance(volume_mesh, VolumeMesh)
         self.assertIsInstance(surface_mesh, Mesh)
