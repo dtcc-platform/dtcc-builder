@@ -39,7 +39,19 @@ def create_parameters_options(parser):
         val_type = type(v).__name__
         if val_type == "bool":
             # print(f"bool arg: {kebab_name}")
-            parser.add_argument(f"--{kebab_name}", default=v, action="store_true")
+            parser.add_argument(
+                f"--{kebab_name}",
+                action="store_true",
+                default=None,
+                help=f"Turn on {k}",
+            )
+            parser.add_argument(
+                f"--no-{kebab_name}",
+                dest=kebab_name.replace("-", "_"),
+                default=None,
+                action="store_false",
+                help=f"Turn off {k}",
+            )
         else:
             parser.add_argument(
                 f"--{kebab_name}", default=None, type=type_map.get(val_type, str)
@@ -49,18 +61,18 @@ def create_parameters_options(parser):
 
 def update_parameters_from_options(p, args, name_translator):
     for k, v in p.items():
-        print(k)
+        # print(k)
         snake_name = name_translator.get(k)
-        print(snake_name)
+        # print(snake_name)
         if snake_name is None:
             continue
         snake_name = name_translator[k].replace("-", "_")
-        print(snake_name)
+        # print(snake_name)
         parser_val = getattr(args, snake_name)
-        print(parser_val)
+        # print(parser_val)
         if parser_val is not None:
             p[k] = parser_val
-        print("---")
+        # print("---")
     return p
 
 
@@ -134,7 +146,7 @@ def main():
 
     parser.add_argument("projectpath", nargs="?", default=os.getcwd())
 
-    # parser, name_translator = create_parameters_options(parser)
+    parser, name_translator = create_parameters_options(parser)
 
     args = parser.parse_args()
 
@@ -146,5 +158,6 @@ def main():
     else:
         parameters = builder.Parameters.load_parameters(parameters_file, project_path)
 
-    # parameters = update_parameters_from_options(parameters, args, name_translator)
+    parameters = update_parameters_from_options(parameters, args, name_translator)
+    print(parameters)
     run(parameters, args.citymodel_only, args.mesh_only)
