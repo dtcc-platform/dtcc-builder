@@ -54,24 +54,26 @@ _parameters["OutputDirectory"] = ""
 
 def load_parameters(file_path=None, project_path="."):
     global _parameters
-    # print(file_path)
+
     if file_path is None:
         p = _parameters.copy()
-        p = set_directories(p, project_path)
+
     else:
         file_path = Path(file_path)
+        print(file_path)
         if file_path.is_dir():
             file_path = file_path / "Parameters.json"
         if not file_path.exists():
             print(
                 f"Parameters file {file_path} does not exist, using default parameters"
             )
-            p = _parameters
+            p = _parameters.copy()
         else:
             with open(file_path) as src:
                 loaded_parameters = json.load(src)
-            _parameters.update(loaded_parameters)
-            p = set_directories(_parameters, project_path)
+            p = _parameters.copy()
+            p.update(loaded_parameters)
+    p = set_directories(p, project_path)
     return p
 
 

@@ -1,5 +1,6 @@
 {
     "Type": "Parameters",
+    "ModelName": "MinimalCase",
     "OutputDirectory": "",
     "DomainHeight": 50.0,
     "ElevationModelResolution": 1.0,
@@ -19,6 +20,7 @@
     "GenerateVolumeMeshes": true,
     "WriteJSON": true,
     "WriteVTK": true,
+    "WriteProtobuf": false,
     "Debug": true,
     "BuildingRemoveOutlier": false,
     "OutlierNeighbors": 5,
