@@ -107,12 +107,14 @@ public:
   {
     PointCloud pc;
 
-    size_t num_pts = pb_pc.points_size();
+    size_t num_pts = pb_pc.points_size() / 3;
 
-    for (const auto &pts : pb_pc.points())
+    for (size_t i = 0; i < num_pts; i += 3)
     {
-      pc.Points.push_back(Point3D(pts.x(), pts.y(), pts.z()));
+      pc.Points.push_back(Point3D(pb_pc.points(i * 3), pb_pc.points(i * 3 + 1),
+                                  pb_pc.points(i * 3 + 2)));
     }
+    info("Loaded " + str(num_pts) + " points");
     pc.CalculateBoundingBox();
 
     if (pb_pc.classification_size() > 0)
@@ -150,10 +152,12 @@ public:
 
   static void write(const PointCloud &pointCloud, std::string &pb)
   {
-    std::vector<DTCC::Vector3D> pb_pts;
+    std::vector<float> pb_pts;
     for (const auto &pt : pointCloud.Points)
     {
-      pb_pts.push_back(DTCC::Point(pt.x, pt.y, pt.z));
+      pb_pts.push_back(pt.x);
+      pb_pts.push_back(pt.y);
+      pb_pts.push_back(pt.z);
     }
     std::vector<int> classifications;
     for (const auto c : pointCloud.Classifications)

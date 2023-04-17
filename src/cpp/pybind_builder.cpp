@@ -1,3 +1,4 @@
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -140,6 +141,70 @@ py::bytes convertMesh3DToProtobuf(const Mesh3D &mesh)
   std::string pb{};
   DTCC_BUILDER::Protobuf::write(mesh, pb);
   return pb;
+}
+
+CityModel createBuilderCityModel(py::list footprints,
+                                 py::list uuids,
+                                 py::list heights,
+                                 py::list ground_level,
+                                 py::tuple origin)
+{
+  CityModel cityModel;
+
+  cityModel.Origin =
+      Point2D(origin[0].cast<double>(), origin[1].cast<double>());
+  size_t num_buildings = footprints.size();
+  for (size_t i = 0; i < num_buildings; i++)
+  {
+    auto footprint = footprints[i].cast<py::list>();
+    auto uuid = uuids[i].cast<std::string>();
+    auto height = heights[i].cast<double>();
+    auto ground_level = ground_level[i].cast<double>();
+    Polygon poly;
+    for (size_t j = 0; j < footprint.size(); j++)
+    {
+      auto pt = footprint[j].cast<py::tuple>();
+      poly.Vertices.push_back(
+          Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+    }
+    Building building;
+    building.Footprint = poly;
+    building.UUID = uuid;
+    building.Height = height;
+    building.GroundHeight = ground_level;
+    cityModel.Buildings.push_back(building);
+  }
+  return cityModel;
+}
+
+PointCloud createBuilderPointCloud(py::array_t<double> pts,
+                                   py::array_t<uint8_t> cls,
+                                   py::array_t<uint8_t> retNumber,
+                                   py::array_t<uint8_t> numReturns)
+{
+  auto pts_r = pts.unchecked<2>();
+  auto cls_r = cls.unchecked<1>();
+  auto retNumber_r = retNumber.unchecked<1>();
+  auto numReturns_r = numReturns.unchecked<1>();
+
+  size_t pt_count = pts_r.shape(0);
+
+  bool hasClassification = cls_r.size() == pt_count;
+  bool hasReturnNumber = retNumber_r.size() == pt_count;
+  bool hasNumberOfReturns = numReturns_r.size() == pt_count;
+
+  PointCloud pointCloud;
+  for (size_t i = 0; i < pt_count; i++)
+  {
+    pointCloud.Points.push_back(Point3D(pts_r(i, 0), pts_r(i, 1), pts_r(i, 2)));
+    if (hasClassification)
+      pointCloud.Classifications.push_back(cls_r(i));
+    if (hasReturnNumber)
+      pointCloud.ScanFlags.push_back(
+          PointCloudProcessor::packScanFlag(retNumber_r(i), numReturns_r(i)));
+  }
+
+  return pointCloud;
 }
 
 PointCloud SetPointCloudOrigin(PointCloud &pointCloud, py::tuple origin)
@@ -340,7 +405,8 @@ PYBIND11_MODULE(_pybuilder, m)
   py::class_<DTCC_BUILDER::Point2D>(m, "Point2D")
       .def(py::init<>())
       .def("__repr__",
-           [](const DTCC_BUILDER::Point3D &p) {
+           [](const DTCC_BUILDER::Point3D &p)
+           {
              return "<Point3D (" + DTCC_BUILDER::str(p.x) + ", " +
                     DTCC_BUILDER::str(p.y) + ")>";
            })
@@ -350,7 +416,8 @@ PYBIND11_MODULE(_pybuilder, m)
   py::class_<DTCC_BUILDER::Point3D>(m, "Point3D")
       .def(py::init<>())
       .def("__repr__",
-           [](const DTCC_BUILDER::Point3D &p) {
+           [](const DTCC_BUILDER::Point3D &p)
+           {
              return "<Point3D (" + DTCC_BUILDER::str(p.x) + ", " +
                     DTCC_BUILDER::str(p.y) + ", " + DTCC_BUILDER::str(p.z) +
                     ")>";
@@ -374,7 +441,9 @@ PYBIND11_MODULE(_pybuilder, m)
            [](const DTCC_BUILDER::PointCloud &p) { return p.Points.size(); })
       .def_readonly("points", &DTCC_BUILDER::PointCloud::Points)
       .def_readonly("classifications",
-                    &DTCC_BUILDER::PointCloud::Classifications);
+                    &DTCC_BUILDER::PointCloud::Classifications)
+      .def_readonly("intensities", &DTCC_BUILDER::PointCloud::Intensities)
+      .def_readonly("scan_flags", &DTCC_BUILDER::PointCloud::ScanFlags);
 
   py::class_<DTCC_BUILDER::Simplex2D>(m, "Simplex2D").def(py::init<>());
 
@@ -448,6 +517,9 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("loadPointCloudProtobuf", &DTCC_BUILDER::loadPointCloudProtobuf,
         "load pointCloud from protobuf");
+
+  m.def("createBuilderPointCloud", &DTCC_BUILDER::createBuilderPointCloud,
+        "create builder point cloud from numpy arrays");
 
   m.def("convertPointCloudToProtobuf",
         &DTCC_BUILDER::convertPointCloudToProtobuf,

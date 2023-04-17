@@ -1,8 +1,13 @@
-import dtcc_builder as builder
+import dtcc_builder
+import dtcc_builder.builder as builder
 import dtcc_model as model
+from dtcc_model import dtcc_pb2 as proto
 from dtcc_builder import _pybuilder
 import dtcc_io as io
 from pathlib import Path
+import numpy as np
+
+from time import time
 
 
 def project_domain(params_or_footprint, las_path=None, params=None):
@@ -42,6 +47,40 @@ def project_domain(params_or_footprint, las_path=None, params=None):
             p["Y0"] + p["YMax"],
         )
     return (origin, domain_bounds)
+
+
+def extract_roofpoints(
+    citymodel,
+    pointcloud,
+    ground_margin=1.0,
+    ground_percentile=0.9,
+    roof_outlier_margin=1.5,
+    roof_outlier_neighbors=5,
+    roof_ransac_margin=3.0,
+    roof_ransac_iterations=250,
+):
+    builder_citymodel = builder.create_builder_citymodel(citymodel)
+    builder_pointcloud = builder.create_builder_pointcloud(pointcloud)
+    builder_citymodel = _pybuilder.extractRoofPoints(
+        builder_citymodel,
+        builder_pointcloud,
+        ground_margin,
+        ground_percentile,
+        roof_outlier_margin,
+        roof_outlier_neighbors,
+        roof_ransac_margin,
+        roof_ransac_iterations,
+    )
+    start_time = time()
+    for citymodel_building, builder_buildings in zip(
+        citymodel.buildings, builder_citymodel.buildings
+    ):
+        citymodel_building.roofpoints = np.array(
+            [[p.x, p.y, p.z] for p in builder_buildings.roof_points]
+        )
+        citymodel_building.error = builder_buildings.error
+    print("conver cm time: ", time() - start_time)
+    return citymodel
 
 
 def build_citymodel(
