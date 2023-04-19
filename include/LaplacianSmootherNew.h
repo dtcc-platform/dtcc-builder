@@ -8,6 +8,8 @@
 #include "Timer.h"
 
 #include "../sandbox/smoothing-2023/include/boundaryConditions.hpp"
+#include "../sandbox/smoothing-2023/include/sparse.hpp"
+#include "../sandbox/smoothing-2023/include/stiffnessMatrix.hpp"
 
 namespace DTCC
 {
@@ -27,8 +29,193 @@ public:
 
     std::cout << mesh3D.Markers.size() << std::endl;
 
-    int *vMarkers = new int[mesh3D.Vertices.size()];
-    getVerticeMarkers(mesh3D, vMarkers);
+    stiffnessMatrix AK(mesh3D);
+
+    std::vector<double> b(mesh3D.Vertices.size(), 0);
+
+    BoundaryConditions bc(mesh3D, cityModel, dem, topHeight, true);
+    bc.apply(b);
+    bc.apply(AK);
+
+    std::vector<double> u = initialGuess(mesh3D, dem, topHeight, bc);
+
+    UnassembledJacobi(mesh3D, AK, b, u);
+    // UnassembledGaussSeidel(mesh3D,AK,b,u);
+
+    // Update mesh coordinates
+    for (std::size_t i = 0; i < mesh3D.Vertices.size(); i++)
+      mesh3D.Vertices[i].z += u[i];
+  }
+
+  static void UnassembledJacobi(const Mesh3D &mesh3D,
+                                stiffnessMatrix &A,
+                                std::vector<double> b,
+                                std::vector<double> u,
+                                const size_t max_iterations = 500,
+                                const double tolerance = 1e-9)
+  {
+    info("Element-by-Element Jacobi Solver");
+    Timer timer("EbE Jacobi");
+
+    const size_t nV = mesh3D.Vertices.size();
+    const size_t nC = mesh3D.Cells.size();
+
+    // Non-diagonal Elements sum
+    std::vector<double> c(nV);
+
+    std::array<uint, 4> I = {0};
+
+    size_t iterations;
+    double error;
+    for (iterations = 0; iterations < max_iterations; iterations++)
+    {
+      c = b;
+      error = 0;
+      for (size_t cn = 0; cn < nC; cn++)
+      {
+        I[0] = mesh3D.Cells[cn].v0;
+        I[1] = mesh3D.Cells[cn].v1;
+        I[2] = mesh3D.Cells[cn].v2;
+        I[3] = mesh3D.Cells[cn].v3;
+        for (u_int8_t i = 0; i < 4; i++)
+        {
+          c[I[i]] -= A(cn, i, (i + 1) % 4) * u[I[(i + 1) % 4]] +
+                     A(cn, i, (i + 2) % 4) * u[I[(i + 2) % 4]] +
+                     A(cn, i, (i + 3) % 4) * u[I[(i + 3) % 4]];
+        }
+      }
+
+      // Update solution vector
+      for (size_t i = 0; i < nV; i++)
+      {
+        double res = u[i];
+        u[i] = c[i] / A.diagonal[i];
+        res = std::abs(res - u[i]);
+        error = std::max(error, res);
+      }
+
+      // Check Convergance
+      if (error < tolerance)
+        break;
+    }
+    timer.Stop();
+    timer.Print();
+
+    std::cout << "Jacobi finished after " << iterations << " / "
+              << max_iterations << " iterations" << std::endl;
+    std::cout << "With error: " << error << std::endl;
+    // std::cout << "Execution Time:" << ms_double.count() << "ms " <<
+    // std::endl;
+  }
+
+  // Compute the number of Cells that each Vertex belongs
+  static void _getVertexDegree(std::vector<uint> &VertexDegree,
+                               const Mesh3D &mesh)
+  {
+    for (size_t cn = 0; cn < mesh.Cells.size(); cn++)
+    {
+      VertexDegree[mesh.Cells[cn].v0]++;
+      VertexDegree[mesh.Cells[cn].v1]++;
+      VertexDegree[mesh.Cells[cn].v2]++;
+      VertexDegree[mesh.Cells[cn].v3]++;
+    }
+  }
+
+  static void UnassembledGaussSeidel(const Mesh3D &mesh3D,
+                                     stiffnessMatrix &A,
+                                     std::vector<double> b,
+                                     std::vector<double> u,
+                                     const size_t max_iterations = 500,
+                                     const double tolerance = 1e-9)
+  {
+    info("Element-by-Element Gauss-Seidel Solver");
+    Timer timer("EbE Gauss Seidel");
+
+    const size_t nV = mesh3D.Vertices.size();
+    const size_t nC = mesh3D.Cells.size();
+
+    // Non-diagonal Elements sum
+    std::vector<double> c(nV);
+
+    std::array<uint, 4> I = {0};
+
+    // Compute the number of Cells that each Vertex belongs
+    std::vector<uint> vertexDegree(nV);
+    std::vector<uint> vDeg(nV);
+    _getVertexDegree(vertexDegree, mesh3D);
+
+    size_t iterations;
+    double error;
+    for (iterations = 0; iterations < max_iterations; iterations++)
+    {
+      c = b;
+      vDeg = vertexDegree;
+      error = 0;
+      for (size_t cn = 0; cn < nC; cn++)
+      {
+        I[0] = mesh3D.Cells[cn].v0;
+        I[1] = mesh3D.Cells[cn].v1;
+        I[2] = mesh3D.Cells[cn].v2;
+        I[3] = mesh3D.Cells[cn].v3;
+        for (u_int8_t i = 0; i < 4; i++)
+        {
+          c[I[i]] -=
+              A._data[cn * 16 + i * 4 + (i + 1) % 4] * u[I[(i + 1) % 4]] +
+              A._data[cn * 16 + i * 4 + (i + 2) % 4] * u[I[(i + 2) % 4]] +
+              A._data[cn * 16 + i * 4 + (i + 3) % 4] * u[I[(i + 3) % 4]];
+
+          // c[I[i]] -= A(cn,i,(i + 1) % 4) * u[I[(i + 1) % 4]] +
+          //            A(cn,i,(i + 2) % 4) * u[I[(i + 2) % 4]] +
+          //            A(cn,i,(i + 3) % 4) * u[I[(i + 3) % 4]] ;
+
+          vDeg[I[i]]--;
+          if (vDeg[I[i]] == 0)
+          {
+            double res = u[I[i]];
+            u[I[i]] = c[I[i]] / A.diagonal[I[i]];
+            res = std::abs(res - u[I[i]]);
+            error = std::max(error, res);
+          }
+        }
+      }
+      std::cout << iterations << "  err: " << error << std::endl;
+
+      // Check Convergance
+      if (error < tolerance)
+        break;
+    }
+    timer.Stop();
+    timer.Print();
+
+    std::cout << "Gauss-Seidel finished after " << iterations << " / "
+              << max_iterations << " iterations" << std::endl;
+    std::cout << "With error: " << error << std::endl;
+    // std::cout << "Execution Time:" << ms_double.count() << "ms " <<
+    // std::endl;
+  }
+
+  // Placeholder Initial Guess
+  static std::vector<double> initialGuess(const Mesh3D &mesh3D,
+                                          const GridField2D &dtm,
+                                          double topHeight,
+                                          BoundaryConditions &bc)
+  {
+    const std::size_t nV = mesh3D.Vertices.size();
+
+    std::vector<double> u = bc.values;
+
+    for (size_t i = 0; i < nV; i++)
+    {
+      if (bc.vMarkers[i] == -4)
+      {
+        // const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
+        // u[i] = dem(p)*(topHeight-mesh3D.Vertices[i].z)/topHeight -
+        // mesh3D.Vertices[i].z;
+        u[i] = topHeight / 2 - mesh3D.Vertices[i].z;
+      }
+    }
+
+    return u;
   }
 };
 

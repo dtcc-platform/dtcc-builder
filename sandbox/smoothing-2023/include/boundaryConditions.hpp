@@ -9,17 +9,79 @@
 #include <string>
 #include <vector>
 
-// #include "GridField.h"
+#include "GridField.h"
 // #include "LaplacianSmoother.h"
-//#include "Mesh.h"
+// #include "Mesh.h"
 // #include "datamodel/CityModel.h"
+
+#include "stiffnessMatrix.hpp"
 
 using namespace DTCC;
 
-void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Boundary Conditions Class (WIP)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class BoundaryConditions
 {
-  const size_t nC = mesh.Cells.size();
-  const size_t nV = mesh.Vertices.size();
+private:
+  Mesh3D &_mesh;
+
+  const CityModel &_citymodel;
+
+  const GridField2D &_dtm;
+
+  const double topHeight;
+
+  const bool fixBuildings;
+
+public:
+  std::vector<int> vMarkers;
+
+  std::vector<double> values;
+
+  BoundaryConditions(Mesh3D &mesh,
+                     const CityModel &cityModel,
+                     const GridField2D &dtm,
+                     const double topHeight,
+                     const bool fixBuildings);
+
+  ~BoundaryConditions();
+
+  void computeVerticeMarkers();
+
+  void computeBoundaryValues();
+
+  void apply(std::vector<double> &b);
+
+  void apply(stiffnessMatrix &A);
+};
+
+BoundaryConditions::BoundaryConditions(Mesh3D &mesh,
+                                       const CityModel &cityModel,
+                                       const GridField2D &dtm,
+                                       const double topHeight,
+                                       const bool fixBuildings)
+    : _mesh(mesh), _citymodel(cityModel), _dtm(dtm), topHeight(topHeight),
+      vMarkers(mesh.Vertices.size(), 0), values(mesh.Vertices.size(), 0.0),
+      fixBuildings(fixBuildings)
+{
+  const size_t nC = _mesh.Cells.size();
+  const size_t nV = _mesh.Vertices.size();
+
+  info("Translating Cell Markers to Vertice Markers");
+  computeVerticeMarkers();
+
+  info("Computing Boundary Values");
+  computeBoundaryValues();
+}
+
+BoundaryConditions::~BoundaryConditions() {}
+
+void BoundaryConditions::computeVerticeMarkers()
+{
+  const size_t nC = _mesh.Cells.size();
+  const size_t nV = _mesh.Vertices.size();
 
   for (size_t i = 0; i < nV; i++)
   {
@@ -35,22 +97,22 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
   for (size_t cn = 0; cn < nC; cn++)
   {
     // Initializing Global Index for each cell
-    I[0] = mesh.Cells[cn].v0;
-    I[1] = mesh.Cells[cn].v1;
-    I[2] = mesh.Cells[cn].v2;
-    I[3] = mesh.Cells[cn].v3;
+    I[0] = _mesh.Cells[cn].v0;
+    I[1] = _mesh.Cells[cn].v1;
+    I[2] = _mesh.Cells[cn].v2;
+    I[3] = _mesh.Cells[cn].v3;
 
-    const double z_mean = (mesh.Vertices[I[0]].z + mesh.Vertices[I[1]].z +
-                           mesh.Vertices[I[2]].z + mesh.Vertices[I[3]].z) /
+    const double z_mean = (_mesh.Vertices[I[0]].z + _mesh.Vertices[I[1]].z +
+                           _mesh.Vertices[I[2]].z + _mesh.Vertices[I[3]].z) /
                           4;
 
-    const int cellMarker = mesh.Markers[cn];
+    const int cellMarker = _mesh.Markers[cn];
 
-    if (cellMarker >= 0) // Building
+    if (cellMarker >= 0 && fixBuildings) // Building
     {
       for (size_t i = 0; i < 4; i++)
       {
-        if (mesh.Vertices[I[i]].z > z_mean)
+        if (_mesh.Vertices[I[i]].z > z_mean)
         {
           continue;
         }
@@ -61,7 +123,7 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
     {
       for (size_t i = 0; i < 4; i++)
       {
-        if (mesh.Vertices[I[i]].z > z_mean)
+        if (_mesh.Vertices[I[i]].z > z_mean)
         {
           continue;
         }
@@ -72,7 +134,7 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
     {
       for (size_t i = 0; i < 4; i++)
       {
-        if (mesh.Vertices[I[i]].z > z_mean)
+        if (_mesh.Vertices[I[i]].z > z_mean)
         {
           continue;
         }
@@ -83,7 +145,7 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
     {
       for (size_t i = 0; i < 4; i++)
       {
-        if (mesh.Vertices[I[i]].z < z_mean)
+        if (_mesh.Vertices[I[i]].z < z_mean)
         {
           continue;
         }
@@ -92,7 +154,6 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
     }
   }
 
-  // Counting all vertice Markers
   for (size_t v = 0; v < nV; v++)
   {
     if (vMarkers[v] >= 0)
@@ -106,93 +167,89 @@ void getVerticeMarkers(const Mesh3D &mesh, int *vMarkers)
   }
 
   int k4 = nV - (k0 + k1 + k2 + k3);
-  std::cout << "Buildings k0 :" << k0 << std::endl
-            << "Halos     k1 :" << k1 << std::endl
-            << "Ground    k2 :" << k2 << std::endl
-            << "Top       k3 :" << k3 << std::endl
-            << "Neuman    k4 :" << k4 << std::endl
-            << k0 + k1 + k2 + k3 + k4 << " / " << nV << std::endl;
+  std::cout << "Buildings      k0 :" << k0 << std::endl
+            << "Building Halos k1 :" << k1 << std::endl
+            << "Ground         k2 :" << k2 << std::endl
+            << "Top            k3 :" << k3 << std::endl
+            << "Neumann        k4 :" << k4 << std::endl
+            << k0 + k1 + k2 + k3 + k4 << "  " << nV << std::endl;
 
   return;
 }
 
-void applyBC_load(const int *vMarkers,
-                  const Mesh3D &mesh,
-                  const CityModel &citymodel,
-                  const GridField2D &elevation,
-                  const double topHeight,
-                  double *boundaryValues)
+void BoundaryConditions::computeBoundaryValues()
 {
-  const size_t nC = mesh.Cells.size();
-  const size_t nV = mesh.Vertices.size();
+  const size_t nC = _mesh.Cells.size();
+  const size_t nV = _mesh.Vertices.size();
 
-  citymodel.BuildSearchTree();
+  // TODO: Check if Search tree has already been built
+  //_citymodel.BuildSearchTree(true);
+
   for (size_t i = 0; i < nV; i++)
   {
     const int verticeMarker = vMarkers[i];
-    if (verticeMarker >= 0) // Building
+    if (verticeMarker >= 0 && fixBuildings) // Building
     {
-      boundaryValues[i] =
-          citymodel.Buildings[verticeMarker].MaxHeight() - mesh.Vertices[i].z;
+      values[i] =
+          _citymodel.Buildings[verticeMarker].MaxHeight() - _mesh.Vertices[i].z;
     }
     else if (verticeMarker == -1) // Building Halo
     {
-      const Vector2D p(mesh.Vertices[i].x, mesh.Vertices[i].y);
-      int buildingIndex = citymodel.FindBuilding(p);
-      boundaryValues[i] =
-          citymodel.Buildings[buildingIndex].MinHeight() - mesh.Vertices[i].z;
+      const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
+      int buildingIndex = _citymodel.FindBuilding(p);
+      values[i] =
+          _citymodel.Buildings[buildingIndex].MinHeight() - _mesh.Vertices[i].z;
     }
     else if (verticeMarker == -2) // Ground
     {
-      const Vector2D p(mesh.Vertices[i].x, mesh.Vertices[i].y);
-      boundaryValues[i] = elevation(p) - mesh.Vertices[i].z;
+      const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
+      values[i] = _dtm(p) - _mesh.Vertices[i].z;
     }
     else if (verticeMarker == -3) // Top
     {
-      boundaryValues[i] = topHeight - mesh.Vertices[i].z;
+      values[i] = topHeight - _mesh.Vertices[i].z;
     }
     else
     {
-      boundaryValues[i] = 0;
+      values[i] = 0;
     }
   }
 }
 
-void applyBC_stiffnessMat(const int *vMarkers,
-                          const Mesh3D &mesh,
-                          double *AK,
-                          double *diag)
+// Apply Boundary Conditions on Load vector
+void BoundaryConditions::apply(std::vector<double> &b)
 {
-  const size_t nC = mesh.Cells.size();
-  const size_t nV = mesh.Vertices.size();
+  info("Applying Boundary Conditions on Load vector b");
+  b = values;
+}
 
-  std::memset(diag, 0, nV * sizeof(double));
+// Apply Boundary Conditions on Stiffness Matrix
+void BoundaryConditions::apply(stiffnessMatrix &A)
+{
+  info("Applying Boundary Conditions on Stiffness Matrix AK");
+
   std::array<uint, 4> I = {0};
 
-  for (size_t cn = 0; cn < nC; cn++)
+  for (size_t cn = 0; cn < A.shape[0]; cn++)
   {
-    // Initializing Global Index for each cell
-    I[0] = mesh.Cells[cn].v0;
-    I[1] = mesh.Cells[cn].v1;
-    I[2] = mesh.Cells[cn].v2;
-    I[3] = mesh.Cells[cn].v3;
+    // Global Index for each cell
+    I[0] = _mesh.Cells[cn].v0;
+    I[1] = _mesh.Cells[cn].v1;
+    I[2] = _mesh.Cells[cn].v2;
+    I[3] = _mesh.Cells[cn].v3;
 
-    for (uint8_t i = 0; i < 4; i++)
+    for (size_t i = 0; i < A.shape[1]; i++)
     {
       if (vMarkers[I[i]] > -4)
       {
-        diag[I[i]] = 1.0;
-        // memset(&AK[cn * 16 + i * 4], 0, 4 * sizeof(double));
-        for (uint8_t j = 0; j < 4; j++)
+        A.diagonal[I[i]] = 1.0;
+        for (size_t j = 0; j < A.shape[2]; j++)
         {
-          AK[cn * 16 + i * 4 + j] = 0;
+          A(cn, i, j) = 0;
         }
-      }
-      else
-      {
-        diag[I[i]] += AK[cn * 16 + i * 4 + i];
       }
     }
   }
 }
+
 #endif

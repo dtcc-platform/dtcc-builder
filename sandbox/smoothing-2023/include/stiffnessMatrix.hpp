@@ -203,26 +203,61 @@ double *assemble(double *A, const Mesh3D &m)
   return assembled_A;
 }
 
-// Test function: Naive BC Application
-void checkBoundaryPoints(bool *isBoundary,
-                         double *boundaryValues,
-                         const Mesh3D &m)
-{
-  const size_t nV = m.Vertices.size();
-  const double epsilon = 1;
-  const double boundary_line1 = 37.0;
-  const double boundary_line2 = 100.0;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Stiffness Matrix Class (WIP)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  for (size_t i = 0; i < nV; i++)
+class stiffnessMatrix
+{
+private:
+public:
+  Mesh3D &_mesh;
+
+  double *_data;
+
+  std::vector<double> diagonal;
+
+  std::array<size_t, 3> shape;
+
+  stiffnessMatrix(Mesh3D &mesh);
+
+  ~stiffnessMatrix();
+
+  double &operator()(unsigned cell, unsigned row, unsigned col) const;
+};
+
+stiffnessMatrix::stiffnessMatrix(Mesh3D &mesh)
+    : _mesh(mesh), diagonal(mesh.Vertices.size(), 0)
+{
+  // Non - Assembled Stiffness Matrix Shape
+  // Number of Mesh Cells
+  shape[0] = _mesh.Cells.size();
+  shape[1] = 4;
+  shape[2] = 4;
+
+  _data = new double[shape[0] * shape[1] * shape[2]];
+  compute_transformation_matrix(_data, _mesh);
+
+  // Filling Diagonal Vector with appropriate values
+  for (size_t cn = 0; cn < _mesh.Cells.size(); cn++)
   {
-    if ((abs(m.Vertices[i].z - boundary_line2) <
-         epsilon)) //|| (abs(m->Vertices[i].z - boundary_line2) < epsilon))
-    {
-      isBoundary[i] = true;
-      boundaryValues[i] = 3;
-    }
+    diagonal[mesh.Cells[cn].v0] += _data[cn * 16 + 0 * 4 + 0];
+    diagonal[mesh.Cells[cn].v1] += _data[cn * 16 + 1 * 4 + 1];
+    diagonal[mesh.Cells[cn].v2] += _data[cn * 16 + 2 * 4 + 2];
+    diagonal[mesh.Cells[cn].v3] += _data[cn * 16 + 3 * 4 + 3];
   }
-  return;
+}
+
+stiffnessMatrix::~stiffnessMatrix() { delete[] _data; }
+
+inline double &
+stiffnessMatrix::operator()(unsigned cell, unsigned row, unsigned col) const
+{
+  // if (cell >= shape[0] || row >= shape[1] || col >= shape[2])
+  // {
+  //   throw std::out_of_range("Stiffness Matrix subscript Out of bounds");
+  // }
+  return _data[16 * cell + 4 * row + col];
 }
 
 #endif

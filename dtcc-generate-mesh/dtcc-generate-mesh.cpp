@@ -222,8 +222,8 @@ void GenerateVolumeMeshes(CityModel &cityModel,
       LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
                                       false);
     }
-    LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
-                                    p["WriteMatrix"]);
+    // LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
+    //                                 p["WriteMatrix"]);
     info(mesh);
   }
 
