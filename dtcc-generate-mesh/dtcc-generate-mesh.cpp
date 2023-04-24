@@ -163,7 +163,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 3.3: Smooth 3D mesh");
     topHeight = dtm.Mean() + static_cast<double>(p["DomainHeight"]);
     LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false,
-                                    false);
+                                    false, false);
     info(mesh);
   }
 
@@ -196,7 +196,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
   {
     Timer timer("Step 3.5: Smooth 3D mesh");
     LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
-                                    p["WriteMatrix"]);
+                                    p["WriteMatrix"], true);
     info(mesh);
   }
 
