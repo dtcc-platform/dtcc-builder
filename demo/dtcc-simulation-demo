@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+from fenics import *
+
+# FIXME: Replace by loading generated mesh
+
+# Create mesh
+mesh = UnitCubeMesh(10, 10, 10)
+
+# Define function spaces
+P2 = VectorElement("Lagrange", mesh.ufl_cell(), 2)
+P1 = FiniteElement("Lagrange", mesh.ufl_cell(), 1)
+TH = P2 * P1
+W = FunctionSpace(mesh, TH)
+
+# Define variational problem
+(u, p) = TrialFunctions(W)
+(v, q) = TestFunctions(W)
+f = Constant((0.0, 0.0, 0.0))
+a = inner(grad(u), grad(v))*dx + div(v)*p*dx + q*div(u)*dx
+L = inner(f, v)*dx
+
+# Define boundary conditions
+left = lambda x, on_boundary: on_boundary and near(x[0], 0.0)
+top = lambda x, on_boundary: on_boundary and near(x[2], 1.0)
+bottom = lambda x, on_boundary: on_boundary and near(x[2], 0.0)
+bc0 = DirichletBC(W.sub(0), Constant((1.0, 0.0, 0.0)), left)
+bc1 = DirichletBC(W.sub(0), Constant((0.0, 0.0, 0.0)), bottom)
+bc2 = DirichletBC(W.sub(0).sub(2), Constant(0.0), top)
+bcs = [bc0, bc1, bc2]
+
+# Solve variational problem
+w = Function(W)
+solve(a == L, w, bcs)
+u, p = w.split()
+
+# Save solution to file
+File("velocity.pvd") << u
+File("pressure.pvd") << p
