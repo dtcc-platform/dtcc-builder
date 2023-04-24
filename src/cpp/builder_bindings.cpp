@@ -4,10 +4,13 @@
 #include <pybind11/stl.h>
 
 #include "CityModelGenerator.h"
+#include "ElevationModelGenerator.h"
+#include "GridField.h"
 #include "Point.h"
 #include "PointCloud.h"
 #include "PointCloudMethods.h"
 #include "Polygon.h"
+#include "VertexSmoother.h"
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
 
@@ -104,6 +107,7 @@ CityModel extractRoofPoints(CityModel &cityModel,
                             double roofRANSACOutlierMargin,
                             size_t roofRANSACIterations)
 {
+  pointCloud = removeVegetation(pointCloud);
   CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud, groundMargin,
                                             groundOutlierMargin);
   if (roofOutlierMargin > 0)
@@ -118,6 +122,24 @@ CityModel extractRoofPoints(CityModel &cityModel,
   }
   return cityModel;
 }
+
+// GridField
+GridField2D GenerateElevationModel(const PointCloud &pointCloud,
+                                   double resolution,
+                                   std::vector<int> classifications)
+{
+  GridField2D dem;
+  ElevationModelGenerator::GenerateElevationModel(dem, pointCloud,
+                                                  classifications, resolution);
+  return dem;
+}
+
+GridField2D SmoothElevation(GridField2D &dem, size_t numSmoothings)
+{
+  VertexSmoother::SmoothField(dem, numSmoothings);
+  return dem;
+}
+
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_pybuilder, m)
@@ -137,7 +159,7 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readwrite("height", &DTCC_BUILDER::Building::Height)
       .def_readwrite("groundHeight", &DTCC_BUILDER::Building::GroundHeight)
       .def_readonly("footprint", &DTCC_BUILDER::Building::Footprint)
-      .def_readonly("groun_points", &DTCC_BUILDER::Building::GroundPoints)
+      .def_readonly("ground_points", &DTCC_BUILDER::Building::GroundPoints)
       .def_readonly("roof_points", &DTCC_BUILDER::Building::RoofPoints);
 
   py::class_<DTCC_BUILDER::Point2D>(m, "Point2D")
@@ -183,6 +205,18 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readonly("intensities", &DTCC_BUILDER::PointCloud::Intensities)
       .def_readonly("scan_flags", &DTCC_BUILDER::PointCloud::ScanFlags);
 
+  py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D")
+      .def(py::init<>())
+      .def_readonly("Grid", &DTCC_BUILDER::GridField2D::Grid)
+      .def_readonly("values", &DTCC_BUILDER::GridField2D::Values);
+
+  py::class_<DTCC_BUILDER::Grid2D>(m, "Grid2D")
+      .def(py::init<>())
+      .def_readonly("xsize", &DTCC_BUILDER::Grid2D::XSize)
+      .def_readonly("ysize", &DTCC_BUILDER::Grid2D::YSize)
+      .def_readonly("xstep", &DTCC_BUILDER::Grid2D::XStep)
+      .def_readonly("ystep", &DTCC_BUILDER::Grid2D::YStep);
+
   m.def("createBuilderCityModel", &DTCC_BUILDER::createBuilderCityModel,
         "create builder point cloud from citymodel data");
 
@@ -194,4 +228,8 @@ PYBIND11_MODULE(_pybuilder, m)
         "remove vegetation from point cloud");
   m.def("extractRoofPoints", &DTCC_BUILDER::extractRoofPoints,
         "extract roof points from point cloud");
+  m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
+        "generate height field from point cloud");
+  m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
+        "Smooth  elevation grid field");
 }

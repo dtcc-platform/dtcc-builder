@@ -1,16 +1,20 @@
-import dtcc_builder
-import dtcc_builder.builder as builder
+import dtcc_builder as builder
+import dtcc_builder.build
+import dtcc_builder.builder_datamodel as builder_datamodel
 import dtcc_model as model
 from dtcc_model import dtcc_pb2 as proto
 from dtcc_builder import _pybuilder
 import dtcc_io as io
 from pathlib import Path
 import numpy as np
+from affine import Affine
+
+from pypoints2grid import points2grid
 
 from time import time
 
 
-def project_domain(params_or_footprint, las_path=None, params=None):
+def calculate_project_domain(params_or_footprint, las_path=None, params=None):
     if las_path is None and params is None:
         p = params_or_footprint
         building_footprint_path = p["DataDirectory"] / p["BuildingsFileName"]
@@ -46,26 +50,46 @@ def project_domain(params_or_footprint, las_path=None, params=None):
             p["X0"] + p["XMax"],
             p["Y0"] + p["YMax"],
         )
+    domain_bounds = model.Bounds(*domain_bounds)
     return (origin, domain_bounds)
 
 
-def extract_roofpoints(
+def generate_dem(
+    pointcloud: model.PointCloud, bounds, cell_size: float, window_size: int = 3
+) -> model.Raster:
+    ground_point_idx = np.where(np.isin(pointcloud.classification, [2, 9]))[0]
+    ground_points = pointcloud.points[ground_point_idx]
+    if isinstance(bounds, model.Bounds):
+        bounds = bounds.tuple
+    dem = points2grid(ground_points, cell_size, bounds, window_size=window_size)
+
+    dem_raster = model.Raster()
+    dem_raster.data = dem
+    dem_raster.nodata = 0
+    dem_raster.georef = Affine.translation(*bounds[:2]) * Affine.scale(
+        cell_size, cell_size
+    )
+    io.process.raster.fill_holes(dem_raster)
+    return dem_raster
+
+
+def extract_buildingpoints(
     citymodel,
     pointcloud,
-    ground_margin=1.0,
-    ground_percentile=0.9,
+    ground_padding=2.0,
+    ground_outlier_margin=1,
     roof_outlier_margin=1.5,
     roof_outlier_neighbors=5,
     roof_ransac_margin=3.0,
-    roof_ransac_iterations=250,
+    roof_ransac_iterations=150,
 ):
-    builder_citymodel = builder.create_builder_citymodel(citymodel)
-    builder_pointcloud = builder.create_builder_pointcloud(pointcloud)
+    builder_citymodel = builder_datamodel.create_builder_citymodel(citymodel)
+    builder_pointcloud = builder_datamodel.create_builder_pointcloud(pointcloud)
     builder_citymodel = _pybuilder.extractRoofPoints(
         builder_citymodel,
         builder_pointcloud,
-        ground_margin,
-        ground_percentile,
+        ground_padding,
+        ground_outlier_margin,
         roof_outlier_margin,
         roof_outlier_neighbors,
         roof_ransac_margin,
@@ -75,71 +99,45 @@ def extract_roofpoints(
     for citymodel_building, builder_buildings in zip(
         citymodel.buildings, builder_citymodel.buildings
     ):
-        citymodel_building.roofpoints = np.array(
+        citymodel_building.roofpoints.points = np.array(
             [[p.x, p.y, p.z] for p in builder_buildings.roof_points]
         )
-        citymodel_building.error = builder_buildings.error
+        ground_points = np.array(
+            [[p.x, p.y, p.z] for p in builder_buildings.ground_points]
+        )
+        if len(ground_points) > 0:
+            ground_z = ground_points[:, 2]
+            citymodel_building.ground_level = np.percentile(ground_z, 50)
+
     print("conver cm time: ", time() - start_time)
     return citymodel
 
 
-def build_citymodel(
-    building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
+def calculate_building_heights(
+    citymodel, roof_percentile=0.9, min_height=2.5, overwrite=False
 ):
-    """Create a city model from a directory of point clouds and a shapefile of building footprints.
-    Args:
-    @param building_footprint_path: Path to a shapefile containing building footprints
-    @param pointcloud_path: Path to a pointcloud file or a directory containing point clouds
-    @param parameters: parameters dict or Path to a JSON file containing parameters for the city model.
-    If None default parameters will be used.
-    @param return_protobuf: If True, the city model will be returned as a protobuf string
+    for building in citymodel.buildings:
+        if building.height > 0 and not overwrite:
+            continue
+        if len(building.roofpoints) == 0:
+            building.height = min_height
+            continue
+        z_values = building.roofpoints.points[:, 2]
+        roof_top = np.percentile(z_values, roof_percentile * 100)
 
-    @return: A tuple containing the city model and elevation model as a protobuf string
-    (if return_protobuf is True) or as builder objects (if return_protobuf is False)
-    """
-    if type(parameters) is dict:
-        p = parameters
-    else:
-        p = builder.load_parameters(parameters)
+        if building.ground_level == 0:
+            if len(citymodel.terrain.shape) == 2:
+                footprint_center = building.footprint.centroid
+                ground_height = citymodel.terrain.get_value(
+                    footprint_center.x, footprint_center.y
+                )
+                building.ground_level = ground_height
+        height = roof_top - building.ground_level
+        if height < min_height:
+            height = min_height
+        building.height = height
 
-    origin, domain_bounds = project_domain(building_footprint_path, pointcloud_path, p)
-    if io.bounds.bounds_area(domain_bounds) < 100:
-        raise ValueError("Domain too small to generate a city model")
-    pc = builder.PointCloud(pointcloud_path=pointcloud_path, bounds=domain_bounds)
-    if len(pc) == 0:
-        raise ValueError("No points in point cloud")
-    pc.set_origin(origin)
-    pc.remove_global_outliers(p["OutlierMargin"])
-    if p["NaiveVegitationFilter"]:
-        pc.vegetation_filter()
-    city_model = builder.CityModel(
-        footprints_file=building_footprint_path, parameters=p, bounds=domain_bounds
-    )
-    city_model.set_origin(origin)
-    city_model.clean_citymodel()
-
-    dtm = builder.ElevationModel(pc, p["ElevationModelResolution"], [2, 9])
-    # dsm = ElevationModel(pc, p["ElevationModelResolution"])
-    dtm.smooth_elevation_model(p["GroundSmoothing"])
-
-    city_model.extract_building_points(pc)
-
-    if 6 not in pc.used_classifications and p["RANSACOutlierRemover"]:
-        city_model.building_points_RANSAC_outlier_remover()
-
-    if p["StatisticalOutlierRemover"]:
-        city_model.building_points_statistical_outlier_remover()
-
-    city_model.compute_building_heights(dtm)
-
-    if return_protobuf:
-        cm = model.CityModel()
-        cm_string = city_model.to_protobuf()
-        cm.ParseFromString(cm_string)
-        city_model = cm
-        dtm = ""  # dtm.to_protobuf()
-
-    return (city_model, dtm)
+    return citymodel
 
 
 def build_surface_meshes(
@@ -159,15 +157,17 @@ def build_surface_meshes(
     if type(parameters) is dict:
         p = parameters
     else:
-        p = builder.load_parameters(parameters)
+        p = builder_datamodel.load_parameters(parameters)
 
     cm, dtm = build_citymodel(building_footprint_path, pointcloud_path, p, False)
     if not cm.simplified:
         cm.simplify_citymodel(dtm.bounds)
-    surfaces = builder.Meshing.generate_surface3D(cm, dtm, p["MeshResolution"])
+    surfaces = builder_datamodel.Meshing.generate_surface3D(
+        cm, dtm, p["MeshResolution"]
+    )
     ground_surface = surfaces[0]
     building_surfaces = surfaces[1:]
-    building_surfaces = builder.Meshing.merge_surfaces3D(building_surfaces)
+    building_surfaces = builder_datamodel.Meshing.merge_surfaces3D(building_surfaces)
     if return_protobuf:
         gs = model.Mesh()
         bs = model.Mesh()
@@ -195,52 +195,66 @@ def build_volume_mesh(
     if type(parameters) is dict:
         p = parameters
     else:
-        p = builder.load_parameters(parameters)
+        p = builder_datamodel.load_parameters(parameters)
 
     cm, dtm = build_citymodel(building_footprint_path, pointcloud_path, p, False)
     if not cm.simplified:
         cm.simplify_citymodel(dtm.bounds)
 
     # Step 3.1: Generate 2D mesh
-    mesh_2D = builder.Meshing.generate_mesh2D(cm, dtm.bounds, p["MeshResolution"])
+    mesh_2D = builder_datamodel.Meshing.generate_mesh2D(
+        cm, dtm.bounds, p["MeshResolution"]
+    )
     if p["Debug"] and p["WriteVTK"]:
         pass
         # builder.Meshing.write_surface(
         #     mesh_2D, p["OutputDirectory"] / "Step31Mesh.vtu")
 
     # Step 3.2: Generate 3D mesh (layer 3D mesh)
-    mesh_3D = builder.Meshing.generate_mesh3D(
+    mesh_3D = builder_datamodel.Meshing.generate_mesh3D(
         mesh_2D, p["DomainHeight"], p["MeshResolution"]
     )
     if p["Debug"] and p["WriteVTK"]:
-        mesh_3D_boundary = builder.Meshing.extract_boundary3D(mesh_3D)
-        builder.Meshing.write_mesh(
+        mesh_3D_boundary = builder_datamodel.Meshing.extract_boundary3D(mesh_3D)
+        builder_datamodel.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step32Boundary.vtu"
         )
-        builder.Meshing.write_mesh(mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu")
+        builder_datamodel.Meshing.write_mesh(
+            mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu"
+        )
 
     # Step 3.3: Smooth 3D mesh (set ground height)
     top_height = dtm.mean() + p["DomainHeight"]
-    mesh_3D = builder.Meshing.smooth_mesh3D(mesh_3D, cm, dtm, top_height, False)
+    mesh_3D = builder_datamodel.Meshing.smooth_mesh3D(
+        mesh_3D, cm, dtm, top_height, False
+    )
 
     if p["Debug"] and p["WriteVTK"]:
-        mesh_3D_boundary = builder.Meshing.extract_boundary3D(mesh_3D)
-        builder.Meshing.write_mesh(
+        mesh_3D_boundary = builder_datamodel.Meshing.extract_boundary3D(mesh_3D)
+        builder_datamodel.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step33Boundary.vtu"
         )
-        builder.Meshing.write_mesh(mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu")
+        builder_datamodel.Meshing.write_mesh(
+            mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu"
+        )
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
-    mesh_3D = builder.Meshing.trim_mesh3D(mesh_3D, mesh_2D, cm, mesh_3D.numLayers)
+    mesh_3D = builder_datamodel.Meshing.trim_mesh3D(
+        mesh_3D, mesh_2D, cm, mesh_3D.numLayers
+    )
 
     # Step 3.5: Smooth 3D mesh (set ground and building heights)
-    mesh_3D = builder.Meshing.smooth_mesh3D(mesh_3D, cm, dtm, top_height, True)
-    mesh_3D_boundary = builder.Meshing.extract_boundary3D(mesh_3D)
+    mesh_3D = builder_datamodel.Meshing.smooth_mesh3D(
+        mesh_3D, cm, dtm, top_height, True
+    )
+    mesh_3D_boundary = builder_datamodel.Meshing.extract_boundary3D(mesh_3D)
     if p["Debug"] and p["WriteVTK"]:
-        builder.Meshing.write_mesh(
+        builder_datamodel.Meshing.write_mesh(
             mesh_3D_boundary, p["OutputDirectory"] / "Step35Boundary.vtu"
         )
-        builder.Meshing.write_mesh(mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu")
+        builder_datamodel.Meshing.write_mesh(
+            mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu"
+        )
 
     if return_protobuf:
         m3d = model.VolumeMesh()

@@ -10,6 +10,7 @@ import argparse
 from pathlib import Path
 import os
 import re
+import logging
 
 from google.protobuf.json_format import MessageToJson
 
@@ -95,44 +96,86 @@ def get_project_paths(path):
 
 
 def run(p, citymodel_only, mesh_only):
-    print(p)
-    # cm, dtm = None, None
-    cm, dtm = builder.build_citymodel(
-        p["DataDirectory"] / p["BuildingsFileName"], p["PointCloudDirectory"], p
+    building_file = p["DataDirectory"] / p["BuildingsFileName"]
+    if not building_file.exists():
+        raise FileNotFoundError(f"cannot find building file {building_file}")
+    pointcloud_file = p["PointCloudDirectory"]
+    if not pointcloud_file.exists():
+        raise FileNotFoundError(f"cannot find point cloud file {pointcloud_file}")
+    logging.info(
+        f"creating citymodel from Building file: {building_file} and pointcloud {pointcloud_file}"
     )
-    if p["WriteJSON"]:
-        with open(p["OutputDirectory"] / "CityModel.json", "w") as dst:
-            dst.write(MessageToJson(cm))
-    if p["WriteProtobuf"]:
-        with open(p["OutputDirectory"] / "CityModel.pb", "wb") as dst:
-            dst.write(cm.SerializeToString())
+
+    origin, project_bounds = builder.build.calculate_project_domain(
+        building_file, pointcloud_file, p
+    )
+    cm = io.load_citymodel(
+        building_file,
+        uuid_field=p["UUIDField"],
+        height_field=p["HeightField"],
+        bounds=project_bounds,
+    )
+    pc = io.load_pointcloud(
+        pointcloud_file,
+        bounds=project_bounds,
+    )
+
+    pc = io.process.pointcloud.remove_global_outliers(pc, p["OutlierMargin"])
+
+    dem_raster = builder.build.generate_dem(
+        pc, project_bounds, p["ElevationModelResolution"]
+    )
+    cm.terrain = dem_raster
+
+    if not ["StatisticalOutlierRemover"]:
+        p["RoofOutlierMargin"] = 0
+
+    if not p["RANSACOutlierRemover"]:
+        p["RANSACIterations"] = 0
+
+    cm = builder.build.extract_buildingpoints(
+        cm,
+        pc,
+        p["GroundMargin"],
+        p["OutlierMargin"],
+        p["RoofOutlierMargin"],
+        p["OutlierNeighbors"],
+        p["RANSACOutlierMargin"],
+        p["RANSACIterations"],
+    )
+
+    cm = builder.build.calculate_building_heights(
+        cm, p["RoofPercentile"], p["MinBuildingHeight"], overwrite=True
+    )
+
     io.save_citymodel(
         cm,
         p["OutputDirectory"] / "CityModel.shp",
     )
     if not citymodel_only:
-        volume_mesh, surface_mesh = builder.build_volume_mesh(
-            p["DataDirectory"] / p["BuildingsFileName"], p["PointCloudDirectory"], p
-        )
+        pass
+        # volume_mesh, surface_mesh = builder.build_volume_mesh(
+        #     p["DataDirectory"] / p["BuildingsFileName"], p["PointCloudDirectory"], p
+        # )
 
-        if p["WriteJSON"]:
-            with open(p["OutputDirectory"] / "CitySurface.json", "w"):
-                MessageToJson(surface_mesh)
-            with open(p["OutputDirectory"] / "CityMesh.json", "w"):
-                MessageToJson(volume_mesh)
+        # if p["WriteJSON"]:
+        #     with open(p["OutputDirectory"] / "CitySurface.json", "w"):
+        #         MessageToJson(surface_mesh)
+        #     with open(p["OutputDirectory"] / "CityMesh.json", "w"):
+        #         MessageToJson(volume_mesh)
 
-        if p["WriteProtobuf"]:
-            with open(p["OutputDirectory"] / "CitySurface.pb", "wb") as dst:
-                dst.write(surface_mesh.SerializeToString())
-            with open(p["OutputDirectory"] / "CityMesh.pb", "wb") as dst:
-                dst.write(volume_mesh.SerializeToString())
-        if p["WriteVTK"]:
-            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.vtk")
-            io.save_volume_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtk")
-        if p["WriteOBJ"]:
-            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.obj")
-        if p["WriteSTL"]:
-            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.stl")
+        # if p["WriteProtobuf"]:
+        #     with open(p["OutputDirectory"] / "CitySurface.pb", "wb") as dst:
+        #         dst.write(surface_mesh.SerializeToString())
+        #     with open(p["OutputDirectory"] / "CityMesh.pb", "wb") as dst:
+        #         dst.write(volume_mesh.SerializeToString())
+        # if p["WriteVTK"]:
+        #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.vtk")
+        #     io.save_volume_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtk")
+        # if p["WriteOBJ"]:
+        #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.obj")
+        # if p["WriteSTL"]:
+        #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.stl")
 
 
 def main():

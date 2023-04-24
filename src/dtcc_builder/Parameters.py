@@ -26,11 +26,12 @@ _parameters["XMax"] = 0.0
 _parameters["YMax"] = 0.0
 _parameters["ElevationModelResolution"] = 1.0
 _parameters["MinBuildingDistance"] = 1.0
+_parameters["MinBuildingHeight"] = 2.5
 _parameters["MinVertexDistance"] = 1.0
 _parameters["GroundMargin"] = 1.0
 _parameters["MeshResolution"] = 10.0
 _parameters["DomainHeight"] = 100.0
-_parameters["GroundPercentile"] = 0.1
+_parameters["GroundPercentile"] = 0.5
 _parameters["RoofPercentile"] = 0.9
 _parameters["OutlierMargin"] = 2.0
 _parameters["MinBuildingSize"] = 15.0
@@ -39,7 +40,7 @@ _parameters["HeightField"] = ""
 
 _parameters["StatisticalOutlierRemover"] = True
 _parameters["OutlierNeighbors"] = 5
-_parameters["OutlierSTD"] = 1.5
+_parameters["RoofOutlierMargin"] = 1.5
 
 _parameters["RANSACOutlierRemover"] = True
 _parameters["RANSACOutlierMargin"] = 3.0
