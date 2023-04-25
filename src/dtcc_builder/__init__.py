@@ -5,5 +5,6 @@
 # from dtcc_builder import _pybuilder
 from dtcc_builder import build
 from dtcc_builder.Parameters import load_parameters
+from dtcc_builder import builder_datamodel
 
 # from dtcc_builder.Build import build_citymodel, build_surface_meshes, build_volume_mesh

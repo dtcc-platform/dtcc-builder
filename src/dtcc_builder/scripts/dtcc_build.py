@@ -154,9 +154,8 @@ def run(p, citymodel_only, mesh_only):
     )
     if not citymodel_only:
         pass
-        # volume_mesh, surface_mesh = builder.build_volume_mesh(
-        #     p["DataDirectory"] / p["BuildingsFileName"], p["PointCloudDirectory"], p
-        # )
+
+        volume_mesh, surface_mesh = builder.build.build_mesh(cm)
 
         # if p["WriteJSON"]:
         #     with open(p["OutputDirectory"] / "CitySurface.json", "w"):

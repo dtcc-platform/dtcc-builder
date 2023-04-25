@@ -1,5 +1,6 @@
 from dtcc_builder import _pybuilder
-from dtcc_model import CityModel, PointCloud
+import dtcc_model as model
+from dtcc_model import CityModel, PointCloud, Raster
 from typing import Union
 import numpy as np
 
@@ -28,3 +29,30 @@ def create_builder_citymodel(cm: CityModel):
     return _pybuilder.createBuilderCityModel(
         building_shells, uuids, heights, ground_levels, origin
     )
+
+
+def raster_to_builder_gridfield(raster: Raster):
+    return _pybuilder.createBuilderGridField(
+        raster.data.flatten(),
+        raster.bounds,
+        raster.width,
+        raster.height,
+        abs(raster.cell_size[0]),
+        abs(raster.cell_size[1]),
+    )
+
+
+def builder_mesh3D_to_volume_mesh(mesh3D: _pybuilder.Mesh3D):
+    volume_mesh = model.VolumeMesh()
+    volume_mesh.vertices = np.array([v.x, v.y, v.z] for v in mesh3D.Vertices)
+    volume_mesh.cells = np.array([c.v0, c.v1, c.v2, c.v3] for c in mesh3D.Cells)
+    volume_mesh.markers = np.array(mesh3D.Markers)
+    return volume_mesh
+
+
+def builder_surface_mesh_to_mesh(surfaceMesh: _pybuilder.Surface3D):
+    surface_mesh = model.Mesh()
+    surface_mesh.vertices = np.array([v.x, v.y, v.z] for v in surfaceMesh.Vertices)
+    surface_mesh.faces = np.array([f.v0, f.v1, f.v2] for f in surfaceMesh.Faces)
+    surface_mesh.normals = np.array([n.x, n.y, n.z] for n in surfaceMesh.Normals)
+    return surface_mesh

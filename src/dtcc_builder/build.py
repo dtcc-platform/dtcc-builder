@@ -8,6 +8,7 @@ import dtcc_io as io
 from pathlib import Path
 import numpy as np
 from affine import Affine
+from typing import Union, Tuple
 
 from pypoints2grid import points2grid
 
@@ -50,7 +51,12 @@ def calculate_project_domain(params_or_footprint, las_path=None, params=None):
             p["X0"] + p["XMax"],
             p["Y0"] + p["YMax"],
         )
-    domain_bounds = model.Bounds(*domain_bounds)
+    domain_bounds = model.Bounds(
+        xmin=domain_bounds[0],
+        ymin=domain_bounds[1],
+        xmax=domain_bounds[2],
+        ymax=domain_bounds[3],
+    )
     return (origin, domain_bounds)
 
 
@@ -138,6 +144,44 @@ def calculate_building_heights(
         building.height = height
 
     return citymodel
+
+
+def build_mesh(
+    city_model: model.CityModel,
+    mesh_resolution,
+    domain_height,
+    num_layers,
+    min_building_dist,
+    min_vertex_dist,
+) -> Tuple[model.VolumeMesh, model.Mesh]:
+    builder_cm = builder_datamodel.create_builder_citymodel(city_model)
+    bounds = (
+        city_model.bounds.xmin,
+        city_model.bounds.ymin,
+        city_model.bounds.xmax,
+        city_model.bounds.ymax,
+    )
+    simple_cm = _pybuilder.SimplifyCityModel(
+        builder_cm, bounds, min_building_dist, min_vertex_dist
+    )
+    simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
+
+    builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
+
+    mesh_2D = _pybuilder.GenerateMesh2D(
+        simple_cm,
+        bounds,
+        mesh_resolution,
+    )
+    mesh_3D = _pybuilder.GenerateMesh3D(mesh_2D, domain_height, mesh_resolution)
+
+    mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, False)
+
+    mesh_3D = _pybuilder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm, num_layers)
+
+    mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, True)
+
+    surface_3d = _pybuilder.ExtractBoundary3D(mesh_3D)
 
 
 def build_surface_meshes(
