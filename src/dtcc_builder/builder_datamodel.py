@@ -52,7 +52,7 @@ def builder_mesh3D_to_volume_mesh(mesh3D: _pybuilder.Mesh3D):
 
 def builder_surface_mesh_to_mesh(surfaceMesh: _pybuilder.Surface3D):
     surface_mesh = model.Mesh()
-    surface_mesh.vertices = np.array([v.x, v.y, v.z] for v in surfaceMesh.Vertices)
-    surface_mesh.faces = np.array([f.v0, f.v1, f.v2] for f in surfaceMesh.Faces)
-    surface_mesh.normals = np.array([n.x, n.y, n.z] for n in surfaceMesh.Normals)
+    surface_mesh.vertices = np.array([[v.x, v.y, v.z] for v in surfaceMesh.Vertices])
+    surface_mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in surfaceMesh.Faces])
+    surface_mesh.normals = np.array([[n.x, n.y, n.z] for n in surfaceMesh.Normals])
     return surface_mesh

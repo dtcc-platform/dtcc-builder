@@ -247,11 +247,10 @@ std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
   return buildingSurfaces;
 }
 
-Mesh3D TrimMesh3D(Mesh3D &mesh3D,
-                  const Mesh2D &mesh2D,
-                  const CityModel &cityModel,
-                  size_t numLayers)
+Mesh3D
+TrimMesh3D(Mesh3D &mesh3D, const Mesh2D &mesh2D, const CityModel &cityModel)
 {
+  size_t numLayers = mesh3D.NumLayers;
   MeshGenerator::TrimMesh3D(mesh3D, mesh2D, cityModel, numLayers);
   return mesh3D;
 }
@@ -393,6 +392,10 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("createBuilderPointCloud", &DTCC_BUILDER::createBuilderPointCloud,
         "create builder point cloud from numpy arrays");
+
+  m.def("createBuilderGridField", &DTCC_BUILDER::createBuilderGridField,
+        "create builder grid field from numpy arrays");
+
   m.def("removeGlobalOutliers", &DTCC_BUILDER::removeGlobalOutliers,
         "remove global outliers from point cloud");
   m.def("removeVegetation", &DTCC_BUILDER::removeVegetation,
@@ -414,6 +417,9 @@ PYBIND11_MODULE(_pybuilder, m)
 
   m.def("SmoothMesh3D", &DTCC_BUILDER::SmoothMesh3D, "Smooth 3D mesh");
   m.def("TrimMesh3D", &DTCC_BUILDER::TrimMesh3D, "Trim 3D mesh");
+
+  m.def("ExtractBoundary3D", &DTCC_BUILDER::ExtractBoundary3D,
+        "Extract 3D boundary");
 
   // m.def("GenerateSurface3D", &DTCC_BUILDER::GenerateSurface3D,
   //     "Generate 3D surface");

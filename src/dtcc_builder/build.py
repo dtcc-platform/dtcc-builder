@@ -10,6 +10,8 @@ import numpy as np
 from affine import Affine
 from typing import Union, Tuple
 
+import rasterio.transform
+
 from pypoints2grid import points2grid
 
 from time import time
@@ -65,16 +67,21 @@ def generate_dem(
 ) -> model.Raster:
     ground_point_idx = np.where(np.isin(pointcloud.classification, [2, 9]))[0]
     ground_points = pointcloud.points[ground_point_idx]
-    if isinstance(bounds, model.Bounds):
-        bounds = bounds.tuple
-    dem = points2grid(ground_points, cell_size, bounds, window_size=window_size)
 
+    print(f"generating dem with bounds {bounds.tuple}")
+    dem = points2grid(ground_points, cell_size, bounds.tuple, window_size=window_size)
+
+    print("dem shape: ", dem.shape)
+    print("cell size: ", cell_size)
     dem_raster = model.Raster()
     dem_raster.data = dem
     dem_raster.nodata = 0
-    dem_raster.georef = Affine.translation(*bounds[:2]) * Affine.scale(
-        cell_size, cell_size
+    dem_raster.georef = rasterio.transform.from_origin(
+        bounds.west, bounds.north, cell_size, cell_size
     )
+
+    print(f"generated dem with bounds {dem_raster.bounds}")
+    print(f"generated dem with georef \n{dem_raster.georef}")
     io.process.raster.fill_holes(dem_raster)
     return dem_raster
 
@@ -150,9 +157,9 @@ def build_mesh(
     city_model: model.CityModel,
     mesh_resolution,
     domain_height,
-    num_layers,
     min_building_dist,
     min_vertex_dist,
+    debug=False,
 ) -> Tuple[model.VolumeMesh, model.Mesh]:
     builder_cm = builder_datamodel.create_builder_citymodel(city_model)
     bounds = (
@@ -161,6 +168,8 @@ def build_mesh(
         city_model.bounds.xmax,
         city_model.bounds.ymax,
     )
+    print(f"Building mesh with bounds {bounds}")
+    print(f"dem bounds {city_model.terrain.bounds}")
     simple_cm = _pybuilder.SimplifyCityModel(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
@@ -168,47 +177,53 @@ def build_mesh(
 
     builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
 
+    # Step 3.1: Generate 2D mesh
     mesh_2D = _pybuilder.GenerateMesh2D(
         simple_cm,
         bounds,
         mesh_resolution,
     )
+
+    # Step 3.2: Generate 3D mesh (layer 3D mesh)
     mesh_3D = _pybuilder.GenerateMesh3D(mesh_2D, domain_height, mesh_resolution)
 
+    # Step 3.3: Smooth 3D mesh (set ground height)
     mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, False)
 
-    mesh_3D = _pybuilder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm, num_layers)
+    # Step 3.4: Trim 3D mesh (remove building interiors)
+    mesh_3D = _pybuilder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm)
 
+    # Step 3.5: Smooth 3D mesh (set ground and building heights)
     mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, True)
 
     surface_3d = _pybuilder.ExtractBoundary3D(mesh_3D)
 
+    # Step 3.6: Convert back to dtcc format
+    dtcc_volume = builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D)
+    dtcc_surface = builder_datamodel.builder_surface_mesh_to_mesh(surface_3d)
+
+    return dtcc_volume, dtcc_surface
+
 
 def build_surface_meshes(
-    building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
+    city_model: model.CityModel, min_building_dist, min_vertex_dist, mesh_resolution
 ):
-    """Create a surface mesh from a directory of point clouds and a shapefile of building footprints.
-    Args:
-    @param building_footprint_path: Path to a shapefile containing building footprints
-    @param pointcloud_path: Path to a pointcloud file or a directory containing point clouds
-    @param parameters: parameters dict or Path to a JSON file containing parameters for the city model.
-    If None default parameters will be used.
-    @param return_protobuf: If True, the city model will be returned as a protobuf string
-
-    @return: A tuple containing the ground surface and building surfaces as a protobuf string
-    (if return_protobuf is True) or as builder objects (if return_protobuf is False)
-    """
-    if type(parameters) is dict:
-        p = parameters
-    else:
-        p = builder_datamodel.load_parameters(parameters)
-
-    cm, dtm = build_citymodel(building_footprint_path, pointcloud_path, p, False)
-    if not cm.simplified:
-        cm.simplify_citymodel(dtm.bounds)
-    surfaces = builder_datamodel.Meshing.generate_surface3D(
-        cm, dtm, p["MeshResolution"]
+    bounds = (
+        city_model.bounds.xmin,
+        city_model.bounds.ymin,
+        city_model.bounds.xmax,
+        city_model.bounds.ymax,
     )
+    builder_cm = builder_datamodel.create_builder_citymodel(city_model)
+    simple_cm = _pybuilder.SimplifyCityModel(
+        builder_cm, bounds, min_building_dist, min_vertex_dist
+    )
+    simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
+
+    builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
+
+    surfaces = _pybuilder.GenerateSurface3D(simple_cm, builder_dem, mesh_resolution)
+
     ground_surface = surfaces[0]
     building_surfaces = surfaces[1:]
     building_surfaces = builder_datamodel.Meshing.merge_surfaces3D(building_surfaces)
@@ -220,91 +235,3 @@ def build_surface_meshes(
         ground_surface = gs
         building_surfaces = bs
     return ground_surface, building_surfaces
-
-
-def build_volume_mesh(
-    building_footprint_path, pointcloud_path, parameters=None, return_protobuf=True
-):
-    """Create a volume mesh from a directory of point clouds and a shapefile of building footprints.
-    Args:
-    @param building_footprint_path: Path to a shapefile containing building footprints
-    @param pointcloud_path: Path to a pointcloud file or a directory containing point clouds
-    @param parameters: parameters dict or Path to a JSON file containing parameters for the city model.
-    If None default parameters will be used.
-    @param return_protobuf: If True, the city model will be returned as a protobuf string
-
-    @return: volume mesh and surface mesh of the city model as a protobuf string
-    (if return_protobuf is True) or as builder objects (if return_protobuf is False)
-    """
-    if type(parameters) is dict:
-        p = parameters
-    else:
-        p = builder_datamodel.load_parameters(parameters)
-
-    cm, dtm = build_citymodel(building_footprint_path, pointcloud_path, p, False)
-    if not cm.simplified:
-        cm.simplify_citymodel(dtm.bounds)
-
-    # Step 3.1: Generate 2D mesh
-    mesh_2D = builder_datamodel.Meshing.generate_mesh2D(
-        cm, dtm.bounds, p["MeshResolution"]
-    )
-    if p["Debug"] and p["WriteVTK"]:
-        pass
-        # builder.Meshing.write_surface(
-        #     mesh_2D, p["OutputDirectory"] / "Step31Mesh.vtu")
-
-    # Step 3.2: Generate 3D mesh (layer 3D mesh)
-    mesh_3D = builder_datamodel.Meshing.generate_mesh3D(
-        mesh_2D, p["DomainHeight"], p["MeshResolution"]
-    )
-    if p["Debug"] and p["WriteVTK"]:
-        mesh_3D_boundary = builder_datamodel.Meshing.extract_boundary3D(mesh_3D)
-        builder_datamodel.Meshing.write_mesh(
-            mesh_3D_boundary, p["OutputDirectory"] / "Step32Boundary.vtu"
-        )
-        builder_datamodel.Meshing.write_mesh(
-            mesh_3D, p["OutputDirectory"] / "Step32Mesh.vtu"
-        )
-
-    # Step 3.3: Smooth 3D mesh (set ground height)
-    top_height = dtm.mean() + p["DomainHeight"]
-    mesh_3D = builder_datamodel.Meshing.smooth_mesh3D(
-        mesh_3D, cm, dtm, top_height, False
-    )
-
-    if p["Debug"] and p["WriteVTK"]:
-        mesh_3D_boundary = builder_datamodel.Meshing.extract_boundary3D(mesh_3D)
-        builder_datamodel.Meshing.write_mesh(
-            mesh_3D_boundary, p["OutputDirectory"] / "Step33Boundary.vtu"
-        )
-        builder_datamodel.Meshing.write_mesh(
-            mesh_3D, p["OutputDirectory"] / "Step33Mesh.vtu"
-        )
-
-    # Step 3.4: Trim 3D mesh (remove building interiors)
-    mesh_3D = builder_datamodel.Meshing.trim_mesh3D(
-        mesh_3D, mesh_2D, cm, mesh_3D.numLayers
-    )
-
-    # Step 3.5: Smooth 3D mesh (set ground and building heights)
-    mesh_3D = builder_datamodel.Meshing.smooth_mesh3D(
-        mesh_3D, cm, dtm, top_height, True
-    )
-    mesh_3D_boundary = builder_datamodel.Meshing.extract_boundary3D(mesh_3D)
-    if p["Debug"] and p["WriteVTK"]:
-        builder_datamodel.Meshing.write_mesh(
-            mesh_3D_boundary, p["OutputDirectory"] / "Step35Boundary.vtu"
-        )
-        builder_datamodel.Meshing.write_mesh(
-            mesh_3D, p["OutputDirectory"] / "Step35Mesh.vtu"
-        )
-
-    if return_protobuf:
-        m3d = model.VolumeMesh()
-        m3d_b = model.Mesh()
-        m3d.ParseFromString(_pybuilder.convertMesh3DToProtobuf(mesh_3D))
-        m3d_b.ParseFromString(_pybuilder.convertSurface3DToProtobuf(mesh_3D_boundary))
-        mesh_3D = m3d
-        mesh_3D_boundary = m3d_b
-    return mesh_3D, mesh_3D_boundary

@@ -109,6 +109,9 @@ def run(p, citymodel_only, mesh_only):
     origin, project_bounds = builder.build.calculate_project_domain(
         building_file, pointcloud_file, p
     )
+
+    print(f"project bounds: {project_bounds.tuple}")
+
     cm = io.load_citymodel(
         building_file,
         uuid_field=p["UUIDField"],
@@ -155,7 +158,14 @@ def run(p, citymodel_only, mesh_only):
     if not citymodel_only:
         pass
 
-        volume_mesh, surface_mesh = builder.build.build_mesh(cm)
+        volume_mesh, surface_mesh = builder.build.build_mesh(
+            cm,
+            p["MeshResolution"],
+            p["DomainHeight"],
+            p["MinBuildingDistance"],
+            p["MinVertexDistance"],
+            p["Debug"],
+        )
 
         # if p["WriteJSON"]:
         #     with open(p["OutputDirectory"] / "CitySurface.json", "w"):
@@ -173,8 +183,8 @@ def run(p, citymodel_only, mesh_only):
         #     io.save_volume_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtk")
         # if p["WriteOBJ"]:
         #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.obj")
-        # if p["WriteSTL"]:
-        #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.stl")
+        if True:  # p["WriteSTL"]:
+            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.stl")
 
 
 def main():
