@@ -12,7 +12,6 @@
 #include "MeshProcessor.h"
 #include "Point.h"
 #include "PointCloud.h"
-#include "PointCloudMethods.h"
 #include "Polygon.h"
 #include "VertexSmoother.h"
 #include "datamodel/Building.h"
@@ -53,6 +52,13 @@ CityModel createBuilderCityModel(py::list footprints,
     building.GroundHeight = ground_level;
     cityModel.Buildings.push_back(building);
   }
+  CityModelGenerator::CleanCityModel(cityModel, 1.0);
+  // for (auto &building : cityModel.Buildings)
+  // {
+  //   info("Building: " + building.UUID + " has height " + str(building.Height)
+  //   +
+  //        " and ground height " + str(building.GroundHeight));
+  // }
   return cityModel;
 }
 
@@ -92,10 +98,10 @@ PointCloud createBuilderPointCloud(py::array_t<double> pts,
 
 GridField2D createBuilderGridField(py::array_t<double> data,
                                    py::tuple bounds,
-                                   size_t XStep,
-                                   size_t YStep,
-                                   double XSize,
-                                   double YSize)
+                                   size_t XSize,
+                                   size_t YSize,
+                                   double XStep,
+                                   double YStep)
 {
   GridField2D gridField;
   double px = bounds[0].cast<double>();
@@ -186,13 +192,13 @@ CityModel SimplifyCityModel(CityModel &cityModel,
   double qy = bounds[3].cast<double>();
   auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
   CityModelGenerator::SimplifyCityModel(
-      cityModel, bbox, minimalBuildingDistance, minimalVertexDistance);
+      cityModel, bbox, minimalBuildingDistance, minimalVertexDistance / 2);
   return cityModel;
 }
 
 CityModel CleanCityModel(CityModel &cityModel, double minVertDistance)
 {
-  CityModelGenerator::CleanCityModel(cityModel, minVertDistance);
+  CityModelGenerator::CleanCityModel(cityModel, minVertDistance / 2);
   return cityModel;
 }
 
@@ -227,9 +233,10 @@ GenerateMesh3D(const Mesh2D &mesh2D, double domainHeight, double meshResolution)
 Mesh3D SmoothMesh3D(Mesh3D &mesh3D,
                     const CityModel &cityModel,
                     const GridField2D &dem,
+                    double topHeight,
                     bool fixBuildings)
 {
-  double topHeight{};
+  // double topHeight{};
   LaplacianSmoother::SmoothMesh3D(mesh3D, cityModel, dem, topHeight,
                                   fixBuildings, false);
   return mesh3D;
@@ -372,7 +379,10 @@ PYBIND11_MODULE(_pybuilder, m)
       .def_readonly("v2", &DTCC_BUILDER::Simplex3D::v2)
       .def_readonly("v3", &DTCC_BUILDER::Simplex3D::v3);
 
-  py::class_<DTCC_BUILDER::Mesh2D>(m, "Mesh2D").def(py::init<>());
+  py::class_<DTCC_BUILDER::Mesh2D>(m, "Mesh2D")
+      .def(py::init<>())
+      .def_readonly("Vertices", &DTCC_BUILDER::Mesh2D::Vertices)
+      .def_readonly("Cells", &DTCC_BUILDER::Mesh2D::Cells);
 
   py::class_<DTCC_BUILDER::Mesh3D>(m, "Mesh3D")
       .def(py::init<>())
@@ -421,6 +431,8 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("ExtractBoundary3D", &DTCC_BUILDER::ExtractBoundary3D,
         "Extract 3D boundary");
 
-  // m.def("GenerateSurface3D", &DTCC_BUILDER::GenerateSurface3D,
-  //     "Generate 3D surface");
+  m.def("GenerateSurface3D", &DTCC_BUILDER::GenerateSurfaces3D,
+        "Generate 3D surface");
+
+  m.def("MergeSurfaces3D", &DTCC_BUILDER::MergeSurfaces3D, "Merge 3D surfaces");
 }

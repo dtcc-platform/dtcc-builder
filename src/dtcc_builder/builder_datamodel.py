@@ -22,9 +22,12 @@ def create_builder_citymodel(cm: CityModel):
     building_shells = [
         list(building.footprint.exterior.coords[:-1]) for building in cm.buildings
     ]
+
     uuids = [building.uuid for building in cm.buildings]
     heights = [building.height for building in cm.buildings]
+    # print(heights)
     ground_levels = [building.ground_level for building in cm.buildings]
+    print(ground_levels)
     origin = cm.origin
     return _pybuilder.createBuilderCityModel(
         building_shells, uuids, heights, ground_levels, origin
@@ -34,7 +37,7 @@ def create_builder_citymodel(cm: CityModel):
 def raster_to_builder_gridfield(raster: Raster):
     return _pybuilder.createBuilderGridField(
         raster.data.flatten(),
-        raster.bounds,
+        raster.bounds.tuple,
         raster.width,
         raster.height,
         abs(raster.cell_size[0]),
@@ -42,10 +45,18 @@ def raster_to_builder_gridfield(raster: Raster):
     )
 
 
+def builder_mesh2D_to_mesh(mesh2D: _pybuilder.Mesh2D):
+    mesh = model.Mesh()
+    mesh.vertices = np.array([[v.x, v.y, 0] for v in mesh2D.Vertices])
+    mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in mesh2D.Cells])
+    mesh.normals = np.array([[0, 0, 1] for n in range(len(mesh2D.Cells))])
+    return mesh
+
+
 def builder_mesh3D_to_volume_mesh(mesh3D: _pybuilder.Mesh3D):
     volume_mesh = model.VolumeMesh()
-    volume_mesh.vertices = np.array([v.x, v.y, v.z] for v in mesh3D.Vertices)
-    volume_mesh.cells = np.array([c.v0, c.v1, c.v2, c.v3] for c in mesh3D.Cells)
+    volume_mesh.vertices = np.array([[v.x, v.y, v.z] for v in mesh3D.Vertices])
+    volume_mesh.cells = np.array([[c.v0, c.v1, c.v2, c.v3] for c in mesh3D.Cells])
     volume_mesh.markers = np.array(mesh3D.Markers)
     return volume_mesh
 

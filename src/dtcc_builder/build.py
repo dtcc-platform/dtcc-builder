@@ -82,7 +82,10 @@ def generate_dem(
 
     print(f"generated dem with bounds {dem_raster.bounds}")
     print(f"generated dem with georef \n{dem_raster.georef}")
-    io.process.raster.fill_holes(dem_raster)
+    dem_raster = io.process.raster.fill_holes(dem_raster)
+
+    io.save_raster(dem_raster, Path("harbor_dem.tif"))
+
     return dem_raster
 
 
@@ -173,7 +176,7 @@ def build_mesh(
     simple_cm = _pybuilder.SimplifyCityModel(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
-    simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
+    # simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
 
     builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
 
@@ -184,18 +187,41 @@ def build_mesh(
         mesh_resolution,
     )
 
+    if debug:
+        io.save_mesh(
+            builder_datamodel.builder_mesh2D_to_mesh(mesh_2D),
+            "mesh_step3.1.vtu",
+        )
+
     # Step 3.2: Generate 3D mesh (layer 3D mesh)
     mesh_3D = _pybuilder.GenerateMesh3D(mesh_2D, domain_height, mesh_resolution)
+    if debug:
+        io.save_mesh(
+            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D), "mesh_step3.2.vtu"
+        )
 
+    top_height = domain_height + city_model.terrain.data.mean()
     # Step 3.3: Smooth 3D mesh (set ground height)
-    mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, False)
+    mesh_3D = _pybuilder.SmoothMesh3D(
+        mesh_3D, simple_cm, builder_dem, top_height, False
+    )
+    if debug:
+        io.save_mesh(
+            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D), "mesh_step3.3.vtu"
+        )
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
     mesh_3D = _pybuilder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm)
-
+    if debug:
+        io.save_mesh(
+            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D), "mesh_step3.4.vtu"
+        )
     # Step 3.5: Smooth 3D mesh (set ground and building heights)
-    mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, True)
-
+    mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, top_height, True)
+    if debug:
+        io.save_mesh(
+            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D), "mesh_step3.5.vtu"
+        )
     surface_3d = _pybuilder.ExtractBoundary3D(mesh_3D)
 
     # Step 3.6: Convert back to dtcc format
@@ -218,7 +244,7 @@ def build_surface_meshes(
     simple_cm = _pybuilder.SimplifyCityModel(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
-    simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
+    # simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
 
     builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
 
@@ -226,12 +252,11 @@ def build_surface_meshes(
 
     ground_surface = surfaces[0]
     building_surfaces = surfaces[1:]
-    building_surfaces = builder_datamodel.Meshing.merge_surfaces3D(building_surfaces)
-    if return_protobuf:
-        gs = model.Mesh()
-        bs = model.Mesh()
-        gs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(ground_surface))
-        bs.ParseFromString(_pybuilder.convertSurface3DToProtobuf(building_surfaces))
-        ground_surface = gs
-        building_surfaces = bs
-    return ground_surface, building_surfaces
+    building_surfaces = _pybuilder.MergeSurfaces3D(building_surfaces)
+
+    dtcc_ground_surface = builder_datamodel.builder_surface_mesh_to_mesh(ground_surface)
+    dtcc_building_surfaces = builder_datamodel.builder_surface_mesh_to_mesh(
+        building_surfaces
+    )
+
+    return dtcc_ground_surface, dtcc_building_surfaces

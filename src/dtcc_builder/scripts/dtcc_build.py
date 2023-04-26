@@ -167,6 +167,10 @@ def run(p, citymodel_only, mesh_only):
             p["Debug"],
         )
 
+        # ground_surface, buildings = builder.build.build_surface_meshes(
+        #     cm, p["MinBuildingDistance"], p["MinVertexDistance"], p["MeshResolution"]
+        # )
+
         # if p["WriteJSON"]:
         #     with open(p["OutputDirectory"] / "CitySurface.json", "w"):
         #         MessageToJson(surface_mesh)
@@ -185,6 +189,8 @@ def run(p, citymodel_only, mesh_only):
         #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.obj")
         if True:  # p["WriteSTL"]:
             io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.stl")
+            # io.save_mesh(ground_surface, p["OutputDirectory"] / "GroundSurface.stl")
+            # io.save_mesh(buildings, p["OutputDirectory"] / "Buildings.stl")
 
 
 def main():
