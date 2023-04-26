@@ -1,39 +1,89 @@
 #!/usr/bin/env python3
 
+import os, sys
+import numpy as np
 from fenics import *
 
-# FIXME: Replace by loading generated mesh
+set_log_level(LogLevel.PROGRESS)
 
-# Create mesh
-mesh = UnitCubeMesh(10, 10, 10)
+# Check if file exists
+if not os.path.isfile("mesh.xml"):
+    print("Mesh file not found. You must first run dtcc-builder-demo.")
+    sys.exit(1)
 
-# Define function spaces
+# Load mesh
+print("Loading mesh...")
+mesh = Mesh("mesh.xml")
+
+# Create function space
+print("Creating function space...")
 P2 = VectorElement("Lagrange", mesh.ufl_cell(), 2)
 P1 = FiniteElement("Lagrange", mesh.ufl_cell(), 1)
 TH = P2 * P1
 W = FunctionSpace(mesh, TH)
 
-# Define variational problem
+# Create variational problem
+print("Creating variational problem...")
 (u, p) = TrialFunctions(W)
 (v, q) = TestFunctions(W)
 f = Constant((0.0, 0.0, 0.0))
-a = inner(grad(u), grad(v))*dx + div(v)*p*dx + q*div(u)*dx
-L = inner(f, v)*dx
+a = inner(grad(u), grad(v)) * dx + div(v) * p * dx + q * div(u) * dx
+L = inner(f, v) * dx
+c = inner(grad(u), grad(v)) * dx + p * q * dx  # preconditioner
 
-# Define boundary conditions
-left = lambda x, on_boundary: on_boundary and near(x[0], 0.0)
-top = lambda x, on_boundary: on_boundary and near(x[2], 1.0)
-bottom = lambda x, on_boundary: on_boundary and near(x[2], 0.0)
-bc0 = DirichletBC(W.sub(0), Constant((1.0, 0.0, 0.0)), left)
-bc1 = DirichletBC(W.sub(0), Constant((0.0, 0.0, 0.0)), bottom)
-bc2 = DirichletBC(W.sub(0).sub(2), Constant(0.0), top)
-bcs = [bc0, bc1, bc2]
+# Compute bounds
+print("Computing bounds...")
+x = mesh.coordinates()
+xmin, xmax = np.min(x[:, 0]), np.max(x[:, 0])
+ymin, ymax = np.min(x[:, 1]), np.max(x[:, 1])
+zmin, zmax = np.min(x[:, 2]), np.max(x[:, 2])
 
-# Solve variational problem
+# Define boundaries
+eps = 1e-6
+xa = lambda x, b: b and x[0] < xmin + eps
+xb = lambda x, b: b and x[0] > xmax - eps
+ya = lambda x, b: b and x[1] < ymin + eps
+yb = lambda x, b: b and x[1] > ymax - eps
+zb = lambda x, b: b and x[2] > zmax - eps
+box = lambda x, b: xa(x, b) or xb(x, b) or ya(x, b) or yb(x, b) or zb(x, b)
+bottom = lambda x, b: b and not box(x, b)
+
+# Define inlet velocity profile (parabolic from 0 to 1
+inlet = (
+    f"(x[2] - {zmin}) / ({zmax} - {zmin}) * (2.0 - (x[2] - {zmin}) / ({zmax} - {zmin}))",
+    "0.0",
+    "0.0",
+)
+
+# Create boundary conditions
+print("Creating boundary conditions...")
+bc0 = DirichletBC(W.sub(0), Expression(inlet, degree=2), xa)
+bc1 = DirichletBC(W.sub(0), Expression(inlet, degree=2), ya)
+bc2 = DirichletBC(W.sub(0), Expression(inlet, degree=2), yb)
+bc3 = DirichletBC(W.sub(0).sub(2), Constant(0.0), zb)
+bc4 = DirichletBC(W.sub(0), Constant((0.0, 0.0, 0.0)), bottom)
+bcs = [bc0, bc1, bc2, bc3, bc4]
+
+# Assemble linear system and preconditioner
+print("Assembling linear system...")
+A, b = assemble_system(a, L, bcs)
+P, _b = assemble_system(c, L, bcs)
+
+# Solve linear system
+print("Solving linear system...")
 w = Function(W)
-solve(a == L, w, bcs)
+solver = KrylovSolver("minres", "amg")
+solver.set_operators(A, P)
+solver.parameters["monitor_convergence"] = True
+solver.solve(w.vector(), b)
 u, p = w.split()
 
+# Direct solver
+# w = Function(W)
+# solve(a == L, w, bcs=bcs)
+# u, p = w.split()
+
 # Save solution to file
+print("Saving solution...")
 File("velocity.pvd") << u
 File("pressure.pvd") << p

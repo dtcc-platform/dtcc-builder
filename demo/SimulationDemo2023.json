@@ -1,0 +1,13 @@
+
+{
+    "Type": "Parameters",
+    "DataDirectory": "../data/HelsingborgResidential2022",
+    "MeshResolution": 20.0,
+    "AutoDomain": false,
+    "X0": 102000,
+    "Y0": 6.213e+06,
+    "XMin": 600.0,
+    "YMin": 600.0,
+    "XMax": 1000.0,
+    "YMax": 1000.0
+}
