@@ -25,9 +25,7 @@ def create_builder_citymodel(cm: CityModel):
 
     uuids = [building.uuid for building in cm.buildings]
     heights = [building.height for building in cm.buildings]
-    # print(heights)
     ground_levels = [building.ground_level for building in cm.buildings]
-    print(ground_levels)
     origin = cm.origin
     return _pybuilder.createBuilderCityModel(
         building_shells, uuids, heights, ground_levels, origin
