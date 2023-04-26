@@ -167,30 +167,22 @@ def run(p, citymodel_only, mesh_only):
             p["Debug"],
         )
 
-        # ground_surface, buildings = builder.build.build_surface_meshes(
-        #     cm, p["MinBuildingDistance"], p["MinVertexDistance"], p["MeshResolution"]
-        # )
+        ground_surface, buildings = builder.build.build_surface_meshes(
+            cm, p["MinBuildingDistance"], p["MinVertexDistance"], p["MeshResolution"]
+        )
 
-        # if p["WriteJSON"]:
-        #     with open(p["OutputDirectory"] / "CitySurface.json", "w"):
-        #         MessageToJson(surface_mesh)
-        #     with open(p["OutputDirectory"] / "CityMesh.json", "w"):
-        #         MessageToJson(volume_mesh)
+        if p["WriteProtobuf"]:
+            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.pb")
+            io.save_mesh(ground_surface, p["OutputDirectory"] / "GroundSurface.pb")
+            io.save_mesh(buildings, p["OutputDirectory"] / "Buildings.pb")
+        if p["WriteVTK"]:
+            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.vtk")
+            io.save_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtk")
 
-        # if p["WriteProtobuf"]:
-        #     with open(p["OutputDirectory"] / "CitySurface.pb", "wb") as dst:
-        #         dst.write(surface_mesh.SerializeToString())
-        #     with open(p["OutputDirectory"] / "CityMesh.pb", "wb") as dst:
-        #         dst.write(volume_mesh.SerializeToString())
-        # if p["WriteVTK"]:
-        #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.vtk")
-        #     io.save_volume_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtk")
-        # if p["WriteOBJ"]:
-        #     io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.obj")
-        if True:  # p["WriteSTL"]:
+        if p["WriteSTL"]:
             io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.stl")
-            # io.save_mesh(ground_surface, p["OutputDirectory"] / "GroundSurface.stl")
-            # io.save_mesh(buildings, p["OutputDirectory"] / "Buildings.stl")
+            io.save_mesh(ground_surface, p["OutputDirectory"] / "GroundSurface.stl")
+            io.save_mesh(buildings, p["OutputDirectory"] / "Buildings.stl")
 
 
 def main():
