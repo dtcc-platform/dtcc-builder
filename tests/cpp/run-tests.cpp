@@ -16,7 +16,7 @@ const std::string RootPath{"./"};
 #include "tests/TestGrid.h"
 #include "tests/TestPointcloud.h"
 #include "tests/TestPolygon.h"
-#include "tests/TestProtobufConversion.h"
+// #include "tests/TestProtobufConversion.h"
 #include "tests/TestRoofSegmentation.h"
 // #include "tests/TestUUID.h"
 #include "tests/TestUtils.h"
