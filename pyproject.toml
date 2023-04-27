@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "dtcc-builder"
-version = "0.5.2"
+version = "0.6.1"
 description = "DTCC Builder"
 readme = "README.md"
 authors = [
@@ -22,8 +22,8 @@ classifiers = [
 dependencies = [
   "pybind11 >= 2.10.0, < 2.11.0",
   "numpy",
-  "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@dev/new-data-classes",
-  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@dev/new-data-classes",
+  "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
+  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
   "pypoints2grid@git+https://github.com/dwastberg/pypoints2grid.git@dev",
 ]
 
