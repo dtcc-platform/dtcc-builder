@@ -123,7 +123,7 @@ def run(p, citymodel_only, mesh_only):
         bounds=project_bounds,
     )
 
-    pc = io.process.pointcloud.remove_global_outliers(pc, p["OutlierMargin"])
+    pc = pc.remove_global_outliers(p["OutlierMargin"])
 
     dem_raster = builder.build.generate_dem(
         pc, project_bounds, p["ElevationModelResolution"]
@@ -172,17 +172,17 @@ def run(p, citymodel_only, mesh_only):
         )
 
         if p["WriteProtobuf"]:
-            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.pb")
-            io.save_mesh(ground_surface, p["OutputDirectory"] / "GroundSurface.pb")
-            io.save_mesh(buildings, p["OutputDirectory"] / "Buildings.pb")
+            surface_mesh.save(p["OutputDirectory"] / "CitySurface.pb")
+            ground_surface.save(p["OutputDirectory"] / "GroundSurface.pb")
+            buildings.save(p["OutputDirectory"] / "Buildings.pb")
         if p["WriteVTK"]:
-            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.vtk")
-            io.save_mesh(volume_mesh, p["OutputDirectory"] / "CityMesh.vtk")
+            surface_mesh.save(p["OutputDirectory"] / "CitySurface.vtk")
+            volume_mesh.save(p["OutputDirectory"] / "CityMesh.vtk")
 
         if p["WriteSTL"]:
-            io.save_mesh(surface_mesh, p["OutputDirectory"] / "CitySurface.stl")
-            io.save_mesh(ground_surface, p["OutputDirectory"] / "GroundSurface.stl")
-            io.save_mesh(buildings, p["OutputDirectory"] / "Buildings.stl")
+            surface_mesh.save(p["OutputDirectory"] / "CitySurface.stl")
+            ground_surface.save(p["OutputDirectory"] / "GroundSurface.stl")
+            buildings.save(p["OutputDirectory"] / "Buildings.stl")
 
 
 def main():

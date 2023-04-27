@@ -65,9 +65,13 @@ def calculate_project_domain(params_or_footprint, las_path=None, params=None):
 def generate_dem(
     pointcloud: model.PointCloud, bounds, cell_size: float, window_size: int = 3
 ) -> model.Raster:
-    ground_point_idx = np.where(np.isin(pointcloud.classification, [2, 9]))[0]
-    ground_points = pointcloud.points[ground_point_idx]
-
+    if (
+        len(pointcloud.classification) == len(pointcloud.points)
+    ) and 2 in pointcloud.used_classifications():
+        ground_point_idx = np.where(np.isin(pointcloud.classification, [2, 9]))[0]
+        ground_points = pointcloud.points[ground_point_idx]
+    else:
+        ground_points = pointcloud.points
     print(f"generating dem with bounds {bounds.tuple}")
     dem = points2grid(ground_points, cell_size, bounds.tuple, window_size=window_size)
 
@@ -82,7 +86,7 @@ def generate_dem(
 
     print(f"generated dem with bounds {dem_raster.bounds}")
     print(f"generated dem with georef \n{dem_raster.georef}")
-    dem_raster = io.process.raster.fill_holes(dem_raster)
+    dem_raster = dem_raster.fill_holes()
 
     return dem_raster
 
@@ -186,17 +190,13 @@ def build_mesh(
     )
 
     if debug:
-        io.save_mesh(
-            builder_datamodel.builder_mesh2D_to_mesh(mesh_2D),
-            "mesh_step3.1.vtu",
-        )
+        builder_datamodel.builder_mesh2D_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
 
     # Step 3.2: Generate 3D mesh (layer 3D mesh)
     mesh_3D = _pybuilder.GenerateMesh3D(mesh_2D, domain_height, mesh_resolution)
     if debug:
-        io.save_mesh(
-            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D),
-            "meshing_step3.2.vtu",
+        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+            "meshing_step3.2.vtu"
         )
 
     top_height = domain_height + city_model.terrain.data.mean()
@@ -205,24 +205,21 @@ def build_mesh(
         mesh_3D, simple_cm, builder_dem, top_height, False
     )
     if debug:
-        io.save_mesh(
-            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D),
-            "meshing_step3.3.vtu",
+        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+            "meshing_step3.3.vtu"
         )
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
     mesh_3D = _pybuilder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm)
     if debug:
-        io.save_mesh(
-            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D),
-            "meshing_step3.4.vtu",
+        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+            "meshing_step3.4.vtu"
         )
     # Step 3.5: Smooth 3D mesh (set ground and building heights)
     mesh_3D = _pybuilder.SmoothMesh3D(mesh_3D, simple_cm, builder_dem, top_height, True)
     if debug:
-        io.save_mesh(
-            builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D),
-            "meshing_step3.5.vtu",
+        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+            "meshing_step3.5.vtu"
         )
     surface_3d = _pybuilder.ExtractBoundary3D(mesh_3D)
 
