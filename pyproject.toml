@@ -22,8 +22,8 @@ classifiers = [
 dependencies = [
   "pybind11 >= 2.10.0, < 2.11.0",
   "numpy",
-  "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
-  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
+  "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@dev/new-data-classes",
+  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@dev/new-data-classes",
   "pypoints2grid@git+https://github.com/dwastberg/pypoints2grid.git@dev",
 ]
 
