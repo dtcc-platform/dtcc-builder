@@ -256,7 +256,7 @@ Next, run the simulation demo:
 
     ./dtcc-simulation-demo
 
-The demo solves the Stokes equations on the generated mesh using
+The demo solves the Stokes equations on the generated mesh with
 a standard Taylor-Hood formulation using
 [FEniCS](https://www.fenicsproject.org).
 
