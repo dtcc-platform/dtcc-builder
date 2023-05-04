@@ -2,7 +2,7 @@
 // Licensed under the MIT License
 
 // New Laplacian Smoother class
-// TO DO: 
+// TO DO:
 //
 // 1) Fix wavey sidewalls bug.
 //    Probably caused by bad BCs
@@ -40,31 +40,29 @@ public:
     info(mesh3D.__str__());
     Timer timer("SmoothMesh3DNew");
 
-    //Local Stifness Matrices
+    // Local Stifness Matrices
     stiffnessMatrix AK(mesh3D);
 
-    //Solution Vector
+    // Solution Vector
     std::vector<double> u(mesh3D.Vertices.size(), 0);
-    //Load Vector
+    // Load Vector
     std::vector<double> b(mesh3D.Vertices.size(), 0);
 
     BoundaryConditions bc(mesh3D, cityModel, dem, topHeight, fixBuildings);
     bc.apply(b);
     bc.apply(AK);
 
-    //Initial Approximation of the solution 
+    // Initial Approximation of the solution
     u = initialGuess(mesh3D, dem, topHeight, bc);
 
     // UnassembledJacobi(mesh3D, AK, b, u);
-    UnassembledGaussSeidel(mesh3D,AK,b,u);
+    UnassembledGaussSeidel(mesh3D, AK, b, u);
 
     // Update mesh coordinates
     for (std::size_t i = 0; i < mesh3D.Vertices.size(); i++)
     {
       mesh3D.Vertices[i].z += u[i];
     }
-
- 
   }
 
   static void UnassembledJacobi(const Mesh3D &mesh3D,
@@ -225,7 +223,7 @@ public:
 
     std::vector<double> u = bc.values;
 
-    //double meanElevation = dem.Mean();
+    // double meanElevation = dem.Mean();
     for (size_t i = 0; i < nV; i++)
     {
       if (bc.vMarkers[i] == -4)

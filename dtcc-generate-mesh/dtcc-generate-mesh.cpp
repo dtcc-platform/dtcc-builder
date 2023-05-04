@@ -174,7 +174,7 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     else
     {
       LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false,
-                                      false);
+                                      true);
     }
     info(mesh);
   }
