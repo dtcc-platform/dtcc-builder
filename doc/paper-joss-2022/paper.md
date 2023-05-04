@@ -63,7 +63,7 @@ face of bad quality and low resolution data, which is often the case
 for publicly available data for cities. Furthermore, if the 3D meshes
 are to be used for modeling and simulation, certain requirements are
 posed on the quality of the meshes. Previous research on 3D mesh generation for cities demonstrated,
-but do not fully account for the issues at hand[ @ledouxCityJSONCompactEasytouse2019],[@ledoux3dfierAutomaticReconstruction2021,[@padenAutomaticReconstruction3D2022]. DTCC Builder aims to solve these challenges by automating the mesh generation process in a both robust
+but do not fully account for the issues at hand [@ledouxCityJSONCompactEasytouse2019],[@ledoux3dfierAutomaticReconstruction2021,[@padenAutomaticReconstruction3D2022]. DTCC Builder aims to solve these challenges by automating the mesh generation process in a both robust
 and efficient way. Related work on 3D mesh generation for city
 modeling include [@ledouxCityJSONCompactEasytouse2019],
 [@ledoux3dfierAutomaticReconstruction2021], and
