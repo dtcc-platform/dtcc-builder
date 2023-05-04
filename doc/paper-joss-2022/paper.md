@@ -95,8 +95,7 @@ DTCC Builder uses a novel algorithm for mesh generation. The key idea
 is to utilize the special geometry of city models to reduce the 3D
 mesh generation problem to a 2D problem. A 2D mesh respecting the
 polygonal footprints of buildings is generated and then layered to
-create a 3D mesh. Building heights and ground height are incorporated
-through a PDE-based smoothing process. Building heights and ground height are incorporated through a PDE-based smoothing process as described by [@naserentinDigitalTwinsCity2022].
+create a 3D mesh. Building heights and ground height are incorporated through a PDE-based smoothing process as described by [@naserentinDigitalTwinsCity2022].
 
 DTCC Builder is implemented in C++ and makes use of several
 open-source packages, notably FEniCS
