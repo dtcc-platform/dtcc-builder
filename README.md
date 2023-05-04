@@ -34,3 +34,8 @@ DTCC Builder is licensed under the
 
 Copyright is held by the individual authors as listed at the top of
 each source file.
+
+## Community guidelines
+
+Comments, contributions, and questions are welcome. Please engage with
+us through Issues, Pull Requests, and Discussions on our GitHub page.
