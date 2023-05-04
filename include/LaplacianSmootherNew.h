@@ -1,6 +1,12 @@
 // Copyright (C) 2023 Authors
 // Licensed under the MIT License
 
+// New Laplacian Smoother class
+// TO DO: 
+//
+// 1) Fix wavey sidewalls bug.
+//    Probably caused by bad BCs
+
 #ifndef DTCC_LAPLACIAN_SMOOTHER_NEW_H
 #define DTCC_LAPLACIAN_SMOOTHER_NEW_H
 
@@ -8,11 +14,17 @@
 #include "Timer.h"
 
 #include "../sandbox/smoothing-2023/include/boundaryConditions.hpp"
-#include "../sandbox/smoothing-2023/include/sparse.hpp"
 #include "../sandbox/smoothing-2023/include/stiffnessMatrix.hpp"
+
+#define MAX_ITER 1000
 
 namespace DTCC
 {
+
+void writeMatrix(const Mesh3D &mesh,
+                 const stiffnessMatrix &AK,
+                 const BoundaryConditions &bc,
+                 bool fixBuildings);
 
 class LaplacianSmootherNew
 {
@@ -25,34 +37,42 @@ public:
                            bool fixBuildings)
   {
     info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing NEW)...");
+    info(mesh3D.__str__());
     Timer timer("SmoothMesh3DNew");
 
-    std::cout << mesh3D.Markers.size() << std::endl;
-
+    //Local Stifness Matrices
     stiffnessMatrix AK(mesh3D);
 
+    //Solution Vector
+    std::vector<double> u(mesh3D.Vertices.size(), 0);
+    //Load Vector
     std::vector<double> b(mesh3D.Vertices.size(), 0);
 
-    BoundaryConditions bc(mesh3D, cityModel, dem, topHeight, true);
+    BoundaryConditions bc(mesh3D, cityModel, dem, topHeight, fixBuildings);
     bc.apply(b);
     bc.apply(AK);
 
-    std::vector<double> u = initialGuess(mesh3D, dem, topHeight, bc);
+    //Initial Approximation of the solution 
+    u = initialGuess(mesh3D, dem, topHeight, bc);
 
-    UnassembledJacobi(mesh3D, AK, b, u);
-    // UnassembledGaussSeidel(mesh3D,AK,b,u);
+    // UnassembledJacobi(mesh3D, AK, b, u);
+    UnassembledGaussSeidel(mesh3D,AK,b,u);
 
     // Update mesh coordinates
     for (std::size_t i = 0; i < mesh3D.Vertices.size(); i++)
+    {
       mesh3D.Vertices[i].z += u[i];
+    }
+
+ 
   }
 
   static void UnassembledJacobi(const Mesh3D &mesh3D,
                                 stiffnessMatrix &A,
-                                std::vector<double> b,
-                                std::vector<double> u,
-                                const size_t max_iterations = 500,
-                                const double tolerance = 1e-9)
+                                std::vector<double> &b,
+                                std::vector<double> &u,
+                                const size_t max_iterations = MAX_ITER,
+                                const double tolerance = 1e-16)
   {
     info("Element-by-Element Jacobi Solver");
     Timer timer("EbE Jacobi");
@@ -66,11 +86,11 @@ public:
     std::array<uint, 4> I = {0};
 
     size_t iterations;
-    double error;
+    double residual;
     for (iterations = 0; iterations < max_iterations; iterations++)
     {
       c = b;
-      error = 0;
+      residual = 0;
       for (size_t cn = 0; cn < nC; cn++)
       {
         I[0] = mesh3D.Cells[cn].v0;
@@ -91,11 +111,11 @@ public:
         double res = u[i];
         u[i] = c[i] / A.diagonal[i];
         res = std::abs(res - u[i]);
-        error = std::max(error, res);
+        residual = std::max(residual, res);
       }
 
       // Check Convergance
-      if (error < tolerance)
+      if (residual < tolerance)
         break;
     }
     timer.Stop();
@@ -103,7 +123,7 @@ public:
 
     std::cout << "Jacobi finished after " << iterations << " / "
               << max_iterations << " iterations" << std::endl;
-    std::cout << "With error: " << error << std::endl;
+    std::cout << "With residual: " << residual << std::endl;
     // std::cout << "Execution Time:" << ms_double.count() << "ms " <<
     // std::endl;
   }
@@ -123,10 +143,10 @@ public:
 
   static void UnassembledGaussSeidel(const Mesh3D &mesh3D,
                                      stiffnessMatrix &A,
-                                     std::vector<double> b,
-                                     std::vector<double> u,
-                                     const size_t max_iterations = 500,
-                                     const double tolerance = 1e-9)
+                                     std::vector<double> &b,
+                                     std::vector<double> &u,
+                                     const size_t max_iterations = MAX_ITER,
+                                     const double tolerance = 1e-16)
   {
     info("Element-by-Element Gauss-Seidel Solver");
     Timer timer("EbE Gauss Seidel");
@@ -145,12 +165,12 @@ public:
     _getVertexDegree(vertexDegree, mesh3D);
 
     size_t iterations;
-    double error;
+    double residual;
     for (iterations = 0; iterations < max_iterations; iterations++)
     {
       c = b;
       vDeg = vertexDegree;
-      error = 0;
+      residual = 0;
       for (size_t cn = 0; cn < nC; cn++)
       {
         I[0] = mesh3D.Cells[cn].v0;
@@ -174,14 +194,14 @@ public:
             double res = u[I[i]];
             u[I[i]] = c[I[i]] / A.diagonal[I[i]];
             res = std::abs(res - u[I[i]]);
-            error = std::max(error, res);
+            residual = std::max(residual, res);
           }
         }
       }
-      std::cout << iterations << "  err: " << error << std::endl;
+      // std::cout << iterations << "  err: " << error << std::endl;
 
       // Check Convergance
-      if (error < tolerance)
+      if (residual < tolerance)
         break;
     }
     timer.Stop();
@@ -189,32 +209,34 @@ public:
 
     std::cout << "Gauss-Seidel finished after " << iterations << " / "
               << max_iterations << " iterations" << std::endl;
-    std::cout << "With error: " << error << std::endl;
+    std::cout << "With residual: " << residual << std::endl;
     // std::cout << "Execution Time:" << ms_double.count() << "ms " <<
     // std::endl;
   }
 
   // Placeholder Initial Guess
   static std::vector<double> initialGuess(const Mesh3D &mesh3D,
-                                          const GridField2D &dtm,
+                                          const GridField2D &dem,
                                           double topHeight,
                                           BoundaryConditions &bc)
   {
+    info("Initial Approximation for Solution Vector");
     const std::size_t nV = mesh3D.Vertices.size();
 
     std::vector<double> u = bc.values;
 
+    //double meanElevation = dem.Mean();
     for (size_t i = 0; i < nV; i++)
     {
       if (bc.vMarkers[i] == -4)
       {
-        // const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
-        // u[i] = dem(p)*(topHeight-mesh3D.Vertices[i].z)/topHeight -
-        // mesh3D.Vertices[i].z;
-        u[i] = topHeight / 2 - mesh3D.Vertices[i].z;
+        const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
+        u[i] = dem(p) * (1 - mesh3D.Vertices[i].z / topHeight) -
+               mesh3D.Vertices[i].z;
+        // u[i] = meanElevation*(1-mesh3D.Vertices[i].z/topHeight) -
+        // mesh3D.Vertices[i].z ;
       }
     }
-
     return u;
   }
 };

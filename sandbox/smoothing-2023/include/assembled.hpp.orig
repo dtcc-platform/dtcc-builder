@@ -25,6 +25,8 @@ using std::chrono::duration_cast;
 using std::chrono::high_resolution_clock;
 using std::chrono::milliseconds;
 
+
+
 // Test function: Naive BC Application
 void checkBoundaryPoints(bool *isBoundary,
                          double *boundaryValues,
@@ -179,6 +181,7 @@ void assembled_GaussSeidel(const Mesh3D &mesh,
   delete[] isBoundary, b, d, u_new, u_old, AK;
 }
 
+
 // Laplacian Smoother using Sparse format Stiffness Matrix
 // for Gauss-Seidel
 class SparseSmoother
@@ -311,43 +314,44 @@ public:
 
 #endif
 
+
 void assemble(const stiffnessMatrix &A,
               const std::vector<int> &VerticeMarkers,
               COO_array &assembled_A)
-{
-  info("Assembling Stiffness Matrix (COO Sparse) ");
-
-  size_t nC = A._mesh.Cells.size();
-  size_t nV = A._mesh.Vertices.size();
-
-  std::array<uint, 4> I;
-
-  for (size_t i = 0; i < nV; i++)
   {
-    if (VerticeMarkers[i] > -4)
+    info("Assembling Stiffness Matrix (COO Sparse) ");
+
+    size_t nC = A._mesh.Cells.size();
+    size_t nV = A._mesh.Vertices.size();
+
+    std::array<uint, 4> I;
+
+    for (size_t i = 0; i < nV; i++)
     {
-      assembled_A.add(i, i, 1);
-    }
-  }
-
-  std::cout << "Inserterd Boundary Vertices" << std::endl;
-
-  for (size_t cn = 0; cn < nC; cn++)
-  {
-    I[0] = A._mesh.Cells[cn].v0;
-    I[1] = A._mesh.Cells[cn].v1;
-    I[2] = A._mesh.Cells[cn].v2;
-    I[3] = A._mesh.Cells[cn].v3;
-
-    for (size_t i = 0; i < 4; i++)
-    {
-      if (VerticeMarkers[I[i]] == -4)
+      if (VerticeMarkers[i] > -4)
       {
-        assembled_A.add(I[i], I[0], A(cn, i, 0));
-        assembled_A.add(I[i], I[1], A(cn, i, 1));
-        assembled_A.add(I[i], I[2], A(cn, i, 2));
-        assembled_A.add(I[i], I[3], A(cn, i, 3));
+        assembled_A.add(i, i, 1);
+      }
+    }
+
+    std::cout << "Inserterd Boundary Vertices" << std::endl;
+
+    for (size_t cn = 0; cn < nC; cn++)
+    {
+      I[0] = A._mesh.Cells[cn].v0;
+      I[1] = A._mesh.Cells[cn].v1;
+      I[2] = A._mesh.Cells[cn].v2;
+      I[3] = A._mesh.Cells[cn].v3;
+
+      for (size_t i = 0; i < 4; i++)
+      {
+        if (VerticeMarkers[I[i]] == -4)
+        {
+          assembled_A.add(I[i], I[0], A(cn, i, 0));
+          assembled_A.add(I[i], I[1], A(cn, i, 1));
+          assembled_A.add(I[i], I[2], A(cn, i, 2));
+          assembled_A.add(I[i], I[3], A(cn, i, 3));
+        }
       }
     }
   }
-}

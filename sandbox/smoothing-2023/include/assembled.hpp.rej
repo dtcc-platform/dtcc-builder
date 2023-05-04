@@ -1,0 +1,158 @@
+--- sandbox/smoothing-2023/include/assembled.hpp	(before formatting)
++++ sandbox/smoothing-2023/include/assembled.hpp	(after formatting)
+@@ -312,44 +310,43 @@
+ 
+ #endif
+ 
+-
+ void assemble(const stiffnessMatrix &A,
+               const std::vector<int> &VerticeMarkers,
+               COO_array &assembled_A)
+-  {
+-    info("Assembling Stiffness Matrix (COO Sparse) ");
+-
+-    size_t nC = A._mesh.Cells.size();
+-    size_t nV = A._mesh.Vertices.size();
+-
+-    std::array<uint, 4> I;
+-
+-    for (size_t i = 0; i < nV; i++)
+-    {
+-      if (VerticeMarkers[i] > -4)
+-      {
+-        assembled_A.add(i, i, 1);
+-      }
+-    }
+-
+-    std::cout << "Inserterd Boundary Vertices" << std::endl;
+-
+-    for (size_t cn = 0; cn < nC; cn++)
+-    {
+-      I[0] = A._mesh.Cells[cn].v0;
+-      I[1] = A._mesh.Cells[cn].v1;
+-      I[2] = A._mesh.Cells[cn].v2;
+-      I[3] = A._mesh.Cells[cn].v3;
+-
+-      for (size_t i = 0; i < 4; i++)
+-      {
+-        if (VerticeMarkers[I[i]] == -4)
+-        {
+-          assembled_A.add(I[i], I[0], A(cn, i, 0));
+-          assembled_A.add(I[i], I[1], A(cn, i, 1));
+-          assembled_A.add(I[i], I[2], A(cn, i, 2));
+-          assembled_A.add(I[i], I[3], A(cn, i, 3));
+-        }
+-      }
+-    }
+-  }+{
++  info("Assembling Stiffness Matrix (COO Sparse) ");
++
++  size_t nC = A._mesh.Cells.size();
++  size_t nV = A._mesh.Vertices.size();
++
++  std::array<uint, 4> I;
++
++  for (size_t i = 0; i < nV; i++)
++  {
++    if (VerticeMarkers[i] > -4)
++    {
++      assembled_A.add(i, i, 1);
++    }
++  }
++
++  std::cout << "Inserterd Boundary Vertices" << std::endl;
++
++  for (size_t cn = 0; cn < nC; cn++)
++  {
++    I[0] = A._mesh.Cells[cn].v0;
++    I[1] = A._mesh.Cells[cn].v1;
++    I[2] = A._mesh.Cells[cn].v2;
++    I[3] = A._mesh.Cells[cn].v3;
++
++    for (size_t i = 0; i < 4; i++)
++    {
++      if (VerticeMarkers[I[i]] == -4)
++      {
++        assembled_A.add(I[i], I[0], A(cn, i, 0));
++        assembled_A.add(I[i], I[1], A(cn, i, 1));
++        assembled_A.add(I[i], I[2], A(cn, i, 2));
++        assembled_A.add(I[i], I[3], A(cn, i, 3));
++      }
++    }
++  }
++}--- sandbox/smoothing-2023/include/stiffnessMatrix.hpp	(before formatting)
++++ sandbox/smoothing-2023/include/stiffnessMatrix.hpp	(after formatting)
+@@ -250,35 +250,51 @@
+ 
+ stiffnessMatrix::~stiffnessMatrix() { delete[] _data; }
+ 
+-
+ std::vector<double> stiffnessMatrix::assemble()
+ {
+   size_t nC = _mesh.Cells.size();
+   size_t nV = _mesh.Vertices.size();
+ 
+-  std::vector<double> assembled_A(nV*nV, 0);
+-  std::cout << "\nAssembled A size: " << nV <<" * "<<nV<< " " << assembled_A.size() << std::endl;
++  std::vector<double> assembled_A(nV * nV, 0);
++  std::cout << "\nAssembled A size: " << nV << " * " << nV << " "
++            << assembled_A.size() << std::endl;
+   for (size_t i = 0; i < nC; i++)
+   {
+-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v0] += _data[16 * i + 0];
+-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v1] += _data[16 * i + 1];
+-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v2] += _data[16 * i + 2];
+-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v3] += _data[16 * i + 3];
+-
+-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v0] += _data[16 * i + 4];
+-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v1] += _data[16 * i + 5];
+-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v2] += _data[16 * i + 6];
+-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v3] += _data[16 * i + 7];
+-
+-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v0] += _data[16 * i + 8];
+-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v1] += _data[16 * i + 9];
+-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v2] += _data[16 * i + 10];
+-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v3] += _data[16 * i + 11];
+-
+-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v0] += _data[16 * i + 12];
+-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v1] += _data[16 * i + 13];
+-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v2] += _data[16 * i + 14];
+-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v3] += _data[16 * i + 15];
++    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v0] +=
++        _data[16 * i + 0];
++    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v1] +=
++        _data[16 * i + 1];
++    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v2] +=
++        _data[16 * i + 2];
++    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v3] +=
++        _data[16 * i + 3];
++
++    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v0] +=
++        _data[16 * i + 4];
++    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v1] +=
++        _data[16 * i + 5];
++    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v2] +=
++        _data[16 * i + 6];
++    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v3] +=
++        _data[16 * i + 7];
++
++    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v0] +=
++        _data[16 * i + 8];
++    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v1] +=
++        _data[16 * i + 9];
++    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v2] +=
++        _data[16 * i + 10];
++    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v3] +=
++        _data[16 * i + 11];
++
++    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v0] +=
++        _data[16 * i + 12];
++    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v1] +=
++        _data[16 * i + 13];
++    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v2] +=
++        _data[16 * i + 14];
++    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v3] +=
++        _data[16 * i + 15];
+   }
+ 
+   return assembled_A;

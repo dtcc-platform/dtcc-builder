@@ -36,9 +36,21 @@ private:
   const bool fixBuildings;
 
 public:
+  // Vertex Boundary Markers:
+  // -4 : Neumann Vertices
+  // -3 : Top Boundary Vertices
+  // -2 : Ground Boundary Vertices
+  // -1 : Building Halos Boundary Vertices
   std::vector<int> vMarkers;
 
+  // Boundary Values
   std::vector<double> values;
+
+  // Building Polygon Centroids
+  std::vector<Vector2D> BuildingCentroids;
+
+  // Elevation for halo vertices based on min Cell elevation
+  std::vector<double> HaloElevations;
 
   BoundaryConditions(Mesh3D &mesh,
                      const CityModel &cityModel,
@@ -52,6 +64,12 @@ public:
 
   void computeBoundaryValues();
 
+  void computeBuildingCentroids();
+
+  int FindAdjacentBuilding(const Vector2D &p);
+
+  void HaloExpressionDEM();
+
   void apply(std::vector<double> &b);
 
   void apply(stiffnessMatrix &A);
@@ -63,8 +81,9 @@ BoundaryConditions::BoundaryConditions(Mesh3D &mesh,
                                        const double topHeight,
                                        const bool fixBuildings)
     : _mesh(mesh), _citymodel(cityModel), _dtm(dtm), topHeight(topHeight),
-      vMarkers(mesh.Vertices.size(), 0), values(mesh.Vertices.size(), 0.0),
-      fixBuildings(fixBuildings)
+      vMarkers(mesh.Vertices.size(), -4), values(mesh.Vertices.size(), 0.0),
+      fixBuildings(fixBuildings),
+      HaloElevations(mesh.Vertices.size(), std::numeric_limits<double>::max())
 {
   const size_t nC = _mesh.Cells.size();
   const size_t nV = _mesh.Vertices.size();
@@ -78,16 +97,11 @@ BoundaryConditions::BoundaryConditions(Mesh3D &mesh,
 
 BoundaryConditions::~BoundaryConditions() {}
 
+// Compute Vertex Boundary Markers based on Cell Boundary Markers
 void BoundaryConditions::computeVerticeMarkers()
 {
   const size_t nC = _mesh.Cells.size();
   const size_t nV = _mesh.Vertices.size();
-
-  for (size_t i = 0; i < nV; i++)
-  {
-    vMarkers[i] = -4;
-  }
-
   std::array<uint, 4> I = {0};
 
   size_t k0 = 0;
@@ -177,28 +191,52 @@ void BoundaryConditions::computeVerticeMarkers()
   return;
 }
 
+// Compute Values for Boundary Vertices
 void BoundaryConditions::computeBoundaryValues()
 {
   const size_t nC = _mesh.Cells.size();
   const size_t nV = _mesh.Vertices.size();
 
   // TODO: Check if Search tree has already been built
-  //_citymodel.BuildSearchTree(true);
+  //_citymodel.BuildSearchTree(true,0.0);
 
+  // Min adjacent Building Height Expression for Halos
+  computeBuildingCentroids();
+
+  // DEM expression for Halos
+  HaloExpressionDEM();
+
+  std::size_t k1 = 0;
   for (size_t i = 0; i < nV; i++)
   {
     const int verticeMarker = vMarkers[i];
-    if (verticeMarker >= 0 && fixBuildings) // Building
+    if (verticeMarker >= 0) //  && fixBuildings Building
     {
       values[i] =
           _citymodel.Buildings[verticeMarker].MaxHeight() - _mesh.Vertices[i].z;
     }
     else if (verticeMarker == -1) // Building Halo
     {
+
+      // Halo Min Building Height Expression
       const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
-      int buildingIndex = _citymodel.FindBuilding(p);
-      values[i] =
-          _citymodel.Buildings[buildingIndex].MinHeight() - _mesh.Vertices[i].z;
+      const int buildingIndex = FindAdjacentBuilding(p);
+
+      if (buildingIndex == -1)
+      {
+        // std::cout << "Vertex " << i << " is not adjacent to any building...
+        // "<< std::endl;
+        values[i] = _dtm(p) - _mesh.Vertices[i].z;
+        k1++;
+      }
+      else
+      {
+        values[i] = _citymodel.Buildings[buildingIndex].MinHeight() -
+                    _mesh.Vertices[i].z;
+      }
+
+      // Halo DEM Expression
+      // values[i] = HaloElevations[i] - _mesh.Vertices[i].z;
     }
     else if (verticeMarker == -2) // Ground
     {
@@ -214,6 +252,9 @@ void BoundaryConditions::computeBoundaryValues()
       values[i] = 0;
     }
   }
+
+  std::cout << "Didnt find Building Index for " << k1 << " Halo Vertices"
+            << std::endl;
 }
 
 // Apply Boundary Conditions on Load vector
@@ -249,6 +290,82 @@ void BoundaryConditions::apply(stiffnessMatrix &A)
         }
       }
     }
+  }
+}
+
+// Finds Building Polygon Centroids
+void BoundaryConditions::computeBuildingCentroids()
+{
+  const std::size_t nV = _mesh.Vertices.size();
+
+  BuildingCentroids.resize(_citymodel.Buildings.size());
+
+  for (size_t i = 0; i < _citymodel.Buildings.size(); i++)
+  {
+    Vector2D p(0, 0);
+    Polygon fp = _citymodel.Buildings[i].Footprint;
+
+    for (auto vertex : fp.Vertices)
+    {
+      p += Vector2D(vertex);
+    }
+    p = p / static_cast<double>(fp.Vertices.size());
+    BuildingCentroids[i] = p;
+  }
+}
+
+// Returns the index of the closest Building that is closest to the input point
+int BoundaryConditions::FindAdjacentBuilding(const Vector2D &p)
+{
+  int building_idx = -1;
+  double minDistance = MAXFLOAT;
+  const size_t numOfBuildings = _citymodel.Buildings.size();
+
+  for (size_t i = 0; i < numOfBuildings; i++)
+  {
+    Vector2D q = p - BuildingCentroids[i];
+    double distance = q.SquaredMagnitude();
+
+    if (distance < minDistance)
+    {
+      minDistance = distance;
+      building_idx = i;
+    }
+  }
+
+  return building_idx;
+}
+
+// Compute Halo Boundary vertices elevation based on
+// the min elevation in the cell containing them
+void BoundaryConditions::HaloExpressionDEM()
+{
+  const std::size_t nC = _mesh.Cells.size();
+  const std::size_t nV = _mesh.Vertices.size();
+
+  std::array<uint, 4> I = {0};
+
+  for (size_t cn = 0; cn < nC; cn++)
+  {
+    I[0] = _mesh.Cells[cn].v0;
+    I[1] = _mesh.Cells[cn].v1;
+    I[2] = _mesh.Cells[cn].v2;
+    I[3] = _mesh.Cells[cn].v3;
+
+    double z_min = std::numeric_limits<double>::max();
+
+    for (size_t i = 0; i < 4; i++)
+    {
+      const Vector2D p(_mesh.Vertices[I[i]].x, _mesh.Vertices[I[i]].y);
+      const double z = _dtm(p);
+
+      z_min = std::min(z_min, z);
+    }
+
+    HaloElevations[I[0]] = std::min(HaloElevations[I[0]], z_min);
+    HaloElevations[I[1]] = std::min(HaloElevations[I[1]], z_min);
+    HaloElevations[I[2]] = std::min(HaloElevations[I[2]], z_min);
+    HaloElevations[I[3]] = std::min(HaloElevations[I[3]], z_min);
   }
 }
 

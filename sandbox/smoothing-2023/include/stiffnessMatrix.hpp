@@ -170,7 +170,7 @@ void compute_transformation_matrix(double *AK, const Mesh3D &m)
   }
 }
 
-double *assemble(double *A, const Mesh3D &m)
+double *assemble(const double *A, const Mesh3D &m)
 {
   size_t nC = m.Cells.size();
   size_t nV = m.Vertices.size();
@@ -223,6 +223,8 @@ public:
 
   ~stiffnessMatrix();
 
+  std::vector<double> assemble();
+
   double &operator()(unsigned cell, unsigned row, unsigned col) const;
 };
 
@@ -249,6 +251,56 @@ stiffnessMatrix::stiffnessMatrix(Mesh3D &mesh)
 }
 
 stiffnessMatrix::~stiffnessMatrix() { delete[] _data; }
+
+std::vector<double> stiffnessMatrix::assemble()
+{
+  size_t nC = _mesh.Cells.size();
+  size_t nV = _mesh.Vertices.size();
+
+  std::vector<double> assembled_A(nV * nV, 0);
+  std::cout << "\nAssembled A size: " << nV << " * " << nV << " "
+            << assembled_A.size() << std::endl;
+  for (size_t i = 0; i < nC; i++)
+  {
+    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v0] +=
+        _data[16 * i + 0];
+    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v1] +=
+        _data[16 * i + 1];
+    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v2] +=
+        _data[16 * i + 2];
+    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v3] +=
+        _data[16 * i + 3];
+
+    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v0] +=
+        _data[16 * i + 4];
+    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v1] +=
+        _data[16 * i + 5];
+    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v2] +=
+        _data[16 * i + 6];
+    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v3] +=
+        _data[16 * i + 7];
+
+    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v0] +=
+        _data[16 * i + 8];
+    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v1] +=
+        _data[16 * i + 9];
+    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v2] +=
+        _data[16 * i + 10];
+    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v3] +=
+        _data[16 * i + 11];
+
+    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v0] +=
+        _data[16 * i + 12];
+    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v1] +=
+        _data[16 * i + 13];
+    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v2] +=
+        _data[16 * i + 14];
+    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v3] +=
+        _data[16 * i + 15];
+  }
+
+  return assembled_A;
+}
 
 inline double &
 stiffnessMatrix::operator()(unsigned cell, unsigned row, unsigned col) const
