@@ -36,7 +36,7 @@ bibliography: paper.bib
 
 # Summary
 
-DTCC Builder is a mesh generator for automatic, efficient, and robust
+Digital Twin Cities Centre (DTCC) Builder is a mesh generator for automatic, efficient, and robust
 mesh generation for large-scale city modeling and simulation.  Using
 standard and widely available raw data sources in the form of point
 clouds and cadastral data, DTCC Builder generates high-quality 3D
@@ -83,7 +83,7 @@ the form of one or more point clouds and cadastral data. Then,
 output data in the form of both triangular surface meshes and
 tetrahedral volume meshes. \autoref{fig:demo-majorna} and
 \autoref{fig:demo-majorna-zoom} show a surface mesh generated for an
-area in Gothenburg.
+area in Gothenburg, Sweden.
 
 ![Surface mesh of an area (Majorna) in Gothenburg, generated with DTCC Buider.\label{fig:demo-majorna}](demo-majorna.jpg)
 
@@ -96,8 +96,7 @@ is to utilize the special geometry of city models to reduce the 3D
 mesh generation problem to a 2D problem. A 2D mesh respecting the
 polygonal footprints of buildings is generated and then layered to
 create a 3D mesh. Building heights and ground height are incorporated
-through a PDE-based smoothing process. The method and algorithms are
-described in detail in the paper [@naserentinDigitalTwinsCity2022].
+through a PDE-based smoothing process. Building heights and ground height are incorporated through a PDE-based smoothing process as described by [@naserentinDigitalTwinsCity2022].
 
 DTCC Builder is implemented in C++ and makes use of several
 open-source packages, notably FEniCS
@@ -109,7 +108,7 @@ operations.
 # Documentation
 
 The documentation for DTCC Builder is published on the
-[DTCC Builder GitLab pages](https://gitlab.com/dtcc-platform/dtcc-builder)
+[DTCC Builder Github pages](https://github.com/dtcc-platform/dtcc-builder)
 as well as on the documentation pages for
 [DTCC Platform](https://platform.dtcc.chalmers.se).
 
