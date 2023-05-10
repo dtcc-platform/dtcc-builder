@@ -108,6 +108,9 @@ void BoundaryConditions::computeVerticeMarkers()
   size_t k1 = 0;
   size_t k2 = 0;
   size_t k3 = 0;
+
+  const double domainMin = _dtm.Min();
+  const double domainMean = _dtm.Mean();
   for (size_t cn = 0; cn < nC; cn++)
   {
     // Initializing Global Index for each cell
@@ -121,12 +124,18 @@ void BoundaryConditions::computeVerticeMarkers()
                           4;
 
     const int cellMarker = _mesh.Markers[cn];
-
+    const double BuildingMaxHeight =
+        _citymodel.Buildings[cellMarker].MaxHeight();
+    const double BuildingMinHeight =
+        _citymodel.Buildings[cellMarker].MinHeight();
     if (cellMarker >= 0 && fixBuildings) // Building
     {
       for (size_t i = 0; i < 4; i++)
       {
-        if (_mesh.Vertices[I[i]].z > z_mean)
+        const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
+        const double elevation = _dtm(p);
+
+        if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight + 0.5 * domainMin))
         {
           continue;
         }
@@ -212,8 +221,12 @@ void BoundaryConditions::computeBoundaryValues()
     const int verticeMarker = vMarkers[i];
     if (verticeMarker >= 0) //  && fixBuildings Building
     {
+      // Test.. To be Remove
       values[i] =
           _citymodel.Buildings[verticeMarker].MaxHeight() - _mesh.Vertices[i].z;
+
+      // std::cout << " Vertex: " << i << " " << _mesh.Vertices[i].z
+      //           << " z_bound  " << values[i] << std::endl;
     }
     else if (verticeMarker == -1) // Building Halo
     {

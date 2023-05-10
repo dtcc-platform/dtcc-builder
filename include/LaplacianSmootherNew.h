@@ -1,6 +1,11 @@
 // Copyright (C) 2023 Authors
 // Licensed under the MIT License
 
+// cd dtcc-builder/build
+// make dtcc-generate-mesh
+// dtcc-generate-mesh/dtcc-generate-mesh
+// ../data/HelsingborgResidential2022/parameters-new.json
+//
 // New Laplacian Smoother class
 // TO DO:
 //
@@ -16,15 +21,12 @@
 #include "../sandbox/smoothing-2023/include/boundaryConditions.hpp"
 #include "../sandbox/smoothing-2023/include/stiffnessMatrix.hpp"
 
-#define MAX_ITER 1000
+#define MAX_ITER 5000
 
 namespace DTCC
 {
 
-void writeMatrix(const Mesh3D &mesh,
-                 const stiffnessMatrix &AK,
-                 const BoundaryConditions &bc,
-                 bool fixBuildings);
+bool checkSidewallVertices(const Point3D &vertex, const int Markers);
 
 class LaplacianSmootherNew
 {
@@ -53,16 +55,40 @@ public:
     bc.apply(AK);
 
     // Initial Approximation of the solution
-    u = initialGuess(mesh3D, dem, topHeight, bc);
+    if (!fixBuildings)
+    {
+      u = initialGuess(mesh3D, dem, topHeight, bc);
+    }
+    else
+    {
+      u = b;
+    }
 
     // UnassembledJacobi(mesh3D, AK, b, u);
     UnassembledGaussSeidel(mesh3D, AK, b, u);
+
+    double minElevation = dem.Min();
+    size_t c1 = 0;
+    size_t c2 = 0;
 
     // Update mesh coordinates
     for (std::size_t i = 0; i < mesh3D.Vertices.size(); i++)
     {
       mesh3D.Vertices[i].z += u[i];
+      if (mesh3D.Vertices[i].z > topHeight)
+      {
+        std::cout << i << "z: " << mesh3D.Vertices[i].z << std::endl;
+        c1++;
+      }
+      if (mesh3D.Vertices[i].z < minElevation)
+      {
+        std::cout << i << "z: " << mesh3D.Vertices[i].z << " " << u[i]
+                  << std::endl;
+        c2++;
+      }
     }
+    std::cout << "Over TOP: c1 = " << c1 << "\nBelow Min: c2 = " << c2
+              << " MIN: " << minElevation << " MAX " << dem.Max() << std::endl;
   }
 
   static void UnassembledJacobi(const Mesh3D &mesh3D,
@@ -223,22 +249,75 @@ public:
 
     std::vector<double> u = bc.values;
 
-    // double meanElevation = dem.Mean();
+    double meanElevation = dem.Mean();
+    double maxElevation = dem.Max();
     for (size_t i = 0; i < nV; i++)
     {
       if (bc.vMarkers[i] == -4)
       {
-        const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
-        u[i] = dem(p) * (1 - mesh3D.Vertices[i].z / topHeight) -
-               mesh3D.Vertices[i].z;
-        // u[i] = meanElevation*(1-mesh3D.Vertices[i].z/topHeight) -
-        // mesh3D.Vertices[i].z ;
+        // if(checkSidewallVertices(mesh3D.Vertices[i],bc.vMarkers[i]))
+        // {
+        //   u[i] =meanElevation * (1 - mesh3D.Vertices[i].z / topHeight);
+        // }else
+        {
+          const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
+          u[i] = dem(p) * (1 - mesh3D.Vertices[i].z / topHeight);
+        }
       }
     }
     return u;
   }
 };
 
+// Test:: Probably Gonna Remove this!
+bool checkSidewallVertices(const Point3D &vertex, int Marker)
+{
+  const double x_min = 0.0;
+  const double x_max = 999.99;
+
+  const double y_min = 0.00255543;
+  const double y_max = 995.833;
+
+  const double epsilon = 0.01;
+
+  bool onDomainboundary = false;
+
+  if (abs(vertex.x - x_min) < epsilon)
+  {
+    onDomainboundary = true;
+    // std::cout << "Boundary Vertex: " << " x: " << vertex.x
+    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
+    //           Marker << std::endl;
+  }
+  else if (abs(vertex.x - x_max) < epsilon)
+  {
+    onDomainboundary = true;
+    // std::cout << " Boundary Vertex: " << " x: " << vertex.x
+    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
+    //           Marker
+    //           << std::endl;
+  }
+  else if (abs(vertex.y - y_min) < epsilon)
+  {
+    onDomainboundary = true;
+    // std::cout << "Boundary Vertex: " << " x: " << vertex.x
+    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
+    //           Marker
+    //           << std::endl;
+  }
+  else if (abs(vertex.y - y_max) < epsilon)
+  {
+    onDomainboundary = true;
+    // std::cout << "Boundary Vertex: " << " x: " << vertex.x
+    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
+    //           Marker
+    //           << std::endl;
+  }
+  return onDomainboundary;
+}
+
 } // namespace DTCC
+
+// namespace DTCC
 
 #endif // DTCC_LAPLACIAN_SMOOTHER_NEW_H
