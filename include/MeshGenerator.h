@@ -257,7 +257,7 @@ namespace DTCC
 		// building or the top of the domain with -4. Note that each
 		// 2D cell corresponds to three 3D cells in each layer.
 		if (numCellsKept[i] >= 3 && layer < numLayers - 1)
-		  mesh3D.markers[cellIndex] = -4;
+		  mesh3D.Markers[cellIndex] = -4;
 		else if (numCellsKept[i] < 3)
 		  numCellsKept[i]++;
 	      }
