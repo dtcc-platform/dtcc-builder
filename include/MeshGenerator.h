@@ -189,6 +189,10 @@ namespace DTCC
       // Create markers for all buildings that should be kept in current layer
       std::vector<bool> keepBuilding(cityModel.Buildings.size());
 
+      // Create markers for all 2D cells for how many layers we have kept (0, 1, 2 or 3)
+      std::vector<short int> numCellsKept(mesh2D.Cells.size());
+      std::fill(numCellsKept.begin(), numCellsKept.end(), 0);
+
       // Phase 1: Mark which cells that should be kept. This requires some
       // care since we want to mark all cells in a layer that belong to
       // the same building in the same way.
@@ -244,9 +248,19 @@ namespace DTCC
               // Get index of cell
               const size_t cellIndex = layer * layerSize + 3 * i + j;
 
-              // Mark for removal
+              // Mark cell for removal (below building height)
               if (!keepBuilding[marker])
                 keepCell[cellIndex] = false;
+	      else
+	      {
+		// Mark cells that are above a building but not touching the
+		// building or the top of the domain with -4. Note that each
+		// 2D cell corresponds to three 3D cells in each layer.
+		if (numCellsKept[i] >= 3 && layer < numLayers - 1)
+		  mesh3D.markers[cellIndex] = -4;
+		else if (numCellsKept[i] < 3)
+		  numCellsKept[i]++;
+	      }
             }
           }
         }
