@@ -32,7 +32,8 @@ namespace DTCC
                              const GridField2D &dem,
                              double topHeight,
                              bool fixBuildings,
-                             bool writeMatrix)
+                             bool writeMatrix,
+                             bool writeFEniCSMesh)
     {
       info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing)...");
       Timer timer("SmoothMesh3D");
@@ -157,6 +158,15 @@ namespace DTCC
       // Update mesh coordinates
       for (std::size_t i = 0; i < mesh3D.Vertices.size(); i++)
         mesh3D.Vertices[i].z += dz[i];
+
+      // Write mesh to file (used for testing/development)
+      if (writeFEniCSMesh)
+      {
+        dolfin::Mesh __mesh3D; // FIXME: Making yet another copy
+        FEniCS::ConvertMesh(mesh3D, __mesh3D);
+        dolfin::File file("mesh.xml");
+        file << __mesh3D;
+      }
     }
 
     // Smooth mesh using elastic smoothing

@@ -132,10 +132,15 @@ void BoundaryConditions::computeVerticeMarkers()
     {
       for (size_t i = 0; i < 4; i++)
       {
-        const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
-        const double elevation = _dtm(p);
-
-        if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight + 0.5 * domainMin))
+        // Test: This if can be removed completely
+        if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight))
+        {
+          std::cout << I[i] << ") Vertex z: " << _mesh.Vertices[I[i]].z
+                    << " B_ID: " << cellMarker
+                    << " Building Height: " << BuildingMaxHeight << std::endl;
+          // continue;
+        }
+        if (_mesh.Vertices[I[i]].z > z_mean)
         {
           continue;
         }
@@ -221,12 +226,8 @@ void BoundaryConditions::computeBoundaryValues()
     const int verticeMarker = vMarkers[i];
     if (verticeMarker >= 0) //  && fixBuildings Building
     {
-      // Test.. To be Remove
       values[i] =
           _citymodel.Buildings[verticeMarker].MaxHeight() - _mesh.Vertices[i].z;
-
-      // std::cout << " Vertex: " << i << " " << _mesh.Vertices[i].z
-      //           << " z_bound  " << values[i] << std::endl;
     }
     else if (verticeMarker == -1) // Building Halo
     {

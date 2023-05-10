@@ -2,7 +2,8 @@
 
 # List of available datasets
 DATASETS=(HelsingborgResidential2022 "Urban area in Helsingborg, Sweden"
-          HelsingborgHarbour2022     "Harbour area in Helsingborg, Sweden")
+          HelsingborgHarbour2022     "Harbour area in Helsingborg, Sweden"
+          SimulationDemo2023         "Urban area used for simulation demo")
 
 # Select dataset
 DATASET=$(dialog --clear \
@@ -12,16 +13,25 @@ DATASET=$(dialog --clear \
 clear
 
 # Check if dataset exists
-DATA_DIRECTORY="../data/$DATASET"
-if [ ! -f "$DATA_DIRECTORY/PropertyMap.shp" ]; then
-    echo "*** Dataset $DATASET not found"
-    echo "*** Make sure to run ./dtcc-download-demo-data-public in the data directory"
-    exit 1
+#DATA_DIRECTORY="../data/$DATASET"
+#if [ ! -f "$DATA_DIRECTORY/PropertyMap.shp" ]; then
+#    echo "*** Dataset $DATASET not found"
+#    echo "*** Make sure to run ./dtcc-download-demo-data-public in the data directory"
+#    exit 1
+#fi
+
+echo "Running demo for data set $DATASET..."
+
+# Run city model generation
+../bin/dtcc-generate-citymodel $DATASET.json
+
+# Adjust city model for simulation demo (to make it more interesting)
+if [ "$DATASET" == "SimulationDemo2023" ]; then
+    python3 adjust_simulation_citymodel.py 
 fi
 
-# Run demo
-echo "Running demo for data set $DATASET..."
-../bin/dtcc-generate-citymodel $DATA_DIRECTORY
-../bin/dtcc-generate-mesh $DATA_DIRECTORY
+# Run city model generation
+../bin/dtcc-generate-mesh $DATASET.json
+
 echo ""
-echo "Demo completed. Generated data saved to $DATA_DIRECTORY."
+echo "Demo completed."

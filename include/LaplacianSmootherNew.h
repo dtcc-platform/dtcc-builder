@@ -21,7 +21,7 @@
 #include "../sandbox/smoothing-2023/include/boundaryConditions.hpp"
 #include "../sandbox/smoothing-2023/include/stiffnessMatrix.hpp"
 
-#define MAX_ITER 5000
+#define MAX_ITER 1000
 
 namespace DTCC
 {
@@ -73,22 +73,7 @@ public:
 
     // Update mesh coordinates
     for (std::size_t i = 0; i < mesh3D.Vertices.size(); i++)
-    {
       mesh3D.Vertices[i].z += u[i];
-      if (mesh3D.Vertices[i].z > topHeight)
-      {
-        std::cout << i << "z: " << mesh3D.Vertices[i].z << std::endl;
-        c1++;
-      }
-      if (mesh3D.Vertices[i].z < minElevation)
-      {
-        std::cout << i << "z: " << mesh3D.Vertices[i].z << " " << u[i]
-                  << std::endl;
-        c2++;
-      }
-    }
-    std::cout << "Over TOP: c1 = " << c1 << "\nBelow Min: c2 = " << c2
-              << " MIN: " << minElevation << " MAX " << dem.Max() << std::endl;
   }
 
   static void UnassembledJacobi(const Mesh3D &mesh3D,
@@ -255,69 +240,14 @@ public:
     {
       if (bc.vMarkers[i] == -4)
       {
-        // if(checkSidewallVertices(mesh3D.Vertices[i],bc.vMarkers[i]))
-        // {
-        //   u[i] =meanElevation * (1 - mesh3D.Vertices[i].z / topHeight);
-        // }else
-        {
-          const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
-          u[i] = dem(p) * (1 - mesh3D.Vertices[i].z / topHeight);
-        }
+        const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
+        u[i] = dem(p) * (1 - mesh3D.Vertices[i].z / topHeight);
       }
     }
     return u;
   }
 };
 
-// Test:: Probably Gonna Remove this!
-bool checkSidewallVertices(const Point3D &vertex, int Marker)
-{
-  const double x_min = 0.0;
-  const double x_max = 999.99;
-
-  const double y_min = 0.00255543;
-  const double y_max = 995.833;
-
-  const double epsilon = 0.01;
-
-  bool onDomainboundary = false;
-
-  if (abs(vertex.x - x_min) < epsilon)
-  {
-    onDomainboundary = true;
-    // std::cout << "Boundary Vertex: " << " x: " << vertex.x
-    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
-    //           Marker << std::endl;
-  }
-  else if (abs(vertex.x - x_max) < epsilon)
-  {
-    onDomainboundary = true;
-    // std::cout << " Boundary Vertex: " << " x: " << vertex.x
-    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
-    //           Marker
-    //           << std::endl;
-  }
-  else if (abs(vertex.y - y_min) < epsilon)
-  {
-    onDomainboundary = true;
-    // std::cout << "Boundary Vertex: " << " x: " << vertex.x
-    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
-    //           Marker
-    //           << std::endl;
-  }
-  else if (abs(vertex.y - y_max) < epsilon)
-  {
-    onDomainboundary = true;
-    // std::cout << "Boundary Vertex: " << " x: " << vertex.x
-    //           << " y: " << vertex.y << " z : " << vertex.z << " Marker: " <<
-    //           Marker
-    //           << std::endl;
-  }
-  return onDomainboundary;
-}
-
 } // namespace DTCC
-
-// namespace DTCC
 
 #endif // DTCC_LAPLACIAN_SMOOTHER_NEW_H
