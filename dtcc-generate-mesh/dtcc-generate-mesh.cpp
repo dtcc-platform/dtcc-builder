@@ -165,13 +165,13 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     topHeight = dtm.Mean() + static_cast<double>(p["DomainHeight"]);
     if (p["LaplacianSmootherNew"])
     {
-      LaplacianSmootherNew::SmoothMesh3D(mesh, cityModel, dtm, topHeight,
-                                         false);
+      LaplacianSmootherNew::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false,
+                                         p["MaxIter"], p["RelTol"]);
     }
     else
     {
       LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, false,
-                                      true, false);
+                                      p["WriteMatrix"], false);
     }
     info(mesh);
   }
@@ -212,12 +212,13 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     Timer timer("Step 3.5: Smooth 3D mesh");
     if (p["LaplacianSmootherNew"])
     {
-      LaplacianSmootherNew::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true);
+      LaplacianSmootherNew::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
+                                         p["MaxIter"], p["RelTol"]);
     }
     else
     {
       LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
-                                      false, false);
+                                      p["WriteMatrix"], false);
     }
     // LaplacianSmoother::SmoothMesh3D(mesh, cityModel, dtm, topHeight, true,
     //                                 p["WriteMatrix"]);

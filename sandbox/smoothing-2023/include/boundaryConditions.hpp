@@ -133,13 +133,13 @@ void BoundaryConditions::computeVerticeMarkers()
       for (size_t i = 0; i < 4; i++)
       {
         // Test: This if can be removed completely
-        if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight))
-        {
-          std::cout << I[i] << ") Vertex z: " << _mesh.Vertices[I[i]].z
-                    << " B_ID: " << cellMarker
-                    << " Building Height: " << BuildingMaxHeight << std::endl;
-          // continue;
-        }
+        /*   if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight))
+          {
+            std::cout << I[i] << ") Vertex z: " << _mesh.Vertices[I[i]].z
+                      << " B_ID: " << cellMarker
+                      << " Building Height: " << BuildingMaxHeight << std::endl;
+            // continue;
+          } */
         if (_mesh.Vertices[I[i]].z > z_mean)
         {
           continue;
