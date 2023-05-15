@@ -281,12 +281,11 @@ public:
               // Mark cells that are above a building but not touching the
               // building or the top of the domain with -4. Note that each
               // 2D cell corresponds to three 3D cells in each layer.
-              if (numCellsKept[i] >= 2 &&
-                  layer < numLayers - 1) // Changed >=3 to >=2
+              if (numCellsKept[i] >= 3 && layer < numLayers - 1)
               {
                 mesh3D.Markers[cellIndex] = -4;
               }
-              else if (numCellsKept[i] < 2) // Changed < 3 to < 2
+              else if (numCellsKept[i] < 3)
                 numCellsKept[i]++;
             }
           }
