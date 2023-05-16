@@ -353,7 +353,9 @@ public:
     info("CityModelGenerator: Computing building heights...");
     Timer timer("ComputeBuildingHeights");
 
-    // FIXME: Make this a parameter
+    // FIXME: Make this a parameter?
+    // FIXME: How do we treat this in relation to layer height?
+    // FIXME: Also a problem inside MeshGenerator (warning in TrimMesh3D)
     const double minBuildingHeight{2.5};
 
     // Uncomment for debugging
