@@ -292,15 +292,26 @@ public:
             }
             else
             {
-              // Mark cells that are above a building but not touching the
-              // building or the top of the domain with -4. Note that each
-              // 2D cell corresponds to three 3D cells in each layer.
-              if (numCellsKept[i] >= 3 && layer < numLayers - 1)
+              if (layer == 0)
               {
-                mesh3D.Markers[cellIndex] = -4;
+                // If we are in the first layer and a building cell should
+                // be kept, the building is too low (covered by first layer)
+                // so we mark it as halo.
+                std::cout << "Changing building marker to halo for building " << marker << std::endl;
+                mesh3D.Markers[cellIndex] = -1;
               }
-              else if (numCellsKept[i] < 3)
-                numCellsKept[i]++;
+              else
+              {
+                // Mark cells that are above a building but not touching the
+                // building or the top of the domain with -4. Note that each
+                // 2D cell corresponds to three 3D cells in each layer.
+                if (numCellsKept[i] >= 3 && layer < numLayers - 1)
+                {
+                  mesh3D.Markers[cellIndex] = -4;
+                }
+                else if (numCellsKept[i] < 3)
+                  numCellsKept[i]++;
+              }
             }
           }
         }
