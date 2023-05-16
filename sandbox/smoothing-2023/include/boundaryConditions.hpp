@@ -194,6 +194,30 @@ void BoundaryConditions::computeVerticeMarkers()
       k3++;
   }
 
+  std::cout << "Building: ";
+  for (size_t v = 0; v < nV; v++)
+  {
+    if (vMarkers[v] >= 0)
+      std::cout << v << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Halo: ";
+  for (size_t v = 0; v < nV; v++)
+  {
+    if (vMarkers[v] == -1)
+      std::cout << v << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Ground: ";
+  for (size_t v = 0; v < nV; v++)
+  {
+    if (vMarkers[v] == -2)
+      std::cout << v << " ";
+  }
+  std::cout << std::endl;
+
   int k4 = nV - (k0 + k1 + k2 + k3);
   std::cout << "Buildings      k0 :" << k0 << std::endl
             << "Building Halos k1 :" << k1 << std::endl

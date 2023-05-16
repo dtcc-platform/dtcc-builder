@@ -322,6 +322,10 @@ public:
       }
     }
 
+    // Print vertex map (for debugging)
+    for (const auto v : vertexMap)
+      std::cout << "Vertex map: " << v.first << " --> " << v.second << std::endl;
+
     // Initialize new mesh data
     const size_t numVertices = vertexMap.size();
     const size_t numCells = cellMap.size();

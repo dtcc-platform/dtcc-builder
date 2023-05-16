@@ -133,6 +133,9 @@ void GenerateVolumeMeshes(CityModel &cityModel,
     info(mesh2D);
   }
 
+  // Write 2D mesh for debugging
+  JSON::Write(mesh2D, dataDirectory + "Mesh2D.json", origin);
+
   // Write VTK
   if (p["WriteVTK"])
   {

@@ -4,7 +4,7 @@
     "OutputDirectory": "../data/HelsingborgResidential2022/",
     "AutoDomain": false,
     "Debug": false,
-    "DomainHeight": 100.0,
+    "DomainHeight": 50.0,
     "DomainMargin": 10.0,
     "ElevationModelResolution": 1.0,
     "GenerateSurfaceMeshes": true,
