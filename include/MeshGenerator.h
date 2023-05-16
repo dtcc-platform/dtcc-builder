@@ -284,6 +284,8 @@ public:
               if (numCellsKept[i] >= 2 &&
                   layer < numLayers - 1) // Changed >=3 to >=2
               {
+                // std::cout << layer << " cell "<< cellIndex << " " << i
+                // <<std::endl;
                 mesh3D.Markers[cellIndex] = -4;
               }
               else if (numCellsKept[i] < 2) // Changed < 3 to < 2

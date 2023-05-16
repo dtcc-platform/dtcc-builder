@@ -133,18 +133,19 @@ void BoundaryConditions::computeVerticeMarkers()
       for (size_t i = 0; i < 4; i++)
       {
         // Test: This if can be removed completely
-        if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight))
-        {
-          std::cout << I[i] << ") Vertex z: " << _mesh.Vertices[I[i]].z
-                    << " B_ID: " << cellMarker
-                    << " Building Height: " << BuildingMaxHeight << std::endl;
-          // continue;
-        }
+        // if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight))
+        // {
+        //   std::cout << I[i] << ") Vertex z: " << _mesh.Vertices[I[i]].z
+        //             << " B_ID: " << cellMarker
+        //             << " Building Height: " << BuildingMaxHeight <<
+        //             std::endl;
+        //   // continue;
+        // }
         if (_mesh.Vertices[I[i]].z > z_mean)
         {
           continue;
         }
-        vMarkers[I[i]] = cellMarker;
+        vMarkers[I[i]] = cellMarker; // std::min(vMarkers[I[i]],cellMarker);
       }
     }
     else if (cellMarker == -1) // Building Halo
@@ -213,7 +214,8 @@ void BoundaryConditions::computeBoundaryValues()
 
   // TODO: Check if Search tree has already been built
   //_citymodel.BuildSearchTree(true,0.0);
-
+  const double domainMin = _dtm.Min();
+  const double domainMean = _dtm.Mean();
   // Min adjacent Building Height Expression for Halos
   computeBuildingCentroids();
 
@@ -233,24 +235,25 @@ void BoundaryConditions::computeBoundaryValues()
     {
 
       // Halo Min Building Height Expression
-      const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
-      const int buildingIndex = FindAdjacentBuilding(p);
+      // const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
+      // const int buildingIndex = FindAdjacentBuilding(p);
 
-      if (buildingIndex == -1)
-      {
-        // std::cout << "Vertex " << i << " is not adjacent to any building...
-        // "<< std::endl;
-        values[i] = _dtm(p) - _mesh.Vertices[i].z;
-        k1++;
-      }
-      else
-      {
-        values[i] = _citymodel.Buildings[buildingIndex].MinHeight() -
-                    _mesh.Vertices[i].z;
-      }
+      // if (buildingIndex == -1)
+      // {
+      //   // std::cout << "Vertex " << i << " is not adjacent to any
+      //   building...
+      //   // "<< std::endl;
+      //   values[i] = _dtm(p) - _mesh.Vertices[i].z;
+      //   k1++;
+      // }
+      // else
+      // {
+      //   values[i] = _citymodel.Buildings[buildingIndex].MinHeight() -
+      //               _mesh.Vertices[i].z;
+      // }
 
       // Halo DEM Expression
-      // values[i] = HaloElevations[i] - _mesh.Vertices[i].z;
+      values[i] = HaloElevations[i] - _mesh.Vertices[i].z;
     }
     else if (verticeMarker == -2) // Ground
     {
@@ -376,10 +379,17 @@ void BoundaryConditions::HaloExpressionDEM()
       z_min = std::min(z_min, z);
     }
 
+    // Test #1
     HaloElevations[I[0]] = std::min(HaloElevations[I[0]], z_min);
     HaloElevations[I[1]] = std::min(HaloElevations[I[1]], z_min);
     HaloElevations[I[2]] = std::min(HaloElevations[I[2]], z_min);
     HaloElevations[I[3]] = std::min(HaloElevations[I[3]], z_min);
+
+    // Test #2
+    // HaloElevations[I[0]] = z_min;
+    // HaloElevations[I[1]] = z_min;
+    // HaloElevations[I[2]] = z_min;
+    // HaloElevations[I[3]] = z_min;
   }
 }
 
