@@ -218,9 +218,6 @@ public:
     std::vector<short int> numCellsKept(mesh2D.Cells.size());
     std::fill(numCellsKept.begin(), numCellsKept.end(), 0);
 
-    // Keep track of buildings that are too low (will be removed)
-    std::set<size_t> lowBuildings;
-
     // Phase 1: Mark which cells that should be kept. This requires some
     // care since we want to mark all cells in a layer that belong to
     // the same building in the same way.
@@ -252,10 +249,20 @@ public:
             if (p.z < cityModel.Buildings[marker].MaxHeight())
             {
               keepBuilding[marker] = false;
-              if (layer == 0)
-                lowBuildings.insert(marker);
               break;
             }
+          }
+        }
+      }
+
+      // Print warning for low buildings (will be removed)
+      if (layer == 0)
+      {
+        for (size_t i = 0; i < keepBuilding.size(); i++)
+        {
+         if (keepBuilding[i])
+          {
+            warning("MeshGenerator: Building " + str(i) + " is lower than first layer, will be removed");
           }
         }
       }
@@ -299,13 +306,6 @@ public:
         }
       }
     }
-
-    // Print warning for low buildings
-    for (const auto &marker : lowBuildings)
-    {
-      warning("MeshGenerator: Building " + str(marker) + " is lower than first layer, will be removed");
-    }
-
 
     // Phase 2: Extract new mesh for all cells that should be kept
 
