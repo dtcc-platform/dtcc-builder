@@ -31,7 +31,7 @@
     "Type": "Parameters",
     "WriteJSON": true,
     "WriteMatrix": false,
-    "MaxIter": 1000,
+    "MaxIter": 100,
     "RelTol": 0.0001,
     "WriteOBJ": false,
     "WriteSTL": false,
