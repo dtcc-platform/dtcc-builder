@@ -21,7 +21,7 @@
 #include "../sandbox/smoothing-2023/include/boundaryConditions.hpp"
 #include "../sandbox/smoothing-2023/include/stiffnessMatrix.hpp"
 
-#define MAX_ITER 1000
+//#define MAX_ITER 1000
 
 namespace DTCC
 {
@@ -36,7 +36,9 @@ public:
                            const CityModel &cityModel,
                            const GridField2D &dem,
                            double topHeight,
-                           bool fixBuildings)
+                           bool fixBuildings,
+                           const size_t maxIter,
+                           const double relTol)
   {
     info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing NEW)...");
     info(mesh3D.__str__());
@@ -65,7 +67,7 @@ public:
     }
 
     // UnassembledJacobi(mesh3D, AK, b, u);
-    UnassembledGaussSeidel(mesh3D, AK, b, u);
+    UnassembledGaussSeidel(mesh3D, AK, b, u, maxIter, relTol);
 
     double minElevation = dem.Min();
     size_t c1 = 0;
@@ -80,8 +82,8 @@ public:
                                 stiffnessMatrix &A,
                                 std::vector<double> &b,
                                 std::vector<double> &u,
-                                const size_t max_iterations = MAX_ITER,
-                                const double tolerance = 1e-16)
+                                const size_t maxIter = 1000,
+                                const double relTol = 1e-16)
   {
     info("Element-by-Element Jacobi Solver");
     Timer timer("EbE Jacobi");
@@ -96,7 +98,7 @@ public:
 
     size_t iterations;
     double residual;
-    for (iterations = 0; iterations < max_iterations; iterations++)
+    for (iterations = 0; iterations < maxIter; iterations++)
     {
       c = b;
       residual = 0;
@@ -124,14 +126,14 @@ public:
       }
 
       // Check Convergance
-      if (residual < tolerance)
+      if (residual < relTol)
         break;
     }
     timer.Stop();
     timer.Print();
 
-    std::cout << "Jacobi finished after " << iterations << " / "
-              << max_iterations << " iterations" << std::endl;
+    std::cout << "Jacobi finished after " << iterations << " / " << maxIter
+              << " iterations" << std::endl;
     std::cout << "With residual: " << residual << std::endl;
     // std::cout << "Execution Time:" << ms_double.count() << "ms " <<
     // std::endl;
@@ -154,8 +156,8 @@ public:
                                      stiffnessMatrix &A,
                                      std::vector<double> &b,
                                      std::vector<double> &u,
-                                     const size_t max_iterations = MAX_ITER,
-                                     const double tolerance = 1e-16)
+                                     const size_t maxIter,
+                                     const double relTol = 1e-16)
   {
     info("Element-by-Element Gauss-Seidel Solver");
     Timer timer("EbE Gauss Seidel");
@@ -175,7 +177,7 @@ public:
 
     size_t iterations;
     double residual;
-    for (iterations = 0; iterations < max_iterations; iterations++)
+    for (iterations = 0; iterations < maxIter; iterations++)
     {
       c = b;
       vDeg = vertexDegree;
@@ -210,14 +212,14 @@ public:
       // std::cout << iterations << "  err: " << error << std::endl;
 
       // Check Convergance
-      if (residual < tolerance)
+      if (residual < relTol)
         break;
     }
     timer.Stop();
     timer.Print();
 
     std::cout << "Gauss-Seidel finished after " << iterations << " / "
-              << max_iterations << " iterations" << std::endl;
+              << maxIter << " iterations" << std::endl;
     std::cout << "With residual: " << residual << std::endl;
     // std::cout << "Execution Time:" << ms_double.count() << "ms " <<
     // std::endl;

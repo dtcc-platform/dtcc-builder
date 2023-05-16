@@ -133,14 +133,13 @@ void BoundaryConditions::computeVerticeMarkers()
       for (size_t i = 0; i < 4; i++)
       {
         // Test: This if can be removed completely
-        // if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight))
-        // {
-        //   std::cout << I[i] << ") Vertex z: " << _mesh.Vertices[I[i]].z
-        //             << " B_ID: " << cellMarker
-        //             << " Building Height: " << BuildingMaxHeight <<
-        //             std::endl;
-        //   // continue;
-        // }
+        /*   if (_mesh.Vertices[I[i]].z > (BuildingMaxHeight))
+          {
+            std::cout << I[i] << ") Vertex z: " << _mesh.Vertices[I[i]].z
+                      << " B_ID: " << cellMarker
+                      << " Building Height: " << BuildingMaxHeight << std::endl;
+            // continue;
+          } */
         if (_mesh.Vertices[I[i]].z > z_mean)
         {
           continue;
@@ -194,6 +193,30 @@ void BoundaryConditions::computeVerticeMarkers()
     else if (vMarkers[v] == -3)
       k3++;
   }
+
+  std::cout << "Building: ";
+  for (size_t v = 0; v < nV; v++)
+  {
+    if (vMarkers[v] >= 0)
+      std::cout << v << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Halo: ";
+  for (size_t v = 0; v < nV; v++)
+  {
+    if (vMarkers[v] == -1)
+      std::cout << v << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Ground: ";
+  for (size_t v = 0; v < nV; v++)
+  {
+    if (vMarkers[v] == -2)
+      std::cout << v << " ";
+  }
+  std::cout << std::endl;
 
   int k4 = nV - (k0 + k1 + k2 + k3);
   std::cout << "Buildings      k0 :" << k0 << std::endl

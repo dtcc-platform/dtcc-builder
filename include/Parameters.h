@@ -33,6 +33,8 @@ public:
     Add("WriteOBJ", true);
     // Add("WriteSTL", true);
     Add("WriteMatrix", false);
+    Add("MaxIter", 1000);
+    Add("RelTol", 1e-16);
     Add("Debug", false);
 
     Add("LaplacianSmootherNew", false);
