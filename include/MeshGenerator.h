@@ -246,10 +246,21 @@ public:
 
             // Check if midpoint is below building height
             Point3D p = mesh3D.MidPoint(cellIndex);
-            if (p.z < cityModel.Buildings[marker].MaxHeight())
+            const double h = cityModel.Buildings[marker].MaxHeight();
+            if (p.z < h)
             {
               keepBuilding[marker] = false;
+              if (layer == 0)
+                std::cout << "  Building " << marker
+                          << ": layer BELOW building: z = " << p.z
+                          << " < h = " << h << std::endl;
               break;
+            }
+            {
+              if (layer == 0)
+                std::cout << "  Building " << marker
+                          << ": layer ABOVE building: z = " << p.z
+                          << " > h = " << h << std::endl;
             }
           }
         }
@@ -260,9 +271,10 @@ public:
       {
         for (size_t i = 0; i < keepBuilding.size(); i++)
         {
-         if (keepBuilding[i])
+          if (keepBuilding[i])
           {
-            warning("MeshGenerator: Building " + str(i) + " is lower than first layer, will be removed");
+            warning("MeshGenerator: Building " + str(i) +
+                    " is lower than first layer, will be removed");
           }
         }
       }
@@ -297,7 +309,8 @@ public:
                 // If we are in the first layer and a building cell should
                 // be kept, the building is too low (covered by first layer)
                 // so we mark it as halo.
-                std::cout << "Changing building marker to halo for building " << marker << std::endl;
+                std::cout << "Changing building marker to halo for building "
+                          << marker << std::endl;
                 mesh3D.Markers[cellIndex] = -1;
               }
               else
@@ -348,8 +361,9 @@ public:
     }
 
     // Print vertex map (for debugging)
-    //for (const auto v : vertexMap)
-    //  std::cout << "Vertex map: " << v.first << " --> " << v.second << std::endl;
+    // for (const auto v : vertexMap)
+    //  std::cout << "Vertex map: " << v.first << " --> " << v.second <<
+    //  std::endl;
 
     // Initialize new mesh data
     const size_t numVertices = vertexMap.size();
