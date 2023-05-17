@@ -246,10 +246,21 @@ public:
 
             // Check if midpoint is below building height
             Point3D p = mesh3D.MidPoint(cellIndex);
-            if (p.z < cityModel.Buildings[marker].MaxHeight())
+            const double h = cityModel.Buildings[marker].MaxHeight();
+            if (p.z < h)
             {
               keepBuilding[marker] = false;
+              if (layer == 0)
+                std::cout << "  Building " << marker
+                          << ": layer BELOW building: z = " << p.z
+                          << " < h = " << h << std::endl;
               break;
+            }
+            {
+              if (layer == 0)
+                std::cout << "  Building " << marker
+                          << ": layer ABOVE building: z = " << p.z
+                          << " > h = " << h << std::endl;
             }
           }
         }
