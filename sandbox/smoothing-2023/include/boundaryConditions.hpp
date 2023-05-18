@@ -109,6 +109,8 @@ void BoundaryConditions::computeVerticeMarkers()
   size_t k2 = 0;
   size_t k3 = 0;
 
+  std::cout << "Computing vertex markers" << std::endl;
+
   const double domainMin = _dtm.Min();
   const double domainMean = _dtm.Mean();
   for (size_t cn = 0; cn < nC; cn++)
@@ -124,12 +126,14 @@ void BoundaryConditions::computeVerticeMarkers()
                           4;
 
     const int cellMarker = _mesh.Markers[cn];
+    // std::cout << "Cell " << cn << ": " << cellMarker << std::endl;
     const double BuildingMaxHeight =
         _citymodel.Buildings[cellMarker].MaxHeight();
     const double BuildingMinHeight =
         _citymodel.Buildings[cellMarker].MinHeight();
     if (cellMarker >= 0 && fixBuildings) // Building
     {
+      // std::cout << "Building: " << cellMarker << std::endl;
       for (size_t i = 0; i < 4; i++)
       {
         // Test: This if can be removed completely
@@ -144,7 +148,8 @@ void BoundaryConditions::computeVerticeMarkers()
         {
           continue;
         }
-        vMarkers[I[i]] = cellMarker; // std::min(vMarkers[I[i]],cellMarker);
+        // std::cout << "Building vertex: " << I[i] << std::endl;
+        vMarkers[I[i]] = cellMarker;
       }
     }
     else if (cellMarker == -1) // Building Halo
@@ -194,29 +199,29 @@ void BoundaryConditions::computeVerticeMarkers()
       k3++;
   }
 
-  std::cout << "Building: ";
-  for (size_t v = 0; v < nV; v++)
-  {
-    if (vMarkers[v] >= 0)
-      std::cout << v << " ";
-  }
-  std::cout << std::endl;
+  // std::cout << "Building: ";
+  // for (size_t v = 0; v < nV; v++)
+  // {
+  //   if (vMarkers[v] >= 0)
+  //     std::cout << v << " ";
+  // }
+  // std::cout << std::endl;
 
-  std::cout << "Halo: ";
-  for (size_t v = 0; v < nV; v++)
-  {
-    if (vMarkers[v] == -1)
-      std::cout << v << " ";
-  }
-  std::cout << std::endl;
+  // std::cout << "Halo: ";
+  // for (size_t v = 0; v < nV; v++)
+  // {
+  //   if (vMarkers[v] == -1)
+  //     std::cout << v << " ";
+  // }
+  // std::cout << std::endl;
 
-  std::cout << "Ground: ";
-  for (size_t v = 0; v < nV; v++)
-  {
-    if (vMarkers[v] == -2)
-      std::cout << v << " ";
-  }
-  std::cout << std::endl;
+  // std::cout << "Ground: ";
+  // for (size_t v = 0; v < nV; v++)
+  // {
+  //   if (vMarkers[v] == -2)
+  //     std::cout << v << " ";
+  // }
+  // std::cout << std::endl;
 
   int k4 = nV - (k0 + k1 + k2 + k3);
   std::cout << "Buildings      k0 :" << k0 << std::endl

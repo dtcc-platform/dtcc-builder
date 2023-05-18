@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-echo "Building Docker image for DTCC Builder..."
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export USERNAME=$(whoami)
+
+echo "Building Docker image for DTCC Builder for user" $USERNAME "..."
 
 export _UID=$(id -g)
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -13,3 +15,17 @@ fi
 
 docker-compose -f ${SCRIPT_DIR}/../docker-compose.yml build dtcc-builder
 docker-compose -f ${SCRIPT_DIR}/../docker-compose.yml up -d  dtcc-builder
+
+
+variable=`docker inspect --type=image dtcc-builder-image-$USERNAME 2>&1 /dev/null`
+
+variable=`echo $variable | cut -d ' ' -f2`
+
+if [ $variable != 'Error' ]
+then 
+echo "Succesfully built Docker image for DTCC Builder for user" $USERNAME
+else
+docker image tag dtcc-builder-image dtcc-builder-image-$USERNAME
+docker rename dtcc-builder dtcc-builder-$USERNAME
+echo "Succesfully built Docker image for DTCC Builder for user" $USERNAME 
+fi
