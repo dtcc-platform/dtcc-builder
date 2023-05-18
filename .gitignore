@@ -1,6 +1,7 @@
 /bin/
 /build/
 /data/*
+/bench/
 !/data/dtcc-*
 !/data/testCase/
 !/data/sampleCityJSON/
