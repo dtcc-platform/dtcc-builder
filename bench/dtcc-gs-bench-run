@@ -46,6 +46,14 @@ for parameterValue in parameterValues:
     print('  Case parameters: %s' % caseParameterFile)
     print('  Case log file:   %s' % caseLogFile)
 
+   # Make sure case directory doesn't have old timings
+    todelete = ['dtcc-generate-mesh-timings.json', 'dtcc-generate-mesh-parameters.json', 'bench.log'];
+    for f in todelete:
+        if os.path.exists(f):
+            print('  Removing %s' % f)
+            os.remove(f)
+
+
     # Copy data to case directory
     print('  Copying case data...')
     shutil.copytree(parameters['DataDirectory'], caseDirectory)
@@ -84,7 +92,7 @@ for parameterValue in parameterValues:
 
         # Cleanup case directory
         print('  Cleaning up case directory...')
-        keep = ['Timings.json', 'bench.log', 'Parameters.json', '*.vtu', '*.vtk'];
+        keep = ['dtcc-generate-mesh-timings.json', 'dtcc-generate-mesh-parameters.json', 'bench.log', 'Parameters.json', 'Step35Mesh.vtu', 'Step33Mesh.vtu', 'Step33Mesh.vtu'];
         files = [f for f in glob.glob(caseDirectory + '/*') if not f.split('/')[-1] in keep]
         for f in files:
             print('  Removing %s' % f)

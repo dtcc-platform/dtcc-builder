@@ -42,7 +42,7 @@ public:
   {
     info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing NEW)...");
     info(mesh3D.__str__());
-    Timer timer("SmoothMesh3DNew");
+    // Timer timer("SmoothMesh3DNew");
 
     // Local Stifness Matrices
     stiffnessMatrix AK(mesh3D);
@@ -86,7 +86,7 @@ public:
                                 const double relTol = 1e-16)
   {
     info("Element-by-Element Jacobi Solver");
-    Timer timer("EbE Jacobi");
+    // Timer timer("EbE Jacobi");
 
     const size_t nV = mesh3D.Vertices.size();
     const size_t nC = mesh3D.Cells.size();
@@ -129,8 +129,8 @@ public:
       if (residual < relTol)
         break;
     }
-    timer.Stop();
-    timer.Print();
+    // timer.Stop();
+    // timer.Print();
 
     std::cout << "Jacobi finished after " << iterations << " / " << maxIter
               << " iterations" << std::endl;
@@ -160,7 +160,7 @@ public:
                                      const double relTol = 1e-16)
   {
     info("Element-by-Element Gauss-Seidel Solver");
-    Timer timer("EbE Gauss Seidel");
+    // Timer timer("EbE Gauss Seidel");
 
     const size_t nV = mesh3D.Vertices.size();
     const size_t nC = mesh3D.Cells.size();
@@ -215,8 +215,8 @@ public:
       if (residual < relTol)
         break;
     }
-    timer.Stop();
-    timer.Print();
+    // timer.Stop();
+    // timer.Print();
 
     std::cout << "Gauss-Seidel finished after " << iterations << " / "
               << maxIter << " iterations" << std::endl;
