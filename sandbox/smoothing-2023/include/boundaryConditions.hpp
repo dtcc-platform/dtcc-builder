@@ -264,7 +264,7 @@ void BoundaryConditions::computeBoundaryValues()
       // if (buildingIndex == -1)
       // {
       //   // std::cout << "Vertex " << i << " is not adjacent to any
-      //   building...
+      //   //building...
       //   // "<< std::endl;
       //   values[i] = _dtm(p) - _mesh.Vertices[i].z;
       //   k1++;
