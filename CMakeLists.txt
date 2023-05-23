@@ -35,22 +35,10 @@ find_package(Eigen3 REQUIRED)
 set(pybind11_DIR /usr/lib/cmake/pybind11)
 find_package(pybind11 REQUIRED)
 
-# Find protobuf
-find_package(Protobuf REQUIRED)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-
 # Find FEniCS
 find_package(DOLFIN REQUIRED)
 include(${DOLFIN_USE_FILE})
 
-# Find DTCC Model
-# find_package(DTCCModel REQUIRED)
-# message("Proto header: " ${DTCCMODEL_INCLUDE_DIRS})
-# get_filename_component(PROTO_HEADER_DIR ${DTCCMODEL_INCLUDE_DIRS} DIRECTORY)
-# include_directories(${DTCCMODEL_INCLUDE_DIRS})
-# include_directories(${DTCCMODEL_INCLUDE_DIRS}/dtcc_model)
 
 # Hack to remove -DNDEBUG from FEniCS flags (shouldn't be there!)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -74,9 +62,6 @@ include_directories(/usr/include/nlohmann/)
 include_directories(/usr/include/eigen3/)
 include_directories(/usr/local/include)
 
-# FIXME: Why is this needed?
-link_directories(/usr/local/lib) # Equivalent of ldconfig /usr/local/lib in Dockerfile
-
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
@@ -85,12 +70,6 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 add_subdirectory(src)
 add_subdirectory(tests/cpp)
 
-# Print all variables (uncomment for CMake debugging)
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-# message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")
