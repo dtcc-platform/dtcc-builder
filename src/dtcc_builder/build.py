@@ -113,7 +113,7 @@ def extract_buildingpoints(
         roof_ransac_margin,
         roof_ransac_iterations,
     )
-    start_time = time()
+    # start_time = time()
     for citymodel_building, builder_buildings in zip(
         citymodel.buildings, builder_citymodel.buildings
     ):
@@ -127,7 +127,7 @@ def extract_buildingpoints(
             ground_z = ground_points[:, 2]
             citymodel_building.ground_level = np.percentile(ground_z, 50)
 
-    print("conver cm time: ", time() - start_time)
+    # print("conver cm time: ", time() - start_time)
     return citymodel
 
 
