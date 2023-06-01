@@ -316,12 +316,12 @@ public:
     // Sort points by height
     for (auto &building : cityModel.Buildings)
     {
-      std::sort(
-          building.GroundPoints.begin(), building.GroundPoints.end(),
-          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
-      std::sort(
-          building.RoofPoints.begin(), building.RoofPoints.end(),
-          [](const Point3D &p, const Point3D &q) -> bool { return p.z < q.z; });
+      std::sort(building.GroundPoints.begin(), building.GroundPoints.end(),
+                [](const Point3D &p, const Point3D &q) -> bool
+                { return p.z < q.z; });
+      std::sort(building.RoofPoints.begin(), building.RoofPoints.end(),
+                [](const Point3D &p, const Point3D &q) -> bool
+                { return p.z < q.z; });
     }
 
     // Compute some statistics
@@ -371,6 +371,9 @@ public:
     info("CityModelGenerator: Computing building heights...");
     Timer timer("ComputeBuildingHeights");
 
+    // FIXME: Make this a parameter?
+    // FIXME: How do we treat this in relation to layer height?
+    // FIXME: Also a problem inside MeshGenerator (warning in TrimMesh3D)
     // FIXME: Make this a parameter
     const double minBuildingHeight{2.5};
 
@@ -399,9 +402,8 @@ public:
       {
         // Pick percentile from ground points
         sort(building.GroundPoints.begin(), building.GroundPoints.end(),
-             [](const Point3D &lhs, const Point3D &rhs) {
-               return lhs.z < rhs.z;
-             });
+             [](const Point3D &lhs, const Point3D &rhs)
+             { return lhs.z < rhs.z; });
         h0 = GetPercentile(building.GroundPoints, groundPercentile).z;
       }
 
@@ -419,9 +421,8 @@ public:
       else
       {
         sort(building.RoofPoints.begin(), building.RoofPoints.end(),
-             [](const Point3D &lhs, const Point3D &rhs) {
-               return lhs.z < rhs.z;
-             });
+             [](const Point3D &lhs, const Point3D &rhs)
+             { return lhs.z < rhs.z; });
         h1 = GetPercentile(building.RoofPoints, roofPercentile).z;
       }
 
