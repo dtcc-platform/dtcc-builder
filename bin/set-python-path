@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Note: This script should be called by sourcing it, not executing it:
+#
+#   source bin/set-python-path
+#
+# Alternatively, you can use the following command to source it:
+#
+#   . bin/set-python-path
+
+_PYTHONPATH=`pwd`/src
+
+echo "Prepending $_PYTHONPATH to PYTHONPATH"
+export PYTHONPATH=$_PYTHONPATH:$PYTHONPATH
+echo ""
+echo "PYTHONPATH is now"
+echo ""
+echo "  $PYTHONPATH"
+echo ""
