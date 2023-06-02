@@ -11,7 +11,6 @@ DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     libeigen3-dev \
     libgdal-dev \
     python3 \
-    python3-dolfin \
     python3-pip \
     python3-dev \
     python3-venv \

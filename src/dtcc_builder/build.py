@@ -16,9 +16,6 @@ from pypoints2grid import points2grid
 
 from time import time
 
-# FIXME: Temporary switch between old and new smoothing
-NEW_SMOOTHING = True
-
 
 def calculate_project_domain(params_or_footprint, las_path=None, params=None):
     if las_path is None and params is None:
@@ -208,20 +205,15 @@ def build_mesh(
 
     # Step 3.3: Smooth 3D mesh (set ground height)
     top_height = domain_height + city_model.terrain.data.mean()
-    if NEW_SMOOTHING:
-        mesh_3D = _pybuilder.smooth_volume_mesh(
-            mesh_3D,
-            simple_cm,
-            builder_dem,
-            top_height,
-            False,
-            max_iterations,
-            relative_tolerance,
-        )
-    else:
-        mesh_3D = _pybuilder.SmoothMesh3D(
-            mesh_3D, simple_cm, builder_dem, top_height, False
-        )
+    mesh_3D = _pybuilder.smooth_volume_mesh(
+        mesh_3D,
+        simple_cm,
+        builder_dem,
+        top_height,
+        False,
+        max_iterations,
+        relative_tolerance,
+    )
 
     if debug:
         builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
@@ -234,21 +226,17 @@ def build_mesh(
         builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
             "meshing_step3.4.vtu"
         )
+
     # Step 3.5: Smooth 3D mesh (set ground and building heights)
-    if NEW_SMOOTHING:
-        mesh_3D = _pybuilder.smooth_volume_mesh(
-            mesh_3D,
-            simple_cm,
-            builder_dem,
-            top_height,
-            True,
-            max_iterations,
-            relative_tolerance,
-        )
-    else:
-        mesh_3D = _pybuilder.SmoothMesh3D(
-            mesh_3D, simple_cm, builder_dem, top_height, True
-        )
+    mesh_3D = _pybuilder.smooth_volume_mesh(
+        mesh_3D,
+        simple_cm,
+        builder_dem,
+        top_height,
+        True,
+        max_iterations,
+        relative_tolerance,
+    )
 
     if debug:
         builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(

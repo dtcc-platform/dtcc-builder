@@ -1,6 +1,6 @@
 # Project configuration
 cmake_minimum_required(VERSION 3.5)
-project(Builder)
+project(dtcc-builder)
 
 # Note: To building in Debug mode, use cmake .. -DCMAKE_BUILD_TYPE=Debug
 
@@ -33,25 +33,6 @@ find_package(LibGEOS 3.16 REQUIRED)
 set(pybind11_DIR /usr/lib/cmake/pybind11)
 find_package(pybind11 REQUIRED)
 
-# Find FEniCS
-find_package(DOLFIN REQUIRED)
-include(${DOLFIN_USE_FILE})
-
-
-# Hack to remove -DNDEBUG from FEniCS flags (shouldn't be there!)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  get_target_property(_old_flags dolfin INTERFACE_COMPILE_DEFINITIONS)
-  set(_new_flags "")
-
-  foreach(_old_flag ${_old_flags})
-    if(NOT "${_old_flag}" STREQUAL "NDEBUG")
-      list(APPEND _new_flags ${_old_flag})
-    endif()
-  endforeach()
-
-  set_target_properties(dolfin PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${_new_flags}")
-endif()
-
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
@@ -65,7 +46,6 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 # Add subdirectories
 add_subdirectory(src)
 add_subdirectory(tests/cpp)
-
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")

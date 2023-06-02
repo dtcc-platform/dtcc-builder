@@ -4,6 +4,6 @@ find_package(pybind11 REQUIRED)
 
 
 pybind11_add_module(${PYBUILDER} ${CMAKE_CURRENT_SOURCE_DIR}/cpp/builder_bindings.cpp)
-target_link_libraries(${PYBUILDER} PRIVATE dolfin triangle ${LIBGEOS_LIBRARIES} stdc++fs)
+target_link_libraries(${PYBUILDER} PRIVATE triangle ${LIBGEOS_LIBRARIES} stdc++fs)
 
 install(TARGETS ${PYBUILDER} DESTINATION dtcc_builder)
