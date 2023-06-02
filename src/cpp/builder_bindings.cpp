@@ -13,6 +13,7 @@
 #include "Point.h"
 #include "PointCloud.h"
 #include "Polygon.h"
+#include "Smoother.h"
 #include "VertexSmoother.h"
 #include "datamodel/Building.h"
 #include "datamodel/CityModel.h"
@@ -229,17 +230,29 @@ GenerateMesh3D(const Mesh2D &mesh2D, double domainHeight, double meshResolution)
   return mesh;
 }
 
-// _pybuilder.SmoothMesh3D(mesh,city_model,dem,top_height,fix_buildings)
 Mesh3D SmoothMesh3D(Mesh3D &mesh3D,
                     const CityModel &cityModel,
                     const GridField2D &dem,
                     double topHeight,
                     bool fixBuildings)
 {
-  // double topHeight{};
   LaplacianSmoother::SmoothMesh3D(mesh3D, cityModel, dem, topHeight,
                                   fixBuildings, false);
   return mesh3D;
+}
+
+Mesh3D smooth_volume_mesh(Mesh3D &volume_mesh,
+                          const CityModel &city_model,
+                          const GridField2D &dem,
+                          double top_height,
+                          bool fix_buildings,
+                          size_t max_iterations,
+                          double relative_tolerance)
+{
+  Smoother::smooth_volume_mesh(volume_mesh, city_model, dem, top_height,
+                               fix_buildings, max_iterations,
+                               relative_tolerance);
+  return volume_mesh;
 }
 
 std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
@@ -426,6 +439,8 @@ PYBIND11_MODULE(_pybuilder, m)
   m.def("GenerateMesh3D", &DTCC_BUILDER::GenerateMesh3D, "Generate 2D mesh");
 
   m.def("SmoothMesh3D", &DTCC_BUILDER::SmoothMesh3D, "Smooth 3D mesh");
+  m.def("smooth_volume_mesh", &DTCC_BUILDER::smooth_volume_mesh,
+        "Smooth volume mesh");
   m.def("TrimMesh3D", &DTCC_BUILDER::TrimMesh3D, "Trim 3D mesh");
 
   m.def("ExtractBoundary3D", &DTCC_BUILDER::ExtractBoundary3D,

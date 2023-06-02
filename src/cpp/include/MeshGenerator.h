@@ -105,8 +105,6 @@ public:
     info("MeshGenerator: Generating 3D mesh...");
     Timer timer("GenerateMesh3D");
 
-    info("CHECK");
-
     // Compute number of layers
     const size_t numLayers = int(std::ceil(domainHeight / meshResolution));
     const double dz = domainHeight / double(numLayers);
