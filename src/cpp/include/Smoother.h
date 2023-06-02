@@ -12,8 +12,6 @@
 namespace DTCC_BUILDER
 {
 
-bool checkSidewallVertices(const Point3D &vertex, const int Markers);
-
 class Smoother
 {
 public:
@@ -26,195 +24,131 @@ public:
                                  size_t max_iterations,
                                  double relative_tolerance)
   {
-    info("LaplacianSmoother: Smoothing mesh (Laplacian smoothing NEW)...");
+    info("Smoother: Smoothing volume mesh...");
     info(volume_mesh.__str__());
 
-    // Local Stifness Matrices
-    stiffnessMatrix AK(volume_mesh);
+    // Compute (local) stifness matrices
+    StiffnessMatrix AK(volume_mesh);
 
-    // Solution vector and load vector
+    // Create solution vector and load vector
     std::vector<double> u(volume_mesh.Vertices.size(), 0);
     std::vector<double> b(volume_mesh.Vertices.size(), 0);
 
+    // Apply boundary conditions
     BoundaryConditions bc(volume_mesh, city_model, dem, top_height,
                           fix_buildings);
-    bc.apply(b);
     bc.apply(AK);
+    bc.apply(b);
 
-    // Initial Approximation of the solution
+    // Set initial guess
     if (!fix_buildings)
-      u = initialGuess(volume_mesh, dem, top_height, bc);
+      set_initial_guess(u, volume_mesh, dem, top_height, bc);
     else
       u = b;
 
-    // UnassembledJacobi(mesh3D, AK, b, u);
-    UnassembledGaussSeidel(volume_mesh, AK, b, u, max_iterations,
-                           relative_tolerance);
-
-    double minElevation = dem.Min();
-    size_t c1 = 0;
-    size_t c2 = 0;
+    // Solve linear system
+    solve_unassembled_gauss_seidel(volume_mesh, AK, b, u, max_iterations,
+                                   relative_tolerance);
 
     // Update mesh coordinates
     for (std::size_t i = 0; i < volume_mesh.Vertices.size(); i++)
       volume_mesh.Vertices[i].z += u[i];
   }
 
-  static void UnassembledJacobi(const Mesh3D &mesh3D,
-                                stiffnessMatrix &A,
-                                std::vector<double> &b,
-                                std::vector<double> &u,
-                                const size_t maxIter = 1000,
-                                const double relTol = 1e-16)
+private:
+  // Solve linear system using unassembled Gauss-Seidel iterations
+  static void solve_unassembled_gauss_seidel(const Mesh3D &mesh3D,
+                                             StiffnessMatrix &AK,
+                                             std::vector<double> &b,
+                                             std::vector<double> &u,
+                                             const size_t max_iterations,
+                                             const double relative_tolerance)
   {
-    info("Element-by-Element Jacobi Solver");
-    // Timer timer("EbE Jacobi");
+    info("Smoother: Solving linear system using unassembled Gauss-Seidel");
 
-    const size_t nV = mesh3D.Vertices.size();
-    const size_t nC = mesh3D.Cells.size();
+    // Sum of non-diagonal elements
+    std::vector<double> C(mesh3D.Vertices.size());
 
-    // Non-diagonal Elements sum
-    std::vector<double> c(nV);
-
+    // Vertex indices of current cell
     std::array<uint, 4> I = {0};
+
+    // Compute the number of cells that each vertex belongs
+    std::vector<uint> vertex_degrees(mesh3D.Vertices.size());
+    std::vector<uint> _vertex_degrees(mesh3D.Vertices.size());
+    compute_vertex_degrees(vertex_degrees, mesh3D);
 
     size_t iterations;
     double residual;
-    for (iterations = 0; iterations < maxIter; iterations++)
+    for (iterations = 0; iterations < max_iterations; iterations++)
     {
-      c = b;
+      C = b;
+      _vertex_degrees = vertex_degrees;
       residual = 0;
-      for (size_t cn = 0; cn < nC; cn++)
+      for (size_t c = 0; c < mesh3D.Cells.size(); c++)
       {
-        I[0] = mesh3D.Cells[cn].v0;
-        I[1] = mesh3D.Cells[cn].v1;
-        I[2] = mesh3D.Cells[cn].v2;
-        I[3] = mesh3D.Cells[cn].v3;
+        I[0] = mesh3D.Cells[c].v0;
+        I[1] = mesh3D.Cells[c].v1;
+        I[2] = mesh3D.Cells[c].v2;
+        I[3] = mesh3D.Cells[c].v3;
         for (u_int8_t i = 0; i < 4; i++)
         {
-          c[I[i]] -= A(cn, i, (i + 1) % 4) * u[I[(i + 1) % 4]] +
-                     A(cn, i, (i + 2) % 4) * u[I[(i + 2) % 4]] +
-                     A(cn, i, (i + 3) % 4) * u[I[(i + 3) % 4]];
-        }
-      }
+          C[I[i]] -=
+              AK._data[c * 16 + i * 4 + (i + 1) % 4] * u[I[(i + 1) % 4]] +
+              AK._data[c * 16 + i * 4 + (i + 2) % 4] * u[I[(i + 2) % 4]] +
+              AK._data[c * 16 + i * 4 + (i + 3) % 4] * u[I[(i + 3) % 4]];
 
-      // Update solution vector
-      for (size_t i = 0; i < nV; i++)
-      {
-        double res = u[i];
-        u[i] = c[i] / A.diagonal[i];
-        res = std::abs(res - u[i]);
-        residual = std::max(residual, res);
-      }
-
-      // Check Convergance
-      if (residual < relTol)
-        break;
-    }
-
-    std::cout << "Jacobi finished after " << iterations << " / " << maxIter
-              << " iterations" << std::endl;
-    std::cout << "With residual: " << residual << std::endl;
-  }
-
-  // Compute the number of Cells that each Vertex belongs
-  static void _getVertexDegree(std::vector<uint> &VertexDegree,
-                               const Mesh3D &mesh)
-  {
-    for (size_t cn = 0; cn < mesh.Cells.size(); cn++)
-    {
-      VertexDegree[mesh.Cells[cn].v0]++;
-      VertexDegree[mesh.Cells[cn].v1]++;
-      VertexDegree[mesh.Cells[cn].v2]++;
-      VertexDegree[mesh.Cells[cn].v3]++;
-    }
-  }
-
-  static void UnassembledGaussSeidel(const Mesh3D &mesh3D,
-                                     stiffnessMatrix &A,
-                                     std::vector<double> &b,
-                                     std::vector<double> &u,
-                                     const size_t maxIter,
-                                     const double relTol = 1e-16)
-  {
-    info("Element-by-Element Gauss-Seidel Solver");
-
-    const size_t nV = mesh3D.Vertices.size();
-    const size_t nC = mesh3D.Cells.size();
-
-    // Non-diagonal Elements sum
-    std::vector<double> c(nV);
-
-    std::array<uint, 4> I = {0};
-
-    // Compute the number of Cells that each Vertex belongs
-    std::vector<uint> vertexDegree(nV);
-    std::vector<uint> vDeg(nV);
-    _getVertexDegree(vertexDegree, mesh3D);
-
-    size_t iterations;
-    double residual;
-    for (iterations = 0; iterations < maxIter; iterations++)
-    {
-      c = b;
-      vDeg = vertexDegree;
-      residual = 0;
-      for (size_t cn = 0; cn < nC; cn++)
-      {
-        I[0] = mesh3D.Cells[cn].v0;
-        I[1] = mesh3D.Cells[cn].v1;
-        I[2] = mesh3D.Cells[cn].v2;
-        I[3] = mesh3D.Cells[cn].v3;
-        for (u_int8_t i = 0; i < 4; i++)
-        {
-          c[I[i]] -=
-              A._data[cn * 16 + i * 4 + (i + 1) % 4] * u[I[(i + 1) % 4]] +
-              A._data[cn * 16 + i * 4 + (i + 2) % 4] * u[I[(i + 2) % 4]] +
-              A._data[cn * 16 + i * 4 + (i + 3) % 4] * u[I[(i + 3) % 4]];
-
-          vDeg[I[i]]--;
-          if (vDeg[I[i]] == 0)
+          _vertex_degrees[I[i]]--;
+          if (_vertex_degrees[I[i]] == 0)
           {
             double res = u[I[i]];
-            u[I[i]] = c[I[i]] / A.diagonal[I[i]];
+            u[I[i]] = C[I[i]] / AK.diagonal[I[i]];
             res = std::abs(res - u[I[i]]);
             residual = std::max(residual, res);
           }
         }
       }
 
-      // Check Convergance
-      if (residual < relTol)
+      // Check convergance
+      if (residual < relative_tolerance)
         break;
     }
 
-    std::cout << "Gauss-Seidel finished after " << iterations << " / "
-              << maxIter << " iterations" << std::endl;
-    std::cout << "With residual: " << residual << std::endl;
+    info("Smoother: Converged in " + str(iterations) + "/" +
+         str(max_iterations) + " iterations with residual " + str(residual));
   }
 
-  // Placeholder Initial Guess
-  static std::vector<double> initialGuess(const Mesh3D &mesh3D,
-                                          const GridField2D &dem,
-                                          double topHeight,
-                                          BoundaryConditions &bc)
+  // Set initial guess for solution vector
+  static void set_initial_guess(std::vector<double> &u,
+                                const Mesh3D &mesh3D,
+                                const GridField2D &dem,
+                                double topHeight,
+                                BoundaryConditions &bc)
   {
-    info("Initial Approximation for Solution Vector");
-    const std::size_t nV = mesh3D.Vertices.size();
+    info("Smoother: Setting initial guess for solution vector");
 
-    std::vector<double> u = bc.values;
-
-    double meanElevation = dem.Mean();
-    double maxElevation = dem.Max();
-    for (size_t i = 0; i < nV; i++)
+    for (size_t i = 0; i < mesh3D.Vertices.size(); i++)
     {
       if (bc.vMarkers[i] == -4)
       {
         const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
         u[i] = dem(p) * (1 - mesh3D.Vertices[i].z / topHeight);
       }
+      else
+        u[i] = 0.0;
     }
-    return u;
+  }
+
+  // Compute the number of cells to which each vertex belongs
+  static void compute_vertex_degrees(std::vector<uint> &vertex_degrees,
+                                     const Mesh3D &mesh)
+  {
+    for (size_t c = 0; c < mesh.Cells.size(); c++)
+    {
+      vertex_degrees[mesh.Cells[c].v0]++;
+      vertex_degrees[mesh.Cells[c].v1]++;
+      vertex_degrees[mesh.Cells[c].v2]++;
+      vertex_degrees[mesh.Cells[c].v3]++;
+    }
   }
 };
 

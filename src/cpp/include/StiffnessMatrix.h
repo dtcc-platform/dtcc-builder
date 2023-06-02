@@ -9,12 +9,13 @@
 namespace DTCC_BUILDER
 {
 
-// Output: A = array of length 16
-// Represents flattened 4x4 matrix
+/// Compute element matrix on given cell (tetrahedron)
 //
 // Input: vertices = array of length 12
 // Represents flattened 4x3 matrix of vertex coordinates
-
+//
+// Output: A = array of length 16
+// Represents flattened 4x4 matrix
 void compute_element_matrix(double *A, const double *vertices)
 {
   const double J_c4 = vertices[7] - vertices[1];
@@ -137,184 +138,79 @@ void compute_element_matrix(double *A, const double *vertices)
   A[15] = 0.1666666666666667 * sp[79];
 }
 
-/*
- * Output: A = array of length 16 x Num of Cells in 3D Mesh
- * Represents flattened 4x4xNum of Cells matrix
- *
- * Input: vertices = Mesh3D Mesh
- * Represents flattened 4x3 matrix of vertex coordinates
- */
-
-void compute_transformation_matrix(double *AK, const Mesh3D &m)
+// Stiffness matrix (unassembled)
+class StiffnessMatrix
 {
-  const uint8_t size_AK = 16;
-  double V[12];
-  size_t nC = m.Cells.size();
-
-  for (size_t cn = 0; cn < nC; cn++)
-  {
-
-    V[0] = m.Vertices[m.Cells[cn].v0].x;
-    V[1] = m.Vertices[m.Cells[cn].v0].y;
-    V[2] = m.Vertices[m.Cells[cn].v0].z;
-
-    V[3] = m.Vertices[m.Cells[cn].v1].x;
-    V[4] = m.Vertices[m.Cells[cn].v1].y;
-    V[5] = m.Vertices[m.Cells[cn].v1].z;
-
-    V[6] = m.Vertices[m.Cells[cn].v2].x;
-    V[7] = m.Vertices[m.Cells[cn].v2].y;
-    V[8] = m.Vertices[m.Cells[cn].v2].z;
-
-    V[9] = m.Vertices[m.Cells[cn].v3].x;
-    V[10] = m.Vertices[m.Cells[cn].v3].y;
-    V[11] = m.Vertices[m.Cells[cn].v3].z;
-
-    compute_element_matrix(AK + size_AK * cn, V);
-  }
-}
-
-double *assemble(const double *A, const Mesh3D &m)
-{
-  size_t nC = m.Cells.size();
-  size_t nV = m.Vertices.size();
-
-  double *assembled_A = new double[nV * nV];
-  // std::cout << "\nNumber of Verticess: " << m.Vertices.size() << std::endl;
-  for (size_t i = 0; i < nC; i++)
-  {
-    assembled_A[nV * m.Cells[i].v0 + m.Cells[i].v0] += A[16 * i + 0];
-    assembled_A[nV * m.Cells[i].v0 + m.Cells[i].v1] += A[16 * i + 1];
-    assembled_A[nV * m.Cells[i].v0 + m.Cells[i].v2] += A[16 * i + 2];
-    assembled_A[nV * m.Cells[i].v0 + m.Cells[i].v3] += A[16 * i + 3];
-
-    assembled_A[nV * m.Cells[i].v1 + m.Cells[i].v0] += A[16 * i + 4];
-    assembled_A[nV * m.Cells[i].v1 + m.Cells[i].v1] += A[16 * i + 5];
-    assembled_A[nV * m.Cells[i].v1 + m.Cells[i].v2] += A[16 * i + 6];
-    assembled_A[nV * m.Cells[i].v1 + m.Cells[i].v3] += A[16 * i + 7];
-
-    assembled_A[nV * m.Cells[i].v2 + m.Cells[i].v0] += A[16 * i + 8];
-    assembled_A[nV * m.Cells[i].v2 + m.Cells[i].v1] += A[16 * i + 9];
-    assembled_A[nV * m.Cells[i].v2 + m.Cells[i].v2] += A[16 * i + 10];
-    assembled_A[nV * m.Cells[i].v2 + m.Cells[i].v3] += A[16 * i + 11];
-
-    assembled_A[nV * m.Cells[i].v3 + m.Cells[i].v0] += A[16 * i + 12];
-    assembled_A[nV * m.Cells[i].v3 + m.Cells[i].v1] += A[16 * i + 13];
-    assembled_A[nV * m.Cells[i].v3 + m.Cells[i].v2] += A[16 * i + 14];
-    assembled_A[nV * m.Cells[i].v3 + m.Cells[i].v3] += A[16 * i + 15];
-  }
-
-  return assembled_A;
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Stiffness Matrix Class (WIP)
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class stiffnessMatrix
-{
-private:
 public:
-  Mesh3D &_mesh;
-
+  // Data as a contiguous array
   double *_data;
 
-  std::vector<double> diagonal;
-
+  // Matrix shape (number of cells, 4, 4)
   std::array<size_t, 3> shape;
 
-  stiffnessMatrix(Mesh3D &mesh);
+  // Diagonal elements
+  std::vector<double> diagonal;
 
-  ~stiffnessMatrix();
+  // Constructor
+  StiffnessMatrix(Mesh3D &mesh) : _data(0), diagonal(mesh.Vertices.size(), 0)
+  {
+    // Set shape
+    shape[0] = mesh.Cells.size();
+    shape[1] = 4;
+    shape[2] = 4;
 
-  std::vector<double> assemble();
+    // Compute stiffness matrix
+    _data = new double[shape[0] * shape[1] * shape[2]];
+    compute_stiffness_matrix(mesh);
 
-  double &operator()(unsigned cell, unsigned row, unsigned col) const;
+    // Fill diagonal vector with appropriate values
+    for (size_t c = 0; c < mesh.Cells.size(); c++)
+    {
+      diagonal[mesh.Cells[c].v0] += _data[c * 16 + 0 * 4 + 0];
+      diagonal[mesh.Cells[c].v1] += _data[c * 16 + 1 * 4 + 1];
+      diagonal[mesh.Cells[c].v2] += _data[c * 16 + 2 * 4 + 2];
+      diagonal[mesh.Cells[c].v3] += _data[c * 16 + 3 * 4 + 3];
+    }
+  }
+
+  // Destructor
+  ~StiffnessMatrix() { delete[] _data; }
+
+  // Access matrix elements
+  inline double &operator()(unsigned cell, unsigned row, unsigned col) const
+  {
+    return _data[16 * cell + 4 * row + col];
+  }
+
+private:
+  // Compute stiffness matrix
+  void compute_stiffness_matrix(const Mesh3D &mesh)
+  {
+    // Array for vertex coordinates
+    double vertices[12];
+
+    // Iterate over cells
+    for (size_t c = 0; c < mesh.Cells.size(); c++)
+    {
+      // Set vertex coordinates
+      vertices[0] = mesh.Vertices[mesh.Cells[c].v0].x;
+      vertices[1] = mesh.Vertices[mesh.Cells[c].v0].y;
+      vertices[2] = mesh.Vertices[mesh.Cells[c].v0].z;
+      vertices[3] = mesh.Vertices[mesh.Cells[c].v1].x;
+      vertices[4] = mesh.Vertices[mesh.Cells[c].v1].y;
+      vertices[5] = mesh.Vertices[mesh.Cells[c].v1].z;
+      vertices[6] = mesh.Vertices[mesh.Cells[c].v2].x;
+      vertices[7] = mesh.Vertices[mesh.Cells[c].v2].y;
+      vertices[8] = mesh.Vertices[mesh.Cells[c].v2].z;
+      vertices[9] = mesh.Vertices[mesh.Cells[c].v3].x;
+      vertices[10] = mesh.Vertices[mesh.Cells[c].v3].y;
+      vertices[11] = mesh.Vertices[mesh.Cells[c].v3].z;
+
+      // Compute element matrix
+      compute_element_matrix(_data + c * 16, vertices);
+    }
+  }
 };
-
-stiffnessMatrix::stiffnessMatrix(Mesh3D &mesh)
-    : _mesh(mesh), diagonal(mesh.Vertices.size(), 0)
-{
-  // Non - Assembled Stiffness Matrix Shape
-  // Number of Mesh Cells
-  shape[0] = _mesh.Cells.size();
-  shape[1] = 4;
-  shape[2] = 4;
-
-  _data = new double[shape[0] * shape[1] * shape[2]];
-  compute_transformation_matrix(_data, _mesh);
-
-  // Filling Diagonal Vector with appropriate values
-  for (size_t cn = 0; cn < _mesh.Cells.size(); cn++)
-  {
-    diagonal[mesh.Cells[cn].v0] += _data[cn * 16 + 0 * 4 + 0];
-    diagonal[mesh.Cells[cn].v1] += _data[cn * 16 + 1 * 4 + 1];
-    diagonal[mesh.Cells[cn].v2] += _data[cn * 16 + 2 * 4 + 2];
-    diagonal[mesh.Cells[cn].v3] += _data[cn * 16 + 3 * 4 + 3];
-  }
-}
-
-stiffnessMatrix::~stiffnessMatrix() { delete[] _data; }
-
-std::vector<double> stiffnessMatrix::assemble()
-{
-  size_t nC = _mesh.Cells.size();
-  size_t nV = _mesh.Vertices.size();
-
-  std::vector<double> assembled_A(nV * nV, 0);
-  std::cout << "\nAssembled A size: " << nV << " * " << nV << " "
-            << assembled_A.size() << std::endl;
-  for (size_t i = 0; i < nC; i++)
-  {
-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v0] +=
-        _data[16 * i + 0];
-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v1] +=
-        _data[16 * i + 1];
-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v2] +=
-        _data[16 * i + 2];
-    assembled_A[nV * _mesh.Cells[i].v0 + _mesh.Cells[i].v3] +=
-        _data[16 * i + 3];
-
-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v0] +=
-        _data[16 * i + 4];
-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v1] +=
-        _data[16 * i + 5];
-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v2] +=
-        _data[16 * i + 6];
-    assembled_A[nV * _mesh.Cells[i].v1 + _mesh.Cells[i].v3] +=
-        _data[16 * i + 7];
-
-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v0] +=
-        _data[16 * i + 8];
-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v1] +=
-        _data[16 * i + 9];
-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v2] +=
-        _data[16 * i + 10];
-    assembled_A[nV * _mesh.Cells[i].v2 + _mesh.Cells[i].v3] +=
-        _data[16 * i + 11];
-
-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v0] +=
-        _data[16 * i + 12];
-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v1] +=
-        _data[16 * i + 13];
-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v2] +=
-        _data[16 * i + 14];
-    assembled_A[nV * _mesh.Cells[i].v3 + _mesh.Cells[i].v3] +=
-        _data[16 * i + 15];
-  }
-
-  return assembled_A;
-}
-
-inline double &
-stiffnessMatrix::operator()(unsigned cell, unsigned row, unsigned col) const
-{
-  // if (cell >= shape[0] || row >= shape[1] || col >= shape[2])
-  // {
-  //   throw std::out_of_range("Stiffness Matrix subscript Out of bounds");
-  // }
-  return _data[16 * cell + 4 * row + col];
-}
 
 } // namespace DTCC_BUILDER
 

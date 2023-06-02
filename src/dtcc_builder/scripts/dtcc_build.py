@@ -112,8 +112,6 @@ def run(p, citymodel_only, mesh_only):
 
     print(f"project bounds: {project_bounds.tuple}")
 
-    print("---------------------- CHECK 1 ----------------------")
-
     cm = io.load_citymodel(
         building_file,
         uuid_field=p["UUIDField"],
@@ -131,8 +129,6 @@ def run(p, citymodel_only, mesh_only):
         pc, project_bounds, p["ElevationModelResolution"]
     )
     cm.terrain = dem_raster
-
-    print("---------------------- CHECK 2 ----------------------")
 
     if not ["StatisticalOutlierRemover"]:
         p["RoofOutlierMargin"] = 0
@@ -155,16 +151,12 @@ def run(p, citymodel_only, mesh_only):
         cm, p["RoofPercentile"], p["MinBuildingHeight"], overwrite=True
     )
 
-    print("---------------------- CHECK 3 ----------------------")
-
     io.save_citymodel(
         cm,
         p["OutputDirectory"] / "CityModel.shp",
     )
     if not citymodel_only:
         pass
-
-        print("---------------------- CHECK 4 ----------------------")
 
         volume_mesh, surface_mesh = builder.build.build_mesh(
             cm,
@@ -175,13 +167,9 @@ def run(p, citymodel_only, mesh_only):
             p["Debug"],
         )
 
-        print("---------------------- CHECK 5 ----------------------")
-
         ground_surface, buildings = builder.build.build_surface_meshes(
             cm, p["MinBuildingDistance"], p["MinVertexDistance"], p["MeshResolution"]
         )
-
-        print("---------------------- CHECK 6 ----------------------")
 
         if p["WriteProtobuf"]:
             surface_mesh.save(p["OutputDirectory"] / "CitySurface.pb")
