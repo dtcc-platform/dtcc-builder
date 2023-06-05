@@ -3,7 +3,7 @@ import dtcc_builder.build
 import dtcc_builder.builder_datamodel as builder_datamodel
 import dtcc_model as model
 from dtcc_model import dtcc_pb2 as proto
-from dtcc_builder import _pybuilder
+from dtcc_builder import _dtcc_builder
 import dtcc_io as io
 from pathlib import Path
 import numpy as np
@@ -103,7 +103,7 @@ def extract_buildingpoints(
 ):
     builder_citymodel = builder_datamodel.create_builder_citymodel(citymodel)
     builder_pointcloud = builder_datamodel.create_builder_pointcloud(pointcloud)
-    builder_citymodel = _pybuilder.extractRoofPoints(
+    builder_citymodel = _dtcc_builder.extractRoofPoints(
         builder_citymodel,
         builder_pointcloud,
         ground_padding,
@@ -175,15 +175,15 @@ def build_mesh(
     )
     print(f"Building mesh with bounds {bounds}")
     print(f"dem bounds {city_model.terrain.bounds}")
-    simple_cm = _pybuilder.SimplifyCityModel(
+    simple_cm = _dtcc_builder.SimplifyCityModel(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
-    # simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
+    # simple_cm = _dtcc_builder.CleanCityModel(simple_cm, min_vertex_dist)
 
     builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
 
     # Step 3.1: Generate 2D mesh
-    mesh_2D = _pybuilder.GenerateMesh2D(
+    mesh_2D = _dtcc_builder.GenerateMesh2D(
         simple_cm,
         bounds,
         mesh_resolution,
@@ -193,7 +193,7 @@ def build_mesh(
         builder_datamodel.builder_mesh2D_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
 
     # Step 3.2: Generate 3D mesh (layer 3D mesh)
-    mesh_3D = _pybuilder.GenerateMesh3D(mesh_2D, domain_height, mesh_resolution)
+    mesh_3D = _dtcc_builder.GenerateMesh3D(mesh_2D, domain_height, mesh_resolution)
     if debug:
         builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
             "meshing_step3.2.vtu"
@@ -205,7 +205,7 @@ def build_mesh(
 
     # Step 3.3: Smooth 3D mesh (set ground height)
     top_height = domain_height + city_model.terrain.data.mean()
-    mesh_3D = _pybuilder.smooth_volume_mesh(
+    mesh_3D = _dtcc_builder.smooth_volume_mesh(
         mesh_3D,
         simple_cm,
         builder_dem,
@@ -221,14 +221,14 @@ def build_mesh(
         )
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
-    mesh_3D = _pybuilder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm)
+    mesh_3D = _dtcc_builder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm)
     if debug:
         builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
             "meshing_step3.4.vtu"
         )
 
     # Step 3.5: Smooth 3D mesh (set ground and building heights)
-    mesh_3D = _pybuilder.smooth_volume_mesh(
+    mesh_3D = _dtcc_builder.smooth_volume_mesh(
         mesh_3D,
         simple_cm,
         builder_dem,
@@ -242,7 +242,7 @@ def build_mesh(
         builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
             "meshing_step3.5.vtu"
         )
-    surface_3d = _pybuilder.ExtractBoundary3D(mesh_3D)
+    surface_3d = _dtcc_builder.ExtractBoundary3D(mesh_3D)
 
     # Step 3.6: Convert back to dtcc format
     dtcc_volume = builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D)
@@ -261,18 +261,18 @@ def build_surface_meshes(
         city_model.bounds.ymax,
     )
     builder_cm = builder_datamodel.create_builder_citymodel(city_model)
-    simple_cm = _pybuilder.SimplifyCityModel(
+    simple_cm = _dtcc_builder.SimplifyCityModel(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
-    # simple_cm = _pybuilder.CleanCityModel(simple_cm, min_vertex_dist)
+    # simple_cm = _dtcc_builder.CleanCityModel(simple_cm, min_vertex_dist)
 
     builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
 
-    surfaces = _pybuilder.GenerateSurface3D(simple_cm, builder_dem, mesh_resolution)
+    surfaces = _dtcc_builder.GenerateSurface3D(simple_cm, builder_dem, mesh_resolution)
 
     ground_surface = surfaces[0]
     building_surfaces = surfaces[1:]
-    building_surfaces = _pybuilder.MergeSurfaces3D(building_surfaces)
+    building_surfaces = _dtcc_builder.MergeSurfaces3D(building_surfaces)
 
     dtcc_ground_surface = builder_datamodel.builder_surface_mesh_to_mesh(ground_surface)
     dtcc_building_surfaces = builder_datamodel.builder_surface_mesh_to_mesh(

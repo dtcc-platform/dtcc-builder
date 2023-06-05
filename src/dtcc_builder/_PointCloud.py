@@ -1,6 +1,6 @@
 from google.protobuf.json_format import MessageToJson
 
-from dtcc_builder import _pybuilder
+from dtcc_builder import _dtcc_builder
 import dtcc_io as io
 import dtcc_model as model
 import os
@@ -52,15 +52,15 @@ class PointCloud:
 
     def set_origin(self, origin: Tuple[float, float]):
         self.origin = origin
-        self._builder_pc = _pybuilder.SetPointCloudOrigin(self._builder_pc, origin)
+        self._builder_pc = _dtcc_builder.SetPointCloudOrigin(self._builder_pc, origin)
 
     def remove_global_outliers(self, outlier_margin):
-        self._builder_pc = _pybuilder.GlobalOutlierRemover(
+        self._builder_pc = _dtcc_builder.GlobalOutlierRemover(
             self._builder_pc, outlier_margin
         )
 
     def vegetation_filter(self):
-        self._builder_pc = _pybuilder.VegetationFilter(self._builder_pc)
+        self._builder_pc = _dtcc_builder.VegetationFilter(self._builder_pc)
 
     def get_bounds(self):
         pts = pointcloud_to_numpy(self._builder_pc)
@@ -69,11 +69,11 @@ class PointCloud:
         return (x_min, y_min, x_max, y_max)
 
     def from_protobuf(self, protobuf_string: bytes):
-        self._builder_pc = _pybuilder.loadPointCloudProtobuf(protobuf_string)
+        self._builder_pc = _dtcc_builder.loadPointCloudProtobuf(protobuf_string)
         self.used_classification = set(self._builder_pc.classifications)
 
     def to_protobuf(self) -> str:
-        return _pybuilder.convertPointCloudToProtobuf(self._builder_pc)
+        return _dtcc_builder.convertPointCloudToProtobuf(self._builder_pc)
 
     def to_json(self, output_path: Path):
         pbpc = model.PointCloud()

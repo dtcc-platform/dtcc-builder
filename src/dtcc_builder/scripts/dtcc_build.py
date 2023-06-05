@@ -187,7 +187,7 @@ def run(p, citymodel_only, mesh_only):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="pybuilder",
+        prog="dtcc-builder",
         description="Build LoD1 CItyModel mesh fromm footprint and pointcloud",
     )
 

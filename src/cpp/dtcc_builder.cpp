@@ -286,7 +286,7 @@ Surface3D MergeSurfaces3D(const std::vector<Surface3D> &surfaces)
 
 } // namespace DTCC_BUILDER
 
-PYBIND11_MODULE(_pybuilder, m)
+PYBIND11_MODULE(_dtcc_builder, m)
 {
   py::class_<DTCC_BUILDER::CityModel>(m, "CityModel")
       .def(py::init<>())

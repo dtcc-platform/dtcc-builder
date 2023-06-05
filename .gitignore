@@ -8,7 +8,6 @@
 .env/
 *.so
 *.o
-/pybuilder/build
 
 .idea/
 .vscode/
