@@ -57,7 +57,7 @@ public:
 
 private:
   // Solve linear system using unassembled Gauss-Seidel iterations
-  static void solve_unassembled_gauss_seidel(const Mesh3D &mesh3D,
+  static void solve_unassembled_gauss_seidel(const Mesh3D &volume_mesh,
                                              StiffnessMatrix &AK,
                                              std::vector<double> &b,
                                              std::vector<double> &u,
@@ -67,15 +67,15 @@ private:
     info("Smoother: Solving linear system using unassembled Gauss-Seidel");
 
     // Sum of non-diagonal elements
-    std::vector<double> C(mesh3D.Vertices.size());
+    std::vector<double> C(volume_mesh.Vertices.size());
 
     // Vertex indices of current cell
     std::array<uint, 4> I = {0};
 
     // Compute the number of cells that each vertex belongs
-    std::vector<uint> vertex_degrees(mesh3D.Vertices.size());
-    std::vector<uint> _vertex_degrees(mesh3D.Vertices.size());
-    compute_vertex_degrees(vertex_degrees, mesh3D);
+    std::vector<uint> vertex_degrees(volume_mesh.Vertices.size());
+    std::vector<uint> _vertex_degrees(volume_mesh.Vertices.size());
+    compute_vertex_degrees(vertex_degrees, volume_mesh);
 
     size_t iterations;
     double residual;
@@ -84,12 +84,12 @@ private:
       C = b;
       _vertex_degrees = vertex_degrees;
       residual = 0;
-      for (size_t c = 0; c < mesh3D.Cells.size(); c++)
+      for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
       {
-        I[0] = mesh3D.Cells[c].v0;
-        I[1] = mesh3D.Cells[c].v1;
-        I[2] = mesh3D.Cells[c].v2;
-        I[3] = mesh3D.Cells[c].v3;
+        I[0] = volume_mesh.Cells[c].v0;
+        I[1] = volume_mesh.Cells[c].v1;
+        I[2] = volume_mesh.Cells[c].v2;
+        I[3] = volume_mesh.Cells[c].v3;
         for (u_int8_t i = 0; i < 4; i++)
         {
           C[I[i]] -=
@@ -119,19 +119,19 @@ private:
 
   // Set initial guess for solution vector
   static void set_initial_guess(std::vector<double> &u,
-                                const Mesh3D &mesh3D,
+                                const Mesh3D &volume_mesh,
                                 const GridField2D &dem,
-                                double topHeight,
+                                double top_height,
                                 BoundaryConditions &bc)
   {
     info("Smoother: Setting initial guess for solution vector");
 
-    for (size_t i = 0; i < mesh3D.Vertices.size(); i++)
+    for (size_t i = 0; i < volume_mesh.Vertices.size(); i++)
     {
-      if (bc.vMarkers[i] == -4)
+      if (bc.vertex_markers[i] == -4)
       {
-        const Vector2D p(mesh3D.Vertices[i].x, mesh3D.Vertices[i].y);
-        u[i] = dem(p) * (1 - mesh3D.Vertices[i].z / topHeight);
+        const Vector2D p(volume_mesh.Vertices[i].x, volume_mesh.Vertices[i].y);
+        u[i] = dem(p) * (1 - volume_mesh.Vertices[i].z / top_height);
       }
       else
         u[i] = 0.0;
