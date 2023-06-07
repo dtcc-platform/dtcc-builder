@@ -1,6 +1,10 @@
 # Installation
 
+DTCC has an external dependency on the libgeos library. This library must be install
+using your package manager on Linux, or homebrew on MacOS.
+
 DTCC Builder can be easily installed using [`pip`](https://pypi.org/project/pip/).
+
 
 To install from the Python Package Index (PyPI):
 
