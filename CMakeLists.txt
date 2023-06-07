@@ -27,8 +27,10 @@ include(cmake/clang-cxx-dev-tools.cmake)
 include(cmake/FindLibGEOS.cmake)
 
 # Find packages
-find_package(Triangle REQUIRED)
+# find_package(Triangle REQUIRED)
 find_package(LibGEOS 3.16 REQUIRED)
+
+add_subdirectory(src/cpp/external/triangle)
 
 # Find pybind11
 set(pybind11_DIR /usr/lib/cmake/pybind11)
@@ -38,9 +40,10 @@ find_package(pybind11 REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/external)
-include_directories(/usr/local/include)
-include_directories(${Triangle_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/src/cpp/external/triangle)
 include_directories(${LIBGEOS_INCLUDE_DIRS})
+
+# include_directories(/usr/local/include)
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src)
