@@ -2,7 +2,7 @@
 // Licensed under the MIT License
 
 #ifndef DTCC_BUILDING_PROCESSOR_H
-#define DTCC_BUIlDING_PROCESSOR_H
+#define DTCC_BUILDING_PROCESSOR_H
 
 #include <set>
 

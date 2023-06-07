@@ -9,6 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
   message(STATUS "Build type not specified, using Release by default")
 endif()
+
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
 # Set build flags
@@ -38,6 +39,8 @@ include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/external)
 include_directories(/usr/local/include)
+include_directories(${Triangle_INCLUDE_DIR})
+include_directories(${LIBGEOS_INCLUDE_DIRS})
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src)
