@@ -1,6 +1,6 @@
 {
     "Type": "Parameters",
-    "ModelName": "MinimalCase",
+    "model-name": "MinimalCase",
     "OutputDirectory": "",
     "DomainHeight": 50.0,
     "ElevationModelResolution": 1.0,
@@ -16,8 +16,8 @@
     "GroundPercentile": 0.1,
     "RoofPercentile": 0.9,
     "GroundSmoothing": 2,
-    "GenerateSurfaceMeshes": true,
-    "GenerateVolumeMeshes": true,
+    "generate-surface-mesh": true,
+    "generate-volume-mesh": true,
     "WriteJSON": true,
     "WriteVTK": true,
     "WriteProtobuf": false,

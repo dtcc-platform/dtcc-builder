@@ -20,8 +20,8 @@ from time import time
 def calculate_project_domain(params_or_footprint, las_path=None, params=None):
     if las_path is None and params is None:
         p = params_or_footprint
-        building_footprint_path = p["DataDirectory"] / p["BuildingsFileName"]
-        pointcloud_path = p["PointCloudDirectory"]
+        building_footprint_path = p["data-directory"] / p["buildings-filename"]
+        pointcloud_path = p["pointcloud-directory"]
     elif (
         params_or_footprint is not None and las_path is not None and params is not None
     ):
@@ -32,26 +32,26 @@ def calculate_project_domain(params_or_footprint, las_path=None, params=None):
         raise ValueError(
             "must provide either params only or footprint and las_path and params"
         )
-    if p["AutoDomain"]:
+    if p["autodomain"]:
         footprint_bounds = io.citymodel.building_bounds(
-            building_footprint_path, p["DomainMargin"]
+            building_footprint_path, p["domain-margin"]
         )
         las_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
         domain_bounds = io.bounds.bounds_intersect(footprint_bounds, las_bounds)
         origin = domain_bounds[:2]
-        p["X0"] = origin[0]
-        p["Y0"] = origin[1]
-        p["XMin"] = 0.0
-        p["YMin"] = 0.0
-        p["XMax"] = domain_bounds[2] - domain_bounds[0]
-        p["YMax"] = domain_bounds[3] - domain_bounds[1]
+        p["x0"] = origin[0]
+        p["y0"] = origin[1]
+        p["x-min"] = 0.0
+        p["y-min"] = 0.0
+        p["x-max"] = domain_bounds[2] - domain_bounds[0]
+        p["y-max"] = domain_bounds[3] - domain_bounds[1]
     else:
-        origin = (p["X0"], p["Y0"])
+        origin = (p["x0"], p["y0"])
         domain_bounds = (
-            p["X0"] + p["XMin"],
-            p["Y0"] + p["YMin"],
-            p["X0"] + p["XMax"],
-            p["Y0"] + p["YMax"],
+            p["x0"] + p["x-min"],
+            p["y0"] + p["y-min"],
+            p["x0"] + p["x-max"],
+            p["y0"] + p["y-max"],
         )
     domain_bounds = model.Bounds(
         xmin=domain_bounds[0],
