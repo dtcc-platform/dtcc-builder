@@ -155,6 +155,19 @@ def run(p, citymodel_only, mesh_only):
         cm,
         p["OutputDirectory"] / "CityModel.shp",
     )
+
+    if p["WriteProtobuf"]:
+        io.save_citymodel(
+            cm,
+            p["OutputDirectory"] / "CityModel.pb",
+        )
+
+    # if p["WriteJSON"]:
+    #     io.save_citymodel(
+    #         cm,
+    #         p["OutputDirectory"] / "CityModel.json",
+    #     )
+
     if not citymodel_only:
         pass
 
@@ -175,6 +188,7 @@ def run(p, citymodel_only, mesh_only):
             surface_mesh.save(p["OutputDirectory"] / "CitySurface.pb")
             ground_surface.save(p["OutputDirectory"] / "GroundSurface.pb")
             buildings.save(p["OutputDirectory"] / "Buildings.pb")
+
         if p["WriteVTK"]:
             surface_mesh.save(p["OutputDirectory"] / "CitySurface.vtk")
             volume_mesh.save(p["OutputDirectory"] / "CityMesh.vtk")
