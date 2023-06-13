@@ -12,10 +12,10 @@ class TestLoadParameters(unittest.TestCase):
     def test_load_parameters(self):
         p = load_parameters()
         self.assertIsInstance(p, dict)
-        self.assertEqual(p["ModelName"], "DTCC")
+        self.assertEqual(p["model-name"], "DTCC")
 
     def test_load_parameters_file(self):
         p = load_parameters(project_dir / "Parameters.json")
         self.assertIsInstance(p, dict)
         print(p)
-        self.assertEqual(p["ModelName"], "MinimalCase")
+        self.assertEqual(p["model-name"], "MinimalCase")
