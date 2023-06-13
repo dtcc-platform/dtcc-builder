@@ -8,8 +8,8 @@
 
 #include "Geometry.h"
 
-#include "datamodel/Building.h"
-#include "datamodel/CityModel.h"
+#include "Building.h"
+#include "CityModel.h"
 
 namespace DTCC_BUILDER
 {

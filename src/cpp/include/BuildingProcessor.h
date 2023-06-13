@@ -6,7 +6,7 @@
 
 #include <set>
 
-#include "datamodel/Building.h"
+#include "Building.h"
 
 #include "BoundingBox.h"
 #include "BoundingBoxTree.h"

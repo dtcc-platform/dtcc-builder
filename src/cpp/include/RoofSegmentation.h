@@ -7,6 +7,7 @@
 #include <random>
 #include <set>
 
+#include "Building.h"
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "Logging.h"
 #include "Point.h"
@@ -14,7 +15,6 @@
 #include "Polygon.h"
 #include "Utils.h"
 #include "Vector.h"
-#include "datamodel/Building.h"
 
 namespace DTCC_BUILDER
 {

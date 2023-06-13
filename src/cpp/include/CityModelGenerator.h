@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "BuildingProcessor.h"
+#include "CityModel.h"
 #include "GEOS.h"
 #include "GridField.h"
 #include "Logging.h"
@@ -21,7 +22,6 @@
 #include "Polygon.h"
 #include "Timer.h"
 #include "Vector.h"
-#include "datamodel/CityModel.h"
 
 #include "KDTreeVectorOfVectorsAdaptor.h"
 

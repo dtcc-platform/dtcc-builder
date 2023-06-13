@@ -10,6 +10,7 @@
 #include <tuple>
 #include <vector>
 
+#include "CityModel.h"
 #include "Geometry.h"
 #include "GridField.h"
 #include "Logging.h"
@@ -17,7 +18,6 @@
 #include "Surface.h"
 #include "Timer.h"
 #include "Vector.h"
-#include "datamodel/CityModel.h"
 
 extern "C"
 {

@@ -3,6 +3,8 @@
 
 #include <pybind11/stl.h>
 
+#include "Building.h"
+#include "CityModel.h"
 #include "CityModelGenerator.h"
 #include "ElevationModelGenerator.h"
 #include "GridField.h"
@@ -14,8 +16,6 @@
 #include "Polygon.h"
 #include "Smoother.h"
 #include "VertexSmoother.h"
-#include "datamodel/Building.h"
-#include "datamodel/CityModel.h"
 
 namespace py = pybind11;
 

@@ -1,6 +1,6 @@
+#include "BaseArea.h"
+#include "District.h"
 #include "JSON.h"
-#include "datamodel/BaseArea.h"
-#include "datamodel/District.h"
 
 using namespace DTCC_BUILDER;
 
