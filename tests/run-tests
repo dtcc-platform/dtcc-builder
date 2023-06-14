@@ -6,4 +6,4 @@ echo "================="
 
 echo "Running Python tests"
 echo "===================="
-python -m unittest discover python
+python3 -m unittest discover python
