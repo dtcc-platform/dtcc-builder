@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "GridField.h"
 #include "StiffnessMatrix.h"
+#include "model/GridField.h"
 
 namespace DTCC_BUILDER
 {
@@ -37,15 +37,15 @@ public:
   std::vector<double> halo_elevations;
 
   // Constructor
-  BoundaryConditions(Mesh3D &mesh,
+  BoundaryConditions(VolumeMesh &volume_mesh,
                      const CityModel &cityModel,
-                     const GridField2D &dtm,
+                     const GridField &dtm,
                      const double top_height,
                      const bool fix_buildings)
-      : _mesh(mesh), _citymodel(cityModel), _dtm(dtm), top_height(top_height),
-        vertex_markers(mesh.Vertices.size(), -4),
-        values(mesh.Vertices.size(), 0.0), fix_buildings(fix_buildings),
-        halo_elevations(mesh.Vertices.size(),
+      : _volume_mesh(volume_mesh), _citymodel(cityModel), _dtm(dtm),
+        top_height(top_height), vertex_markers(volume_mesh.Vertices.size(), -4),
+        values(volume_mesh.Vertices.size(), 0.0), fix_buildings(fix_buildings),
+        halo_elevations(volume_mesh.Vertices.size(),
                         std::numeric_limits<double>::max())
   {
     // Compute vertex markers
@@ -70,19 +70,20 @@ public:
     size_t k2 = 0;
     size_t k3 = 0;
 
-    for (size_t c = 0; c < _mesh.Cells.size(); c++)
+    for (size_t c = 0; c < _volume_mesh.Cells.size(); c++)
     {
       // Initializing Global Index for each cell
-      I[0] = _mesh.Cells[c].v0;
-      I[1] = _mesh.Cells[c].v1;
-      I[2] = _mesh.Cells[c].v2;
-      I[3] = _mesh.Cells[c].v3;
+      I[0] = _volume_mesh.Cells[c].v0;
+      I[1] = _volume_mesh.Cells[c].v1;
+      I[2] = _volume_mesh.Cells[c].v2;
+      I[3] = _volume_mesh.Cells[c].v3;
 
-      const double z_mean = (_mesh.Vertices[I[0]].z + _mesh.Vertices[I[1]].z +
-                             _mesh.Vertices[I[2]].z + _mesh.Vertices[I[3]].z) /
-                            4;
+      const double z_mean =
+          (_volume_mesh.Vertices[I[0]].z + _volume_mesh.Vertices[I[1]].z +
+           _volume_mesh.Vertices[I[2]].z + _volume_mesh.Vertices[I[3]].z) /
+          4;
 
-      const int cell_marker = _mesh.Markers[c];
+      const int cell_marker = _volume_mesh.Markers[c];
       const double BuildingMaxHeight =
           _citymodel.Buildings[cell_marker].MaxHeight();
       const double BuildingMinHeight =
@@ -91,7 +92,7 @@ public:
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_mesh.Vertices[I[i]].z > z_mean)
+          if (_volume_mesh.Vertices[I[i]].z > z_mean)
           {
             continue;
           }
@@ -102,7 +103,7 @@ public:
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_mesh.Vertices[I[i]].z > z_mean)
+          if (_volume_mesh.Vertices[I[i]].z > z_mean)
           {
             continue;
           }
@@ -113,7 +114,7 @@ public:
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_mesh.Vertices[I[i]].z > z_mean)
+          if (_volume_mesh.Vertices[I[i]].z > z_mean)
           {
             continue;
           }
@@ -124,7 +125,7 @@ public:
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_mesh.Vertices[I[i]].z < z_mean)
+          if (_volume_mesh.Vertices[I[i]].z < z_mean)
           {
             continue;
           }
@@ -133,7 +134,7 @@ public:
       }
     }
 
-    for (size_t v = 0; v < _mesh.Vertices.size(); v++)
+    for (size_t v = 0; v < _volume_mesh.Vertices.size(); v++)
     {
       if (vertex_markers[v] >= 0)
         k0++;
@@ -162,26 +163,27 @@ public:
     // Compute halo elevations
     compute_halo_elevations();
 
-    for (size_t i = 0; i < _mesh.Vertices.size(); i++)
+    for (size_t i = 0; i < _volume_mesh.Vertices.size(); i++)
     {
       const int vertex_marker = vertex_markers[i];
       if (vertex_marker >= 0) //  && fix_buildings Building
       {
         values[i] = _citymodel.Buildings[vertex_marker].MaxHeight() -
-                    _mesh.Vertices[i].z;
+                    _volume_mesh.Vertices[i].z;
       }
       else if (vertex_marker == -1) // Building Halo
       {
-        values[i] = halo_elevations[i] - _mesh.Vertices[i].z;
+        values[i] = halo_elevations[i] - _volume_mesh.Vertices[i].z;
       }
       else if (vertex_marker == -2) // Ground
       {
-        const Vector2D p(_mesh.Vertices[i].x, _mesh.Vertices[i].y);
-        values[i] = _dtm(p) - _mesh.Vertices[i].z;
+        const Vector2D p(_volume_mesh.Vertices[i].x,
+                         _volume_mesh.Vertices[i].y);
+        values[i] = _dtm(p) - _volume_mesh.Vertices[i].z;
       }
       else if (vertex_marker == -3) // Top
       {
-        values[i] = top_height - _mesh.Vertices[i].z;
+        values[i] = top_height - _volume_mesh.Vertices[i].z;
       }
       else
       {
@@ -201,10 +203,10 @@ public:
     for (size_t c = 0; c < A.shape[0]; c++)
     {
       // Global Index for each cell
-      I[0] = _mesh.Cells[c].v0;
-      I[1] = _mesh.Cells[c].v1;
-      I[2] = _mesh.Cells[c].v2;
-      I[3] = _mesh.Cells[c].v3;
+      I[0] = _volume_mesh.Cells[c].v0;
+      I[1] = _volume_mesh.Cells[c].v1;
+      I[2] = _volume_mesh.Cells[c].v2;
+      I[3] = _volume_mesh.Cells[c].v3;
 
       for (size_t i = 0; i < A.shape[1]; i++)
       {
@@ -228,11 +230,11 @@ public:
   }
 
 private:
-  Mesh3D &_mesh;
+  VolumeMesh &_volume_mesh;
 
   const CityModel &_citymodel;
 
-  const GridField2D &_dtm;
+  const GridField &_dtm;
 
   const double top_height;
 
@@ -262,18 +264,19 @@ private:
   {
     std::array<uint, 4> I = {0};
 
-    for (size_t c = 0; c < _mesh.Cells.size(); c++)
+    for (size_t c = 0; c < _volume_mesh.Cells.size(); c++)
     {
-      I[0] = _mesh.Cells[c].v0;
-      I[1] = _mesh.Cells[c].v1;
-      I[2] = _mesh.Cells[c].v2;
-      I[3] = _mesh.Cells[c].v3;
+      I[0] = _volume_mesh.Cells[c].v0;
+      I[1] = _volume_mesh.Cells[c].v1;
+      I[2] = _volume_mesh.Cells[c].v2;
+      I[3] = _volume_mesh.Cells[c].v3;
 
       double z_min = std::numeric_limits<double>::max();
 
       for (size_t i = 0; i < 4; i++)
       {
-        const Vector2D p(_mesh.Vertices[I[i]].x, _mesh.Vertices[I[i]].y);
+        const Vector2D p(_volume_mesh.Vertices[I[i]].x,
+                         _volume_mesh.Vertices[I[i]].y);
         const double z = _dtm(p);
 
         z_min = std::min(z_min, z);

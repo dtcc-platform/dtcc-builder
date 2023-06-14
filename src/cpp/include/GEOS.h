@@ -8,8 +8,8 @@
 #include <stdarg.h>
 
 #include "Logging.h"
-#include "Polygon.h"
 #include "Timer.h"
+#include "model/Polygon.h"
 
 // GEOS message handler
 static void geos_msg_handler(const char *fmt, ...)

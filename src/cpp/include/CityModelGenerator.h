@@ -12,18 +12,17 @@
 #include <vector>
 
 #include "BuildingProcessor.h"
-#include "CityModel.h"
 #include "GEOS.h"
-#include "GridField.h"
+#include "KDTreeVectorOfVectorsAdaptor.h"
 #include "Logging.h"
-#include "PointCloud.h"
 #include "PointCloudProcessor.h"
 #include "Polyfix.h"
-#include "Polygon.h"
 #include "Timer.h"
-#include "Vector.h"
-
-#include "KDTreeVectorOfVectorsAdaptor.h"
+#include "model/CityModel.h"
+#include "model/GridField.h"
+#include "model/PointCloud.h"
+#include "model/Polygon.h"
+#include "model/Vector.h"
 
 namespace DTCC_BUILDER
 {
@@ -364,7 +363,7 @@ public:
   /// @param groundPercentile Percentile used for setting ground height
   /// @param roofPercentile Percentile used for setting roof height
   static void ComputeBuildingHeights(CityModel &cityModel,
-                                     const GridField2D &dtm,
+                                     const GridField &dtm,
                                      double groundPercentile,
                                      double roofPercentile)
   {
@@ -467,7 +466,7 @@ public:
   /// @param dtm Digital Terrain Map
   /// @param numBuildings Number of buildings
   static void RandomizeCityModel(CityModel &cityModel,
-                                 const GridField2D &dtm,
+                                 const GridField &dtm,
                                  size_t numBuildings)
   {
     info("CityModelGenerator: Randomizing city model...");
@@ -478,7 +477,7 @@ public:
     const double N = 10000; // Maximum number of attempts
 
     // Get bounding box of domain
-    const BoundingBox2D &bbox = dtm.Grid.BoundingBox;
+    const BoundingBox2D &bbox = dtm.grid.BoundingBox;
     const double dx = bbox.Q.x - bbox.P.x;
     const double dy = bbox.Q.y - bbox.P.y;
 
@@ -656,7 +655,7 @@ private:
       nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / (h / 4)) + 1;
     }
 
-    Grid2D grid(bbox, nX, nY);
+    Grid grid(bbox, nX, nY);
 
     // Initialize bins
     std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
@@ -759,7 +758,7 @@ private:
                 std::vector<std::unordered_set<size_t>> &bin2buildings,
                 size_t buildingIndex,
                 const Building &building,
-                const Grid2D &grid)
+                const Grid &grid)
   {
     // Compute bounding box of building
     BoundingBox2D bbox(building.Footprint.Vertices);

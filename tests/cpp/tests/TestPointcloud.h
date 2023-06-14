@@ -1,7 +1,7 @@
 #include "BoundingBox.h"
-#include "Point.h"
-#include "PointCloud.h"
 #include "PointCloudProcessor.h"
+#include "model/Point.h"
+#include "model/PointCloud.h"
 
 using namespace DTCC_BUILDER;
 

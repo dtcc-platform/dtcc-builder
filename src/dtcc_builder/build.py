@@ -190,12 +190,12 @@ def build_mesh(
     )
 
     if debug:
-        builder_datamodel.builder_mesh2D_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
+        builder_datamodel.builder_mesh_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
 
     # Step 3.2: Generate 3D mesh (layer 3D mesh)
-    mesh_3D = _dtcc_builder.GenerateMesh3D(mesh_2D, domain_height, mesh_resolution)
+    mesh_3D = _dtcc_builder.GenerateVolumeMesh(mesh_2D, domain_height, mesh_resolution)
     if debug:
-        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+        builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.2.vtu"
         )
 
@@ -216,14 +216,14 @@ def build_mesh(
     )
 
     if debug:
-        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+        builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.3.vtu"
         )
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
-    mesh_3D = _dtcc_builder.TrimMesh3D(mesh_3D, mesh_2D, simple_cm)
+    mesh_3D = _dtcc_builder.TrimVolumeMesh(mesh_3D, mesh_2D, simple_cm)
     if debug:
-        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+        builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.4.vtu"
         )
 
@@ -239,14 +239,14 @@ def build_mesh(
     )
 
     if debug:
-        builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D).save(
+        builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.5.vtu"
         )
     surface_3d = _dtcc_builder.ExtractBoundary3D(mesh_3D)
 
     # Step 3.6: Convert back to dtcc format
-    dtcc_volume = builder_datamodel.builder_mesh3D_to_volume_mesh(mesh_3D)
-    dtcc_surface = builder_datamodel.builder_surface_mesh_to_mesh(surface_3d)
+    dtcc_volume = builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D)
+    dtcc_surface = builder_datamodel.builder_mesh_to_mesh(surface_3d)
 
     return dtcc_volume, dtcc_surface
 
@@ -274,8 +274,8 @@ def build_surface_meshes(
     building_surfaces = surfaces[1:]
     building_surfaces = _dtcc_builder.MergeSurfaces3D(building_surfaces)
 
-    dtcc_ground_surface = builder_datamodel.builder_surface_mesh_to_mesh(ground_surface)
-    dtcc_building_surfaces = builder_datamodel.builder_surface_mesh_to_mesh(
+    dtcc_ground_surface = builder_datamodel.builder_mesh_to_mesh(ground_surface)
+    dtcc_building_surfaces = builder_datamodel.builder_mesh_to_mesh(
         building_surfaces
     )
 

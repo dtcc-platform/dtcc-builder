@@ -9,8 +9,8 @@
 
 #include "Hashing.h"
 #include "Logging.h"
-#include "Mesh.h"
-#include "Surface.h"
+#include "model/Mesh.h"
+#include "model/VolumeMesh.h"
 
 namespace DTCC_BUILDER
 {
@@ -22,7 +22,7 @@ public:
   ///
   /// @param surface The boundary to be extracted as a 3D surface
   /// @param mesh A 3D mesh
-  static void ExtractBoundary3D(Surface3D &surface, const Mesh3D &mesh)
+  static void ExtractBoundary3D(Mesh &surface, const VolumeMesh &volume_mesh)
   {
     info("MeshProcessor: Extracting boundary of 3D mesh...");
     Timer timer("ExtractBoundary3D");
@@ -36,9 +36,9 @@ public:
     std::map<Simplex2D, std::pair<size_t, size_t>, CompareSimplex2D> faceMap;
 
     // Iterate over cells and count cell neighbors of faces
-    for (size_t i = 0; i < mesh.Cells.size(); i++)
+    for (size_t i = 0; i < volume_mesh.Cells.size(); i++)
     {
-      const Simplex3D &cell = mesh.Cells[i];
+      const Simplex3D &cell = volume_mesh.Cells[i];
       CountFace(faceMap, cell.v0, cell.v1, cell.v2, i);
       CountFace(faceMap, cell.v0, cell.v1, cell.v3, i);
       CountFace(faceMap, cell.v0, cell.v2, cell.v3, i);
@@ -57,7 +57,7 @@ public:
 
       // Get face and neighboring cell
       const Simplex2D &face = it.first;
-      const Simplex3D &cell = mesh.Cells[it.second.second];
+      const Simplex3D &cell = volume_mesh.Cells[it.second.second];
 
       // Count vertices (assign new vertex indices)
       const size_t v0 = CountVertex(vertexMap, face.v0);
@@ -65,9 +65,9 @@ public:
       const size_t v2 = CountVertex(vertexMap, face.v2);
 
       // Compute face normal and orientation
-      Vector3D n = Geometry::FaceNormal3D(face, mesh);
-      const Point3D c = Geometry::CellCenter3D(cell, mesh);
-      const Vector3D w = Vector3D(mesh.Vertices[face.v0]) - Vector3D(c);
+      Vector3D n = Geometry::FaceNormal3D(face, volume_mesh);
+      const Point3D c = Geometry::CellCenter3D(cell, volume_mesh);
+      const Vector3D w = Vector3D(volume_mesh.Vertices[face.v0]) - Vector3D(c);
       const int orientation = (Geometry::Dot3D(n, w) > 0.0 ? 1 : -1);
 
       // Add face and normal
@@ -89,7 +89,7 @@ public:
     {
       const size_t oldIndex = it.first;
       const size_t newIndex = it.second;
-      surface.Vertices[newIndex] = mesh.Vertices[oldIndex];
+      surface.Vertices[newIndex] = volume_mesh.Vertices[oldIndex];
     }
   }
 
@@ -97,11 +97,10 @@ public:
   ///
   /// @param surface The open surface to be extracted
   /// @param boundary Closed boundary surface
-  static void ExtractOpenSurface3D(Surface3D &surface,
-                                   const Surface3D &boundary)
+  static void ExtractOpenSurface3D(Mesh &surface, const Mesh &boundary)
   {
     info("MeshProcessor: Extracting open surface from boundary...");
-    Timer timer("ExtractOpenSurface3D");
+    Timer timer("ExtractOpenMesh");
 
     // Clear surface
     surface.Vertices.clear();
@@ -154,9 +153,7 @@ public:
   /// Merge surfaces into a single surface.
   ///
   /// @param surface The single surface
-  /// @param mesh3D A
-  static void MergeSurfaces3D(Surface3D &surface,
-                              const std::vector<Surface3D> &surfaces)
+  static void MergeSurfaces3D(Mesh &surface, const std::vector<Mesh> &surfaces)
   {
     info("MeshProcessor: Merging 3D surfaces into a single surface...");
     Timer timer("MergeSurfaces3D");

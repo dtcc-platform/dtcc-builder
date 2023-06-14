@@ -1,7 +1,7 @@
-#include "Building.h"
-#include "CityModel.h"
 #include "Polyfix.h"
-#include "Polygon.h"
+#include "model/Building.h"
+#include "model/CityModel.h"
+#include "model/Polygon.h"
 
 using namespace DTCC_BUILDER;
 

@@ -7,8 +7,8 @@
 #include <unordered_set>
 
 #include "Logging.h"
-#include "Surface.h"
 #include "Timer.h"
+#include "model/Mesh.h"
 
 namespace DTCC_BUILDER
 {
@@ -16,8 +16,8 @@ namespace DTCC_BUILDER
   class VertexSmoother
   {
   public:
-    // Smooth 2D mesh
-    static void SmoothMesh(Mesh2D &mesh, size_t numSmoothings)
+    // Smooth mesh
+    static void SmoothMesh(Mesh &mesh, size_t numSmoothings)
     {
       info("VertexSmoother: Smoothing mesh...");
       Timer timer("SmoothMesh");
@@ -26,7 +26,7 @@ namespace DTCC_BUILDER
       info("VertexSmoother: Building vertex connectivity");
       const size_t numVertices = mesh.Vertices.size();
       std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
-      for (const auto &T : mesh.Cells)
+      for (const auto &T : mesh.Faces)
       {
         vertexNeighbors[T.v0].insert(T.v1);
         vertexNeighbors[T.v0].insert(T.v2);
@@ -42,9 +42,9 @@ namespace DTCC_BUILDER
         info("VertexSmoother: Smoothing iteration " + str(n));
         for (size_t i = 0; i < numVertices; i++)
         {
-          Vector2D p{};
+          Vector3D p{};
           for (const auto &j : vertexNeighbors[i])
-            p += Vector2D(mesh.Vertices[j]);
+            p += Vector3D(mesh.Vertices[j]);
           p /= static_cast<float>(vertexNeighbors[i].size());
           mesh.Vertices[i] = p;
         }
@@ -52,16 +52,16 @@ namespace DTCC_BUILDER
     }
 
     // Smooth 3D mesh
-    static void SmoothMesh(Mesh3D &mesh, size_t numSmoothings)
+    static void SmoothMesh(VolumeMesh &volume_mesh, size_t numSmoothings)
     {
-      info("VertexSmoother: Smoothing mesh...");
+      info("VertexSmoother: Smoothing volume mesh...");
       Timer timer("SmoothMesh");
 
       // Build vertex connectivity
       info("VertexSmoother: Building vertex connectivity");
-      const size_t numVertices = mesh.Vertices.size();
+      const size_t numVertices = volume_mesh.Vertices.size();
       std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
-      for (const auto &T : mesh.Cells)
+      for (const auto &T : volume_mesh.Cells)
       {
         vertexNeighbors[T.v0].insert(T.v1);
         vertexNeighbors[T.v0].insert(T.v2);
@@ -85,50 +85,15 @@ namespace DTCC_BUILDER
         {
           Vector3D p;
           for (const auto &j : vertexNeighbors[i])
-            p += Vector3D(mesh.Vertices[j]);
+            p += Vector3D(volume_mesh.Vertices[j]);
           p /= static_cast<float>(vertexNeighbors[i].size());
-          mesh.Vertices[i] = p;
+          volume_mesh.Vertices[i] = p;
         }
       }
     }
 
-    // Smooth 3D surface
-    static void SmoothSurface(Surface3D& surface, size_t numSmoothings)
-    {
-      info("VertexSmoother: Smoothing surface...");
-      Timer timer("SmoothSurface");
-
-      // Build vertex connectivity
-      info("VertexSmoother: Building vertex connectivity");
-      const size_t numVertices = surface.Vertices.size();
-      std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
-      for (const auto &T : surface.Faces)
-      {
-        vertexNeighbors[T.v0].insert(T.v1);
-        vertexNeighbors[T.v0].insert(T.v2);
-        vertexNeighbors[T.v1].insert(T.v0);
-        vertexNeighbors[T.v1].insert(T.v2);
-        vertexNeighbors[T.v2].insert(T.v0);
-        vertexNeighbors[T.v2].insert(T.v1);
-      }
-
-      // Smooth by setting each vertex coordinate to average of neighbors
-      for (size_t n = 0; n < numSmoothings; n++)
-      {
-        info("VertexSmoother: Smoothing iteration " + str(n));
-        for (size_t i = 0; i < numVertices; i++)
-        {
-          double z = 0.0;
-          for (const auto& j: vertexNeighbors[i])
-            z += surface.Vertices[j].z;
-          z /= static_cast<float>(vertexNeighbors[i].size());
-          surface.Vertices[i].z = z;
-        }
-      }
-    }
-
-    // Smooth 2D grid field
-    static void SmoothField(GridField2D &field, size_t numSmoothings)
+    // Smooth grid field
+    static void SmoothField(GridField &field, size_t numSmoothings)
     {
       info("VertexSmoother: Smoothing grid field...");
       Timer timer("SmoothField");
@@ -145,7 +110,7 @@ namespace DTCC_BUILDER
         {
           // Get neighbors
           indices.clear();
-          field.Grid.Index2Boundary(i, indices);
+          field.grid.Index2Boundary(i, indices);
 
           // Compute average
           double value = 0.0;

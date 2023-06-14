@@ -5,9 +5,9 @@
 #define DTCC_POLYFIX_H
 
 #include "Geometry.h"
-#include "Polygon.h"
-#include "Timer.h"
 #include "Logging.h"
+#include "Timer.h"
+#include "model/Polygon.h"
 
 namespace DTCC_BUILDER
 {

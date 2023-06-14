@@ -5,9 +5,9 @@
 #define DTCC_SMOOTHER_H
 
 #include "BoundaryConditions.h"
-#include "Mesh.h"
 #include "StiffnessMatrix.h"
 #include "Timer.h"
+#include "model/Mesh.h"
 
 namespace DTCC_BUILDER
 {
@@ -16,9 +16,9 @@ class Smoother
 {
 public:
   // Smooth mesh using Laplacian smoothing
-  static void smooth_volume_mesh(Mesh3D &volume_mesh,
+  static void smooth_volume_mesh(VolumeMesh &volume_mesh,
                                  const CityModel &city_model,
-                                 const GridField2D &dem,
+                                 const GridField &dem,
                                  double top_height,
                                  bool fix_buildings,
                                  size_t max_iterations,
@@ -57,7 +57,7 @@ public:
 
 private:
   // Solve linear system using unassembled Gauss-Seidel iterations
-  static void solve_unassembled_gauss_seidel(const Mesh3D &volume_mesh,
+  static void solve_unassembled_gauss_seidel(const VolumeMesh &volume_mesh,
                                              StiffnessMatrix &AK,
                                              std::vector<double> &b,
                                              std::vector<double> &u,
@@ -119,8 +119,8 @@ private:
 
   // Set initial guess for solution vector
   static void set_initial_guess(std::vector<double> &u,
-                                const Mesh3D &volume_mesh,
-                                const GridField2D &dem,
+                                const VolumeMesh &volume_mesh,
+                                const GridField &dem,
                                 double top_height,
                                 BoundaryConditions &bc)
   {
@@ -140,14 +140,14 @@ private:
 
   // Compute the number of cells to which each vertex belongs
   static void compute_vertex_degrees(std::vector<uint> &vertex_degrees,
-                                     const Mesh3D &mesh)
+                                     const VolumeMesh &volume_mesh)
   {
-    for (size_t c = 0; c < mesh.Cells.size(); c++)
+    for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
     {
-      vertex_degrees[mesh.Cells[c].v0]++;
-      vertex_degrees[mesh.Cells[c].v1]++;
-      vertex_degrees[mesh.Cells[c].v2]++;
-      vertex_degrees[mesh.Cells[c].v3]++;
+      vertex_degrees[volume_mesh.Cells[c].v0]++;
+      vertex_degrees[volume_mesh.Cells[c].v1]++;
+      vertex_degrees[volume_mesh.Cells[c].v2]++;
+      vertex_degrees[volume_mesh.Cells[c].v3]++;
     }
   }
 };

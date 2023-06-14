@@ -10,12 +10,12 @@
 #include <vector>
 
 #include "Constants.h"
-#include "GridField.h"
 #include "Logging.h"
-#include "PointCloud.h"
 #include "Timer.h"
-#include "Vector.h"
 #include "VertexSmoother.h"
+#include "model/GridField.h"
+#include "model/PointCloud.h"
+#include "model/Vector.h"
 
 namespace DTCC_BUILDER
 {
@@ -31,7 +31,7 @@ public:
   /// @param pointCloud Point cloud (unfiltered)
   /// @param classifications Classifications to be considered
   /// @param resolution Resolution (grid size) of digital elevation model
-  static void GenerateElevationModel(GridField2D &dem,
+  static void GenerateElevationModel(GridField &dem,
                                      const PointCloud &pointCloud,
                                      const std::vector<int> &classifications,
                                      double resolution)
@@ -72,19 +72,19 @@ public:
     // FIXME: Use here and also in RandomizeElevationModel() below.
 
     // Initialize grid bounding box
-    dem.Grid.BoundingBox = pointCloud.BoundingBox;
+    dem.grid.BoundingBox = pointCloud.BoundingBox;
 
     // Initialize grid data
-    dem.Grid.XSize =
-        (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) / resolution + 1;
-    dem.Grid.YSize =
-        (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) / resolution + 1;
-    dem.Values.resize(dem.Grid.XSize * dem.Grid.YSize);
+    dem.grid.XSize =
+        (dem.grid.BoundingBox.Q.x - dem.grid.BoundingBox.P.x) / resolution + 1;
+    dem.grid.YSize =
+        (dem.grid.BoundingBox.Q.y - dem.grid.BoundingBox.P.y) / resolution + 1;
+    dem.Values.resize(dem.grid.XSize * dem.grid.YSize);
     std::fill(dem.Values.begin(), dem.Values.end(), 0.0);
-    dem.Grid.XStep = (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) /
-                     (dem.Grid.XSize - 1);
-    dem.Grid.YStep = (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) /
-                     (dem.Grid.YSize - 1);
+    dem.grid.XStep = (dem.grid.BoundingBox.Q.x - dem.grid.BoundingBox.P.x) /
+                     (dem.grid.XSize - 1);
+    dem.grid.YStep = (dem.grid.BoundingBox.Q.y - dem.grid.BoundingBox.P.y) /
+                     (dem.grid.YSize - 1);
 
     debug("ElevationModelGenerator: Computing mean elevation");
 
@@ -97,7 +97,7 @@ public:
       const Point2D p2D{p3D.x, p3D.y};
 
       // Skip if outside of domain
-      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, p2D))
+      if (!Geometry::BoundingBoxContains2D(dem.grid.BoundingBox, p2D))
         continue;
 
       // Sum up elevation
@@ -150,7 +150,7 @@ public:
         continue;
 
       // Skip if outside of domain
-      if (!Geometry::BoundingBoxContains2D(dem.Grid.BoundingBox, p2D))
+      if (!Geometry::BoundingBoxContains2D(dem.grid.BoundingBox, p2D))
         continue;
 
       // Skip if outlier
@@ -166,9 +166,9 @@ public:
 
       // Iterate over closest stencil (including center of stencil)
       neighborIndices.clear();
-      const size_t j = dem.Grid.Point2Index(p2D);
+      const size_t j = dem.grid.Point2Index(p2D);
       neighborIndices.push_back(j);
-      dem.Grid.Index2Boundary(j, neighborIndices);
+      dem.grid.Index2Boundary(j, neighborIndices);
       for (size_t k : neighborIndices)
       {
         dem.Values[k] += p3D.z;
@@ -213,7 +213,7 @@ public:
     for (size_t i : missingIndices)
     {
       neighborIndices.clear();
-      dem.Grid.Index2Boundary(i, neighborIndices);
+      dem.grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 2)
@@ -234,7 +234,7 @@ public:
 
       // Propagate values to neighbors and add neighbor to stack
       neighborIndices.clear();
-      dem.Grid.Index2Boundary(i, neighborIndices);
+      dem.grid.Index2Boundary(i, neighborIndices);
       for (size_t j : neighborIndices)
       {
         if (numLocalPoints[j] == 0)
@@ -282,7 +282,7 @@ public:
   /// @param dem The digital elevation model (DEM)
   /// @param bbox Bounding box of domain
   /// @param resolution Resolution (grid size) of digital elevation model
-  static void RandomizeElevationModel(GridField2D &dem,
+  static void RandomizeElevationModel(GridField &dem,
                                       const BoundingBox2D &bbox,
                                       double resolution)
   {
@@ -295,29 +295,29 @@ public:
     const size_t numHills = 30; // Number of hills (Gaussian bumps)
 
     // Initialize grid bounding box
-    dem.Grid.BoundingBox = bbox;
+    dem.grid.BoundingBox = bbox;
 
     // Initialize grid data
-    dem.Grid.XSize =
-        (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) / resolution + 1;
-    dem.Grid.YSize =
-        (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) / resolution + 1;
-    dem.Values.resize(dem.Grid.XSize * dem.Grid.YSize);
+    dem.grid.XSize =
+        (dem.grid.BoundingBox.Q.x - dem.grid.BoundingBox.P.x) / resolution + 1;
+    dem.grid.YSize =
+        (dem.grid.BoundingBox.Q.y - dem.grid.BoundingBox.P.y) / resolution + 1;
+    dem.Values.resize(dem.grid.XSize * dem.grid.YSize);
     std::fill(dem.Values.begin(), dem.Values.end(), 0.0);
-    dem.Grid.XStep = (dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x) /
-                     (dem.Grid.XSize - 1);
-    dem.Grid.YStep = (dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y) /
-                     (dem.Grid.YSize - 1);
+    dem.grid.XStep = (dem.grid.BoundingBox.Q.x - dem.grid.BoundingBox.P.x) /
+                     (dem.grid.XSize - 1);
+    dem.grid.YStep = (dem.grid.BoundingBox.Q.y - dem.grid.BoundingBox.P.y) /
+                     (dem.grid.YSize - 1);
 
     // Randomize hills
     std::vector<double> x;
     std::vector<double> y;
     std::vector<double> h;
     std::vector<double> w;
-    const double X0 = dem.Grid.BoundingBox.P.x;
-    const double Y0 = dem.Grid.BoundingBox.P.y;
-    const double dX = dem.Grid.BoundingBox.Q.x - dem.Grid.BoundingBox.P.x;
-    const double dY = dem.Grid.BoundingBox.Q.y - dem.Grid.BoundingBox.P.y;
+    const double X0 = dem.grid.BoundingBox.P.x;
+    const double Y0 = dem.grid.BoundingBox.P.y;
+    const double dX = dem.grid.BoundingBox.Q.x - dem.grid.BoundingBox.P.x;
+    const double dY = dem.grid.BoundingBox.Q.y - dem.grid.BoundingBox.P.y;
     for (size_t i = 0; i < numHills; i++)
     {
       x.push_back(X0 + dX * Utils::Random());
@@ -330,7 +330,7 @@ public:
     std::fill(dem.Values.begin(), dem.Values.end(), 0.0);
     for (size_t i = 0; i < dem.Values.size(); i++)
     {
-      const Point2D p = dem.Grid.Index2Point(i);
+      const Point2D p = dem.grid.Index2Point(i);
       for (size_t k = 0; k < numHills; k++)
       {
         const double dx = p.x - x[k];

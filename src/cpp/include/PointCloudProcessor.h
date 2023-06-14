@@ -12,12 +12,12 @@
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"
 
-#include "Color.h"
-#include "GeoRaster.h"
-#include "Point.h"
-#include "PointCloud.h"
 #include "Timer.h"
-#include "Vector.h"
+#include "model/Color.h"
+#include "model/GeoRaster.h"
+#include "model/Point.h"
+#include "model/PointCloud.h"
+#include "model/Vector.h"
 
 template <typename T> int sign(T val) { return (T(0) < val) - (val < T(0)); }
 

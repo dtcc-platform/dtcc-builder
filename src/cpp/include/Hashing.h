@@ -4,8 +4,8 @@
 #ifndef DTCC_HASHING_H
 #define DTCC_HASHING_H
 
-#include "Point.h"
-#include "Simplex.h"
+#include "model/Point.h"
+#include "model/Simplices.h"
 #include <iomanip>
 #include <sstream>
 

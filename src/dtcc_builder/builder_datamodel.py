@@ -43,25 +43,19 @@ def raster_to_builder_gridfield(raster: Raster):
     )
 
 
-def builder_mesh2D_to_mesh(mesh2D: _dtcc_builder.Mesh2D):
+def builder_mesh_to_mesh(_mesh: _dtcc_builder.Mesh):
     mesh = model.Mesh()
-    mesh.vertices = np.array([[v.x, v.y, 0] for v in mesh2D.Vertices])
-    mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in mesh2D.Cells])
-    mesh.normals = np.array([[0, 0, 1] for n in range(len(mesh2D.Cells))])
+    mesh.vertices = np.array([[v.x, v.y, v.z] for v in _mesh.Vertices])
+    mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in _mesh.Faces])
+    mesh.normals = np.array([[n.x, n.y, n.z] for n in _mesh.Normals])
     return mesh
 
 
-def builder_mesh3D_to_volume_mesh(mesh3D: _dtcc_builder.Mesh3D):
+def builder_volume_mesh_to_volume_mesh(_volume_mesh: _dtcc_builder.Mesh):
     volume_mesh = model.VolumeMesh()
-    volume_mesh.vertices = np.array([[v.x, v.y, v.z] for v in mesh3D.Vertices])
-    volume_mesh.cells = np.array([[c.v0, c.v1, c.v2, c.v3] for c in mesh3D.Cells])
-    volume_mesh.markers = np.array(mesh3D.Markers)
+    volume_mesh.vertices = np.array([[v.x, v.y, v.z] for v in _volume_mesh.Vertices])
+    volume_mesh.cells = np.array([[c.v0, c.v1, c.v2, c.v3] for c in _volume_mesh.Cells])
+    volume_mesh.markers = np.array(_volume_mesh.Markers)
     return volume_mesh
 
 
-def builder_surface_mesh_to_mesh(surfaceMesh: _dtcc_builder.Surface3D):
-    surface_mesh = model.Mesh()
-    surface_mesh.vertices = np.array([[v.x, v.y, v.z] for v in surfaceMesh.Vertices])
-    surface_mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in surfaceMesh.Faces])
-    surface_mesh.normals = np.array([[n.x, n.y, n.z] for n in surfaceMesh.Normals])
-    return surface_mesh

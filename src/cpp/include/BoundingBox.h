@@ -7,9 +7,9 @@
 #include <cassert>
 #include <limits>
 
-#include "Point.h"
-#include "Polygon.h"
 #include "Logging.h"
+#include "model/Point.h"
+#include "model/Polygon.h"
 
 namespace DTCC_BUILDER
 {

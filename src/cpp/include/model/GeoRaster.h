@@ -16,7 +16,7 @@ class GeoRaster
 public:
   size_t XSize, YSize, Bands = 0;
   BoundingBox2D Bounds{};
-  std::vector<GridField2D> Values{};
+  std::vector<GridField> Values{};
 
   GeoRaster() {}
 
@@ -35,9 +35,6 @@ public:
     }
     return Values[band-1](p);
   }
-
-
-
 };
 } // namespace DTCC_BUILDER
 

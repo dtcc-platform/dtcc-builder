@@ -89,6 +89,13 @@ public:
     return -1;
   }
 
+  // 3D version, only using x and y
+  int FindBuilding(const Vector3D &p) const
+  {
+    Vector2D _p(p.x, p.y);
+    return FindBuilding(_p);
+  }
+
   // Compute center of city model
   Point2D Center() const
   {

@@ -3,19 +3,19 @@
 
 #include <pybind11/stl.h>
 
-#include "Building.h"
-#include "CityModel.h"
 #include "CityModelGenerator.h"
 #include "ElevationModelGenerator.h"
-#include "GridField.h"
-#include "Mesh.h"
 #include "MeshGenerator.h"
 #include "MeshProcessor.h"
-#include "Point.h"
-#include "PointCloud.h"
-#include "Polygon.h"
 #include "Smoother.h"
 #include "VertexSmoother.h"
+#include "model/Building.h"
+#include "model/CityModel.h"
+#include "model/GridField.h"
+#include "model/Mesh.h"
+#include "model/Point.h"
+#include "model/PointCloud.h"
+#include "model/Polygon.h"
 
 namespace py = pybind11;
 
@@ -96,25 +96,25 @@ PointCloud createBuilderPointCloud(py::array_t<double> pts,
   return pointCloud;
 }
 
-GridField2D createBuilderGridField(py::array_t<double> data,
-                                   py::tuple bounds,
-                                   size_t XSize,
-                                   size_t YSize,
-                                   double XStep,
-                                   double YStep)
+GridField createBuilderGridField(py::array_t<double> data,
+                                 py::tuple bounds,
+                                 size_t XSize,
+                                 size_t YSize,
+                                 double XStep,
+                                 double YStep)
 {
-  GridField2D gridField;
+  GridField gridField;
   double px = bounds[0].cast<double>();
   double py = bounds[1].cast<double>();
   double qx = bounds[2].cast<double>();
   double qy = bounds[3].cast<double>();
   auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
 
-  gridField.Grid.BoundingBox = bbox;
-  gridField.Grid.XStep = XStep;
-  gridField.Grid.YStep = YStep;
-  gridField.Grid.XSize = XSize;
-  gridField.Grid.YSize = YSize;
+  gridField.grid.BoundingBox = bbox;
+  gridField.grid.XStep = XStep;
+  gridField.grid.YStep = YStep;
+  gridField.grid.XSize = XSize;
+  gridField.grid.YSize = YSize;
 
   auto data_r = data.unchecked<1>();
   size_t data_count = data_r.size();
@@ -165,17 +165,17 @@ CityModel extractRoofPoints(CityModel &cityModel,
 }
 
 // GridField
-GridField2D GenerateElevationModel(const PointCloud &pointCloud,
-                                   double resolution,
-                                   std::vector<int> classifications)
+GridField GenerateElevationModel(const PointCloud &pointCloud,
+                                 double resolution,
+                                 std::vector<int> classifications)
 {
-  GridField2D dem;
+  GridField dem;
   ElevationModelGenerator::GenerateElevationModel(dem, pointCloud,
                                                   classifications, resolution);
   return dem;
 }
 
-GridField2D SmoothElevation(GridField2D &dem, size_t numSmoothings)
+GridField SmoothElevation(GridField &dem, size_t numSmoothings)
 {
   VertexSmoother::SmoothField(dem, numSmoothings);
   return dem;
@@ -204,10 +204,11 @@ CityModel CleanCityModel(CityModel &cityModel, double minVertDistance)
 
 // Meshing
 
-Mesh2D
-GenerateMesh2D(const CityModel &cityModel, py::tuple bounds, double resolution)
+Mesh GenerateMesh2D(const CityModel &cityModel,
+                    py::tuple bounds,
+                    double resolution)
 {
-  Mesh2D mesh;
+  Mesh mesh;
   double px = bounds[0].cast<double>();
   double py = bounds[1].cast<double>();
   double qx = bounds[2].cast<double>();
@@ -219,23 +220,23 @@ GenerateMesh2D(const CityModel &cityModel, py::tuple bounds, double resolution)
   return mesh;
 }
 
-Mesh3D
-GenerateMesh3D(const Mesh2D &mesh2D, double domainHeight, double meshResolution)
+VolumeMesh
+GenerateVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
 {
-  Mesh3D mesh;
-  auto num_layers =
-      MeshGenerator::GenerateMesh3D(mesh, mesh2D, domainHeight, meshResolution);
-  mesh.NumLayers = num_layers;
-  return mesh;
+  VolumeMesh volume_mesh;
+  auto num_layers = MeshGenerator::GenerateVolumeMesh(
+      volume_mesh, mesh, domainHeight, meshResolution);
+  volume_mesh.NumLayers = num_layers;
+  return volume_mesh;
 }
 
-Mesh3D smooth_volume_mesh(Mesh3D &volume_mesh,
-                          const CityModel &city_model,
-                          const GridField2D &dem,
-                          double top_height,
-                          bool fix_buildings,
-                          size_t max_iterations,
-                          double relative_tolerance)
+VolumeMesh smooth_volume_mesh(VolumeMesh &volume_mesh,
+                              const CityModel &city_model,
+                              const GridField &dem,
+                              double top_height,
+                              bool fix_buildings,
+                              size_t max_iterations,
+                              double relative_tolerance)
 {
   Smoother::smooth_volume_mesh(volume_mesh, city_model, dem, top_height,
                                fix_buildings, max_iterations,
@@ -243,43 +244,44 @@ Mesh3D smooth_volume_mesh(Mesh3D &volume_mesh,
   return volume_mesh;
 }
 
-std::vector<Surface3D> GenerateSurfaces3D(const CityModel &cityModel,
-                                          const GridField2D &dtm,
-                                          double resolution)
+std::vector<Mesh> GenerateSurfaces3D(const CityModel &cityModel,
+                                     const GridField &dtm,
+                                     double resolution)
 {
-  Surface3D groundSurface;
-  std::vector<Surface3D> buildingSurfaces;
+  Mesh groundSurface;
+  std::vector<Mesh> buildingSurfaces;
   MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
                                     dtm, resolution);
   buildingSurfaces.insert(buildingSurfaces.begin(), groundSurface);
   return buildingSurfaces;
 }
 
-Mesh3D
-TrimMesh3D(Mesh3D &mesh3D, const Mesh2D &mesh2D, const CityModel &cityModel)
+VolumeMesh TrimVolumeMesh(VolumeMesh &volume_mesh,
+                          const Mesh &mesh,
+                          const CityModel &cityModel)
 {
-  size_t numLayers = mesh3D.NumLayers;
-  MeshGenerator::TrimMesh3D(mesh3D, mesh2D, cityModel, numLayers);
-  return mesh3D;
+  size_t numLayers = volume_mesh.NumLayers;
+  MeshGenerator::TrimVolumeMesh(volume_mesh, mesh, cityModel, numLayers);
+  return volume_mesh;
 }
 
-Surface3D ExtractBoundary3D(const Mesh3D &mesh)
+Mesh ExtractBoundary3D(const VolumeMesh &mesh)
 {
-  Surface3D surface;
+  Mesh surface;
   MeshProcessor::ExtractBoundary3D(surface, mesh);
   return surface;
 }
 
-Surface3D ExtractOpenSurface3D(const Surface3D &boundary)
+Mesh ExtractOpenSurface3D(const Mesh &boundary)
 {
-  Surface3D surface;
+  Mesh surface;
   MeshProcessor::ExtractOpenSurface3D(surface, boundary);
   return surface;
 }
 
-Surface3D MergeSurfaces3D(const std::vector<Surface3D> &surfaces)
+Mesh MergeSurfaces3D(const std::vector<Mesh> &surfaces)
 {
-  Surface3D merged_surface;
+  Mesh merged_surface;
   MeshProcessor::MergeSurfaces3D(merged_surface, surfaces);
   return merged_surface;
 }
@@ -355,17 +357,17 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readonly("intensities", &DTCC_BUILDER::PointCloud::Intensities)
       .def_readonly("scan_flags", &DTCC_BUILDER::PointCloud::ScanFlags);
 
-  py::class_<DTCC_BUILDER::GridField2D>(m, "GridField2D")
+  py::class_<DTCC_BUILDER::GridField>(m, "GridField")
       .def(py::init<>())
-      .def_readonly("Grid", &DTCC_BUILDER::GridField2D::Grid)
-      .def_readonly("values", &DTCC_BUILDER::GridField2D::Values);
+      .def_readonly("Grid", &DTCC_BUILDER::GridField::grid)
+      .def_readonly("values", &DTCC_BUILDER::GridField::Values);
 
-  py::class_<DTCC_BUILDER::Grid2D>(m, "Grid2D")
+  py::class_<DTCC_BUILDER::Grid>(m, "Grid")
       .def(py::init<>())
-      .def_readonly("xsize", &DTCC_BUILDER::Grid2D::XSize)
-      .def_readonly("ysize", &DTCC_BUILDER::Grid2D::YSize)
-      .def_readonly("xstep", &DTCC_BUILDER::Grid2D::XStep)
-      .def_readonly("ystep", &DTCC_BUILDER::Grid2D::YStep);
+      .def_readonly("xsize", &DTCC_BUILDER::Grid::XSize)
+      .def_readonly("ysize", &DTCC_BUILDER::Grid::YSize)
+      .def_readonly("xstep", &DTCC_BUILDER::Grid::XStep)
+      .def_readonly("ystep", &DTCC_BUILDER::Grid::YStep);
 
   py::class_<DTCC_BUILDER::Simplex2D>(m, "Simplex2D")
       .def(py::init<>())
@@ -380,23 +382,18 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readonly("v2", &DTCC_BUILDER::Simplex3D::v2)
       .def_readonly("v3", &DTCC_BUILDER::Simplex3D::v3);
 
-  py::class_<DTCC_BUILDER::Mesh2D>(m, "Mesh2D")
+  py::class_<DTCC_BUILDER::Mesh>(m, "Mesh")
       .def(py::init<>())
-      .def_readonly("Vertices", &DTCC_BUILDER::Mesh2D::Vertices)
-      .def_readonly("Cells", &DTCC_BUILDER::Mesh2D::Cells);
+      .def_readonly("Vertices", &DTCC_BUILDER::Mesh::Vertices)
+      .def_readonly("Faces", &DTCC_BUILDER::Mesh::Faces)
+      .def_readonly("Normals", &DTCC_BUILDER::Mesh::Normals);
 
-  py::class_<DTCC_BUILDER::Mesh3D>(m, "Mesh3D")
+  py::class_<DTCC_BUILDER::VolumeMesh>(m, "VolumeMesh")
       .def(py::init<>())
-      .def_readonly("numLayers", &DTCC_BUILDER::Mesh3D::NumLayers)
-      .def_readonly("Vertices", &DTCC_BUILDER::Mesh3D::Vertices)
-      .def_readonly("Cells", &DTCC_BUILDER::Mesh3D::Cells)
-      .def_readonly("Markers", &DTCC_BUILDER::Mesh3D::Markers);
-
-  py::class_<DTCC_BUILDER::Surface3D>(m, "Surface3D")
-      .def(py::init<>())
-      .def_readonly("Vertices", &DTCC_BUILDER::Surface3D::Vertices)
-      .def_readonly("Faces", &DTCC_BUILDER::Surface3D::Faces)
-      .def_readonly("Normals", &DTCC_BUILDER::Surface3D::Normals);
+      .def_readonly("numLayers", &DTCC_BUILDER::VolumeMesh::NumLayers)
+      .def_readonly("Vertices", &DTCC_BUILDER::VolumeMesh::Vertices)
+      .def_readonly("Cells", &DTCC_BUILDER::VolumeMesh::Cells)
+      .def_readonly("Markers", &DTCC_BUILDER::VolumeMesh::Markers);
 
   m.def("createBuilderCityModel", &DTCC_BUILDER::createBuilderCityModel,
         "create builder point cloud from citymodel data");
@@ -424,11 +421,12 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("CleanCityModel", &DTCC_BUILDER::CleanCityModel, "Clean city model");
 
   m.def("GenerateMesh2D", &DTCC_BUILDER::GenerateMesh2D, "Generate 2D mesh");
-  m.def("GenerateMesh3D", &DTCC_BUILDER::GenerateMesh3D, "Generate 2D mesh");
+  m.def("GenerateVolumeMesh", &DTCC_BUILDER::GenerateVolumeMesh,
+        "Generate 2D mesh");
 
   m.def("smooth_volume_mesh", &DTCC_BUILDER::smooth_volume_mesh,
         "Smooth volume mesh");
-  m.def("TrimMesh3D", &DTCC_BUILDER::TrimMesh3D, "Trim 3D mesh");
+  m.def("TrimVolumeMesh", &DTCC_BUILDER::TrimVolumeMesh, "Trim 3D mesh");
 
   m.def("ExtractBoundary3D", &DTCC_BUILDER::ExtractBoundary3D,
         "Extract 3D boundary");

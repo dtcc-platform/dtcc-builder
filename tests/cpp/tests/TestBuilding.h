@@ -1,5 +1,5 @@
-#include "Building.h"
 #include "BuildingProcessor.h"
+#include "model/Building.h"
 
 using namespace DTCC_BUILDER;
 

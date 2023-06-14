@@ -9,9 +9,9 @@
 #include <vector>
 
 #include "Logging.h"
-#include "Point.h"
-#include "Polygon.h"
-#include "Vector.h"
+#include "model/Point.h"
+#include "model/Polygon.h"
+#include "model/Vector.h"
 
 namespace DTCC_BUILDER
 {
@@ -27,6 +27,7 @@ enum BuildingError
   BUILDING_BAD_ASPECT_RATIO = 1 << 5,
   BUILDING_INSUFFICIENT_POINT_COVERAGE = 1 << 6
 };
+
 /// Building represents a building defined by a footprint and a height.
 /// This means that a Building is currently an LOD1 representation.
 class Building : public Printable
