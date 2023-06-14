@@ -3,54 +3,54 @@ from pathlib import Path
 
 _parameters = {}
 
-_parameters["ModelName"] = "DTCC"
-_parameters["AutoDomain"] = True
-_parameters["GenerateSurfaceMeshes"] = True
-_parameters["GenerateVolumeMeshes"] = True
-_parameters["WriteJSON"] = True
-_parameters["WriteVTK"] = True
-_parameters["WriteSTL"] = True
-_parameters["WriteOBJ"] = False
-_parameters["WriteProtobuf"] = True
+_parameters["model-name"] = "DTCC"
+_parameters["autodomain"] = True
+_parameters["generate-surface-mesh"] = True
+_parameters["generate-volume-mesh"] = True
+_parameters["write-json"] = True
+_parameters["write-vtk"] = True
+_parameters["write-stl"] = True
+_parameters["write-obj"] = False
+_parameters["write-protobuf"] = True
 
-_parameters["Debug"] = False
+_parameters["debug"] = False
 
-_parameters["GroundSmoothing"] = 5
+_parameters["ground-smoothing"] = 5
 
-_parameters["DomainMargin"] = 10.0
-_parameters["X0"] = 0.0
-_parameters["Y0"] = 0.0
-_parameters["XMin"] = 0.0
-_parameters["YMin"] = 0.0
-_parameters["XMax"] = 0.0
-_parameters["YMax"] = 0.0
-_parameters["ElevationModelResolution"] = 1.0
-_parameters["MinBuildingDistance"] = 1.0
-_parameters["MinBuildingHeight"] = 2.5
-_parameters["MinVertexDistance"] = 1.0
-_parameters["GroundMargin"] = 1.0
-_parameters["MeshResolution"] = 10.0
-_parameters["DomainHeight"] = 100.0
-_parameters["GroundPercentile"] = 0.5
-_parameters["RoofPercentile"] = 0.9
-_parameters["OutlierMargin"] = 2.0
-_parameters["MinBuildingSize"] = 15.0
-_parameters["UUIDField"] = "uuid"
-_parameters["HeightField"] = ""
+_parameters["domain-margin"] = 10.0
+_parameters["x0"] = 0.0
+_parameters["y0"] = 0.0
+_parameters["x-min"] = 0.0
+_parameters["y-min"] = 0.0
+_parameters["x-max"] = 0.0
+_parameters["y-max"] = 0.0
+_parameters["elevation-model-resolution"] = 1.0
+_parameters["min-building-distance"] = 1.0
+_parameters["min-building-height"] = 2.5
+_parameters["min-vertex-distance"] = 1.0
+_parameters["ground-margin"] = 1.0
+_parameters["mesh-resolution"] = 10.0
+_parameters["domain-height"] = 100.0
+_parameters["groun-percentile"] = 0.5
+_parameters["roof-percentile"] = 0.9
+_parameters["outlier-margin"] = 2.0
+_parameters["min-building-size"] = 15.0
+_parameters["uuid-field"] = "uuid"
+_parameters["height-field"] = ""
 
-_parameters["StatisticalOutlierRemover"] = True
-_parameters["OutlierNeighbors"] = 5
-_parameters["RoofOutlierMargin"] = 1.5
+_parameters["statistical-outlier-remover"] = True
+_parameters["outlier-neighbors"] = 5
+_parameters["roof-outlier-margin"] = 1.5
 
-_parameters["RANSACOutlierRemover"] = True
-_parameters["RANSACOutlierMargin"] = 3.0
-_parameters["RANSACIterations"] = 250
+_parameters["ransac-outlier-remover"] = True
+_parameters["ransac-outlier-margin"] = 3.0
+_parameters["ransac-iterations"] = 250
 
-_parameters["NaiveVegitationFilter"] = True
-_parameters["DataDirectory"] = ""
-_parameters["BuildingsFileName"] = "PropertyMap.shp"
-_parameters["PointCloudDirectory"] = ""
-_parameters["OutputDirectory"] = ""
+_parameters["naive-vegitation-filter"] = True
+_parameters["data-directory"] = ""
+_parameters["buildings-filename"] = "PropertyMap.shp"
+_parameters["pointcloud-directory"] = ""
+_parameters["output-directory"] = ""
 
 
 def load_parameters(file_path=None, project_path="."):
@@ -79,19 +79,19 @@ def load_parameters(file_path=None, project_path="."):
 
 
 def set_directories(p, project_path):
-    if p["DataDirectory"] == "":
-        p["DataDirectory"] = project_path
-    if p["OutputDirectory"] == "":
-        p["OutputDirectory"] = p["DataDirectory"]
+    if p["data-directory"] == "":
+        p["data-directory"] = project_path
+    if p["output-directory"] == "":
+        p["output-directory"] = p["data-directory"]
 
-    p["DataDirectory"] = Path(p["DataDirectory"])
-    p["OutputDirectory"] = Path(p["OutputDirectory"])
-    p["OutputDirectory"].mkdir(parents=True, exist_ok=True)
-    if p["PointCloudDirectory"] == "":
-        p["PointCloudDirectory"] = p["DataDirectory"]
+    p["data-directory"] = Path(p["data-directory"])
+    p["output-directory"] = Path(p["output-directory"])
+    p["output-directory"].mkdir(parents=True, exist_ok=True)
+    if p["pointcloud-directory"] == "":
+        p["pointcloud-directory"] = p["data-directory"]
     else:
-        p["PointCloudDirectory"] = Path(p["PointCloudDirectory"])
-        if not p["PointCloudDirectory"].is_absolute():
-            p["PointCloudDirectory"] = p["DataDirectory"] / p["PointCloudDirectory"]
+        p["pointcloud-directory"] = Path(p["pointcloud-directory"])
+        if not p["pointcloud-directory"].is_absolute():
+            p["pointcloud-directory"] = p["data-directory"] / p["pointcloud-directory"]
 
     return p
