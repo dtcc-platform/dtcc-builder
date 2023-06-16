@@ -8,16 +8,57 @@
 # project directory.
 
 
-import sys, os, re, argparse, logging
+import sys, os, re, json, argparse
 from pathlib import Path
 
 
 import dtcc_io as io
 import dtcc_builder as builder
-from dtcc_builder.parameters import load_parameters
 from dtcc_common import info, warning
 
 PARAMETERS_FILE = "parameters.json"
+
+
+def set_directories(p, project_path):
+    if p["data_directory"] == "":
+        p["data_directory"] = project_path
+    if p["output_directory"] == "":
+        p["output_directory"] = p["data_directory"]
+
+    p["data_directory"] = Path(p["data_directory"])
+    p["output_directory"] = Path(p["output_directory"])
+    p["output_directory"].mkdir(parents=True, exist_ok=True)
+    if p["pointcloud_directory"] == "":
+        p["pointcloud_directory"] = p["data_directory"]
+    else:
+        p["pointcloud_directory"] = Path(p["pointcloud_directory"])
+        if not p["pointcloud_directory"].is_absolute():
+            p["pointcloud_directory"] = p["data_directory"] / p["pointcloud_directory"]
+
+    return p
+
+
+def load_parameters(file_path=None, project_path="."):
+    if file_path is None:
+        p = builder.parameters.default()
+
+    else:
+        file_path = Path(file_path)
+        print(file_path)
+        if file_path.is_dir():
+            file_path = file_path / "Parameters.json"
+        if not file_path.exists():
+            print(
+                f"Parameters file {file_path} does not exist, using default parameters"
+            )
+            p = builder.parameters.default()
+        else:
+            with open(file_path) as src:
+                loaded_parameters = json.load(src)
+            p = builder.parameters.default()
+            p.update(loaded_parameters)
+    p = set_directories(p, project_path)
+    return p
 
 
 def create_parameters_options(parser):
@@ -94,7 +135,7 @@ def run(p, citymodel_only, mesh_only):
     pointcloud_file = p["pointcloud_directory"]
     if not pointcloud_file.exists():
         raise FileNotFoundError(f"cannot find point cloud file {pointcloud_file}")
-    logging.info(
+    info(
         f"creating citymodel from Building file: {building_file} and pointcloud {pointcloud_file}"
     )
 

@@ -1,5 +1,6 @@
-from dtcc_builder import build
-from dtcc_builder import builder_datamodel
+from . import build
+from . import builder_datamodel
+from . import parameters
 
 # Add model extensions
 from dtcc_model import CityModel, PointCloud

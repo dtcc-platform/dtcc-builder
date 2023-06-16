@@ -53,8 +53,6 @@ def calculate_project_domain(params_or_footprint, las_path=None, params=None):
             p["x0"] + p["x_max"],
             p["y0"] + p["y_max"],
         )
-    print(origin)
-    print(domain_bounds)
 
     domain_bounds = model.Bounds(
         xmin=domain_bounds[0],

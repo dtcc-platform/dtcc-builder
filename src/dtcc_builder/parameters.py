@@ -1,6 +1,3 @@
-import json
-from pathlib import Path
-
 _parameters = {}
 
 _parameters["model_name"] = "DTCC"
@@ -53,45 +50,5 @@ _parameters["pointcloud_directory"] = ""
 _parameters["output_directory"] = ""
 
 
-def load_parameters(file_path=None, project_path="."):
-    global _parameters
-
-    if file_path is None:
-        p = _parameters.copy()
-
-    else:
-        file_path = Path(file_path)
-        print(file_path)
-        if file_path.is_dir():
-            file_path = file_path / "Parameters.json"
-        if not file_path.exists():
-            print(
-                f"Parameters file {file_path} does not exist, using default parameters"
-            )
-            p = _parameters.copy()
-        else:
-            with open(file_path) as src:
-                loaded_parameters = json.load(src)
-            p = _parameters.copy()
-            p.update(loaded_parameters)
-    p = set_directories(p, project_path)
-    return p
-
-
-def set_directories(p, project_path):
-    if p["data_directory"] == "":
-        p["data_directory"] = project_path
-    if p["output_directory"] == "":
-        p["output_directory"] = p["data_directory"]
-
-    p["data_directory"] = Path(p["data_directory"])
-    p["output_directory"] = Path(p["output_directory"])
-    p["output_directory"].mkdir(parents=True, exist_ok=True)
-    if p["pointcloud_directory"] == "":
-        p["pointcloud_directory"] = p["data_directory"]
-    else:
-        p["pointcloud_directory"] = Path(p["pointcloud_directory"])
-        if not p["pointcloud_directory"].is_absolute():
-            p["pointcloud_directory"] = p["data_directory"] / p["pointcloud_directory"]
-
-    return p
+def default():
+    return _parameters.copy()
