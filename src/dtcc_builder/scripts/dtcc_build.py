@@ -20,11 +20,6 @@ from dtcc_common import info, warning
 PARAMETERS_FILE = "parameters.json"
 
 
-def camel_to_kebab(name):
-    name = re.sub("(.)([A-Z][a-z]+)", r"\1-\2", name)
-    return re.sub("([a-z0-9])([A-Z])", r"\1-\2", name).lower()
-
-
 def create_parameters_options(parser):
     type_map = {
         "str": str,
@@ -33,44 +28,36 @@ def create_parameters_options(parser):
         "bool": bool,
     }
 
-    name_translator = {}
     p = load_parameters()
-    for k, v in p.items():
-        kebab_name = camel_to_kebab(k)
-        name_translator[k] = kebab_name
-        name_translator[kebab_name] = k
-        val_type = type(v).__name__
-        if val_type == "bool":
+    for key, value in p.items():
+        val_type = type(value).__name__
+        if isinstance(value, bool):
             parser.add_argument(
-                f"--{kebab_name}",
+                f"--{key}",
                 action="store_true",
                 default=None,
-                help=f"Turn on {k}",
+                help=f"Turn on {key}",
             )
             parser.add_argument(
-                f"--no-{kebab_name}",
-                dest=kebab_name.replace("-", "_"),
+                f"--no-{key}",
+                dest=key,
                 default=None,
                 action="store_false",
-                help=f"Turn off {k}",
+                help=f"Turn off {key}",
             )
         else:
             parser.add_argument(
-                f"--{kebab_name}", default=None, type=type_map.get(val_type, str)
+                f"--{key}", default=None, type=type_map.get(val_type, str)
             )
-    return parser, name_translator
+    return parser
 
 
-def update_parameters_from_options(p, args, name_translator):
-    for k, v in p.items():
-        snake_name = name_translator.get(k)
-        if snake_name is None:
-            continue
-        snake_name = name_translator[k].replace("-", "_")
-        parser_val = getattr(args, snake_name)
-        if parser_val is not None:
-            p[k] = parser_val
-    return p
+def update_parameters_from_options(parameters, args):
+    for key, value in parameters.items():
+        parser_value = getattr(args, key)
+        if parser_value is not None:
+            parameters[key] = parser_value
+    return parameters
 
 
 def print_parameters(p):
@@ -217,7 +204,7 @@ def main():
     parser.add_argument("--mesh-only", action="store_true")
     parser.add_argument("projectpath", nargs="?", default=os.getcwd())
 
-    parser, name_translator = create_parameters_options(parser)
+    parser = create_parameters_options(parser)
 
     args = parser.parse_args()
 
@@ -230,7 +217,7 @@ def main():
         info(f"Loading parameters from {parameters_file}")
         parameters = load_parameters(parameters_file, project_path)
 
-    parameters = update_parameters_from_options(parameters, args, name_translator)
+    parameters = update_parameters_from_options(parameters, args)
 
     # Pretty-print parameters
     print_parameters(parameters)
