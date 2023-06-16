@@ -19,62 +19,26 @@ from dtcc_common import info, warning
 PARAMETERS_FILE = "parameters.json"
 
 
-def set_directories(p, project_path):
-    if p["data_directory"] == "":
-        p["data_directory"] = project_path
-    if p["output_directory"] == "":
-        p["output_directory"] = p["data_directory"]
+def parse_command_line():
+    "Parse command line arguments"
 
-    p["data_directory"] = Path(p["data_directory"])
-    p["output_directory"] = Path(p["output_directory"])
-    p["output_directory"].mkdir(parents=True, exist_ok=True)
-    if p["pointcloud_directory"] == "":
-        p["pointcloud_directory"] = p["data_directory"]
-    else:
-        p["pointcloud_directory"] = Path(p["pointcloud_directory"])
-        if not p["pointcloud_directory"].is_absolute():
-            p["pointcloud_directory"] = p["data_directory"] / p["pointcloud_directory"]
+    # Create parser
+    parser = argparse.ArgumentParser(
+        prog="dtcc-builder",
+        description="Build LOD1 city mesh(es) from building footprints and pointcloud",
+    )
 
-    return p
+    # Add main arguments
+    parser.add_argument("--citymodel-only", action="store_true")
+    parser.add_argument("--mesh-only", action="store_true")
+    parser.add_argument("path", nargs="?", default=os.getcwd())
 
-
-def load_parameters(file_path=None, project_path="."):
-    if file_path is None:
-        p = builder.parameters.default()
-
-    else:
-        file_path = Path(file_path)
-        print(file_path)
-        if file_path.is_dir():
-            file_path = file_path / "Parameters.json"
-        if not file_path.exists():
-            print(
-                f"Parameters file {file_path} does not exist, using default parameters"
-            )
-            p = builder.parameters.default()
-        else:
-            with open(file_path) as src:
-                loaded_parameters = json.load(src)
-            p = builder.parameters.default()
-            p.update(loaded_parameters)
-    p = set_directories(p, project_path)
-    return p
-
-
-def create_parameters_options(parser):
-    type_map = {
-        "str": str,
-        "float": float,
-        "int": int,
-        "bool": bool,
-    }
-
-    p = load_parameters()
-    for key, value in p.items():
-        val_type = type(value).__name__
+    # Add parameter arguments (note special handling of booleans)
+    for key, value in builder.parameters.default().items():
         if isinstance(value, bool):
             parser.add_argument(
                 f"--{key}",
+                dest=key,
                 action="store_true",
                 default=None,
                 help=f"Turn on {key}",
@@ -87,45 +51,80 @@ def create_parameters_options(parser):
                 help=f"Turn off {key}",
             )
         else:
-            parser.add_argument(
-                f"--{key}", default=None, type=type_map.get(val_type, str)
-            )
-    return parser
+            parser.add_argument(f"--{key}", default=None, type=type(value))
+
+    return parser.parse_args()
 
 
-def update_parameters_from_options(parameters, args):
+def load_parameters(args):
+    "Load parameters and override by command line arguments"
+
+    # Load parameters from or directory if provided, else use default parameters
+    parameters = builder.parameters.default()
+    if args.path is None:
+        info("Using default parameters")
+    else:
+        path = Path(args.path)
+        if path.is_dir():
+            path = path / PARAMETERS_FILE
+        if path.exists():
+            info(f"Loading parameters from {path}")
+            with open(path) as f:
+                _parameters = json.load(f)
+                parameters.update(_parameters)
+        else:
+            warning(f"Unable to load {path}; using default parameters")
+
+    # Override parameters with command line arguments
     for key, value in parameters.items():
         parser_value = getattr(args, key)
         if parser_value is not None:
+            info(f"Overriding parameter {key} with argument {parser_value}")
             parameters[key] = parser_value
+
+    # Set parameters for directories
+    set_directory_parameters(parameters, args.path)
+
+    # Pretty-print parameters
+    info("Printing parameters")
+    keys = sorted(parameters.keys())
+    n = max([len(key) for key in keys]) if keys else 0
+    for key in sorted(keys):
+        print(f"  {key}: {' '*(n - len(key) - 1)} {parameters[key]}")
+
     return parameters
 
 
-def print_parameters(p):
-    "Pretty-print parameters"
-    info("Printing parameters")
-    keys = sorted(p.keys())
-    n = max([len(key) for key in keys])
-    for key in sorted(p.keys()):
-        print(f"  {key}: {' '*(n - len(key) - 1)} {p[key]}")
+def set_directory_parameters(parameters, path):
+    "Set parameters for directories"
 
+    # Shortcut
+    p = parameters
 
-def get_project_paths(path):
-    if not path:
-        project_path = Path.cwd()
-        parameters_file = project_path / PARAMETERS_FILE
-    else:
-        arg_path = Path(path).resolve()
-        if not arg_path.exists():
-            raise FileNotFoundError(f"cannot find project path {arg_path}")
-        if arg_path.is_file():
-            project_path = arg_path.parent
-            parameters_file = arg_path
-        else:
-            project_path = arg_path
-            parameters_file = project_path / PARAMETERS_FILE
+    # Set data_directory
+    data_directory = p["data_directory"]
+    if data_directory == "":
+        data_directory = path
+    data_directory = Path(data_directory)
 
-    return (parameters_file, project_path)
+    # Set pointcloud_directory
+    pointcloud_directory = p["pointcloud_directory"]
+    if pointcloud_directory == "":
+        pointcloud_directory = data_directory
+    pointcloud_directory = Path(pointcloud_directory)
+
+    # Set output_directory
+    output_directory = p["output_directory"]
+    if output_directory == "":
+        output_directory = data_directory
+    output_directory = Path(output_directory)
+
+    # Set parameters
+    p["data_directory"] = data_directory
+    p["pointcloud_directory"] = pointcloud_directory
+    p["output_directory"] = output_directory
+
+    return p
 
 
 def run(p, citymodel_only, mesh_only):
@@ -235,33 +234,11 @@ def run(p, citymodel_only, mesh_only):
 
 
 def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(
-        prog="dtcc-builder",
-        description="Build LOD1 city mesh(es) from building footprints and pointcloud",
-    )
+    # Parse command line
+    args = parse_command_line()
 
-    parser.add_argument("--citymodel-only", action="store_true")
-    parser.add_argument("--mesh-only", action="store_true")
-    parser.add_argument("projectpath", nargs="?", default=os.getcwd())
+    # Load parameters
+    parameters = load_parameters(args)
 
-    parser = create_parameters_options(parser)
-
-    args = parser.parse_args()
-
-    parameters_file, project_path = get_project_paths(args.projectpath)
-
-    if not parameters_file.is_file():
-        warning(f"Unable to load {parameters_file}; using default parameters")
-        parameters = load_parameters(None, project_path)
-    else:
-        info(f"Loading parameters from {parameters_file}")
-        parameters = load_parameters(parameters_file, project_path)
-
-    parameters = update_parameters_from_options(parameters, args)
-
-    # Pretty-print parameters
-    print_parameters(parameters)
-
-    # Run the builder
+    # Run builder
     run(parameters, args.citymodel_only, args.mesh_only)
