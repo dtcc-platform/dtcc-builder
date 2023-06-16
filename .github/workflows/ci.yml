@@ -23,7 +23,7 @@ jobs:
     # VN at 16 March 2023: checkout/v3 causes some weird issues, so went for manual cloning instead...
     #- uses: actions/checkout@v3
     - name: clone repo
-      run: git clone https://github.com/dtcc-platform/${{ github.event.repository.name }} -b $BRANCH && pwd
+      run: sudo apt-get install libtriangle-dev libgeos-dev && git clone https://github.com/dtcc-platform/${{ github.event.repository.name }} -b $BRANCH && pwd
     - name: pip install
       run: export "DEB_PYTHON_INSTALL_LAYOUT=deb_system" && pip install ${{ github.event.repository.name }}/
     #- name: cmake install
