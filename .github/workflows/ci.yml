@@ -50,7 +50,7 @@ jobs:
        notify_when: 'failure'
       env:
        #SLACK_WEBHOOK_URL: ${{ secrets.ACTION_MONITORING_SLACK }}    
-       SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
+       SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
 # This fails after checkout/v3 was not used
     #- name: more cleanup ops
     #  run : pwd && sudo rm -rf /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}
