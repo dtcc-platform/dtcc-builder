@@ -12,7 +12,7 @@ env:
 jobs:
   build:
 
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04 #self-hosted
     # Placeholder for Docker on our Amazon AWS Runner
     #container:
     #  image: ubuntu-latest
@@ -42,7 +42,16 @@ jobs:
     - name: cleanup op
       if: always()
       run : sudo find /Runner/Runner/_work/${{ github.event.repository.name }}/. -name . -o -prune -exec rm -rf -- {} + || true
-    # This fails after checkout/v3 was not used
+    - name: Report Status
+      if: always()
+      uses: ravsamhq/notify-slack-action@v1
+      with:
+       status: ${{ job.status }}
+       notify_when: 'failure'
+      env:
+       #SLACK_WEBHOOK_URL: ${{ secrets.ACTION_MONITORING_SLACK }}    
+       SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
+# This fails after checkout/v3 was not used
     #- name: more cleanup ops
     #  run : pwd && sudo rm -rf /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}
     
