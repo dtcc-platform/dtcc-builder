@@ -49,7 +49,7 @@ jobs:
       # notify_when: 'failure'
       run: |
            curl -X POST \ 
-           --data-urlencode "payload={\"channel\": \"#development\", \"username\": \"webhookbot\", \"text\": \"${{ job.status }} This is posted to #development and comes from a bot named webhookbot.\", \"icon_emoji\": \":ghost:\"}" 
+           --data-urlencode "payload={\"channel\": \"#development\", \"username\": \"webhookbot\", \"text\": \"${{ job.status }} This is posted to #development and comes from a bot named webhookbot.\", \"icon_emoji\": \":ghost:\"}" \ 
            https://hooks.slack.com/services/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
       env:
        #SLACK_WEBHOOK_URL: ${{ secrets.ACTION_MONITORING_SLACK }}    
