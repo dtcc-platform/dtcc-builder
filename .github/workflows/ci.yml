@@ -42,7 +42,16 @@ jobs:
     - name: cleanup op
       if: always()
       run : sudo find /Runner/Runner/_work/${{ github.event.repository.name }}/. -name . -o -prune -exec rm -rf -- {} + || true
-    # This fails after checkout/v3 was not used
+    - name: Report Status
+      if: always()
+      uses: ravsamhq/notify-slack-action@v1
+      with:
+       status: ${{ job.status }}
+       notify_when: 'failure'
+      env:
+       SLACK_WEBHOOK_URL: ${{ secrets.ACTION_MONITORING_SLACK }}    
+
+# This fails after checkout/v3 was not used
     #- name: more cleanup ops
     #  run : pwd && sudo rm -rf /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}
     
