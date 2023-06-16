@@ -2,20 +2,21 @@
 # Licensed under the MIT License
 #
 # Modified by Anders Logg 2022
+#
+# This is the main command line script provided by DTCC Builder.
+# It builds city models and/or meshes from raw data in a a given
+# project directory.
 
-import sys
-import argparse
 
-
+import sys, os, re, argparse, logging
 from pathlib import Path
-import os
-import re
-import logging
 
-from google.protobuf.json_format import MessageToJson
 
 import dtcc_io as io
 import dtcc_builder as builder
+from dtcc_common import info, warning
+
+PARAMETERS_FILE = "parameters.json"
 
 
 def camel_to_kebab(name):
@@ -39,7 +40,6 @@ def create_parameters_options(parser):
         name_translator[kebab_name] = k
         val_type = type(v).__name__
         if val_type == "bool":
-            # print(f"bool arg: {kebab_name}")
             parser.add_argument(
                 f"--{kebab_name}",
                 action="store_true",
@@ -62,25 +62,29 @@ def create_parameters_options(parser):
 
 def update_parameters_from_options(p, args, name_translator):
     for k, v in p.items():
-        # print(k)
         snake_name = name_translator.get(k)
-        # print(snake_name)
         if snake_name is None:
             continue
         snake_name = name_translator[k].replace("-", "_")
-        # print(snake_name)
         parser_val = getattr(args, snake_name)
-        # print(parser_val)
         if parser_val is not None:
             p[k] = parser_val
-        # print("---")
     return p
+
+
+def print_parameters(p):
+    "Pretty-print parameters"
+    info("Printing parameters")
+    keys = sorted(p.keys())
+    n = max([len(key) for key in keys])
+    for key in sorted(p.keys()):
+        print(f"  {key}: {' '*(n - len(key) - 1)} {p[key]}")
 
 
 def get_project_paths(path):
     if not path:
         project_path = Path.cwd()
-        parameters_file = project_path / "Parameters.json"
+        parameters_file = project_path / PARAMETERS_FILE
     else:
         arg_path = Path(path).resolve()
         if not arg_path.exists():
@@ -90,7 +94,7 @@ def get_project_paths(path):
             parameters_file = arg_path
         else:
             project_path = arg_path
-            parameters_file = project_path / "Parameters.json"
+            parameters_file = project_path / PARAMETERS_FILE
 
     return (parameters_file, project_path)
 
@@ -110,7 +114,7 @@ def run(p, citymodel_only, mesh_only):
         building_file, pointcloud_file, p
     )
 
-    print(f"project bounds: {project_bounds.tuple}")
+    info(f"project bounds: {project_bounds.tuple}")
 
     cm = io.load_citymodel(
         building_file,
@@ -203,14 +207,14 @@ def run(p, citymodel_only, mesh_only):
 
 
 def main():
+    # Parse command line arguments
     parser = argparse.ArgumentParser(
         prog="dtcc-builder",
-        description="Build LoD1 CItyModel mesh fromm footprint and pointcloud",
+        description="Build LOD1 city mesh(es) from building footprints and pointcloud",
     )
 
     parser.add_argument("--citymodel-only", action="store_true")
     parser.add_argument("--mesh-only", action="store_true")
-
     parser.add_argument("projectpath", nargs="?", default=os.getcwd())
 
     parser, name_translator = create_parameters_options(parser)
@@ -220,11 +224,16 @@ def main():
     parameters_file, project_path = get_project_paths(args.projectpath)
 
     if not parameters_file.is_file():
-        print(f"Warning!: cannot find {parameters_file} using default parameters")
+        warning(f"Unable to load {parameters_file}; using default parameters")
         parameters = builder.Parameters.load_parameters(None, project_path)
     else:
+        info(f"Loading parameters from {parameters_file}")
         parameters = builder.Parameters.load_parameters(parameters_file, project_path)
 
     parameters = update_parameters_from_options(parameters, args, name_translator)
-    print(parameters)
+
+    # Pretty-print parameters
+    print_parameters(parameters)
+
+    # Run the builder
     run(parameters, args.citymodel_only, args.mesh_only)

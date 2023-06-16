@@ -1,3 +1,8 @@
+// Copyright (C) 2023 Dag Wästberg
+// Licensed under the MIT License
+//
+// Modified by Anders Logg 2023
+
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
@@ -53,12 +58,7 @@ CityModel createBuilderCityModel(py::list footprints,
     cityModel.Buildings.push_back(building);
   }
   CityModelGenerator::CleanCityModel(cityModel, 1.0);
-  // for (auto &building : cityModel.Buildings)
-  // {
-  //   info("Building: " + building.UUID + " has height " + str(building.Height)
-  //   +
-  //        " and ground height " + str(building.GroundHeight));
-  // }
+
   return cityModel;
 }
 
