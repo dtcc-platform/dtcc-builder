@@ -1,5 +1,4 @@
 from dtcc_builder import build
-from dtcc_builder.Parameters import load_parameters
 from dtcc_builder import builder_datamodel
 
 # Add model extensions

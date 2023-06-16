@@ -14,6 +14,7 @@ from pathlib import Path
 
 import dtcc_io as io
 import dtcc_builder as builder
+from dtcc_builder.parameters import load_parameters
 from dtcc_common import info, warning
 
 PARAMETERS_FILE = "parameters.json"
@@ -33,7 +34,7 @@ def create_parameters_options(parser):
     }
 
     name_translator = {}
-    p = builder.load_parameters()
+    p = load_parameters()
     for k, v in p.items():
         kebab_name = camel_to_kebab(k)
         name_translator[k] = kebab_name
@@ -225,10 +226,10 @@ def main():
 
     if not parameters_file.is_file():
         warning(f"Unable to load {parameters_file}; using default parameters")
-        parameters = builder.Parameters.load_parameters(None, project_path)
+        parameters = load_parameters(None, project_path)
     else:
         info(f"Loading parameters from {parameters_file}")
-        parameters = builder.Parameters.load_parameters(parameters_file, project_path)
+        parameters = load_parameters(parameters_file, project_path)
 
     parameters = update_parameters_from_options(parameters, args, name_translator)
 
