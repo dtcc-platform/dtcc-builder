@@ -101,10 +101,10 @@ def get_project_paths(path):
 
 
 def run(p, citymodel_only, mesh_only):
-    building_file = p["data-directory"] / p["buildings-filename"]
+    building_file = p["data_directory"] / p["buildings_filename"]
     if not building_file.exists():
         raise FileNotFoundError(f"cannot find building file {building_file}")
-    pointcloud_file = p["pointcloud-directory"]
+    pointcloud_file = p["pointcloud_directory"]
     if not pointcloud_file.exists():
         raise FileNotFoundError(f"cannot find point cloud file {pointcloud_file}")
     logging.info(
@@ -119,58 +119,57 @@ def run(p, citymodel_only, mesh_only):
 
     cm = io.load_citymodel(
         building_file,
-        uuid_field=p["uuid-field"],
-        height_field=p["height-field"],
+        uuid_field=p["uuid_field"],
+        height_field=p["height_field"],
         bounds=project_bounds,
     )
     pc = io.load_pointcloud(
         pointcloud_file,
         bounds=project_bounds,
     )
-
-    pc = pc.remove_global_outliers(p["outlier-margin"])
+    pc = pc.remove_global_outliers(p["outlier_margin"])
 
     dem_raster = builder.build.generate_dem(
-        pc, project_bounds, p["elevation-model-resolution"]
+        pc, project_bounds, p["elevation_model_resolution"]
     )
     cm.terrain = dem_raster
 
-    if not ["statistical-outlier-remover"]:
-        p["roof-outlier-margin"] = 0
+    if not ["statistical_outlier_remover"]:
+        p["roof_outlier_margin"] = 0
 
-    if not p["ransac-outlier-remover"]:
-        p["ransac-iterations"] = 0
+    if not p["ransac_outlier_remover"]:
+        p["ransac_iterations"] = 0
 
     cm = builder.build.extract_buildingpoints(
         cm,
         pc,
-        p["ground-margin"],
-        p["outlier-margin"],
-        p["roof-outlier-margin"],
-        p["outlier-neighbors"],
-        p["ransac-outlier-margin"],
-        p["ransac-iterations"],
+        p["ground_margin"],
+        p["outlier_margin"],
+        p["roof_outlier_margin"],
+        p["outlier_neighbors"],
+        p["ransac_outlier_margin"],
+        p["ransac_iterations"],
     )
 
     cm = builder.build.calculate_building_heights(
-        cm, p["roof-percentile"], p["min-building-height"], overwrite=True
+        cm, p["roof_percentile"], p["min_building_height"], overwrite=True
     )
 
     io.save_citymodel(
         cm,
-        p["output-directory"] / "CityModel.shp",
+        p["output_directory"] / "CityModel.shp",
     )
 
-    if p["write-protobuf"]:
+    if p["write_protobuf"]:
         io.save_citymodel(
             cm,
-            p["output-directory"] / "CityModel.pb",
+            p["output_directory"] / "CityModel.pb",
         )
 
-    if p["write-json"]:
+    if p["write_json"]:
         io.save_citymodel(
             cm,
-            p["output-directory"] / "CityModel.json",
+            p["output_directory"] / "CityModel.json",
         )
 
     if not citymodel_only:
@@ -178,33 +177,33 @@ def run(p, citymodel_only, mesh_only):
 
         volume_mesh, surface_mesh = builder.build.build_mesh(
             cm,
-            p["mesh-resolution"],
-            p["domain-height"],
-            p["min-building-distance"],
-            p["min-vertex-distance"],
+            p["mesh_resolution"],
+            p["domain_height"],
+            p["min_building_distance"],
+            p["min_vertex_distance"],
             p["debug"],
         )
 
         ground_surface, buildings = builder.build.build_surface_meshes(
             cm,
-            p["min-building-distance"],
-            p["min-vertex-distance"],
-            p["mesh-resolution"],
+            p["min_building_distance"],
+            p["min_vertex_distance"],
+            p["mesh_resolution"],
         )
 
-        if p["write-protobuf"]:
-            surface_mesh.save(p["output-directory"] / "CitySurface.pb")
-            ground_surface.save(p["output-directory"] / "GroundSurface.pb")
-            buildings.save(p["output-directory"] / "Buildings.pb")
+        if p["write_protobuf"]:
+            surface_mesh.save(p["output_directory"] / "CitySurface.pb")
+            ground_surface.save(p["output_directory"] / "GroundSurface.pb")
+            buildings.save(p["output_directory"] / "Buildings.pb")
 
-        if p["write-vtk"]:
-            surface_mesh.save(p["output-directory"] / "CitySurface.vtk")
-            volume_mesh.save(p["output-directory"] / "CityMesh.vtk")
+        if p["write_vtk"]:
+            surface_mesh.save(p["output_directory"] / "CitySurface.vtk")
+            volume_mesh.save(p["output_directory"] / "CityMesh.vtk")
 
-        if p["write-stl"]:
-            surface_mesh.save(p["output-directory"] / "CitySurface.stl")
-            ground_surface.save(p["output-directory"] / "GroundSurface.stl")
-            buildings.save(p["output-directory"] / "Buildings.stl")
+        if p["write_stl"]:
+            surface_mesh.save(p["output_directory"] / "CitySurface.stl")
+            ground_surface.save(p["output_directory"] / "GroundSurface.stl")
+            buildings.save(p["output_directory"] / "Buildings.stl")
 
 
 def main():

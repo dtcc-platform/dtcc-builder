@@ -32,27 +32,30 @@ def calculate_project_domain(params_or_footprint, las_path=None, params=None):
         raise ValueError(
             "must provide either params only or footprint and las_path and params"
         )
-    if p["autodomain"]:
+    if p["auto_domain"]:
         footprint_bounds = io.citymodel.building_bounds(
-            building_footprint_path, p["domain-margin"]
+            building_footprint_path, p["domain_margin"]
         )
         las_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
         domain_bounds = io.bounds.bounds_intersect(footprint_bounds, las_bounds)
         origin = domain_bounds[:2]
         p["x0"] = origin[0]
         p["y0"] = origin[1]
-        p["x-min"] = 0.0
-        p["y-min"] = 0.0
-        p["x-max"] = domain_bounds[2] - domain_bounds[0]
-        p["y-max"] = domain_bounds[3] - domain_bounds[1]
+        p["x_min"] = 0.0
+        p["y_min"] = 0.0
+        p["x_max"] = domain_bounds[2] - domain_bounds[0]
+        p["y_max"] = domain_bounds[3] - domain_bounds[1]
     else:
         origin = (p["x0"], p["y0"])
         domain_bounds = (
-            p["x0"] + p["x-min"],
-            p["y0"] + p["y-min"],
-            p["x0"] + p["x-max"],
-            p["y0"] + p["y-max"],
+            p["x0"] + p["x_min"],
+            p["y0"] + p["y_min"],
+            p["x0"] + p["x_max"],
+            p["y0"] + p["y_max"],
         )
+    print(origin)
+    print(domain_bounds)
+
     domain_bounds = model.Bounds(
         xmin=domain_bounds[0],
         ymin=domain_bounds[1],
@@ -275,8 +278,6 @@ def build_surface_meshes(
     building_surfaces = _dtcc_builder.MergeSurfaces3D(building_surfaces)
 
     dtcc_ground_surface = builder_datamodel.builder_mesh_to_mesh(ground_surface)
-    dtcc_building_surfaces = builder_datamodel.builder_mesh_to_mesh(
-        building_surfaces
-    )
+    dtcc_building_surfaces = builder_datamodel.builder_mesh_to_mesh(building_surfaces)
 
     return dtcc_ground_surface, dtcc_building_surfaces
