@@ -48,9 +48,9 @@ jobs:
       # status: ${{ job.status }}
       # notify_when: 'failure'
       run: |
-           curl -X POST \ 
-           --data-urlencode "payload={\"channel\": \"#development\", \"username\": \"webhookbot\", \"text\": \"${{ job.status }} This is posted to #development and comes from a bot named webhookbot.\", \"icon_emoji\": \":ghost:\"}" \ 
-           https://hooks.slack.com/services/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
+           curl -L -X POST \
+           https://hooks.slack.com/services/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 \
+           -d "payload={\"channel\": \"#development\", \"username\": \"webhookbot\", \"text\": \"${{ job.status }} This is posted to #development and comes from a bot named webhookbot.\", \"icon_emoji\": \":ghost:\"}"
       env:
        #SLACK_WEBHOOK_URL: ${{ secrets.ACTION_MONITORING_SLACK }}    
        SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
