@@ -24,6 +24,7 @@ dependencies = [
   "numpy",
   "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
   "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
+  "dtcc-common@git+https://github.com/dtcc-platform/dtcc-common.git@develop",
   "pypoints2grid@git+https://github.com/dwastberg/pypoints2grid.git",
 ]
 
