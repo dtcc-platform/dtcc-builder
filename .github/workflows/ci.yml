@@ -48,7 +48,7 @@ jobs:
       # status: ${{ job.status }}
       # notify_when: 'failure'
       run: |
-            curl -L -X POST $SLACK_URL -d "payload={\"channel\": \"#development\", \"username\": \"Github Runner\", \"text\": \"CI status of ${{ github.event.repository.name }}: ${{ job.status }}! Commit message: ${{ github.event.head_commit.message }} by: ${{ github.event.commits[0].author.name}}
+            curl -L -X POST $SLACK_URL -d "payload={\"channel\": \"#development\", \"username\": \"Github Runner\", \"text\": \"CI has been broken! Repo: ${{ github.event.repository.name }}. Commit message: ${{ github.event.head_commit.message }}. Author: ${{ github.event.commits[0].author.name}}
             \", \"icon_emoji\": \":ghost:\"}"
       env:
        SLACK_URL: ${{ secrets.SLACK_URL }}    
