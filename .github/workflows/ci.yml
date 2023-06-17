@@ -48,10 +48,10 @@ jobs:
       # status: ${{ job.status }}
       # notify_when: 'failure'
       run: |
-            curl -L -X POST https://hooks.slack.com/services/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 -d "payload={\"channel\": \"#development\", \"username\": \"webhookbot\", \"text\": \"This is posted to #development and comes from a bot named webhookbot from the CI.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
+            curl -L -X POST $SLACK_URL -d "payload={\"channel\": \"#development\", \"username\": \"webhookbot\", \"text\": \"This is posted to #development and comes from a bot named webhookbot from the CI.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
       env:
-       #SLACK_WEBHOOK_URL: ${{ secrets.ACTION_MONITORING_SLACK }}    
-       SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
+       SLACK_URL: ${{ secrets.SLACK_URL }}    
+       #SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
 # This fails after checkout/v3 was not used
     #- name: more cleanup ops
     #  run : pwd && sudo rm -rf /home/ubuntu/Runner/actions-runner/_work/${{ github.event.repository.name }}
