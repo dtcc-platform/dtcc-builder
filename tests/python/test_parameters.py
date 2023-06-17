@@ -1,4 +1,4 @@
-from dtcc_builder.Parameters import load_parameters
+from dtcc_builder.parameters import load_parameters
 
 from pathlib import Path
 import unittest
