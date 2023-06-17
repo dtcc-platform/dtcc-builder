@@ -48,7 +48,7 @@ jobs:
       # status: ${{ job.status }}
       # notify_when: 'failure'
       run: |
-            curl -L -X POST $SLACK_URL -d "payload={\"channel\": \"#development\", \"username\": \"Github Runner\", \"text\": \"CI status is ${{ job.status }}!\", \"icon_emoji\": \":ghost:\"}"
+            curl -L -X POST $SLACK_URL -d "payload={\"channel\": \"#development\", \"username\": \"Github Runner\", \"text\": \"CI status is of ${{ github.event.repository.name }} ${{ job.status }}!\", \"icon_emoji\": \":ghost:\"}"
       env:
        SLACK_URL: ${{ secrets.SLACK_URL }}    
         # This fails after checkout/v3 was not used
