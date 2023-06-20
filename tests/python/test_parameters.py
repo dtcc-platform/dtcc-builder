@@ -1,21 +1,10 @@
-from dtcc_builder.parameters import load_parameters
+import dtcc_builder
 
-from pathlib import Path
 import unittest
 
-project_dir = (Path(__file__).parent / "../data" / "MinimalCase").resolve()
+class TestParameters(unittest.TestCase):
 
-print(project_dir)
-
-
-class TestLoadParameters(unittest.TestCase):
-    def test_load_parameters(self):
-        p = load_parameters()
+    def test_default_parameters(self):
+        p = dtcc_builder.parameters.default()
         self.assertIsInstance(p, dict)
-        self.assertEqual(p["model-name"], "DTCC")
-
-    def test_load_parameters_file(self):
-        p = load_parameters(project_dir / "Parameters.json")
-        self.assertIsInstance(p, dict)
-        print(p)
-        self.assertEqual(p["model-name"], "MinimalCase")
+        self.assertEqual(p["model_name"], "DTCC")
