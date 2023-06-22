@@ -1,8 +1,8 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
-#ifndef DTCC_ELEVATION_MODEL_GENERATOR_H
-#define DTCC_ELEVATION_MODEL_GENERATOR_H
+#ifndef DTCC_ELEVATION_BUILDER_H
+#define DTCC_ELEVATION_BUILDER_H
 
 #include <iomanip>
 #include <iostream>
@@ -20,10 +20,10 @@
 namespace DTCC_BUILDER
 {
 
-class ElevationModelGenerator
+class ElevationBuilder
 {
 public:
-  /// Generate digital elevation model (DEM) from point cloud.
+  /// Build digital elevation model (DEM) from point cloud.
   /// Only points matching the given classification(s) are used.
   /// If the classifications are empty, then all points are used.
   ///
@@ -31,14 +31,14 @@ public:
   /// @param pointCloud Point cloud (unfiltered)
   /// @param classifications Classifications to be considered
   /// @param resolution Resolution (grid size) of digital elevation model
-  static void GenerateElevationModel(GridField &dem,
-                                     const PointCloud &pointCloud,
-                                     const std::vector<int> &classifications,
-                                     double resolution)
+  static void BuildElevation(GridField &dem,
+                             const PointCloud &pointCloud,
+                             const std::vector<int> &classifications,
+                             double resolution)
   {
-    info("ElevationModelGenerator: Generating digital elevation model from "
+    info("ElevationBuilder: Buildinga digital elevation model from "
          "point cloud...");
-    Timer timer("GenerateElevationModel");
+    Timer timer("BuildElevation");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
@@ -53,7 +53,7 @@ public:
     // Print classifications
     if (has_classification && classifications.size() > 0)
     {
-      std::string msg{"ElevationModelGenerator: Using classifications "};
+      std::string msg{"ElevationBuilder: Using classifications "};
       for (size_t i = 0; i < classifications.size(); i++)
       {
         msg += str(classifications[i]);
@@ -64,12 +64,12 @@ public:
     }
     else
     {
-      info("ElevationModelGenerator: Using all classifications");
+      info("ElevationBuilder: Using all classifications");
     }
 
     // FIXME: Add function Grid::Init(bbox) that takes care of this
     // initialization.
-    // FIXME: Use here and also in RandomizeElevationModel() below.
+    // FIXME: Use here and also in RandomizeElevation() below.
 
     // Initialize grid bounding box
     dem.grid.BoundingBox = pointCloud.BoundingBox;
@@ -86,7 +86,7 @@ public:
     dem.grid.YStep = (dem.grid.BoundingBox.Q.y - dem.grid.BoundingBox.P.y) /
                      (dem.grid.YSize - 1);
 
-    debug("ElevationModelGenerator: Computing mean elevation");
+    debug("ElevationBuilder: Computing mean elevation");
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
@@ -111,7 +111,7 @@ public:
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
 
-    debug("ElevationModelGenerator: Extracting point cloud data");
+    debug("ElevationBuilder: Extracting point cloud data");
 
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
@@ -179,7 +179,7 @@ public:
     // Compute mean elevation
     meanElevation /= static_cast<double>(numInside);
 
-    debug("ElevationModelGenerator: Computing local mean elevation");
+    debug("ElevationBuilder: Computing local mean elevation");
 
     // Compute mean of elevations for each grid point
     std::vector<size_t> missingIndices;
@@ -196,7 +196,7 @@ public:
     if (numMissing == numGridPoints)
       throw std::runtime_error("No points inside height map domain.");
 
-    debug("ElevationModelGenerator: Filling in missing grid points (" +
+    debug("ElevationBuilder: Filling in missing grid points (" +
           str(numMissing) + "/" + str(numGridPoints) + ")");
 
     // Reuse vector numLocalPoints to indicate which points have been
@@ -254,14 +254,12 @@ public:
     // Print some stats
     const double percentMissing =
         100.0 * static_cast<double>(numMissing) / numGridPoints;
-    info("ElevationModelGenerator: " + str(numOutliers) +
-         " outlier(s) ignored");
-    info("ElevationModelGenerator: Mean elevation is " + str(meanElevation, 4) +
-         "m");
-    info("ElevationModelGenerator: " + str(numGridPoints) + " grid points");
-    info("ElevationModelGenerator: " + str(numMissing) +
-         " missing grid points (" + str(percentMissing, 3) + "%)");
-    //    std::cout << "ElevationModelGenerator: "
+    info("ElevationBuilder: " + str(numOutliers) + " outlier(s) ignored");
+    info("ElevationBuilder: Mean elevation is " + str(meanElevation, 4) + "m");
+    info("ElevationBuilder: " + str(numGridPoints) + " grid points");
+    info("ElevationBuilder: " + str(numMissing) + " missing grid points (" +
+         str(percentMissing, 3) + "%)");
+    //    std::cout << "ElevationBuilder: "
     //        << "Maximum search distance is " << maxStep << std::endl;
 
     // Test data for verifying orientation, bump in lower left corner
@@ -277,16 +275,16 @@ public:
     // }
   }
 
-  /// Generate a random elevation model. Used for benchmarking.
+  /// Build a random elevation model. Used for benchmarking.
   ///
   /// @param dem The digital elevation model (DEM)
   /// @param bbox Bounding box of domain
   /// @param resolution Resolution (grid size) of digital elevation model
-  static void RandomizeElevationModel(GridField &dem,
-                                      const BoundingBox2D &bbox,
-                                      double resolution)
+  static void RandomizeElevationl(GridField &dem,
+                                  const BoundingBox2D &bbox,
+                                  double resolution)
   {
-    info("ElevationModelGenerator: Randomizing elevation model...");
+    info("ElevationBuilder: Randomizing elevation model...");
 
     // Some hard-coded building dimensions
     const double H = 50.0;      // Maximum hill height

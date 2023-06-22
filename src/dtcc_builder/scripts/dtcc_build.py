@@ -29,7 +29,7 @@ def parse_command_line():
     )
 
     # Add main arguments
-    parser.add_argument("--citymodel-only", action="store_true")
+    parser.add_argument("--city-only", action="store_true")
     parser.add_argument("--mesh-only", action="store_true")
     parser.add_argument("path", nargs="?", default=os.getcwd())
 
@@ -127,7 +127,7 @@ def set_directory_parameters(parameters, path):
     return p
 
 
-def run(p, citymodel_only, mesh_only):
+def run(p, city_only, mesh_only):
     building_file = p["data_directory"] / p["buildings_filename"]
     if not building_file.exists():
         raise FileNotFoundError(f"cannot find building file {building_file}")
@@ -135,7 +135,7 @@ def run(p, citymodel_only, mesh_only):
     if not pointcloud_file.exists():
         raise FileNotFoundError(f"cannot find point cloud file {pointcloud_file}")
     info(
-        f"creating citymodel from Building file: {building_file} and pointcloud {pointcloud_file}"
+        f"creating city from Building file: {building_file} and pointcloud {pointcloud_file}"
     )
 
     origin, project_bounds = builder.build.calculate_project_domain(
@@ -144,7 +144,7 @@ def run(p, citymodel_only, mesh_only):
 
     info(f"project bounds: {project_bounds.tuple}")
 
-    cm = io.load_citymodel(
+    cm = io.load_city(
         building_file,
         uuid_field=p["uuid_field"],
         height_field=p["height_field"],
@@ -156,7 +156,7 @@ def run(p, citymodel_only, mesh_only):
     )
     pc = pc.remove_global_outliers(p["outlier_margin"])
 
-    dem_raster = builder.build.generate_dem(
+    dem_raster = builder.build.build_dem(
         pc, project_bounds, p["elevation_model_resolution"]
     )
     cm.terrain = dem_raster
@@ -182,25 +182,24 @@ def run(p, citymodel_only, mesh_only):
         cm, p["roof_percentile"], p["min_building_height"], overwrite=True
     )
 
-    io.save_citymodel(
+    io.save_city(
         cm,
-        p["output_directory"] / "CityModel.shp",
+        p["output_directory"] / "City.shp",
     )
 
     if p["write_protobuf"]:
-        io.save_citymodel(
+        io.save_city(
             cm,
-            p["output_directory"] / "CityModel.pb",
+            p["output_directory"] / "City.pb",
         )
 
     if p["write_json"]:
-        io.save_citymodel(
+        io.save_city(
             cm,
-            p["output_directory"] / "CityModel.json",
+            p["output_directory"] / "City.json",
         )
 
-    if not citymodel_only:
-        pass
+    if not city_only:
 
         volume_mesh, surface_mesh = builder.build.build_mesh(
             cm,
@@ -241,4 +240,4 @@ def main():
     parameters = load_parameters(args)
 
     # Run builder
-    run(parameters, args.citymodel_only, args.mesh_only)
+    run(parameters, args.city_only, args.mesh_only)

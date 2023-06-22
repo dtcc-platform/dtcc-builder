@@ -38,11 +38,11 @@ public:
 
   // Constructor
   BoundaryConditions(VolumeMesh &volume_mesh,
-                     const CityModel &cityModel,
+                     const City &city,
                      const GridField &dtm,
                      const double top_height,
                      const bool fix_buildings)
-      : _volume_mesh(volume_mesh), _citymodel(cityModel), _dtm(dtm),
+      : _volume_mesh(volume_mesh), _city(city), _dtm(dtm),
         top_height(top_height), vertex_markers(volume_mesh.Vertices.size(), -4),
         values(volume_mesh.Vertices.size(), 0.0), fix_buildings(fix_buildings),
         halo_elevations(volume_mesh.Vertices.size(),
@@ -84,10 +84,8 @@ public:
           4;
 
       const int cell_marker = _volume_mesh.Markers[c];
-      const double BuildingMaxHeight =
-          _citymodel.Buildings[cell_marker].MaxHeight();
-      const double BuildingMinHeight =
-          _citymodel.Buildings[cell_marker].MinHeight();
+      const double BuildingMaxHeight = _city.Buildings[cell_marker].MaxHeight();
+      const double BuildingMinHeight = _city.Buildings[cell_marker].MinHeight();
       if (cell_marker >= 0 && fix_buildings) // Building
       {
         for (size_t i = 0; i < 4; i++)
@@ -155,7 +153,7 @@ public:
     info("BoundaryConditions: Computing boundary values");
 
     // TODO: Check if Search tree has already been built
-    //_citymodel.BuildSearchTree(true,0.0);
+    //_city.BuildSearchTree(true,0.0);
 
     // Compute building centroids
     compute_building_centroids();
@@ -168,7 +166,7 @@ public:
       const int vertex_marker = vertex_markers[i];
       if (vertex_marker >= 0) //  && fix_buildings Building
       {
-        values[i] = _citymodel.Buildings[vertex_marker].MaxHeight() -
+        values[i] = _city.Buildings[vertex_marker].MaxHeight() -
                     _volume_mesh.Vertices[i].z;
       }
       else if (vertex_marker == -1) // Building Halo
@@ -232,7 +230,7 @@ public:
 private:
   VolumeMesh &_volume_mesh;
 
-  const CityModel &_citymodel;
+  const City &_city;
 
   const GridField &_dtm;
 
@@ -243,12 +241,12 @@ private:
   // Compute building centroids
   void compute_building_centroids()
   {
-    building_centroids.resize(_citymodel.Buildings.size());
+    building_centroids.resize(_city.Buildings.size());
 
-    for (size_t i = 0; i < _citymodel.Buildings.size(); i++)
+    for (size_t i = 0; i < _city.Buildings.size(); i++)
     {
       Vector2D p(0, 0);
-      Polygon fp = _citymodel.Buildings[i].Footprint;
+      Polygon fp = _city.Buildings[i].Footprint;
 
       for (auto vertex : fp.Vertices)
       {

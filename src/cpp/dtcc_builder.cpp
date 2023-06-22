@@ -8,14 +8,14 @@
 
 #include <pybind11/stl.h>
 
-#include "CityModelGenerator.h"
-#include "ElevationModelGenerator.h"
-#include "MeshGenerator.h"
+#include "CityBuilder.h"
+#include "ElevationBuilder.h"
+#include "MeshBuilder.h"
 #include "MeshProcessor.h"
 #include "Smoother.h"
 #include "VertexSmoother.h"
 #include "model/Building.h"
-#include "model/CityModel.h"
+#include "model/City.h"
 #include "model/GridField.h"
 #include "model/Mesh.h"
 #include "model/Point.h"
@@ -26,16 +26,15 @@ namespace py = pybind11;
 
 namespace DTCC_BUILDER
 {
-CityModel createBuilderCityModel(py::list footprints,
-                                 py::list uuids,
-                                 py::list heights,
-                                 py::list ground_levels,
-                                 py::tuple origin)
+City createBuilderCity(py::list footprints,
+                       py::list uuids,
+                       py::list heights,
+                       py::list ground_levels,
+                       py::tuple origin)
 {
-  CityModel cityModel;
+  City city;
 
-  cityModel.Origin =
-      Point2D(origin[0].cast<double>(), origin[1].cast<double>());
+  city.Origin = Point2D(origin[0].cast<double>(), origin[1].cast<double>());
   size_t num_buildings = footprints.size();
   for (size_t i = 0; i < num_buildings; i++)
   {
@@ -55,11 +54,11 @@ CityModel createBuilderCityModel(py::list footprints,
     building.UUID = uuid;
     building.Height = height;
     building.GroundHeight = ground_level;
-    cityModel.Buildings.push_back(building);
+    city.Buildings.push_back(building);
   }
-  CityModelGenerator::CleanCityModel(cityModel, 1.0);
+  CityBuilder::CleanCity(city, 1.0);
 
-  return cityModel;
+  return city;
 }
 
 PointCloud createBuilderPointCloud(py::array_t<double> pts,
@@ -139,39 +138,39 @@ PointCloud removeVegetation(PointCloud &pointCloud)
   return pointCloud;
 }
 
-CityModel extractRoofPoints(CityModel &cityModel,
-                            PointCloud &pointCloud,
-                            double groundMargin,
-                            double groundOutlierMargin,
-                            double roofOutlierMargin,
-                            size_t rootOutlerNeighbours,
-                            double roofRANSACOutlierMargin,
-                            size_t roofRANSACIterations)
+City extractRoofPoints(City &city,
+                       PointCloud &pointCloud,
+                       double groundMargin,
+                       double groundOutlierMargin,
+                       double roofOutlierMargin,
+                       size_t rootOutlerNeighbours,
+                       double roofRANSACOutlierMargin,
+                       size_t roofRANSACIterations)
 {
   pointCloud = removeVegetation(pointCloud);
-  CityModelGenerator::ExtractBuildingPoints(cityModel, pointCloud, groundMargin,
-                                            groundOutlierMargin);
+  CityBuilder::ExtractBuildingPoints(city, pointCloud, groundMargin,
+                                     groundOutlierMargin);
   if (roofOutlierMargin > 0)
   {
-    CityModelGenerator::BuildingPointsOutlierRemover(
-        cityModel, rootOutlerNeighbours, roofOutlierMargin);
+    CityBuilder::BuildingPointsOutlierRemover(city, rootOutlerNeighbours,
+                                              roofOutlierMargin);
   }
   if (roofRANSACIterations > 0)
   {
-    CityModelGenerator::BuildingPointsRANSACOutlierRemover(
-        cityModel, roofRANSACOutlierMargin, roofRANSACIterations);
+    CityBuilder::BuildingPointsRANSACOutlierRemover(
+        city, roofRANSACOutlierMargin, roofRANSACIterations);
   }
-  return cityModel;
+  return city;
 }
 
 // GridField
-GridField GenerateElevationModel(const PointCloud &pointCloud,
-                                 double resolution,
-                                 std::vector<int> classifications)
+GridField BuildElevation(const PointCloud &pointCloud,
+                         double resolution,
+                         std::vector<int> classifications)
 {
   GridField dem;
-  ElevationModelGenerator::GenerateElevationModel(dem, pointCloud,
-                                                  classifications, resolution);
+  ElevationBuilder::BuildElevation(dem, pointCloud, classifications,
+                                   resolution);
   return dem;
 }
 
@@ -181,32 +180,30 @@ GridField SmoothElevation(GridField &dem, size_t numSmoothings)
   return dem;
 }
 
-CityModel SimplifyCityModel(CityModel &cityModel,
-                            py::tuple bounds,
-                            double minimalBuildingDistance,
-                            double minimalVertexDistance)
+City SimplifyCity(City &city,
+                  py::tuple bounds,
+                  double minimalBuildingDistance,
+                  double minimalVertexDistance)
 {
   double px = bounds[0].cast<double>();
   double py = bounds[1].cast<double>();
   double qx = bounds[2].cast<double>();
   double qy = bounds[3].cast<double>();
   auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
-  CityModelGenerator::SimplifyCityModel(
-      cityModel, bbox, minimalBuildingDistance, minimalVertexDistance / 2);
-  return cityModel;
+  CityBuilder::SimplifyCity(city, bbox, minimalBuildingDistance,
+                            minimalVertexDistance / 2);
+  return city;
 }
 
-CityModel CleanCityModel(CityModel &cityModel, double minVertDistance)
+City CleanCity(City &city, double minVertDistance)
 {
-  CityModelGenerator::CleanCityModel(cityModel, minVertDistance / 2);
-  return cityModel;
+  CityBuilder::CleanCity(city, minVertDistance / 2);
+  return city;
 }
 
 // Meshing
 
-Mesh GenerateMesh2D(const CityModel &cityModel,
-                    py::tuple bounds,
-                    double resolution)
+Mesh BuildMesh2D(const City &city, py::tuple bounds, double resolution)
 {
   Mesh mesh;
   double px = bounds[0].cast<double>();
@@ -215,53 +212,51 @@ Mesh GenerateMesh2D(const CityModel &cityModel,
   double qy = bounds[3].cast<double>();
   auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
 
-  MeshGenerator::GenerateMesh2D(mesh, cityModel, bbox, resolution);
+  MeshBuilder::BuildMesh2D(mesh, city, bbox, resolution);
 
   return mesh;
 }
 
 VolumeMesh
-GenerateVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
+BuildVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
 {
   VolumeMesh volume_mesh;
-  auto num_layers = MeshGenerator::GenerateVolumeMesh(
-      volume_mesh, mesh, domainHeight, meshResolution);
+  auto num_layers = MeshBuilder::BuildVolumeMesh(volume_mesh, mesh,
+                                                 domainHeight, meshResolution);
   volume_mesh.NumLayers = num_layers;
   return volume_mesh;
 }
 
 VolumeMesh smooth_volume_mesh(VolumeMesh &volume_mesh,
-                              const CityModel &city_model,
+                              const City &city,
                               const GridField &dem,
                               double top_height,
                               bool fix_buildings,
                               size_t max_iterations,
                               double relative_tolerance)
 {
-  Smoother::smooth_volume_mesh(volume_mesh, city_model, dem, top_height,
+  Smoother::smooth_volume_mesh(volume_mesh, city, dem, top_height,
                                fix_buildings, max_iterations,
                                relative_tolerance);
   return volume_mesh;
 }
 
-std::vector<Mesh> GenerateSurfaces3D(const CityModel &cityModel,
-                                     const GridField &dtm,
-                                     double resolution)
+std::vector<Mesh>
+BuildSurfaces3D(const City &city, const GridField &dtm, double resolution)
 {
   Mesh groundSurface;
   std::vector<Mesh> buildingSurfaces;
-  MeshGenerator::GenerateSurfaces3D(groundSurface, buildingSurfaces, cityModel,
-                                    dtm, resolution);
+  MeshBuilder::BuildSurfaces3D(groundSurface, buildingSurfaces, city, dtm,
+                               resolution);
   buildingSurfaces.insert(buildingSurfaces.begin(), groundSurface);
   return buildingSurfaces;
 }
 
-VolumeMesh TrimVolumeMesh(VolumeMesh &volume_mesh,
-                          const Mesh &mesh,
-                          const CityModel &cityModel)
+VolumeMesh
+TrimVolumeMesh(VolumeMesh &volume_mesh, const Mesh &mesh, const City &city)
 {
   size_t numLayers = volume_mesh.NumLayers;
-  MeshGenerator::TrimVolumeMesh(volume_mesh, mesh, cityModel, numLayers);
+  MeshBuilder::TrimVolumeMesh(volume_mesh, mesh, city, numLayers);
   return volume_mesh;
 }
 
@@ -290,12 +285,12 @@ Mesh MergeSurfaces3D(const std::vector<Mesh> &surfaces)
 
 PYBIND11_MODULE(_dtcc_builder, m)
 {
-  py::class_<DTCC_BUILDER::CityModel>(m, "CityModel")
+  py::class_<DTCC_BUILDER::City>(m, "City")
       .def(py::init<>())
-      .def("__len__", [](const DTCC_BUILDER::CityModel &cm)
-           { return cm.Buildings.size(); })
-      .def_readonly("buildings", &DTCC_BUILDER::CityModel::Buildings)
-      .def_readonly("origin", &DTCC_BUILDER::CityModel::Origin);
+      .def("__len__",
+           [](const DTCC_BUILDER::City &cm) { return cm.Buildings.size(); })
+      .def_readonly("buildings", &DTCC_BUILDER::City::Buildings)
+      .def_readonly("origin", &DTCC_BUILDER::City::Origin);
 
   py::class_<DTCC_BUILDER::Building>(m, "Building")
       .def(py::init<>())
@@ -395,8 +390,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readonly("Cells", &DTCC_BUILDER::VolumeMesh::Cells)
       .def_readonly("Markers", &DTCC_BUILDER::VolumeMesh::Markers);
 
-  m.def("createBuilderCityModel", &DTCC_BUILDER::createBuilderCityModel,
-        "create builder point cloud from citymodel data");
+  m.def("createBuilderCity", &DTCC_BUILDER::createBuilderCity,
+        "create builder point cloud from city data");
 
   m.def("createBuilderPointCloud", &DTCC_BUILDER::createBuilderPointCloud,
         "create builder point cloud from numpy arrays");
@@ -410,19 +405,17 @@ PYBIND11_MODULE(_dtcc_builder, m)
         "remove vegetation from point cloud");
   m.def("extractRoofPoints", &DTCC_BUILDER::extractRoofPoints,
         "extract roof points from point cloud");
-  m.def("GenerateElevationModel", &DTCC_BUILDER::GenerateElevationModel,
-        "generate height field from point cloud");
+  m.def("BuildElevation", &DTCC_BUILDER::BuildElevation,
+        "Build height field from point cloud");
   m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
         "Smooth  elevation grid field");
 
-  m.def("SimplifyCityModel", &DTCC_BUILDER::SimplifyCityModel,
-        "Simplify city model");
+  m.def("SimplifyCity", &DTCC_BUILDER::SimplifyCity, "Simplify city");
 
-  m.def("CleanCityModel", &DTCC_BUILDER::CleanCityModel, "Clean city model");
+  m.def("CleanCity", &DTCC_BUILDER::CleanCity, "Clean city");
 
-  m.def("GenerateMesh2D", &DTCC_BUILDER::GenerateMesh2D, "Generate 2D mesh");
-  m.def("GenerateVolumeMesh", &DTCC_BUILDER::GenerateVolumeMesh,
-        "Generate 2D mesh");
+  m.def("BuildMesh2D", &DTCC_BUILDER::BuildMesh2D, "Build 2D mesh");
+  m.def("BuildVolumeMesh", &DTCC_BUILDER::BuildVolumeMesh, "Build 2D mesh");
 
   m.def("smooth_volume_mesh", &DTCC_BUILDER::smooth_volume_mesh,
         "Smooth volume mesh");
@@ -431,8 +424,7 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("ExtractBoundary3D", &DTCC_BUILDER::ExtractBoundary3D,
         "Extract 3D boundary");
 
-  m.def("GenerateSurface3D", &DTCC_BUILDER::GenerateSurfaces3D,
-        "Generate 3D surface");
+  m.def("BuildSurface3D", &DTCC_BUILDER::BuildSurfaces3D, "Build 3D surface");
 
   m.def("MergeSurfaces3D", &DTCC_BUILDER::MergeSurfaces3D, "Merge 3D surfaces");
 }

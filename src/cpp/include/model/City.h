@@ -1,8 +1,8 @@
 // Copyright (C) 2020 Anders Logg
 // Licensed under the MIT License
 
-#ifndef DTCC_CITY_MODEL_H
-#define DTCC_CITY_MODEL_H
+#ifndef DTCC_CITY_H
+#define DTCC_CITY_H
 
 #include <iomanip>
 #include <string>
@@ -17,11 +17,11 @@
 namespace DTCC_BUILDER
 {
 
-/// CityModel model represents a collection of Buildings.
-class CityModel : public Printable
+/// City represents a collection of Buildings.
+class City : public Printable
 {
 public:
-  /// Name of the CityModel
+  /// Name of the city
   std::string Name;
 
   /// Array of buildings
@@ -32,7 +32,7 @@ public:
   /// Set new origin (subtract offset)
   void SetOrigin(const Point2D &origin)
   {
-    info("CityModel: Setting new origin to " + str(origin));
+    info("City: Setting new origin to " + str(origin));
     for (auto &building : Buildings)
       building.SetOrigin(origin);
     Origin = origin;
@@ -96,7 +96,7 @@ public:
     return FindBuilding(_p);
   }
 
-  // Compute center of city model
+  // Compute center of city
   Point2D Center() const
   {
     Vector2D c{};
@@ -113,7 +113,7 @@ public:
     return c;
   }
 
-  // Compute radius of city model (relative to center)
+  // Compute radius of city (relative to center)
   double Radius(const Vector2D &center) const
   {
     double r2max = 0.0;
@@ -132,12 +132,11 @@ public:
   /// Pretty-print
   std::string __str__() const override
   {
-    return "CityModel " + Name + " with " + str(Buildings.size()) +
-           " buildings";
+    return "City " + Name + " with " + str(Buildings.size()) + " buildings";
   }
 
 private:
-  friend class CityModelGenerator;
+  friend class CityBuilder;
 
   // Bounding box tree used for search queries
   mutable BoundingBoxTree2D bbtree;

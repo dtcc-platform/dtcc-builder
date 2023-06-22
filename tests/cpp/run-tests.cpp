@@ -10,7 +10,7 @@ const std::string RootPath{"./"};
 // Run these tests. You can comment out any test you don't want run
 #include "tests/TestBoundingBox.h"
 #include "tests/TestBuilding.h"
-#include "tests/TestCityModel.h"
+#include "tests/TestCity.h"
 #include "tests/TestGEOS.h"
 #include "tests/TestPointcloud.h"
 #include "tests/TestPolygon.h"

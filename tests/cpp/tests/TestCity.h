@@ -1,13 +1,13 @@
 #include "Polyfix.h"
 #include "model/Building.h"
-#include "model/CityModel.h"
+#include "model/City.h"
 #include "model/Polygon.h"
 
 using namespace DTCC_BUILDER;
 
-TEST_CASE("Filter CityModel")
+TEST_CASE("Filter City")
 {
-  CityModel baseModel;
+  City baseModel;
   Building building1;
   Building building2;
   Building building3;
@@ -53,8 +53,8 @@ TEST_CASE("Filter CityModel")
   baseModel.Buildings.push_back(building3);
 
   /*
-  CityModel filteredModel;
-  CityModelProcessor::BuildingFootprintFilter(baseModel, filteredModel, 30);
+  City filteredModel;
+  CityProcessor::BuildingFootprintFilter(baseModel, filteredModel, 30);
   REQUIRE(baseModel.Buildings.size() == 3);
   REQUIRE(filteredModel.Buildings.size() == 1);
   REQUIRE(Geometry::PolygonArea(filteredModel.Buildings[0].Footprint) > 30);
@@ -65,19 +65,19 @@ TEST_CASE("Filter CityModel")
   size_t aspectError = BuildingError::BUILDING_BAD_ASPECT_RATIO;
 
   filteredModel.Buildings.clear();
-  CityModelProcessor::ErrorFilter(baseModel, filteredModel, 0);
+  CityProcessor::ErrorFilter(baseModel, filteredModel, 0);
   REQUIRE(filteredModel.Buildings.size() == 3);
 
   filteredModel.Buildings.clear();
-  CityModelProcessor::ErrorFilter(baseModel, filteredModel, aspectError);
+  CityProcessor::ErrorFilter(baseModel, filteredModel, aspectError);
   REQUIRE(filteredModel.Buildings.size() == 3);
 
   filteredModel.Buildings.clear();
-  CityModelProcessor::ErrorFilter(baseModel, filteredModel, tooSmallError);
+  CityProcessor::ErrorFilter(baseModel, filteredModel, tooSmallError);
   REQUIRE(filteredModel.Buildings.size() == 2);
 
   filteredModel.Buildings.clear();
-  CityModelProcessor::ErrorFilter(baseModel, filteredModel,
+  CityProcessor::ErrorFilter(baseModel, filteredModel,
                                   tooSmallFewPointsError);
   REQUIRE(filteredModel.Buildings.size() == 1);
   */

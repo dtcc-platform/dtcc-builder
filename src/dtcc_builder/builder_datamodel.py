@@ -1,6 +1,6 @@
 from dtcc_builder import _dtcc_builder
 import dtcc_model as model
-from dtcc_model import CityModel, PointCloud, Raster
+from dtcc_model import City, PointCloud, Raster
 from typing import Union
 import numpy as np
 
@@ -18,16 +18,16 @@ def create_builder_pointcloud(
         )
 
 
-def create_builder_citymodel(cm: CityModel):
+def create_builder_city(city: City):
     building_shells = [
-        list(building.footprint.exterior.coords[:-1]) for building in cm.buildings
+        list(building.footprint.exterior.coords[:-1]) for building in city.buildings
     ]
 
-    uuids = [building.uuid for building in cm.buildings]
-    heights = [building.height for building in cm.buildings]
-    ground_levels = [building.ground_level for building in cm.buildings]
-    origin = cm.origin
-    return _dtcc_builder.createBuilderCityModel(
+    uuids = [building.uuid for building in city.buildings]
+    heights = [building.height for building in city.buildings]
+    ground_levels = [building.ground_level for building in city.buildings]
+    origin = city.origin
+    return _dtcc_builder.createBuilderCity(
         building_shells, uuids, heights, ground_levels, origin
     )
 

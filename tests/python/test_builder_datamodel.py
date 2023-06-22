@@ -16,9 +16,9 @@ class TestBuilderPointCloud(unittest.TestCase):
         self.assertEqual(len(builder_pc.points), 8148)
 
 
-class TestBuilderCityModel(unittest.TestCase):
-    def test_convert_citymodel(self):
-        cm = io.load_citymodel(data_dir / "MinimalCase" / "PropertyMap.shp")
-        builder_cm = builder.builder_datamodel.create_builder_citymodel(cm)
-        self.assertEqual(len(builder_cm.buildings), len(cm.buildings))
-        self.assertEqual(len(builder_cm.buildings), 5)
+class TestBuilderCity(unittest.TestCase):
+    def test_convert_city(self):
+        city = io.load_city(data_dir / "MinimalCase" / "PropertyMap.shp")
+        builder_city = builder.builder_datamodel.create_builder_city(city)
+        self.assertEqual(len(builder_city.buildings), len(city.buildings))
+        self.assertEqual(len(builder_city.buildings), 5)

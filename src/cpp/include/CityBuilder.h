@@ -1,8 +1,8 @@
 // Copyright (C) 2019 Anders Logg
 // Licensed under the MIT License
 
-#ifndef DTCC_CITY_MODEL_GENERATOR_H
-#define DTCC_CITY_MODEL_GENERATOR_H
+#ifndef DTCC_CITY_BUILDER_H
+#define DTCC_CITY_BUILDER_H
 
 #include <iostream>
 #include <map>
@@ -18,7 +18,7 @@
 #include "PointCloudProcessor.h"
 #include "Polyfix.h"
 #include "Timer.h"
-#include "model/CityModel.h"
+#include "model/City.h"
 #include "model/GridField.h"
 #include "model/PointCloud.h"
 #include "model/Polygon.h"
@@ -27,33 +27,33 @@
 namespace DTCC_BUILDER
 {
 
-class CityModelGenerator
+class CityBuilder
 {
 public:
-  /// Generate city model from building footprints, including only building
+  /// Build city from building footprints, including only building
   /// inside the given bounding box. Note that this does not generate any
   /// building heights, only flat 2D buildings.
   ///
-  /// @param cityModel The city model
+  /// @param city The city
   /// @param footprints Footprints of buildings (polygons)
   /// @param UUIDs UUIDs of buildings
   /// @param entityIDs Indices of buildings (in shapefile)
   /// @param bbox Bounding box of domain
   /// @param minBuildingDistance Minimal distance from building to domain
   /// boundary
-  static void GenerateCityModel(CityModel &cityModel,
-                                const std::vector<Polygon> &footprints,
-                                const std::vector<std::string> &UUIDs,
-                                const std::vector<int> &entityIDs,
-                                const BoundingBox2D &bbox,
-                                double minBuildingDistance,
-                                double minBuildingSize)
+  static void BuildCity(City &city,
+                        const std::vector<Polygon> &footprints,
+                        const std::vector<std::string> &UUIDs,
+                        const std::vector<int> &entityIDs,
+                        const BoundingBox2D &bbox,
+                        double minBuildingDistance,
+                        double minBuildingSize)
   {
-    info("CityModelGenerator: Generating city model...");
-    Timer timer("GenerateCityModel");
+    info("CityBuilder: Building city...");
+    Timer timer("BuildCity");
 
     // Clear data
-    cityModel.Buildings.clear();
+    city.Buildings.clear();
 
     // Add buildings
     for (size_t i = 0; i < footprints.size(); i++)
@@ -77,27 +77,27 @@ public:
         building.error |= BuildingError::BUILDING_TOO_SMALL;
       }
 
-      cityModel.Buildings.push_back(building);
+      city.Buildings.push_back(building);
     }
 
-    info("CityModelGenerator: Added " + str(cityModel.Buildings.size()) + "/" +
+    info("CityBuilder: Added " + str(city.Buildings.size()) + "/" +
          str(footprints.size()) + " buildings inside bounding box");
   }
 
-  /// Clean city model by making sure that all building footprints
+  /// Clean city by making sure that all building footprints
   /// are closed and counter-clockwise oriented.
   ///
-  /// @param cityModel The city model
+  /// @param city The city
   /// @param minimalVertexDistance Minimal vertex distance
   ///
   /// Developer note: This may be optimized by avoiding copying
-  static void CleanCityModel(CityModel &cityModel, double minimalVertexDistance)
+  static void CleanCity(City &city, double minimalVertexDistance)
   {
-    info("CityModelGenerator: Cleaning city model...");
-    Timer timer("CleanCityModel");
+    info("CityBuilder: Cleaning city...");
+    Timer timer("CleanCity");
 
     // Clear search tree (since it might become invalid)
-    cityModel.bbtree.Clear();
+    city.bbtree.Clear();
 
     // Count some stats
     size_t numClosed = 0;
@@ -107,7 +107,7 @@ public:
     size_t numRemoved = 0;
 
     // Clean buildings
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       // Make closed
       numClosed += Polyfix::MakeClosed(building.Footprint, Constants::Epsilon);
@@ -131,46 +131,46 @@ public:
     }
 
     // Keep only valid buildings
-    std::vector<Building> _buildings{cityModel.Buildings};
-    cityModel.Buildings.clear();
+    std::vector<Building> _buildings{city.Buildings};
+    city.Buildings.clear();
     for (auto &building : _buildings)
     {
       if (building.Valid())
-        cityModel.Buildings.push_back(building);
+        city.Buildings.push_back(building);
       else
         numRemoved++;
     }
 
-    info("CityModelGenerator: Fixed " + str(numClosed) + "/" +
-         str(cityModel.Buildings.size()) + " polygons that were not closed");
-    info("CityModelGenerator: Fixed " + str(numOriented) + "/" +
-         str(cityModel.Buildings.size()) + " polygons that were not oriented");
-    info("CityModelGenerator: Merged vertices for " + str(numVertexMerged) +
-         "/" + str(cityModel.Buildings.size()) + " polygons");
-    info("CityModelGenerator: Merged edges for " + str(numEdgeMerged) + "/" +
-         str(cityModel.Buildings.size()) + " polygons");
-    info("CityModelGenerator: Removed " + str(numRemoved) + "/" +
-         str(cityModel.Buildings.size()) +
+    info("CityBuilde: Fixed " + str(numClosed) + "/" +
+         str(city.Buildings.size()) + " polygons that were not closed");
+    info("CityBuilder: Fixed " + str(numOriented) + "/" +
+         str(city.Buildings.size()) + " polygons that were not oriented");
+    info("CityBuilder: Merged vertices for " + str(numVertexMerged) + "/" +
+         str(city.Buildings.size()) + " polygons");
+    info("CityBuilder: Merged edges for " + str(numEdgeMerged) + "/" +
+         str(city.Buildings.size()) + " polygons");
+    info("CityBuilder: Removed " + str(numRemoved) + "/" +
+         str(city.Buildings.size()) +
          " buildings (invalid/too small after cleaning)");
   }
 
-  /// Simplify city model by merging all buildings that are closer than
+  /// Simplify city by merging all buildings that are closer than
   /// a given distance. When merging buildings, the number of buildings
   /// will decrease. Ground points and roof points are also merged and
   /// heights are set to min/max values of the merged buildings.
-  static void SimplifyCityModel(CityModel &cityModel,
-                                const BoundingBox2D &bbox,
-                                double minimalBuildingDistance,
-                                double minimalVertexDistance)
+  static void SimplifyCity(City &city,
+                           const BoundingBox2D &bbox,
+                           double minimalBuildingDistance,
+                           double minimalVertexDistance)
   {
-    info("CityModelGenerator: Simplifying city model...");
-    Timer timer("SimplifyCityModel");
+    info("CityBuilder: Simplifying city...");
+    Timer timer("SimplifyCity");
 
     // Clear search tree (since it might become invalid)
-    cityModel.bbtree.Clear();
+    city.bbtree.Clear();
 
     // Merge buildings if too close
-    MergeCityModel(cityModel, bbox, minimalBuildingDistance);
+    MergeCity(city, bbox, minimalBuildingDistance);
   }
 
   /// Extract ground and roof points from point cloud.
@@ -185,16 +185,16 @@ public:
   /// be missing in the data from LM, we are currently using
   /// all points (except class 2 and 9).
   ///
-  /// @param cityModel The city model
+  /// @param city The city
   /// @param pointCloud Point cloud (unfiltered)
   /// @param groundMargin Margin around building for detecting ground points
-  static void ExtractBuildingPoints(CityModel &cityModel,
+  static void ExtractBuildingPoints(City &city,
                                     const PointCloud &pointCloud,
                                     double groundMargin,
                                     double groundOutlierMargin)
 
   {
-    info("CityModelGenerator: Extracting building points...");
+    info("CityBuilder: Extracting building points...");
     Timer timer("ExtractBuildingPoints");
 
     // Check that point cloud is not empty
@@ -219,7 +219,7 @@ public:
     my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
 
     kdt_timer.Stop();
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       building.GroundPoints.clear();
       building.RoofPoints.clear();
@@ -275,7 +275,7 @@ public:
     // Remove ground outliers
     size_t numGroundPoints = 0;
     size_t numGroundOutliers = 0;
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       // Count total number of points
       numGroundPoints += building.GroundPoints.size();
@@ -287,13 +287,13 @@ public:
     }
     const double outlierGroundPercentage =
         (100.0 * numGroundOutliers) / numGroundPoints;
-    info("CityModelGenerator: Removed ground point outliers (" +
+    info("CityBuilder: Removed ground point outliers (" +
          str(outlierGroundPercentage) + "%)");
 
     double ptsPrSqm;
     double pointCoverage;
     size_t tooFew = 0;
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       ptsPrSqm = static_cast<double>(building.RoofPoints.size()) /
                  Geometry::PolygonArea(building.Footprint);
@@ -309,11 +309,11 @@ public:
         building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
       }
     }
-    info("CityModelGenerator: Number of buildings with too few roof points: " +
+    info("CityBuilder: Number of buildings with too few roof points: " +
          str(tooFew));
 
     // Sort points by height
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       std::sort(building.GroundPoints.begin(), building.GroundPoints.end(),
                 [](const Point3D &p, const Point3D &q) -> bool
@@ -328,7 +328,7 @@ public:
     size_t minR{std::numeric_limits<size_t>::max()};
     size_t maxG{0}, maxR{0};
     size_t sumG{0}, sumR{0};
-    for (const auto &building : cityModel.Buildings)
+    for (const auto &building : city.Buildings)
     {
       // Ground points
       const size_t nG = building.GroundPoints.size();
@@ -342,13 +342,13 @@ public:
       maxR = std::max(maxR, nR);
       sumR += nR;
     }
-    const double meanG = static_cast<double>(sumG) / cityModel.Buildings.size();
-    const double meanR = static_cast<double>(sumR) / cityModel.Buildings.size();
+    const double meanG = static_cast<double>(sumG) / city.Buildings.size();
+    const double meanR = static_cast<double>(sumR) / city.Buildings.size();
 
-    info("CityModelGenerator: min/mean/max number of ground points per "
+    info("CityBuilder: min/mean/max number of ground points per "
          "building is " +
          str(minG) + "/" + str(meanG) + "/" + str(maxG));
-    info("CityModelGenerator: min/mean/max number of roof points per building "
+    info("CityBuilder: min/mean/max number of roof points per building "
          "is " +
          str(minR) + "/" + str(meanR) + "/" + str(maxR));
   }
@@ -357,17 +357,17 @@ public:
   /// requires that ExtractBuildingPoints() has been called to extract
   /// the points from point cloud data.
   ///
-  /// @param cityModel The city model
+  /// @param city The city
   /// @param dtm Digital Terrain Map, used for ground height if points are
   /// missing
   /// @param groundPercentile Percentile used for setting ground height
   /// @param roofPercentile Percentile used for setting roof height
-  static void ComputeBuildingHeights(CityModel &cityModel,
+  static void ComputeBuildingHeights(City &city,
                                      const GridField &dtm,
                                      double groundPercentile,
                                      double roofPercentile)
   {
-    info("CityModelGenerator: Computing building heights...");
+    info("CityBuilder: Computing building heights...");
     Timer timer("ComputeBuildingHeights");
 
     // FIXME: Make this a parameter?
@@ -385,14 +385,14 @@ public:
     size_t numSmallHeights = 0;
 
     // Iterate over buildings
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       // Compute ground height h0
       double h0{0};
       if (building.GroundPoints.empty())
       {
         // warning("Missing ground points for building " + building.UUID);
-        // info("CityModelGenerator: Setting ground height from DTM");
+        // info("CityBuilder: Setting ground height from DTM");
         h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
         numMissingGroundPoints++;
         building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
@@ -411,7 +411,7 @@ public:
       if (building.RoofPoints.empty())
       {
         // warning("Missing roof points for building " + building.UUID);
-        // info("CityModelGenerator: Setting building height to " +
+        // info("CityBuilder: Setting building height to " +
         //     str(minBuildingHeight) + "m");
         h1 = h0 + minBuildingHeight;
         numMissingRoofPoints++;
@@ -429,7 +429,7 @@ public:
       if (h1 < h0 + minBuildingHeight)
       {
         // warning("Height too small for building " + building.UUID);
-        // info("CitModelGenerator: Setting building height to " +
+        // info("CityBuilder: Setting building height to " +
         //     str(minBuildingHeight));
         h1 = h0 + minBuildingHeight;
         numSmallHeights++;
@@ -451,25 +451,24 @@ public:
     }
 
     // Print some statistics
-    const size_t n = cityModel.Buildings.size();
-    info("CityModelGenerator: Missing ground points for " +
+    const size_t n = city.Buildings.size();
+    info("CityBuilder: Missing ground points for " +
          str(numMissingGroundPoints) + "/" + str(n) + " building(s)");
-    info("CityModelGenerator: Missing roof points for " +
-         str(numMissingRoofPoints) + "/" + str(n) + " building(s)");
-    info("CityModelGenerator: Height too small (adjusted) for " +
+    info("CityBuilder: Missing roof points for " + str(numMissingRoofPoints) +
+         "/" + str(n) + " building(s)");
+    info("CityBuilder: Height too small (adjusted) for " +
          str(numSmallHeights) + "/" + str(n) + " building(s)");
   }
 
-  /// Generate a random city model. Used for benchmarking.
+  /// Generate a random city. Used for benchmarking.
   ///
-  /// @param cityModel The city model
+  /// @param city The city
   /// @param dtm Digital Terrain Map
   /// @param numBuildings Number of buildings
-  static void RandomizeCityModel(CityModel &cityModel,
-                                 const GridField &dtm,
-                                 size_t numBuildings)
+  static void
+  RandomizeCity(City &city, const GridField &dtm, size_t numBuildings)
   {
-    info("CityModelGenerator: Randomizing city model...");
+    info("CityBuilder: Randomizing city...");
 
     // Some hard-coded dimensions
     const double A = 20.0;  // Maximum building side length
@@ -493,7 +492,7 @@ public:
         if (++counter > N)
         {
           info("Try setting a smaller number of random buildings.");
-          error("Unable to randomize city model; reached maximum number of "
+          error("Unable to randomize city; reached maximum number of "
                 "attempts.");
         }
 
@@ -531,7 +530,7 @@ public:
         Building building = GenerateBuilding(c, a, b, h, dtm(c));
 
         // Add building
-        cityModel.Buildings.push_back(building);
+        city.Buildings.push_back(building);
         centers.push_back(c);
 
         info("Creating random building " + str(i + 1) + "/" +
@@ -575,16 +574,16 @@ public:
     return building;
   }
 
-  static void BuildingPointsOutlierRemover(CityModel &cityModel,
+  static void BuildingPointsOutlierRemover(City &city,
                                            size_t neighbours,
                                            double outlierMargin,
                                            bool verbose = false)
   {
     if (verbose)
-      info("CityModelGenerator: BuildingPointsOutlierRemover");
+      info("CityBuilder: BuildingPointsOutlierRemover");
     Timer("BuildingPointsOutlierRemover");
     size_t totalRemoved = 0;
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       size_t beforeFilter = building.RoofPoints.size();
       PointCloudProcessor::StatisticalOutlierRemover(
@@ -594,21 +593,21 @@ public:
     if (verbose)
     {
       info("BuildingPointsOutlierRemove filtered a total of " +
-           str(totalRemoved) + " points from  " +
-           str(cityModel.Buildings.size()) + " buildings");
+           str(totalRemoved) + " points from  " + str(city.Buildings.size()) +
+           " buildings");
     }
   }
 
-  static void BuildingPointsRANSACOutlierRemover(CityModel &cityModel,
+  static void BuildingPointsRANSACOutlierRemover(City &city,
                                                  double distanceThershold,
                                                  size_t iterations,
                                                  bool verbose = false)
   {
     if (verbose)
-      info("CityModelGenerator: BuildingPointsRANSACOutlierRemover");
+      info("CityBuilder: BuildingPointsRANSACOutlierRemover");
     Timer("BuildingPointsRANSACOutlierRemover");
     size_t totalRemoved = 0;
-    for (auto &building : cityModel.Buildings)
+    for (auto &building : city.Buildings)
     {
       size_t beforeFilter = building.RoofPoints.size();
       PointCloudProcessor::RANSAC_OutlierRemover(building.RoofPoints,
@@ -621,11 +620,11 @@ public:
 
 private:
   // Merge all buildings closer than a given distance
-  static void MergeCityModel(CityModel &cityModel,
-                             const BoundingBox2D &bbox,
-                             double minimalBuildingDistance)
+  static void MergeCity(City &city,
+                        const BoundingBox2D &bbox,
+                        double minimalBuildingDistance)
   {
-    info("CityModelGenerator: Merging buildings...");
+    info("CityBuilder: Merging buildings...");
 
     // Initialize GEOS
     GEOS::Init();
@@ -634,7 +633,7 @@ private:
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
 
     // Get buildings
-    std::vector<Building> &buildings = cityModel.Buildings;
+    std::vector<Building> &buildings = city.Buildings;
 
     // Counters
     size_t numMerged = 0;
@@ -699,7 +698,7 @@ private:
         // Merge if distance is small
         if (d2 < tol2)
         {
-          debug("CityModelGenerator: Buildings " + str(i) + " and " + str(j) +
+          debug("CityBuilder: Buildings " + str(i) + " and " + str(j) +
                 " are too close, merging");
 
           // Merge buildings
@@ -728,14 +727,13 @@ private:
     }
 
     // Overwrite buildings
-    cityModel.Buildings = mergedBuildings;
+    city.Buildings = mergedBuildings;
 
     // Finish GEOS
     GEOS::Finish();
 
-    info("CityModelGenerator: " + str(numMerged) +
-         " building pair(s) were merged");
-    info("CityModelGenerator: " + str(numCompared) +
+    info("CityBuilder: " + str(numMerged) + " building pair(s) were merged");
+    info("CityBuilder: " + str(numCompared) +
          " pair(s) of buildings were checked");
   }
 

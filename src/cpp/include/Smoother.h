@@ -17,7 +17,7 @@ class Smoother
 public:
   // Smooth mesh using Laplacian smoothing
   static void smooth_volume_mesh(VolumeMesh &volume_mesh,
-                                 const CityModel &city_model,
+                                 const City &city,
                                  const GridField &dem,
                                  double top_height,
                                  bool fix_buildings,
@@ -35,8 +35,7 @@ public:
     std::vector<double> b(volume_mesh.Vertices.size(), 0);
 
     // Apply boundary conditions
-    BoundaryConditions bc(volume_mesh, city_model, dem, top_height,
-                          fix_buildings);
+    BoundaryConditions bc(volume_mesh, city, dem, top_height, fix_buildings);
     bc.apply(AK);
     bc.apply(b);
 

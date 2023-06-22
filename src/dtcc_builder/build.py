@@ -33,7 +33,7 @@ def calculate_project_domain(params_or_footprint, las_path=None, params=None):
             "must provide either params only or footprint and las_path and params"
         )
     if p["auto_domain"]:
-        footprint_bounds = io.citymodel.building_bounds(
+        footprint_bounds = io.city.building_bounds(
             building_footprint_path, p["domain_margin"]
         )
         las_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
@@ -63,7 +63,7 @@ def calculate_project_domain(params_or_footprint, las_path=None, params=None):
     return (origin, domain_bounds)
 
 
-def generate_dem(
+def build_dem(
     pointcloud: model.PointCloud, bounds, cell_size: float, window_size: int = 3
 ) -> model.Raster:
     if (
@@ -93,7 +93,7 @@ def generate_dem(
 
 
 def extract_buildingpoints(
-    citymodel,
+    city,
     pointcloud,
     ground_padding=2.0,
     ground_outlier_margin=1,
@@ -102,10 +102,10 @@ def extract_buildingpoints(
     roof_ransac_margin=3.0,
     roof_ransac_iterations=150,
 ):
-    builder_citymodel = builder_datamodel.create_builder_citymodel(citymodel)
+    builder_city = builder_datamodel.create_builder_city(city)
     builder_pointcloud = builder_datamodel.create_builder_pointcloud(pointcloud)
-    builder_citymodel = _dtcc_builder.extractRoofPoints(
-        builder_citymodel,
+    builder_city = _dtcc_builder.extractRoofPoints(
+        builder_city,
         builder_pointcloud,
         ground_padding,
         ground_outlier_margin,
@@ -115,10 +115,10 @@ def extract_buildingpoints(
         roof_ransac_iterations,
     )
     # start_time = time()
-    for citymodel_building, builder_buildings in zip(
-        citymodel.buildings, builder_citymodel.buildings
+    for city_building, builder_buildings in zip(
+        city.buildings, builder_city.buildings
     ):
-        citymodel_building.roofpoints.points = np.array(
+        city_building.roofpoints.points = np.array(
             [[p.x, p.y, p.z] for p in builder_buildings.roof_points]
         )
         ground_points = np.array(
@@ -126,16 +126,16 @@ def extract_buildingpoints(
         )
         if len(ground_points) > 0:
             ground_z = ground_points[:, 2]
-            citymodel_building.ground_level = np.percentile(ground_z, 50)
+            city_building.ground_level = np.percentile(ground_z, 50)
 
     # print("conver cm time: ", time() - start_time)
-    return citymodel
+    return city
 
 
 def calculate_building_heights(
-    citymodel, roof_percentile=0.9, min_height=2.5, overwrite=False
+    city, roof_percentile=0.9, min_height=2.5, overwrite=False
 ):
-    for building in citymodel.buildings:
+    for building in city.buildings:
         if building.height > 0 and not overwrite:
             continue
         if len(building.roofpoints) == 0:
@@ -145,9 +145,9 @@ def calculate_building_heights(
         roof_top = np.percentile(z_values, roof_percentile * 100)
 
         if building.ground_level == 0:
-            if len(citymodel.terrain.shape) == 2:
+            if len(city.terrain.shape) == 2:
                 footprint_center = building.footprint.centroid
-                ground_height = citymodel.terrain.get_value(
+                ground_height = city.terrain.get_value(
                     footprint_center.x, footprint_center.y
                 )
                 building.ground_level = ground_height
@@ -156,35 +156,35 @@ def calculate_building_heights(
             height = min_height
         building.height = height
 
-    return citymodel
+    return city
 
 
 def build_mesh(
-    city_model: model.CityModel,
+    city: model.City,
     mesh_resolution,
     domain_height,
     min_building_dist,
     min_vertex_dist,
     debug=False,
 ) -> Tuple[model.VolumeMesh, model.Mesh]:
-    builder_cm = builder_datamodel.create_builder_citymodel(city_model)
+    builder_cm = builder_datamodel.create_builder_city(city)
     bounds = (
-        city_model.bounds.xmin,
-        city_model.bounds.ymin,
-        city_model.bounds.xmax,
-        city_model.bounds.ymax,
+        city.bounds.xmin,
+        city.bounds.ymin,
+        city.bounds.xmax,
+        city.bounds.ymax,
     )
     print(f"Building mesh with bounds {bounds}")
-    print(f"dem bounds {city_model.terrain.bounds}")
-    simple_cm = _dtcc_builder.SimplifyCityModel(
+    print(f"dem bounds {city.terrain.bounds}")
+    simple_cm = _dtcc_builder.SimplifyCity(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
-    # simple_cm = _dtcc_builder.CleanCityModel(simple_cm, min_vertex_dist)
+    # simple_cm = _dtcc_builder.CleanCity(simple_cm, min_vertex_dist)
 
-    builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
+    builder_dem = builder_datamodel.raster_to_builder_gridfield(city.terrain)
 
-    # Step 3.1: Generate 2D mesh
-    mesh_2D = _dtcc_builder.GenerateMesh2D(
+    # Step 3.1: Build 2D mesh
+    mesh_2D = _dtcc_builder.BuildMesh2D(
         simple_cm,
         bounds,
         mesh_resolution,
@@ -193,8 +193,8 @@ def build_mesh(
     if debug:
         builder_datamodel.builder_mesh_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
 
-    # Step 3.2: Generate 3D mesh (layer 3D mesh)
-    mesh_3D = _dtcc_builder.GenerateVolumeMesh(mesh_2D, domain_height, mesh_resolution)
+    # Step 3.2: Build 3D mesh (layer 3D mesh)
+    mesh_3D = _dtcc_builder.BuildVolumeMesh(mesh_2D, domain_height, mesh_resolution)
     if debug:
         builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.2.vtu"
@@ -205,7 +205,7 @@ def build_mesh(
     relative_tolerance = 1e-3
 
     # Step 3.3: Smooth 3D mesh (set ground height)
-    top_height = domain_height + city_model.terrain.data.mean()
+    top_height = domain_height + city.terrain.data.mean()
     mesh_3D = _dtcc_builder.smooth_volume_mesh(
         mesh_3D,
         simple_cm,
@@ -253,23 +253,23 @@ def build_mesh(
 
 
 def build_surface_meshes(
-    city_model: model.CityModel, min_building_dist, min_vertex_dist, mesh_resolution
+    city: model.City, min_building_dist, min_vertex_dist, mesh_resolution
 ):
     bounds = (
-        city_model.bounds.xmin,
-        city_model.bounds.ymin,
-        city_model.bounds.xmax,
-        city_model.bounds.ymax,
+        city.bounds.xmin,
+        city.bounds.ymin,
+        city.bounds.xmax,
+        city.bounds.ymax,
     )
-    builder_cm = builder_datamodel.create_builder_citymodel(city_model)
-    simple_cm = _dtcc_builder.SimplifyCityModel(
+    builder_cm = builder_datamodel.create_builder_city(city)
+    simple_cm = _dtcc_builder.SimplifyCity(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
-    # simple_cm = _dtcc_builder.CleanCityModel(simple_cm, min_vertex_dist)
+    # simple_cm = _dtcc_builder.CleanCity(simple_cm, min_vertex_dist)
 
-    builder_dem = builder_datamodel.raster_to_builder_gridfield(city_model.terrain)
+    builder_dem = builder_datamodel.raster_to_builder_gridfield(city.terrain)
 
-    surfaces = _dtcc_builder.GenerateSurface3D(simple_cm, builder_dem, mesh_resolution)
+    surfaces = _dtcc_builder.BuildSurface3D(simple_cm, builder_dem, mesh_resolution)
 
     ground_surface = surfaces[0]
     building_surfaces = surfaces[1:]
