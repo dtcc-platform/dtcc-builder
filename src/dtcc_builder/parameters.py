@@ -2,16 +2,16 @@ _parameters = {}
 
 _parameters["model_name"] = "DTCC"
 _parameters["auto_domain"] = True
-_parameters["generate_surface_mesh"] = True
-_parameters["generate_volume_mesh"] = True
-_parameters["write_json"] = True
-_parameters["write_vtk"] = True
-_parameters["write_stl"] = True
-_parameters["write_obj"] = False
-_parameters["write_protobuf"] = True
-
 _parameters["debug"] = False
 
+_parameters["save_protobuf"] = True
+_parameters["save_json"] = False
+_parameters["save_shp"] = False
+_parameters["save_vtk"] = False
+_parameters["save_stl"] = False
+_parameters["save_obj"] = False
+
+# FIXME: Is this used?
 _parameters["ground_smoothing"] = 5
 
 _parameters["domain_margin"] = 10.0

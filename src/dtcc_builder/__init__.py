@@ -1,17 +1,11 @@
-from . import methods
 from . import model
+from . import builders
 from . import parameters
 
-from .methods import build
+from .builders import build
 
 # Add model extensions
 from dtcc_model import City, PointCloud
 
-City.add_processors(methods.extract_buildingpoints, "extract_buildingpoints")
-City.add_processors(methods.calculate_building_heights, "calculate_building_heights")
-
-
-# Initialize logging
-from dtcc_common import init_logging
-
-init_logging("dtcc-builder")
+City.add_processors(builders.compute_building_points, "compute_building_points")
+City.add_processors(builders.compute_building_heights, "compute_building_heights")

@@ -141,7 +141,7 @@ public:
         numRemoved++;
     }
 
-    info("CityBuilde: Fixed " + str(numClosed) + "/" +
+    info("CityBuilder: Fixed " + str(numClosed) + "/" +
          str(city.Buildings.size()) + " polygons that were not closed");
     info("CityBuilder: Fixed " + str(numOriented) + "/" +
          str(city.Buildings.size()) + " polygons that were not oriented");

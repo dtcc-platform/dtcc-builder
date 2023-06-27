@@ -6,7 +6,10 @@
 # This is the main command line script provided by DTCC Builder.
 # It builds city models and/or meshes from raw data in a a given
 # project directory.
-
+#
+# This script is responsible for parsing command line arguments
+# and handle logic around data directories and parameters. The
+# actual building is delegated to the main build() function.
 
 import sys, os, re, json, argparse
 from pathlib import Path
@@ -14,7 +17,7 @@ from pathlib import Path
 
 import dtcc_io as io
 import dtcc_builder as builder
-from dtcc_common import info, warning
+from dtcc_builder.logging import info, warning
 
 PARAMETERS_FILE = "parameters.json"
 
@@ -134,5 +137,5 @@ def main():
     # Load parameters
     parameters = load_parameters(args)
 
-    # Run builder
+    # Call main build function
     builder.build(parameters, args.city_only, args.mesh_only)
