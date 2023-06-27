@@ -1,7 +1,7 @@
 # Copyright (C) 2022 Dag Wästberg
 # Licensed under the MIT License
 #
-# Modified by Anders Logg 2022
+# Modified by Anders Logg 2023
 #
 # This is the main command line script provided by DTCC Builder.
 # It builds city models and/or meshes from raw data in a a given
@@ -127,111 +127,6 @@ def set_directory_parameters(parameters, path):
     return p
 
 
-def run(p, city_only, mesh_only):
-    building_file = p["data_directory"] / p["buildings_filename"]
-    if not building_file.exists():
-        raise FileNotFoundError(f"cannot find building file {building_file}")
-    pointcloud_file = p["pointcloud_directory"]
-    if not pointcloud_file.exists():
-        raise FileNotFoundError(f"cannot find point cloud file {pointcloud_file}")
-    info(
-        f"creating city from Building file: {building_file} and pointcloud {pointcloud_file}"
-    )
-
-    origin, project_bounds = builder.build.calculate_project_domain(
-        building_file, pointcloud_file, p
-    )
-
-    info(f"project bounds: {project_bounds.tuple}")
-
-    cm = io.load_city(
-        building_file,
-        uuid_field=p["uuid_field"],
-        height_field=p["height_field"],
-        bounds=project_bounds,
-    )
-    pc = io.load_pointcloud(
-        pointcloud_file,
-        bounds=project_bounds,
-    )
-    pc = pc.remove_global_outliers(p["outlier_margin"])
-
-    dem_raster = builder.build.build_dem(
-        pc, project_bounds, p["elevation_model_resolution"]
-    )
-    cm.terrain = dem_raster
-
-    if not ["statistical_outlier_remover"]:
-        p["roof_outlier_margin"] = 0
-
-    if not p["ransac_outlier_remover"]:
-        p["ransac_iterations"] = 0
-
-    cm = builder.build.extract_buildingpoints(
-        cm,
-        pc,
-        p["ground_margin"],
-        p["outlier_margin"],
-        p["roof_outlier_margin"],
-        p["outlier_neighbors"],
-        p["ransac_outlier_margin"],
-        p["ransac_iterations"],
-    )
-
-    cm = builder.build.calculate_building_heights(
-        cm, p["roof_percentile"], p["min_building_height"], overwrite=True
-    )
-
-    io.save_city(
-        cm,
-        p["output_directory"] / "City.shp",
-    )
-
-    if p["write_protobuf"]:
-        io.save_city(
-            cm,
-            p["output_directory"] / "City.pb",
-        )
-
-    if p["write_json"]:
-        io.save_city(
-            cm,
-            p["output_directory"] / "City.json",
-        )
-
-    if not city_only:
-
-        volume_mesh, surface_mesh = builder.build.build_mesh(
-            cm,
-            p["mesh_resolution"],
-            p["domain_height"],
-            p["min_building_distance"],
-            p["min_vertex_distance"],
-            p["debug"],
-        )
-
-        ground_surface, buildings = builder.build.build_surface_meshes(
-            cm,
-            p["min_building_distance"],
-            p["min_vertex_distance"],
-            p["mesh_resolution"],
-        )
-
-        if p["write_protobuf"]:
-            surface_mesh.save(p["output_directory"] / "CitySurface.pb")
-            ground_surface.save(p["output_directory"] / "GroundSurface.pb")
-            buildings.save(p["output_directory"] / "Buildings.pb")
-
-        if p["write_vtk"]:
-            surface_mesh.save(p["output_directory"] / "CitySurface.vtk")
-            volume_mesh.save(p["output_directory"] / "CityMesh.vtk")
-
-        if p["write_stl"]:
-            surface_mesh.save(p["output_directory"] / "CitySurface.stl")
-            ground_surface.save(p["output_directory"] / "GroundSurface.stl")
-            buildings.save(p["output_directory"] / "Buildings.stl")
-
-
 def main():
     # Parse command line
     args = parse_command_line()
@@ -240,4 +135,4 @@ def main():
     parameters = load_parameters(args)
 
     # Run builder
-    run(parameters, args.city_only, args.mesh_only)
+    builder.build(parameters, args.city_only, args.mesh_only)

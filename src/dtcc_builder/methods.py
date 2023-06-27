@@ -1,20 +1,21 @@
-import dtcc_builder as builder
-import dtcc_builder.build
-import dtcc_builder.builder_datamodel as builder_datamodel
-import dtcc_model as model
-from dtcc_model import dtcc_pb2 as proto
-from dtcc_builder import _dtcc_builder
-import dtcc_io as io
-from pathlib import Path
+# Copyright (C) 2022 Dag Wästberg
+# Licensed under the MIT License
+#
+# Modified by Anders Logg 2023
+#
+# This module provides the main methods of DTCC Builder.
+
 import numpy as np
-from affine import Affine
-from typing import Union, Tuple
-
 import rasterio.transform
+import pypoints2grid
+from pathlib import Path
+from typing import Tuple
 
-from pypoints2grid import points2grid
-
-from time import time
+import dtcc_model as model
+import dtcc_io as io
+from dtcc_common import info, warning
+from . import _dtcc_builder
+from . import model as builder_model
 
 
 def calculate_project_domain(params_or_footprint, las_path=None, params=None):
@@ -74,7 +75,9 @@ def build_dem(
     else:
         ground_points = pointcloud.points
     print(f"generating dem with bounds {bounds.tuple}")
-    dem = points2grid(ground_points, cell_size, bounds.tuple, window_size=window_size)
+    dem = pypoints2grid.points2grid(
+        ground_points, cell_size, bounds.tuple, window_size=window_size
+    )
 
     print("dem shape: ", dem.shape)
     print("cell size: ", cell_size)
@@ -102,8 +105,8 @@ def extract_buildingpoints(
     roof_ransac_margin=3.0,
     roof_ransac_iterations=150,
 ):
-    builder_city = builder_datamodel.create_builder_city(city)
-    builder_pointcloud = builder_datamodel.create_builder_pointcloud(pointcloud)
+    builder_city = builder_model.create_builder_city(city)
+    builder_pointcloud = builder_model.create_builder_pointcloud(pointcloud)
     builder_city = _dtcc_builder.extractRoofPoints(
         builder_city,
         builder_pointcloud,
@@ -114,10 +117,7 @@ def extract_buildingpoints(
         roof_ransac_margin,
         roof_ransac_iterations,
     )
-    # start_time = time()
-    for city_building, builder_buildings in zip(
-        city.buildings, builder_city.buildings
-    ):
+    for city_building, builder_buildings in zip(city.buildings, builder_city.buildings):
         city_building.roofpoints.points = np.array(
             [[p.x, p.y, p.z] for p in builder_buildings.roof_points]
         )
@@ -128,7 +128,6 @@ def extract_buildingpoints(
             ground_z = ground_points[:, 2]
             city_building.ground_level = np.percentile(ground_z, 50)
 
-    # print("conver cm time: ", time() - start_time)
     return city
 
 
@@ -167,7 +166,7 @@ def build_mesh(
     min_vertex_dist,
     debug=False,
 ) -> Tuple[model.VolumeMesh, model.Mesh]:
-    builder_cm = builder_datamodel.create_builder_city(city)
+    builder_cm = builder_model.create_builder_city(city)
     bounds = (
         city.bounds.xmin,
         city.bounds.ymin,
@@ -181,7 +180,7 @@ def build_mesh(
     )
     # simple_cm = _dtcc_builder.CleanCity(simple_cm, min_vertex_dist)
 
-    builder_dem = builder_datamodel.raster_to_builder_gridfield(city.terrain)
+    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
 
     # Step 3.1: Build 2D mesh
     mesh_2D = _dtcc_builder.BuildMesh2D(
@@ -191,12 +190,12 @@ def build_mesh(
     )
 
     if debug:
-        builder_datamodel.builder_mesh_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
+        builder_model.builder_mesh_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
 
     # Step 3.2: Build 3D mesh (layer 3D mesh)
     mesh_3D = _dtcc_builder.BuildVolumeMesh(mesh_2D, domain_height, mesh_resolution)
     if debug:
-        builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
+        builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.2.vtu"
         )
 
@@ -217,14 +216,14 @@ def build_mesh(
     )
 
     if debug:
-        builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
+        builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.3.vtu"
         )
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
     mesh_3D = _dtcc_builder.TrimVolumeMesh(mesh_3D, mesh_2D, simple_cm)
     if debug:
-        builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
+        builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
             "meshing_step3.4.vtu"
         )
 
@@ -246,8 +245,8 @@ def build_mesh(
     surface_3d = _dtcc_builder.ExtractBoundary3D(mesh_3D)
 
     # Step 3.6: Convert back to dtcc format
-    dtcc_volume = builder_datamodel.builder_volume_mesh_to_volume_mesh(mesh_3D)
-    dtcc_surface = builder_datamodel.builder_mesh_to_mesh(surface_3d)
+    dtcc_volume = builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D)
+    dtcc_surface = builder_model.builder_mesh_to_mesh(surface_3d)
 
     return dtcc_volume, dtcc_surface
 
@@ -261,13 +260,13 @@ def build_surface_meshes(
         city.bounds.xmax,
         city.bounds.ymax,
     )
-    builder_cm = builder_datamodel.create_builder_city(city)
+    builder_cm = builder_model.create_builder_city(city)
     simple_cm = _dtcc_builder.SimplifyCity(
         builder_cm, bounds, min_building_dist, min_vertex_dist
     )
     # simple_cm = _dtcc_builder.CleanCity(simple_cm, min_vertex_dist)
 
-    builder_dem = builder_datamodel.raster_to_builder_gridfield(city.terrain)
+    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
 
     surfaces = _dtcc_builder.BuildSurface3D(simple_cm, builder_dem, mesh_resolution)
 
@@ -275,7 +274,109 @@ def build_surface_meshes(
     building_surfaces = surfaces[1:]
     building_surfaces = _dtcc_builder.MergeSurfaces3D(building_surfaces)
 
-    dtcc_ground_surface = builder_datamodel.builder_mesh_to_mesh(ground_surface)
-    dtcc_building_surfaces = builder_datamodel.builder_mesh_to_mesh(building_surfaces)
+    dtcc_ground_surface = builder_model.builder_mesh_to_mesh(ground_surface)
+    dtcc_building_surfaces = builder_model.builder_mesh_to_mesh(building_surfaces)
 
     return dtcc_ground_surface, dtcc_building_surfaces
+
+
+def build(p, city_only=False, mesh_only=False):
+    """Build city and/or volume mesh according to given parameters"""
+
+    building_file = p["data_directory"] / p["buildings_filename"]
+    if not building_file.exists():
+        raise FileNotFoundError(f"cannot find building file {building_file}")
+    pointcloud_file = p["pointcloud_directory"]
+    if not pointcloud_file.exists():
+        raise FileNotFoundError(f"cannot find point cloud file {pointcloud_file}")
+    info(
+        f"creating city from Building file: {building_file} and pointcloud {pointcloud_file}"
+    )
+
+    origin, project_bounds = calculate_project_domain(building_file, pointcloud_file, p)
+
+    info(f"project bounds: {project_bounds.tuple}")
+
+    cm = io.load_city(
+        building_file,
+        uuid_field=p["uuid_field"],
+        height_field=p["height_field"],
+        bounds=project_bounds,
+    )
+    pc = io.load_pointcloud(
+        pointcloud_file,
+        bounds=project_bounds,
+    )
+    pc = pc.remove_global_outliers(p["outlier_margin"])
+
+    dem_raster = build_dem(pc, project_bounds, p["elevation_model_resolution"])
+    cm.terrain = dem_raster
+
+    if not ["statistical_outlier_remover"]:
+        p["roof_outlier_margin"] = 0
+
+    if not p["ransac_outlier_remover"]:
+        p["ransac_iterations"] = 0
+
+    cm = extract_buildingpoints(
+        cm,
+        pc,
+        p["ground_margin"],
+        p["outlier_margin"],
+        p["roof_outlier_margin"],
+        p["outlier_neighbors"],
+        p["ransac_outlier_margin"],
+        p["ransac_iterations"],
+    )
+
+    cm = calculate_building_heights(
+        cm, p["roof_percentile"], p["min_building_height"], overwrite=True
+    )
+
+    io.save_city(
+        cm,
+        p["output_directory"] / "City.shp",
+    )
+
+    if p["write_protobuf"]:
+        io.save_city(
+            cm,
+            p["output_directory"] / "City.pb",
+        )
+
+    if p["write_json"]:
+        io.save_city(
+            cm,
+            p["output_directory"] / "City.json",
+        )
+
+    if not city_only:
+        volume_mesh, surface_mesh = build_mesh(
+            cm,
+            p["mesh_resolution"],
+            p["domain_height"],
+            p["min_building_distance"],
+            p["min_vertex_distance"],
+            p["debug"],
+        )
+
+        ground_surface, buildings = build_surface_meshes(
+            cm,
+            p["min_building_distance"],
+            p["min_vertex_distance"],
+            p["mesh_resolution"],
+        )
+
+        if p["write_protobuf"]:
+            surface_mesh.save(p["output_directory"] / "CitySurface.pb")
+            ground_surface.save(p["output_directory"] / "GroundSurface.pb")
+            buildings.save(p["output_directory"] / "Buildings.pb")
+
+        if p["write_vtk"]:
+            surface_mesh.save(p["output_directory"] / "CitySurface.vtk")
+            volume_mesh.save(p["output_directory"] / "CityMesh.vtk")
+
+        if p["write_stl"]:
+            surface_mesh.save(p["output_directory"] / "CitySurface.stl")
+            ground_surface.save(p["output_directory"] / "GroundSurface.stl")
+            buildings.save(p["output_directory"] / "Buildings.stl")
