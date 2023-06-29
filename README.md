@@ -40,3 +40,7 @@ each source file.
 
 Comments, contributions, and questions are welcome. Please engage with
 us through Issues, Pull Requests, and Discussions on our GitHub page.
+
+## Citing
+
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04928/status.svg)](https://doi.org/10.21105/joss.04928)
