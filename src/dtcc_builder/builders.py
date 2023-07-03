@@ -131,7 +131,12 @@ def compute_building_points(
 def build_dem(
     pointcloud: model.PointCloud, bounds, cell_size: float, window_size: int = 3
 ) -> model.Raster:
-    "Build digital elevation model from point cloud"
+    """
+    Build digital elevation model from point cloud.
+
+    The DEM is computed from ground points only if ground classifiction
+    is available. The DEM is returned as a raster.
+    """
 
     info("Building digital elevation model (DEM)...")
 
