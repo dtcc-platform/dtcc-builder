@@ -46,6 +46,9 @@ _parameters["ransac_outlier_remover"] = True
 _parameters["ransac_outlier_margin"] = 3.0
 _parameters["ransac_iterations"] = 250
 
+_parameters["smoothing_max_iterations"] = 1000
+_parameters["smoothing_relative_tolerance"] = 0.001
+
 _parameters["naive_vegitation_filter"] = True
 _parameters["data_directory"] = ""
 _parameters["buildings_filename"] = "PropertyMap.shp"

@@ -18,6 +18,17 @@ def create_builder_pointcloud(
         )
 
 
+def raster_to_builder_gridfield(raster: Raster):
+    return _dtcc_builder.createBuilderGridField(
+        raster.data.flatten(),
+        raster.bounds.tuple,
+        raster.width,
+        raster.height,
+        abs(raster.cell_size[0]),
+        abs(raster.cell_size[1]),
+    )
+
+
 def create_builder_city(city: City):
     building_shells = [
         list(building.footprint.exterior.coords[:-1]) for building in city.buildings
@@ -29,17 +40,6 @@ def create_builder_city(city: City):
     origin = city.origin
     return _dtcc_builder.createBuilderCity(
         building_shells, uuids, heights, ground_levels, origin
-    )
-
-
-def raster_to_builder_gridfield(raster: Raster):
-    return _dtcc_builder.createBuilderGridField(
-        raster.data.flatten(),
-        raster.bounds.tuple,
-        raster.width,
-        raster.height,
-        abs(raster.cell_size[0]),
-        abs(raster.cell_size[1]),
     )
 
 
@@ -57,5 +57,3 @@ def builder_volume_mesh_to_volume_mesh(_volume_mesh: _dtcc_builder.Mesh):
     volume_mesh.cells = np.array([[c.v0, c.v1, c.v2, c.v3] for c in _volume_mesh.Cells])
     volume_mesh.markers = np.array(_volume_mesh.Markers)
     return volume_mesh
-
-

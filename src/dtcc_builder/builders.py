@@ -228,16 +228,15 @@ def build_mesh(
     # Shortcut
     p = parameters
 
+    # Convert to builder model
+    builder_city = builder_model.create_builder_city(city)
+    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
     bounds = (
         city.bounds.xmin,
         city.bounds.ymin,
         city.bounds.xmax,
         city.bounds.ymax,
     )
-
-    # Convert to builder datamodel
-    builder_city = builder_model.create_builder_city(city)
-    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
 
     # Simplify city
     simple_city = _dtcc_builder.SimplifyCity(
@@ -254,11 +253,22 @@ def build_mesh(
     building_meshes = meshes[1:]
     building_meshes = _dtcc_builder.MergeSurfaces3D(building_meshes)
 
-    # Convert to DTCC datamodel
+    # Convert back to DTCC model
     dtcc_ground_mesh = builder_model.builder_mesh_to_mesh(ground_mesh)
     dtcc_building_mesh = builder_model.builder_mesh_to_mesh(building_meshes)
 
     return dtcc_ground_mesh, dtcc_building_mesh
+
+
+def _debug(mesh, step, p):
+    "Debug volume meshing"
+    if not p["debug"]:
+        return
+    if isinstance(mesh, _dtcc_builder.Mesh):
+        mesh = builder_model.builder_mesh_to_mesh(mesh)
+    else:
+        mesh = builder_model.builder_volume_mesh_to_volume_mesh(mesh)
+    mesh.save(p["output_directory"] / f"mesh_step{step}.vtu")
 
 
 def build_volume_mesh(
@@ -275,89 +285,70 @@ def build_volume_mesh(
     # Shortcut
     p = parameters
 
+    # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
+    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
     bounds = (
         city.bounds.xmin,
         city.bounds.ymin,
         city.bounds.xmax,
         city.bounds.ymax,
     )
-    print(f"Building mesh with bounds {bounds}")
-    print(f"dem bounds {city.terrain.bounds}")
+
+    # Simplify city
     simple_city = _dtcc_builder.SimplifyCity(
         builder_city, bounds, p["min_building_distance"], p["min_vertex_distance"]
     )
-    # simple_city = _dtcc_builder.CleanCity(simple_city, min_vertex_dist)
-
-    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
 
     # Step 3.1: Build 2D mesh
-    mesh_2D = _dtcc_builder.BuildMesh2D(
+    mesh = _dtcc_builder.BuildMesh2D(
         simple_city,
         bounds,
         p["mesh_resolution"],
     )
-
-    if p["debug"]:
-        builder_model.builder_mesh_to_mesh(mesh_2D).save("mesh_step3.1.vtu")
+    _debug(mesh, "3.1", p)
 
     # Step 3.2: Build 3D mesh (layer 3D mesh)
-    mesh_3D = _dtcc_builder.BuildVolumeMesh(
-        mesh_2D, p["domain_height"], p["mesh_resolution"]
+    volume_mesh = _dtcc_builder.BuildVolumeMesh(
+        mesh, p["domain_height"], p["mesh_resolution"]
     )
-    if p["debug"]:
-        builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
-            "meshing_step3.2.vtu"
-        )
-
-    # FIXME: Make parameters
-    max_iterations = 1000
-    relative_tolerance = 1e-3
+    _debug(volume_mesh, "3.2", p)
 
     # Step 3.3: Smooth 3D mesh (set ground height)
     top_height = p["domain_height"] + city.terrain.data.mean()
-    mesh_3D = _dtcc_builder.smooth_volume_mesh(
-        mesh_3D,
+    volume_mesh = _dtcc_builder.smooth_volume_mesh(
+        volume_mesh,
         simple_city,
         builder_dem,
         top_height,
         False,
-        max_iterations,
-        relative_tolerance,
+        p["smoothing_max_iterations"],
+        p["smoothing_relative_tolerance"],
     )
-
-    if p["debug"]:
-        builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
-            "meshing_step3.3.vtu"
-        )
+    _debug(volume_mesh, "3.3", p)
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
-    mesh_3D = _dtcc_builder.TrimVolumeMesh(mesh_3D, mesh_2D, simple_city)
-    if p["debug"]:
-        builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
-            "meshing_step3.4.vtu"
-        )
+    volume_mesh = _dtcc_builder.TrimVolumeMesh(volume_mesh, mesh, simple_city)
+    _debug(volume_mesh, "3.4", p)
 
     # Step 3.5: Smooth 3D mesh (set ground and building heights)
-    mesh_3D = _dtcc_builder.smooth_volume_mesh(
-        mesh_3D,
+    volume_mesh = _dtcc_builder.smooth_volume_mesh(
+        volume_mesh,
         simple_city,
         builder_dem,
         top_height,
         True,
-        max_iterations,
-        relative_tolerance,
+        p["smoothing_max_iterations"],
+        p["smoothing_relative_tolerance"],
     )
+    _debug(volume_mesh, "3.5", p)
 
-    if p["debug"]:
-        builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D).save(
-            "meshing_step3.5.vtu"
-        )
-    surface_3d = _dtcc_builder.ExtractBoundary3D(mesh_3D)
+    # Compute boundary mesh
+    volume_mesh_boundary = _dtcc_builder.ExtractBoundary3D(volume_mesh)
 
     # Convert back to DTCC model
-    dtcc_volume_mesh = builder_model.builder_volume_mesh_to_volume_mesh(mesh_3D)
-    dtcc_volume_mesh_boundary = builder_model.builder_mesh_to_mesh(surface_3d)
+    dtcc_volume_mesh = builder_model.builder_volume_mesh_to_volume_mesh(volume_mesh)
+    dtcc_volume_mesh_boundary = builder_model.builder_mesh_to_mesh(volume_mesh_boundary)
 
     return dtcc_volume_mesh, dtcc_volume_mesh_boundary
 
