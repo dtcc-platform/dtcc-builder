@@ -187,12 +187,10 @@ def build_city(
     # Shortcut
     p = parameters
 
-    # Remove outliers
+    # Remove outliers from point cloud
     point_cloud = point_cloud.remove_global_outliers(p["outlier_margin"])
 
-    # FIXME: Don't modify the input city
-
-    # Build elevation model
+    # Build elevation model FIXME: Don't modify the input city
     city.terrain = build_dem(point_cloud, bounds, p["elevation_model_resolution"])
 
     # Compute building points
@@ -236,21 +234,27 @@ def build_mesh(
         city.bounds.xmax,
         city.bounds.ymax,
     )
+
+    # Convert to builder datamodel
     builder_city = builder_model.create_builder_city(city)
+    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
+
+    # Simplify city
     simple_city = _dtcc_builder.SimplifyCity(
         builder_city, bounds, p["min_building_distance"], p["min_vertex_distance"]
     )
 
-    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
-
+    # Build meshes
     meshes = _dtcc_builder.BuildSurface3D(
         simple_city, builder_dem, p["mesh_resolution"]
     )
 
+    # Extract meshes and merge building meshes
     ground_mesh = meshes[0]
     building_meshes = meshes[1:]
     building_meshes = _dtcc_builder.MergeSurfaces3D(building_meshes)
 
+    # Convert to DTCC datamodel
     dtcc_ground_mesh = builder_model.builder_mesh_to_mesh(ground_mesh)
     dtcc_building_mesh = builder_model.builder_mesh_to_mesh(building_meshes)
 
