@@ -359,7 +359,15 @@ def build_volume_mesh(
 
 
 def build(parameters):
-    """Build city and/or volume mesh according to given parameters"""
+    """
+    Build city and city meshes.
+
+    This function reads data from the specified data directory
+    and builds a city and its corresponding meshes. The same
+    thing can be accomplished by calling the individual build_*
+    functions, but this function is provided as a convenience
+    and takes care of loading and saving data to files.
+    """
 
     # Shortcut
     p = parameters
@@ -384,7 +392,7 @@ def build(parameters):
         bounds=bounds,
     )
 
-    # Load point cloud and remove outliers
+    # Load point cloud
     point_cloud = io.load_pointcloud(pointcloud_path, bounds=bounds)
 
     # Build city
@@ -399,7 +407,7 @@ def build(parameters):
     if p["save_json"]:
         io.save_city(city, city_name.with_suffix(".json"))
 
-    # Build mesh (ground and buildings)
+    # Build mesh
     if p["build_mesh"]:
         ground_mesh, building_mesh = build_mesh(city, p)
 
