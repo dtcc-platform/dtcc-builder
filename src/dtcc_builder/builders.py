@@ -16,6 +16,7 @@ import dtcc_io as io
 from .logging import info, warning, error
 from . import _dtcc_builder
 from . import model as builder_model
+from . import parameters as builder_parameters
 
 
 def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
@@ -24,7 +25,7 @@ def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
     info("Computing domain bounds...")
 
     # Shortcut
-    p = parameters
+    p = parameters or builder_parameters.default()
 
     # Compute domain bounds automatically or from parameters
     if p["auto_domain"]:
@@ -61,11 +62,11 @@ def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
     return origin, bounds
 
 
-def compute_building_points(city, pointcloud, parameters: dict):
+def compute_building_points(city, pointcloud, parameters: dict = None):
     info("Compute building points...")
 
     # Shortcut
-    p = parameters
+    p = parameters or builder_parameters.default()
 
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
@@ -195,7 +196,7 @@ def build_city(
     info("Building city...")
 
     # Shortcut
-    p = parameters
+    p = parameters or builder_parameters.default()
 
     # Remove outliers from point cloud
     point_cloud = point_cloud.remove_global_outliers(p["outlier_margin"])
@@ -229,7 +230,7 @@ def build_mesh(
     info("Building meshes for city...")
 
     # Shortcut
-    p = parameters
+    p = parameters or builder_parameters.default()
 
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
@@ -286,7 +287,7 @@ def build_volume_mesh(
     info("Building volume mesh for city...")
 
     # Shortcut
-    p = parameters
+    p = parameters or builder_parameters.default()
 
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
@@ -368,7 +369,7 @@ def build(parameters):
     """
 
     # Shortcut
-    p = parameters
+    p = parameters or builder_parameters.default()
 
     # Get paths for input data
     buildings_path = p["data_directory"] / p["buildings_filename"]
