@@ -61,59 +61,31 @@ def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
     return origin, bounds
 
 
-def compute_building_heights(
-    city, roof_percentile=0.9, min_height=2.5, overwrite=False
-):
-    info("Computing building heights...")
-
-    for building in city.buildings:
-        if building.height > 0 and not overwrite:
-            continue
-        if len(building.roofpoints) == 0:
-            building.height = min_height
-            continue
-        z_values = building.roofpoints.points[:, 2]
-        roof_top = np.percentile(z_values, roof_percentile * 100)
-
-        if building.ground_level == 0:
-            if len(city.terrain.shape) == 2:
-                footprint_center = building.footprint.centroid
-                ground_height = city.terrain.get_value(
-                    footprint_center.x, footprint_center.y
-                )
-                building.ground_level = ground_height
-        height = roof_top - building.ground_level
-        if height < min_height:
-            height = min_height
-        building.height = height
-
-    return city
-
-
-def compute_building_points(
-    city,
-    pointcloud,
-    ground_padding=2.0,
-    ground_outlier_margin=1,
-    roof_outlier_margin=1.5,
-    roof_outlier_neighbors=5,
-    roof_ransac_margin=3.0,
-    roof_ransac_iterations=150,
-):
+def compute_building_points(city, pointcloud, parameters: dict):
     info("Compute building points...")
 
+    # Shortcut
+    p = parameters
+
+    # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_pointcloud = builder_model.create_builder_pointcloud(pointcloud)
+
+    # Compute building points
     builder_city = _dtcc_builder.extractRoofPoints(
         builder_city,
         builder_pointcloud,
-        ground_padding,
-        ground_outlier_margin,
-        roof_outlier_margin,
-        roof_outlier_neighbors,
-        roof_ransac_margin,
-        roof_ransac_iterations,
+        p["ground_margin"],
+        p["outlier_margin"],
+        p["roof_outlier_margin"],
+        p["outlier_neighbors"],
+        p["ransac_outlier_margin"] if p["ransac_outlier_remover"] else 0,
+        p["ransac_iterations"] if p["ransac_outlier_remover"] else 0,
     )
+
+    # FIXME: Don't modify incoming data (city)
+
+    # Convert back to city model
     for city_building, builder_buildings in zip(city.buildings, builder_city.buildings):
         city_building.roofpoints.points = np.array(
             [[p.x, p.y, p.z] for p in builder_buildings.roof_points]
@@ -124,6 +96,45 @@ def compute_building_points(
         if len(ground_points) > 0:
             ground_z = ground_points[:, 2]
             city_building.ground_level = np.percentile(ground_z, 50)
+
+    return city
+
+
+def compute_building_heights(
+    city: model.City, roof_percentile=0.9, min_height=2.5
+) -> model.City:
+    "Compute building heights from roof points"
+
+    info("Computing building heights...")
+
+    # FIXME: Don't modify incoming data (city)
+
+    # Iterate over buildings
+    for building in city.buildings:
+        # Set building height to minimum height if points missing
+        if len(building.roofpoints) == 0:
+            building.height = min_height
+            continue
+
+        # Set ground level if missing
+        if building.ground_level == 0:
+            footprint_center = building.footprint.centroid
+            ground_height = city.terrain.get_value(
+                footprint_center.x, footprint_center.y
+            )
+            building.ground_level = ground_height
+
+        # Calculate height
+        z_values = building.roofpoints.points[:, 2]
+        roof_top = np.percentile(z_values, roof_percentile * 100)
+        height = roof_top - building.ground_level
+
+        # Modify height if too small
+        if height < min_height:
+            height = min_height
+
+        # Set building height
+        building.height = height
 
     return city
 
@@ -189,24 +200,17 @@ def build_city(
     # Remove outliers from point cloud
     point_cloud = point_cloud.remove_global_outliers(p["outlier_margin"])
 
-    # Build elevation model FIXME: Don't modify the input city
+    # FIXME: Don't modify incoming data (city)
+
+    # Build elevation model
     city.terrain = build_dem(point_cloud, bounds, p["elevation_model_resolution"])
 
     # Compute building points
-    city = compute_building_points(
-        city,
-        point_cloud,
-        p["ground_margin"],
-        p["outlier_margin"],
-        p["roof_outlier_margin"],
-        p["outlier_neighbors"],
-        p["ransac_outlier_margin"] if p["ransac_outlier_remover"] else 0,
-        p["ransac_iterations"] if p["ransac_outlier_remover"] else 0,
-    )
+    city = compute_building_points(city, point_cloud, p)
 
     # Compute building heights
     city = compute_building_heights(
-        city, p["roof_percentile"], p["min_building_height"], overwrite=True
+        city, p["roof_percentile"], p["min_building_height"]
     )
 
     return city
