@@ -18,54 +18,47 @@ from . import _dtcc_builder
 from . import model as builder_model
 
 
-def compute_domain_bounds(params_or_footprint, las_path=None, params=None):
+def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
     "Compute domain bounds from footprint and pointcloud"
 
     info("Computing domain bounds...")
 
-    if las_path is None and params is None:
-        p = params_or_footprint
-        building_footprint_path = p["data-directory"] / p["buildings-filename"]
-        pointcloud_path = p["pointcloud-directory"]
-    elif (
-        params_or_footprint is not None and las_path is not None and params is not None
-    ):
-        p = params
-        building_footprint_path = params_or_footprint
-        pointcloud_path = las_path
-    else:
-        raise ValueError(
-            "must provide either params only or footprint and las_path and params"
-        )
+    # Shortcut
+    p = parameters
+
+    # Compute domain bounds automatically or from parameters
     if p["auto_domain"]:
-        footprint_bounds = io.city.building_bounds(
-            building_footprint_path, p["domain_margin"]
-        )
-        las_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
-        domain_bounds = io.bounds.bounds_intersect(footprint_bounds, las_bounds)
-        origin = domain_bounds[:2]
+        info("Computing domain bounds automatically...")
+        footprint_bounds = io.city.building_bounds(buildings_path, p["domain_margin"])
+        pointcloud_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
+        bounds = io.bounds.bounds_intersect(footprint_bounds, pointcloud_bounds)
+        info(f"Footprint bounds: {footprint_bounds}")
+        info(f"Point cloud bounds: {pointcloud_bounds}")
+        origin = bounds[:2]
         p["x0"] = origin[0]
         p["y0"] = origin[1]
         p["x_min"] = 0.0
         p["y_min"] = 0.0
-        p["x_max"] = domain_bounds[2] - domain_bounds[0]
-        p["y_max"] = domain_bounds[3] - domain_bounds[1]
+        p["x_max"] = bounds[2] - bounds[0]
+        p["y_max"] = bounds[3] - bounds[1]
     else:
         origin = (p["x0"], p["y0"])
-        domain_bounds = (
+        bounds = (
             p["x0"] + p["x_min"],
             p["y0"] + p["y_min"],
             p["x0"] + p["x_max"],
             p["y0"] + p["y_max"],
         )
 
-    domain_bounds = model.Bounds(
-        xmin=domain_bounds[0],
-        ymin=domain_bounds[1],
-        xmax=domain_bounds[2],
-        ymax=domain_bounds[3],
+    # Set bounds
+    bounds = model.Bounds(
+        xmin=bounds[0],
+        ymin=bounds[1],
+        xmax=bounds[2],
+        ymax=bounds[3],
     )
-    return (origin, domain_bounds)
+
+    return origin, bounds
 
 
 def build_dem(
