@@ -32,9 +32,9 @@ def parse_command_line():
     )
 
     # Add main arguments
-    parser.add_argument("--city-only", action="store_true")
-    parser.add_argument("--mesh-only", action="store_true")
     parser.add_argument("path", nargs="?", default=os.getcwd())
+    # parser.add_argument("--city-only", action="store_true")
+    # parser.add_argument("--mesh-only", action="store_true")
 
     # Add parameter arguments (note special handling of booleans)
     for key, value in builder.parameters.default().items():
@@ -138,4 +138,4 @@ def main():
     parameters = load_parameters(args)
 
     # Call main build function
-    builder.build(parameters, args.city_only, args.mesh_only)
+    builder.build(parameters)

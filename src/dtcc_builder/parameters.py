@@ -4,6 +4,9 @@ _parameters["model_name"] = "DTCC"
 _parameters["auto_domain"] = True
 _parameters["debug"] = False
 
+_parameters["build_mesh"] = True
+_parameters["build_volume_mesh"] = True
+
 _parameters["save_protobuf"] = True
 _parameters["save_json"] = False
 _parameters["save_shp"] = False
