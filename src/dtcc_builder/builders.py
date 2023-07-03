@@ -61,39 +61,6 @@ def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
     return origin, bounds
 
 
-def build_dem(
-    pointcloud: model.PointCloud, bounds, cell_size: float, window_size: int = 3
-) -> model.Raster:
-    info("Building DEM...")
-
-    if (
-        len(pointcloud.classification) == len(pointcloud.points)
-    ) and 2 in pointcloud.used_classifications():
-        ground_point_idx = np.where(np.isin(pointcloud.classification, [2, 9]))[0]
-        ground_points = pointcloud.points[ground_point_idx]
-    else:
-        ground_points = pointcloud.points
-    print(f"generating dem with bounds {bounds.tuple}")
-    dem = pypoints2grid.points2grid(
-        ground_points, cell_size, bounds.tuple, window_size=window_size
-    )
-
-    print("dem shape: ", dem.shape)
-    print("cell size: ", cell_size)
-    dem_raster = model.Raster()
-    dem_raster.data = dem
-    dem_raster.nodata = 0
-    dem_raster.georef = rasterio.transform.from_origin(
-        bounds.west, bounds.north, cell_size, cell_size
-    )
-
-    print(f"generated dem with bounds {dem_raster.bounds}")
-    print(f"generated dem with georef \n{dem_raster.georef}")
-    dem_raster = dem_raster.fill_holes()
-
-    return dem_raster
-
-
 def compute_building_heights(
     city, roof_percentile=0.9, min_height=2.5, overwrite=False
 ):
@@ -159,6 +126,40 @@ def compute_building_points(
             city_building.ground_level = np.percentile(ground_z, 50)
 
     return city
+
+
+def build_dem(
+    pointcloud: model.PointCloud, bounds, cell_size: float, window_size: int = 3
+) -> model.Raster:
+    "Build digital elevation model from point cloud"
+
+    info("Building digital elevation model (DEM)...")
+
+    # Extract ground points
+    has_classifixation = len(pointcloud.classification) == len(pointcloud.points)
+    if has_classifixation and 2 in pointcloud.used_classifications():
+        ground_point_idx = np.where(np.isin(pointcloud.classification, [2, 9]))[0]
+        ground_points = pointcloud.points[ground_point_idx]
+    else:
+        ground_points = pointcloud.points
+
+    # Build DEM
+    dem = pypoints2grid.points2grid(
+        ground_points, cell_size, bounds.tuple, window_size=window_size
+    )
+
+    # Convert to raster
+    raster = model.Raster()
+    raster.data = dem
+    raster.nodata = 0
+    raster.georef = rasterio.transform.from_origin(
+        bounds.west, bounds.north, cell_size, cell_size
+    )
+
+    # Fill holes
+    raster = raster.fill_holes()
+
+    return raster
 
 
 def build_city(
