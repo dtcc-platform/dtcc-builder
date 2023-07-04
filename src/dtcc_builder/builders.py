@@ -15,7 +15,7 @@ import dtcc_model as model
 import dtcc_io as io
 from .logging import info, warning, error
 from . import _dtcc_builder
-from . import city_processing
+from . import city_methods
 from . import model as builder_model
 from . import parameters as builder_parameters
 
@@ -140,10 +140,10 @@ def build_city(
     city.terrain = build_dem(point_cloud, bounds, p)
 
     # Compute building points
-    city = city_processing.compute_building_points(city, point_cloud, p)
+    city = city_methods.compute_building_points(city, point_cloud, p)
 
     # Compute building heights
-    city = city_processing.compute_building_heights(city, p)
+    city = city_methods.compute_building_heights(city, p)
 
     return city
 
