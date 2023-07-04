@@ -25,6 +25,7 @@ _parameters["y_min"] = 0.0
 _parameters["x_max"] = 0.0
 _parameters["y_max"] = 0.0
 _parameters["elevation_model_resolution"] = 1.0
+_parameters["elevation_model_window_size"] = 3
 _parameters["min_building_distance"] = 1.0
 _parameters["min_building_height"] = 2.5
 _parameters["min_vertex_distance"] = 1.0

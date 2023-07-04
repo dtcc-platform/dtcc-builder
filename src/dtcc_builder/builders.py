@@ -19,12 +19,14 @@ from . import model as builder_model
 from . import parameters as builder_parameters
 
 
-def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
+def compute_domain_bounds(
+    buildings_path, pointcloud_path, parameters: dict = None
+) -> Tuple[Tuple[float, float], model.Bounds]:
     "Compute domain bounds from footprint and pointcloud"
 
     info("Computing domain bounds...")
 
-    # Shortcut
+    # Get parameters
     p = parameters or builder_parameters.default()
 
     # Compute domain bounds automatically or from parameters
@@ -65,7 +67,7 @@ def compute_domain_bounds(buildings_path, pointcloud_path, parameters):
 def compute_building_points(city, pointcloud, parameters: dict = None):
     info("Compute building points...")
 
-    # Shortcut
+    # Get parameters
     p = parameters or builder_parameters.default()
 
     # Convert to builder model
@@ -101,12 +103,15 @@ def compute_building_points(city, pointcloud, parameters: dict = None):
     return city
 
 
-def compute_building_heights(
-    city: model.City, roof_percentile=0.9, min_height=2.5
-) -> model.City:
+def compute_building_heights(city: model.City, parameters: dict = None) -> model.City:
     "Compute building heights from roof points"
 
     info("Computing building heights...")
+
+    # Get parameters
+    p = parameters or builder_parameters.default()
+    min_building_height = p["min_building_height"]
+    roof_percentile = p["roof_percentile"]
 
     # FIXME: Don't modify incoming data (city)
 
@@ -114,7 +119,10 @@ def compute_building_heights(
     for building in city.buildings:
         # Set building height to minimum height if points missing
         if len(building.roofpoints) == 0:
-            building.height = min_height
+            info(
+                f"Building {building.uuid} has no roof points; setting height to minimum height f{min_building_height:.3f}m"
+            )
+            building.height = min_building_height
             continue
 
         # Set ground level if missing
@@ -131,8 +139,11 @@ def compute_building_heights(
         height = roof_top - building.ground_level
 
         # Modify height if too small
-        if height < min_height:
-            height = min_height
+        if height < min_building_height:
+            info(
+                f"Building {building.uuid} to low ({height:.3f}m); setting height to minimum height f{min_building_height:.3f}m"
+            )
+            height = min_building_height
 
         # Set building height
         building.height = height
@@ -141,7 +152,7 @@ def compute_building_heights(
 
 
 def build_dem(
-    pointcloud: model.PointCloud, bounds, cell_size: float, window_size: int = 3
+    pointcloud: model.PointCloud, bounds: model.Bounds, parameters: dict = None
 ) -> model.Raster:
     """
     Build digital elevation model from point cloud.
@@ -151,6 +162,11 @@ def build_dem(
     """
 
     info("Building digital elevation model (DEM)...")
+
+    # Get parameters
+    p = parameters or builder_parameters.default()
+    cell_size = p["elevation_model_resolution"]
+    window_size = p["elevation_model_window_size"]
 
     # Extract ground points
     has_classifixation = len(pointcloud.classification) == len(pointcloud.points)
@@ -162,7 +178,10 @@ def build_dem(
 
     # Build DEM
     dem = pypoints2grid.points2grid(
-        ground_points, cell_size, bounds.tuple, window_size=window_size
+        ground_points,
+        cell_size,
+        bounds.tuple,
+        window_size=window_size,
     )
 
     # Convert to raster
@@ -183,7 +202,7 @@ def build_city(
     city: model.City,
     point_cloud: model.PointCloud,
     bounds: model.Bounds,
-    parameters: dict,
+    parameters: dict = None,
 ) -> model.City:
     """
     Build city from building footprints.
@@ -195,7 +214,7 @@ def build_city(
 
     info("Building city...")
 
-    # Shortcut
+    # Get parameters
     p = parameters or builder_parameters.default()
 
     # Remove outliers from point cloud
@@ -204,21 +223,19 @@ def build_city(
     # FIXME: Don't modify incoming data (city)
 
     # Build elevation model
-    city.terrain = build_dem(point_cloud, bounds, p["elevation_model_resolution"])
+    city.terrain = build_dem(point_cloud, bounds, p)
 
     # Compute building points
     city = compute_building_points(city, point_cloud, p)
 
     # Compute building heights
-    city = compute_building_heights(
-        city, p["roof_percentile"], p["min_building_height"]
-    )
+    city = compute_building_heights(city, p)
 
     return city
 
 
 def build_mesh(
-    city: model.City, parameters: dict
+    city: model.City, parameters: dict = None
 ) -> Tuple[model.Mesh, List[model.Mesh]]:
     """
     Build mesh for city.
@@ -229,7 +246,7 @@ def build_mesh(
 
     info("Building meshes for city...")
 
-    # Shortcut
+    # Get parameters
     p = parameters or builder_parameters.default()
 
     # Convert to builder model
@@ -276,7 +293,7 @@ def _debug(mesh, step, p):
 
 
 def build_volume_mesh(
-    city: model.City, parameters: dict
+    city: model.City, parameters: dict = None
 ) -> Tuple[model.VolumeMesh, model.Mesh]:
     """Build volume mesh for city.
 
@@ -286,7 +303,7 @@ def build_volume_mesh(
 
     info("Building volume mesh for city...")
 
-    # Shortcut
+    # Get parameters
     p = parameters or builder_parameters.default()
 
     # Convert to builder model
@@ -357,7 +374,7 @@ def build_volume_mesh(
     return dtcc_volume_mesh, dtcc_volume_mesh_boundary
 
 
-def build(parameters):
+def build(parameters: dict = None) -> None:
     """
     Build city and city meshes.
 
@@ -368,7 +385,7 @@ def build(parameters):
     and takes care of loading and saving data to files.
     """
 
-    # Shortcut
+    # Get parameters
     p = parameters or builder_parameters.default()
 
     # Get paths for input data
