@@ -1,3 +1,10 @@
+# Copyright (C) 2022 Dag Wästberg
+# Licensed under the MIT License
+#
+# Modified by Anders Logg 2023
+#
+# This module provides functionality for point cloud processing.
+
 import numpy as np
 import logging
 
