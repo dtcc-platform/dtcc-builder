@@ -37,7 +37,7 @@ public:
   std::vector<double> halo_elevations;
 
   // Constructor
-  BoundaryConditions(VolumeMesh &volume_mesh,
+  BoundaryConditions(const VolumeMesh &volume_mesh,
                      const City &city,
                      const GridField &dtm,
                      const double top_height,
@@ -228,7 +228,7 @@ public:
   }
 
 private:
-  VolumeMesh &_volume_mesh;
+  const VolumeMesh &_volume_mesh;
 
   const City &_city;
 

@@ -152,7 +152,7 @@ public:
   std::vector<double> diagonal;
 
   // Constructor
-  StiffnessMatrix(VolumeMesh &volume_mesh)
+  StiffnessMatrix(const VolumeMesh &volume_mesh)
       : _data(0), diagonal(volume_mesh.Vertices.size(), 0)
   {
     // Set shape

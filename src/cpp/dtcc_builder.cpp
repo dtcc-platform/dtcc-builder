@@ -227,20 +227,6 @@ BuildVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
   return volume_mesh;
 }
 
-VolumeMesh smooth_volume_mesh(VolumeMesh &volume_mesh,
-                              const City &city,
-                              const GridField &dem,
-                              double top_height,
-                              bool fix_buildings,
-                              size_t max_iterations,
-                              double relative_tolerance)
-{
-  Smoother::smooth_volume_mesh(volume_mesh, city, dem, top_height,
-                               fix_buildings, max_iterations,
-                               relative_tolerance);
-  return volume_mesh;
-}
-
 std::vector<Mesh>
 BuildSurfaces3D(const City &city, const GridField &dtm, double resolution)
 {
@@ -417,7 +403,7 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("BuildMesh2D", &DTCC_BUILDER::BuildMesh2D, "Build 2D mesh");
   m.def("BuildVolumeMesh", &DTCC_BUILDER::BuildVolumeMesh, "Build 2D mesh");
 
-  m.def("smooth_volume_mesh", &DTCC_BUILDER::smooth_volume_mesh,
+  m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,
         "Smooth volume mesh");
   m.def("TrimVolumeMesh", &DTCC_BUILDER::TrimVolumeMesh, "Trim 3D mesh");
 
