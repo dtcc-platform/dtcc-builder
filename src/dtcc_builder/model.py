@@ -14,7 +14,7 @@ def create_builder_pointcloud(
         )
     else:
         return _dtcc_builder.createBuilderPointCloud(
-            pc.points, pc.classification, pc.return_number, pc.number_of_returns
+            pc.points, pc.classification, pc.return_number, pc.num_returns
         )
 
 
