@@ -56,7 +56,7 @@ City createBuilderCity(py::list footprints,
     building.GroundHeight = ground_level;
     city.Buildings.push_back(building);
   }
-  CityBuilder::CleanCity(city, 1.0);
+  CityBuilder::clean_city(city, 1.0);
 
   return city;
 }
@@ -180,27 +180,6 @@ GridField SmoothElevation(GridField &dem, size_t numSmoothings)
   return dem;
 }
 
-City SimplifyCity(City &city,
-                  py::tuple bounds,
-                  double minimalBuildingDistance,
-                  double minimalVertexDistance)
-{
-  double px = bounds[0].cast<double>();
-  double py = bounds[1].cast<double>();
-  double qx = bounds[2].cast<double>();
-  double qy = bounds[3].cast<double>();
-  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
-  CityBuilder::SimplifyCity(city, bbox, minimalBuildingDistance,
-                            minimalVertexDistance / 2);
-  return city;
-}
-
-City CleanCity(City &city, double minVertDistance)
-{
-  CityBuilder::CleanCity(city, minVertDistance / 2);
-  return city;
-}
-
 // Meshing
 
 Mesh BuildMesh2D(const City &city, py::tuple bounds, double resolution)
@@ -224,20 +203,6 @@ BuildVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
   auto num_layers = MeshBuilder::BuildVolumeMesh(volume_mesh, mesh,
                                                  domainHeight, meshResolution);
   volume_mesh.NumLayers = num_layers;
-  return volume_mesh;
-}
-
-VolumeMesh smooth_volume_mesh(VolumeMesh &volume_mesh,
-                              const City &city,
-                              const GridField &dem,
-                              double top_height,
-                              bool fix_buildings,
-                              size_t max_iterations,
-                              double relative_tolerance)
-{
-  Smoother::smooth_volume_mesh(volume_mesh, city, dem, top_height,
-                               fix_buildings, max_iterations,
-                               relative_tolerance);
   return volume_mesh;
 }
 
@@ -410,14 +375,14 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
         "Smooth  elevation grid field");
 
-  m.def("SimplifyCity", &DTCC_BUILDER::SimplifyCity, "Simplify city");
-
-  m.def("CleanCity", &DTCC_BUILDER::CleanCity, "Clean city");
+  m.def("clean_city", &DTCC_BUILDER::CityBuilder::clean_city, "Clean city");
+  m.def("simplify_city", &DTCC_BUILDER::CityBuilder::simplify_city,
+        "Simplify city");
 
   m.def("BuildMesh2D", &DTCC_BUILDER::BuildMesh2D, "Build 2D mesh");
   m.def("BuildVolumeMesh", &DTCC_BUILDER::BuildVolumeMesh, "Build 2D mesh");
 
-  m.def("smooth_volume_mesh", &DTCC_BUILDER::smooth_volume_mesh,
+  m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,
         "Smooth volume mesh");
   m.def("TrimVolumeMesh", &DTCC_BUILDER::TrimVolumeMesh, "Trim 3D mesh");
 

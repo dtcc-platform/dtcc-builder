@@ -16,13 +16,14 @@ class Smoother
 {
 public:
   // Smooth mesh using Laplacian smoothing
-  static void smooth_volume_mesh(VolumeMesh &volume_mesh,
-                                 const City &city,
-                                 const GridField &dem,
-                                 double top_height,
-                                 bool fix_buildings,
-                                 size_t max_iterations,
-                                 double relative_tolerance)
+  static VolumeMesh smooth_volume_mesh(const VolumeMesh &volume_mesh,
+                                       const City &city,
+                                       const GridField &dem,
+                                       double top_height,
+                                       bool fix_buildings,
+                                       size_t max_iterations,
+                                       double relative_tolerance)
+
   {
     info("Smoother: Smoothing volume mesh...");
     info(volume_mesh.__str__());
@@ -50,8 +51,11 @@ public:
                                    relative_tolerance);
 
     // Update mesh coordinates
+    VolumeMesh _volume_mesh{volume_mesh};
     for (std::size_t i = 0; i < volume_mesh.Vertices.size(); i++)
-      volume_mesh.Vertices[i].z += u[i];
+      _volume_mesh.Vertices[i].z += u[i];
+
+    return _volume_mesh;
   }
 
 private:
