@@ -88,13 +88,11 @@ public:
   /// are closed and counter-clockwise oriented.
   ///
   /// @param city The city
-  /// @param minimalVertexDistance Minimal vertex distance
-  ///
-  /// Developer note: This may be optimized by avoiding copying
-  static void CleanCity(City &city, double minimalVertexDistance)
+  /// @param min_vertex_distance Minimal vertex distance
+  static City clean_city(const City &city, double min_vertex_distance)
   {
-    info("CityBuilder: Cleaning city...");
-    Timer timer("CleanCity");
+    info("Cleaning city...");
+    Timer timer("clean_city");
 
     // Clear search tree (since it might become invalid)
     city.bbtree.Clear();
@@ -106,37 +104,39 @@ public:
     size_t numEdgeMerged = 0;
     size_t numRemoved = 0;
 
+    // Initialize new city
+    City _city;
+    _city.Name = city.Name;
+
     // Clean buildings
     for (auto &building : city.Buildings)
     {
+      // Make copy of building
+      Building _building{building};
+
       // Make closed
-      numClosed += Polyfix::MakeClosed(building.Footprint, Constants::Epsilon);
+      numClosed += Polyfix::MakeClosed(_building.Footprint, Constants::Epsilon);
 
       // Make oriented
-      numOriented += Polyfix::MakeOriented(building.Footprint);
+      numOriented += Polyfix::MakeOriented(_building.Footprint);
 
       // Merge vertices (but skip if only 4 vertices or less)
-      if (building.Footprint.Vertices.size() > 4)
+      if (_building.Footprint.Vertices.size() > 4)
       {
         numVertexMerged +=
-            Polyfix::MergeVertices(building.Footprint, minimalVertexDistance);
+            Polyfix::MergeVertices(_building.Footprint, min_vertex_distance);
       }
 
       // Merge edges (but skip if only 4 vertices or less)
-      if (building.Footprint.Vertices.size() > 4)
+      if (_building.Footprint.Vertices.size() > 4)
       {
         numEdgeMerged += Polyfix::MergeEdges(
-            building.Footprint, Constants::FootprintAngleThreshold);
+            _building.Footprint, Constants::FootprintAngleThreshold);
       }
-    }
 
-    // Keep only valid buildings
-    std::vector<Building> _buildings{city.Buildings};
-    city.Buildings.clear();
-    for (auto &building : _buildings)
-    {
-      if (building.Valid())
-        city.Buildings.push_back(building);
+      // Keep only valid buildings
+      if (_building.Valid())
+        _city.Buildings.push_back(_building);
       else
         numRemoved++;
     }
@@ -152,6 +152,8 @@ public:
     info("CityBuilder: Removed " + str(numRemoved) + "/" +
          str(city.Buildings.size()) +
          " buildings (invalid/too small after cleaning)");
+
+    return _city;
   }
 
   /// Simplify city by merging all buildings that are closer than

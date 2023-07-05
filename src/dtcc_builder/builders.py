@@ -136,6 +136,9 @@ def build_city(
 
     # FIXME: Don't modify incoming data (city)
 
+    # FIXME: Why are we not calling clean_city?
+    # Should be callled with min_vertex_distance/2.
+
     # Build elevation model
     city.terrain = build_dem(point_cloud, bounds, p)
 

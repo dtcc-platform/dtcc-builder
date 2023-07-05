@@ -56,7 +56,7 @@ City createBuilderCity(py::list footprints,
     building.GroundHeight = ground_level;
     city.Buildings.push_back(building);
   }
-  CityBuilder::CleanCity(city, 1.0);
+  CityBuilder::clean_city(city, 1.0);
 
   return city;
 }
@@ -192,12 +192,6 @@ City SimplifyCity(City &city,
   auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
   CityBuilder::SimplifyCity(city, bbox, minimalBuildingDistance,
                             minimalVertexDistance / 2);
-  return city;
-}
-
-City CleanCity(City &city, double minVertDistance)
-{
-  CityBuilder::CleanCity(city, minVertDistance / 2);
   return city;
 }
 
@@ -398,7 +392,7 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("SimplifyCity", &DTCC_BUILDER::SimplifyCity, "Simplify city");
 
-  m.def("CleanCity", &DTCC_BUILDER::CleanCity, "Clean city");
+  m.def("clean_city", &DTCC_BUILDER::CityBuilder::clean_city, "Clean city");
 
   m.def("BuildMesh2D", &DTCC_BUILDER::BuildMesh2D, "Build 2D mesh");
   m.def("BuildVolumeMesh", &DTCC_BUILDER::BuildVolumeMesh, "Build 2D mesh");
