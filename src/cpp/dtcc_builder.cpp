@@ -180,21 +180,6 @@ GridField SmoothElevation(GridField &dem, size_t numSmoothings)
   return dem;
 }
 
-City SimplifyCity(City &city,
-                  py::tuple bounds,
-                  double minimalBuildingDistance,
-                  double minimalVertexDistance)
-{
-  double px = bounds[0].cast<double>();
-  double py = bounds[1].cast<double>();
-  double qx = bounds[2].cast<double>();
-  double qy = bounds[3].cast<double>();
-  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
-  CityBuilder::SimplifyCity(city, bbox, minimalBuildingDistance,
-                            minimalVertexDistance / 2);
-  return city;
-}
-
 // Meshing
 
 Mesh BuildMesh2D(const City &city, py::tuple bounds, double resolution)
@@ -390,9 +375,9 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
         "Smooth  elevation grid field");
 
-  m.def("SimplifyCity", &DTCC_BUILDER::SimplifyCity, "Simplify city");
-
   m.def("clean_city", &DTCC_BUILDER::CityBuilder::clean_city, "Clean city");
+  m.def("simplify_city", &DTCC_BUILDER::CityBuilder::simplify_city,
+        "Simplify city");
 
   m.def("BuildMesh2D", &DTCC_BUILDER::BuildMesh2D, "Build 2D mesh");
   m.def("BuildVolumeMesh", &DTCC_BUILDER::BuildVolumeMesh, "Build 2D mesh");

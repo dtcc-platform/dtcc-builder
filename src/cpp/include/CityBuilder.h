@@ -160,19 +160,22 @@ public:
   /// a given distance. When merging buildings, the number of buildings
   /// will decrease. Ground points and roof points are also merged and
   /// heights are set to min/max values of the merged buildings.
-  static void SimplifyCity(City &city,
-                           const BoundingBox2D &bbox,
-                           double minimalBuildingDistance,
-                           double minimalVertexDistance)
+  static City simplify_city(const City &city,
+                            double x_min,
+                            double y_min,
+                            double x_max,
+                            double y_max,
+                            double min_building_distance)
   {
-    info("CityBuilder: Simplifying city...");
-    Timer timer("SimplifyCity");
+    info("Simplifying city...");
+    Timer timer("simplify_city");
 
     // Clear search tree (since it might become invalid)
     city.bbtree.Clear();
 
     // Merge buildings if too close
-    MergeCity(city, bbox, minimalBuildingDistance);
+    BoundingBox2D bbox{Point2D{x_min, y_min}, Point2D{x_max, y_max}};
+    return MergeCity(city, bbox, min_building_distance);
   }
 
   /// Extract ground and roof points from point cloud.
@@ -622,7 +625,7 @@ public:
 
 private:
   // Merge all buildings closer than a given distance
-  static void MergeCity(City &city,
+  static City MergeCity(const City &city,
                         const BoundingBox2D &bbox,
                         double minimalBuildingDistance)
   {
@@ -634,8 +637,9 @@ private:
     // Avoid using sqrt for efficiency
     const double tol2 = minimalBuildingDistance * minimalBuildingDistance;
 
-    // Get buildings
-    std::vector<Building> &buildings = city.Buildings;
+    // Make a copy of the city
+    City _city{city};
+    std::vector<Building> &_buildings{_city.Buildings};
 
     // Counters
     size_t numMerged = 0;
@@ -644,7 +648,7 @@ private:
     // Initialize grid
     // Note: Grid size needs to be *at least* minimal distance
     // Note: Factor 4 seems to be a good choice (tested using dtcc-bench-run)
-    double h = 4.0 * ComputeMeanBuildingSize(buildings);
+    double h = 4.0 * ComputeMeanBuildingSize(_buildings);
     h = std::max(h, minimalBuildingDistance + Constants::Epsilon);
     size_t nX = static_cast<size_t>((bbox.Q.x - bbox.P.x) / h) + 1;
     size_t nY = static_cast<size_t>((bbox.Q.y - bbox.P.y) / h) + 1;
@@ -659,14 +663,14 @@ private:
     Grid grid(bbox, nX, nY);
 
     // Initialize bins
-    std::vector<std::unordered_set<size_t>> building2bins{buildings.size()};
+    std::vector<std::unordered_set<size_t>> building2bins{_buildings.size()};
     std::vector<std::unordered_set<size_t>> bin2buildings{grid.NumVertices()};
-    for (size_t i = 0; i < buildings.size(); i++)
-      UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
+    for (size_t i = 0; i < _buildings.size(); i++)
+      UpdateBinning(building2bins, bin2buildings, i, _buildings[i], grid);
 
     // Create queue of indices to check
     std::queue<size_t> indices{};
-    for (size_t i = 0; i < buildings.size(); i++)
+    for (size_t i = 0; i < _buildings.size(); i++)
       indices.push(i);
 
     // Process queue until empty
@@ -688,12 +692,12 @@ private:
           continue;
 
         // Skip if merged with other building (size set to 0)
-        if (buildings[j].Empty())
+        if (_buildings[j].Empty())
           continue;
 
         // Compute distance
-        const Polygon &Pi = buildings[i].Footprint;
-        const Polygon &Pj = buildings[j].Footprint;
+        const Polygon &Pi = _buildings[i].Footprint;
+        const Polygon &Pj = _buildings[j].Footprint;
         const double d2 = Geometry::SquaredDistance2D(Pi, Pj);
         numCompared++;
 
@@ -704,12 +708,12 @@ private:
                 " are too close, merging");
 
           // Merge buildings
-          buildings[i].AttachedUUIDs.push_back(buildings[j].UUID);
-          MergeBuildings(buildings[i], buildings[j], minimalBuildingDistance);
+          _buildings[i].AttachedUUIDs.push_back(_buildings[j].UUID);
+          MergeBuildings(_buildings[i], _buildings[j], minimalBuildingDistance);
           numMerged++;
 
           // Update binning
-          UpdateBinning(building2bins, bin2buildings, i, buildings[i], grid);
+          UpdateBinning(building2bins, bin2buildings, i, _buildings[i], grid);
 
           // Add building back to queue
           indices.push(i);
@@ -718,18 +722,16 @@ private:
     }
 
     // Extract non-empty polygons (might be done more efficiently)
-    std::vector<Building> mergedBuildings;
-    for (const auto &building : buildings)
+    std::vector<Building> _merged_buildings;
+    for (const auto &_building : _buildings)
     {
-      if (building.Valid())
-        mergedBuildings.push_back(building);
-      else if (!building.Empty())
-        warning("Building " + building.UUID +
+      if (_building.Valid())
+        _merged_buildings.push_back(_building);
+      else if (!_building.Empty())
+        warning("Building " + _building.UUID +
                 " has non-empty footprint but less than 3 vertices, skipping");
     }
-
-    // Overwrite buildings
-    city.Buildings = mergedBuildings;
+    _city.Buildings = _merged_buildings;
 
     // Finish GEOS
     GEOS::Finish();
@@ -737,6 +739,8 @@ private:
     info("CityBuilder: " + str(numMerged) + " building pair(s) were merged");
     info("CityBuilder: " + str(numCompared) +
          " pair(s) of buildings were checked");
+
+    return _city;
   }
 
   // Compute mean building size (from bounding boxes)

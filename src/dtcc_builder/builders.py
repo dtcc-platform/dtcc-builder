@@ -169,16 +169,15 @@ def build_mesh(
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
-    bounds = (
+
+    # Simplify city
+    simple_city = _dtcc_builder.simplify_city(
+        builder_city,
         city.bounds.xmin,
         city.bounds.ymin,
         city.bounds.xmax,
         city.bounds.ymax,
-    )
-
-    # Simplify city
-    simple_city = _dtcc_builder.SimplifyCity(
-        builder_city, bounds, p["min_building_distance"], p["min_vertex_distance"]
+        p["min_building_distance"],
     )
 
     # Build meshes
@@ -226,22 +225,21 @@ def build_volume_mesh(
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
-    bounds = (
+
+    # Simplify city
+    simple_city = _dtcc_builder.simplify_city(
+        builder_city,
         city.bounds.xmin,
         city.bounds.ymin,
         city.bounds.xmax,
         city.bounds.ymax,
-    )
-
-    # Simplify city
-    simple_city = _dtcc_builder.SimplifyCity(
-        builder_city, bounds, p["min_building_distance"], p["min_vertex_distance"]
+        p["min_building_distance"],
     )
 
     # Step 3.1: Build 2D mesh
     mesh = _dtcc_builder.BuildMesh2D(
         simple_city,
-        bounds,
+        (city.bounds.xmin, city.bounds.ymin, city.bounds.xmax, city.bounds.ymax),
         p["mesh_resolution"],
     )
     _debug(mesh, "3.1", p)
