@@ -280,7 +280,7 @@ def build_volume_mesh(
     _debug(volume_mesh, "3.5", p)
 
     # Compute boundary mesh
-    volume_mesh_boundary = _dtcc_builder.ExtractBoundary3D(volume_mesh)
+    volume_mesh_boundary = _dtcc_builder.compute_boundary_mesh(volume_mesh)
 
     # Convert back to DTCC model
     dtcc_volume_mesh = builder_model.builder_volume_mesh_to_volume_mesh(volume_mesh)

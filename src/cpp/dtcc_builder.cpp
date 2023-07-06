@@ -225,20 +225,6 @@ TrimVolumeMesh(VolumeMesh &volume_mesh, const Mesh &mesh, const City &city)
   return volume_mesh;
 }
 
-Mesh ExtractBoundary3D(const VolumeMesh &mesh)
-{
-  Mesh surface;
-  MeshProcessor::ExtractBoundary3D(surface, mesh);
-  return surface;
-}
-
-Mesh ExtractOpenSurface3D(const Mesh &boundary)
-{
-  Mesh surface;
-  MeshProcessor::ExtractOpenSurface3D(surface, boundary);
-  return surface;
-}
-
 Mesh MergeSurfaces3D(const std::vector<Mesh> &surfaces)
 {
   Mesh merged_surface;
@@ -384,10 +370,15 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,
         "Smooth volume mesh");
+
   m.def("TrimVolumeMesh", &DTCC_BUILDER::TrimVolumeMesh, "Trim 3D mesh");
 
-  m.def("ExtractBoundary3D", &DTCC_BUILDER::ExtractBoundary3D,
-        "Extract 3D boundary");
+  m.def("compute_boundary_mesh",
+        &DTCC_BUILDER::MeshProcessor::compute_boundary_mesh,
+        "Compute boundary mesh from volume mesh");
+
+  m.def("compute_open_mesh", &DTCC_BUILDER::MeshProcessor::compute_open_mesh,
+        "Compute open mesh from boundary, excluding top and sides");
 
   m.def("BuildSurface3D", &DTCC_BUILDER::BuildSurfaces3D, "Build 3D surface");
 

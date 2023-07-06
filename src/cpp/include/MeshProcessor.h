@@ -18,19 +18,14 @@ namespace DTCC_BUILDER
 class MeshProcessor
 {
 public:
-  /// Extract the boundary of a 3D mesh as a 3D surface.
-  ///
-  /// @param surface The boundary to be extracted as a 3D surface
-  /// @param mesh A 3D mesh
-  static void ExtractBoundary3D(Mesh &surface, const VolumeMesh &volume_mesh)
+  /// Compute boundary mesh from volume mesh
+  static Mesh compute_boundary_mesh(const VolumeMesh &volume_mesh)
   {
     info("MeshProcessor: Extracting boundary of 3D mesh...");
     Timer timer("ExtractBoundary3D");
 
-    // Clear surface
-    surface.Vertices.clear();
-    surface.Faces.clear();
-    surface.Normals.clear();
+    // Create empty mesh
+    Mesh mesh;
 
     // Map from face --> (num cell neighbors, cell index)
     std::map<Simplex2D, std::pair<size_t, size_t>, CompareSimplex2D> faceMap;
@@ -73,39 +68,36 @@ public:
       // Add face and normal
       if (orientation == 1)
       {
-        surface.Faces.push_back(Simplex2D{v0, v1, v2});
-        surface.Normals.push_back(n);
+        mesh.Faces.push_back(Simplex2D{v0, v1, v2});
+        mesh.Normals.push_back(n);
       }
       else
       {
-        surface.Faces.push_back(Simplex2D{v0, v2, v1});
-        surface.Normals.push_back(-n);
+        mesh.Faces.push_back(Simplex2D{v0, v2, v1});
+        mesh.Normals.push_back(-n);
       }
     }
 
     // Add vertices
-    surface.Vertices.resize(vertexMap.size());
+    mesh.Vertices.resize(vertexMap.size());
     for (const auto &it : vertexMap)
     {
       const size_t oldIndex = it.first;
       const size_t newIndex = it.second;
-      surface.Vertices[newIndex] = volume_mesh.Vertices[oldIndex];
+      mesh.Vertices[newIndex] = volume_mesh.Vertices[oldIndex];
     }
+
+    return mesh;
   }
 
-  /// Extract an open surface from a boundary, excluding top and sides.
-  ///
-  /// @param surface The open surface to be extracted
-  /// @param boundary Closed boundary surface
-  static void ExtractOpenSurface3D(Mesh &surface, const Mesh &boundary)
+  /// Compute open mesh from boundary, excluding top and sides
+  static Mesh compute_open_mesh(const Mesh &boundary)
   {
-    info("MeshProcessor: Extracting open surface from boundary...");
-    Timer timer("ExtractOpenMesh");
+    info("Comoputing open mesh from boundary...");
+    Timer timer("compute_open_mesh");
 
-    // Clear surface
-    surface.Vertices.clear();
-    surface.Faces.clear();
-    surface.Normals.clear();
+    // Create empty mesh
+    Mesh mesh;
 
     // Compute bounding box
     BoundingBox3D bbox(boundary.Vertices);
@@ -136,18 +128,20 @@ public:
       const size_t v2 = CountVertex(vertexMap, face.v2);
 
       // Add face and normal
-      surface.Faces.push_back(Simplex2D{v0, v1, v2});
-      surface.Normals.push_back(boundary.Normals[i]);
+      mesh.Faces.push_back(Simplex2D{v0, v1, v2});
+      mesh.Normals.push_back(boundary.Normals[i]);
     }
 
     // Add vertices
-    surface.Vertices.resize(vertexMap.size());
+    mesh.Vertices.resize(vertexMap.size());
     for (const auto &it : vertexMap)
     {
       const size_t oldIndex = it.first;
       const size_t newIndex = it.second;
-      surface.Vertices[newIndex] = boundary.Vertices[oldIndex];
+      mesh.Vertices[newIndex] = boundary.Vertices[oldIndex];
     }
+
+    return mesh;
   }
 
   /// Merge surfaces into a single surface.
