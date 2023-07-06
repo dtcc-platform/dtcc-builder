@@ -263,7 +263,7 @@ def build_volume_mesh(
     _debug(volume_mesh, "3.3", p)
 
     # Step 3.4: Trim 3D mesh (remove building interiors)
-    volume_mesh = _dtcc_builder.TrimVolumeMesh(volume_mesh, mesh, simple_city)
+    volume_mesh = _dtcc_builder.trim_volume_mesh(volume_mesh, mesh, simple_city)
     _debug(volume_mesh, "3.4", p)
 
     # Step 3.5: Smooth 3D mesh (set ground and building heights)

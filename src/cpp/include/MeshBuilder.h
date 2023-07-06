@@ -185,7 +185,7 @@ public:
           }
 
           // Buildings marked for all layers (except top layer).
-          // Later adjusted to -4 above buildings in TrimVolumeMesh.
+          // Later adjusted to -4 above buildings in trim_volume_mesh.
           else
           {
             m = marker;
@@ -202,8 +202,7 @@ public:
     return numLayers;
   }
 
-  // Trim 3D mesh. The mesh is trimmed by removing tetrahedra inside
-  // building shape.
+  // Trim volume mesh by removing cells inside buildings.
   //
   // Markers:
   //
@@ -221,13 +220,12 @@ public:
   // - Only cells in first layer above a building marked as building
   // - Cells in top layer marked as top (-3)
   // - All other cells (in between) marked as other (-4)
-  static void TrimVolumeMesh(VolumeMesh &volume_mesh,
-                             const Mesh &mesh,
-                             const City &city,
-                             size_t numLayers)
+  static VolumeMesh trim_volume_mesh(const VolumeMesh &volume_mesh,
+                                     const Mesh &mesh,
+                                     const City &city)
   {
-    info("MeshBuilder: Trimming 3D mesh...");
-    Timer timer("TrimVolumeMesh");
+    info("Trimming volume mesh...");
+    Timer timer("trim_volume_mesh");
 
     // Get sizes
     const size_t numBuildings = city.Buildings.size();
@@ -260,7 +258,7 @@ public:
          buildingIndex++)
     {
       // Iterate over layers
-      for (size_t layer = 0; layer < numLayers; layer++)
+      for (size_t layer = 0; layer < volume_mesh.num_layers; layer++)
       {
         // Build list of 3D cells for building in current layer
         std::vector<size_t> cells3D;
@@ -302,20 +300,23 @@ public:
     // Phase 2: Adjust markers
     // -----------------------
 
+    // Create copy of markeres
+    std::vector<int> _markers{volume_mesh.Markers};
+
     // Mark cells between bottom and top layer as -4
-    for (size_t layer = 1; layer < numLayers - 1; layer++)
+    for (size_t layer = 1; layer < volume_mesh.num_layers - 1; layer++)
     {
       for (size_t cellIndex2D = 0; cellIndex2D < numCells2D; cellIndex2D++)
         for (size_t j = 0; j < 3; j++)
-          volume_mesh.Markers[Index3D(layer, layerSize, cellIndex2D, j)] = -4;
+          _markers[Index3D(layer, layerSize, cellIndex2D, j)] = -4;
     }
 
     // Mark cells in top layer as -3
     for (size_t cellIndex2D = 0; cellIndex2D < numCells2D; cellIndex2D++)
     {
       for (size_t j = 0; j < 3; j++)
-        volume_mesh.Markers[Index3D(numLayers - 1, layerSize, cellIndex2D, j)] =
-            -3;
+        _markers[Index3D(volume_mesh.num_layers - 1, layerSize, cellIndex2D,
+                         j)] = -3;
     }
 
     // Mark cells in first layer above each building:
@@ -336,8 +337,7 @@ public:
       for (const auto &cellIndex2D : buildingCells2D[buildingIndex])
       {
         for (size_t j = 0; j < 3; j++)
-          volume_mesh.Markers[Index3D(layer, layerSize, cellIndex2D, j)] =
-              marker;
+          _markers[Index3D(layer, layerSize, cellIndex2D, j)] = marker;
       }
     }
 
@@ -375,26 +375,27 @@ public:
     // Initialize new mesh data
     const size_t numVertices = vertexMap.size();
     const size_t numCells = cellMap.size();
-    std::vector<Point3D> vertices(numVertices);
-    std::vector<Simplex3D> cells(numCells);
-    std::vector<int> markers(numCells);
+    std::vector<Point3D> _vertices(numVertices);
+    std::vector<Simplex3D> _cells(numCells);
 
     // Set new mesh data
     for (const auto v : vertexMap)
-      vertices[v.second] = volume_mesh.Vertices[v.first];
+      _vertices[v.second] = volume_mesh.Vertices[v.first];
     for (const auto c : cellMap)
     {
-      cells[c.second].v0 = vertexMap[volume_mesh.Cells[c.first].v0];
-      cells[c.second].v1 = vertexMap[volume_mesh.Cells[c.first].v1];
-      cells[c.second].v2 = vertexMap[volume_mesh.Cells[c.first].v2];
-      cells[c.second].v3 = vertexMap[volume_mesh.Cells[c.first].v3];
-      markers[c.second] = volume_mesh.Markers[c.first];
+      _cells[c.second].v0 = vertexMap[volume_mesh.Cells[c.first].v0];
+      _cells[c.second].v1 = vertexMap[volume_mesh.Cells[c.first].v1];
+      _cells[c.second].v2 = vertexMap[volume_mesh.Cells[c.first].v2];
+      _cells[c.second].v3 = vertexMap[volume_mesh.Cells[c.first].v3];
     }
 
-    // Assign new mesh data
-    volume_mesh.Vertices = vertices;
-    volume_mesh.Cells = cells;
-    volume_mesh.Markers = markers;
+    // Create new mesh and assign data
+    VolumeMesh _volume_mesh;
+    _volume_mesh.Vertices = _vertices;
+    _volume_mesh.Cells = _cells;
+    _volume_mesh.Markers = _markers;
+
+    return _volume_mesh;
   }
 
   // Build 3D surface meshes for visualization. The first surface is

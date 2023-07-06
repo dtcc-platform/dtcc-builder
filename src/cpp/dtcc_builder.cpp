@@ -202,7 +202,7 @@ BuildVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
   VolumeMesh volume_mesh;
   auto num_layers = MeshBuilder::BuildVolumeMesh(volume_mesh, mesh,
                                                  domainHeight, meshResolution);
-  volume_mesh.NumLayers = num_layers;
+  volume_mesh.num_layers = num_layers;
   return volume_mesh;
 }
 
@@ -215,14 +215,6 @@ BuildSurfaces3D(const City &city, const GridField &dtm, double resolution)
                                resolution);
   buildingSurfaces.insert(buildingSurfaces.begin(), groundSurface);
   return buildingSurfaces;
-}
-
-VolumeMesh
-TrimVolumeMesh(VolumeMesh &volume_mesh, const Mesh &mesh, const City &city)
-{
-  size_t numLayers = volume_mesh.NumLayers;
-  MeshBuilder::TrimVolumeMesh(volume_mesh, mesh, city, numLayers);
-  return volume_mesh;
 }
 
 } // namespace DTCC_BUILDER
@@ -329,7 +321,7 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   py::class_<DTCC_BUILDER::VolumeMesh>(m, "VolumeMesh")
       .def(py::init<>())
-      .def_readonly("numLayers", &DTCC_BUILDER::VolumeMesh::NumLayers)
+      .def_readonly("num_layers", &DTCC_BUILDER::VolumeMesh::num_layers)
       .def_readonly("Vertices", &DTCC_BUILDER::VolumeMesh::Vertices)
       .def_readonly("Cells", &DTCC_BUILDER::VolumeMesh::Cells)
       .def_readonly("Markers", &DTCC_BUILDER::VolumeMesh::Markers);
@@ -364,7 +356,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,
         "Smooth volume mesh");
 
-  m.def("TrimVolumeMesh", &DTCC_BUILDER::TrimVolumeMesh, "Trim 3D mesh");
+  m.def("trim_volume_mesh", &DTCC_BUILDER::MeshBuilder::trim_volume_mesh,
+        "Trim volume mesh by removing cells inside buildings");
 
   m.def("compute_boundary_mesh",
         &DTCC_BUILDER::MeshProcessor::compute_boundary_mesh,

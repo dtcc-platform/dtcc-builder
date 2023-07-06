@@ -28,7 +28,7 @@ public:
   /// Array of cell markers
   std::vector<int> Markers{};
 
-  size_t NumLayers{};
+  size_t num_layers{};
 
   /// Compute of cell
   Point3D MidPoint(size_t cellIndex) const
