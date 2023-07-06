@@ -29,8 +29,10 @@ namespace DTCC_BUILDER
 class MeshBuilder
 {
 public:
-  // Build 2D mesh. The mesh is a triangular mesh of the rectangular region
-  // defined by (xMin, xMax) x (yMin, yMax). The edges of the mesh respect the
+  // Build ground mesh for city.
+  //
+  // The mesh is a triangular mesh of the rectangular region
+  // defined by (xmin, xmax) x (ymin, ymax). The edges of the mesh respect the
   // boundaries of the buildings.
   //
   // Markers:
@@ -40,15 +42,18 @@ public:
   //  0: building 0 (cells inside building 0)
   //  1: building 1 (cells inside building 1)
   //  etc (non-negative integers mark cells inside buildings)
-  static void BuildMesh2D(Mesh &mesh,
-                          const City &city,
-                          const BoundingBox2D &boundingBox,
-                          double resolution)
+  static Mesh build_ground_mesh(const City &city,
+                                double xmin,
+                                double ymin,
+                                double xmax,
+                                double ymax,
+                                double resolution)
   {
-    info("MeshBuilder: Building 2D mesh...");
-    Timer timer("BuildMesh2D");
+    info("Building ground mesh of city...");
+    Timer timer("build_ground_mesh");
 
     // Print some stats
+    const BoundingBox2D boundingBox(Point2D(xmin, ymin), Point2D(xmax, ymax));
     const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
     const size_t ny = (boundingBox.Q.y - boundingBox.P.y) / resolution;
     const size_t n = nx * ny;
@@ -71,10 +76,13 @@ public:
     boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
 
     // Build 2D mesh
+    Mesh mesh;
     CallTriangle(mesh, boundary, subDomains, resolution, true);
 
     // Mark subdomains
     ComputeDomainMarkers(mesh, city);
+
+    return mesh;
   }
 
   // Build 3D mesh. The mesh is a tetrahedral mesh constructed by

@@ -182,20 +182,6 @@ GridField SmoothElevation(GridField &dem, size_t numSmoothings)
 
 // Meshing
 
-Mesh BuildMesh2D(const City &city, py::tuple bounds, double resolution)
-{
-  Mesh mesh;
-  double px = bounds[0].cast<double>();
-  double py = bounds[1].cast<double>();
-  double qx = bounds[2].cast<double>();
-  double qy = bounds[3].cast<double>();
-  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
-
-  MeshBuilder::BuildMesh2D(mesh, city, bbox, resolution);
-
-  return mesh;
-}
-
 VolumeMesh
 BuildVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
 {
@@ -350,7 +336,9 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("simplify_city", &DTCC_BUILDER::CityBuilder::simplify_city,
         "Simplify city");
 
-  m.def("BuildMesh2D", &DTCC_BUILDER::BuildMesh2D, "Build 2D mesh");
+  m.def("build_ground_mesh", &DTCC_BUILDER::MeshBuilder::build_ground_mesh,
+        "Build ground mesh");
+
   m.def("BuildVolumeMesh", &DTCC_BUILDER::BuildVolumeMesh, "Build 2D mesh");
 
   m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,

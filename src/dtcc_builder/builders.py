@@ -235,10 +235,13 @@ def build_volume_mesh(
         p["min_building_distance"],
     )
 
-    # Step 3.1: Build 2D mesh
-    mesh = _dtcc_builder.BuildMesh2D(
+    # Step 3.1: Build ground mesh
+    mesh = _dtcc_builder.build_ground_mesh(
         simple_city,
-        (city.bounds.xmin, city.bounds.ymin, city.bounds.xmax, city.bounds.ymax),
+        city.bounds.xmin,
+        city.bounds.ymin,
+        city.bounds.xmax,
+        city.bounds.ymax,
         p["mesh_resolution"],
     )
     _debug(mesh, "3.1", p)

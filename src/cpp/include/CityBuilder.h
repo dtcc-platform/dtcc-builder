@@ -161,10 +161,10 @@ public:
   /// will decrease. Ground points and roof points are also merged and
   /// heights are set to min/max values of the merged buildings.
   static City simplify_city(const City &city,
-                            double x_min,
-                            double y_min,
-                            double x_max,
-                            double y_max,
+                            double xmin,
+                            double ymin,
+                            double xmax,
+                            double ymax,
                             double min_building_distance)
   {
     info("Simplifying city...");
@@ -174,7 +174,7 @@ public:
     city.bbtree.Clear();
 
     // Merge buildings if too close
-    BoundingBox2D bbox{Point2D{x_min, y_min}, Point2D{x_max, y_max}};
+    BoundingBox2D bbox{Point2D{xmin, ymin}, Point2D{xmax, ymax}};
     return MergeCity(city, bbox, min_building_distance);
   }
 
