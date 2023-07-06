@@ -187,8 +187,7 @@ def build_mesh(
 
     # Extract meshes and merge building meshes
     ground_mesh = meshes[0]
-    building_meshes = meshes[1:]
-    building_meshes = _dtcc_builder.MergeSurfaces3D(building_meshes)
+    building_meshes = _dtcc_builder.merge_meshes(meshes[1:])
 
     # Convert back to DTCC model
     dtcc_ground_mesh = builder_model.builder_mesh_to_mesh(ground_mesh)

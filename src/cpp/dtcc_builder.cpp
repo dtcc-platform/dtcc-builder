@@ -225,13 +225,6 @@ TrimVolumeMesh(VolumeMesh &volume_mesh, const Mesh &mesh, const City &city)
   return volume_mesh;
 }
 
-Mesh MergeSurfaces3D(const std::vector<Mesh> &surfaces)
-{
-  Mesh merged_surface;
-  MeshProcessor::MergeSurfaces3D(merged_surface, surfaces);
-  return merged_surface;
-}
-
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_dtcc_builder, m)
@@ -382,5 +375,6 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("BuildSurface3D", &DTCC_BUILDER::BuildSurfaces3D, "Build 3D surface");
 
-  m.def("MergeSurfaces3D", &DTCC_BUILDER::MergeSurfaces3D, "Merge 3D surfaces");
+  m.def("merge_meshes", &DTCC_BUILDER::MeshProcessor::merge_meshes,
+        "Merge meshes into a single mesh");
 }

@@ -144,43 +144,46 @@ public:
     return mesh;
   }
 
-  /// Merge surfaces into a single surface.
-  ///
-  /// @param surface The single surface
-  static void MergeSurfaces3D(Mesh &surface, const std::vector<Mesh> &surfaces)
+  /// Merge meshes into a single mesh
+  static Mesh merge_meshes(const std::vector<Mesh> &meshes)
   {
-    info("MeshProcessor: Merging 3D surfaces into a single surface...");
-    Timer timer("MergeSurfaces3D");
+    info("Merging mesh into a single mesh...");
+    Timer timer("merge_meshes");
+
+    // Create empty mesh
+    Mesh mesh;
 
     // Count the number of vertices and cells
     size_t numVertices = 0;
     size_t numCells = 0;
-    for (size_t i = 1; i < surfaces.size(); i++)
+    for (size_t i = 1; i < meshes.size(); i++)
     {
-      numVertices += surfaces[i].Vertices.size();
-      numCells += surfaces[i].Faces.size();
+      numVertices += meshes[i].Vertices.size();
+      numCells += meshes[i].Faces.size();
     }
 
     // Allocate arrays
-    surface.Vertices.resize(numVertices);
-    surface.Faces.resize(numCells);
+    mesh.Vertices.resize(numVertices);
+    mesh.Faces.resize(numCells);
 
     // Merge data
     size_t k = 0;
     size_t l = 0;
-    for (size_t i = 1; i < surfaces.size(); i++)
+    for (size_t i = 1; i < meshes.size(); i++)
     {
-      for (size_t j = 0; j < surfaces[i].Faces.size(); j++)
+      for (size_t j = 0; j < meshes[i].Faces.size(); j++)
       {
-        Simplex2D c = surfaces[i].Faces[j];
+        Simplex2D c = meshes[i].Faces[j];
         c.v0 += k;
         c.v1 += k;
         c.v2 += k;
-        surface.Faces[l++] = c;
+        mesh.Faces[l++] = c;
       }
-      for (size_t j = 0; j < surfaces[i].Vertices.size(); j++)
-        surface.Vertices[k++] = surfaces[i].Vertices[j];
+      for (size_t j = 0; j < meshes[i].Vertices.size(); j++)
+        mesh.Vertices[k++] = meshes[i].Vertices[j];
     }
+
+    return mesh;
   }
 
 private:
