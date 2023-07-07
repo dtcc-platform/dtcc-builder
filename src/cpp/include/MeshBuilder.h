@@ -309,22 +309,22 @@ public:
     // -----------------------
 
     // Create copy of markeres
-    std::vector<int> _markers{volume_mesh.Markers};
+    std::vector<int> markers{volume_mesh.Markers};
 
     // Mark cells between bottom and top layer as -4
     for (size_t layer = 1; layer < volume_mesh.num_layers - 1; layer++)
     {
       for (size_t cellIndex2D = 0; cellIndex2D < numCells2D; cellIndex2D++)
         for (size_t j = 0; j < 3; j++)
-          _markers[Index3D(layer, layerSize, cellIndex2D, j)] = -4;
+          markers[Index3D(layer, layerSize, cellIndex2D, j)] = -4;
     }
 
     // Mark cells in top layer as -3
     for (size_t cellIndex2D = 0; cellIndex2D < numCells2D; cellIndex2D++)
     {
       for (size_t j = 0; j < 3; j++)
-        _markers[Index3D(volume_mesh.num_layers - 1, layerSize, cellIndex2D,
-                         j)] = -3;
+        markers[Index3D(volume_mesh.num_layers - 1, layerSize, cellIndex2D,
+                        j)] = -3;
     }
 
     // Mark cells in first layer above each building:
@@ -345,7 +345,7 @@ public:
       for (const auto &cellIndex2D : buildingCells2D[buildingIndex])
       {
         for (size_t j = 0; j < 3; j++)
-          _markers[Index3D(layer, layerSize, cellIndex2D, j)] = marker;
+          markers[Index3D(layer, layerSize, cellIndex2D, j)] = marker;
       }
     }
 
@@ -385,6 +385,7 @@ public:
     const size_t numCells = cellMap.size();
     std::vector<Point3D> _vertices(numVertices);
     std::vector<Simplex3D> _cells(numCells);
+    std::vector<int> _markers(numCells);
 
     // Set new mesh data
     for (const auto v : vertexMap)
@@ -395,6 +396,7 @@ public:
       _cells[c.second].v1 = vertexMap[volume_mesh.Cells[c.first].v1];
       _cells[c.second].v2 = vertexMap[volume_mesh.Cells[c.first].v2];
       _cells[c.second].v3 = vertexMap[volume_mesh.Cells[c.first].v3];
+      _markers[c.second] = markers[c.first];
     }
 
     // Create new mesh and assign data
