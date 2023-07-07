@@ -126,12 +126,6 @@ GridField createBuilderGridField(py::array_t<double> data,
   return gridField;
 }
 
-PointCloud removeGlobalOutliers(PointCloud &pointCloud, double outlierMargin)
-{
-  PointCloudProcessor::RemoveOutliers(pointCloud, outlierMargin);
-  return pointCloud;
-}
-
 PointCloud removeVegetation(PointCloud &pointCloud)
 {
   PointCloudProcessor::NaiveVegetationFilter(pointCloud);
@@ -281,12 +275,12 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("createBuilderGridField", &DTCC_BUILDER::createBuilderGridField,
         "create builder grid field from numpy arrays");
 
-  m.def("removeGlobalOutliers", &DTCC_BUILDER::removeGlobalOutliers,
-        "remove global outliers from point cloud");
   m.def("removeVegetation", &DTCC_BUILDER::removeVegetation,
         "remove vegetation from point cloud");
+
   m.def("extractRoofPoints", &DTCC_BUILDER::extractRoofPoints,
         "extract roof points from point cloud");
+
   m.def("build_elevation", &DTCC_BUILDER::ElevationBuilder::build_elevation,
         "Build height field from point cloud");
   m.def("smooth_field", &DTCC_BUILDER::VertexSmoother::smooth_field,
