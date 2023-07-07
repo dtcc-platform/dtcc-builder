@@ -178,7 +178,7 @@ public:
     return MergeCity(city, bbox, min_building_distance);
   }
 
-  /// Extract ground and roof points from point cloud.
+  /// Compute ground and roof points from point cloud.
   ///
   /// The ground points of a building are defined as all points
   /// of class 2 (Ground) or 9 (Water) that fall within a given
@@ -193,14 +193,14 @@ public:
   /// @param city The city
   /// @param pointCloud Point cloud (unfiltered)
   /// @param groundMargin Margin around building for detecting ground points
-  static void ExtractBuildingPoints(City &city,
-                                    const PointCloud &pointCloud,
-                                    double groundMargin,
-                                    double groundOutlierMargin)
+  static City compute_building_points(const City &city,
+                                      const PointCloud &pointCloud,
+                                      double groundMargin,
+                                      double groundOutlierMargin)
 
   {
-    info("CityBuilder: Extracting building points...");
-    Timer timer("ExtractBuildingPoints");
+    info("Computing building points...");
+    Timer timer("compute_building_points");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
@@ -222,9 +222,13 @@ public:
                                          2 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(2, pointCloud.Points, 20 /* max leaf */);
-
     kdt_timer.Stop();
-    for (auto &building : city.Buildings)
+
+    // Create copy of city
+    City _city{city};
+
+    // Iterate over buildings
+    for (auto &building : _city.Buildings)
     {
       building.GroundPoints.clear();
       building.RoofPoints.clear();
@@ -280,7 +284,7 @@ public:
     // Remove ground outliers
     size_t numGroundPoints = 0;
     size_t numGroundOutliers = 0;
-    for (auto &building : city.Buildings)
+    for (auto &building : _city.Buildings)
     {
       // Count total number of points
       numGroundPoints += building.GroundPoints.size();
@@ -298,7 +302,7 @@ public:
     double ptsPrSqm;
     double pointCoverage;
     size_t tooFew = 0;
-    for (auto &building : city.Buildings)
+    for (auto &building : _city.Buildings)
     {
       ptsPrSqm = static_cast<double>(building.RoofPoints.size()) /
                  Geometry::PolygonArea(building.Footprint);
@@ -318,7 +322,7 @@ public:
          str(tooFew));
 
     // Sort points by height
-    for (auto &building : city.Buildings)
+    for (auto &building : _city.Buildings)
     {
       std::sort(building.GroundPoints.begin(), building.GroundPoints.end(),
                 [](const Point3D &p, const Point3D &q) -> bool
@@ -333,7 +337,7 @@ public:
     size_t minR{std::numeric_limits<size_t>::max()};
     size_t maxG{0}, maxR{0};
     size_t sumG{0}, sumR{0};
-    for (const auto &building : city.Buildings)
+    for (const auto &building : _city.Buildings)
     {
       // Ground points
       const size_t nG = building.GroundPoints.size();
@@ -347,8 +351,8 @@ public:
       maxR = std::max(maxR, nR);
       sumR += nR;
     }
-    const double meanG = static_cast<double>(sumG) / city.Buildings.size();
-    const double meanR = static_cast<double>(sumR) / city.Buildings.size();
+    const double meanG = static_cast<double>(sumG) / _city.Buildings.size();
+    const double meanR = static_cast<double>(sumR) / _city.Buildings.size();
 
     info("CityBuilder: min/mean/max number of ground points per "
          "building is " +
@@ -356,6 +360,8 @@ public:
     info("CityBuilder: min/mean/max number of roof points per building "
          "is " +
          str(minR) + "/" + str(meanR) + "/" + str(maxR));
+
+    return _city;
   }
 
   /// Compute heights of buildings from ground and roof points. This
@@ -579,48 +585,42 @@ public:
     return building;
   }
 
-  static void BuildingPointsOutlierRemover(City &city,
-                                           size_t neighbours,
-                                           double outlierMargin,
-                                           bool verbose = false)
+  static City remove_building_point_outliers_statistical(const City &city,
+                                                         size_t neighbours,
+                                                         double outlierMargin)
   {
-    if (verbose)
-      info("CityBuilder: BuildingPointsOutlierRemover");
-    Timer("BuildingPointsOutlierRemover");
+    // Create copy of city
+    City _city{city};
+
     size_t totalRemoved = 0;
-    for (auto &building : city.Buildings)
+    for (auto &building : _city.Buildings)
     {
       size_t beforeFilter = building.RoofPoints.size();
-      PointCloudProcessor::StatisticalOutlierRemover(
-          building.RoofPoints, neighbours, outlierMargin, verbose);
+      PointCloudProcessor::StatisticalOutlierRemover(building.RoofPoints,
+                                                     neighbours, outlierMargin);
       totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
-    if (verbose)
-    {
-      info("BuildingPointsOutlierRemove filtered a total of " +
-           str(totalRemoved) + " points from  " + str(city.Buildings.size()) +
-           " buildings");
-    }
+
+    return _city;
   }
 
-  static void BuildingPointsRANSACOutlierRemover(City &city,
-                                                 double distanceThershold,
-                                                 size_t iterations,
-                                                 bool verbose = false)
+  static City remove_building_point_outliers_ransac(const City &city,
+                                                    double distanceThershold,
+                                                    size_t iterations)
   {
-    if (verbose)
-      info("CityBuilder: BuildingPointsRANSACOutlierRemover");
-    Timer("BuildingPointsRANSACOutlierRemover");
+    // Create copy of city
+    City _city{city};
+
     size_t totalRemoved = 0;
-    for (auto &building : city.Buildings)
+    for (auto &building : _city.Buildings)
     {
       size_t beforeFilter = building.RoofPoints.size();
       PointCloudProcessor::RANSAC_OutlierRemover(building.RoofPoints,
                                                  distanceThershold, iterations);
       totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
-    info("BuildingPointsRANSACOutlierRemover remove " + str(totalRemoved) +
-         " points");
+
+    return _city;
   }
 
 private:

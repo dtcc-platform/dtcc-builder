@@ -40,7 +40,7 @@ _parameters["uuid_field"] = "uuid"
 _parameters["height_field"] = ""
 
 _parameters["statistical_outlier_remover"] = True
-_parameters["outlier_neighbors"] = 5
+_parameters["roof_outlier_neighbors"] = 5
 _parameters["roof_outlier_margin"] = 1.5
 
 _parameters["ransac_outlier_remover"] = True

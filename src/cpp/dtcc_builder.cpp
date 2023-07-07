@@ -126,37 +126,6 @@ GridField createBuilderGridField(py::array_t<double> data,
   return gridField;
 }
 
-PointCloud removeVegetation(PointCloud &pointCloud)
-{
-  PointCloudProcessor::NaiveVegetationFilter(pointCloud);
-  return pointCloud;
-}
-
-City extractRoofPoints(City &city,
-                       PointCloud &pointCloud,
-                       double groundMargin,
-                       double groundOutlierMargin,
-                       double roofOutlierMargin,
-                       size_t rootOutlerNeighbours,
-                       double roofRANSACOutlierMargin,
-                       size_t roofRANSACIterations)
-{
-  pointCloud = removeVegetation(pointCloud);
-  CityBuilder::ExtractBuildingPoints(city, pointCloud, groundMargin,
-                                     groundOutlierMargin);
-  if (roofOutlierMargin > 0)
-  {
-    CityBuilder::BuildingPointsOutlierRemover(city, rootOutlerNeighbours,
-                                              roofOutlierMargin);
-  }
-  if (roofRANSACIterations > 0)
-  {
-    CityBuilder::BuildingPointsRANSACOutlierRemover(
-        city, roofRANSACOutlierMargin, roofRANSACIterations);
-  }
-  return city;
-}
-
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_dtcc_builder, m)
@@ -275,14 +244,25 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("createBuilderGridField", &DTCC_BUILDER::createBuilderGridField,
         "create builder grid field from numpy arrays");
 
-  m.def("removeVegetation", &DTCC_BUILDER::removeVegetation,
-        "remove vegetation from point cloud");
+  m.def("remove_vegetation",
+        &DTCC_BUILDER::PointCloudProcessor::remove_vegetation,
+        "Remove vegetation from point cloud");
 
-  m.def("extractRoofPoints", &DTCC_BUILDER::extractRoofPoints,
-        "extract roof points from point cloud");
+  m.def("remove_building_point_outliers_statistical",
+        &DTCC_BUILDER::CityBuilder::remove_building_point_outliers_statistical,
+        "Remove building point outliers (statistical)");
+
+  m.def("remove_building_point_outliers_ransac",
+        &DTCC_BUILDER::CityBuilder::remove_building_point_outliers_ransac,
+        "Remove building point outliers (RANSAC)");
+
+  m.def("compute_building_points",
+        &DTCC_BUILDER::CityBuilder::compute_building_points,
+        "Compute building points from point cloud");
 
   m.def("build_elevation", &DTCC_BUILDER::ElevationBuilder::build_elevation,
         "Build height field from point cloud");
+
   m.def("smooth_field", &DTCC_BUILDER::VertexSmoother::smooth_field,
         "Smooth grid field");
 

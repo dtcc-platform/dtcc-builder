@@ -658,25 +658,27 @@ public:
     return (returnNumber & 7) | ((numReturns & 7) << 3);
   }
 
-  static void NaiveVegetationFilter(PointCloud &pointCloud)
+  static PointCloud remove_vegetation(const PointCloud &pointCloud)
   {
+    // Create copy of point cloud
+    PointCloud _pointCloud{pointCloud};
+
     // Remove some points that might be vegetation
     std::vector<size_t> pointsToRemove;
-    if (pointCloud.ScanFlags.size() != pointCloud.Points.size())
+    if (_pointCloud.ScanFlags.size() != _pointCloud.Points.size())
     {
-      warning("Scan flags not set. No vegetation filtering");
-      return;
+      error("Scan flags not set. No vegetation filtering");
     }
     bool hasClassification = false;
-    if (pointCloud.Classifications.size() == pointCloud.Points.size())
+    if (_pointCloud.Classifications.size() == _pointCloud.Points.size())
       hasClassification = true;
 
-    for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    for (size_t i = 0; i < _pointCloud.Points.size(); i++)
     {
-      auto scanFlag = parseScanFlag(pointCloud.ScanFlags[i]);
+      auto scanFlag = parseScanFlag(_pointCloud.ScanFlags[i]);
       uint8_t classification = 1;
       if (hasClassification)
-        classification = pointCloud.Classifications[i];
+        classification = _pointCloud.Classifications[i];
       // not last point of several
 
       if ((classification >= 3 && classification <= 5) || // classified as veg
@@ -687,7 +689,9 @@ public:
         pointsToRemove.push_back(i);
       }
     }
-    FilterPointCloud(pointCloud, pointsToRemove);
+    FilterPointCloud(_pointCloud, pointsToRemove);
+
+    return _pointCloud;
   }
 
   static void EstimateNormalsKNN(PointCloud &pointCloud, size_t neighbours)

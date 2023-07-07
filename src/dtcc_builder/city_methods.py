@@ -24,17 +24,27 @@ def compute_building_points(city, pointcloud, parameters: dict = None):
     builder_city = builder_model.create_builder_city(city)
     builder_pointcloud = builder_model.create_builder_pointcloud(pointcloud)
 
+    # Remove vegetation
+    builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
+
     # Compute building points
-    builder_city = _dtcc_builder.extractRoofPoints(
-        builder_city,
-        builder_pointcloud,
-        p["ground_margin"],
-        p["outlier_margin"],
-        p["roof_outlier_margin"],
-        p["outlier_neighbors"],
-        p["ransac_outlier_margin"] if p["ransac_outlier_remover"] else 0,
-        p["ransac_iterations"] if p["ransac_outlier_remover"] else 0,
+    builder_city = _dtcc_builder.compute_building_points(
+        builder_city, builder_pointcloud, p["ground_margin"], p["outlier_margin"]
     )
+
+    # Remove outliers
+    if p["statistical_outlier_remover"]:
+        builder_city = _dtcc_builder.remove_building_point_outliers_statistical(
+            builder_city,
+            p["roof_outlier_neighbors"],
+            p["roof_outlier_margin"],
+        )
+    if p["ransac_outlier_remover"]:
+        builder_city = _dtcc_builder.remove_building_point_outliers_ransac(
+            builder_city,
+            p["ransac_outlier_margin"],
+            p["ransac_iterations"],
+        )
 
     # FIXME: Don't modify incoming data (city)
 
