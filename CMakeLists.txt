@@ -52,6 +52,6 @@ add_subdirectory(tests/cpp)
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")
-execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/scripts/git/git-pre-commit-format install"
+execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/utils/git/git-pre-commit-format install"
   OUTPUT_VARIABLE outVar)
 MESSAGE("${outVar}")

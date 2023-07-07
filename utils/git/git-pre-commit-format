@@ -1,5 +1,7 @@
 #! /bin/bash
-#
+# Added black check for testing
+black --check ./
+
 # Copyright 2018 Undo Ltd.
 #
 # https://github.com/barisione/clang-format-hooks
