@@ -9,17 +9,17 @@ def create_builder_pointcloud(
     pc: Union[PointCloud, np.ndarray]
 ) -> _dtcc_builder.PointCloud:
     if isinstance(pc, np.ndarray):
-        return _dtcc_builder.createBuilderPointCloud(
+        return _dtcc_builder.create_pointcloud(
             pc, np.empty(0), np.empty(0), np.empty(0)
         )
     else:
-        return _dtcc_builder.createBuilderPointCloud(
+        return _dtcc_builder.create_pointcloud(
             pc.points, pc.classification, pc.return_number, pc.num_returns
         )
 
 
 def raster_to_builder_gridfield(raster: Raster):
-    return _dtcc_builder.createBuilderGridField(
+    return _dtcc_builder.create_gridfield(
         raster.data.flatten(),
         raster.bounds.tuple,
         raster.width,
@@ -38,7 +38,7 @@ def create_builder_city(city: City):
     heights = [building.height for building in city.buildings]
     ground_levels = [building.ground_level for building in city.buildings]
     origin = city.origin
-    return _dtcc_builder.createBuilderCity(
+    return _dtcc_builder.create_city(
         building_shells, uuids, heights, ground_levels, origin
     )
 

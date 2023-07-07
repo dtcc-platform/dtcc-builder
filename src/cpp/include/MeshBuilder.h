@@ -29,62 +29,6 @@ namespace DTCC_BUILDER
 class MeshBuilder
 {
 public:
-  // Build ground mesh for city.
-  //
-  // The mesh is a triangular mesh of the rectangular region
-  // defined by (xmin, xmax) x (ymin, ymax). The edges of the mesh respect the
-  // boundaries of the buildings.
-  //
-  // Markers:
-  //
-  // -2: ground (cells outside buildings and halos)
-  // -1: halos (cells close to buildings)
-  //  0: building 0 (cells inside building 0)
-  //  1: building 1 (cells inside building 1)
-  //  etc (non-negative integers mark cells inside buildings)
-  static Mesh build_ground_mesh(const City &city,
-                                double xmin,
-                                double ymin,
-                                double xmax,
-                                double ymax,
-                                double resolution)
-  {
-    info("Building ground mesh for city...");
-    Timer timer("build_ground_mesh");
-
-    // Print some stats
-    const BoundingBox2D boundingBox(Point2D(xmin, ymin), Point2D(xmax, ymax));
-    const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
-    const size_t ny = (boundingBox.Q.y - boundingBox.P.y) / resolution;
-    const size_t n = nx * ny;
-    info("MeshBuilder: Domain bounding box is " + str(boundingBox));
-    info("MeshBuilder: Mesh resolution is " + str(resolution));
-    info("MeshBuilder: Estimated number of triangles is " + str(n));
-    info("MeshBuilder: Number of subdomains (buildings) is " +
-         str(city.Buildings.size()));
-
-    // Extract subdomains (building footprints)
-    std::vector<std::vector<Point2D>> subDomains;
-    for (auto const &building : city.Buildings)
-      subDomains.push_back(building.Footprint.Vertices);
-
-    // Build boundary
-    std::vector<Point2D> boundary{};
-    boundary.push_back(boundingBox.P);
-    boundary.push_back(Point2D(boundingBox.Q.x, boundingBox.P.y));
-    boundary.push_back(boundingBox.Q);
-    boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
-
-    // Build 2D mesh
-    Mesh mesh;
-    CallTriangle(mesh, boundary, subDomains, resolution, true);
-
-    // Mark subdomains
-    ComputeDomainMarkers(mesh, city);
-
-    return mesh;
-  }
-
   // Build mesh for city, returning a list of meshes.
   //
   // The first mesh is the ground (height map) and the remaining surfaces are
@@ -236,9 +180,65 @@ public:
     return meshes;
   }
 
-  // Build volume mesh for city.
+  // Build ground mesh for city.
   //
-  // The mesh is a tetrahedral mesh constructed by
+  // The mesh is a triangular mesh of the rectangular region
+  // defined by (xmin, xmax) x (ymin, ymax). The edges of the mesh respect the
+  // boundaries of the buildings.
+  //
+  // Markers:
+  //
+  // -2: ground (cells outside buildings and halos)
+  // -1: halos (cells close to buildings)
+  //  0: building 0 (cells inside building 0)
+  //  1: building 1 (cells inside building 1)
+  //  etc (non-negative integers mark cells inside buildings)
+  static Mesh build_ground_mesh(const City &city,
+                                double xmin,
+                                double ymin,
+                                double xmax,
+                                double ymax,
+                                double resolution)
+  {
+    info("Building ground mesh for city...");
+    Timer timer("build_ground_mesh");
+
+    // Print some stats
+    const BoundingBox2D boundingBox(Point2D(xmin, ymin), Point2D(xmax, ymax));
+    const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
+    const size_t ny = (boundingBox.Q.y - boundingBox.P.y) / resolution;
+    const size_t n = nx * ny;
+    info("MeshBuilder: Domain bounding box is " + str(boundingBox));
+    info("MeshBuilder: Mesh resolution is " + str(resolution));
+    info("MeshBuilder: Estimated number of triangles is " + str(n));
+    info("MeshBuilder: Number of subdomains (buildings) is " +
+         str(city.Buildings.size()));
+
+    // Extract subdomains (building footprints)
+    std::vector<std::vector<Point2D>> subDomains;
+    for (auto const &building : city.Buildings)
+      subDomains.push_back(building.Footprint.Vertices);
+
+    // Build boundary
+    std::vector<Point2D> boundary{};
+    boundary.push_back(boundingBox.P);
+    boundary.push_back(Point2D(boundingBox.Q.x, boundingBox.P.y));
+    boundary.push_back(boundingBox.Q);
+    boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
+
+    // Build 2D mesh
+    Mesh mesh;
+    CallTriangle(mesh, boundary, subDomains, resolution, true);
+
+    // Mark subdomains
+    ComputeDomainMarkers(mesh, city);
+
+    return mesh;
+  }
+
+  // Layer ground mesh to create a volume mesh.
+  //
+  // The volume mesh is a tetrahedral mesh constructed
   // extruding the 2D mesh in the vertical (z) direction.
   //
   // Markers:
@@ -250,12 +250,12 @@ public:
   //  etc (non-negative integers mark cells inside buildings)
   //
   // Note that the markers are just propagatated upward from the
-  // 2D mesh, meaning that the markers will be the same in each
-  // column of the 3D mesh.
+  // ground mesh, meaning that the markers will be the same in each
+  // column of the ground mesh.
   //
   // It is assumed that the ground mesh is sorted, which is the case if the
   // mesh has been built by calling build_mesh().
-  static VolumeMesh build_volume_mesh(const Mesh &ground_mesh,
+  static VolumeMesh layer_ground_mesh(const Mesh &ground_mesh,
                                       double domainHeight,
                                       double meshResolution)
   {

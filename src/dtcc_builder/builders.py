@@ -181,9 +181,7 @@ def build_mesh(
     )
 
     # Build meshes
-    meshes = _dtcc_builder.BuildSurface3D(
-        simple_city, builder_dem, p["mesh_resolution"]
-    )
+    meshes = _dtcc_builder.build_mesh(simple_city, builder_dem, p["mesh_resolution"])
 
     # Extract meshes and merge building meshes
     ground_mesh = meshes[0]
@@ -236,7 +234,7 @@ def build_volume_mesh(
     )
 
     # Step 3.1: Build ground mesh
-    mesh = _dtcc_builder.build_ground_mesh(
+    ground_mesh = _dtcc_builder.build_ground_mesh(
         simple_city,
         city.bounds.xmin,
         city.bounds.ymin,
@@ -244,15 +242,15 @@ def build_volume_mesh(
         city.bounds.ymax,
         p["mesh_resolution"],
     )
-    _debug(mesh, "3.1", p)
+    _debug(ground_mesh, "3.1", p)
 
-    # Step 3.2: Build 3D mesh (layer 3D mesh)
-    volume_mesh = _dtcc_builder.build_volume_mesh(
-        mesh, p["domain_height"], p["mesh_resolution"]
+    # Step 3.2: Layer ground mesh
+    volume_mesh = _dtcc_builder.layer_ground_mesh(
+        ground_mesh, p["domain_height"], p["mesh_resolution"]
     )
     _debug(volume_mesh, "3.2", p)
 
-    # Step 3.3: Smooth 3D mesh (set ground height)
+    # Step 3.3: Smooth volume mesh (set ground height)
     top_height = p["domain_height"] + city.terrain.data.mean()
     volume_mesh = _dtcc_builder.smooth_volume_mesh(
         volume_mesh,
@@ -265,11 +263,11 @@ def build_volume_mesh(
     )
     _debug(volume_mesh, "3.3", p)
 
-    # Step 3.4: Trim 3D mesh (remove building interiors)
-    volume_mesh = _dtcc_builder.trim_volume_mesh(volume_mesh, mesh, simple_city)
+    # Step 3.4: Trim volume mesh (remove building interiors)
+    volume_mesh = _dtcc_builder.trim_volume_mesh(volume_mesh, ground_mesh, simple_city)
     _debug(volume_mesh, "3.4", p)
 
-    # Step 3.5: Smooth 3D mesh (set ground and building heights)
+    # Step 3.5: Smooth volume mesh (set ground and building heights)
     volume_mesh = _dtcc_builder.smooth_volume_mesh(
         volume_mesh,
         simple_city,

@@ -26,11 +26,11 @@ namespace py = pybind11;
 
 namespace DTCC_BUILDER
 {
-City createBuilderCity(py::list footprints,
-                       py::list uuids,
-                       py::list heights,
-                       py::list ground_levels,
-                       py::tuple origin)
+City create_city(py::list footprints,
+                 py::list uuids,
+                 py::list heights,
+                 py::list ground_levels,
+                 py::tuple origin)
 {
   City city;
 
@@ -61,10 +61,10 @@ City createBuilderCity(py::list footprints,
   return city;
 }
 
-PointCloud createBuilderPointCloud(py::array_t<double> pts,
-                                   py::array_t<uint8_t> cls,
-                                   py::array_t<uint8_t> retNumber,
-                                   py::array_t<uint8_t> numReturns)
+PointCloud create_pointcloud(py::array_t<double> pts,
+                             py::array_t<uint8_t> cls,
+                             py::array_t<uint8_t> retNumber,
+                             py::array_t<uint8_t> numReturns)
 {
   auto pts_r = pts.unchecked<2>();
   auto cls_r = cls.unchecked<1>();
@@ -95,12 +95,12 @@ PointCloud createBuilderPointCloud(py::array_t<double> pts,
   return pointCloud;
 }
 
-GridField createBuilderGridField(py::array_t<double> data,
-                                 py::tuple bounds,
-                                 size_t XSize,
-                                 size_t YSize,
-                                 double XStep,
-                                 double YStep)
+GridField create_gridfield(py::array_t<double> data,
+                           py::tuple bounds,
+                           size_t XSize,
+                           size_t YSize,
+                           double XStep,
+                           double YStep)
 {
   GridField gridField;
   double px = bounds[0].cast<double>();
@@ -235,14 +235,13 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readonly("Cells", &DTCC_BUILDER::VolumeMesh::Cells)
       .def_readonly("Markers", &DTCC_BUILDER::VolumeMesh::Markers);
 
-  m.def("createBuilderCity", &DTCC_BUILDER::createBuilderCity,
-        "create builder point cloud from city data");
+  m.def("create_city", &DTCC_BUILDER::create_city, "Create C++ city");
 
-  m.def("createBuilderPointCloud", &DTCC_BUILDER::createBuilderPointCloud,
-        "create builder point cloud from numpy arrays");
+  m.def("create_pointcloud", &DTCC_BUILDER::create_pointcloud,
+        "Create C++ point cloud");
 
-  m.def("createBuilderGridField", &DTCC_BUILDER::createBuilderGridField,
-        "create builder grid field from numpy arrays");
+  m.def("create_gridfield", &DTCC_BUILDER::create_gridfield,
+        "Create C++ grid field");
 
   m.def("remove_vegetation",
         &DTCC_BUILDER::PointCloudProcessor::remove_vegetation,
@@ -267,17 +266,18 @@ PYBIND11_MODULE(_dtcc_builder, m)
         "Smooth grid field");
 
   m.def("clean_city", &DTCC_BUILDER::CityBuilder::clean_city, "Clean city");
+
   m.def("simplify_city", &DTCC_BUILDER::CityBuilder::simplify_city,
         "Simplify city");
+
+  m.def("build_mesh", &DTCC_BUILDER::MeshBuilder::build_mesh,
+        "Build mesh for city, returning a list of meshes");
 
   m.def("build_ground_mesh", &DTCC_BUILDER::MeshBuilder::build_ground_mesh,
         "Build ground mesh");
 
-  m.def("BuildSurface3D", &DTCC_BUILDER::MeshBuilder::build_mesh,
-        "Build mesh for city, returning a list of meshes");
-
-  m.def("build_volume_mesh", &DTCC_BUILDER::MeshBuilder::build_volume_mesh,
-        "Layer ground mesh to create a volume mesholume mesh for city");
+  m.def("layer_ground_mesh", &DTCC_BUILDER::MeshBuilder::layer_ground_mesh,
+        "Layer ground mesh");
 
   m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,
         "Smooth volume mesh");
