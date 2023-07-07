@@ -163,23 +163,6 @@ City extractRoofPoints(City &city,
   return city;
 }
 
-// GridField
-GridField BuildElevation(const PointCloud &pointCloud,
-                         double resolution,
-                         std::vector<int> classifications)
-{
-  GridField dem;
-  ElevationBuilder::BuildElevation(dem, pointCloud, classifications,
-                                   resolution);
-  return dem;
-}
-
-GridField SmoothElevation(GridField &dem, size_t numSmoothings)
-{
-  VertexSmoother::SmoothField(dem, numSmoothings);
-  return dem;
-}
-
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_dtcc_builder, m)
@@ -304,10 +287,10 @@ PYBIND11_MODULE(_dtcc_builder, m)
         "remove vegetation from point cloud");
   m.def("extractRoofPoints", &DTCC_BUILDER::extractRoofPoints,
         "extract roof points from point cloud");
-  m.def("BuildElevation", &DTCC_BUILDER::BuildElevation,
+  m.def("build_elevation", &DTCC_BUILDER::ElevationBuilder::build_elevation,
         "Build height field from point cloud");
-  m.def("SmoothElevation", &DTCC_BUILDER::SmoothElevation,
-        "Smooth  elevation grid field");
+  m.def("smooth_field", &DTCC_BUILDER::VertexSmoother::smooth_field,
+        "Smooth grid field");
 
   m.def("clean_city", &DTCC_BUILDER::CityBuilder::clean_city, "Clean city");
   m.def("simplify_city", &DTCC_BUILDER::CityBuilder::simplify_city,

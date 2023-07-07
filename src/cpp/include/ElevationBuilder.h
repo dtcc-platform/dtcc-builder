@@ -27,18 +27,15 @@ public:
   /// Only points matching the given classification(s) are used.
   /// If the classifications are empty, then all points are used.
   ///
-  /// @param dem The digital elevation model (DEM)
   /// @param pointCloud Point cloud (unfiltered)
   /// @param classifications Classifications to be considered
   /// @param resolution Resolution (grid size) of digital elevation model
-  static void BuildElevation(GridField &dem,
-                             const PointCloud &pointCloud,
-                             const std::vector<int> &classifications,
-                             double resolution)
+  static GridField build_elevation(const PointCloud &pointCloud,
+                                   const std::vector<int> &classifications,
+                                   double resolution)
   {
-    info("ElevationBuilder: Buildinga digital elevation model from "
-         "point cloud...");
-    Timer timer("BuildElevation");
+    info("Buildinga digital elevation model from point cloud...");
+    Timer timer("build_elevation");
 
     // Check that point cloud is not empty
     if (pointCloud.Points.empty())
@@ -72,6 +69,7 @@ public:
     // FIXME: Use here and also in RandomizeElevation() below.
 
     // Initialize grid bounding box
+    GridField dem;
     dem.grid.BoundingBox = pointCloud.BoundingBox;
 
     // Initialize grid data
@@ -85,8 +83,6 @@ public:
                      (dem.grid.XSize - 1);
     dem.grid.YStep = (dem.grid.BoundingBox.Q.y - dem.grid.BoundingBox.P.y) /
                      (dem.grid.YSize - 1);
-
-    debug("ElevationBuilder: Computing mean elevation");
 
     // Compute mean raw elevation (used for skipping outliers)
     double meanElevationRaw = 0.0;
@@ -110,8 +106,6 @@ public:
     size_t numGridPoints = dem.Values.size();
     std::vector<size_t> numLocalPoints(numGridPoints);
     std::fill(numLocalPoints.begin(), numLocalPoints.end(), 0);
-
-    debug("ElevationBuilder: Extracting point cloud data");
 
     // Iterate over point cloud and sum up heights
     size_t numOutliers = 0;
@@ -179,8 +173,6 @@ public:
     // Compute mean elevation
     meanElevation /= static_cast<double>(numInside);
 
-    debug("ElevationBuilder: Computing local mean elevation");
-
     // Compute mean of elevations for each grid point
     std::vector<size_t> missingIndices;
     for (size_t i = 0; i < numGridPoints; i++)
@@ -195,9 +187,6 @@ public:
     const size_t numMissing = missingIndices.size();
     if (numMissing == numGridPoints)
       throw std::runtime_error("No points inside height map domain.");
-
-    debug("ElevationBuilder: Filling in missing grid points (" +
-          str(numMissing) + "/" + str(numGridPoints) + ")");
 
     // Reuse vector numLocalPoints to indicate which points have been
     // visited: 0 = empty, 1 = boundary, 2 = filled
@@ -273,6 +262,8 @@ public:
     //     dem.Values[i] = x * (1 - x) * (1 - x) * y * (1 - y) * (1 -
     //     y);
     // }
+
+    return dem;
   }
 
   /// Build a random elevation model. Used for benchmarking.
