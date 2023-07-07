@@ -247,7 +247,7 @@ def build_volume_mesh(
     _debug(mesh, "3.1", p)
 
     # Step 3.2: Build 3D mesh (layer 3D mesh)
-    volume_mesh = _dtcc_builder.BuildVolumeMesh(
+    volume_mesh = _dtcc_builder.build_volume_mesh(
         mesh, p["domain_height"], p["mesh_resolution"]
     )
     _debug(volume_mesh, "3.2", p)

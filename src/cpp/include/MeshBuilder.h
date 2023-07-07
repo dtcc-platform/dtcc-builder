@@ -49,7 +49,7 @@ public:
                                 double ymax,
                                 double resolution)
   {
-    info("Building ground mesh of city...");
+    info("Building ground mesh for city...");
     Timer timer("build_ground_mesh");
 
     // Print some stats
@@ -103,7 +103,7 @@ public:
     // Get bounding box
     const BoundingBox2D &bbox = dtm.grid.BoundingBox;
 
-    // Build boundary for Triangle mesh generation
+    // Build boundary
     std::vector<Point2D> boundary;
     boundary.push_back(bbox.P);
     boundary.push_back(Point2D(bbox.Q.x, bbox.P.y));
@@ -236,7 +236,9 @@ public:
     return meshes;
   }
 
-  // Build 3D mesh. The mesh is a tetrahedral mesh constructed by
+  // Build volume mesh for city.
+  //
+  // The mesh is a tetrahedral mesh constructed by
   // extruding the 2D mesh in the vertical (z) direction.
   //
   // Markers:
@@ -251,29 +253,27 @@ public:
   // 2D mesh, meaning that the markers will be the same in each
   // column of the 3D mesh.
   //
-  // It is assumed that the 2D mesh is sorted, which is the case if the
-  // mesh has been built by calling BuildMesh2D().
-  //
-  // @return Number of layers
-  static size_t BuildVolumeMesh(VolumeMesh &volume_mesh,
-                                const Mesh &mesh,
-                                double domainHeight,
-                                double meshResolution)
+  // It is assumed that the ground mesh is sorted, which is the case if the
+  // mesh has been built by calling build_mesh().
+  static VolumeMesh build_volume_mesh(const Mesh &ground_mesh,
+                                      double domainHeight,
+                                      double meshResolution)
   {
-    info("MeshBuilder: Building 3D mesh...");
-    Timer timer("BuildVolumeMesh");
+    Timer timer("build_volume_mesh");
 
     // Compute number of layers
     const size_t numLayers = int(std::ceil(domainHeight / meshResolution));
     const double dz = domainHeight / double(numLayers);
-    const size_t layerSize = mesh.Vertices.size();
+    const size_t layerSize = ground_mesh.Vertices.size();
 
-    info("MeshBuilder: Building 3D mesh with " + str(numLayers) + " layers...");
+    info("Building volume mesh with " + str(numLayers) + " layers...");
 
-    // Resize 3D mesh
-    volume_mesh.Vertices.resize((numLayers + 1) * mesh.Vertices.size());
-    volume_mesh.Cells.resize(numLayers * 3 * mesh.Faces.size());
+    // Initialize volume mesh
+    VolumeMesh volume_mesh;
+    volume_mesh.Vertices.resize((numLayers + 1) * ground_mesh.Vertices.size());
+    volume_mesh.Cells.resize(numLayers * 3 * ground_mesh.Faces.size());
     volume_mesh.Markers.resize(volume_mesh.Cells.size());
+    volume_mesh.num_layers = numLayers;
 
     // Add vertices
     {
@@ -284,7 +284,7 @@ public:
         const double z = layer * dz;
 
         // Iterate over vertices in layer
-        for (const auto &p2D : mesh.Vertices)
+        for (const auto &p2D : ground_mesh.Vertices)
           volume_mesh.Vertices[k++] = Point3D(p2D.x, p2D.y, z);
       }
     }
@@ -296,7 +296,7 @@ public:
       for (size_t layer = 0; layer < numLayers; layer++)
       {
         // Iterate over triangles in layer
-        for (const auto &T : mesh.Faces)
+        for (const auto &T : ground_mesh.Faces)
         {
           // Get sorted vertex indices for bottom layer
           const size_t u0 = T.v0 + offset;
@@ -326,7 +326,7 @@ public:
       size_t k = 0;
       for (size_t layer = 0; layer < numLayers; layer++)
       {
-        for (const auto &marker : mesh.Markers)
+        for (const auto &marker : ground_mesh.Markers)
         {
           int m = 0;
 
@@ -358,7 +358,7 @@ public:
       }
     }
 
-    return numLayers;
+    return volume_mesh;
   }
 
   // Trim volume mesh by removing cells inside buildings.

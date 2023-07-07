@@ -180,18 +180,6 @@ GridField SmoothElevation(GridField &dem, size_t numSmoothings)
   return dem;
 }
 
-// Meshing
-
-VolumeMesh
-BuildVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
-{
-  VolumeMesh volume_mesh;
-  auto num_layers = MeshBuilder::BuildVolumeMesh(volume_mesh, mesh,
-                                                 domainHeight, meshResolution);
-  volume_mesh.num_layers = num_layers;
-  return volume_mesh;
-}
-
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_dtcc_builder, m)
@@ -328,13 +316,14 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("build_ground_mesh", &DTCC_BUILDER::MeshBuilder::build_ground_mesh,
         "Build ground mesh");
 
-  m.def("BuildVolumeMesh", &DTCC_BUILDER::BuildVolumeMesh, "Build 2D mesh");
+  m.def("BuildSurface3D", &DTCC_BUILDER::MeshBuilder::build_mesh,
+        "Build mesh for city, returning a list of meshes");
+
+  m.def("build_volume_mesh", &DTCC_BUILDER::MeshBuilder::build_volume_mesh,
+        "Layer ground mesh to create a volume mesholume mesh for city");
 
   m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,
         "Smooth volume mesh");
-
-  m.def("BuildSurface3D", &DTCC_BUILDER::MeshBuilder::build_mesh,
-        "Build city mesh, returning a list of meshes");
 
   m.def("trim_volume_mesh", &DTCC_BUILDER::MeshBuilder::trim_volume_mesh,
         "Trim volume mesh by removing cells inside buildings");
