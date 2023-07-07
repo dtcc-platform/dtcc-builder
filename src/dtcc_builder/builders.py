@@ -351,8 +351,8 @@ def build(parameters: dict = None) -> None:
             ground_mesh.save(ground_mesh_name.with_suffix(".pb"))
             building_mesh.save(building_mesh_name.with_suffix(".pb"))
         if p["save_vtk"]:
-            ground_mesh.save(ground_mesh_name.with_suffix(".vtk"))
-            building_mesh.save(building_mesh_name.with_suffix(".vtk"))
+            ground_mesh.save(ground_mesh_name.with_suffix(".vtu"))
+            building_mesh.save(building_mesh_name.with_suffix(".vtu"))
         if p["save_stl"]:
             ground_mesh.save(ground_mesh_name.with_suffix(".stl"))
             building_mesh.save(building_mesh_name.with_suffix(".stl"))
@@ -371,8 +371,8 @@ def build(parameters: dict = None) -> None:
             mesh.save(mesh_name.with_suffix(".pb"))
             volume_mesh.save(volume_mesh_name.with_suffix(".pb"))
         if p["save_vtk"]:
-            mesh.save(mesh_name.with_suffix(".vtk"))
-            volume_mesh.save(volume_mesh_name.with_suffix(".vtk"))
+            mesh.save(mesh_name.with_suffix(".vtu"))
+            volume_mesh.save(volume_mesh_name.with_suffix(".vtu"))
         if p["save_stl"]:
             mesh.save(mesh_name.with_suffix(".stl"))
         if p["save_obj"]:

@@ -85,6 +85,157 @@ public:
     return mesh;
   }
 
+  // Build mesh for city, returning a list of meshes.
+  //
+  // The first mesh is the ground (height map) and the remaining surfaces are
+  // the extruded building footprints. Note that meshes are non-conforming; the
+  // ground and building meshes are non-matching and the building meshes may
+  // contain hanging nodes.
+  static std::vector<Mesh>
+  build_mesh(const City &city, const GridField &dtm, double resolution)
+  {
+    info("Building city mesh...");
+    Timer timer("build_mesh");
+
+    // Create empty subdomains for Triangle mesh building
+    std::vector<std::vector<Point2D>> subDomains;
+
+    // Get bounding box
+    const BoundingBox2D &bbox = dtm.grid.BoundingBox;
+
+    // Build boundary for Triangle mesh generation
+    std::vector<Point2D> boundary;
+    boundary.push_back(bbox.P);
+    boundary.push_back(Point2D(bbox.Q.x, bbox.P.y));
+    boundary.push_back(bbox.Q);
+    boundary.push_back(Point2D(bbox.P.x, bbox.Q.y));
+
+    // Build ground mesh
+    Mesh ground_mesh;
+    CallTriangle(ground_mesh, boundary, subDomains, resolution, false);
+
+    // Compute domain markers
+    ComputeDomainMarkers(ground_mesh, city);
+
+    // Displace ground surface. Fill all points with maximum height. This is
+    // used to always choose the smallest height for each point since each point
+    // may be visited multiple times.
+    const double zMax = dtm.Max();
+    for (size_t i = 0; i < ground_mesh.Vertices.size(); i++)
+      ground_mesh.Vertices[i].z = zMax;
+
+    // If ground is not float, iterate over the triangles
+    for (size_t i = 0; i < ground_mesh.Faces.size(); i++)
+    {
+      // Get cell marker
+      const int cellMarker = ground_mesh.Markers[i];
+
+      // Get triangle
+      const Simplex2D &T = ground_mesh.Faces[i];
+
+      // Check cell marker
+      if (cellMarker != -2) // not ground
+      {
+        // Compute minimum height of vertices
+        double zMin = std::numeric_limits<double>::max();
+        zMin = std::min(zMin, dtm(ground_mesh.Vertices[T.v0]));
+        zMin = std::min(zMin, dtm(ground_mesh.Vertices[T.v1]));
+        zMin = std::min(zMin, dtm(ground_mesh.Vertices[T.v2]));
+
+        // Set minimum height for all vertices
+        setMin(ground_mesh.Vertices[T.v0].z, zMin);
+        setMin(ground_mesh.Vertices[T.v1].z, zMin);
+        setMin(ground_mesh.Vertices[T.v2].z, zMin);
+      }
+      else
+      {
+        // Sample height map at vertex position for all vertices
+        setMin(ground_mesh.Vertices[T.v0].z, dtm(ground_mesh.Vertices[T.v0]));
+        setMin(ground_mesh.Vertices[T.v1].z, dtm(ground_mesh.Vertices[T.v1]));
+        setMin(ground_mesh.Vertices[T.v2].z, dtm(ground_mesh.Vertices[T.v2]));
+      }
+    }
+
+    // Add ground mesh
+    std::vector<Mesh> meshes;
+    meshes.push_back(ground_mesh);
+
+    // Get ground height (minimum)
+    const double groundHeight = dtm.Min();
+
+    // Iterate over buildings to build surfaces
+    for (auto const &building : city.Buildings)
+    {
+      // FIXME: Consider making flipping triangles upside-down here
+      // so that the normal points downwards rather than upwards.
+
+      // Build 2D mesh of building footprint
+      Mesh _mesh;
+      CallTriangle(_mesh, building.Footprint.Vertices, subDomains, resolution,
+                   false);
+
+      // Create empty building surface
+      Mesh building_mesh;
+
+      // Note: The 2D mesh contains all the input boundary points with
+      // the same numbers as in the footprint polygon, but may also
+      // contain new points (Steiner points) added during mesh
+      // generation. We add the top points (including any Steiner
+      // points) first, then the points at the bottom (the footprint).
+
+      // Get absolute height of building
+      const double buildingHeight = building.MaxHeight();
+
+      // Set total number of points
+      const size_t numMeshPoints = _mesh.Vertices.size();
+      const size_t numBoundaryPoints = building.Footprint.Vertices.size();
+      building_mesh.Vertices.resize(numMeshPoints + numBoundaryPoints);
+
+      // Set total number of triangles
+      const size_t numMeshTriangles = _mesh.Faces.size();
+      const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
+      building_mesh.Faces.resize(numMeshTriangles + numBoundaryTriangles);
+
+      // Add points at top
+      for (size_t i = 0; i < numMeshPoints; i++)
+      {
+        const Point3D &p2D = _mesh.Vertices[i];
+        const Vector3D p3D(p2D.x, p2D.y, buildingHeight);
+        building_mesh.Vertices[i] = p3D;
+      }
+
+      // Add points at bottom
+      for (size_t i = 0; i < numBoundaryPoints; i++)
+      {
+        const Point3D &p2D = _mesh.Vertices[i];
+        const Vector3D p3D(p2D.x, p2D.y, groundHeight);
+        building_mesh.Vertices[numMeshPoints + i] = p3D;
+      }
+
+      // Add triangles on top
+      for (size_t i = 0; i < numMeshTriangles; i++)
+        building_mesh.Faces[i] = _mesh.Faces[i];
+
+      // Add triangles on boundary
+      for (size_t i = 0; i < numBoundaryPoints; i++)
+      {
+        const size_t v0 = i;
+        const size_t v1 = (i + 1) % numBoundaryPoints;
+        const size_t v2 = v0 + numMeshPoints;
+        const size_t v3 = v1 + numMeshPoints;
+        Simplex2D t0(v0, v2, v1); // Outward-pointing normal
+        Simplex2D t1(v1, v2, v3); // Outward-pointing normal
+        building_mesh.Faces[numMeshTriangles + 2 * i] = t0;
+        building_mesh.Faces[numMeshTriangles + 2 * i + 1] = t1;
+      }
+
+      // Add surface
+      meshes.push_back(building_mesh);
+    }
+
+    return meshes;
+  }
+
   // Build 3D mesh. The mesh is a tetrahedral mesh constructed by
   // extruding the 2D mesh in the vertical (z) direction.
   //
@@ -406,168 +557,6 @@ public:
     _volume_mesh.Markers = _markers;
 
     return _volume_mesh;
-  }
-
-  // Build 3D surface meshes for visualization. The first surface is
-  // the ground (height map) and the remaining surfaces are the extruded
-  // building footprints. Note that meshes are non-conforming; the ground
-  // and building meshes are non-matching and the building meshes may
-  // contain hanging nodes.
-  static void BuildSurfaces3D(Mesh &groundSurface,
-                              std::vector<Mesh> &buildingSurfaces,
-                              const City &city,
-                              const GridField &dtm,
-                              double resolution)
-  {
-    info("MeshBuilder: Building 3D surface meshes...");
-    Timer timer("BuildSurfaces3D");
-
-    // Create empty subdomains for Triangle mesh building
-    std::vector<std::vector<Point2D>> subDomains;
-
-    // Get bounding box
-    const BoundingBox2D &bbox = dtm.grid.BoundingBox;
-
-    // Build boundary for Triangle mesh generation
-    std::vector<Point2D> boundary;
-    boundary.push_back(bbox.P);
-    boundary.push_back(Point2D(bbox.Q.x, bbox.P.y));
-    boundary.push_back(bbox.Q);
-    boundary.push_back(Point2D(bbox.P.x, bbox.Q.y));
-
-    // Build 2D mesh of domain
-    info("MeshBuilder: Building ground surface");
-    Mesh mesh;
-    CallTriangle(mesh, boundary, subDomains, resolution, false);
-
-    // Compute domain markers
-    ComputeDomainMarkers(mesh, city);
-
-    // Create ground surface with zero height
-    groundSurface.Faces = mesh.Faces;
-    groundSurface.Vertices.resize(mesh.Vertices.size());
-    for (size_t i = 0; i < mesh.Vertices.size(); i++)
-    {
-      const Point3D &p2D = mesh.Vertices[i];
-      Vector3D p3D(p2D.x, p2D.y, 0.0);
-      groundSurface.Vertices[i] = p3D;
-    }
-
-    // Displace ground surface
-    info("MeshBuilder: Displacing ground surface");
-
-    // Fill all points with maximum height. This is used to
-    // always choose the smallest height for each point since
-    // each point may be visited multiple times.
-    const double zMax = dtm.Max();
-    for (size_t i = 0; i < mesh.Vertices.size(); i++)
-      groundSurface.Vertices[i].z = zMax;
-
-    // If ground is not float, iterate over the triangles
-    for (size_t i = 0; i < mesh.Faces.size(); i++)
-    {
-      // Get cell marker
-      const int cellMarker = mesh.Markers[i];
-
-      // Get triangle
-      const Simplex2D &T = mesh.Faces[i];
-
-      // Check cell marker
-      if (cellMarker != -2) // not ground
-      {
-        // Compute minimum height of vertices
-        double zMin = std::numeric_limits<double>::max();
-        zMin = std::min(zMin, dtm(mesh.Vertices[T.v0]));
-        zMin = std::min(zMin, dtm(mesh.Vertices[T.v1]));
-        zMin = std::min(zMin, dtm(mesh.Vertices[T.v2]));
-
-        // Set minimum height for all vertices
-        setMin(groundSurface.Vertices[T.v0].z, zMin);
-        setMin(groundSurface.Vertices[T.v1].z, zMin);
-        setMin(groundSurface.Vertices[T.v2].z, zMin);
-      }
-      else
-      {
-        // Sample height map at vertex position for all vertices
-        setMin(groundSurface.Vertices[T.v0].z, dtm(mesh.Vertices[T.v0]));
-        setMin(groundSurface.Vertices[T.v1].z, dtm(mesh.Vertices[T.v1]));
-        setMin(groundSurface.Vertices[T.v2].z, dtm(mesh.Vertices[T.v2]));
-      }
-    }
-
-    // Get ground height (minimum)
-    const double groundHeight = dtm.Min();
-
-    // Iterate over buildings to build surfaces
-    info("MeshBuilder: Building building surfaces"); //!
-    for (auto const &building : city.Buildings)
-    {
-      // FIXME: Consider making flipping triangles upside-down here
-      // so that the normal points downwards rather than upwards.
-
-      // Build 2D mesh of building footprint
-      Mesh _mesh;
-      CallTriangle(_mesh, building.Footprint.Vertices, subDomains, resolution,
-                   false);
-
-      // Create empty building surface
-      Mesh buildingSurface;
-
-      // Note: The 2D mesh contains all the input boundary points with
-      // the same numbers as in the footprint polygon, but may also
-      // contain new points (Steiner points) added during mesh
-      // generation. We add the top points (including any Steiner
-      // points) first, then the points at the bottom (the footprint).
-
-      // Get absolute height of building
-      const double buildingHeight = building.MaxHeight();
-
-      // Set total number of points
-      const size_t numMeshPoints = _mesh.Vertices.size();
-      const size_t numBoundaryPoints = building.Footprint.Vertices.size();
-      buildingSurface.Vertices.resize(numMeshPoints + numBoundaryPoints);
-
-      // Set total number of triangles
-      const size_t numMeshTriangles = _mesh.Faces.size();
-      const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
-      buildingSurface.Faces.resize(numMeshTriangles + numBoundaryTriangles);
-
-      // Add points at top
-      for (size_t i = 0; i < numMeshPoints; i++)
-      {
-        const Point3D &p2D = _mesh.Vertices[i];
-        const Vector3D p3D(p2D.x, p2D.y, buildingHeight);
-        buildingSurface.Vertices[i] = p3D;
-      }
-
-      // Add points at bottom
-      for (size_t i = 0; i < numBoundaryPoints; i++)
-      {
-        const Point3D &p2D = _mesh.Vertices[i];
-        const Vector3D p3D(p2D.x, p2D.y, groundHeight);
-        buildingSurface.Vertices[numMeshPoints + i] = p3D;
-      }
-
-      // Add triangles on top
-      for (size_t i = 0; i < numMeshTriangles; i++)
-        buildingSurface.Faces[i] = _mesh.Faces[i];
-
-      // Add triangles on boundary
-      for (size_t i = 0; i < numBoundaryPoints; i++)
-      {
-        const size_t v0 = i;
-        const size_t v1 = (i + 1) % numBoundaryPoints;
-        const size_t v2 = v0 + numMeshPoints;
-        const size_t v3 = v1 + numMeshPoints;
-        Simplex2D t0(v0, v2, v1); // Outward-pointing normal
-        Simplex2D t1(v1, v2, v3); // Outward-pointing normal
-        buildingSurface.Faces[numMeshTriangles + 2 * i] = t0;
-        buildingSurface.Faces[numMeshTriangles + 2 * i + 1] = t1;
-      }
-
-      // Add surface
-      buildingSurfaces.push_back(buildingSurface);
-    }
   }
 
 private:

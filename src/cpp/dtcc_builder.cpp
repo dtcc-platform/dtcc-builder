@@ -192,17 +192,6 @@ BuildVolumeMesh(const Mesh &mesh, double domainHeight, double meshResolution)
   return volume_mesh;
 }
 
-std::vector<Mesh>
-BuildSurfaces3D(const City &city, const GridField &dtm, double resolution)
-{
-  Mesh groundSurface;
-  std::vector<Mesh> buildingSurfaces;
-  MeshBuilder::BuildSurfaces3D(groundSurface, buildingSurfaces, city, dtm,
-                               resolution);
-  buildingSurfaces.insert(buildingSurfaces.begin(), groundSurface);
-  return buildingSurfaces;
-}
-
 } // namespace DTCC_BUILDER
 
 PYBIND11_MODULE(_dtcc_builder, m)
@@ -344,6 +333,9 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("smooth_volume_mesh", &DTCC_BUILDER::Smoother::smooth_volume_mesh,
         "Smooth volume mesh");
 
+  m.def("BuildSurface3D", &DTCC_BUILDER::MeshBuilder::build_mesh,
+        "Build city mesh, returning a list of meshes");
+
   m.def("trim_volume_mesh", &DTCC_BUILDER::MeshBuilder::trim_volume_mesh,
         "Trim volume mesh by removing cells inside buildings");
 
@@ -353,8 +345,6 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("compute_open_mesh", &DTCC_BUILDER::MeshProcessor::compute_open_mesh,
         "Compute open mesh from boundary, excluding top and sides");
-
-  m.def("BuildSurface3D", &DTCC_BUILDER::BuildSurfaces3D, "Build 3D surface");
 
   m.def("merge_meshes", &DTCC_BUILDER::MeshProcessor::merge_meshes,
         "Merge meshes into a single mesh");
