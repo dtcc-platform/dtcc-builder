@@ -702,7 +702,7 @@ private:
         // Merge if distance is small
         if (d2 < tol2)
         {
-          debug("Buildings " + str(i) + " and " + str(j) +
+          debug("CityBuilder: Buildings " + str(i) + " and " + str(j) +
                 " are too close, merging");
 
           // Merge buildings
