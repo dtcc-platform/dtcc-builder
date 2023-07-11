@@ -61,7 +61,7 @@ public:
   // Compute Vertex Boundary Markers based on Cell Boundary Markers
   void compute_vertex_markers()
   {
-    info("BoundaryConditions: Computing vertex markers from cell markers");
+    info("Computing vertex markers from cell markers");
 
     std::array<uint, 4> I = {0};
 
@@ -150,7 +150,7 @@ public:
   // Compute boundary values
   void compute_boundary_values()
   {
-    info("BoundaryConditions: Computing boundary values");
+    info("Computing boundary values");
 
     // TODO: Check if Search tree has already been built
     //_city.BuildSearchTree(true,0.0);
@@ -193,8 +193,7 @@ public:
   // Apply boundary conditions to stiffness matrix
   void apply(StiffnessMatrix &A)
   {
-    info(
-        "BoundaryConditions: Applying boundary conditions to stiffness matrix");
+    info("Applying boundary conditions to stiffness matrix");
 
     std::array<uint, 4> I = {0};
 
@@ -223,7 +222,7 @@ public:
   // Apply boundary conditions to load vector
   void apply(std::vector<double> &b)
   {
-    info("BoundaryConditions: Applying boundary conditions to load vector");
+    info("Applying boundary conditions to load vector");
     b = values;
   }
 

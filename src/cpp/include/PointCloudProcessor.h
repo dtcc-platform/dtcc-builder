@@ -104,7 +104,7 @@ public:
   // to do a bit more since also the colors and classifications are affected.
   static void RemoveOutliers(PointCloud &pointCloud, double outlierMargin)
   {
-    info("PointCloudProcessor: Removing outliers...");
+    info("Removing outliers...");
     Timer timer("RemoveOutliers");
 
     // Write heights to file for debbuging
@@ -142,8 +142,7 @@ public:
       f.close();
     }
 
-    info("PointCloudProcessor: " + str(outliers.size()) +
-         " outliers removed from point cloud");
+    info(str(outliers.size()) + " outliers removed from point cloud");
   }
 
   /// Find index of outlier from vector of points more than a
@@ -217,12 +216,10 @@ public:
 
     if (verbose)
     {
-      info("PointCloudProcessor: min height = " + str(min) +
-           " m (before filtering)");
-      info("PointCloudProcessor: max height = " + str(max) +
-           " m (before filtering)");
-      info("PointCloudProcessor: mean height = " + str(mean) + " m");
-      info("PointCloudProcessor: standard deviation = " + str(std) + " m");
+      info("Min height = " + str(min) + " m (before filtering)");
+      info("Max height = " + str(max) + " m (before filtering)");
+      info("Mean height = " + str(mean) + " m");
+      info("Standard deviation = " + str(std) + " m");
     }
 
     // Remove outliers (can perhaps be implemented more efficiently)
@@ -252,10 +249,8 @@ public:
 
     if (verbose)
     {
-      info("PointCloudProcessor: min height = " + str(min) +
-           " m (after filtering)");
-      info("PointCloudProcessor: max height = " + str(max) +
-           " m (after filtering)");
+      info("Min height = " + str(min) + " m (after filtering)");
+      info("Max height = " + str(max) + " m (after filtering)");
     }
 
     return outliers;

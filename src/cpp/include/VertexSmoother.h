@@ -19,11 +19,11 @@ public:
   // Smooth mesh
   static void SmoothMesh(Mesh &mesh, size_t numSmoothings)
   {
-    info("VertexSmoother: Smoothing mesh...");
+    info("Smoothing mesh...");
     Timer timer("SmoothMesh");
 
     // Build vertex connectivity
-    info("VertexSmoother: Building vertex connectivity");
+    info("Building vertex connectivity");
     const size_t numVertices = mesh.Vertices.size();
     std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
     for (const auto &T : mesh.Faces)
@@ -39,7 +39,7 @@ public:
     // Smooth by setting each vertex coordinate to average of neighbors
     for (size_t n = 0; n < numSmoothings; n++)
     {
-      info("VertexSmoother: Smoothing iteration " + str(n));
+      info("Smoothing iteration " + str(n));
       for (size_t i = 0; i < numVertices; i++)
       {
         Vector3D p{};
@@ -54,11 +54,11 @@ public:
   // Smooth 3D mesh
   static void SmoothMesh(VolumeMesh &volume_mesh, size_t numSmoothings)
   {
-    info("VertexSmoother: Smoothing volume mesh...");
+    info("Smoothing volume mesh...");
     Timer timer("SmoothMesh");
 
     // Build vertex connectivity
-    info("VertexSmoother: Building vertex connectivity");
+    info("Building vertex connectivity");
     const size_t numVertices = volume_mesh.Vertices.size();
     std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
     for (const auto &T : volume_mesh.Cells)
@@ -80,7 +80,7 @@ public:
     // Smooth by setting each vertex coordinate to average of neighbors
     for (size_t n = 0; n < numSmoothings; n++)
     {
-      info("VertexSmoother: Smoothing iteration " + str(n));
+      info("Smoothing iteration " + str(n));
       for (size_t i = 0; i < numVertices; i++)
       {
         Vector3D p;
@@ -108,7 +108,7 @@ public:
     // Smooth by setting each value to average of neighbors
     for (size_t n = 0; n < numSmoothings; n++)
     {
-      info("VertexSmoother: Smoothing iteration " + str(n));
+      info("Smoothing iteration " + str(n));
       for (size_t i = 0; i < _field.Values.size(); i++)
       {
         // Get neighbors

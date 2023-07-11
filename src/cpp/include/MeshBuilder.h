@@ -208,11 +208,10 @@ public:
     const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
     const size_t ny = (boundingBox.Q.y - boundingBox.P.y) / resolution;
     const size_t n = nx * ny;
-    info("MeshBuilder: Domain bounding box is " + str(boundingBox));
-    info("MeshBuilder: Mesh resolution is " + str(resolution));
-    info("MeshBuilder: Estimated number of triangles is " + str(n));
-    info("MeshBuilder: Number of subdomains (buildings) is " +
-         str(city.Buildings.size()));
+    info("Domain bounding box is " + str(boundingBox));
+    info("Mesh resolution is " + str(resolution));
+    info("Estimated number of triangles is " + str(n));
+    info("Number of subdomains (buildings) is " + str(city.Buildings.size()));
 
     // Extract subdomains (building footprints)
     std::vector<std::vector<Point2D>> subDomains;
@@ -489,7 +488,7 @@ public:
       size_t marker = buildingIndex;
       if (layer == 0)
       {
-        warning("MeshBuilder: Building " + str(buildingIndex) +
+        warning("Building " + str(buildingIndex) +
                 " is covered by bottom layer");
         marker = -1;
       }
@@ -806,7 +805,7 @@ private:
   // Compute domain markers for subdomains
   static void ComputeDomainMarkers(Mesh &mesh, const City &city)
   {
-    info("MeshBuilder: Computing domain markers");
+    info("Computing domain markers");
     Timer timer("ComputeDomainMarkers");
 
     // Build search tree for city

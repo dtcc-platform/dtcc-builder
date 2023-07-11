@@ -37,7 +37,7 @@ public:
         numFiltered++;
       }
     }
-    info("CityModelProcessing: Filtered " + str(numFiltered) + " buildings");
+    info("Filtered " + str(numFiltered) + " buildings");
   }
 
   static void BuildingFootprintFilter(const CityModel &baseModel,
@@ -61,7 +61,7 @@ public:
         numFiltered++;
       }
     }
-    info("CityModelProcessing: Filtered " + str(numFiltered) + " buildings");
+    info("Filtered " + str(numFiltered) + " buildings");
   }
 };
 

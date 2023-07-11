@@ -35,14 +35,14 @@ public:
   /// Initialize GEOS, needs to be called before any other methods
   static void Init()
   {
-    info("GEOS: Initializing");
+    info("Initializing");
     initGEOS(geos_msg_handler, geos_msg_handler);
   }
 
   /// Finish GEOS, needs to be called to clean up resources
   static void Finish()
   {
-    info("GEOS: Cleaning up");
+    info("Cleaning up");
     finishGEOS();
   }
 
@@ -269,7 +269,7 @@ public:
       // Accept if valid
       if (IsValid(C, tol))
       {
-        warning("GEOS: Falling back to union of convex hulls");
+        warning("Falling back to union of convex hulls");
       }
       else
       {
@@ -281,7 +281,7 @@ public:
     // If not acceptable, use convex hull of union
     if (C == 0)
     {
-      warning("GEOS: Falling back to convex hull of union");
+      warning("Falling back to convex hull of union");
 
       // Compute convex hull of union
       GEOSGeometry *AB = GEOSUnionPrec(A, B, EPS);

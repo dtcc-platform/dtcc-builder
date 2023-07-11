@@ -25,7 +25,7 @@ public:
                                        double relative_tolerance)
 
   {
-    info("Smoother: Smoothing volume mesh...");
+    info("Smoothing volume mesh...");
     info(volume_mesh.__str__());
 
     // Compute (local) stifness matrices
@@ -67,7 +67,7 @@ private:
                                              const size_t max_iterations,
                                              const double relative_tolerance)
   {
-    info("Smoother: Solving linear system using unassembled Gauss-Seidel");
+    info("Solving linear system using unassembled Gauss-Seidel");
 
     // Sum of non-diagonal elements
     std::vector<double> C(volume_mesh.Vertices.size());
@@ -116,8 +116,8 @@ private:
         break;
     }
 
-    info("Smoother: Converged in " + str(iterations) + "/" +
-         str(max_iterations) + " iterations with residual " + str(residual));
+    info("Converged in " + str(iterations) + "/" + str(max_iterations) +
+         " iterations with residual " + str(residual));
   }
 
   // Set initial guess for solution vector
@@ -127,7 +127,7 @@ private:
                                 double top_height,
                                 BoundaryConditions &bc)
   {
-    info("Smoother: Setting initial guess for solution vector");
+    info("Setting initial guess for solution vector");
 
     for (size_t i = 0; i < volume_mesh.Vertices.size(); i++)
     {

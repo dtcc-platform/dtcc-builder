@@ -49,7 +49,7 @@ public:
                         double minBuildingDistance,
                         double minBuildingSize)
   {
-    info("CityBuilder: Building city...");
+    info("Building city...");
     Timer timer("BuildCity");
 
     // Clear data
@@ -80,8 +80,8 @@ public:
       city.Buildings.push_back(building);
     }
 
-    info("CityBuilder: Added " + str(city.Buildings.size()) + "/" +
-         str(footprints.size()) + " buildings inside bounding box");
+    info("Added " + str(city.Buildings.size()) + "/" + str(footprints.size()) +
+         " buildings inside bounding box");
   }
 
   /// Clean city by making sure that all building footprints
@@ -141,16 +141,15 @@ public:
         numRemoved++;
     }
 
-    info("CityBuilder: Fixed " + str(numClosed) + "/" +
-         str(city.Buildings.size()) + " polygons that were not closed");
-    info("CityBuilder: Fixed " + str(numOriented) + "/" +
-         str(city.Buildings.size()) + " polygons that were not oriented");
-    info("CityBuilder: Merged vertices for " + str(numVertexMerged) + "/" +
+    info("Fixed " + str(numClosed) + "/" + str(city.Buildings.size()) +
+         " polygons that were not closed");
+    info("Fixed " + str(numOriented) + "/" + str(city.Buildings.size()) +
+         " polygons that were not oriented");
+    info("Merged vertices for " + str(numVertexMerged) + "/" +
          str(city.Buildings.size()) + " polygons");
-    info("CityBuilder: Merged edges for " + str(numEdgeMerged) + "/" +
+    info("Merged edges for " + str(numEdgeMerged) + "/" +
          str(city.Buildings.size()) + " polygons");
-    info("CityBuilder: Removed " + str(numRemoved) + "/" +
-         str(city.Buildings.size()) +
+    info("Removed " + str(numRemoved) + "/" + str(city.Buildings.size()) +
          " buildings (invalid/too small after cleaning)");
 
     return _city;
@@ -296,8 +295,8 @@ public:
     }
     const double outlierGroundPercentage =
         (100.0 * numGroundOutliers) / numGroundPoints;
-    info("CityBuilder: Removed ground point outliers (" +
-         str(outlierGroundPercentage) + "%)");
+    info("Removed ground point outliers (" + str(outlierGroundPercentage) +
+         "%)");
 
     double ptsPrSqm;
     double pointCoverage;
@@ -318,8 +317,7 @@ public:
         building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
       }
     }
-    info("CityBuilder: Number of buildings with too few roof points: " +
-         str(tooFew));
+    info("Number of buildings with too few roof points: " + str(tooFew));
 
     // Sort points by height
     for (auto &building : _city.Buildings)
@@ -354,10 +352,10 @@ public:
     const double meanG = static_cast<double>(sumG) / _city.Buildings.size();
     const double meanR = static_cast<double>(sumR) / _city.Buildings.size();
 
-    info("CityBuilder: min/mean/max number of ground points per "
+    info("min/mean/max number of ground points per "
          "building is " +
          str(minG) + "/" + str(meanG) + "/" + str(maxG));
-    info("CityBuilder: min/mean/max number of roof points per building "
+    info("min/mean/max number of roof points per building "
          "is " +
          str(minR) + "/" + str(meanR) + "/" + str(maxR));
 
@@ -378,7 +376,7 @@ public:
                                      double groundPercentile,
                                      double roofPercentile)
   {
-    info("CityBuilder: Computing building heights...");
+    info("Computing building heights...");
     Timer timer("ComputeBuildingHeights");
 
     // FIXME: Make this a parameter?
@@ -403,7 +401,7 @@ public:
       if (building.GroundPoints.empty())
       {
         // warning("Missing ground points for building " + building.UUID);
-        // info("CityBuilder: Setting ground height from DTM");
+        // info("Setting ground height from DTM");
         h0 = dtm(Geometry::PolygonCenter2D(building.Footprint));
         numMissingGroundPoints++;
         building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
@@ -422,7 +420,7 @@ public:
       if (building.RoofPoints.empty())
       {
         // warning("Missing roof points for building " + building.UUID);
-        // info("CityBuilder: Setting building height to " +
+        // info("Setting building height to " +
         //     str(minBuildingHeight) + "m");
         h1 = h0 + minBuildingHeight;
         numMissingRoofPoints++;
@@ -440,7 +438,7 @@ public:
       if (h1 < h0 + minBuildingHeight)
       {
         // warning("Height too small for building " + building.UUID);
-        // info("CityBuilder: Setting building height to " +
+        // info("Setting building height to " +
         //     str(minBuildingHeight));
         h1 = h0 + minBuildingHeight;
         numSmallHeights++;
@@ -463,12 +461,12 @@ public:
 
     // Print some statistics
     const size_t n = city.Buildings.size();
-    info("CityBuilder: Missing ground points for " +
-         str(numMissingGroundPoints) + "/" + str(n) + " building(s)");
-    info("CityBuilder: Missing roof points for " + str(numMissingRoofPoints) +
-         "/" + str(n) + " building(s)");
-    info("CityBuilder: Height too small (adjusted) for " +
-         str(numSmallHeights) + "/" + str(n) + " building(s)");
+    info("Missing ground points for " + str(numMissingGroundPoints) + "/" +
+         str(n) + " building(s)");
+    info("Missing roof points for " + str(numMissingRoofPoints) + "/" + str(n) +
+         " building(s)");
+    info("Height too small (adjusted) for " + str(numSmallHeights) + "/" +
+         str(n) + " building(s)");
   }
 
   /// Generate a random city. Used for benchmarking.
@@ -479,7 +477,7 @@ public:
   static void
   RandomizeCity(City &city, const GridField &dtm, size_t numBuildings)
   {
-    info("CityBuilder: Randomizing city...");
+    info("Randomizing city...");
 
     // Some hard-coded dimensions
     const double A = 20.0;  // Maximum building side length
@@ -629,7 +627,7 @@ private:
                         const BoundingBox2D &bbox,
                         double minimalBuildingDistance)
   {
-    info("CityBuilder: Merging buildings...");
+    info("Merging buildings...");
 
     // Initialize GEOS
     GEOS::Init();
@@ -704,7 +702,7 @@ private:
         // Merge if distance is small
         if (d2 < tol2)
         {
-          debug("CityBuilder: Buildings " + str(i) + " and " + str(j) +
+          debug("Buildings " + str(i) + " and " + str(j) +
                 " are too close, merging");
 
           // Merge buildings
@@ -736,9 +734,8 @@ private:
     // Finish GEOS
     GEOS::Finish();
 
-    info("CityBuilder: " + str(numMerged) + " building pair(s) were merged");
-    info("CityBuilder: " + str(numCompared) +
-         " pair(s) of buildings were checked");
+    info(str(numMerged) + " building pair(s) were merged");
+    info(str(numCompared) + " pair(s) of buildings were checked");
 
     return _city;
   }

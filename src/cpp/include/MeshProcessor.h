@@ -21,7 +21,7 @@ public:
   /// Compute boundary mesh from volume mesh
   static Mesh compute_boundary_mesh(const VolumeMesh &volume_mesh)
   {
-    info("MeshProcessor: Extracting boundary of 3D mesh...");
+    info("Extracting boundary of 3D mesh...");
     Timer timer("ExtractBoundary3D");
 
     // Create empty mesh

@@ -61,7 +61,7 @@ public:
     }
     else
     {
-      info("ElevationBuilder: Using all classifications");
+      info("Using all classifications");
     }
 
     // FIXME: Add function Grid::Init(bbox) that takes care of this
@@ -243,11 +243,11 @@ public:
     // Print some stats
     const double percentMissing =
         100.0 * static_cast<double>(numMissing) / numGridPoints;
-    info("ElevationBuilder: " + str(numOutliers) + " outlier(s) ignored");
-    info("ElevationBuilder: Mean elevation is " + str(meanElevation, 4) + "m");
-    info("ElevationBuilder: " + str(numGridPoints) + " grid points");
-    info("ElevationBuilder: " + str(numMissing) + " missing grid points (" +
-         str(percentMissing, 3) + "%)");
+    info(str(numOutliers) + " outlier(s) ignored");
+    info("Mean elevation is " + str(meanElevation, 4) + "m");
+    info(str(numGridPoints) + " grid points");
+    info(str(numMissing) + " missing grid points (" + str(percentMissing, 3) +
+         "%)");
     //    std::cout << "ElevationBuilder: "
     //        << "Maximum search distance is " << maxStep << std::endl;
 
@@ -275,7 +275,7 @@ public:
                                   const BoundingBox2D &bbox,
                                   double resolution)
   {
-    info("ElevationBuilder: Randomizing elevation model...");
+    info("Randomizing elevation model...");
 
     // Some hard-coded building dimensions
     const double H = 50.0;      // Maximum hill height
