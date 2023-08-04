@@ -660,17 +660,28 @@ public:
 
     // Remove some points that might be vegetation
     std::vector<size_t> pointsToRemove;
+    bool hasScanFlags = true;
     if (_pointCloud.ScanFlags.size() != _pointCloud.Points.size())
     {
-      error("Scan flags not set. No vegetation filtering");
+      warning("Scan flags not set, only using classification");
+      hasScanFlags = false;
     }
     bool hasClassification = false;
     if (_pointCloud.Classifications.size() == _pointCloud.Points.size())
       hasClassification = true;
 
+    if (!hasScanFlags && !hasClassification)
+    {
+      warning("No scan flags or classification. No vegetation filtering");
+      return _pointCloud;
+    }
+
     for (size_t i = 0; i < _pointCloud.Points.size(); i++)
     {
-      auto scanFlag = parseScanFlag(_pointCloud.ScanFlags[i]);
+      auto scanFlag = std::pair<uint8_t, uint8_t>(0, 0);
+      if (hasScanFlags)
+        scanFlag = parseScanFlag(_pointCloud.ScanFlags[i]);
+
       uint8_t classification = 1;
       if (hasClassification)
         classification = _pointCloud.Classifications[i];
