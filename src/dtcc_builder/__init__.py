@@ -3,7 +3,7 @@ from . import builders
 from . import parameters
 from . import city_methods
 
-from .builders import build, build_dem, build_city, build_mesh, build_volume_mesh
+from .builders import build, build_city, build_mesh, build_volume_mesh
 
 # Add model extensions
 from dtcc_model import City, PointCloud
