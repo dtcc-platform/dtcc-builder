@@ -88,7 +88,6 @@ def build_city(
 
     # Remove outliers from point cloud
     point_cloud = point_cloud.remove_global_outliers(p["outlier_margin"])
-
     # FIXME: Don't modify incoming data (city)
 
     # FIXME: Why are we not calling clean_city?
@@ -136,7 +135,9 @@ def build_mesh(
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
 
     # Build meshes
-    meshes = _dtcc_builder.build_mesh(simple_city, builder_dem, p["mesh_resolution"])
+    meshes = _dtcc_builder.build_mesh(
+        simple_builder_city, builder_dem, p["mesh_resolution"]
+    )
 
     # Extract meshes and merge building meshes
     ground_mesh = meshes[0]
@@ -173,24 +174,17 @@ def build_volume_mesh(
 
     # Get parameters
     p = parameters or builder_parameters.default()
+    simple_city = city.merge_buildings(
+        p["min_building_distance"]
+    ).remove_small_buildings(p["min_building_size"])
 
     # Convert to builder model
-    builder_city = builder_model.create_builder_city(city)
+    simple_builder_city = builder_model.create_builder_city(simple_city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
-
-    # Simplify city
-    simple_city = _dtcc_builder.simplify_city(
-        builder_city,
-        city.bounds.xmin,
-        city.bounds.ymin,
-        city.bounds.xmax,
-        city.bounds.ymax,
-        p["min_building_distance"],
-    )
 
     # Step 3.1: Build ground mesh
     ground_mesh = _dtcc_builder.build_ground_mesh(
-        simple_city,
+        simple_builder_city,
         city.bounds.xmin,
         city.bounds.ymin,
         city.bounds.xmax,
@@ -209,7 +203,7 @@ def build_volume_mesh(
     top_height = p["domain_height"] + city.terrain.data.mean()
     volume_mesh = _dtcc_builder.smooth_volume_mesh(
         volume_mesh,
-        simple_city,
+        simple_builder_city,
         builder_dem,
         top_height,
         False,
@@ -219,13 +213,15 @@ def build_volume_mesh(
     _debug(volume_mesh, "3.3", p)
 
     # Step 3.4: Trim volume mesh (remove building interiors)
-    volume_mesh = _dtcc_builder.trim_volume_mesh(volume_mesh, ground_mesh, simple_city)
+    volume_mesh = _dtcc_builder.trim_volume_mesh(
+        volume_mesh, ground_mesh, simple_builder_city
+    )
     _debug(volume_mesh, "3.4", p)
 
     # Step 3.5: Smooth volume mesh (set ground and building heights)
     volume_mesh = _dtcc_builder.smooth_volume_mesh(
         volume_mesh,
-        simple_city,
+        simple_builder_city,
         builder_dem,
         top_height,
         True,
@@ -279,8 +275,7 @@ def build(parameters: dict = None) -> None:
     )
 
     # Load point cloud
-    point_cloud = io.load_pointcloud(pointcloud_path, bounds=bounds)
-
+    point_cloud = io.load_pointcloud(pointcloud_path)  # , bounds=bounds)
     # Build city
     build_city(city, point_cloud, bounds, p)
 

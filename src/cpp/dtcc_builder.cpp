@@ -269,9 +269,6 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("clean_city", &DTCC_BUILDER::CityBuilder::clean_city, "Clean city");
 
-  m.def("simplify_city", &DTCC_BUILDER::CityBuilder::simplify_city,
-        "Simplify city");
-
   m.def("build_mesh", &DTCC_BUILDER::MeshBuilder::build_mesh,
         "Build mesh for city, returning a list of meshes");
 

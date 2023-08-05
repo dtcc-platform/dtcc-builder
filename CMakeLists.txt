@@ -28,7 +28,6 @@ include(cmake/FindLibGEOS.cmake)
 
 # Find packages
 find_package(Triangle REQUIRED)
-find_package(LibGEOS 3.16 REQUIRED)
 
 # Find pybind11
 set(pybind11_DIR /usr/lib/cmake/pybind11)

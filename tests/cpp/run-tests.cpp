@@ -11,7 +11,7 @@ const std::string RootPath{"./"};
 #include "tests/TestBoundingBox.h"
 #include "tests/TestBuilding.h"
 #include "tests/TestCity.h"
-#include "tests/TestGEOS.h"
+// #include "tests/TestGEOS.h"
 #include "tests/TestPointcloud.h"
 #include "tests/TestPolygon.h"
 #include "tests/TestUtils.h"
