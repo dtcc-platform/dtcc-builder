@@ -56,7 +56,9 @@ City create_city(py::list footprints,
     building.GroundHeight = ground_level;
     city.Buildings.push_back(building);
   }
-  CityBuilder::clean_city(city, 1.0);
+  // Cleaning should be done elsewhere (in Python)
+  // This function should only convert
+  // CityBuilder::clean_city(city, 1.0);
 
   return city;
 }

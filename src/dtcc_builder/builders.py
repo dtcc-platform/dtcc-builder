@@ -101,6 +101,7 @@ def build_city(
         p["elevation_model_window_size"],
         ground_only=True,
     )
+    city = city.simplify_buildings(p["min_building_distance"] / 2)
 
     # Compute building points
     city = city_methods.compute_building_points(city, point_cloud, p)
@@ -126,19 +127,13 @@ def build_mesh(
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    # Convert to builder model
-    builder_city = builder_model.create_builder_city(city)
-    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
+    simple_city = city.merge_buildings(
+        p["min_building_distance"]
+    ).remove_small_buildings(p["min_building_size"])
 
-    # Simplify city
-    simple_city = _dtcc_builder.simplify_city(
-        builder_city,
-        city.bounds.xmin,
-        city.bounds.ymin,
-        city.bounds.xmax,
-        city.bounds.ymax,
-        p["min_building_distance"],
-    )
+    # Convert to builder model
+    simple_builder_city = builder_model.create_builder_city(simple_city)
+    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
 
     # Build meshes
     meshes = _dtcc_builder.build_mesh(simple_city, builder_dem, p["mesh_resolution"])
