@@ -277,7 +277,7 @@ def build(parameters: dict = None) -> None:
     # Load point cloud
     point_cloud = io.load_pointcloud(pointcloud_path)  # , bounds=bounds)
     # Build city
-    build_city(city, point_cloud, bounds, p)
+    city = build_city(city, point_cloud, bounds, p)
 
     # Save city to file
     city_name = p["output_directory"] / "city"
