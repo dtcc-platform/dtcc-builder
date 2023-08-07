@@ -24,7 +24,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # Add clang tools
 include(cmake/clang-cxx-dev-tools.cmake)
-include(cmake/FindLibGEOS.cmake)
 
 # Find packages
 find_package(Triangle REQUIRED)
@@ -39,7 +38,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/external)
 include_directories(/usr/local/include)
 include_directories(${Triangle_INCLUDE_DIR})
-include_directories(${LIBGEOS_INCLUDE_DIRS})
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src)
