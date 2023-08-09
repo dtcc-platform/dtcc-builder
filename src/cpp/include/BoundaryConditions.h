@@ -84,8 +84,6 @@ public:
           4;
 
       const int cell_marker = _volume_mesh.Markers[c];
-      const double BuildingMaxHeight = _city.Buildings[cell_marker].MaxHeight();
-      const double BuildingMinHeight = _city.Buildings[cell_marker].MinHeight();
       if (cell_marker >= 0 && fix_buildings) // Building
       {
         for (size_t i = 0; i < 4; i++)
