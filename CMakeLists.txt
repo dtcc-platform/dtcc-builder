@@ -19,31 +19,32 @@ set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
+
 # Add path to local CMake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # Add clang tools
 include(cmake/clang-cxx-dev-tools.cmake)
 
-# Find packages
-find_package(Triangle REQUIRED)
-
 # Find pybind11
 set(pybind11_DIR /usr/lib/cmake/pybind11)
 find_package(pybind11 REQUIRED)
+find_package(Triangle REQUIRED)
+
 
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include/citymodel)
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/external)
-include_directories(/usr/local/include)
-include_directories(${Triangle_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/src/cpp/external/triangle)
 
 # Set installation directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
+
 # Add subdirectories
+# add_subdirectory(src/cpp/external/triangle)
 add_subdirectory(src)
 add_subdirectory(tests/cpp)
 
