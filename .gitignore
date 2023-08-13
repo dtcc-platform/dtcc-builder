@@ -5,6 +5,9 @@
 !/data/dtcc-*
 !/data/testCase/
 !/data/sampleCityJSON/
+/sandbox/profiling/build
+/sandbox/profiling/data/*
+!/sandbox/profiling/data/data.tar.gz
 .env/
 *.so
 *.o
