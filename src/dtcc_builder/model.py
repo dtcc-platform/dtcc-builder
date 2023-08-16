@@ -34,12 +34,17 @@ def create_builder_city(city: City):
         list(building.footprint.exterior.coords[:-1]) for building in city.buildings
     ]
 
+    building_holes = []
+    for building in city.buildings:
+        holes = [list(hole.coords[:-1]) for hole in building.footprint.interiors]
+        building_holes.append(holes)
+
     uuids = [building.uuid for building in city.buildings]
     heights = [building.height for building in city.buildings]
     ground_levels = [building.ground_level for building in city.buildings]
     origin = city.origin
     return _dtcc_builder.create_city(
-        building_shells, uuids, heights, ground_levels, origin
+        building_shells, building_holes, uuids, heights, ground_levels, origin
     )
 
 

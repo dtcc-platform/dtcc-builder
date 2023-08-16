@@ -27,6 +27,7 @@ namespace py = pybind11;
 namespace DTCC_BUILDER
 {
 City create_city(py::list footprints,
+                 py::list holes,
                  py::list uuids,
                  py::list heights,
                  py::list ground_levels,
@@ -42,12 +43,29 @@ City create_city(py::list footprints,
     auto uuid = uuids[i].cast<std::string>();
     auto height = heights[i].cast<double>();
     auto ground_level = ground_levels[i].cast<double>();
+    auto hls = holes[i].cast<py::list>();
+
     Polygon poly;
     for (size_t j = 0; j < footprint.size(); j++)
     {
       auto pt = footprint[j].cast<py::tuple>();
+
       poly.Vertices.push_back(
           Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+    }
+    if (hls.size() > 0)
+    {
+      for (size_t j = 0; j < hls.size(); j++)
+      {
+        auto hl = hls[j].cast<py::list>();
+        std::vector<Point2D> hole;
+        for (size_t k = 0; k < hl.size(); k++)
+        {
+          auto pt = hl[k].cast<py::tuple>();
+          hole.push_back(Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+        }
+        poly.Holes.push_back(hole);
+      }
     }
     Building building;
     building.Footprint = poly;
@@ -187,7 +205,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   py::class_<DTCC_BUILDER::Polygon>(m, "Polygon")
       .def(py::init<>())
-      .def_readonly("vertices", &DTCC_BUILDER::Polygon::Vertices);
+      .def_readonly("vertices", &DTCC_BUILDER::Polygon::Vertices)
+      .def_readonly("holes", &DTCC_BUILDER::Polygon::Holes);
 
   py::class_<DTCC_BUILDER::PointCloud>(m, "PointCloud")
       .def(py::init<>())

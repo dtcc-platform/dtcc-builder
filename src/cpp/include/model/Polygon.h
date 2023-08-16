@@ -15,9 +15,13 @@ namespace DTCC_BUILDER
 
 class Polygon : public Printable
 {
+  typedef std::vector<Point2D> LineString;
+
 public:
   // Array of vertices
-  std::vector<Point2D> Vertices{};
+  LineString Vertices{};
+
+  std::vector<LineString> Holes{};
 
   // Create empty polygon
   Polygon() = default;

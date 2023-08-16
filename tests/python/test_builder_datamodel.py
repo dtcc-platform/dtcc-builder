@@ -22,3 +22,9 @@ class TestBuilderCity(unittest.TestCase):
         builder_city = builder.model.create_builder_city(city)
         self.assertEqual(len(builder_city.buildings), len(city.buildings))
         self.assertEqual(len(builder_city.buildings), 5)
+
+    def test_convert_city_with_holes(self):
+        city = io.load_city(data_dir / "MinimalCase" / "PropertyMap.shp")
+        builder_city = builder.model.create_builder_city(city)
+        self.assertEqual(len(builder_city.buildings[0].footprint.holes), 0)
+        self.assertEqual(len(builder_city.buildings[4].footprint.holes), 1)
