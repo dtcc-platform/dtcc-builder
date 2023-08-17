@@ -1,13 +1,13 @@
+#include "BaseArea.h"
+#include "District.h"
 #include "JSON.h"
-#include "datamodel/BaseArea.h"
-#include "datamodel/District.h"
 
 using namespace DTCC_BUILDER;
 
 TEST_CASE("datamodel")
 {
-  const std::string fileName1 = RootPath + "data/CityModelExample.json";
-  const std::string fileName2 = RootPath + "data/CityModelExample2.json";
+  const std::string fileName1 = RootPath + "data/CityExample.json";
+  const std::string fileName2 = RootPath + "data/CityExample2.json";
 
   for (bool firstRun : {true, false})
   {

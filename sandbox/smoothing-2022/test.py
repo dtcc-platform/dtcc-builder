@@ -9,12 +9,12 @@ A = 0.65
 a = 0.15
 x_0 = 0.75
 
-def smooth_simple(mesh, f):
 
+def smooth_simple(mesh, f):
     # Create new mesh
     new_mesh = Mesh()
     editor = MeshEditor()
-    editor.open(new_mesh, 'triangle', 2, 2)
+    editor.open(new_mesh, "triangle", 2, 2)
     editor.init_vertices(mesh.num_vertices())
     editor.init_cells(mesh.num_cells())
     for i, c in enumerate(mesh.cells()):
@@ -23,15 +23,15 @@ def smooth_simple(mesh, f):
     # Set new coordinates
     for i, v in enumerate(mesh.coordinates()):
         x, y = v
-        y += (1.0 - y)*f(x)
+        y += (1.0 - y) * f(x)
         editor.add_vertex(i, (x, y))
 
     editor.close()
 
     return new_mesh
 
-def smooth_laplacian(mesh, f):
 
+def smooth_laplacian(mesh, f):
     # Boundary value
     class BoundaryValue(UserExpression):
         def eval(self, values, x):
@@ -39,19 +39,20 @@ def smooth_laplacian(mesh, f):
                 values[0] = f(x[0])
             else:
                 values[0] = 0.0
+
         def value_shape(self):
             return ()
 
     # Boundary
-    boundary = 'on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))'
+    boundary = "on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))"
 
     # Solve PDE for displacement
     parameters["reorder_dofs_serial"] = False
-    V = FunctionSpace(mesh, 'Lagrange', 1)
+    V = FunctionSpace(mesh, "Lagrange", 1)
     u = TrialFunction(V)
     v = TestFunction(V)
-    a = dot(grad(u), grad(v))*dx
-    L = Constant(0)*v*dx
+    a = dot(grad(u), grad(v)) * dx
+    L = Constant(0) * v * dx
     u = Function(V)
     bv = BoundaryValue()
     bc = DirichletBC(V, bv, boundary)
@@ -60,7 +61,7 @@ def smooth_laplacian(mesh, f):
     # Create new mesh
     new_mesh = Mesh()
     editor = MeshEditor()
-    editor.open(new_mesh, 'triangle', 2, 2)
+    editor.open(new_mesh, "triangle", 2, 2)
     editor.init_vertices(mesh.num_vertices())
     editor.init_cells(mesh.num_cells())
     for i, c in enumerate(mesh.cells()):
@@ -77,12 +78,13 @@ def smooth_laplacian(mesh, f):
 
     return new_mesh
 
-def smooth_elastic(mesh, f):
 
+def smooth_elastic(mesh, f):
     # Boundary value for x-coordinate
     class BoundaryValueX(UserExpression):
         def eval(self, values, x):
             values[0] = 0.0
+
         def value_shape(self):
             return ()
 
@@ -93,30 +95,35 @@ def smooth_elastic(mesh, f):
                 values[0] = f(x[0])
             else:
                 values[0] = 0.0
+
         def value_shape(self):
             return ()
 
     # Boundaries
-    boundary_x = 'on_boundary && (near(x[0], 0.0) || near(x[0], 2.0) || near(x[1], 0.0))'
-    boundary_y = 'on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))'
+    boundary_x = (
+        "on_boundary && (near(x[0], 0.0) || near(x[0], 2.0) || near(x[1], 0.0))"
+    )
+    boundary_y = "on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))"
 
     # Define elastic model
     E = 1.0
     nu = 0.499
-    lmbda = E*nu / ((1 + nu)*(1 - 2*nu))
-    mu = E / (2*(1 + nu))
+    lmbda = E * nu / ((1 + nu) * (1 - 2 * nu))
+    mu = E / (2 * (1 + nu))
+
     def epsilon(u):
-        return 0.5*(grad(u) + grad(u).T)
+        return 0.5 * (grad(u) + grad(u).T)
+
     def sigma(u):
-        return lmbda*div(u)*Identity(2) + 2*mu*epsilon(u)
+        return lmbda * div(u) * Identity(2) + 2 * mu * epsilon(u)
 
     # Solve PDE for displacement
     parameters["reorder_dofs_serial"] = False
-    V = VectorFunctionSpace(mesh, 'P', 1)
+    V = VectorFunctionSpace(mesh, "P", 1)
     u = TrialFunction(V)
     v = TestFunction(V)
-    a = inner(sigma(u), epsilon(v))*dx
-    L = dot(Constant((0, 0)), v)*dx
+    a = inner(sigma(u), epsilon(v)) * dx
+    L = dot(Constant((0, 0)), v) * dx
     u = Function(V)
     bvx = BoundaryValueX()
     bvy = BoundaryValueY()
@@ -127,7 +134,7 @@ def smooth_elastic(mesh, f):
     # Create new mesh
     new_mesh = Mesh()
     editor = MeshEditor()
-    editor.open(new_mesh, 'triangle', 2, 2)
+    editor.open(new_mesh, "triangle", 2, 2)
     editor.init_vertices(mesh.num_vertices())
     editor.init_cells(mesh.num_cells())
     for i, c in enumerate(mesh.cells()):
@@ -139,19 +146,20 @@ def smooth_elastic(mesh, f):
     for i, v in enumerate(mesh.coordinates()):
         x, y = v
         x += dxy[i]
-        y += dxy[N//2 + i]
+        y += dxy[N // 2 + i]
         editor.add_vertex(i, (x, y))
 
     editor.close()
 
     return new_mesh
 
-def smooth_hyperelastic(mesh, f):
 
+def smooth_hyperelastic(mesh, f):
     # Boundary value for x-coordinate
     class BoundaryValueX(UserExpression):
         def eval(self, values, x):
             values[0] = 0.0
+
         def value_shape(self):
             return ()
 
@@ -162,32 +170,35 @@ def smooth_hyperelastic(mesh, f):
                 values[0] = f(x[0])
             else:
                 values[0] = 0.0
+
         def value_shape(self):
             return ()
 
     # Boundaries
-    boundary_x = 'on_boundary && (near(x[0], 0.0) || near(x[0], 2.0) || near(x[1], 0.0))'
-    boundary_y = 'on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))'
+    boundary_x = (
+        "on_boundary && (near(x[0], 0.0) || near(x[0], 2.0) || near(x[1], 0.0))"
+    )
+    boundary_y = "on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))"
 
     # Define elastic model
     E = 1.0
-    nu = 0.45 # does not converge with 0.49
-    lmbda = E*nu / ((1 + nu)*(1 - 2*nu))
-    mu = E / (2*(1 + nu))
+    nu = 0.45  # does not converge with 0.49
+    lmbda = E * nu / ((1 + nu) * (1 - 2 * nu))
+    mu = E / (2 * (1 + nu))
 
     # Solve PDE for displacement
     parameters["reorder_dofs_serial"] = False
-    V = VectorFunctionSpace(mesh, 'P', 1)
+    V = VectorFunctionSpace(mesh, "P", 1)
     du = TrialFunction(V)
     v = TestFunction(V)
     u = Function(V)
     I = Identity(2)
     F = I + grad(u)
-    C = F.T*F
+    C = F.T * F
     Ic = tr(C)
-    J  = det(F)
-    psi = (mu/2)*(Ic - 3) - mu*ln(J) + (lmbda/2)*(ln(J))**2
-    Pi = psi*dx
+    J = det(F)
+    psi = (mu / 2) * (Ic - 3) - mu * ln(J) + (lmbda / 2) * (ln(J)) ** 2
+    Pi = psi * dx
     F = derivative(Pi, u, v)
     J = derivative(F, u, du)
     bvx = BoundaryValueX()
@@ -199,7 +210,7 @@ def smooth_hyperelastic(mesh, f):
     # Create new mesh
     new_mesh = Mesh()
     editor = MeshEditor()
-    editor.open(new_mesh, 'triangle', 2, 2)
+    editor.open(new_mesh, "triangle", 2, 2)
     editor.init_vertices(mesh.num_vertices())
     editor.init_cells(mesh.num_cells())
     for i, c in enumerate(mesh.cells()):
@@ -211,15 +222,15 @@ def smooth_hyperelastic(mesh, f):
     for i, v in enumerate(mesh.coordinates()):
         x, y = v
         x += dxy[i]
-        y += dxy[N//2 + i]
+        y += dxy[N // 2 + i]
         editor.add_vertex(i, (x, y))
 
     editor.close()
 
     return new_mesh
 
-def smooth_winslow(mesh, f):
 
+def smooth_winslow(mesh, f):
     # Wrapper for boundary value
     class BoundaryValue(UserExpression):
         def eval(self, values, x):
@@ -229,27 +240,31 @@ def smooth_winslow(mesh, f):
             else:
                 values[0] = 0.0
                 values[1] = 0.0
+
         def value_shape(self):
             return (2,)
 
     # Solve PDE for displacement
     parameters["reorder_dofs_serial"] = False
-    V = VectorFunctionSpace(mesh, 'P', 1)
+    V = VectorFunctionSpace(mesh, "P", 1)
     u = Function(V)
     v = TestFunction(V)
-    alpha = (u[0].dx(1))**2 + (u[1].dx(1))**2
-    beta = u[0].dx(0)*u[0].dx(1) + u[1].dx(0)*u[1].dx(1)
-    gamma = (u[0].dx(0))**2 + (u[1].dx(0))**2
+    alpha = (u[0].dx(1)) ** 2 + (u[1].dx(1)) ** 2
+    beta = u[0].dx(0) * u[0].dx(1) + u[1].dx(0) * u[1].dx(1)
+    gamma = (u[0].dx(0)) ** 2 + (u[1].dx(0)) ** 2
     A = as_tensor(((alpha, -beta), (-beta, gamma)))
-    F = inner(grad(v[0]), dot(A, grad(u[0])))*dx + inner(grad(v[1]), dot(A, grad(u[1])))*dx
+    F = (
+        inner(grad(v[0]), dot(A, grad(u[0]))) * dx
+        + inner(grad(v[1]), dot(A, grad(u[1]))) * dx
+    )
     bv = BoundaryValue()
-    bc = DirichletBC(V, bv, 'on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))')
+    bc = DirichletBC(V, bv, "on_boundary && (near(x[1], 0.0) || near(x[1], 1.0))")
     solve(F == 0, u, bc)
 
     # Create new mesh
     new_mesh = Mesh()
     editor = MeshEditor()
-    editor.open(new_mesh, 'triangle', 2, 2)
+    editor.open(new_mesh, "triangle", 2, 2)
     editor.init_vertices(mesh.num_vertices())
     editor.init_cells(mesh.num_cells())
     for i, c in enumerate(mesh.cells()):
@@ -261,30 +276,31 @@ def smooth_winslow(mesh, f):
     for i, v in enumerate(mesh.coordinates()):
         x, y = v
         x += dxy[i]
-        y += dxy[N//2 + i]
+        y += dxy[N // 2 + i]
         editor.add_vertex(i, (x, y))
 
     editor.close()
 
     return new_mesh
 
+
 # Define ground height
-f = lambda x : A*exp(-(x-x_0)**2/(2*a**2))
-#f = lambda x : 0.5
+f = lambda x: A * exp(-((x - x_0) ** 2) / (2 * a**2))
+# f = lambda x : 0.5
 
 # Create mesh
-mesh = RectangleMesh(Point(0, 0), Point(2, 1), 2*n, n)
+mesh = RectangleMesh(Point(0, 0), Point(2, 1), 2 * n, n)
 
 # Smooth mesh
 mesh_simple = smooth_simple(mesh, f)
 mesh_laplacian = smooth_laplacian(mesh, f)
 mesh_elastic = smooth_elastic(mesh, f)
-#mesh_hyperelastic = smooth_hyperelastic(mesh, f)
-#mesh_winslow = smooth_winslow(mesh, f)
+# mesh_hyperelastic = smooth_hyperelastic(mesh, f)
+# mesh_winslow = smooth_winslow(mesh, f)
 
 # Write to file
-File('mesh_simple.pvd') << mesh_simple
-File('mesh_laplacian.pvd') << mesh_laplacian
-File('mesh_elastic.pvd') << mesh_elastic
-#File('mesh_hyperelastic.pvd') << mesh_hyperelastic
-#File('mesh_winslow.pvd') << mesh_winslow
+File("mesh_simple.pvd") << mesh_simple
+File("mesh_laplacian.pvd") << mesh_laplacian
+File("mesh_elastic.pvd") << mesh_elastic
+# File('mesh_hyperelastic.pvd') << mesh_hyperelastic
+# File('mesh_winslow.pvd') << mesh_winslow

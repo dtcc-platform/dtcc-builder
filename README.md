@@ -24,6 +24,7 @@ supported by Sweden’s Innovation Agency Vinnova under Grant No. 2019-421 00041
 * [Orfeas Eleutheriou](http://orfeasel.com/)
 * [Anton Olsson](mailto:anton.j.olsson@bredband.net)
 * [Anton Annlöv](mailto:annlova@student.chalmers.se)
+* [George Spaias](mailto:gspaiasa@ece.auth.gr)
 
 Part of this code is contributed by ReSpace AB under the MIT License.
 
@@ -39,3 +40,7 @@ each source file.
 
 Comments, contributions, and questions are welcome. Please engage with
 us through Issues, Pull Requests, and Discussions on our GitHub page.
+
+## Citing
+
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04928/status.svg)](https://doi.org/10.21105/joss.04928)

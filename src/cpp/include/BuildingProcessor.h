@@ -6,13 +6,12 @@
 
 #include <set>
 
-#include "datamodel/Building.h"
-
 #include "BoundingBox.h"
 #include "BoundingBoxTree.h"
 #include "Geometry.h"
-#include "Polygon.h"
 #include "Timer.h"
+#include "model/Building.h"
+#include "model/Polygon.h"
 
 namespace DTCC_BUILDER
 {

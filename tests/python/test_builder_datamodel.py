@@ -11,14 +11,20 @@ data_dir = (Path(__file__).parent / "../data").resolve()
 class TestBuilderPointCloud(unittest.TestCase):
     def test_convert_pointcloud(self):
         pc = io.load_pointcloud(data_dir / "MinimalCase" / "pointcloud.las")
-        builder_pc = builder.builder_datamodel.create_builder_pointcloud(pc)
+        builder_pc = builder.model.create_builder_pointcloud(pc)
         self.assertEqual(len(builder_pc.points), len(pc.points))
         self.assertEqual(len(builder_pc.points), 8148)
 
 
-class TestBuilderCityModel(unittest.TestCase):
-    def test_convert_citymodel(self):
-        cm = io.load_citymodel(data_dir / "MinimalCase" / "PropertyMap.shp")
-        builder_cm = builder.builder_datamodel.create_builder_citymodel(cm)
-        self.assertEqual(len(builder_cm.buildings), len(cm.buildings))
-        self.assertEqual(len(builder_cm.buildings), 5)
+class TestBuilderCity(unittest.TestCase):
+    def test_convert_city(self):
+        city = io.load_city(data_dir / "MinimalCase" / "PropertyMap.shp")
+        builder_city = builder.model.create_builder_city(city)
+        self.assertEqual(len(builder_city.buildings), len(city.buildings))
+        self.assertEqual(len(builder_city.buildings), 5)
+
+    def test_convert_city_with_holes(self):
+        city = io.load_city(data_dir / "MinimalCase" / "PropertyMap.shp")
+        builder_city = builder.model.create_builder_city(city)
+        self.assertEqual(len(builder_city.buildings[0].footprint.holes), 0)
+        self.assertEqual(len(builder_city.buildings[4].footprint.holes), 1)

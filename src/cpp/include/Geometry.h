@@ -13,11 +13,12 @@
 
 #include "BoundingBox.h"
 #include "Constants.h"
-#include "Mesh.h"
-#include "Point.h"
-#include "Polygon.h"
-#include "Simplex.h"
-#include "Vector.h"
+#include "model/Mesh.h"
+#include "model/Point.h"
+#include "model/Polygon.h"
+#include "model/Simplices.h"
+#include "model/Vector.h"
+#include "model/VolumeMesh.h"
 
 namespace DTCC_BUILDER
 {
@@ -276,7 +277,7 @@ public:
   }
 
   // Compute face normal
-  static Vector3D FaceNormal3D(const Simplex2D &face, const Mesh3D &mesh3D)
+  static Vector3D FaceNormal3D(const Simplex2D &face, const VolumeMesh &mesh3D)
   {
     const Vector3D p0{mesh3D.Vertices[face.v0]};
     const Vector3D p1{mesh3D.Vertices[face.v1]};
@@ -289,7 +290,7 @@ public:
   }
 
   // Compute cell center
-  static Point3D CellCenter3D(const Simplex3D &cell, const Mesh3D &mesh3D)
+  static Point3D CellCenter3D(const Simplex3D &cell, const VolumeMesh &mesh3D)
   {
     Vector3D c{};
     c += Vector3D(mesh3D.Vertices[cell.v0]);

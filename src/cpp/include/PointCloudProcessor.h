@@ -12,12 +12,12 @@
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"
 
-#include "Color.h"
-#include "GeoRaster.h"
-#include "Point.h"
-#include "PointCloud.h"
 #include "Timer.h"
-#include "Vector.h"
+#include "model/Color.h"
+#include "model/GeoRaster.h"
+#include "model/Point.h"
+#include "model/PointCloud.h"
+#include "model/Vector.h"
 
 template <typename T> int sign(T val) { return (T(0) < val) - (val < T(0)); }
 
@@ -104,7 +104,7 @@ public:
   // to do a bit more since also the colors and classifications are affected.
   static void RemoveOutliers(PointCloud &pointCloud, double outlierMargin)
   {
-    info("PointCloudProcessor: Removing outliers...");
+    info("Removing outliers...");
     Timer timer("RemoveOutliers");
 
     // Write heights to file for debbuging
@@ -142,8 +142,7 @@ public:
       f.close();
     }
 
-    info("PointCloudProcessor: " + str(outliers.size()) +
-         " outliers removed from point cloud");
+    info(str(outliers.size()) + " outliers removed from point cloud");
   }
 
   /// Find index of outlier from vector of points more than a
@@ -217,12 +216,10 @@ public:
 
     if (verbose)
     {
-      info("PointCloudProcessor: min height = " + str(min) +
-           " m (before filtering)");
-      info("PointCloudProcessor: max height = " + str(max) +
-           " m (before filtering)");
-      info("PointCloudProcessor: mean height = " + str(mean) + " m");
-      info("PointCloudProcessor: standard deviation = " + str(std) + " m");
+      info("Min height = " + str(min) + " m (before filtering)");
+      info("Max height = " + str(max) + " m (before filtering)");
+      info("Mean height = " + str(mean) + " m");
+      info("Standard deviation = " + str(std) + " m");
     }
 
     // Remove outliers (can perhaps be implemented more efficiently)
@@ -252,10 +249,8 @@ public:
 
     if (verbose)
     {
-      info("PointCloudProcessor: min height = " + str(min) +
-           " m (after filtering)");
-      info("PointCloudProcessor: max height = " + str(max) +
-           " m (after filtering)");
+      info("Min height = " + str(min) + " m (after filtering)");
+      info("Max height = " + str(max) + " m (after filtering)");
     }
 
     return outliers;
@@ -658,25 +653,38 @@ public:
     return (returnNumber & 7) | ((numReturns & 7) << 3);
   }
 
-  static void NaiveVegetationFilter(PointCloud &pointCloud)
+  static PointCloud remove_vegetation(const PointCloud &pointCloud)
   {
+    // Create copy of point cloud
+    PointCloud _pointCloud{pointCloud};
+
     // Remove some points that might be vegetation
     std::vector<size_t> pointsToRemove;
-    if (pointCloud.ScanFlags.size() != pointCloud.Points.size())
+    bool hasScanFlags = true;
+    if (_pointCloud.ScanFlags.size() != _pointCloud.Points.size())
     {
-      warning("Scan flags not set. No vegetation filtering");
-      return;
+      warning("Scan flags not set, only using classification");
+      hasScanFlags = false;
     }
     bool hasClassification = false;
-    if (pointCloud.Classifications.size() == pointCloud.Points.size())
+    if (_pointCloud.Classifications.size() == _pointCloud.Points.size())
       hasClassification = true;
 
-    for (size_t i = 0; i < pointCloud.Points.size(); i++)
+    if (!hasScanFlags && !hasClassification)
     {
-      auto scanFlag = parseScanFlag(pointCloud.ScanFlags[i]);
+      warning("No scan flags or classification. No vegetation filtering");
+      return _pointCloud;
+    }
+
+    for (size_t i = 0; i < _pointCloud.Points.size(); i++)
+    {
+      auto scanFlag = std::pair<uint8_t, uint8_t>(0, 0);
+      if (hasScanFlags)
+        scanFlag = parseScanFlag(_pointCloud.ScanFlags[i]);
+
       uint8_t classification = 1;
       if (hasClassification)
-        classification = pointCloud.Classifications[i];
+        classification = _pointCloud.Classifications[i];
       // not last point of several
 
       if ((classification >= 3 && classification <= 5) || // classified as veg
@@ -687,7 +695,9 @@ public:
         pointsToRemove.push_back(i);
       }
     }
-    FilterPointCloud(pointCloud, pointsToRemove);
+    FilterPointCloud(_pointCloud, pointsToRemove);
+
+    return _pointCloud;
   }
 
   static void EstimateNormalsKNN(PointCloud &pointCloud, size_t neighbours)

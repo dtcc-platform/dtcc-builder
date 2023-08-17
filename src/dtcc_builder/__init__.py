@@ -1,10 +1,14 @@
-from dtcc_builder import build
-from dtcc_builder.Parameters import load_parameters
-from dtcc_builder import builder_datamodel
+from . import model
+from . import builders
+from . import parameters
+from . import city_methods
 
-# from dtcc_builder.Build import build_citymodel, build_surface_meshes, build_volume_mesh
+from .builders import build, build_city, build_mesh, build_volume_mesh
 
-from dtcc_model import CityModel, PointCloud
+# Add model extensions
+from dtcc_model import City, PointCloud
 
-CityModel.add_processors(build.extract_buildingpoints, "extract_buildingpoints")
-CityModel.add_processors(build.calculate_building_heights, "calculate_building_heights")
+City.add_methods(city_methods.compute_building_points, "compute_building_points")
+City.add_methods(city_methods.compute_building_heights, "compute_building_heights")
+
+__all__ = ["build", "build_city", "build_mesh", "build_volume_mesh"]

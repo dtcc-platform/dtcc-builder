@@ -4,7 +4,7 @@
 #ifndef DTCC_STIFFNESS_MATRIX_H
 #define DTCC_STIFFNESS_MATRIX_H
 
-#include "Mesh.h"
+#include "model/Mesh.h"
 
 namespace DTCC_BUILDER
 {
@@ -152,24 +152,25 @@ public:
   std::vector<double> diagonal;
 
   // Constructor
-  StiffnessMatrix(Mesh3D &mesh) : _data(0), diagonal(mesh.Vertices.size(), 0)
+  StiffnessMatrix(const VolumeMesh &volume_mesh)
+      : _data(0), diagonal(volume_mesh.Vertices.size(), 0)
   {
     // Set shape
-    shape[0] = mesh.Cells.size();
+    shape[0] = volume_mesh.Cells.size();
     shape[1] = 4;
     shape[2] = 4;
 
     // Compute stiffness matrix
     _data = new double[shape[0] * shape[1] * shape[2]];
-    compute_stiffness_matrix(mesh);
+    compute_stiffness_matrix(volume_mesh);
 
     // Fill diagonal vector with appropriate values
-    for (size_t c = 0; c < mesh.Cells.size(); c++)
+    for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
     {
-      diagonal[mesh.Cells[c].v0] += _data[c * 16 + 0 * 4 + 0];
-      diagonal[mesh.Cells[c].v1] += _data[c * 16 + 1 * 4 + 1];
-      diagonal[mesh.Cells[c].v2] += _data[c * 16 + 2 * 4 + 2];
-      diagonal[mesh.Cells[c].v3] += _data[c * 16 + 3 * 4 + 3];
+      diagonal[volume_mesh.Cells[c].v0] += _data[c * 16 + 0 * 4 + 0];
+      diagonal[volume_mesh.Cells[c].v1] += _data[c * 16 + 1 * 4 + 1];
+      diagonal[volume_mesh.Cells[c].v2] += _data[c * 16 + 2 * 4 + 2];
+      diagonal[volume_mesh.Cells[c].v3] += _data[c * 16 + 3 * 4 + 3];
     }
   }
 
@@ -184,27 +185,27 @@ public:
 
 private:
   // Compute stiffness matrix
-  void compute_stiffness_matrix(const Mesh3D &mesh)
+  void compute_stiffness_matrix(const VolumeMesh &volume_mesh)
   {
     // Array for vertex coordinates
     double vertices[12];
 
     // Iterate over cells
-    for (size_t c = 0; c < mesh.Cells.size(); c++)
+    for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
     {
       // Set vertex coordinates
-      vertices[0] = mesh.Vertices[mesh.Cells[c].v0].x;
-      vertices[1] = mesh.Vertices[mesh.Cells[c].v0].y;
-      vertices[2] = mesh.Vertices[mesh.Cells[c].v0].z;
-      vertices[3] = mesh.Vertices[mesh.Cells[c].v1].x;
-      vertices[4] = mesh.Vertices[mesh.Cells[c].v1].y;
-      vertices[5] = mesh.Vertices[mesh.Cells[c].v1].z;
-      vertices[6] = mesh.Vertices[mesh.Cells[c].v2].x;
-      vertices[7] = mesh.Vertices[mesh.Cells[c].v2].y;
-      vertices[8] = mesh.Vertices[mesh.Cells[c].v2].z;
-      vertices[9] = mesh.Vertices[mesh.Cells[c].v3].x;
-      vertices[10] = mesh.Vertices[mesh.Cells[c].v3].y;
-      vertices[11] = mesh.Vertices[mesh.Cells[c].v3].z;
+      vertices[0] = volume_mesh.Vertices[volume_mesh.Cells[c].v0].x;
+      vertices[1] = volume_mesh.Vertices[volume_mesh.Cells[c].v0].y;
+      vertices[2] = volume_mesh.Vertices[volume_mesh.Cells[c].v0].z;
+      vertices[3] = volume_mesh.Vertices[volume_mesh.Cells[c].v1].x;
+      vertices[4] = volume_mesh.Vertices[volume_mesh.Cells[c].v1].y;
+      vertices[5] = volume_mesh.Vertices[volume_mesh.Cells[c].v1].z;
+      vertices[6] = volume_mesh.Vertices[volume_mesh.Cells[c].v2].x;
+      vertices[7] = volume_mesh.Vertices[volume_mesh.Cells[c].v2].y;
+      vertices[8] = volume_mesh.Vertices[volume_mesh.Cells[c].v2].z;
+      vertices[9] = volume_mesh.Vertices[volume_mesh.Cells[c].v3].x;
+      vertices[10] = volume_mesh.Vertices[volume_mesh.Cells[c].v3].y;
+      vertices[11] = volume_mesh.Vertices[volume_mesh.Cells[c].v3].z;
 
       // Compute element matrix
       compute_element_matrix(_data + c * 16, vertices);

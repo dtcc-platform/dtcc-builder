@@ -1,5 +1,5 @@
 #include "GEOS.h"
-#include "Polygon.h"
+#include "model/Polygon.h"
 
 using namespace DTCC_BUILDER;
 

@@ -5,9 +5,9 @@
 #define DTCC_SMOOTHER_H
 
 #include "BoundaryConditions.h"
-#include "Mesh.h"
 #include "StiffnessMatrix.h"
 #include "Timer.h"
+#include "model/Mesh.h"
 
 namespace DTCC_BUILDER
 {
@@ -16,15 +16,16 @@ class Smoother
 {
 public:
   // Smooth mesh using Laplacian smoothing
-  static void smooth_volume_mesh(Mesh3D &volume_mesh,
-                                 const CityModel &city_model,
-                                 const GridField2D &dem,
-                                 double top_height,
-                                 bool fix_buildings,
-                                 size_t max_iterations,
-                                 double relative_tolerance)
+  static VolumeMesh smooth_volume_mesh(const VolumeMesh &volume_mesh,
+                                       const City &city,
+                                       const GridField &dem,
+                                       double top_height,
+                                       bool fix_buildings,
+                                       size_t max_iterations,
+                                       double relative_tolerance)
+
   {
-    info("Smoother: Smoothing volume mesh...");
+    info("Smoothing volume mesh...");
     info(volume_mesh.__str__());
 
     // Compute (local) stifness matrices
@@ -35,8 +36,7 @@ public:
     std::vector<double> b(volume_mesh.Vertices.size(), 0);
 
     // Apply boundary conditions
-    BoundaryConditions bc(volume_mesh, city_model, dem, top_height,
-                          fix_buildings);
+    BoundaryConditions bc(volume_mesh, city, dem, top_height, fix_buildings);
     bc.apply(AK);
     bc.apply(b);
 
@@ -51,20 +51,23 @@ public:
                                    relative_tolerance);
 
     // Update mesh coordinates
+    VolumeMesh _volume_mesh{volume_mesh};
     for (std::size_t i = 0; i < volume_mesh.Vertices.size(); i++)
-      volume_mesh.Vertices[i].z += u[i];
+      _volume_mesh.Vertices[i].z += u[i];
+
+    return _volume_mesh;
   }
 
 private:
   // Solve linear system using unassembled Gauss-Seidel iterations
-  static void solve_unassembled_gauss_seidel(const Mesh3D &volume_mesh,
+  static void solve_unassembled_gauss_seidel(const VolumeMesh &volume_mesh,
                                              StiffnessMatrix &AK,
                                              std::vector<double> &b,
                                              std::vector<double> &u,
                                              const size_t max_iterations,
                                              const double relative_tolerance)
   {
-    info("Smoother: Solving linear system using unassembled Gauss-Seidel");
+    info("Solving linear system using unassembled Gauss-Seidel");
 
     // Sum of non-diagonal elements
     std::vector<double> C(volume_mesh.Vertices.size());
@@ -113,18 +116,18 @@ private:
         break;
     }
 
-    info("Smoother: Converged in " + str(iterations) + "/" +
-         str(max_iterations) + " iterations with residual " + str(residual));
+    info("Converged in " + str(iterations) + "/" + str(max_iterations) +
+         " iterations with residual " + str(residual));
   }
 
   // Set initial guess for solution vector
   static void set_initial_guess(std::vector<double> &u,
-                                const Mesh3D &volume_mesh,
-                                const GridField2D &dem,
+                                const VolumeMesh &volume_mesh,
+                                const GridField &dem,
                                 double top_height,
                                 BoundaryConditions &bc)
   {
-    info("Smoother: Setting initial guess for solution vector");
+    info("Setting initial guess for solution vector");
 
     for (size_t i = 0; i < volume_mesh.Vertices.size(); i++)
     {
@@ -140,14 +143,14 @@ private:
 
   // Compute the number of cells to which each vertex belongs
   static void compute_vertex_degrees(std::vector<uint> &vertex_degrees,
-                                     const Mesh3D &mesh)
+                                     const VolumeMesh &volume_mesh)
   {
-    for (size_t c = 0; c < mesh.Cells.size(); c++)
+    for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
     {
-      vertex_degrees[mesh.Cells[c].v0]++;
-      vertex_degrees[mesh.Cells[c].v1]++;
-      vertex_degrees[mesh.Cells[c].v2]++;
-      vertex_degrees[mesh.Cells[c].v3]++;
+      vertex_degrees[volume_mesh.Cells[c].v0]++;
+      vertex_degrees[volume_mesh.Cells[c].v1]++;
+      vertex_degrees[volume_mesh.Cells[c].v2]++;
+      vertex_degrees[volume_mesh.Cells[c].v3]++;
     }
   }
 };

@@ -1,7 +1,7 @@
 #include "BoundingBox.h"
-#include "Point.h"
-#include "PointCloud.h"
 #include "PointCloudProcessor.h"
+#include "model/Point.h"
+#include "model/PointCloud.h"
 
 using namespace DTCC_BUILDER;
 
@@ -130,7 +130,7 @@ TEST_CASE("Vegetation filter")
   {
     // No flags, do nothing
     size_t pre_filter = pc.Points.size();
-    PointCloudProcessor::NaiveVegetationFilter(pc);
+    pc = PointCloudProcessor::remove_vegetation(pc);
     REQUIRE(pc.Points.size() == pre_filter);
   }
 
@@ -141,7 +141,7 @@ TEST_CASE("Vegetation filter")
     pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 2));
     pc.ScanFlags.push_back(PointCloudProcessor::packScanFlag(2, 3));
 
-    PointCloudProcessor::NaiveVegetationFilter(pc);
+    pc = PointCloudProcessor::remove_vegetation(pc);
     REQUIRE(pc.Points.size() == 2);
   }
 }
