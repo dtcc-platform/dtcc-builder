@@ -29,8 +29,6 @@ include(cmake/clang-cxx-dev-tools.cmake)
 # Find pybind11
 set(pybind11_DIR /usr/lib/cmake/pybind11)
 find_package(pybind11 REQUIRED)
-find_package(Triangle REQUIRED)
-
 
 # Set include directories
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp/include)
