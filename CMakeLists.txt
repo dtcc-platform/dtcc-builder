@@ -1,5 +1,5 @@
 # Project configuration
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 project(dtcc-builder)
 
 # Note: To building in Debug mode, use cmake .. -DCMAKE_BUILD_TYPE=Debug
@@ -28,11 +28,11 @@ include(cmake/clang-cxx-dev-tools.cmake)
 
 ## Find pybind11
 
-execute_process (COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND python -c "import site; print(site.getsitepackages()[0])" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(pybind11_DIR ${PYTHON_SITE_PACKAGES}/pybind11/share/cmake/pybind11)
 set(PYBIND11_FINDPYTHON ON)
 
-message("Pybind11 DIR " ${pybind11_dir})
+message("Pybind11 DIR " ${pybind11_DIR})
 find_package(pybind11 REQUIRED)
 
 # Set include directories
@@ -49,7 +49,7 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 # Add subdirectories
 # add_subdirectory(src/cpp/external/triangle)
 add_subdirectory(src)
-# add_subdirectory(tests/cpp)
+add_subdirectory(tests/cpp)
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")
