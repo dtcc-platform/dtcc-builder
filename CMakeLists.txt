@@ -30,7 +30,7 @@ include(cmake/FindLibGEOS.cmake)
 # find_package(Triangle REQUIRED)
 find_package(LibGEOS 3.16 REQUIRED)
 
-add_subdirectory(src/cpp/external/triangle)
+# add_subdirectory(src/cpp/external/triangle)
 
 # Find pybind11
 set(pybind11_DIR /usr/lib/cmake/pybind11)
