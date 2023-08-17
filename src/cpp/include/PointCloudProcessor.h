@@ -8,6 +8,8 @@
 #include <fstream>
 #include <math.h>
 #include <random>
+#include <iso646.h> 
+
 
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"

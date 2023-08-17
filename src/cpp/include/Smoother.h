@@ -14,6 +14,8 @@ namespace DTCC_BUILDER
 
 class Smoother
 {
+    typedef unsigned int uint;
+
 public:
   // Smooth mesh using Laplacian smoothing
   static VolumeMesh smooth_volume_mesh(const VolumeMesh &volume_mesh,
@@ -93,7 +95,7 @@ private:
         I[1] = volume_mesh.Cells[c].v1;
         I[2] = volume_mesh.Cells[c].v2;
         I[3] = volume_mesh.Cells[c].v3;
-        for (u_int8_t i = 0; i < 4; i++)
+        for (uint8_t i = 0; i < 4; i++)
         {
           C[I[i]] -=
               AK._data[c * 16 + i * 4 + (i + 1) % 4] * u[I[(i + 1) % 4]] +

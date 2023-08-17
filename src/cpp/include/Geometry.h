@@ -10,6 +10,7 @@
 #include <stack>
 #include <tuple>
 #include <vector>
+#include <iso646.h> 
 
 #include "BoundingBox.h"
 #include "Constants.h"

@@ -19,6 +19,7 @@ namespace DTCC_BUILDER
 
 class BoundaryConditions
 {
+  typedef unsigned int uint;
 public:
   // Vertex Boundary Markers:
   // -4 : Neumann Vertices
