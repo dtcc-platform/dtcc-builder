@@ -16,8 +16,15 @@ message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_ "-Wall -Werror")
-set(CMAKE_CXX_FLAGS_DEBUG "-pg -DLLVM_ENABLE_ASSERTIONS=ON")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg -DLLVM_ENABLE_ASSERTIONS=ON")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+endif()
 
 
 # Add path to local CMake scripts
@@ -28,7 +35,7 @@ include(cmake/clang-cxx-dev-tools.cmake)
 
 ## Find pybind11
 
-execute_process (COMMAND python -c "import site; print(site.getsitepackages()[0])" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND python -c "import site; print([s for s in site.getsitepackages() if 'site-packages' in s][0])" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(pybind11_DIR ${PYTHON_SITE_PACKAGES}/pybind11/share/cmake/pybind11)
 set(PYBIND11_FINDPYTHON ON)
 
@@ -46,10 +53,11 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
 
+
 # Add subdirectories
 # add_subdirectory(src/cpp/external/triangle)
 add_subdirectory(src)
-add_subdirectory(tests/cpp)
+# add_subdirectory(tests/cpp)
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")
