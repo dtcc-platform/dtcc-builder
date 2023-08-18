@@ -57,7 +57,12 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 # Add subdirectories
 # add_subdirectory(src/cpp/external/triangle)
 add_subdirectory(src)
-# add_subdirectory(tests/cpp)
+
+if (NOT WIN32)
+  # tests won't build on Windows
+  # TODO: Work out why
+  add_subdirectory(tests/cpp)
+endif()
 
 # Pre-commit hook
 MESSAGE("Running pre-commit hook")
