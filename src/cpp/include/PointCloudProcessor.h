@@ -6,10 +6,9 @@
 
 #include <Eigen/SVD>
 #include <fstream>
+#include <iso646.h>
 #include <math.h>
 #include <random>
-#include <iso646.h> 
-
 
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"
@@ -158,13 +157,13 @@ public:
   {
     // Compute mean
     double mean{0};
-    for (const auto p : points)
+    for (const auto &p : points)
       mean += p.z;
     mean /= points.size();
 
     // Compute standard deviation
     double std{0};
-    for (const auto p : points)
+    for (const auto &p : points)
       std += (p.z - mean) * (p.z - mean);
     std /= points.size() - 1;
     std = std::sqrt(std);
@@ -197,21 +196,21 @@ public:
 
     // Compute min and max
     double min{std::numeric_limits<int>::max()};
-    for (const auto p : points)
+    for (const auto &p : points)
       min = std::min(min, p.z);
     double max{std::numeric_limits<int>::min()};
-    for (const auto p : points)
+    for (const auto &p : points)
       max = std::max(max, p.z);
 
     // Compute mean
     double mean{0};
-    for (const auto p : points)
+    for (const auto &p : points)
       mean += p.z;
     mean /= points.size();
 
     // Compute standard deviation
     double std{0};
-    for (const auto p : points)
+    for (const auto &p : points)
       std += (p.z - mean) * (p.z - mean);
     std /= points.size() - 1;
     std = std::sqrt(std);
@@ -243,10 +242,10 @@ public:
 
     // Recompute min and max
     min = std::numeric_limits<int>::max();
-    for (const auto p : points)
+    for (const auto &p : points)
       min = std::min(min, p.z);
     max = std::numeric_limits<int>::min();
-    for (const auto p : points)
+    for (const auto &p : points)
       max = std::max(max, p.z);
 
     if (verbose)
@@ -726,7 +725,7 @@ public:
       }
 
       Eigen::MatrixXd neighbors(found, 3);
-      for (int i = 0; i < found; i++)
+      for (size_t i = 0; i < found; i++)
       {
         auto pt = points[neigboursIdx[idx][i]];
         neighbors(i, 0) = pt.x - query_pt.x;

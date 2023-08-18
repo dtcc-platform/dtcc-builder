@@ -91,21 +91,21 @@ PointCloud create_pointcloud(py::array_t<double> pts,
   auto retNumber_r = retNumber.unchecked<1>();
   auto numReturns_r = numReturns.unchecked<1>();
 
-  size_t pt_count = pts_r.shape(0);
+  auto pt_count = pts_r.shape(0);
 
   bool hasClassification = cls_r.size() == pt_count;
   bool hasReturnNumber = retNumber_r.size() == pt_count;
   bool hasNumberOfReturns = numReturns_r.size() == pt_count;
 
   PointCloud pointCloud;
-  for (size_t i = 0; i < pt_count; i++)
+  for (int i = 0; i < pt_count; i++)
   {
     pointCloud.Points.push_back(Point3D(pts_r(i, 0), pts_r(i, 1), pts_r(i, 2)));
     if (hasClassification)
       pointCloud.Classifications.push_back(cls_r(i));
     else
       pointCloud.Classifications.push_back(1);
-    if (hasReturnNumber)
+    if (hasReturnNumber and hasNumberOfReturns)
       pointCloud.ScanFlags.push_back(
           PointCloudProcessor::packScanFlag(retNumber_r(i), numReturns_r(i)));
   }
