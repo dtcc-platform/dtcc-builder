@@ -48,6 +48,7 @@ public:
 
   /// Create empty point cloud
   PointCloud() = default;
+  virtual ~PointCloud() {} // make the destructor virtual
 
   /// Return density of point cloud (points per square meter)
   double Density() const

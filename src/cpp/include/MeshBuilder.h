@@ -580,7 +580,8 @@ private:
 
     // Set input switches for Triangle
     char triswitches[64];
-    sprintf(triswitches, "zQpq25a%.16f", maxArea);
+    // sprintf(triswitches, "zQpq25a%.16f", maxArea);
+    snprintf(triswitches, sizeof(triswitches), "zQpq25a%.16f", maxArea);
 
     // z = use zero-based numbering
     // p = use polygon input (segments)

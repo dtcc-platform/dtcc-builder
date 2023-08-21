@@ -27,6 +27,7 @@ public:
 
   /// Create empty field
   GridField() = default;
+  virtual ~GridField() {} // make the destructor virtual
 
   /// Create zero field on given grid
   ///

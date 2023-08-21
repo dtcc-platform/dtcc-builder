@@ -25,6 +25,7 @@ public:
 
   // Create empty polygon
   Polygon() = default;
+  virtual ~Polygon() {} // make the destructor virtual
 
   /// Set new origin (subtract offset)
   void SetOrigin(const Point2D &origin)

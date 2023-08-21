@@ -8,11 +8,11 @@
 #include <string>
 #include <vector>
 
+#include "BoundingBoxTree.h"
 #include "Building.h"
 #include "Geometry.h"
-#include "Vector.h"
-#include "BoundingBoxTree.h"
 #include "Logging.h"
+#include "Vector.h"
 
 namespace DTCC_BUILDER
 {
@@ -28,6 +28,10 @@ public:
   std::vector<Building> Buildings;
 
   Point2D Origin = Point2D(0, 0);
+
+  /// Create empty city
+  City() = default;
+  virtual ~City() {} // make the destructor virtual
 
   /// Set new origin (subtract offset)
   void SetOrigin(const Point2D &origin)

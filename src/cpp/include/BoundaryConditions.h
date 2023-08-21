@@ -20,6 +20,7 @@ namespace DTCC_BUILDER
 class BoundaryConditions
 {
   typedef unsigned int uint;
+
 public:
   // Vertex Boundary Markers:
   // -4 : Neumann Vertices
@@ -66,10 +67,10 @@ public:
 
     std::array<uint, 4> I = {0};
 
-    size_t k0 = 0;
-    size_t k1 = 0;
-    size_t k2 = 0;
-    size_t k3 = 0;
+    // size_t k0 = 0;
+    // size_t k1 = 0;
+    // size_t k2 = 0;
+    // size_t k3 = 0;
 
     for (size_t c = 0; c < _volume_mesh.Cells.size(); c++)
     {
@@ -131,17 +132,17 @@ public:
       }
     }
 
-    for (size_t v = 0; v < _volume_mesh.Vertices.size(); v++)
-    {
-      if (vertex_markers[v] >= 0)
-        k0++;
-      else if (vertex_markers[v] == -1)
-        k1++;
-      else if (vertex_markers[v] == -2)
-        k2++;
-      else if (vertex_markers[v] == -3)
-        k3++;
-    }
+    // for (size_t v = 0; v < _volume_mesh.Vertices.size(); v++)
+    // {
+    //   if (vertex_markers[v] >= 0)
+    //     k0++;
+    //   else if (vertex_markers[v] == -1)
+    //     k1++;
+    //   else if (vertex_markers[v] == -2)
+    //     k2++;
+    //   else if (vertex_markers[v] == -3)
+    //     k3++;
+    // }
 
     return;
   }

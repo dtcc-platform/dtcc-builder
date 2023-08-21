@@ -25,6 +25,7 @@ public:
 
   /// Create zero vector
   Vector2D() = default;
+  virtual ~Vector2D() {} // make the destructor virtual
 
   /// Create vector with given components.
   ///
@@ -142,7 +143,7 @@ public:
 
   /// Create zero vector
   Vector3D() = default;
-
+  virtual ~Vector3D() {} // make the destructor virtual
   /// Create vector with given components.
   ///
   /// @param x First component

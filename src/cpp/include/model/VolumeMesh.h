@@ -30,6 +30,9 @@ public:
 
   size_t num_layers{};
 
+  VolumeMesh() = default;
+  virtual ~VolumeMesh() {} // make the destructor virtual
+
   /// Compute of cell
   Point3D MidPoint(size_t cellIndex) const
   {

@@ -74,6 +74,7 @@ public:
 
   /// Create empty building
   Building() = default;
+  virtual ~Building() {} // make the destructor virtual
 
   // Uncomment for debugging
   // int debugID;

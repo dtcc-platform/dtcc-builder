@@ -31,6 +31,9 @@ public:
   /// Array of cell markers
   std::vector<int> Markers{};
 
+  Mesh() = default;
+  virtual ~Mesh() {} // make the destructor virtual
+
   /// Compute midpoint of cell
   Point3D MidPoint(size_t cellIndex) const
   {

@@ -567,13 +567,13 @@ public:
     // Create copy of city
     City _city{city};
 
-    size_t totalRemoved = 0;
+    // size_t totalRemoved = 0;
     for (auto &building : _city.Buildings)
     {
-      size_t beforeFilter = building.RoofPoints.size();
+      // size_t beforeFilter = building.RoofPoints.size();
       PointCloudProcessor::StatisticalOutlierRemover(building.RoofPoints,
                                                      neighbours, outlierMargin);
-      totalRemoved += (beforeFilter - building.RoofPoints.size());
+      // totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
 
     return _city;
@@ -586,13 +586,13 @@ public:
     // Create copy of city
     City _city{city};
 
-    size_t totalRemoved = 0;
+    // size_t totalRemoved = 0;
     for (auto &building : _city.Buildings)
     {
-      size_t beforeFilter = building.RoofPoints.size();
+      // size_t beforeFilter = building.RoofPoints.size();
       PointCloudProcessor::RANSAC_OutlierRemover(building.RoofPoints,
                                                  distanceThershold, iterations);
-      totalRemoved += (beforeFilter - building.RoofPoints.size());
+      // totalRemoved += (beforeFilter - building.RoofPoints.size());
     }
 
     return _city;

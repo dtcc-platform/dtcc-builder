@@ -36,6 +36,7 @@ public:
 
   /// Create empty grid
   Grid() = default;
+  virtual ~Grid() {} // make the destructor virtual
 
   /// Create grid for given bounding box and size.
   ///
