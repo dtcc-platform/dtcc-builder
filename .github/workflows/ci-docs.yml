@@ -14,7 +14,7 @@ env:
 jobs:
   build:
 
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     # Placeholder for Docker on our Amazon AWS Runner
     #container:
     #  image: ubuntu-latest
