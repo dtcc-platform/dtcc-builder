@@ -110,69 +110,8 @@ public:
     // Iterate over buildings to build surfaces
     for (auto const &building : city.Buildings)
     {
-      // FIXME: Consider making flipping triangles upside-down here
-      // so that the normal points downwards rather than upwards.
-
-      // Build 2D mesh of building footprint
-      Mesh _mesh;
-      CallTriangle(_mesh, building.Footprint.Vertices, subDomains, resolution,
-                   false);
-
-      // Create empty building surface
-      Mesh building_mesh;
-
-      // Note: The 2D mesh contains all the input boundary points with
-      // the same numbers as in the footprint polygon, but may also
-      // contain new points (Steiner points) added during mesh
-      // generation. We add the top points (including any Steiner
-      // points) first, then the points at the bottom (the footprint).
-
-      // Get absolute height of building
-      const double buildingHeight = building.MaxHeight();
-
-      // Set total number of points
-      const size_t numMeshPoints = _mesh.Vertices.size();
-      const size_t numBoundaryPoints = building.Footprint.Vertices.size();
-      building_mesh.Vertices.resize(numMeshPoints + numBoundaryPoints);
-
-      // Set total number of triangles
-      const size_t numMeshTriangles = _mesh.Faces.size();
-      const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
-      building_mesh.Faces.resize(numMeshTriangles + numBoundaryTriangles);
-
-      // Add points at top
-      for (size_t i = 0; i < numMeshPoints; i++)
-      {
-        const Point3D &p2D = _mesh.Vertices[i];
-        const Vector3D p3D(p2D.x, p2D.y, buildingHeight);
-        building_mesh.Vertices[i] = p3D;
-      }
-
-      // Add points at bottom
-      for (size_t i = 0; i < numBoundaryPoints; i++)
-      {
-        const Point3D &p2D = _mesh.Vertices[i];
-        const Vector3D p3D(p2D.x, p2D.y, groundHeight);
-        building_mesh.Vertices[numMeshPoints + i] = p3D;
-      }
-
-      // Add triangles on top
-      for (size_t i = 0; i < numMeshTriangles; i++)
-        building_mesh.Faces[i] = _mesh.Faces[i];
-
-      // Add triangles on boundary
-      for (size_t i = 0; i < numBoundaryPoints; i++)
-      {
-        const size_t v0 = i;
-        const size_t v1 = (i + 1) % numBoundaryPoints;
-        const size_t v2 = v0 + numMeshPoints;
-        const size_t v3 = v1 + numMeshPoints;
-        Simplex2D t0(v0, v2, v1); // Outward-pointing normal
-        Simplex2D t1(v1, v2, v3); // Outward-pointing normal
-        building_mesh.Faces[numMeshTriangles + 2 * i] = t0;
-        building_mesh.Faces[numMeshTriangles + 2 * i + 1] = t1;
-      }
-
+      auto building_mesh = extrude_footprint(
+          building.Footprint, resolution, groundHeight, building.MaxHeight());
       // Add surface
       meshes.push_back(building_mesh);
     }
@@ -180,11 +119,90 @@ public:
     return meshes;
   }
 
+  // Extrude Polygon to create a Mesh
+  //
+  static Mesh extrude_footprint(const Polygon &footprint,
+                                double resolution,
+                                double ground_height,
+                                double height)
+  {
+    // FIXME: Consider making flipping triangles upside-down here
+    // so that the normal points downwards rather than upwards.
+
+    // Build 2D mesh of building footprint
+    Mesh _mesh;
+    // Create empty subdomains for Triangle mesh building
+    // TODO: handle polygon with holes
+    std::vector<std::vector<Point2D>> subDomains;
+
+    CallTriangle(_mesh, footprint.Vertices, subDomains, resolution, false);
+    // set ground height
+    for (auto &v : _mesh.Vertices)
+      v.z = ground_height;
+
+    // Create empty building surface
+    Mesh extrude_mesh;
+
+    // Note: The 2D mesh contains all the input boundary points with
+    // the same numbers as in the footprint polygon, but may also
+    // contain new points (Steiner points) added during mesh
+    // generation. We add the top points (including any Steiner
+    // points) first, then the points at the bottom (the footprint).
+
+    // Get absolute height of building
+    // const double buildingHeight = height;
+
+    // Set total number of points
+    const size_t numMeshPoints = _mesh.Vertices.size();
+    const size_t numBoundaryPoints = footprint.Vertices.size();
+    extrude_mesh.Vertices.resize(numMeshPoints + numBoundaryPoints);
+
+    // Set total number of triangles
+    const size_t numMeshTriangles = _mesh.Faces.size();
+    const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
+    extrude_mesh.Faces.resize(numMeshTriangles + numBoundaryTriangles);
+
+    // Add points at top
+    for (size_t i = 0; i < numMeshPoints; i++)
+    {
+      const Point3D &p2D = _mesh.Vertices[i];
+      const Vector3D p3D(p2D.x, p2D.y, height);
+      extrude_mesh.Vertices[i] = p3D;
+    }
+
+    // Add points at bottom
+    for (size_t i = 0; i < numBoundaryPoints; i++)
+    {
+      const Point3D &p2D = _mesh.Vertices[i];
+      const Vector3D p3D(p2D.x, p2D.y, ground_height);
+      extrude_mesh.Vertices[numMeshPoints + i] = p3D;
+    }
+
+    // Add triangles on top
+    for (size_t i = 0; i < numMeshTriangles; i++)
+      extrude_mesh.Faces[i] = _mesh.Faces[i];
+
+    // Add triangles on boundary
+    for (size_t i = 0; i < numBoundaryPoints; i++)
+    {
+      const size_t v0 = i;
+      const size_t v1 = (i + 1) % numBoundaryPoints;
+      const size_t v2 = v0 + numMeshPoints;
+      const size_t v3 = v1 + numMeshPoints;
+      Simplex2D t0(v0, v2, v1); // Outward-pointing normal
+      Simplex2D t1(v1, v2, v3); // Outward-pointing normal
+      extrude_mesh.Faces[numMeshTriangles + 2 * i] = t0;
+      extrude_mesh.Faces[numMeshTriangles + 2 * i + 1] = t1;
+    }
+
+    return extrude_mesh;
+  }
+
   // Build ground mesh for city.
   //
   // The mesh is a triangular mesh of the rectangular region
-  // defined by (xmin, xmax) x (ymin, ymax). The edges of the mesh respect the
-  // boundaries of the buildings.
+  // defined by (xmin, xmax) x (ymin, ymax). The edges of the mesh respect
+  // the boundaries of the buildings.
   //
   // Markers:
   //
