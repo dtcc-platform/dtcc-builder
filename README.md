@@ -4,7 +4,7 @@ DTCC Builder is a mesh generator for automatic, efficient, and robust
 mesh generation for large-scale city modeling and simulation.
 
 This project is part the
-[Digital Twin Platform (DTCC Platform)](https://gitlab.com/dtcc-platform)
+[Digital Twin Platform (DTCC Platform)](https://github.com/dtcc-platform/)
 developed at the
 [Digital Twin Cities Centre](https://dtcc.chalmers.se/)
 supported by Sweden’s Innovation Agency Vinnova under Grant No. 2019-421 00041.
