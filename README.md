@@ -11,10 +11,8 @@ supported by Sweden’s Innovation Agency Vinnova under Grant No. 2019-421 00041
 
 ## Documentation
 
-* [Introduction](./docs/introduction.md)
-* [Installation](./docs/installation.md)
-* [Usage](./docs/usage.md)
-* [Development](./docs/development.md)
+This project is documented as part of the
+[DTCC Platform Documentation](https://platform.dtcc.chalmers.se/).
 
 ## Authors (in order of appearance)
 
@@ -30,7 +28,7 @@ Part of this code is contributed by ReSpace AB under the MIT License.
 
 ## License
 
-DTCC Builder is licensed under the
+This project is licensed under the
 [MIT license](https://opensource.org/licenses/MIT).
 
 Copyright is held by the individual authors as listed at the top of
