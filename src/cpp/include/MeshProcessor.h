@@ -147,7 +147,7 @@ public:
   /// Merge meshes into a single mesh
   static Mesh merge_meshes(const std::vector<Mesh> &meshes)
   {
-    info("Merging mesh into a single mesh...");
+    info("Merging " + str(meshes.size()) + "meshes into a single mesh...");
     Timer timer("merge_meshes");
 
     // Create empty mesh

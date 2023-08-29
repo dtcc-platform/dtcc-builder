@@ -138,7 +138,7 @@ def build_mesh(
     meshes = _dtcc_builder.build_mesh(
         simple_builder_city, builder_dem, p["mesh_resolution"]
     )
-
+    print(f"Number of meshes: {len(meshes)}")
     # Extract meshes and merge building meshes
     ground_mesh = meshes[0]
     building_meshes = _dtcc_builder.merge_meshes(meshes[1:])
@@ -312,6 +312,7 @@ def build(parameters: dict = None) -> None:
     if p["build_volume_mesh"]:
         mesh, volume_mesh = build_volume_mesh(city, p)
 
+        print(volume_mesh.vertices[:, 2].min(), volume_mesh.vertices[:, 2].max())
         # Save meshes to file
         mesh_name = p["output_directory"] / "mesh"
         volume_mesh_name = p["output_directory"] / "volume_mesh"
