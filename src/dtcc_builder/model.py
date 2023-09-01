@@ -1,8 +1,31 @@
 from dtcc_builder import _dtcc_builder
 import dtcc_model as model
+from shapely.geometry import Polygon
 from dtcc_model import City, PointCloud, Raster
 from typing import Union
 import numpy as np
+
+
+def create_builder_polygon(polygon: Polygon) -> _dtcc_builder.Polygon:
+    """
+    Create a DTCC builder Polygon object through the pybind exposed C++
+    `DTCC_BUILDER::create_polygon()` function.
+
+    Parameters
+    ----------
+    polygon : model.Polygon
+        The input Polygon object.
+
+    Returns
+    -------
+    _dtcc_builder.Polygon
+        A `DTCC_BUILDER` Polygon object.
+
+    """
+    shell = list(polygon.exterior.coords[:-1])
+    holes = [list(hole.coords[:-1]) for hole in polygon.interiors]
+
+    return _dtcc_builder.create_polygon(shell, holes)
 
 
 def create_builder_pointcloud(

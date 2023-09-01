@@ -26,6 +26,33 @@ namespace py = pybind11;
 
 namespace DTCC_BUILDER
 {
+
+Polygon create_polygon(py::list vertices, py::list holes)
+{
+  Polygon poly;
+  for (size_t i = 0; i < vertices.size(); i++)
+  {
+    auto pt = vertices[i].cast<py::tuple>();
+    poly.Vertices.push_back(
+        Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+  }
+  if (holes.size() > 0)
+  {
+    for (size_t i = 0; i < holes.size(); i++)
+    {
+      auto hl = holes[i].cast<py::list>();
+      std::vector<Point2D> hole;
+      for (size_t j = 0; j < hl.size(); j++)
+      {
+        auto pt = hl[j].cast<py::tuple>();
+        hole.push_back(Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+      }
+      poly.Holes.push_back(hole);
+    }
+  }
+  return poly;
+}
+
 City create_city(py::list footprints,
                  py::list holes,
                  py::list uuids,
@@ -256,6 +283,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readonly("Cells", &DTCC_BUILDER::VolumeMesh::Cells)
       .def_readonly("Markers", &DTCC_BUILDER::VolumeMesh::Markers);
 
+  m.def("create_polygon", &DTCC_BUILDER::create_polygon, "Create C++ polygon");
+
   m.def("create_city", &DTCC_BUILDER::create_city, "Create C++ city");
 
   m.def("create_pointcloud", &DTCC_BUILDER::create_pointcloud,
@@ -302,6 +331,9 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("trim_volume_mesh", &DTCC_BUILDER::MeshBuilder::trim_volume_mesh,
         "Trim volume mesh by removing cells inside buildings");
+
+  m.def("extrude_footprint", &DTCC_BUILDER::MeshBuilder::extrude_footprint,
+        "Extrude footprint to a mesh");
 
   m.def("compute_boundary_mesh",
         &DTCC_BUILDER::MeshProcessor::compute_boundary_mesh,
