@@ -42,7 +42,7 @@ def compute_building_points(city, pointcloud, parameters: dict = None):
     builder_city = builder_model.create_builder_city(city)
     builder_pointcloud = builder_model.create_builder_pointcloud(pointcloud)
 
-    pointcloud = _dtcc_builder.pointcloud.remove_vegetation()
+    builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
 
     # Compute building points
     builder_city = _dtcc_builder.compute_building_points(
