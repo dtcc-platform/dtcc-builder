@@ -15,15 +15,34 @@ from . import parameters as builder_parameters
 
 
 def compute_building_points(city, pointcloud, parameters: dict = None):
+    """
+    Compute building points for the given city using point cloud data.
+
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city object for which to compute building points.
+    `pointcloud` : dtcc_model.PointCloud
+        The point cloud data associated with the city.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
+    Returns
+    -------
+    `dtcc_model.City`
+        The city object with computed building points.
+    """
     info("Compute building points...")
 
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    pointcloud = pointcloud.remove_vegetation()
+    
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_pointcloud = builder_model.create_builder_pointcloud(pointcloud)
+
+    builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
 
     # Compute building points
     builder_city = _dtcc_builder.compute_building_points(
@@ -62,7 +81,29 @@ def compute_building_points(city, pointcloud, parameters: dict = None):
 
 
 def compute_building_heights(city: model.City, parameters: dict = None) -> model.City:
-    "Compute building heights from roof points"
+    """
+    Compute building heights from roof points for the given city.
+
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city object for which to compute building heights.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
+    Returns
+    -------
+    `dtcc_model.City`
+        The city object with computed building heights.
+
+    Notes
+    -----
+    - If a building's roof points are missing, the height is set to a minimum.
+    - If a building's ground level height is missing, it is set to the ground height.
+    - If a building's height is less than the minimum, it's set to the minimum height.
+
+
+    """
 
     info("Computing building heights...")
 
