@@ -46,7 +46,6 @@ class PointCloud:
     """
 
     def __init__(self, pointcloud_path=None, pb_sting=None, bounds=()):
-        
         self._builder_pc = None
         self.origin = (0, 0)
         self.bounds = bounds

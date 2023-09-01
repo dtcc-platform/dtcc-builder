@@ -112,7 +112,7 @@ def build_city(
     dtcc_model.City
         The constructed city model.
 
-    Developer note
+    Developer notes
     --------------
     Consider introducing a new class named Footprints
     so that a city can be built from footprints and point cloud data.
@@ -220,7 +220,7 @@ def build_volume_mesh(
     Build volume mesh for city.
 
     This function builds a boundary conforming volume mesh for the city,
-    returning both the volume mesh and its corresponding  boundary mesh.
+    returning both the volume mesh and its corresponding boundary mesh.
     
     Parameters
     ----------
