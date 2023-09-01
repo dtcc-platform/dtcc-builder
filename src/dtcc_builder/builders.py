@@ -34,7 +34,7 @@ def compute_domain_bounds(
         Path to the point cloud data.
     `parameters` : dict, optional
         A dictionary of parameters for the computation, by default None.
-    
+
     Returns
     -------
     `origin` : Tuple[float, float]
@@ -141,10 +141,23 @@ def build_city(
     city = city.simplify_buildings(p["min_building_distance"] / 2)
 
     # Compute building points
-    city = city_methods.compute_building_points(city, point_cloud, p)
+    city = city_methods.compute_building_points(
+        city,
+        point_cloud,
+        p["ground_margin"],
+        p["outlier_margin"],
+        p["statistical_outlier_remover"],
+        p["roof_outlier_neighbors"],
+        p["roof_outlier_margin"],
+        p["ransac_outlier_remover"],
+        p["ransac_outlier_margin"],
+        p["ransac_iterations"],
+    )
 
     # Compute building heights
-    city = city_methods.compute_building_heights(city, p)
+    city = city_methods.compute_building_heights(
+        city, p["min_building_height"], p["roof_percentile"]
+    )
 
     return city
 
@@ -171,7 +184,7 @@ def build_mesh(
         The ground mesh
     `dtcc_building_mesh` : dtcc_model.Mesh
         Mesh of all the buildings
-    
+
     """
     info("Building meshes for city...")
 
@@ -221,7 +234,7 @@ def build_volume_mesh(
 
     This function builds a boundary conforming volume mesh for the city,
     returning both the volume mesh and its corresponding boundary mesh.
-    
+
     Parameters
     ----------
     `city` : dtcc_model.City
@@ -235,7 +248,7 @@ def build_volume_mesh(
         The city's volume mesh
     `dtcc_volume_mesh_boundary` : dtcc_model.Mesh
         The city's boundary mesh.
-    
+
     """
     info("Building volume mesh for city...")
 
