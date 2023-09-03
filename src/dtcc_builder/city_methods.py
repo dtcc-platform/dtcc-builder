@@ -149,7 +149,7 @@ def compute_building_heights(
             continue
 
         # Set ground level if missing
-        if building.ground_level == 0:
+        if building.ground_level == 0 and len(city.terrain.shape) == 2:
             footprint_center = building.footprint.centroid
             ground_height = city.terrain.get_value(
                 footprint_center.x, footprint_center.y
