@@ -20,25 +20,23 @@ from . import model as builder_model
 from . import parameters as builder_parameters
 
 
-def compute_domain_bounds(
+def calculate_bounds(
     buildings_path, pointcloud_path, parameters: dict = None
 ) -> Tuple[Tuple[float, float], model.Bounds]:
-    "Compute domain bounds from footprint and pointcloud"
-
-    info("Computing domain bounds...")
+    "Calculate bounds from footprint and point cloud"
 
     # Get parameters
     p = parameters or builder_parameters.default()
 
     # Compute domain bounds automatically or from parameters
     if p["auto_domain"]:
-        info("Computing domain bounds automatically...")
+        info("Calculating domain bounds automatically...")
         city_bounds = io.city.building_bounds(buildings_path, p["domain_margin"])
         info(f"Footprint bounds: {city_bounds}")
         pointcloud_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
         info(f"Point cloud bounds: {pointcloud_bounds}")
         city_bounds.intersect(pointcloud_bounds)
-        info(f"intersected bounds: {city_bounds}")
+        info(f"Intersected bounds: {city_bounds}")
         bounds = city_bounds.tuple
         origin = bounds[:2]
         p["x0"] = origin[0]
@@ -48,6 +46,7 @@ def compute_domain_bounds(
         p["x_max"] = bounds[2] - bounds[0]
         p["y_max"] = bounds[3] - bounds[1]
     else:
+        info("Calculating domain bounds from parameters...")
         origin = (p["x0"], p["y0"])
         bounds = (
             p["x0"] + p["x_min"],
@@ -254,16 +253,27 @@ def build(parameters: dict = None) -> None:
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    # Get paths for input data
-    buildings_path = p["data_directory"] / p["buildings_filename"]
-    pointcloud_path = p["pointcloud_directory"]
+    # Get paths
+    if p["data_directory"]:
+        data_directory = Path(p["data_directory"])
+    else:
+        data_directory = Path.cwd()
+    if p["output_directory"]:
+        output_directory = Path(p["output_directory"])
+    else:
+        output_directory = data_directory
+    if p["pointcloud_directory"]:
+        pointcloud_path = Path(p["pointcloud_directory"])
+    else:
+        pointcloud_path = data_directory
+    buildings_path = data_directory / p["buildings_filename"]
     if not buildings_path.exists():
         error(f"Unable to read buildings file {buildings_path}")
     if not pointcloud_path.exists():
         error(f"Unable to read pointcloud directory {pointcloud_path}")
 
     # Compute domain bounds
-    origin, bounds = compute_domain_bounds(buildings_path, pointcloud_path, p)
+    origin, bounds = calculate_bounds(buildings_path, pointcloud_path, p)
     info(bounds)
 
     # Load city
@@ -275,12 +285,13 @@ def build(parameters: dict = None) -> None:
     )
 
     # Load point cloud
-    point_cloud = io.load_pointcloud(pointcloud_path)  # , bounds=bounds)
+    point_cloud = io.load_pointcloud(pointcloud_path, bounds=bounds)
+
     # Build city
     city = build_city(city, point_cloud, bounds, p)
 
     # Save city to file
-    city_name = p["output_directory"] / "city"
+    city_name = output_directory / "city"
     if p["save_protobuf"]:
         io.save_city(city, city_name.with_suffix(".pb"))
     if p["save_shp"]:
@@ -293,8 +304,8 @@ def build(parameters: dict = None) -> None:
         ground_mesh, building_mesh = build_mesh(city, p)
 
         # Save meshes to file
-        ground_mesh_name = p["output_directory"] / "ground_mesh"
-        building_mesh_name = p["output_directory"] / "building_mesh"
+        ground_mesh_name = output_directory / "ground_mesh"
+        building_mesh_name = output_directory / "building_mesh"
         if p["save_protobuf"]:
             ground_mesh.save(ground_mesh_name.with_suffix(".pb"))
             building_mesh.save(building_mesh_name.with_suffix(".pb"))
@@ -313,7 +324,7 @@ def build(parameters: dict = None) -> None:
         mesh, volume_mesh = build_volume_mesh(city, p)
 
         # Save meshes to file
-        mesh_name = p["output_directory"] / "mesh"
+        mesh_name = output_directory / "mesh"
         volume_mesh_name = p["output_directory"] / "volume_mesh"
         if p["save_protobuf"]:
             mesh.save(mesh_name.with_suffix(".pb"))
