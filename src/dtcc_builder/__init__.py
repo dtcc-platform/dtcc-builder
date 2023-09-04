@@ -2,6 +2,7 @@ from . import model
 from . import builders
 from . import parameters
 from . import city_methods
+from . import meshing
 
 from .builders import build, build_city, build_mesh, build_volume_mesh, calculate_bounds
 

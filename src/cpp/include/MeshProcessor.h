@@ -147,7 +147,7 @@ public:
   /// Merge meshes into a single mesh
   static Mesh merge_meshes(const std::vector<Mesh> &meshes)
   {
-    info("Merging mesh into a single mesh...");
+    info("Merging " + str(meshes.size()) + " meshes into a single mesh...");
     Timer timer("merge_meshes");
 
     // Create empty mesh
@@ -156,8 +156,10 @@ public:
     // Count the number of vertices and cells
     size_t numVertices = 0;
     size_t numCells = 0;
-    for (size_t i = 1; i < meshes.size(); i++)
+    for (size_t i = 0; i < meshes.size(); i++)
     {
+      // info("Mesh " + str(i) + " has " + str(meshes[i].Vertices.size()) +
+      //      " vertices and " + str(meshes[i].Faces.size()) + " cells.");
       numVertices += meshes[i].Vertices.size();
       numCells += meshes[i].Faces.size();
     }
@@ -169,7 +171,7 @@ public:
     // Merge data
     size_t k = 0;
     size_t l = 0;
-    for (size_t i = 1; i < meshes.size(); i++)
+    for (size_t i = 0; i < meshes.size(); i++)
     {
       for (size_t j = 0; j < meshes[i].Faces.size(); j++)
       {

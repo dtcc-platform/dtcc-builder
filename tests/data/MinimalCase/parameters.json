@@ -1,0 +1,9 @@
+{
+    "model_name": "MinimalCase",
+    "domain_height": 50.0,
+    "mesh_resolution": 5,
+    "domain_margin": 10,
+    "min_building_distance": 0.5,
+    "min_vertex_distance": 1,
+    "min_building_size": 5
+}

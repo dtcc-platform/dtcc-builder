@@ -1,4 +1,15 @@
+DTCC Builder depends on a number of open-source libraries. The easiest
+way to install these dependencies is to use the provided Docker image
+for DTCC Builder. To build and start the DTCC Docker image
+(container), enter the `docker` directory and issue the following two
+commands:
 
+    ./docker-build-container
+    ./docker-start-container
+
+The first of these two commands will build a Docker image and
+container for DTCC Builder and the second command will start
+the container.
 
 ## Builder Dewvelopment docker usage
 - For mac users install docker sync
