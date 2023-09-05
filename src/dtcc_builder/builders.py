@@ -321,8 +321,9 @@ def build_volume_mesh(
 
 def build(parameters: dict = None) -> None:
     """
-    Build city and city meshes (temp). This function reads data from the
-    specified data directory and builds a city and its corresponding meshes.
+    Build city and city meshes. 
+    
+    This function reads data from the specified data directory and builds a city and its corresponding meshes.
     The same thing can be accomplished by calling the individual build_*
     functions, but this function is provided as a convenience
     and takes care of loading and saving data to files.
