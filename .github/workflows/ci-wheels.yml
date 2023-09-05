@@ -17,16 +17,18 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-
+        python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
+        #run: python -m pip wheel . -w ./wheelhouse/ && pwd && ls -altR 
 
       - uses: actions/upload-artifact@v3
         with:
-          path: ./wheelhouse/*.whl
+          path: ./wheelhouse/dtcc_builder*.whl
 
   build_sdist:
     name: Build source distribution
@@ -39,10 +41,10 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          path: dist/*.tar.gz
+          path: dist/dtcc-builder*.tar.gz
 
   upload_pypi:
-    needs: [build_wheels, build_sdist]
+    needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -59,5 +61,5 @@ jobs:
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository_url: https://test.pypi.org/legacy/
+        #with:
+         # repository_url: https://test.pypi.org/legacy/
