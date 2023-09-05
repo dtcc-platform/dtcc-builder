@@ -231,7 +231,7 @@ def build_volume_mesh(
     """
     Build volume mesh for city.
 
-    This function builds a boundary conforming volume mesh for the city,
+    This function builds a boundary-conforming volume mesh for the city,
     returning both the volume mesh and its corresponding boundary mesh.
 
     Parameters
@@ -243,10 +243,10 @@ def build_volume_mesh(
 
     Returns
     -------
-    `dtcc_volume_mesh` : dtcc_model.VolumeMesh
+    `volume_mesh` : dtcc_model.VolumeMesh
         The city's volume mesh
-    `dtcc_volume_mesh_boundary` : dtcc_model.Mesh
-        The city's boundary mesh.
+    `volume_mesh_boundary` : dtcc_model.Mesh
+        The city's boundary mesh (boundary of the volume mesh).
 
     """
     info("Building volume mesh for city...")
@@ -321,8 +321,8 @@ def build_volume_mesh(
 
 def build(parameters: dict = None) -> None:
     """
-    Build city and city meshes. 
-    
+    Build city and city meshes.
+
     This function reads data from the specified data directory and builds a city and its corresponding meshes.
     The same thing can be accomplished by calling the individual build_*
     functions, but this function is provided as a convenience
@@ -406,19 +406,18 @@ def build(parameters: dict = None) -> None:
 
     # Build volume mesh
     if p["build_volume_mesh"]:
-        mesh, volume_mesh = build_volume_mesh(city, p)
+        volume_mesh, volume_mesh_boundary = build_volume_mesh(city, p)
 
-        print(volume_mesh.vertices[:, 2].min(), volume_mesh.vertices[:, 2].max())
         # Save meshes to file
-        mesh_name = output_directory / "mesh"
-        volume_mesh_name = p["output_directory"] / "volume_mesh"
+        volume_mesh_name = output_directory / "volume_mesh"
+        volume_mesh_boundary_name = output_directory / "volume_mesh_boundary"
         if p["save_protobuf"]:
-            mesh.save(mesh_name.with_suffix(".pb"))
             volume_mesh.save(volume_mesh_name.with_suffix(".pb"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".pb"))
         if p["save_vtk"]:
-            mesh.save(mesh_name.with_suffix(".vtu"))
             volume_mesh.save(volume_mesh_name.with_suffix(".vtu"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".vtu"))
         if p["save_stl"]:
-            mesh.save(mesh_name.with_suffix(".stl"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".stl"))
         if p["save_obj"]:
-            mesh.save(mesh_name.with_suffix(".obj"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".obj"))
