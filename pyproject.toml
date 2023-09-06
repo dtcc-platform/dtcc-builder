@@ -34,6 +34,13 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest"]
+dev = [
+  "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
+  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
+  "dtcc-wrangler@git+https://github.com/dtcc-platform/dtcc-wrangler.git@develop",
+  "dtcc-common@git+https://github.com/dtcc-platform/dtcc-common.git@develop",
+]
+
 
 [project.scripts]
 dtcc-build = "dtcc_builder.scripts:dtcc_build.main"
