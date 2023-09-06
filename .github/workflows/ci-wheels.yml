@@ -23,8 +23,8 @@ jobs:
       - uses: actions/setup-python@v3
       
       - name : Preprocess
-        run: cat pyproject.toml && date
-        
+        run: cat pyproject.toml && date && sed -i '/git/d' pyproject.toml && cat pyprojectl.toml  
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
         #run: python -m pip wheel . -w ./wheelhouse/ && pwd && ls -altR 
