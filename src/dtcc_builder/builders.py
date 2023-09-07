@@ -20,25 +20,43 @@ from . import model as builder_model
 from . import parameters as builder_parameters
 
 
-def compute_domain_bounds(
+def calculate_bounds(
     buildings_path, pointcloud_path, parameters: dict = None
 ) -> Tuple[Tuple[float, float], model.Bounds]:
-    "Compute domain bounds from footprint and pointcloud"
+    """
+    Compute the domain bounds based on building footprints and pointcloud data.
 
-    info("Computing domain bounds...")
+    Parameters
+    ----------
+    `buildings_path` : str
+        Path to the building footprints file.
+    `pointcloud_path` : str
+        Path to the point cloud data.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
+    Returns
+    -------
+    `origin` : Tuple[float, float]
+        Tuple containing the origin coordinates.
+    `bounds` : dtcc_model.Bounds
+    Tuple[Tuple[float, float], dtcc_model.Bounds]
+        The computed domain bounds.
+
+    """
 
     # Get parameters
     p = parameters or builder_parameters.default()
 
     # Compute domain bounds automatically or from parameters
     if p["auto_domain"]:
-        info("Computing domain bounds automatically...")
+        info("Calculating domain bounds automatically...")
         city_bounds = io.city.building_bounds(buildings_path, p["domain_margin"])
         info(f"Footprint bounds: {city_bounds}")
         pointcloud_bounds = io.pointcloud.calc_las_bounds(pointcloud_path)
         info(f"Point cloud bounds: {pointcloud_bounds}")
         city_bounds.intersect(pointcloud_bounds)
-        info(f"intersected bounds: {city_bounds}")
+        info(f"Intersected bounds: {city_bounds}")
         bounds = city_bounds.tuple
         origin = bounds[:2]
         p["x0"] = origin[0]
@@ -48,6 +66,7 @@ def compute_domain_bounds(
         p["x_max"] = bounds[2] - bounds[0]
         p["y_max"] = bounds[3] - bounds[1]
     else:
+        info("Calculating domain bounds from parameters...")
         origin = (p["x0"], p["y0"])
         bounds = (
             p["x0"] + p["x_min"],
@@ -74,9 +93,27 @@ def build_city(
     parameters: dict = None,
 ) -> model.City:
     """
-    Build city from building footprints.
+    Build a city model from building footprints and point cloud data.
 
-    Developer note: Consider introducing a new class named Footprints
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city model to be built.
+    `point_cloud` : dtcc_model.PointCloud
+        The point cloud data associated with the city.
+    `bounds` : dtcc_model.Bounds
+        The bounds of the city domain.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
+    Returns
+    -------
+    dtcc_model.City
+        The constructed city model.
+
+    Developer notes
+    --------------
+    Consider introducing a new class named Footprints
     so that a city can be built from footprints and point cloud data.
     It is somewhat strange that the input to this function is a city.
     """
@@ -103,10 +140,23 @@ def build_city(
     city = city.simplify_buildings(p["min_building_distance"] / 2)
 
     # Compute building points
-    city = city_methods.compute_building_points(city, point_cloud, p)
+    city = city_methods.compute_building_points(
+        city,
+        point_cloud,
+        p["ground_margin"],
+        p["outlier_margin"],
+        p["statistical_outlier_remover"],
+        p["roof_outlier_neighbors"],
+        p["roof_outlier_margin"],
+        p["ransac_outlier_remover"],
+        p["ransac_outlier_margin"],
+        p["ransac_iterations"],
+    )
 
     # Compute building heights
-    city = city_methods.compute_building_heights(city, p)
+    city = city_methods.compute_building_heights(
+        city, p["min_building_height"], p["roof_percentile"]
+    )
 
     return city
 
@@ -119,8 +169,22 @@ def build_mesh(
 
     This function builds a mesh for the city, returning two different
     meshes: one for the ground and one for the buildings.
-    """
 
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city model for which to generate meshes.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
+    Returns
+    -------
+    `dtcc_ground_mesh` : dtcc_model.Mesh
+        The ground mesh
+    `dtcc_building_mesh` : dtcc_model.Mesh
+        Mesh of all the buildings
+
+    """
     info("Building meshes for city...")
 
     # Get parameters
@@ -164,12 +228,27 @@ def _debug(mesh, step, p):
 def build_volume_mesh(
     city: model.City, parameters: dict = None
 ) -> Tuple[model.VolumeMesh, model.Mesh]:
-    """Build volume mesh for city.
-
-    This function builds a boundary conforming volume mesh for the city,
-    returning both the volume mesh and its corresponding  boundary mesh.
     """
+    Build volume mesh for city.
 
+    This function builds a boundary-conforming volume mesh for the city,
+    returning both the volume mesh and its corresponding boundary mesh.
+
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city model for which to generate the volume mesh.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
+    Returns
+    -------
+    `volume_mesh` : dtcc_model.VolumeMesh
+        The city's volume mesh
+    `volume_mesh_boundary` : dtcc_model.Mesh
+        The city's boundary mesh (boundary of the volume mesh).
+
+    """
     info("Building volume mesh for city...")
 
     # Get parameters
@@ -244,26 +323,42 @@ def build(parameters: dict = None) -> None:
     """
     Build city and city meshes.
 
-    This function reads data from the specified data directory
-    and builds a city and its corresponding meshes. The same
-    thing can be accomplished by calling the individual build_*
+    This function reads data from the specified data directory and builds a city and its corresponding meshes.
+    The same thing can be accomplished by calling the individual build_*
     functions, but this function is provided as a convenience
     and takes care of loading and saving data to files.
+
+    Parameters
+    ----------
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
     """
 
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    # Get paths for input data
-    buildings_path = p["data_directory"] / p["buildings_filename"]
-    pointcloud_path = p["pointcloud_directory"]
+    # Get paths
+    if p["data_directory"]:
+        data_directory = Path(p["data_directory"])
+    else:
+        data_directory = Path.cwd()
+    if p["output_directory"]:
+        output_directory = Path(p["output_directory"])
+    else:
+        output_directory = data_directory
+    if p["pointcloud_directory"]:
+        pointcloud_path = Path(p["pointcloud_directory"])
+    else:
+        pointcloud_path = data_directory
+    buildings_path = data_directory / p["buildings_filename"]
     if not buildings_path.exists():
         error(f"Unable to read buildings file {buildings_path}")
     if not pointcloud_path.exists():
         error(f"Unable to read pointcloud directory {pointcloud_path}")
 
     # Compute domain bounds
-    origin, bounds = compute_domain_bounds(buildings_path, pointcloud_path, p)
+    origin, bounds = calculate_bounds(buildings_path, pointcloud_path, p)
     info(bounds)
 
     # Load city
@@ -275,12 +370,13 @@ def build(parameters: dict = None) -> None:
     )
 
     # Load point cloud
-    point_cloud = io.load_pointcloud(pointcloud_path)  # , bounds=bounds)
+    point_cloud = io.load_pointcloud(pointcloud_path, bounds=bounds)
+
     # Build city
     city = build_city(city, point_cloud, bounds, p)
 
     # Save city to file
-    city_name = p["output_directory"] / "city"
+    city_name = output_directory / "city"
     if p["save_protobuf"]:
         io.save_city(city, city_name.with_suffix(".pb"))
     if p["save_shp"]:
@@ -293,8 +389,8 @@ def build(parameters: dict = None) -> None:
         ground_mesh, building_mesh = build_mesh(city, p)
 
         # Save meshes to file
-        ground_mesh_name = p["output_directory"] / "ground_mesh"
-        building_mesh_name = p["output_directory"] / "building_mesh"
+        ground_mesh_name = output_directory / "ground_mesh"
+        building_mesh_name = output_directory / "building_mesh"
         if p["save_protobuf"]:
             ground_mesh.save(ground_mesh_name.with_suffix(".pb"))
             building_mesh.save(building_mesh_name.with_suffix(".pb"))
@@ -310,19 +406,18 @@ def build(parameters: dict = None) -> None:
 
     # Build volume mesh
     if p["build_volume_mesh"]:
-        mesh, volume_mesh = build_volume_mesh(city, p)
+        volume_mesh, volume_mesh_boundary = build_volume_mesh(city, p)
 
-        print(volume_mesh.vertices[:, 2].min(), volume_mesh.vertices[:, 2].max())
         # Save meshes to file
-        mesh_name = p["output_directory"] / "mesh"
-        volume_mesh_name = p["output_directory"] / "volume_mesh"
+        volume_mesh_name = output_directory / "volume_mesh"
+        volume_mesh_boundary_name = output_directory / "volume_mesh_boundary"
         if p["save_protobuf"]:
-            mesh.save(mesh_name.with_suffix(".pb"))
             volume_mesh.save(volume_mesh_name.with_suffix(".pb"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".pb"))
         if p["save_vtk"]:
-            mesh.save(mesh_name.with_suffix(".vtu"))
             volume_mesh.save(volume_mesh_name.with_suffix(".vtu"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".vtu"))
         if p["save_stl"]:
-            mesh.save(mesh_name.with_suffix(".stl"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".stl"))
         if p["save_obj"]:
-            mesh.save(mesh_name.with_suffix(".obj"))
+            volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".obj"))

@@ -28,3 +28,12 @@ class TestBuilderCity(unittest.TestCase):
         builder_city = builder.model.create_builder_city(city)
         self.assertEqual(len(builder_city.buildings[0].footprint.holes), 0)
         self.assertEqual(len(builder_city.buildings[4].footprint.holes), 1)
+
+
+class TestBuilderPolygon(unittest.TestCase):
+    def test_convert_polygon(self):
+        city = io.load_city(data_dir / "MinimalCase" / "PropertyMap.shp")
+        footprint = city.buildings[0].footprint
+        builder_polygon = builder.model.create_builder_polygon(footprint)
+        self.assertEqual(len(builder_polygon.vertices), 4)
+        self.assertEqual(footprint.exterior.coords[0][0], builder_polygon.vertices[0].x)

@@ -52,7 +52,7 @@ _parameters["smoothing_relative_tolerance"] = 0.001
 
 _parameters["naive_vegitation_filter"] = True
 _parameters["data_directory"] = ""
-_parameters["buildings_filename"] = "PropertyMap.shp"
+_parameters["buildings_filename"] = "footprints.shp"
 _parameters["pointcloud_directory"] = ""
 _parameters["output_directory"] = ""
 

@@ -23,7 +23,14 @@ PARAMETERS_FILE = "parameters.json"
 
 
 def parse_command_line():
-    "Parse command line arguments"
+    """
+    Parse command line arguments.
+
+    Returns
+    -------
+    argparse.Namespace
+        Parsed command line arguments.
+    """
 
     # Create parser
     parser = argparse.ArgumentParser(
@@ -60,7 +67,19 @@ def parse_command_line():
 
 
 def load_parameters(args):
-    "Load parameters and override by command line arguments"
+    """
+    Load parameters and override by command line arguments.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command line arguments.
+
+    Returns
+    -------
+    dict
+        Loaded and overridden parameters.
+    """
 
     # Load parameters from or directory if provided, else use default parameters
     parameters = builder.parameters.default()
@@ -99,8 +118,21 @@ def load_parameters(args):
 
 
 def set_directory_parameters(parameters, path):
-    "Set parameters for directories"
+    """
+    Set parameters for directories.
 
+    Parameters
+    ----------
+    parameters : dict
+        Dictionary of parameters to be set.
+    path : str
+        Path to the data directory.
+
+    Returns
+    -------
+    dict
+        Updated parameters dictionary.
+    """
     # Shortcut
     p = parameters
 

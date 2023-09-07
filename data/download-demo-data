@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-echo "Downloading public demo data from data.dtcc.chalmers.se..."
-wget http://data.dtcc.chalmers.se:5001/demo-data-public -v -O dtcc-demo-data-public.tar.gz
-tar zxfv dtcc-demo-data-public.tar.gz
-rm -f dtcc-demo-data-public.tar.gz
-
-# Note: Stored at /data/datasets/Public on data server
