@@ -1,4 +1,4 @@
-from dtcc_builder import _dtcc_builder
+from . import _dtcc_builder
 import dtcc_model as model
 from shapely.geometry import Polygon
 from dtcc_model import City, PointCloud, Raster
