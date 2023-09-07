@@ -23,7 +23,7 @@ public:
   Grid grid{};
 
   /// Array of values (vertex values)
-  std::vector<double> Values{};
+  std::vector<double> values{};
 
   /// Create empty field
   GridField() = default;
@@ -32,11 +32,11 @@ public:
   /// Create zero field on given grid
   ///
   /// @param grid The grid
-  explicit GridField(const Grid &grid) : grid(grid)
+  explicit GridField(const Grid &_grid) : grid(_grid)
   {
     // Initialize values to zero
-    Values.resize(grid.NumVertices());
-    std::fill(Values.begin(), Values.end(), 0.0);
+    values.resize(_grid.num_vertices());
+    std::fill(values.begin(), values.end(), 0.0);
   }
 
   /// Evaluate field at given point
@@ -48,16 +48,16 @@ public:
     // Map point to cell
     size_t i{};
     double x{}, y{};
-    grid.Point2Cell(p, i, x, y);
+    grid.point_to_cell(p, i, x, y);
 
     // Extract grid data
-    const double v00 = Values[i];
-    const double v10 = Values[i + 1];
-    const double v01 = Values[i + grid.XSize];
-    const double v11 = Values[i + grid.XSize + 1];
+    const double v00 = values[i];
+    const double v10 = values[i + 1];
+    const double v01 = values[i + grid.xsize];
+    const double v11 = values[i + grid.xsize + 1];
 
     // Compute value by bilinear interpolation
-    return DTCC_BUILDER::Grid::Interpolate(x, y, v00, v10, v01, v11);
+    return DTCC_BUILDER::Grid::interpolate(x, y, v00, v10, v01, v11);
   }
 
   /// Evaluate field at given 3D point (using only x and y)
@@ -67,43 +67,43 @@ public:
     return (*this)(_p);
   }
 
-  double Nearest(const Point2D &p) const
+  double nearest(const Point2D &p) const
   {
     size_t i{};
     double x{}, y{};
-    grid.Point2Cell(p, i, x, y);
-    return Values[i];
+    grid.point_to_cell(p, i, x, y);
+    return values[i];
   }
 
-  /// Interpolate given field at vertices.
+  /// interpolate given field at vertices.
   ///
   /// @param field The field to be interpolated
-  void Interpolate(const GridField &field)
+  void interpolate(const GridField &field)
   {
     // Iterate over vertices and evaluate field
-    for (size_t i = 0; i < grid.NumVertices(); i++)
-      Values[i] = field(grid.Index2Point(i));
+    for (size_t i = 0; i < grid.num_vertices(); i++)
+      values[i] = field(grid.index_to_point(i));
   }
 
   /// Compute minimal vertex value.
   ///
   /// @return Minimal vertex value
-  double Min() const { return *std::min_element(Values.begin(), Values.end()); }
+  double min() const { return *std::min_element(values.begin(), values.end()); }
 
   /// Compute maximal of vertex value.
   ///
   /// @return Maximal vertex value
-  double Max() const { return *std::max_element(Values.begin(), Values.end()); }
+  double max() const { return *std::max_element(values.begin(), values.end()); }
 
   /// Compute mean vertex value
   ///
-  /// @return Mean vertex value
-  double Mean() const
+  /// @return mean vertex value
+  double mean() const
   {
     double mean = 0.0;
-    for (const auto &value : Values)
+    for (const auto &value : values)
       mean += value;
-    return mean / static_cast<double>(Values.size());
+    return mean / static_cast<double>(values.size());
   }
 
   /// Pretty-print

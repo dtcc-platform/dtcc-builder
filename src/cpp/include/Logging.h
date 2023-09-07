@@ -93,7 +93,7 @@ public:
     return current_time() + " " + component + " " + level + " " + message;
   }
 
-  // Print message to stdout
+  // print message to stdout
   void __print__(const std::string &message)
   {
     std::cout << message << std::endl;
@@ -104,7 +104,7 @@ public:
   // Set log level
   void set_log_level(LogLevel log_level) { __log_level__ = log_level; }
 
-  // Print message at given log level
+  // print message at given log level
   void log(LogLevel log_level, const std::string &message = "")
   {
     // Skip if below log level threshold
@@ -116,23 +116,23 @@ public:
     __print__(formatted_message);
   }
 
-  // Print debug message
+  // print debug message
   void debug(const std::string &message) { log(DEBUG, message); }
 
-  // Print information message (string)
+  // print information message (string)
   void info(const std::string &message = "") { log(INFO, message); }
 
-  // Print warning message
+  // print warning message
   void warning(const std::string &message) { log(WARNING, message); }
 
-  // Print error message and throw exception
+  // print error message and throw exception
   void error(const std::string &message)
   {
     log(ERROR, message);
     throw std::runtime_error(message);
   }
 
-  // Report progress (a number between 0 and 1)
+  // report progress (a number between 0 and 1)
   void progress(double x)
   {
     x = std::max(0.0, std::min(1.0, x));

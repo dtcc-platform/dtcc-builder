@@ -107,18 +107,18 @@ public:
     return *this;
   }
 
-  double Dot(const Vector2D &p) const { return x * p.x + y * p.y; }
+  double dot(const Vector2D &p) const { return x * p.x + y * p.y; }
 
-  double AngleBetween(const Vector2D &p) const
+  double angle_between(const Vector2D &p) const
   {
-    return acos((Dot(p) / (Magnitude() * p.Magnitude())));
+    return acos((dot(p) / (magnitude() * p.magnitude())));
   }
 
-  double Magnitude() const { return sqrt(SquaredMagnitude()); }
+  double magnitude() const { return sqrt(squared_magnitude()); }
 
-  double SquaredMagnitude() const { return x * x + y * y; }
+  double squared_magnitude() const { return x * x + y * y; }
 
-  void Normalize() { (*this) /= Magnitude(); }
+  void normalize() { (*this) /= magnitude(); }
 
   /// Pretty-print
   std::string __str__() const override
@@ -229,26 +229,26 @@ public:
     return *this;
   }
 
-  double Dot(const Vector3D &p) const { return x * p.x + y * p.y + z * p.z; }
+  double dot(const Vector3D &p) const { return x * p.x + y * p.y + z * p.z; }
 
-  double Dot(const Point3D &p) const { return x * p.x + y * p.y + z * p.z; }
+  double dot(const Point3D &p) const { return x * p.x + y * p.y + z * p.z; }
 
-  Vector3D Cross(const Vector3D &p) const
+  Vector3D cross(const Vector3D &p) const
   {
     return Vector3D{y * p.z - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x};
   }
 
-  double AngleBetween(const Vector3D &p) const
+  double angle_between(const Vector3D &p) const
   {
-    double a = Dot(p) / (Magnitude() * p.Magnitude());
+    double a = dot(p) / (magnitude() * p.magnitude());
     if (a > 1) // can happen due to rounding errors
       a = 1;
     return acos(a);
   }
 
-  double Magnitude() const { return sqrt(SquaredMagnitude()); }
+  double magnitude() const { return sqrt(squared_magnitude()); }
 
-  double SquaredMagnitude() const { return x * x + y * y + z * z; }
+  double squared_magnitude() const { return x * x + y * y + z * z; }
 
   /// Pretty-print
   std::string __str__() const override

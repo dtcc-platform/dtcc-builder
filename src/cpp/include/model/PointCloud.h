@@ -21,83 +21,83 @@ class PointCloud : public Printable
 {
 public:
   /// Array of points
-  std::vector<Point3D> Points{};
+  std::vector<Point3D> points{};
 
-  /// Array of Normals
-  std::vector<Vector3D> Normals{};
+  /// Array of normals
+  std::vector<Vector3D> normals{};
 
   /// Array of colors (one per point)
-  std::vector<Color> Colors{};
+  std::vector<Color> colors{};
 
   /// Array of classifications (one per point)
-  std::vector<uint8_t> Classifications{};
+  std::vector<uint8_t> classifications{};
 
   /// Array of intensities (one per point)
-  std::vector<uint16_t> Intensities{};
+  std::vector<uint16_t> intensities{};
 
   /// Array of scan data (one per point)
-  std::vector<uint8_t> ScanFlags{};
+  std::vector<uint8_t> scan_flags{};
 
   /// Bounding box
-  BoundingBox2D BoundingBox{};
+  BoundingBox2D bounding_box{};
 
-  Point2D Origin = Point2D(0, 0);
+  Point2D origin = Point2D(0, 0);
 
   /// Check if point cloud is empty
-  bool Empty() const { return Points.empty(); }
+  bool empty() const { return points.empty(); }
 
   /// Create empty point cloud
   PointCloud() = default;
   virtual ~PointCloud() {} // make the destructor virtual
 
   /// Return density of point cloud (points per square meter)
-  double Density() const
+  double density() const
   {
-    return static_cast<double>(Points.size()) / BoundingBox.Area();
+    return static_cast<double>(points.size()) / bounding_box.area();
   }
 
-  void CalculateBoundingBox() { BoundingBox = BoundingBox2D(Points); }
+  void calculate_bounding_box() { bounding_box = BoundingBox2D(points); }
 
   /// Set new origin (subtract offset). Note that this only
   /// affects the x and y coordinates (z unaffected).
-  void SetOrigin(const Point2D &origin)
+  void set_origin(const Point2D &origin)
   {
     info("PointCloud: Setting new origin to " + str(origin));
-    const Vector2D v2D{origin.x, origin.y};
-    const Vector3D v3D{origin.x, origin.y, 0.0};
-    for (auto &p : Points)
-      p -= v3D;
-    BoundingBox.P -= v2D;
-    BoundingBox.Q -= v2D;
-    Origin.x = origin.x;
-    Origin.y = origin.y;
+    const Vector2D v_2d{origin.x, origin.y};
+    const Vector3D v_3d{origin.x, origin.y, 0.0};
+    for (auto &p : points)
+      p -= v_3d;
+    bounding_box.P -= v_2d;
+    bounding_box.Q -= v_2d;
+    this->origin.x = origin.x;
+    this->origin.y = origin.y;
   }
 
   /// set a default color to all points
-  void InitColors(const Color &c)
+  void init_colors(const Color &c)
   {
-    Colors.clear();
-    for (size_t i = 0; i < Points.size(); i++)
+    colors.clear();
+    for (size_t i = 0; i < points.size(); i++)
     {
-      Colors.push_back(c);
+      colors.push_back(c);
     }
   }
 
   /// Set a default classification to all points
-  void InitClassifications(uint8_t c)
+  void init_classifications(uint8_t c)
   {
-    Classifications.clear();
-    for (size_t i = 0; i < Points.size(); i++)
-      Classifications.push_back(c);
+    classifications.clear();
+    for (size_t i = 0; i < points.size(); i++)
+      classifications.push_back(c);
   }
 
-  /// Build search tree (bounding box tree), required for search queries.
+  /// build search tree (bounding box tree), required for search queries.
   ///
   /// @param rebuild Force rebuild of existing tree if set
-  void BuildSearchTree(bool rebuild = false) const
+  void build_search_tree(bool rebuild = false) const
   {
     // Skip if already built or force rebuild
-    if (!bbtree.Empty() && !rebuild)
+    if (!bbtree.empty() && !rebuild)
     {
       info("Search tree already built; set rebuild flag to force rebuild.");
       return;
@@ -105,61 +105,61 @@ public:
 
     // Create 2D bounding boxes for all points
     std::vector<BoundingBox2D> bboxes;
-    for (const auto &p3D : Points)
+    for (const auto &p_3d : points)
     {
-      const Point2D p2D(p3D.x, p3D.y);
-      BoundingBox2D bbox(p2D, p2D);
+      const Point2D p_2d(p_3d.x, p_3d.y);
+      BoundingBox2D bbox(p_2d, p_2d);
       bboxes.push_back(bbox);
     }
 
-    // Build bounding box tree
-    bbtree.Build(bboxes);
+    // build bounding box tree
+    bbtree.build(bboxes);
     debug(str(bbtree));
   }
 
-  void BuildHasClassifications()
+  void build_has_classifications()
   {
-    for (auto c : Classifications)
+    for (auto c : classifications)
     {
-      UsedClassifications.insert(c);
+      used_classifications.insert(c);
     }
   }
 
-  bool HasClassification(uint8_t c) const
+  bool has_classification(uint8_t c) const
 
   {
-    if (UsedClassifications.empty())
+    if (used_classifications.empty())
     {
       warning("Classification set is not built.");
       return false;
     }
-    return UsedClassifications.find(c) != UsedClassifications.end();
+    return used_classifications.find(c) != used_classifications.end();
   }
 
-  /// Clear all data
-  void Clear()
+  /// clear all data
+  void clear()
   {
-    Points.clear();
-    Normals.clear();
-    Colors.clear();
-    Classifications.clear();
-    UsedClassifications.clear();
-    Intensities.clear();
-    ScanFlags.clear();
-    bbtree.Clear();
+    points.clear();
+    normals.clear();
+    colors.clear();
+    classifications.clear();
+    used_classifications.clear();
+    intensities.clear();
+    scan_flags.clear();
+    bbtree.clear();
   }
 
   /// Pretty-print
   std::string __str__() const override
   {
-    return "Point cloud on " + str(BoundingBox) + " with " +
-           str(Points.size()) + " points and density " + str(Density()) +
+    return "Point cloud on " + str(bounding_box) + " with " +
+           str(points.size()) + " points and density " + str(density()) +
            " m^-2";
   }
 
 private:
   /// Set of used point classifications
-  std::set<uint8_t> UsedClassifications{};
+  std::set<uint8_t> used_classifications{};
 
   friend class CityModelGenerator;
 

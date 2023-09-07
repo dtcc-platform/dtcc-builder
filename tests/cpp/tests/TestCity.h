@@ -7,7 +7,7 @@ using namespace DTCC_BUILDER;
 
 TEST_CASE("Filter City")
 {
-  City baseModel;
+  City base_model;
   Building building1;
   Building building2;
   Building building3;
@@ -16,69 +16,69 @@ TEST_CASE("Filter City")
   Polygon fp2;
   Polygon fp3;
 
-  fp1.Vertices.push_back(Point2D(0, 0));
-  fp1.Vertices.push_back(Point2D(0, 1));
-  fp1.Vertices.push_back(Point2D(1, 1));
-  fp1.Vertices.push_back(Point2D(1, 0));
-  fp1.Vertices.push_back(Point2D(0, 0));
+  fp1.vertices.push_back(Point2D(0, 0));
+  fp1.vertices.push_back(Point2D(0, 1));
+  fp1.vertices.push_back(Point2D(1, 1));
+  fp1.vertices.push_back(Point2D(1, 0));
+  fp1.vertices.push_back(Point2D(0, 0));
 
-  Polyfix::MakeClosed(fp1, 0);
-  Polyfix::MakeOriented(fp1);
+  Polyfix::make_closed(fp1, 0);
+  Polyfix::make_oriented(fp1);
 
-  fp2.Vertices.push_back(Point2D(0, 0));
-  fp2.Vertices.push_back(Point2D(0, 5));
-  fp2.Vertices.push_back(Point2D(5, 5));
-  fp2.Vertices.push_back(Point2D(5, 0));
-  fp2.Vertices.push_back(Point2D(0, 0));
+  fp2.vertices.push_back(Point2D(0, 0));
+  fp2.vertices.push_back(Point2D(0, 5));
+  fp2.vertices.push_back(Point2D(5, 5));
+  fp2.vertices.push_back(Point2D(5, 0));
+  fp2.vertices.push_back(Point2D(0, 0));
 
-  Polyfix::MakeClosed(fp2, 0);
-  Polyfix::MakeOriented(fp2);
+  Polyfix::make_closed(fp2, 0);
+  Polyfix::make_oriented(fp2);
 
-  fp3.Vertices.push_back(Point2D(0, 0));
-  fp3.Vertices.push_back(Point2D(0, 10));
-  fp3.Vertices.push_back(Point2D(10, 10));
-  fp3.Vertices.push_back(Point2D(10, 0));
-  fp3.Vertices.push_back(Point2D(0, 0));
+  fp3.vertices.push_back(Point2D(0, 0));
+  fp3.vertices.push_back(Point2D(0, 10));
+  fp3.vertices.push_back(Point2D(10, 10));
+  fp3.vertices.push_back(Point2D(10, 0));
+  fp3.vertices.push_back(Point2D(0, 0));
 
-  Polyfix::MakeClosed(fp3, 0);
-  Polyfix::MakeOriented(fp3);
+  Polyfix::make_closed(fp3, 0);
+  Polyfix::make_oriented(fp3);
 
-  building1.Footprint = fp1;
+  building1.footprint = fp1;
   building1.error |= BuildingError::BUILDING_TOO_SMALL;
-  building2.Footprint = fp2;
+  building2.footprint = fp2;
   building2.error |= BuildingError::BUILDING_TOO_FEW_POINTS;
-  building3.Footprint = fp3;
-  baseModel.Buildings.push_back(building1);
-  baseModel.Buildings.push_back(building2);
-  baseModel.Buildings.push_back(building3);
+  building3.footprint = fp3;
+  base_model.buildings.push_back(building1);
+  base_model.buildings.push_back(building2);
+  base_model.buildings.push_back(building3);
 
   /*
   City filteredModel;
-  CityProcessor::BuildingFootprintFilter(baseModel, filteredModel, 30);
-  REQUIRE(baseModel.Buildings.size() == 3);
-  REQUIRE(filteredModel.Buildings.size() == 1);
-  REQUIRE(Geometry::PolygonArea(filteredModel.Buildings[0].Footprint) > 30);
+  CityProcessor::BuildingFootprintFilter(base_model, filteredModel, 30);
+  REQUIRE(base_model.buildings.size() == 3);
+  REQUIRE(filteredModel.buildings.size() == 1);
+  REQUIRE(Geometry::polygon_area(filteredModel.buildings[0].footprint) > 30);
 
   size_t tooSmallError = BuildingError::BUILDING_TOO_SMALL;
   size_t tooSmallFewPointsError = (BuildingError::BUILDING_TOO_SMALL |
                                    BuildingError::BUILDING_TOO_FEW_POINTS);
   size_t aspectError = BuildingError::BUILDING_BAD_ASPECT_RATIO;
 
-  filteredModel.Buildings.clear();
-  CityProcessor::ErrorFilter(baseModel, filteredModel, 0);
-  REQUIRE(filteredModel.Buildings.size() == 3);
+  filteredModel.buildings.clear();
+  CityProcessor::ErrorFilter(base_model, filteredModel, 0);
+  REQUIRE(filteredModel.buildings.size() == 3);
 
-  filteredModel.Buildings.clear();
-  CityProcessor::ErrorFilter(baseModel, filteredModel, aspectError);
-  REQUIRE(filteredModel.Buildings.size() == 3);
+  filteredModel.buildings.clear();
+  CityProcessor::ErrorFilter(base_model, filteredModel, aspectError);
+  REQUIRE(filteredModel.buildings.size() == 3);
 
-  filteredModel.Buildings.clear();
-  CityProcessor::ErrorFilter(baseModel, filteredModel, tooSmallError);
-  REQUIRE(filteredModel.Buildings.size() == 2);
+  filteredModel.buildings.clear();
+  CityProcessor::ErrorFilter(base_model, filteredModel, tooSmallError);
+  REQUIRE(filteredModel.buildings.size() == 2);
 
-  filteredModel.Buildings.clear();
-  CityProcessor::ErrorFilter(baseModel, filteredModel,
+  filteredModel.buildings.clear();
+  CityProcessor::ErrorFilter(base_model, filteredModel,
                                   tooSmallFewPointsError);
-  REQUIRE(filteredModel.Buildings.size() == 1);
+  REQUIRE(filteredModel.buildings.size() == 1);
   */
 }

@@ -34,8 +34,8 @@ public:
     StiffnessMatrix AK(volume_mesh);
 
     // Create solution vector and load vector
-    std::vector<double> u(volume_mesh.Vertices.size(), 0);
-    std::vector<double> b(volume_mesh.Vertices.size(), 0);
+    std::vector<double> u(volume_mesh.vertices.size(), 0);
+    std::vector<double> b(volume_mesh.vertices.size(), 0);
 
     // Apply boundary conditions
     BoundaryConditions bc(volume_mesh, city, dem, top_height, fix_buildings);
@@ -54,8 +54,8 @@ public:
 
     // Update mesh coordinates
     VolumeMesh _volume_mesh{volume_mesh};
-    for (std::size_t i = 0; i < volume_mesh.Vertices.size(); i++)
-      _volume_mesh.Vertices[i].z += u[i];
+    for (std::size_t i = 0; i < volume_mesh.vertices.size(); i++)
+      _volume_mesh.vertices[i].z += u[i];
 
     return _volume_mesh;
   }
@@ -72,14 +72,14 @@ private:
     info("Solving linear system using unassembled Gauss-Seidel");
 
     // Sum of non-diagonal elements
-    std::vector<double> C(volume_mesh.Vertices.size());
+    std::vector<double> C(volume_mesh.vertices.size());
 
     // Vertex indices of current cell
     std::array<uint, 4> I = {0};
 
     // Compute the number of cells that each vertex belongs
-    std::vector<uint> vertex_degrees(volume_mesh.Vertices.size());
-    std::vector<uint> _vertex_degrees(volume_mesh.Vertices.size());
+    std::vector<uint> vertex_degrees(volume_mesh.vertices.size());
+    std::vector<uint> _vertex_degrees(volume_mesh.vertices.size());
     compute_vertex_degrees(vertex_degrees, volume_mesh);
 
     size_t iterations;
@@ -89,12 +89,12 @@ private:
       C = b;
       _vertex_degrees = vertex_degrees;
       residual = 0;
-      for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
+      for (size_t c = 0; c < volume_mesh.cells.size(); c++)
       {
-        I[0] = volume_mesh.Cells[c].v0;
-        I[1] = volume_mesh.Cells[c].v1;
-        I[2] = volume_mesh.Cells[c].v2;
-        I[3] = volume_mesh.Cells[c].v3;
+        I[0] = volume_mesh.cells[c].v0;
+        I[1] = volume_mesh.cells[c].v1;
+        I[2] = volume_mesh.cells[c].v2;
+        I[3] = volume_mesh.cells[c].v3;
         for (uint8_t i = 0; i < 4; i++)
         {
           C[I[i]] -=
@@ -131,12 +131,12 @@ private:
   {
     info("Setting initial guess for solution vector");
 
-    for (size_t i = 0; i < volume_mesh.Vertices.size(); i++)
+    for (size_t i = 0; i < volume_mesh.vertices.size(); i++)
     {
       if (bc.vertex_markers[i] == -4)
       {
-        const Vector2D p(volume_mesh.Vertices[i].x, volume_mesh.Vertices[i].y);
-        u[i] = dem(p) * (1 - volume_mesh.Vertices[i].z / top_height);
+        const Vector2D p(volume_mesh.vertices[i].x, volume_mesh.vertices[i].y);
+        u[i] = dem(p) * (1 - volume_mesh.vertices[i].z / top_height);
       }
       else
         u[i] = 0.0;
@@ -147,12 +147,12 @@ private:
   static void compute_vertex_degrees(std::vector<uint> &vertex_degrees,
                                      const VolumeMesh &volume_mesh)
   {
-    for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
+    for (size_t c = 0; c < volume_mesh.cells.size(); c++)
     {
-      vertex_degrees[volume_mesh.Cells[c].v0]++;
-      vertex_degrees[volume_mesh.Cells[c].v1]++;
-      vertex_degrees[volume_mesh.Cells[c].v2]++;
-      vertex_degrees[volume_mesh.Cells[c].v3]++;
+      vertex_degrees[volume_mesh.cells[c].v0]++;
+      vertex_degrees[volume_mesh.cells[c].v1]++;
+      vertex_degrees[volume_mesh.cells[c].v2]++;
+      vertex_degrees[volume_mesh.cells[c].v3]++;
     }
   }
 };

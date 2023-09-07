@@ -17,83 +17,83 @@ class VertexSmoother
 {
 public:
   // Smooth mesh
-  static void SmoothMesh(Mesh &mesh, size_t numSmoothings)
+  static void smooth_mesh(Mesh &mesh, size_t num_smoothings)
   {
     info("Smoothing mesh...");
-    Timer timer("SmoothMesh");
+    Timer timer("smooth_mesh");
 
-    // Build vertex connectivity
+    // build vertex connectivity
     info("Building vertex connectivity");
-    const size_t numVertices = mesh.Vertices.size();
-    std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
-    for (const auto &T : mesh.Faces)
+    const size_t num_vertices = mesh.vertices.size();
+    std::vector<std::unordered_set<size_t>> vertex_neighbors(num_vertices);
+    for (const auto &T : mesh.faces)
     {
-      vertexNeighbors[T.v0].insert(T.v1);
-      vertexNeighbors[T.v0].insert(T.v2);
-      vertexNeighbors[T.v1].insert(T.v2);
-      vertexNeighbors[T.v1].insert(T.v0);
-      vertexNeighbors[T.v2].insert(T.v0);
-      vertexNeighbors[T.v2].insert(T.v1);
+      vertex_neighbors[T.v0].insert(T.v1);
+      vertex_neighbors[T.v0].insert(T.v2);
+      vertex_neighbors[T.v1].insert(T.v2);
+      vertex_neighbors[T.v1].insert(T.v0);
+      vertex_neighbors[T.v2].insert(T.v0);
+      vertex_neighbors[T.v2].insert(T.v1);
     }
 
     // Smooth by setting each vertex coordinate to average of neighbors
-    for (size_t n = 0; n < numSmoothings; n++)
+    for (size_t n = 0; n < num_smoothings; n++)
     {
       info("Smoothing iteration " + str(n));
-      for (size_t i = 0; i < numVertices; i++)
+      for (size_t i = 0; i < num_vertices; i++)
       {
         Vector3D p{};
-        for (const auto &j : vertexNeighbors[i])
-          p += Vector3D(mesh.Vertices[j]);
-        p /= static_cast<float>(vertexNeighbors[i].size());
-        mesh.Vertices[i] = p;
+        for (const auto &j : vertex_neighbors[i])
+          p += Vector3D(mesh.vertices[j]);
+        p /= static_cast<float>(vertex_neighbors[i].size());
+        mesh.vertices[i] = p;
       }
     }
   }
 
   // Smooth 3D mesh
-  static void SmoothMesh(VolumeMesh &volume_mesh, size_t numSmoothings)
+  static void smooth_mesh(VolumeMesh &volume_mesh, size_t num_smoothings)
   {
     info("Smoothing volume mesh...");
-    Timer timer("SmoothMesh");
+    Timer timer("smooth_mesh");
 
-    // Build vertex connectivity
+    // build vertex connectivity
     info("Building vertex connectivity");
-    const size_t numVertices = volume_mesh.Vertices.size();
-    std::vector<std::unordered_set<size_t>> vertexNeighbors(numVertices);
-    for (const auto &T : volume_mesh.Cells)
+    const size_t num_vertices = volume_mesh.vertices.size();
+    std::vector<std::unordered_set<size_t>> vertex_neighbors(num_vertices);
+    for (const auto &T : volume_mesh.cells)
     {
-      vertexNeighbors[T.v0].insert(T.v1);
-      vertexNeighbors[T.v0].insert(T.v2);
-      vertexNeighbors[T.v0].insert(T.v3);
-      vertexNeighbors[T.v1].insert(T.v2);
-      vertexNeighbors[T.v1].insert(T.v3);
-      vertexNeighbors[T.v1].insert(T.v0);
-      vertexNeighbors[T.v2].insert(T.v3);
-      vertexNeighbors[T.v2].insert(T.v0);
-      vertexNeighbors[T.v2].insert(T.v1);
-      vertexNeighbors[T.v3].insert(T.v0);
-      vertexNeighbors[T.v3].insert(T.v1);
-      vertexNeighbors[T.v3].insert(T.v2);
+      vertex_neighbors[T.v0].insert(T.v1);
+      vertex_neighbors[T.v0].insert(T.v2);
+      vertex_neighbors[T.v0].insert(T.v3);
+      vertex_neighbors[T.v1].insert(T.v2);
+      vertex_neighbors[T.v1].insert(T.v3);
+      vertex_neighbors[T.v1].insert(T.v0);
+      vertex_neighbors[T.v2].insert(T.v3);
+      vertex_neighbors[T.v2].insert(T.v0);
+      vertex_neighbors[T.v2].insert(T.v1);
+      vertex_neighbors[T.v3].insert(T.v0);
+      vertex_neighbors[T.v3].insert(T.v1);
+      vertex_neighbors[T.v3].insert(T.v2);
     }
 
     // Smooth by setting each vertex coordinate to average of neighbors
-    for (size_t n = 0; n < numSmoothings; n++)
+    for (size_t n = 0; n < num_smoothings; n++)
     {
       info("Smoothing iteration " + str(n));
-      for (size_t i = 0; i < numVertices; i++)
+      for (size_t i = 0; i < num_vertices; i++)
       {
         Vector3D p;
-        for (const auto &j : vertexNeighbors[i])
-          p += Vector3D(volume_mesh.Vertices[j]);
-        p /= static_cast<float>(vertexNeighbors[i].size());
-        volume_mesh.Vertices[i] = p;
+        for (const auto &j : vertex_neighbors[i])
+          p += Vector3D(volume_mesh.vertices[j]);
+        p /= static_cast<float>(vertex_neighbors[i].size());
+        volume_mesh.vertices[i] = p;
       }
     }
   }
 
   // Smooth grid field
-  static GridField smooth_field(const GridField &field, size_t numSmoothings)
+  static GridField smooth_field(const GridField &field, size_t num_smoothings)
   {
     info("Smoothing grid field...");
     Timer timer("smooth_field");
@@ -106,21 +106,21 @@ public:
     indices.reserve(4);
 
     // Smooth by setting each value to average of neighbors
-    for (size_t n = 0; n < numSmoothings; n++)
+    for (size_t n = 0; n < num_smoothings; n++)
     {
       info("Smoothing iteration " + str(n));
-      for (size_t i = 0; i < _field.Values.size(); i++)
+      for (size_t i = 0; i < _field.values.size(); i++)
       {
         // Get neighbors
         indices.clear();
-        _field.grid.Index2Boundary(i, indices);
+        _field.grid.index_to_boundary(i, indices);
 
         // Compute average
         double value = 0.0;
         for (const size_t &j : indices)
-          value += _field.Values[j];
+          value += _field.values[j];
         value /= static_cast<double>(indices.size());
-        _field.Values[i] = value;
+        _field.values[i] = value;
       }
     }
 

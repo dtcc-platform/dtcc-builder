@@ -29,7 +29,7 @@ namespace DTCC_BUILDER
 class MeshBuilder
 {
 public:
-  // Build mesh for city, returning a list of meshes.
+  // build mesh for city, returning a list of meshes.
   //
   // The first mesh is the ground (height map) and the remaining surfaces are
   // the extruded building footprints. Note that meshes are non-conforming; the
@@ -42,61 +42,61 @@ public:
     Timer timer("build_mesh");
 
     // Create empty subdomains for Triangle mesh building
-    std::vector<std::vector<Point2D>> subDomains;
+    std::vector<std::vector<Point2D>> sub_domains;
 
     // Get bounding box
-    const BoundingBox2D &bbox = dtm.grid.BoundingBox;
+    const BoundingBox2D &bbox = dtm.grid.bounding_box;
 
-    // Build boundary
+    // build boundary
     std::vector<Point2D> boundary;
     boundary.push_back(bbox.P);
     boundary.push_back(Point2D(bbox.Q.x, bbox.P.y));
     boundary.push_back(bbox.Q);
     boundary.push_back(Point2D(bbox.P.x, bbox.Q.y));
 
-    // Build ground mesh
+    // build ground mesh
     Mesh ground_mesh;
-    CallTriangle(ground_mesh, boundary, subDomains, resolution, false);
+    call_triangle(ground_mesh, boundary, sub_domains, resolution, false);
 
     // Compute domain markers
-    ComputeDomainMarkers(ground_mesh, city);
+    compute_domain_markers(ground_mesh, city);
 
     // Displace ground surface. Fill all points with maximum height. This is
     // used to always choose the smallest height for each point since each point
     // may be visited multiple times.
-    const double zMax = dtm.Max();
-    for (size_t i = 0; i < ground_mesh.Vertices.size(); i++)
-      ground_mesh.Vertices[i].z = zMax;
+    const double z_max = dtm.max();
+    for (size_t i = 0; i < ground_mesh.vertices.size(); i++)
+      ground_mesh.vertices[i].z = z_max;
 
     // If ground is not float, iterate over the triangles
-    for (size_t i = 0; i < ground_mesh.Faces.size(); i++)
+    for (size_t i = 0; i < ground_mesh.faces.size(); i++)
     {
       // Get cell marker
-      const int cellMarker = ground_mesh.Markers[i];
+      const int cell_marker = ground_mesh.markers[i];
 
       // Get triangle
-      const Simplex2D &T = ground_mesh.Faces[i];
+      const Simplex2D &T = ground_mesh.faces[i];
 
       // Check cell marker
-      if (cellMarker != -2) // not ground
+      if (cell_marker != -2) // not ground
       {
         // Compute minimum height of vertices
-        double zMin = std::numeric_limits<double>::max();
-        zMin = std::min(zMin, dtm(ground_mesh.Vertices[T.v0]));
-        zMin = std::min(zMin, dtm(ground_mesh.Vertices[T.v1]));
-        zMin = std::min(zMin, dtm(ground_mesh.Vertices[T.v2]));
+        double z_min = std::numeric_limits<double>::max();
+        z_min = std::min(z_min, dtm(ground_mesh.vertices[T.v0]));
+        z_min = std::min(z_min, dtm(ground_mesh.vertices[T.v1]));
+        z_min = std::min(z_min, dtm(ground_mesh.vertices[T.v2]));
 
         // Set minimum height for all vertices
-        setMin(ground_mesh.Vertices[T.v0].z, zMin);
-        setMin(ground_mesh.Vertices[T.v1].z, zMin);
-        setMin(ground_mesh.Vertices[T.v2].z, zMin);
+        set_min(ground_mesh.vertices[T.v0].z, z_min);
+        set_min(ground_mesh.vertices[T.v1].z, z_min);
+        set_min(ground_mesh.vertices[T.v2].z, z_min);
       }
       else
       {
         // Sample height map at vertex position for all vertices
-        setMin(ground_mesh.Vertices[T.v0].z, dtm(ground_mesh.Vertices[T.v0]));
-        setMin(ground_mesh.Vertices[T.v1].z, dtm(ground_mesh.Vertices[T.v1]));
-        setMin(ground_mesh.Vertices[T.v2].z, dtm(ground_mesh.Vertices[T.v2]));
+        set_min(ground_mesh.vertices[T.v0].z, dtm(ground_mesh.vertices[T.v0]));
+        set_min(ground_mesh.vertices[T.v1].z, dtm(ground_mesh.vertices[T.v1]));
+        set_min(ground_mesh.vertices[T.v2].z, dtm(ground_mesh.vertices[T.v2]));
       }
     }
 
@@ -105,13 +105,13 @@ public:
     meshes.push_back(ground_mesh);
 
     // Get ground height (minimum)
-    const double groundHeight = dtm.Min();
+    const double ground_height = dtm.min();
 
     // Iterate over buildings to build surfaces
-    for (auto const &building : city.Buildings)
+    for (auto const &building : city.buildings)
     {
       auto building_mesh = extrude_footprint(
-          building.Footprint, resolution, groundHeight, building.MaxHeight());
+          building.footprint, resolution, ground_height, building.max_height());
       // Add surface
       meshes.push_back(building_mesh);
     }
@@ -129,15 +129,15 @@ public:
     // FIXME: Consider making flipping triangles upside-down here
     // so that the normal points downwards rather than upwards.
 
-    // Build 2D mesh of building footprint
+    // build 2D mesh of building footprint
     Mesh _mesh;
     // Create empty subdomains for Triangle mesh building
     // TODO: handle polygon with holes
-    std::vector<std::vector<Point2D>> subDomains;
+    std::vector<std::vector<Point2D>> sub_domains;
 
-    CallTriangle(_mesh, footprint.Vertices, subDomains, resolution, false);
+    call_triangle(_mesh, footprint.vertices, sub_domains, resolution, false);
     // set ground height
-    for (auto &v : _mesh.Vertices)
+    for (auto &v : _mesh.vertices)
       v.z = ground_height;
 
     // Create empty building surface
@@ -153,58 +153,58 @@ public:
     // const double buildingHeight = height;
 
     // Set total number of points
-    const size_t numMeshPoints = _mesh.Vertices.size();
-    const size_t numBoundaryPoints = footprint.Vertices.size();
-    extrude_mesh.Vertices.resize(numMeshPoints + numBoundaryPoints);
+    const size_t num_mesh_points = _mesh.vertices.size();
+    const size_t num_boundary_points = footprint.vertices.size();
+    extrude_mesh.vertices.resize(num_mesh_points + num_boundary_points);
 
     // Set total number of triangles
-    const size_t numMeshTriangles = _mesh.Faces.size();
-    const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
-    extrude_mesh.Faces.resize(numMeshTriangles + numBoundaryTriangles);
+    const size_t num_mesh_triangles = _mesh.faces.size();
+    const size_t num_boundary_triangles = 2 * num_boundary_points;
+    extrude_mesh.faces.resize(num_mesh_triangles + num_boundary_triangles);
 
     // Add points at top
-    for (size_t i = 0; i < numMeshPoints; i++)
+    for (size_t i = 0; i < num_mesh_points; i++)
     {
-      const Point3D &p2D = _mesh.Vertices[i];
-      const Vector3D p3D(p2D.x, p2D.y, height);
-      extrude_mesh.Vertices[i] = p3D;
+      const Point3D &p_2d = _mesh.vertices[i];
+      const Vector3D p_3d(p_2d.x, p_2d.y, height);
+      extrude_mesh.vertices[i] = p_3d;
     }
 
     // Add points at bottom
-    for (size_t i = 0; i < numBoundaryPoints; i++)
+    for (size_t i = 0; i < num_boundary_points; i++)
     {
-      const Point3D &p2D = _mesh.Vertices[i];
-      const Vector3D p3D(p2D.x, p2D.y, ground_height);
-      extrude_mesh.Vertices[numMeshPoints + i] = p3D;
+      const Point3D &p_2d = _mesh.vertices[i];
+      const Vector3D p_3d(p_2d.x, p_2d.y, ground_height);
+      extrude_mesh.vertices[num_mesh_points + i] = p_3d;
     }
 
     // Add triangles on top
-    for (size_t i = 0; i < numMeshTriangles; i++)
-      extrude_mesh.Faces[i] = _mesh.Faces[i];
+    for (size_t i = 0; i < num_mesh_triangles; i++)
+      extrude_mesh.faces[i] = _mesh.faces[i];
 
     // Add triangles on boundary
-    for (size_t i = 0; i < numBoundaryPoints; i++)
+    for (size_t i = 0; i < num_boundary_points; i++)
     {
       const size_t v0 = i;
-      const size_t v1 = (i + 1) % numBoundaryPoints;
-      const size_t v2 = v0 + numMeshPoints;
-      const size_t v3 = v1 + numMeshPoints;
+      const size_t v1 = (i + 1) % num_boundary_points;
+      const size_t v2 = v0 + num_mesh_points;
+      const size_t v3 = v1 + num_mesh_points;
       Simplex2D t0(v0, v2, v1); // Outward-pointing normal
       Simplex2D t1(v1, v2, v3); // Outward-pointing normal
-      extrude_mesh.Faces[numMeshTriangles + 2 * i] = t0;
-      extrude_mesh.Faces[numMeshTriangles + 2 * i + 1] = t1;
+      extrude_mesh.faces[num_mesh_triangles + 2 * i] = t0;
+      extrude_mesh.faces[num_mesh_triangles + 2 * i + 1] = t1;
     }
 
     return extrude_mesh;
   }
 
-  // Build ground mesh for city.
+  // build ground mesh for city.
   //
   // The mesh is a triangular mesh of the rectangular region
   // defined by (xmin, xmax) x (ymin, ymax). The edges of the mesh respect
   // the boundaries of the buildings.
   //
-  // Markers:
+  // markers:
   //
   // -2: ground (cells outside buildings and halos)
   // -1: halos (cells close to buildings)
@@ -221,34 +221,34 @@ public:
     info("Building ground mesh for city...");
     Timer timer("build_ground_mesh");
 
-    // Print some stats
-    const BoundingBox2D boundingBox(Point2D(xmin, ymin), Point2D(xmax, ymax));
-    const size_t nx = (boundingBox.Q.x - boundingBox.P.x) / resolution;
-    const size_t ny = (boundingBox.Q.y - boundingBox.P.y) / resolution;
+    // print some stats
+    const BoundingBox2D bounding_box(Point2D(xmin, ymin), Point2D(xmax, ymax));
+    const size_t nx = (bounding_box.Q.x - bounding_box.P.x) / resolution;
+    const size_t ny = (bounding_box.Q.y - bounding_box.P.y) / resolution;
     const size_t n = nx * ny;
-    info("Domain bounding box is " + str(boundingBox));
+    info("Domain bounding box is " + str(bounding_box));
     info("Mesh resolution is " + str(resolution));
     info("Estimated number of triangles is " + str(n));
-    info("Number of subdomains (buildings) is " + str(city.Buildings.size()));
+    info("Number of subdomains (buildings) is " + str(city.buildings.size()));
 
     // Extract subdomains (building footprints)
-    std::vector<std::vector<Point2D>> subDomains;
-    for (auto const &building : city.Buildings)
-      subDomains.push_back(building.Footprint.Vertices);
+    std::vector<std::vector<Point2D>> sub_domains;
+    for (auto const &building : city.buildings)
+      sub_domains.push_back(building.footprint.vertices);
 
-    // Build boundary
+    // build boundary
     std::vector<Point2D> boundary{};
-    boundary.push_back(boundingBox.P);
-    boundary.push_back(Point2D(boundingBox.Q.x, boundingBox.P.y));
-    boundary.push_back(boundingBox.Q);
-    boundary.push_back(Point2D(boundingBox.P.x, boundingBox.Q.y));
+    boundary.push_back(bounding_box.P);
+    boundary.push_back(Point2D(bounding_box.Q.x, bounding_box.P.y));
+    boundary.push_back(bounding_box.Q);
+    boundary.push_back(Point2D(bounding_box.P.x, bounding_box.Q.y));
 
-    // Build 2D mesh
+    // build 2D mesh
     Mesh mesh;
-    CallTriangle(mesh, boundary, subDomains, resolution, true);
+    call_triangle(mesh, boundary, sub_domains, resolution, true);
 
     // Mark subdomains
-    ComputeDomainMarkers(mesh, city);
+    compute_domain_markers(mesh, city);
 
     return mesh;
   }
@@ -258,7 +258,7 @@ public:
   // The volume mesh is a tetrahedral mesh constructed
   // extruding the 2D mesh in the vertical (z) direction.
   //
-  // Markers:
+  // markers:
   //
   // -2: ground (cells outside buildings and halos)
   // -1: halos (cells close to buildings)
@@ -273,36 +273,36 @@ public:
   // It is assumed that the ground mesh is sorted, which is the case if the
   // mesh has been built by calling build_mesh().
   static VolumeMesh layer_ground_mesh(const Mesh &ground_mesh,
-                                      double domainHeight,
-                                      double meshResolution)
+                                      double domain_height,
+                                      double mesh_resolution)
   {
     Timer timer("build_volume_mesh");
 
     // Compute number of layers
-    const size_t numLayers = int(std::ceil(domainHeight / meshResolution));
-    const double dz = domainHeight / double(numLayers);
-    const size_t layerSize = ground_mesh.Vertices.size();
+    const size_t num_layers = int(std::ceil(domain_height / mesh_resolution));
+    const double dz = domain_height / double(num_layers);
+    const size_t layer_size = ground_mesh.vertices.size();
 
-    info("Building volume mesh with " + str(numLayers) + " layers...");
+    info("Building volume mesh with " + str(num_layers) + " layers...");
 
     // Initialize volume mesh
     VolumeMesh volume_mesh;
-    volume_mesh.Vertices.resize((numLayers + 1) * ground_mesh.Vertices.size());
-    volume_mesh.Cells.resize(numLayers * 3 * ground_mesh.Faces.size());
-    volume_mesh.Markers.resize(volume_mesh.Cells.size());
-    volume_mesh.num_layers = numLayers;
+    volume_mesh.vertices.resize((num_layers + 1) * ground_mesh.vertices.size());
+    volume_mesh.cells.resize(num_layers * 3 * ground_mesh.faces.size());
+    volume_mesh.markers.resize(volume_mesh.cells.size());
+    volume_mesh.num_layers = num_layers;
 
     // Add vertices
     {
       size_t k = 0;
-      for (size_t layer = 0; layer <= numLayers; layer++)
+      for (size_t layer = 0; layer <= num_layers; layer++)
       {
         // Compute height of layer
         const double z = layer * dz;
 
         // Iterate over vertices in layer
-        for (const auto &p2D : ground_mesh.Vertices)
-          volume_mesh.Vertices[k++] = Point3D(p2D.x, p2D.y, z);
+        for (const auto &p_2d : ground_mesh.vertices)
+          volume_mesh.vertices[k++] = Point3D(p_2d.x, p_2d.y, z);
       }
     }
 
@@ -310,10 +310,10 @@ public:
     {
       size_t k = 0;
       size_t offset = 0;
-      for (size_t layer = 0; layer < numLayers; layer++)
+      for (size_t layer = 0; layer < num_layers; layer++)
       {
         // Iterate over triangles in layer
-        for (const auto &T : ground_mesh.Faces)
+        for (const auto &T : ground_mesh.faces)
         {
           // Get sorted vertex indices for bottom layer
           const size_t u0 = T.v0 + offset;
@@ -321,34 +321,34 @@ public:
           const size_t u2 = T.v2 + offset;
 
           // Get sorted vertices for top layer
-          const size_t v0 = u0 + layerSize;
-          const size_t v1 = u1 + layerSize;
-          const size_t v2 = u2 + layerSize;
+          const size_t v0 = u0 + layer_size;
+          const size_t v1 = u1 + layer_size;
+          const size_t v2 = u2 + layer_size;
 
           // Create three tetrahedra by connecting the first vertex
           // of each edge in the bottom layer with the second
           // vertex of the corresponding edge in the top layer.
-          volume_mesh.Cells[k++] = Simplex3D(u0, u1, u2, v2);
-          volume_mesh.Cells[k++] = Simplex3D(u0, v1, u1, v2);
-          volume_mesh.Cells[k++] = Simplex3D(u0, v0, v1, v2);
+          volume_mesh.cells[k++] = Simplex3D(u0, u1, u2, v2);
+          volume_mesh.cells[k++] = Simplex3D(u0, v1, u1, v2);
+          volume_mesh.cells[k++] = Simplex3D(u0, v0, v1, v2);
         }
 
         // Add to offset
-        offset += layerSize;
+        offset += layer_size;
       }
     }
 
     // Add domain markers
     {
       size_t k = 0;
-      for (size_t layer = 0; layer < numLayers; layer++)
+      for (size_t layer = 0; layer < num_layers; layer++)
       {
-        for (const auto &marker : ground_mesh.Markers)
+        for (const auto &marker : ground_mesh.markers)
         {
           int m = 0;
 
           // Top layer marked as -3
-          if (layer == numLayers - 1)
+          if (layer == num_layers - 1)
             m = -3;
 
           // Halo and ground only marked for bottom layer
@@ -360,7 +360,7 @@ public:
               m = -4;
           }
 
-          // Buildings marked for all layers (except top layer).
+          // buildings marked for all layers (except top layer).
           // Later adjusted to -4 above buildings in trim_volume_mesh.
           else
           {
@@ -368,9 +368,9 @@ public:
           }
 
           // Set markers
-          volume_mesh.Markers[k++] = m;
-          volume_mesh.Markers[k++] = m;
-          volume_mesh.Markers[k++] = m;
+          volume_mesh.markers[k++] = m;
+          volume_mesh.markers[k++] = m;
+          volume_mesh.markers[k++] = m;
         }
       }
     }
@@ -380,7 +380,7 @@ public:
 
   // Trim volume mesh by removing cells inside buildings.
   //
-  // Markers:
+  // markers:
   //
   // -4: other (not top, ground, halo, or building)
   // -3: top (cells in *top layer*)
@@ -394,7 +394,7 @@ public:
   //
   // - Only cells in bottom layer marked as ground (-2) or halo (-1)
   // - Only cells in first layer above a building marked as building
-  // - Cells in top layer marked as top (-3)
+  // - cells in top layer marked as top (-3)
   // - All other cells (in between) marked as other (-4)
   static VolumeMesh trim_volume_mesh(const VolumeMesh &volume_mesh,
                                      const Mesh &mesh,
@@ -404,70 +404,71 @@ public:
     Timer timer("trim_volume_mesh");
 
     // Get sizes
-    const size_t numBuildings = city.Buildings.size();
-    const size_t numCells2D = mesh.Faces.size();
-    const size_t numCells3D = volume_mesh.Cells.size();
-    const size_t layerSize = 3 * mesh.Faces.size();
+    const size_t num_buildings = city.buildings.size();
+    const size_t num_cells_2d = mesh.faces.size();
+    const size_t num_cells_3d = volume_mesh.cells.size();
+    const size_t layer_size = 3 * mesh.faces.size();
 
     // Phase 1: Determine which cells should be trimmed
     // ------------------------------------------------
 
-    // Build map from buildings to cells in 2D mesh
-    std::vector<std::vector<size_t>> buildingCells2D(numBuildings);
-    for (size_t cellIndex2D = 0; cellIndex2D < numCells2D; cellIndex2D++)
+    // build map from buildings to cells in 2D mesh
+    std::vector<std::vector<size_t>> building_cells_2d(num_buildings);
+    for (size_t cell_index_2d = 0; cell_index_2d < num_cells_2d;
+         cell_index_2d++)
     {
-      const int buildingIndex = mesh.Markers[cellIndex2D];
-      if (buildingIndex >= 0)
-        buildingCells2D[buildingIndex].push_back(cellIndex2D);
+      const int building_index = mesh.markers[cell_index_2d];
+      if (building_index >= 0)
+        building_cells_2d[building_index].push_back(cell_index_2d);
     }
 
     // Create markers for cells to be trimmed (keep by default)
-    std::vector<bool> trimCell(numCells3D);
-    std::fill(trimCell.begin(), trimCell.end(), false);
+    std::vector<bool> trim_cell(num_cells_3d);
+    std::fill(trim_cell.begin(), trim_cell.end(), false);
 
     // Keep track of first layer for each building
-    std::vector<size_t> firstLayer(numBuildings);
-    std::fill(firstLayer.begin(), firstLayer.end(), 0);
+    std::vector<size_t> first_layer(num_buildings);
+    std::fill(first_layer.begin(), first_layer.end(), 0);
 
     // Iterate over buildings
-    for (size_t buildingIndex = 0; buildingIndex < numBuildings;
-         buildingIndex++)
+    for (size_t building_index = 0; building_index < num_buildings;
+         building_index++)
     {
       // Iterate over layers
       for (size_t layer = 0; layer < volume_mesh.num_layers; layer++)
       {
-        // Build list of 3D cells for building in current layer
-        std::vector<size_t> cells3D;
-        for (const auto &cellIndex2D : buildingCells2D[buildingIndex])
+        // build list of 3D cells for building in current layer
+        std::vector<size_t> cells_3d;
+        for (const auto &cell_index_2d : building_cells_2d[building_index])
         {
           for (size_t j = 0; j < 3; j++)
-            cells3D.push_back(Index3D(layer, layerSize, cellIndex2D, j));
+            cells_3d.push_back(index_3d(layer, layer_size, cell_index_2d, j));
         }
 
         // Trim layer if any cell midpoint is below building height
-        bool trimLayer = false;
-        for (const auto &cellIndex3D : cells3D)
+        bool trim_layer = false;
+        for (const auto &cell_index_3d : cells_3d)
         {
-          const double z = volume_mesh.MidPoint(cellIndex3D).z;
-          const double h = city.Buildings[buildingIndex].MaxHeight();
+          const double z = volume_mesh.mid_point(cell_index_3d).z;
+          const double h = city.buildings[building_index].max_height();
           if (z < h)
           {
-            trimLayer = true;
+            trim_layer = true;
             break;
           }
         }
 
         // Check if layer should be trimmed
-        if (trimLayer)
+        if (trim_layer)
         {
           // Mark cells for trimming
-          for (const auto &cellIndex3D : cells3D)
-            trimCell[cellIndex3D] = true;
+          for (const auto &cell_index_3d : cells_3d)
+            trim_cell[cell_index_3d] = true;
         }
         else
         {
           // If layer should be kept, no need to check more layers
-          firstLayer[buildingIndex] = layer;
+          first_layer[building_index] = layer;
           break;
         }
       }
@@ -477,43 +478,45 @@ public:
     // -----------------------
 
     // Create copy of markeres
-    std::vector<int> markers{volume_mesh.Markers};
+    std::vector<int> markers{volume_mesh.markers};
 
     // Mark cells between bottom and top layer as -4
     for (size_t layer = 1; layer < volume_mesh.num_layers - 1; layer++)
     {
-      for (size_t cellIndex2D = 0; cellIndex2D < numCells2D; cellIndex2D++)
+      for (size_t cell_index_2d = 0; cell_index_2d < num_cells_2d;
+           cell_index_2d++)
         for (size_t j = 0; j < 3; j++)
-          markers[Index3D(layer, layerSize, cellIndex2D, j)] = -4;
+          markers[index_3d(layer, layer_size, cell_index_2d, j)] = -4;
     }
 
     // Mark cells in top layer as -3
-    for (size_t cellIndex2D = 0; cellIndex2D < numCells2D; cellIndex2D++)
+    for (size_t cell_index_2d = 0; cell_index_2d < num_cells_2d;
+         cell_index_2d++)
     {
       for (size_t j = 0; j < 3; j++)
-        markers[Index3D(volume_mesh.num_layers - 1, layerSize, cellIndex2D,
-                        j)] = -3;
+        markers[index_3d(volume_mesh.num_layers - 1, layer_size, cell_index_2d,
+                         j)] = -3;
     }
 
     // Mark cells in first layer above each building:
     //
     // 0, 1, 2, ... if building is not covered by bottom layer (normal case)
     // -1           if building is covered by bottom layer (modify to halo)
-    for (size_t buildingIndex = 0; buildingIndex < numBuildings;
-         buildingIndex++)
+    for (size_t building_index = 0; building_index < num_buildings;
+         building_index++)
     {
-      const size_t layer = firstLayer[buildingIndex];
-      size_t marker = buildingIndex;
+      const size_t layer = first_layer[building_index];
+      size_t marker = building_index;
       if (layer == 0)
       {
-        warning("Building " + str(buildingIndex) +
+        warning("Building " + str(building_index) +
                 " is covered by bottom layer");
         marker = -1;
       }
-      for (const auto &cellIndex2D : buildingCells2D[buildingIndex])
+      for (const auto &cell_index_2d : building_cells_2d[building_index])
       {
         for (size_t j = 0; j < 3; j++)
-          markers[Index3D(layer, layerSize, cellIndex2D, j)] = marker;
+          markers[index_3d(layer, layer_size, cell_index_2d, j)] = marker;
       }
     }
 
@@ -521,57 +524,57 @@ public:
     // -----------------------------------------------------------
 
     // Renumber vertices and cells
-    std::unordered_map<size_t, size_t> vertexMap;
-    std::unordered_map<size_t, size_t> cellMap;
+    std::unordered_map<size_t, size_t> vertex_map;
+    std::unordered_map<size_t, size_t> cell_map;
     size_t k = 0;
     size_t l = 0;
-    for (size_t cellIndex3D = 0; cellIndex3D < volume_mesh.Cells.size();
-         cellIndex3D++)
+    for (size_t cell_index_3d = 0; cell_index_3d < volume_mesh.cells.size();
+         cell_index_3d++)
     {
-      if (!trimCell[cellIndex3D])
+      if (!trim_cell[cell_index_3d])
       {
         // Get cell
-        const Simplex3D &T = volume_mesh.Cells[cellIndex3D];
+        const Simplex3D &T = volume_mesh.cells[cell_index_3d];
 
         // Renumbers vertices
-        if (vertexMap.find(T.v0) == vertexMap.end())
-          vertexMap[T.v0] = k++;
-        if (vertexMap.find(T.v1) == vertexMap.end())
-          vertexMap[T.v1] = k++;
-        if (vertexMap.find(T.v2) == vertexMap.end())
-          vertexMap[T.v2] = k++;
-        if (vertexMap.find(T.v3) == vertexMap.end())
-          vertexMap[T.v3] = k++;
+        if (vertex_map.find(T.v0) == vertex_map.end())
+          vertex_map[T.v0] = k++;
+        if (vertex_map.find(T.v1) == vertex_map.end())
+          vertex_map[T.v1] = k++;
+        if (vertex_map.find(T.v2) == vertex_map.end())
+          vertex_map[T.v2] = k++;
+        if (vertex_map.find(T.v3) == vertex_map.end())
+          vertex_map[T.v3] = k++;
 
         // Renumber cells
-        cellMap[cellIndex3D] = l++;
+        cell_map[cell_index_3d] = l++;
       }
     }
 
     // Initialize new mesh data
-    const size_t numVertices = vertexMap.size();
-    const size_t numCells = cellMap.size();
-    std::vector<Point3D> _vertices(numVertices);
-    std::vector<Simplex3D> _cells(numCells);
-    std::vector<int> _markers(numCells);
+    const size_t num_vertices = vertex_map.size();
+    const size_t num_cells = cell_map.size();
+    std::vector<Point3D> _vertices(num_vertices);
+    std::vector<Simplex3D> _cells(num_cells);
+    std::vector<int> _markers(num_cells);
 
     // Set new mesh data
-    for (const auto v : vertexMap)
-      _vertices[v.second] = volume_mesh.Vertices[v.first];
-    for (const auto c : cellMap)
+    for (const auto v : vertex_map)
+      _vertices[v.second] = volume_mesh.vertices[v.first];
+    for (const auto c : cell_map)
     {
-      _cells[c.second].v0 = vertexMap[volume_mesh.Cells[c.first].v0];
-      _cells[c.second].v1 = vertexMap[volume_mesh.Cells[c.first].v1];
-      _cells[c.second].v2 = vertexMap[volume_mesh.Cells[c.first].v2];
-      _cells[c.second].v3 = vertexMap[volume_mesh.Cells[c.first].v3];
+      _cells[c.second].v0 = vertex_map[volume_mesh.cells[c.first].v0];
+      _cells[c.second].v1 = vertex_map[volume_mesh.cells[c.first].v1];
+      _cells[c.second].v2 = vertex_map[volume_mesh.cells[c.first].v2];
+      _cells[c.second].v3 = vertex_map[volume_mesh.cells[c.first].v3];
       _markers[c.second] = markers[c.first];
     }
 
     // Create new mesh and assign data
     VolumeMesh _volume_mesh;
-    _volume_mesh.Vertices = _vertices;
-    _volume_mesh.Cells = _cells;
-    _volume_mesh.Markers = _markers;
+    _volume_mesh.vertices = _vertices;
+    _volume_mesh.cells = _cells;
+    _volume_mesh.markers = _markers;
 
     return _volume_mesh;
   }
@@ -579,27 +582,28 @@ public:
 private:
   // Map from 2D cell index to 3D cell indices
   static size_t
-  Index3D(size_t layer, size_t layerSize, size_t cellIndex2D, size_t j)
+  index_3d(size_t layer, size_t layer_size, size_t cell_index_2d, size_t j)
   {
-    return layer * layerSize + 3 * cellIndex2D + j;
+    return layer * layer_size + 3 * cell_index_2d + j;
   }
 
   // Call Triangle to compute 2D mesh
-  static void CallTriangle(Mesh &mesh,
-                           const std::vector<Point2D> &boundary,
-                           const std::vector<std::vector<Point2D>> &subDomains,
-                           double h,
-                           bool sortTriangles)
+  static void
+  call_triangle(Mesh &mesh,
+                const std::vector<Point2D> &boundary,
+                const std::vector<std::vector<Point2D>> &sub_domains,
+                double h,
+                bool sort_triangles)
   {
-    Timer timer("CallTriangle");
+    Timer timer("call_triangle");
 
     // Set area constraint to control mesh size
-    const double maxArea = 0.5 * h * h;
+    const double max_area = 0.5 * h * h;
 
     // Set input switches for Triangle
     char triswitches[64];
-    // sprintf(triswitches, "zQpq25a%.16f", maxArea);
-    snprintf(triswitches, sizeof(triswitches), "zQpq25a%.16f", maxArea);
+    // sprintf(triswitches, "zQpq25a%.16f", max_area);
+    snprintf(triswitches, sizeof(triswitches), "zQpq25a%.16f", max_area);
 
     // z = use zero-based numbering
     // p = use polygon input (segments)
@@ -611,16 +615,16 @@ private:
     // that Triangle terminates. Default is 20 degrees.
 
     // Create input data structure for Triangle
-    struct triangulateio in = CreateTriangleIO();
+    struct triangulateio in = create_triangle_io();
 
     // Set number of points
-    size_t numPoints = boundary.size();
-    for (auto const &innerPolygon : subDomains)
-      numPoints += innerPolygon.size();
-    in.numberofpoints = numPoints;
+    size_t num_points = boundary.size();
+    for (auto const &innerPolygon : sub_domains)
+      num_points += innerPolygon.size();
+    in.numberofpoints = num_points;
 
     // Set points
-    in.pointlist = new double[2 * numPoints];
+    in.pointlist = new double[2 * num_points];
     {
       size_t k = 0;
       for (auto const &p : boundary)
@@ -628,7 +632,7 @@ private:
         in.pointlist[k++] = p.x;
         in.pointlist[k++] = p.y;
       }
-      for (auto const &innerPolygon : subDomains)
+      for (auto const &innerPolygon : sub_domains)
       {
         for (auto const &p : innerPolygon)
         {
@@ -639,11 +643,11 @@ private:
     }
 
     // Set number of segments
-    const size_t numSegments = numPoints;
-    in.numberofsegments = numSegments;
+    const size_t num_segments = num_points;
+    in.numberofsegments = num_segments;
 
     // Set segments
-    in.segmentlist = new int[2 * numSegments];
+    in.segmentlist = new int[2 * num_segments];
     {
       size_t k = 0;
       size_t n = 0;
@@ -655,16 +659,16 @@ private:
         in.segmentlist[k++] = n + j1;
       }
       n += boundary.size();
-      for (size_t i = 0; i < subDomains.size(); i++)
+      for (size_t i = 0; i < sub_domains.size(); i++)
       {
-        for (size_t j = 0; j < subDomains[i].size(); j++)
+        for (size_t j = 0; j < sub_domains[i].size(); j++)
         {
           const size_t j0 = j;
-          const size_t j1 = (j + 1) % subDomains[i].size();
+          const size_t j1 = (j + 1) % sub_domains[i].size();
           in.segmentlist[k++] = n + j0;
           in.segmentlist[k++] = n + j1;
         }
-        n += subDomains[i].size();
+        n += sub_domains[i].size();
       }
     }
 
@@ -697,32 +701,32 @@ private:
     */
 
     // Prepare output data for Triangl;e
-    struct triangulateio out = CreateTriangleIO();
-    struct triangulateio vorout = CreateTriangleIO();
+    struct triangulateio out = create_triangle_io();
+    struct triangulateio vorout = create_triangle_io();
 
     // Call Triangle
     triangulate(triswitches, &in, &out, &vorout);
 
     // Uncomment for debugging
-    // PrintTriangleIO(out);
-    // PrintTriangleIO(vorout);
+    // print_triangle_io(out);
+    // print_triangle_io(vorout);
 
     // Extract points
-    mesh.Vertices.reserve(out.numberofpoints);
+    mesh.vertices.reserve(out.numberofpoints);
     for (int i = 0; i < out.numberofpoints; i++)
     {
       Point3D p(out.pointlist[2 * i], out.pointlist[2 * i + 1], 0.0);
-      mesh.Vertices.push_back(p);
+      mesh.vertices.push_back(p);
     }
 
     // Extract triangles
-    mesh.Faces.reserve(out.numberoftriangles);
+    mesh.faces.reserve(out.numberoftriangles);
     for (int i = 0; i < out.numberoftriangles; i++)
     {
       // Note the importance of creating a sorted simplex here!
       Simplex2D t(out.trianglelist[3 * i], out.trianglelist[3 * i + 1],
-                  out.trianglelist[3 * i + 2], sortTriangles);
-      mesh.Faces.push_back(t);
+                  out.trianglelist[3 * i + 2], sort_triangles);
+      mesh.faces.push_back(t);
     }
 
     // Free memory
@@ -733,7 +737,7 @@ private:
   }
 
   // Create and reset Triangle I/O data structure
-  static struct triangulateio CreateTriangleIO()
+  static struct triangulateio create_triangle_io()
   {
     struct triangulateio io;
 
@@ -764,8 +768,8 @@ private:
     return io;
   }
 
-  // Print triangle I/O data
-  static void PrintTriangleIO(const struct triangulateio &io)
+  // print triangle I/O data
+  static void print_triangle_io(const struct triangulateio &io)
   {
     info("Triangle I/O data: ");
     info("  pointlist = " +
@@ -774,12 +778,12 @@ private:
          str(reinterpret_cast<std::uintptr_t>(io.pointmarkerlist)));
     if (io.pointmarkerlist)
     {
-      std::stringstream stringBuilder{};
-      stringBuilder << "   ";
+      std::stringstream string_builder{};
+      string_builder << "   ";
       for (int i = 0; i < io.numberofpoints; i++)
-        stringBuilder << " " << io.pointmarkerlist[i];
-      stringBuilder << std::endl;
-      info(stringBuilder.str());
+        string_builder << " " << io.pointmarkerlist[i];
+      string_builder << std::endl;
+      info(string_builder.str());
     }
     info("  numberofpoints = " + str(io.numberofpoints));
     info("  numberofpointattributes = " + str(io.numberofpointattributes));
@@ -801,12 +805,12 @@ private:
          str(reinterpret_cast<std::uintptr_t>(io.segmentmarkerlist)));
     if (io.segmentmarkerlist)
     {
-      std::stringstream stringBuilder{};
-      stringBuilder << "   ";
+      std::stringstream string_builder{};
+      string_builder << "   ";
       for (int i = 0; i < io.numberofsegments; i++)
-        stringBuilder << " " << io.segmentmarkerlist[i];
-      stringBuilder << std::endl;
-      info(stringBuilder.str());
+        string_builder << " " << io.segmentmarkerlist[i];
+      string_builder << std::endl;
+      info(string_builder.str());
     }
     info("  numberofsegments = " + str(io.numberofsegments));
     info("  holelist = " + str(reinterpret_cast<std::uintptr_t>(io.holelist)));
@@ -822,74 +826,74 @@ private:
   }
 
   // Compute domain markers for subdomains
-  static void ComputeDomainMarkers(Mesh &mesh, const City &city)
+  static void compute_domain_markers(Mesh &mesh, const City &city)
   {
     info("Computing domain markers");
-    Timer timer("ComputeDomainMarkers");
+    Timer timer("compute_domain_markers");
 
-    // Build search tree for city
-    city.BuildSearchTree();
+    // build search tree for city
+    city.build_search_tree();
 
     // Initialize domain markers and set all markers to -2 (ground)
-    mesh.Markers.resize(mesh.Faces.size());
-    std::fill(mesh.Markers.begin(), mesh.Markers.end(), -2);
+    mesh.markers.resize(mesh.faces.size());
+    std::fill(mesh.markers.begin(), mesh.markers.end(), -2);
 
     // Initialize markers for vertices belonging to a building
-    std::vector<bool> isBuildingVertex(mesh.Vertices.size());
-    std::fill(isBuildingVertex.begin(), isBuildingVertex.end(), false);
+    std::vector<bool> is_building_vertex(mesh.vertices.size());
+    std::fill(is_building_vertex.begin(), is_building_vertex.end(), false);
 
     // Iterate over cells to mark buildings
-    for (size_t i = 0; i < mesh.Faces.size(); i++)
+    for (size_t i = 0; i < mesh.faces.size(); i++)
     {
-      // Find building containg midpoint of cell (if any)
-      const Point3D c3d = mesh.MidPoint(i);
-      const Point2D c2d(c3d.x, c3d.y);
-      const int marker = city.FindBuilding(Vector2D(c2d));
+      // find building containg midpoint of cell (if any)
+      const Point3D c_3d = mesh.mid_point(i);
+      const Point2D c_2d(c_3d.x, c_3d.y);
+      const int marker = city.find_building(Vector2D(c_2d));
 
       // Get triangle
-      const Simplex2D &T = mesh.Faces[i];
+      const Simplex2D &T = mesh.faces[i];
 
       // Check if we are inside a building
       if (marker >= 0)
       {
         // Set domain marker to building number
-        mesh.Markers[i] = marker;
+        mesh.markers[i] = marker;
 
         // Mark all cell vertices as belonging to a building
-        isBuildingVertex[T.v0] = true;
-        isBuildingVertex[T.v1] = true;
-        isBuildingVertex[T.v2] = true;
+        is_building_vertex[T.v0] = true;
+        is_building_vertex[T.v1] = true;
+        is_building_vertex[T.v2] = true;
       }
 
       // Check if individual vertices are inside a building
       // (not only midpoint). Necessary for when building
       // visualization meshes that are not boundary-fitted.
-      if (city.FindBuilding(Vector3D(mesh.Vertices[T.v0])) >= 0)
-        isBuildingVertex[T.v0] = true;
-      if (city.FindBuilding(Vector3D(mesh.Vertices[T.v1])) >= 0)
-        isBuildingVertex[T.v1] = true;
-      if (city.FindBuilding(Vector3D(mesh.Vertices[T.v2])) >= 0)
-        isBuildingVertex[T.v2] = true;
+      if (city.find_building(Vector3D(mesh.vertices[T.v0])) >= 0)
+        is_building_vertex[T.v0] = true;
+      if (city.find_building(Vector3D(mesh.vertices[T.v1])) >= 0)
+        is_building_vertex[T.v1] = true;
+      if (city.find_building(Vector3D(mesh.vertices[T.v2])) >= 0)
+        is_building_vertex[T.v2] = true;
     }
 
     // Iterate over cells to mark building halos
-    for (size_t i = 0; i < mesh.Faces.size(); i++)
+    for (size_t i = 0; i < mesh.faces.size(); i++)
     {
       // Check if any of the cell vertices belongs to a building
-      const Simplex2D &T = mesh.Faces[i];
-      const bool touchesBuilding =
-          (isBuildingVertex[T.v0] || isBuildingVertex[T.v1] ||
-           isBuildingVertex[T.v2]);
+      const Simplex2D &T = mesh.faces[i];
+      const bool touches_building =
+          (is_building_vertex[T.v0] || is_building_vertex[T.v1] ||
+           is_building_vertex[T.v2]);
 
       // Mark as halo (-1) if the cell touches a building but is not
       // itself inside footprint (not marked in the previous step)
-      if (touchesBuilding && mesh.Markers[i] == -2)
-        mesh.Markers[i] = -1;
+      if (touches_building && mesh.markers[i] == -2)
+        mesh.markers[i] = -1;
     }
   }
 
   // Set x = min(x, y)
-  static void setMin(double &x, double y)
+  static void set_min(double &x, double y)
   {
     if (y < x)
       x = y;

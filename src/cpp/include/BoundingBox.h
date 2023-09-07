@@ -91,12 +91,12 @@ public:
   explicit BoundingBox2D(const std::vector<Polygon> &polygons,
                          double margin = 0.0)
   {
-    auto initBB = BoundingBox2D(polygons.front());
-    P = initBB.P;
-    Q = initBB.Q;
+    auto init_bb = BoundingBox2D(polygons.front());
+    P = init_bb.P;
+    Q = init_bb.Q;
     for (auto p : polygons)
     {
-      this->Union(BoundingBox2D(p));
+      this->union_with(BoundingBox2D(p));
     }
     P.x -= margin;
     P.y -= margin;
@@ -106,7 +106,7 @@ public:
 
   /// expand a bounding box to the union of it
   /// and a second bounding box
-  void Union(BoundingBox2D const &other)
+  void union_with(BoundingBox2D const &other)
   {
     P.x = std::min(P.x, other.P.x);
     P.y = std::min(P.y, other.P.y);
@@ -115,7 +115,7 @@ public:
   }
 
   /// intersect bounding box with a second bounding box
-  void Intersect(BoundingBox2D const &other)
+  void intersect(BoundingBox2D const &other)
   {
     if (P.x >= other.Q.x || Q.x <= other.P.x || P.y >= other.Q.y ||
         Q.y <= other.P.y)
@@ -134,13 +134,13 @@ public:
   }
 
   /// Return area of bounding box
-  double Area() const { return (Q.x - P.x) * (Q.y - P.y); }
+  double area() const { return (Q.x - P.x) * (Q.y - P.y); }
 
   /// Create bounding box of polygon.
   ///
   /// @param polygon Polygon
   explicit BoundingBox2D(const Polygon &polygon)
-      : BoundingBox2D(polygon.Vertices)
+      : BoundingBox2D(polygon.vertices)
   {
   }
 
@@ -206,7 +206,7 @@ public:
 
   /// expand a bounding box to the union of it
   /// and a second bounding box
-  void Union(BoundingBox3D other)
+  void union_with(BoundingBox3D other)
   {
     P.x = std::min(P.x, other.P.x);
     P.y = std::min(P.y, other.P.y);
@@ -217,7 +217,7 @@ public:
   }
 
   /// Return volume of bounding box
-  double Volume() const { return (Q.x - P.x) * (Q.y - P.y) * (Q.z - P.z); }
+  double volume() const { return (Q.x - P.x) * (Q.y - P.y) * (Q.z - P.z); }
 
   /// Pretty-print
   std::string __str__() const override
