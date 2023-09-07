@@ -5,7 +5,7 @@
 
 #include "catch.hpp"
 
-const std::string RootPath{"./"};
+const std::string root_path{"./"};
 
 // Run these tests. You can comment out any test you don't want run
 #include "tests/TestBoundingBox.h"
