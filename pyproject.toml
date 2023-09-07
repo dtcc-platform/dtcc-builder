@@ -3,7 +3,7 @@ requires = ["scikit-build-core", "pybind11==2.10.*", "wheel"]
 build-backend = "scikit_build_core.build"
 
 [project]
-version = "0.7.16"
+version = "0.7.19"
 name = "dtcc-builder"
 description = "DTCC Builder"
 readme = "README.md"
