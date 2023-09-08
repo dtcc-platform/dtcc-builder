@@ -11,6 +11,7 @@ import dtcc_model as model
 from dtcc_model import City, PointCloud
 from .logging import info, warning, error
 from . import _dtcc_builder
+from . import meshing
 from . import model as builder_model
 from . import parameters as builder_parameters
 
@@ -171,4 +172,29 @@ def compute_building_heights(
         # Set building height
         building.height = height
 
+    return city
+
+
+def extrude_buildings(city: City, mesh_resolution=5, zero_ground=False, cap_base=True):
+    """
+    Extrude buildings in the given city.
+
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city object for which to extrude buildings.
+    `zero_ground` : bool, optional
+        Whether to set the ground level to zero, by default False.
+    `cap_base` : bool, optional
+        Whether to cap the base of the buildings, by default True.
+
+    Returns
+    -------
+    `dtcc_model.City`
+        The city object with building.mesh set to the extrusion.
+    """
+    info("Extruding buildings...")
+    for b in city.buildings:
+        extrusion = meshing.extrude_building(b, mesh_resolution, zero_ground, cap_base)
+        b.mesh = extrusion
     return city
