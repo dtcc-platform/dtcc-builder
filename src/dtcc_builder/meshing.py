@@ -3,7 +3,12 @@ from dtcc_builder.model import create_builder_polygon, builder_mesh_to_mesh
 from dtcc_model import Building, City, PointCloud
 
 
-def extrude_building(building: Building, resolution=5, ground_to_zero: bool = False):
+def extrude_building(
+    building: Building,
+    resolution=5,
+    ground_to_zero: bool = False,
+    cap_base: bool = False,
+):
     """
     Extrude the given building to its height.
 
@@ -22,10 +27,13 @@ def extrude_building(building: Building, resolution=5, ground_to_zero: bool = Fa
     builder_polygon = create_builder_polygon(building.footprint)
     if ground_to_zero:
         ground = 0
+        height = building.height
+
     else:
         ground = building.ground_level
+        height = ground + building.height
     builder_mesh = _dtcc_builder.extrude_footprint(
-        builder_polygon, resolution, ground, building.height
+        builder_polygon, resolution, ground, height, cap_base
     )
     mesh = builder_mesh_to_mesh(builder_mesh)
     return mesh

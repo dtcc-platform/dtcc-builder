@@ -124,7 +124,8 @@ public:
   static Mesh extrude_footprint(const Polygon &footprint,
                                 double resolution,
                                 double ground_height,
-                                double height)
+                                double height,
+                                bool cap_base = false)
   {
     // FIXME: Consider making flipping triangles upside-down here
     // so that the normal points downwards rather than upwards.
@@ -155,12 +156,18 @@ public:
     // Set total number of points
     const size_t numMeshPoints = _mesh.Vertices.size();
     const size_t numBoundaryPoints = footprint.Vertices.size();
-    extrude_mesh.Vertices.resize(numMeshPoints + numBoundaryPoints);
+    size_t total_points = numMeshPoints + numBoundaryPoints;
+    if (cap_base)
+      total_points += numMeshPoints; // add points for base cap
+    extrude_mesh.Vertices.resize(total_points);
 
     // Set total number of triangles
     const size_t numMeshTriangles = _mesh.Faces.size();
     const size_t numBoundaryTriangles = 2 * numBoundaryPoints;
-    extrude_mesh.Faces.resize(numMeshTriangles + numBoundaryTriangles);
+    size_t totalFaces = numMeshTriangles + numBoundaryTriangles;
+    if (cap_base)
+      totalFaces += numMeshTriangles; // add triangles for base cap
+    extrude_mesh.Faces.resize(totalFaces);
 
     // Add points at top
     for (size_t i = 0; i < numMeshPoints; i++)
@@ -193,6 +200,29 @@ public:
       Simplex2D t1(v1, v2, v3); // Outward-pointing normal
       extrude_mesh.Faces[numMeshTriangles + 2 * i] = t0;
       extrude_mesh.Faces[numMeshTriangles + 2 * i + 1] = t1;
+    }
+
+    if (cap_base)
+    {
+      // Add points for base
+      const size_t vertex_offset = numMeshPoints + numBoundaryPoints;
+      for (size_t i = 0; i < numMeshPoints; i++)
+      {
+        const Point3D &p2D = _mesh.Vertices[i];
+        const Vector3D p3D(p2D.x, p2D.y, ground_height);
+        extrude_mesh.Vertices[vertex_offset + i] = p3D;
+      }
+      // Add triangles on top
+      const size_t face_offset = numMeshTriangles + numBoundaryTriangles;
+      for (size_t i = 0; i < numMeshTriangles; i++)
+      {
+        auto face = _mesh.Faces[i];
+        face.v0 += vertex_offset;
+        face.v1 += vertex_offset;
+        face.v2 += vertex_offset;
+        std::swap(face.v1, face.v2); // flip triangle
+        extrude_mesh.Faces[face_offset + i] = face;
+      }
     }
 
     return extrude_mesh;
