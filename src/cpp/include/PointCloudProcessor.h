@@ -16,7 +16,6 @@
 #include "Timer.h"
 #include "model/Color.h"
 #include "model/GeoRaster.h"
-#include "model/Point.h"
 #include "model/PointCloud.h"
 #include "model/Vector.h"
 

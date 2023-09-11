@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "Logging.h"
-#include "model/Point.h"
 #include "model/Simplices.h"
 #include "model/Vector.h"
 

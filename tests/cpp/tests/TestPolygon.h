@@ -1,7 +1,7 @@
 #include "Geometry.h"
 #include "Polyfix.h"
-#include "model/Point.h"
 #include "model/Polygon.h"
+#include "model/Vector.h"
 
 using namespace DTCC_BUILDER;
 

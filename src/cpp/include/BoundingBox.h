@@ -8,8 +8,8 @@
 #include <limits>
 
 #include "Logging.h"
-#include "model/Point.h"
 #include "model/Polygon.h"
+#include "model/Vector.h"
 
 namespace DTCC_BUILDER
 {

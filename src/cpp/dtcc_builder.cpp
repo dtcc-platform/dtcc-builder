@@ -18,9 +18,9 @@
 #include "model/City.h"
 #include "model/GridField.h"
 #include "model/Mesh.h"
-#include "model/Point.h"
 #include "model/PointCloud.h"
 #include "model/Polygon.h"
+#include "model/Vector.h"
 
 namespace py = pybind11;
 

@@ -11,7 +11,6 @@
 #include "BoundingBoxTree.h"
 #include "Color.h"
 #include "Logging.h"
-#include "Point.h"
 #include "Vector.h"
 
 namespace DTCC_BUILDER

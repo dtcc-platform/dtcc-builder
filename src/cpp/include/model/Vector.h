@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include "Logging.h"
-#include "Point.h"
+//#include "Point.h"
 
 namespace DTCC_BUILDER
 {
@@ -33,12 +33,6 @@ public:
   /// @param y Second component
   Vector2D(double x, double y) : x(x), y(y) {}
 
-  /// To BE REMOVED :
-  ///  Create vector between origin and point (conversion from point).
-  ///
-  ///  @param p The point
-  /// explicit Vector2D(const Point2D &p) : x(p.x), y(p.y) {}
-
   /// Create vector between vectors.
   ///
   /// @param p First point
@@ -59,12 +53,6 @@ public:
   }
 
   size_t size() const { return 2; }
-
-  /// To BE REMOVED :
-  ///  Return point at origin + vector (conversion to point).
-  ///
-  ///  @return Point at origin + vector.
-  // operator Point2D() const { return Point2D(x, y); }
 
   // FIXME: This class requires documentation
 
@@ -165,16 +153,10 @@ public:
   /// @param z Third component
   Vector3D(double x, double y, double z) : x(x), y(y), z(z) {}
 
-  /// TO BE REMOVED :
-  ///  Create vector between origin and point (conversion from point).
+  /// Create vector between points/vectors.
   ///
-  ///  @param p The point
-  explicit Vector3D(const Vector3D &p) : x(p.x), y(p.y), z(p.z) {}
-
-  /// Create vector between points.
-  ///
-  /// @param p First vector
-  /// @param q Second vector
+  /// @param p First point
+  /// @param q Second point
   Vector3D(const Vector3D &p, const Vector3D &q)
       : x(q.x - p.x), y(q.y - p.y), z(q.z - p.z)
   {
@@ -192,12 +174,6 @@ public:
   }
 
   size_t size() const { return 3; }
-
-  /// TO BE REMOVED :
-  ///  Return point at origin + vector (conversion to point).
-  ///
-  ///  @return Point at origin + vector.
-  // operator Point3D() const { return Point3D(x, y, z); }
 
   // FIXME: This class requires documentation
 
@@ -257,8 +233,6 @@ public:
     z /= a;
     return *this;
   }
-
-  double dot(const Vector3D &p) const { return x * p.x + y * p.y + z * p.z; }
 
   double dot(const Vector3D &p) const { return x * p.x + y * p.y + z * p.z; }
 

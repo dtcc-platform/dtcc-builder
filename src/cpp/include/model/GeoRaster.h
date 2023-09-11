@@ -4,11 +4,10 @@
 #ifndef DTCC_GEO_RASTER_H
 #define DTCC_GEO_RASTER_H
 
-
 #include "BoundingBox.h"
 #include "GridField.h"
-#include "Point.h"
 #include "Logging.h"
+#include "Vector.h"
 namespace DTCC_BUILDER
 {
 class GeoRaster

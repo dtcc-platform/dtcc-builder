@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "Logging.h"
-#include "model/Point.h"
 #include "model/Polygon.h"
 #include "model/Vector.h"
 

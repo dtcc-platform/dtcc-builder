@@ -10,12 +10,11 @@
 #include <stack>
 #include <tuple>
 #include <vector>
-#include <iso646.h> 
+#include <iso646.h>
 
 #include "BoundingBox.h"
 #include "Constants.h"
 #include "model/Mesh.h"
-#include "model/Point.h"
 #include "model/Polygon.h"
 #include "model/Simplices.h"
 #include "model/Vector.h"
