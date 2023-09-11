@@ -195,7 +195,7 @@ public:
 
     auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
     // build a kd-tree for radius search
-    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Vector3D>, double,
                                          2 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(2, point_cloud.points, 20 /* max leaf */);
@@ -224,8 +224,8 @@ public:
       {
         size_t idx = ind_pt.first;
         const uint8_t clf = point_cloud.classifications[idx];
-        const Point3D &p_3d = point_cloud.points[idx];
-        const Point2D p_2d{p_3d.x, p_3d.y};
+        const Vector3D &p_3d = point_cloud.points[idx];
+        const Vector2D p_2d{p_3d.x, p_3d.y};
 
         if (classified_points)
         {
@@ -301,10 +301,10 @@ public:
     for (auto &building : _city.buildings)
     {
       std::sort(building.ground_points.begin(), building.ground_points.end(),
-                [](const Point3D &p, const Point3D &q) -> bool
+                [](const Vector3D &p, const Vector3D &q) -> bool
                 { return p.z < q.z; });
       std::sort(building.roof_points.begin(), building.roof_points.end(),
-                [](const Point3D &p, const Point3D &q) -> bool
+                [](const Vector3D &p, const Vector3D &q) -> bool
                 { return p.z < q.z; });
     }
 
@@ -388,7 +388,7 @@ public:
       {
         // Pick percentile from ground points
         sort(building.ground_points.begin(), building.ground_points.end(),
-             [](const Point3D &lhs, const Point3D &rhs)
+             [](const Vector3D &lhs, const Vector3D &rhs)
              { return lhs.z < rhs.z; });
         h0 = get_percentile(building.ground_points, ground_percentile).z;
       }
@@ -407,7 +407,7 @@ public:
       else
       {
         sort(building.roof_points.begin(), building.roof_points.end(),
-             [](const Point3D &lhs, const Point3D &rhs)
+             [](const Vector3D &lhs, const Vector3D &rhs)
              { return lhs.z < rhs.z; });
         h1 = get_percentile(building.roof_points, roof_percentile).z;
       }
@@ -468,7 +468,7 @@ public:
     const double dy = bbox.Q.y - bbox.P.y;
 
     // Iterate over the number of buildings to generate
-    std::vector<Point2D> centers;
+    std::vector<Vector2D> centers;
     for (size_t i = 0; i < num_buildings; i++)
     {
       // Keep trying until we find an empty spot
@@ -484,8 +484,8 @@ public:
         }
 
         // Randomize center of building
-        Point2D c(bbox.P.x + Utils::random() * dx,
-                  bbox.P.y + Utils::random() * dy);
+        Vector2D c(bbox.P.x + Utils::random() * dx,
+                   bbox.P.y + Utils::random() * dy);
 
         // Check that we are not too close to other buildings, but
         // note that buildings may actually overlap slightly which may
@@ -533,20 +533,23 @@ public:
   /// @param height relative (to the ground height) height of the building
   /// @param ground_height ground height of the building
   /// Note: Absolute building height = height + ground_height
-  static Building generate_building(
-      const Point2D &c, double a, double b, double height, double ground_height)
+  static Building generate_building(const Vector2D &c,
+                                    double a,
+                                    double b,
+                                    double height,
+                                    double ground_height)
   {
     Building building;
 
     // Set building geometry
     building.footprint.vertices.push_back(
-        Point2D{c.x - 0.5 * a, c.y - 0.5 * b});
+        Vector2D{c.x - 0.5 * a, c.y - 0.5 * b});
     building.footprint.vertices.push_back(
-        Point2D{c.x + 0.5 * a, c.y - 0.5 * b});
+        Vector2D{c.x + 0.5 * a, c.y - 0.5 * b});
     building.footprint.vertices.push_back(
-        Point2D{c.x + 0.5 * a, c.y + 0.5 * b});
+        Vector2D{c.x + 0.5 * a, c.y + 0.5 * b});
     building.footprint.vertices.push_back(
-        Point2D{c.x - 0.5 * a, c.y + 0.5 * b});
+        Vector2D{c.x - 0.5 * a, c.y + 0.5 * b});
     building.height = height;
     building.ground_height = ground_height;
 
@@ -554,8 +557,9 @@ public:
     const size_t num_points = 5;
     for (size_t i = 0; i < num_points; i++)
     {
-      building.ground_points.push_back(Point3D(c.x, c.y, ground_height));
-      building.roof_points.push_back(Point3D(c.x, c.y, ground_height + height));
+      building.ground_points.push_back(Vector3D(c.x, c.y, ground_height));
+      building.roof_points.push_back(
+          Vector3D(c.x, c.y, ground_height + height));
     }
 
     return building;

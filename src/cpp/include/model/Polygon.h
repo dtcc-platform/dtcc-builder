@@ -15,7 +15,7 @@ namespace DTCC_BUILDER
 
 class Polygon : public Printable
 {
-  typedef std::vector<Point2D> LineString;
+  typedef std::vector<Vector2D> LineString;
 
 public:
   // Array of vertices
@@ -28,7 +28,7 @@ public:
   virtual ~Polygon() {} // make the destructor virtual
 
   /// Set new origin (subtract offset)
-  void set_origin(const Point2D &origin)
+  void set_origin(const Vector2D &origin)
   {
     for (auto &p : vertices)
     {

@@ -34,18 +34,18 @@ Polygon create_polygon(py::list vertices, py::list holes)
   {
     auto pt = vertices[i].cast<py::tuple>();
     poly.vertices.push_back(
-        Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+        Vector2D(pt[0].cast<double>(), pt[1].cast<double>()));
   }
   if (holes.size() > 0)
   {
     for (size_t i = 0; i < holes.size(); i++)
     {
       auto hl = holes[i].cast<py::list>();
-      std::vector<Point2D> hole;
+      std::vector<Vector2D> hole;
       for (size_t j = 0; j < hl.size(); j++)
       {
         auto pt = hl[j].cast<py::tuple>();
-        hole.push_back(Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+        hole.push_back(Vector2D(pt[0].cast<double>(), pt[1].cast<double>()));
       }
       poly.holes.push_back(hole);
     }
@@ -62,7 +62,7 @@ City create_city(py::list footprints,
 {
   City city;
 
-  city.origin = Point2D(origin[0].cast<double>(), origin[1].cast<double>());
+  city.origin = Vector2D(origin[0].cast<double>(), origin[1].cast<double>());
   size_t num_buildings = footprints.size();
   for (size_t i = 0; i < num_buildings; i++)
   {
@@ -78,18 +78,18 @@ City create_city(py::list footprints,
       auto pt = footprint[j].cast<py::tuple>();
 
       poly.vertices.push_back(
-          Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+          Vector2D(pt[0].cast<double>(), pt[1].cast<double>()));
     }
     if (hls.size() > 0)
     {
       for (size_t j = 0; j < hls.size(); j++)
       {
         auto hl = hls[j].cast<py::list>();
-        std::vector<Point2D> hole;
+        std::vector<Vector2D> hole;
         for (size_t k = 0; k < hl.size(); k++)
         {
           auto pt = hl[k].cast<py::tuple>();
-          hole.push_back(Point2D(pt[0].cast<double>(), pt[1].cast<double>()));
+          hole.push_back(Vector2D(pt[0].cast<double>(), pt[1].cast<double>()));
         }
         poly.holes.push_back(hole);
       }
@@ -128,7 +128,7 @@ PointCloud create_pointcloud(py::array_t<double> pts,
   for (int i = 0; i < pt_count; i++)
   {
     point_cloud.points.push_back(
-        Point3D(pts_r(i, 0), pts_r(i, 1), pts_r(i, 2)));
+        Vector3D(pts_r(i, 0), pts_r(i, 1), pts_r(i, 2)));
     if (has_classification)
       point_cloud.classifications.push_back(cls_r(i));
     else
@@ -155,7 +155,7 @@ GridField create_gridfield(py::array_t<double> data,
   double py = bounds[1].cast<double>();
   double qx = bounds[2].cast<double>();
   double qy = bounds[3].cast<double>();
-  auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
+  auto bbox = BoundingBox2D(Vector2D(px, py), Vector2D(qx, qy));
 
   grid_field.grid.bounding_box = bbox;
   grid_field.grid.xstep = xstep;
@@ -196,35 +196,35 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readonly("ground_points", &DTCC_BUILDER::Building::ground_points)
       .def_readonly("roof_points", &DTCC_BUILDER::Building::roof_points);
 
-  py::class_<DTCC_BUILDER::Point2D>(m, "Point2D")
+  py::class_<DTCC_BUILDER::Vector2D>(m, "Vector2D")
       .def(py::init<>())
       .def("__repr__",
-           [](const DTCC_BUILDER::Point3D &p)
+           [](const DTCC_BUILDER::Vector3D &p)
            {
-             return "<Point3D (" + DTCC_BUILDER::str(p.x) + ", " +
+             return "<Vector3D (" + DTCC_BUILDER::str(p.x) + ", " +
                     DTCC_BUILDER::str(p.y) + ")>";
            })
-      .def_readonly("x", &DTCC_BUILDER::Point2D::x)
-      .def_readonly("y", &DTCC_BUILDER::Point2D::y);
-
-  py::class_<DTCC_BUILDER::Point3D>(m, "Point3D")
-      .def(py::init<>())
-      .def("__repr__",
-           [](const DTCC_BUILDER::Point3D &p)
-           {
-             return "<Point3D (" + DTCC_BUILDER::str(p.x) + ", " +
-                    DTCC_BUILDER::str(p.y) + ", " + DTCC_BUILDER::str(p.z) +
-                    ")>";
-           })
-      .def_readonly("x", &DTCC_BUILDER::Point3D::x)
-      .def_readonly("y", &DTCC_BUILDER::Point3D::y)
-      .def_readonly("z", &DTCC_BUILDER::Point3D::z);
+      .def_readonly("x", &DTCC_BUILDER::Vector2D::x)
+      .def_readonly("y", &DTCC_BUILDER::Vector2D::y);
 
   py::class_<DTCC_BUILDER::Vector3D>(m, "Vector3D")
       .def(py::init<>())
+      .def("__repr__",
+           [](const DTCC_BUILDER::Vector3D &p)
+           {
+             return "<Vector3D (" + DTCC_BUILDER::str(p.x) + ", " +
+                    DTCC_BUILDER::str(p.y) + ", " + DTCC_BUILDER::str(p.z) +
+                    ")>";
+           })
       .def_readonly("x", &DTCC_BUILDER::Vector3D::x)
       .def_readonly("y", &DTCC_BUILDER::Vector3D::y)
       .def_readonly("z", &DTCC_BUILDER::Vector3D::z);
+
+  // py::class_<DTCC_BUILDER::Vector3D>(m, "Vector3D")
+  //     .def(py::init<>())
+  //     .def_readonly("x", &DTCC_BUILDER::Vector3D::x)
+  //     .def_readonly("y", &DTCC_BUILDER::Vector3D::y)
+  //     .def_readonly("z", &DTCC_BUILDER::Vector3D::z);
 
   py::class_<DTCC_BUILDER::BoundingBox2D>(m, "bounding_box")
       .def(py::init<>())

@@ -42,17 +42,17 @@ public:
     Timer timer("build_mesh");
 
     // Create empty subdomains for Triangle mesh building
-    std::vector<std::vector<Point2D>> sub_domains;
+    std::vector<std::vector<Vector2D>> sub_domains;
 
     // Get bounding box
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
 
     // build boundary
-    std::vector<Point2D> boundary;
+    std::vector<Vector2D> boundary;
     boundary.push_back(bbox.P);
-    boundary.push_back(Point2D(bbox.Q.x, bbox.P.y));
+    boundary.push_back(Vector2D(bbox.Q.x, bbox.P.y));
     boundary.push_back(bbox.Q);
-    boundary.push_back(Point2D(bbox.P.x, bbox.Q.y));
+    boundary.push_back(Vector2D(bbox.P.x, bbox.Q.y));
 
     // build ground mesh
     Mesh ground_mesh;
@@ -133,7 +133,7 @@ public:
     Mesh _mesh;
     // Create empty subdomains for Triangle mesh building
     // TODO: handle polygon with holes
-    std::vector<std::vector<Point2D>> sub_domains;
+    std::vector<std::vector<Vector2D>> sub_domains;
 
     call_triangle(_mesh, footprint.vertices, sub_domains, resolution, false);
     // set ground height
@@ -165,7 +165,7 @@ public:
     // Add points at top
     for (size_t i = 0; i < num_mesh_points; i++)
     {
-      const Point3D &p_2d = _mesh.vertices[i];
+      const Vector3D &p_2d = _mesh.vertices[i];
       const Vector3D p_3d(p_2d.x, p_2d.y, height);
       extrude_mesh.vertices[i] = p_3d;
     }
@@ -173,7 +173,7 @@ public:
     // Add points at bottom
     for (size_t i = 0; i < num_boundary_points; i++)
     {
-      const Point3D &p_2d = _mesh.vertices[i];
+      const Vector3D &p_2d = _mesh.vertices[i];
       const Vector3D p_3d(p_2d.x, p_2d.y, ground_height);
       extrude_mesh.vertices[num_mesh_points + i] = p_3d;
     }
@@ -222,7 +222,8 @@ public:
     Timer timer("build_ground_mesh");
 
     // print some stats
-    const BoundingBox2D bounding_box(Point2D(xmin, ymin), Point2D(xmax, ymax));
+    const BoundingBox2D bounding_box(Vector2D(xmin, ymin),
+                                     Vector2D(xmax, ymax));
     const size_t nx = (bounding_box.Q.x - bounding_box.P.x) / resolution;
     const size_t ny = (bounding_box.Q.y - bounding_box.P.y) / resolution;
     const size_t n = nx * ny;
@@ -232,16 +233,16 @@ public:
     info("Number of subdomains (buildings) is " + str(city.buildings.size()));
 
     // Extract subdomains (building footprints)
-    std::vector<std::vector<Point2D>> sub_domains;
+    std::vector<std::vector<Vector2D>> sub_domains;
     for (auto const &building : city.buildings)
       sub_domains.push_back(building.footprint.vertices);
 
     // build boundary
-    std::vector<Point2D> boundary{};
+    std::vector<Vector2D> boundary{};
     boundary.push_back(bounding_box.P);
-    boundary.push_back(Point2D(bounding_box.Q.x, bounding_box.P.y));
+    boundary.push_back(Vector2D(bounding_box.Q.x, bounding_box.P.y));
     boundary.push_back(bounding_box.Q);
-    boundary.push_back(Point2D(bounding_box.P.x, bounding_box.Q.y));
+    boundary.push_back(Vector2D(bounding_box.P.x, bounding_box.Q.y));
 
     // build 2D mesh
     Mesh mesh;
@@ -302,7 +303,7 @@ public:
 
         // Iterate over vertices in layer
         for (const auto &p_2d : ground_mesh.vertices)
-          volume_mesh.vertices[k++] = Point3D(p_2d.x, p_2d.y, z);
+          volume_mesh.vertices[k++] = Vector3D(p_2d.x, p_2d.y, z);
       }
     }
 
@@ -554,7 +555,7 @@ public:
     // Initialize new mesh data
     const size_t num_vertices = vertex_map.size();
     const size_t num_cells = cell_map.size();
-    std::vector<Point3D> _vertices(num_vertices);
+    std::vector<Vector3D> _vertices(num_vertices);
     std::vector<Simplex3D> _cells(num_cells);
     std::vector<int> _markers(num_cells);
 
@@ -590,8 +591,8 @@ private:
   // Call Triangle to compute 2D mesh
   static void
   call_triangle(Mesh &mesh,
-                const std::vector<Point2D> &boundary,
-                const std::vector<std::vector<Point2D>> &sub_domains,
+                const std::vector<Vector2D> &boundary,
+                const std::vector<std::vector<Vector2D>> &sub_domains,
                 double h,
                 bool sort_triangles)
   {
@@ -686,7 +687,7 @@ private:
     in.holelist = new double[2 * numHoles];
     {
     size_t k = 0;
-    Point2D c;
+    Vector2D c;
     for (auto const & InnerPolygon : SubDomains)
     {
     for (auto const & p : InnerPolygon)
@@ -715,7 +716,7 @@ private:
     mesh.vertices.reserve(out.numberofpoints);
     for (int i = 0; i < out.numberofpoints; i++)
     {
-      Point3D p(out.pointlist[2 * i], out.pointlist[2 * i + 1], 0.0);
+      Vector3D p(out.pointlist[2 * i], out.pointlist[2 * i + 1], 0.0);
       mesh.vertices.push_back(p);
     }
 
@@ -846,8 +847,8 @@ private:
     for (size_t i = 0; i < mesh.faces.size(); i++)
     {
       // find building containg midpoint of cell (if any)
-      const Point3D c_3d = mesh.mid_point(i);
-      const Point2D c_2d(c_3d.x, c_3d.y);
+      const Vector3D c_3d = mesh.mid_point(i);
+      const Vector2D c_2d(c_3d.x, c_3d.y);
       const int marker = city.find_building(Vector2D(c_2d));
 
       // Get triangle

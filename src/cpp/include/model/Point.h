@@ -48,7 +48,7 @@ public:
 };
 
 /// Point3D represents a point in 3D Euclidean space.
-class Point3D : public Printable
+class Vector3D : public Printable
 {
 public:
   /// First coordinate
@@ -61,15 +61,15 @@ public:
   double z{};
 
   /// Create point at origin
-  Point3D() = default;
-  virtual ~Point3D() {}
+  Vector3D() = default;
+  virtual ~Vector3D() {}
 
   /// Create point with given coordinates.
   ///
   /// @param x First coordinate
   /// @param y Second coordinate
   /// @param z Third coordinate
-  Point3D(double x, double y, double z) : x(x), y(y), z(z) {}
+  Vector3D(double x, double y, double z) : x(x), y(y), z(z) {}
 
   double operator[](int idx) const
   {

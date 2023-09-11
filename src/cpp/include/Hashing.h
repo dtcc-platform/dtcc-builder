@@ -54,9 +54,9 @@ public:
 
   /// Return hash of 2D point
   ///
-  /// @param point Point2D
+  /// @param point Vector2D
   /// @return Integer hash
-  static size_t hash(const Point2D &point)
+  static size_t hash(const Vector2D &point)
   {
     const size_t h0 = Hashing::hash(point.x);
     const size_t h1 = Hashing::hash(point.y);
@@ -65,9 +65,9 @@ public:
 
   /// Return hash of 3D point
   ///
-  /// @param point Point3D
+  /// @param point Vector3D
   /// @return Integer hash
-  static size_t hash(const Point3D &point)
+  static size_t hash(const Vector3D &point)
   {
     const size_t h0 = Hashing::hash(point.x);
     const size_t h1 = Hashing::hash(point.y);

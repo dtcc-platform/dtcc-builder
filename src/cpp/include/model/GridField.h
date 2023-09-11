@@ -43,7 +43,7 @@ public:
   ///
   /// @param p The point
   /// @return Value at point
-  double operator()(const Point2D &p) const
+  double operator()(const Vector2D &p) const
   {
     // Map point to cell
     size_t i{};
@@ -61,13 +61,13 @@ public:
   }
 
   /// Evaluate field at given 3D point (using only x and y)
-  double operator()(const Point3D &p) const
+  double operator()(const Vector3D &p) const
   {
-    Point2D _p(p.x, p.y);
+    Vector2D _p(p.x, p.y);
     return (*this)(_p);
   }
 
-  double nearest(const Point2D &p) const
+  double nearest(const Vector2D &p) const
   {
     size_t i{};
     double x{}, y{};

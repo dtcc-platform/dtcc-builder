@@ -7,13 +7,13 @@ TEST_CASE("Hashing")
 {
   SECTION("hash Point2D")
   {
-    Point2D p(1, 2);
+    Vector2D p(1, 2);
     info(Hashing::hex(Hashing::hash(p)));
   }
 
   SECTION("hash Point3D")
   {
-    Point3D p(1, 2, 3);
+    Vector3D p(1, 2, 3);
     info(Hashing::hex(Hashing::hash(p)));
   }
 }

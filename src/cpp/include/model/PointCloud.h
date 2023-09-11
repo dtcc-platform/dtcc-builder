@@ -21,7 +21,7 @@ class PointCloud : public Printable
 {
 public:
   /// Array of points
-  std::vector<Point3D> points{};
+  std::vector<Vector3D> points{};
 
   /// Array of normals
   std::vector<Vector3D> normals{};
@@ -41,7 +41,7 @@ public:
   /// Bounding box
   BoundingBox2D bounding_box{};
 
-  Point2D origin = Point2D(0, 0);
+  Vector2D origin = Vector2D(0, 0);
 
   /// Check if point cloud is empty
   bool empty() const { return points.empty(); }
@@ -60,7 +60,7 @@ public:
 
   /// Set new origin (subtract offset). Note that this only
   /// affects the x and y coordinates (z unaffected).
-  void set_origin(const Point2D &origin)
+  void set_origin(const Vector2D &origin)
   {
     info("PointCloud: Setting new origin to " + str(origin));
     const Vector2D v_2d{origin.x, origin.y};
@@ -107,7 +107,7 @@ public:
     std::vector<BoundingBox2D> bboxes;
     for (const auto &p_3d : points)
     {
-      const Point2D p_2d(p_3d.x, p_3d.y);
+      const Vector2D p_2d(p_3d.x, p_3d.y);
       BoundingBox2D bbox(p_2d, p_2d);
       bboxes.push_back(bbox);
     }

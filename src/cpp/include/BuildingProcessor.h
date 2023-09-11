@@ -31,13 +31,13 @@ public:
     {
       for (double y = bbox.P.y; y < bbox.Q.y; y += tile_size)
       {
-        auto tile =
-            BoundingBox2D(Point2D(x, y), Point2D(x + tile_size, y + tile_size));
+        auto tile = BoundingBox2D(Vector2D(x, y),
+                                  Vector2D(x + tile_size, y + tile_size));
         Polygon tile_poly;
-        tile_poly.vertices.push_back(Point2D(x, y));
-        tile_poly.vertices.push_back(Point2D(x + tile_size, y));
-        tile_poly.vertices.push_back(Point2D(x + tile_size, y + tile_size));
-        tile_poly.vertices.push_back(Point2D(x, y + tile_size));
+        tile_poly.vertices.push_back(Vector2D(x, y));
+        tile_poly.vertices.push_back(Vector2D(x + tile_size, y));
+        tile_poly.vertices.push_back(Vector2D(x + tile_size, y + tile_size));
+        tile_poly.vertices.push_back(Vector2D(x, y + tile_size));
 
         if (Geometry::intersects_2d(building.footprint, tile_poly))
         {
@@ -52,7 +52,7 @@ public:
     std::set<size_t> collision_set;
     for (const auto &point : building.roof_points)
     {
-      auto p = Point2D(point.x, point.y);
+      auto p = Vector2D(point.x, point.y);
       auto containingTile = tile_tree.find(p);
 
       if (containingTile.size() > 0)

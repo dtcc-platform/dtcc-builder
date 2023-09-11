@@ -20,7 +20,8 @@ public:
 
   GeoRaster() {}
 
-  double operator()(const Point2D& p, size_t band = 1) const {
+  double operator()(const Vector2D &p, size_t band = 1) const
+  {
     if (band > bands)
     {
       throw std::runtime_error("Raster only has " + str(bands) + " bands");
@@ -28,7 +29,7 @@ public:
     return values[band - 1].nearest(p);
   }
 
-  double interpolate(const Point2D &p, size_t band = 1)
+  double interpolate(const Vector2D &p, size_t band = 1)
   {
     if (band > bands)
     {

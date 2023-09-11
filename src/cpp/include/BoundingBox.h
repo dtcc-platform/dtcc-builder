@@ -19,10 +19,10 @@ class BoundingBox2D : public Printable
 {
 public:
   /// First ("lower left") corner
-  Point2D P;
+  Vector2D P;
 
   /// Second ("upper right") corner
-  Point2D Q;
+  Vector2D Q;
 
   /// Create empty bounding box
   BoundingBox2D() = default;
@@ -32,7 +32,7 @@ public:
   ///
   /// @param p First ("lower left") corner
   /// @param q Second ("upper right") corner
-  BoundingBox2D(const Point2D &p, const Point2D &q) : P(p), Q(q)
+  BoundingBox2D(const Vector2D &p, const Vector2D &q) : P(p), Q(q)
   {
     assert(p.x <= q.x);
     assert(p.y <= q.y);
@@ -42,7 +42,7 @@ public:
   ///
   /// @param points Vector if points
   /// @param margin Margin to use for bounding box
-  explicit BoundingBox2D(const std::vector<Point2D> &points,
+  explicit BoundingBox2D(const std::vector<Vector2D> &points,
                          double margin = 0.0)
   {
     constexpr double max = std::numeric_limits<double>::max();
@@ -65,7 +65,7 @@ public:
   ///
   /// @param points Vector if points
   /// @param margin Margin to use for bounding box
-  explicit BoundingBox2D(const std::vector<Point3D> &points,
+  explicit BoundingBox2D(const std::vector<Vector3D> &points,
                          double margin = 0.0)
   {
     constexpr double max = std::numeric_limits<double>::max();
@@ -121,8 +121,8 @@ public:
         Q.y <= other.P.y)
     {
       // empty BB
-      P = Point2D();
-      Q = Point2D();
+      P = Vector2D();
+      Q = Vector2D();
     }
     else
     {
@@ -157,10 +157,10 @@ class BoundingBox3D : public Printable
 {
 public:
   /// First ("lower left") corner
-  Point3D P{};
+  Vector3D P{};
 
   /// Second ("upper right") corner
-  Point3D Q{};
+  Vector3D Q{};
 
   /// Create empty bounding box
   BoundingBox3D() = default;
@@ -170,7 +170,7 @@ public:
   ///
   /// @param p First ("lower left") corner
   /// @param q Second ("upper right") corner
-  BoundingBox3D(const Point3D &p, const Point3D &q) : P(p), Q(q)
+  BoundingBox3D(const Vector3D &p, const Vector3D &q) : P(p), Q(q)
   {
     assert(p.x <= q.x);
     assert(p.y <= q.y);
@@ -181,7 +181,7 @@ public:
   ///
   /// @param points Vector if points
   /// @param margin Margin to use for bounding box
-  explicit BoundingBox3D(const std::vector<Point3D> &points,
+  explicit BoundingBox3D(const std::vector<Vector3D> &points,
                          double margin = 0.0)
   {
     constexpr double max = std::numeric_limits<double>::max();

@@ -64,10 +64,10 @@ public:
   double ground_height{};
 
   /// Array of ground points (from point cloud) close to building footprint
-  std::vector<Point3D> ground_points{};
+  std::vector<Vector3D> ground_points{};
 
   /// Array of roof points (from point cloud) inside building footprint
-  std::vector<Point3D> roof_points{};
+  std::vector<Vector3D> roof_points{};
 
   /// Arrary of array of
   std::vector<std::vector<size_t>> roof_segments{};
@@ -80,7 +80,7 @@ public:
   // int debugID;
 
   /// Set new origin (subtract offset)
-  void set_origin(const Point2D &origin) { footprint.set_origin(origin); }
+  void set_origin(const Vector2D &origin) { footprint.set_origin(origin); }
 
   /// Return minimum absolute height of building (equal to ground height).
   ///

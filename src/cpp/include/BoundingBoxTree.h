@@ -69,7 +69,7 @@ public:
   ///
   /// @param point The point
   /// @return Array of bounding box indices
-  std::vector<size_t> find(const Point2D &point) const
+  std::vector<size_t> find(const Vector2D &point) const
   {
     // Create empty list of bounding box indices
     std::vector<size_t> indices;
@@ -187,7 +187,7 @@ private:
   // find collisions between tree and point (recursive call)
   static void find_recursive(std::vector<size_t> &indices,
                              const BoundingBoxTree2D &tree,
-                             const Point2D &point,
+                             const Vector2D &point,
                              size_t node_index)
   {
     // Get current node
@@ -268,8 +268,8 @@ private:
     // Initialize bounding box
     constexpr double max = std::numeric_limits<double>::max();
     BoundingBox2D bounding_box;
-    bounding_box.P = Point2D(max, max);
-    bounding_box.Q = Point2D(-max, -max);
+    bounding_box.P = Vector2D(max, max);
+    bounding_box.Q = Vector2D(-max, -max);
 
     // Iterate over bounding boxes to compute bounds
     for (auto it = begin; it != end; it++)

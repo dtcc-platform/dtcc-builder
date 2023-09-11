@@ -62,7 +62,7 @@ public:
 
       // Compute face normal and orientation
       Vector3D n = Geometry::face_normal_3d(face, volume_mesh);
-      const Point3D c = Geometry::cell_center_3d(cell, volume_mesh);
+      const Vector3D c = Geometry::cell_center_3d(cell, volume_mesh);
       const Vector3D w = Vector3D(volume_mesh.vertices[face.v0]) - Vector3D(c);
       const int orientation = (Geometry::dot_3d(n, w) > 0.0 ? 1 : -1);
 
@@ -111,7 +111,7 @@ public:
     {
       // Get face and midpoint
       const Simplex2D &face = boundary.faces[i];
-      const Point3D center = boundary.mid_point(i);
+      const Vector3D center = boundary.mid_point(i);
 
       // Skip if touching bounding box and not pointing upward
       if (std::abs(center.x - bbox.P.x) < Constants::epsilon ||

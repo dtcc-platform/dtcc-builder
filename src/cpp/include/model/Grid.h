@@ -73,7 +73,7 @@ public:
   ///
   /// @param i Vertex index
   /// @return Vertex coordinates as a point
-  Point2D index_to_point(size_t i) const
+  Vector2D index_to_point(size_t i) const
   {
     const size_t ix = i % xsize;
     const size_t iy = i / xsize;
@@ -166,7 +166,7 @@ public:
   /// @param ix Grid index for x-direction (output)
   /// @param iy Grid index for y-direction (output)
   /// @param p Point
-  void point_to_index(long int &ix, long int &iy, const Point2D &p) const
+  void point_to_index(long int &ix, long int &iy, const Vector2D &p) const
   {
     const double _x = p.x - bounding_box.P.x;
     const double _y = p.y - bounding_box.P.y;
@@ -178,7 +178,7 @@ public:
   ///
   /// @param p Point
   /// @return Vertex index
-  size_t point_to_index(const Point2D &p) const
+  size_t point_to_index(const Vector2D &p) const
   {
     long int ix{}, iy{};
     point_to_index(ix, iy, p);
@@ -191,7 +191,7 @@ public:
   /// @param i Index of cell containing point
   /// @param x Local X-coordinate on cell (scaled)
   /// @param y Local Y-coordinate on cell (scaled)
-  void point_to_cell(const Point2D &p, size_t &i, double &x, double &y) const
+  void point_to_cell(const Vector2D &p, size_t &i, double &x, double &y) const
   {
     // Check that point is inside domain
     if (!Geometry::bounding_box_contains_2d(bounding_box, p))

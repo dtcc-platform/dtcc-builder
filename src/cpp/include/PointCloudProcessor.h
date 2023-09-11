@@ -37,7 +37,7 @@ public:
 
     for (auto p : point_cloud.points)
     {
-      Point2D p2d = Point2D(p.x, p.y);
+      Vector2D p2d = Vector2D(p.x, p.y);
       try
       {
         r = raster(p2d, 1);
@@ -153,7 +153,7 @@ public:
   /// @param outlier_margin Number of standard deviations
   /// @return Vector of indices for removed points
   static std::vector<size_t>
-  find_global_outliers(const std::vector<Point3D> &points,
+  find_global_outliers(const std::vector<Vector3D> &points,
                        double outlier_margin)
   {
     // Compute mean
@@ -187,7 +187,7 @@ public:
   /// @param points The vector of points
   /// @param outlier_margin Number of standard deviations
   /// @return Vector of indices for removed points
-  static std::vector<size_t> remove_outliers(std::vector<Point3D> &points,
+  static std::vector<size_t> remove_outliers(std::vector<Vector3D> &points,
                                              double outlier_margin,
                                              bool verbose = false)
   {
@@ -225,11 +225,11 @@ public:
     }
 
     // Remove outliers (can perhaps be implemented more efficiently)
-    std::vector<Point3D> new_points;
+    std::vector<Vector3D> new_points;
     std::vector<size_t> outliers;
     for (size_t i = 0; i < points.size(); i++)
     {
-      const Point3D &p = points[i];
+      const Vector3D &p = points[i];
       if (std::abs(p.z - mean) <= outlier_margin * std)
       {
         new_points.push_back(p);
@@ -258,7 +258,7 @@ public:
     return outliers;
   }
   static std::vector<std::vector<double>>
-  knn_nearest_neighbours(std::vector<Point3D> &points, size_t neighbours)
+  knn_nearest_neighbours(std::vector<Vector3D> &points, size_t neighbours)
   {
     size_t pc_size = points.size();
     std::vector<std::vector<double>> neighbour_dist(pc_size);
@@ -269,7 +269,7 @@ public:
     }
     neighbours++; // N neighbours other than ourselves
 
-    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Vector3D>, double,
                                          3 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(3 /*dim*/, points, 10 /* max leaf */);
@@ -306,7 +306,7 @@ public:
   /// @param outlier_margin Number of standard deviations
   /// @return Vector of indices of outlier points
   static std::vector<size_t>
-  statistical_outlier_finder(std::vector<Point3D> &points,
+  statistical_outlier_finder(std::vector<Vector3D> &points,
                              size_t neighbours,
                              double outlier_margin,
                              bool verbose = false)
@@ -359,7 +359,7 @@ public:
   /// Returns the Distance to the K nearest neighbors for each point in
   /// points
   static std::vector<std::vector<double>>
-  knn_nearest_neighbours_dist(std::vector<Point3D> &points, size_t neighbours)
+  knn_nearest_neighbours_dist(std::vector<Vector3D> &points, size_t neighbours)
   {
     size_t pc_size = points.size();
     std::vector<std::vector<double>> neighbour_dist(pc_size);
@@ -370,7 +370,7 @@ public:
     }
     neighbours++; // N neighbours other than ourselves
 
-    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Vector3D>, double,
                                          3 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(3 /*dim*/, points, 10 /* max leaf */);
@@ -400,7 +400,7 @@ public:
   /// Returns the index of the K nearest neighbors for each point in
   /// points
   static std::vector<std::vector<size_t>>
-  knn_nearest_neighbours_idx(std::vector<Point3D> &points, size_t neighbours)
+  knn_nearest_neighbours_idx(std::vector<Vector3D> &points, size_t neighbours)
   {
     size_t pc_size = points.size();
     std::vector<std::vector<size_t>> neighbour_idx(pc_size);
@@ -411,7 +411,7 @@ public:
     }
     neighbours++; // N neighbours other than ourselves
 
-    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Point3D>, double,
+    typedef KDTreeVectorOfVectorsAdaptor<std::vector<Vector3D>, double,
                                          3 /* dims */>
         my_kd_tree_t;
     my_kd_tree_t pc_index(3 /*dim*/, points, 10 /* max leaf */);
@@ -444,7 +444,7 @@ public:
   /// greater than the number of points in the point cloud use all points
   /// @param outlier_margin Number of standard deviations
   /// @param verbose give verbose detail
-  static void statistical_outlier_remover(std::vector<Point3D> &points,
+  static void statistical_outlier_remover(std::vector<Vector3D> &points,
                                           size_t neighbours,
                                           double outlier_margin,
                                           bool verbose = false)
@@ -452,7 +452,7 @@ public:
     Timer("StatisticalOurtierRemover");
     std::vector<size_t> outliers =
         statistical_outlier_finder(points, neighbours, outlier_margin, verbose);
-    std::vector<Point3D> new_points;
+    std::vector<Vector3D> new_points;
     size_t k = 0;
     for (size_t i = 0; i < points.size(); i++)
     {
@@ -497,7 +497,7 @@ public:
     filter_point_cloud(point_cloud, outliers);
   }
 
-  static void ransac_outlier_remover(std::vector<Point3D> &points,
+  static void ransac_outlier_remover(std::vector<Vector3D> &points,
                                      double distance_threshold,
                                      size_t iterations = 100)
   {
@@ -507,7 +507,7 @@ public:
         ransac_outlier_finder(points, distance_threshold, iterations);
     if (outliers.size() == 0)
       return;
-    std::vector<Point3D> new_points;
+    std::vector<Vector3D> new_points;
     size_t k = 0;
     for (size_t i = 0; i < points.size(); i++)
     {
@@ -523,9 +523,10 @@ public:
     points = new_points;
   }
 
-  static std::vector<size_t> ransac_outlier_finder(std::vector<Point3D> &points,
-                                                   double distance_threshold,
-                                                   size_t iterations = 100)
+  static std::vector<size_t>
+  ransac_outlier_finder(std::vector<Vector3D> &points,
+                        double distance_threshold,
+                        size_t iterations = 100)
   {
 
     std::vector<size_t> outliers;
@@ -538,7 +539,7 @@ public:
     std::default_random_engine generator(seed);
     std::uniform_int_distribution<size_t> distribution(0, points.size() - 1);
     auto rand_idx = std::bind(distribution, generator);
-    Point3D pt1, pt2, pt3;
+    Vector3D pt1, pt2, pt3;
     Vector3D v1, v2, v3;
     size_t idx1, idx2, idx3;
     double k;
@@ -593,7 +594,7 @@ public:
                                  std::vector<size_t> pts_to_remove)
   {
     std::sort(pts_to_remove.begin(), pts_to_remove.end());
-    std::vector<Point3D> new_points;
+    std::vector<Vector3D> new_points;
     std::vector<Vector3D> new_normals;
     std::vector<Color> new_colors{};
     std::vector<uint8_t> new_classifications{};
@@ -709,8 +710,8 @@ public:
     point_cloud.normals = normals;
   };
 
-  static std::vector<Vector3D> estimate_normals_knn(std::vector<Point3D> points,
-                                                    size_t neighbours)
+  static std::vector<Vector3D>
+  estimate_normals_knn(std::vector<Vector3D> points, size_t neighbours)
   {
     std::vector<Vector3D> normals;
     auto neigbours_idx = knn_nearest_neighbours_idx(points, neighbours);

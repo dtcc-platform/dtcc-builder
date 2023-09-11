@@ -20,7 +20,7 @@ class VolumeMesh : public Printable
 {
 public:
   /// Array of vertices
-  std::vector<Point3D> vertices{};
+  std::vector<Vector3D> vertices{};
 
   /// Array of cells (tetrahedra)
   std::vector<Simplex3D> cells{};
@@ -34,7 +34,7 @@ public:
   virtual ~VolumeMesh() {} // make the destructor virtual
 
   /// Compute of cell
-  Point3D mid_point(size_t cell_index) const
+  Vector3D mid_point(size_t cell_index) const
   {
     Vector3D c;
     c += Vector3D(vertices[cells[cell_index].v0]);

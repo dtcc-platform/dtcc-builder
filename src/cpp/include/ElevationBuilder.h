@@ -92,7 +92,7 @@ public:
     for (auto const &p_3d : point_cloud.points)
     {
       // Get 2D point
-      const Point2D p_2d{p_3d.x, p_3d.y};
+      const Vector2D p_2d{p_3d.x, p_3d.y};
 
       // Skip if outside of domain
       if (!Geometry::bounding_box_contains_2d(dem.grid.bounding_box, p_2d))
@@ -118,13 +118,13 @@ public:
     for (size_t i = 0; i < point_cloud.points.size(); i++)
     {
       // Get point and classification
-      const Point3D &p_3d{point_cloud.points[i]};
+      const Vector3D &p_3d{point_cloud.points[i]};
       uint8_t clf = 0;
       if (has_classification)
         clf = {point_cloud.classifications[i]};
 
       // Get 2D Point
-      const Point2D p_2d{p_3d.x, p_3d.y};
+      const Vector2D p_2d{p_3d.x, p_3d.y};
 
       // Check classification (accept all classifications if empty list)
       bool match = true;
@@ -324,7 +324,7 @@ public:
     std::fill(dem.values.begin(), dem.values.end(), 0.0);
     for (size_t i = 0; i < dem.values.size(); i++)
     {
-      const Point2D p = dem.grid.index_to_point(i);
+      const Vector2D p = dem.grid.index_to_point(i);
       for (size_t k = 0; k < num_hills; k++)
       {
         const double dx = p.x - x[k];

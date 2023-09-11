@@ -5,7 +5,7 @@ using namespace DTCC_BUILDER;
 TEST_CASE("BoundingBox2D")
 {
   Polygon p;
-  p.vertices = {Point2D(1, 2), Point2D(0, 3), Point2D(2, 1)};
+  p.vertices = {Vector2D(1, 2), Vector2D(0, 3), Vector2D(2, 1)};
   BoundingBox2D bbox_p(p);
   BoundingBox2D bbox_v(p.vertices);
 
@@ -17,13 +17,13 @@ TEST_CASE("BoundingBox2D")
     REQUIRE(bbox.Q.y == 3);
   }
 
-  Point2D p1 = Point2D(0, 0);
-  Point2D p2 = Point2D(5, 5);
-  Point2D p3 = Point2D(-5, -5);
-  Point2D p4 = Point2D(-1, -1);
-  Point2D p5 = Point2D(-2, -2);
-  Point2D p6 = Point2D(2, 2);
-  Point2D p7 = Point2D(1, 1);
+  Vector2D p1 = Vector2D(0, 0);
+  Vector2D p2 = Vector2D(5, 5);
+  Vector2D p3 = Vector2D(-5, -5);
+  Vector2D p4 = Vector2D(-1, -1);
+  Vector2D p5 = Vector2D(-2, -2);
+  Vector2D p6 = Vector2D(2, 2);
+  Vector2D p7 = Vector2D(1, 1);
 
   SECTION("UNION")
   {

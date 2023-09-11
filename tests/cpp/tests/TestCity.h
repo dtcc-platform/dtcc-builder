@@ -16,29 +16,29 @@ TEST_CASE("Filter City")
   Polygon fp2;
   Polygon fp3;
 
-  fp1.vertices.push_back(Point2D(0, 0));
-  fp1.vertices.push_back(Point2D(0, 1));
-  fp1.vertices.push_back(Point2D(1, 1));
-  fp1.vertices.push_back(Point2D(1, 0));
-  fp1.vertices.push_back(Point2D(0, 0));
+  fp1.vertices.push_back(Vector2D(0, 0));
+  fp1.vertices.push_back(Vector2D(0, 1));
+  fp1.vertices.push_back(Vector2D(1, 1));
+  fp1.vertices.push_back(Vector2D(1, 0));
+  fp1.vertices.push_back(Vector2D(0, 0));
 
   Polyfix::make_closed(fp1, 0);
   Polyfix::make_oriented(fp1);
 
-  fp2.vertices.push_back(Point2D(0, 0));
-  fp2.vertices.push_back(Point2D(0, 5));
-  fp2.vertices.push_back(Point2D(5, 5));
-  fp2.vertices.push_back(Point2D(5, 0));
-  fp2.vertices.push_back(Point2D(0, 0));
+  fp2.vertices.push_back(Vector2D(0, 0));
+  fp2.vertices.push_back(Vector2D(0, 5));
+  fp2.vertices.push_back(Vector2D(5, 5));
+  fp2.vertices.push_back(Vector2D(5, 0));
+  fp2.vertices.push_back(Vector2D(0, 0));
 
   Polyfix::make_closed(fp2, 0);
   Polyfix::make_oriented(fp2);
 
-  fp3.vertices.push_back(Point2D(0, 0));
-  fp3.vertices.push_back(Point2D(0, 10));
-  fp3.vertices.push_back(Point2D(10, 10));
-  fp3.vertices.push_back(Point2D(10, 0));
-  fp3.vertices.push_back(Point2D(0, 0));
+  fp3.vertices.push_back(Vector2D(0, 0));
+  fp3.vertices.push_back(Vector2D(0, 10));
+  fp3.vertices.push_back(Vector2D(10, 10));
+  fp3.vertices.push_back(Vector2D(10, 0));
+  fp3.vertices.push_back(Vector2D(0, 0));
 
   Polyfix::make_closed(fp3, 0);
   Polyfix::make_oriented(fp3);

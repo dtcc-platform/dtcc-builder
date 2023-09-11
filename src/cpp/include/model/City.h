@@ -27,14 +27,14 @@ public:
   /// Array of buildings
   std::vector<Building> buildings;
 
-  Point2D origin = Point2D(0, 0);
+  Vector2D origin = Vector2D(0, 0);
 
   /// Create empty city
   City() = default;
   virtual ~City() {} // make the destructor virtual
 
   /// Set new origin (subtract offset)
-  void set_origin(const Point2D &origin)
+  void set_origin(const Vector2D &origin)
   {
     info("City: Setting new origin to " + str(origin));
     for (auto &building : buildings)
@@ -101,7 +101,7 @@ public:
   }
 
   // Compute center of city
-  Point2D center() const
+  Vector2D center() const
   {
     Vector2D c{};
     size_t num_points = 0;

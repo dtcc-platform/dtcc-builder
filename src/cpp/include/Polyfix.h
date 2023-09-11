@@ -162,7 +162,7 @@ public:
   ///
   /// @param polygon The polygon
   /// @param origin The origin to be subtracted
-  static void transform(Polygon &polygon, const Point2D &origin)
+  static void transform(Polygon &polygon, const Vector2D &origin)
   {
     transform(polygon.vertices, origin);
   }
@@ -171,7 +171,7 @@ public:
   ///
   /// @param polygon The polygon
   /// @param origin The origin to be subtracted
-  static void transform(std::vector<Point2D> &vertices, const Point2D &origin)
+  static void transform(std::vector<Vector2D> &vertices, const Vector2D &origin)
   {
     // Subtract origin from each vertex
     Vector2D _origin(origin);
@@ -203,7 +203,7 @@ public:
     const size_t n = polygon1.vertices.size();
 
     // Get all vertices
-    std::vector<Point2D> vertices;
+    std::vector<Vector2D> vertices;
     vertices.reserve(m + n);
     for (const auto &p : polygon0.vertices)
       vertices.push_back(p);
@@ -481,7 +481,7 @@ private:
   static void remove_vertices(Polygon &polygon, size_t end)
   {
     // Copy vertices to be kept to new vector
-    std::vector<Point2D> vertices(end);
+    std::vector<Vector2D> vertices(end);
     for (size_t i = 0; i < end; i++)
       vertices[i] = polygon.vertices[i];
 
@@ -494,7 +494,7 @@ private:
                               const std::vector<size_t> &remove)
   {
     // Copy vertices to be kept to new vector
-    std::vector<Point2D> vertices(polygon.vertices.size() - remove.size());
+    std::vector<Vector2D> vertices(polygon.vertices.size() - remove.size());
     size_t k = 0;
     size_t l = 0;
     for (size_t i = 0; i < polygon.vertices.size(); i++)
@@ -516,7 +516,7 @@ private:
   static void connect_vertex_edge(size_t i,
                                   size_t j0,
                                   size_t j1,
-                                  std::vector<Point2D> &vertices,
+                                  std::vector<Vector2D> &vertices,
                                   std::vector<std::vector<size_t>> &edges,
                                   double tol)
   {
@@ -525,9 +525,9 @@ private:
     const double eps2 = Constants::epsilon * Constants::epsilon;
 
     // Get vertices
-    const Point2D &p = vertices[i];
-    const Point2D &q0 = vertices[j0];
-    const Point2D &q1 = vertices[j1];
+    const Vector2D &p = vertices[i];
+    const Vector2D &q0 = vertices[j0];
+    const Vector2D &q1 = vertices[j1];
 
     // Connect vertices if close (create new edge)
     bool connected = false;
@@ -558,7 +558,7 @@ private:
     if (Geometry::squared_distance_2d(q0, q1, p) < tol2)
     {
       const Vector2D u(q0, p);
-      const Point2D r = q0 + v * (Geometry::dot_2d(u, v) / v2);
+      const Vector2D r = q0 + v * (Geometry::dot_2d(u, v) / v2);
       const size_t k = vertices.size();
       vertices.push_back(r);
       edges.push_back(std::vector<size_t>({i, j0, j1}));
@@ -573,7 +573,7 @@ private:
                                 size_t i1,
                                 size_t j0,
                                 size_t j1,
-                                std::vector<Point2D> &vertices,
+                                std::vector<Vector2D> &vertices,
                                 std::vector<std::vector<size_t>> &edges,
                                 double tol)
   {
@@ -582,10 +582,10 @@ private:
     assert(i1 < vertices.size());
     assert(j0 < vertices.size());
     assert(j1 < vertices.size());
-    const Point2D p0 = vertices[i0];
-    const Point2D p1 = vertices[i1];
-    const Point2D q0 = vertices[j0];
-    const Point2D q1 = vertices[j1];
+    const Vector2D p0 = vertices[i0];
+    const Vector2D p1 = vertices[i1];
+    const Vector2D q0 = vertices[j0];
+    const Vector2D q1 = vertices[j1];
 
     // Don't look for intersection if almost parallel
     const Vector2D u(p0, p1);
@@ -598,7 +598,7 @@ private:
       return;
 
     // Compute edge-edge intersection
-    const Point2D r = Geometry::edge_intersection_2d(p0, p1, q0, q1);
+    const Vector2D r = Geometry::edge_intersection_2d(p0, p1, q0, q1);
 
     // Connect edges to intersection if close
     if (Geometry::edge_contains_2d(p0, p1, r, tol) &&

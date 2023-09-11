@@ -148,7 +148,7 @@ TEST_CASE("Vegetation filter")
 
 TEST_CASE("RANSAC filter")
 {
-  std::vector<Point3D> points;
+  std::vector<Vector3D> points;
   points.push_back(Vector3D(0, 0, 25));
   points.push_back(Vector3D(0, 0, -25));
   for (int x = 0; x < 10; x++)
