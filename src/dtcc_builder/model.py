@@ -72,8 +72,11 @@ def raster_to_builder_gridfield(raster: Raster):
         A `DTCC_BUILDER` GridField object.
 
     """
+    # rasters start in top left corner, gridfields in bottom left
+    # flip the data to match
+    data = np.flipud(raster.data).flatten()
     return _dtcc_builder.create_gridfield(
-        raster.data.flatten(),
+        data,
         raster.bounds.tuple,
         raster.width,
         raster.height,
@@ -85,6 +88,7 @@ def raster_to_builder_gridfield(raster: Raster):
 def create_builder_city(city: City):
     """
     Create a DTCC builder City object through the pybind exposed C++
+
     `DTCC_BUILDER::create_city()` function.
 
     Parameters
