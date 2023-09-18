@@ -17,35 +17,35 @@ namespace DTCC_BUILDER
 class Timer
 {
 public:
-  /// Name of timer
-  std::string Name{};
+  /// name of timer
+  std::string name{};
 
   /// Create timer. By default the clock starts when the timer
   /// is constructed and the elapsed time is reported when timer
   /// goes out of scope.
-  explicit Timer(std::string name, bool autoStart = true)
-      : Name(std::move(name)), autoStart(autoStart), running(false)
+  explicit Timer(std::string name, bool auto_start = true)
+      : name(std::move(name)), auto_start(auto_start), running(false)
   {
-    if (autoStart)
-      Start();
+    if (auto_start)
+      start();
   }
 
   // Destructor
   ~Timer()
   {
-    if (autoStart and running)
-      Stop();
+    if (auto_start and running)
+      stop();
   }
 
-  // Start clock
-  void Start()
+  // start clock
+  void start()
   {
     t0 = std::chrono::high_resolution_clock::now();
     running = true;
   }
 
-  // Stop clock
-  void Stop()
+  // stop clock
+  void stop()
   {
     // Check if timer is running
     if (!running)
@@ -59,38 +59,38 @@ public:
     running = false;
 
     // Register timing
-    auto it = timings.find(Name);
+    auto it = timings.find(name);
     if (it == timings.end())
     {
-      timings[Name] = std::make_pair(Time(), 1);
+      timings[name] = std::make_pair(time(), 1);
     }
     else
     {
-      it->second.first += Time();
+      it->second.first += time();
       it->second.second += 1;
     }
   }
 
   // Return elapsed time
-  double Time() const
+  double time() const
   {
     std::chrono::duration<double, std::milli> dt = t1 - t0;
     return dt.count() / 1000.0;
   }
 
-  // Print elapsed time
-  void Print() const
+  // print elapsed time
+  void print() const
   {
-    info("Elapsed time (CPU): " + str(Time()) + " (" + Name + ")");
+    info("Elapsed time (CPU): " + str(time()) + " (" + name + ")");
   }
 
-  // Print report (summary of all timers)
-  static void Report(const std::string &title,
-                     const std::string &fileName = "Timings.json")
+  // print report (summary of all timers)
+  static void report(const std::string &title,
+                     const std::string &file_name = "Timings.json")
   {
-    // Build table
+    // build table
     Table table(title);
-    table.Rows.push_back({"Task", "CPU mean", "CPU total", "Count"});
+    table.rows.push_back({"Task", "CPU mean", "CPU total", "Count"});
     for (const auto &it : timings)
     {
       const std::string task = it.first;
@@ -102,30 +102,30 @@ public:
       row.push_back(str(mean));
       row.push_back(str(total));
       row.push_back(str(count));
-      table.Rows.push_back(row);
+      table.rows.push_back(row);
     }
 
-    // Print table
+    // print table
     info(table);
 
     // Write JSON
-    // JSON::Write(timings, fileName, 4);
+    // JSON::Write(timings, file_name, 4);
   }
 
 private:
   // True if timer is started and stopped automatically
-  bool autoStart{};
+  bool auto_start{};
 
   // True if timer is running
   bool running{};
 
-  // Time at start
+  // time at start
   std::chrono::high_resolution_clock::time_point t0{};
 
-  // Time when stopped
+  // time when stopped
   std::chrono::high_resolution_clock::time_point t1{};
 
-  // Array of registered timings: Name --> (Total time, Count)
+  // Array of registered timings: name --> (Total time, Count)
   static std::map<std::string, std::pair<double, size_t>> timings;
 };
 

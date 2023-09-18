@@ -8,29 +8,29 @@
 #include <vector>
 
 #include "Logging.h"
-#include "Point.h"
+#include "Vector.h"
 
 namespace DTCC_BUILDER
 {
 
 class Polygon : public Printable
 {
-  typedef std::vector<Point2D> LineString;
+  typedef std::vector<Vector2D> LineString;
 
 public:
   // Array of vertices
-  LineString Vertices{};
+  LineString vertices{};
 
-  std::vector<LineString> Holes{};
+  std::vector<LineString> holes{};
 
   // Create empty polygon
   Polygon() = default;
   virtual ~Polygon() {} // make the destructor virtual
 
   /// Set new origin (subtract offset)
-  void SetOrigin(const Point2D &origin)
+  void set_origin(const Vector2D &origin)
   {
-    for (auto &p : Vertices)
+    for (auto &p : vertices)
     {
       p.x -= origin.x;
       p.y -= origin.y;
@@ -41,11 +41,11 @@ public:
   std::string __str__() const override
   {
     std::string s = "[";
-    for (size_t i = 0; i < Vertices.size(); i++)
+    for (size_t i = 0; i < vertices.size(); i++)
     {
       if (i > 0)
         s += ", ";
-      s += str(Vertices[i]);
+      s += str(vertices[i]);
     }
     s += "]";
     return s;
