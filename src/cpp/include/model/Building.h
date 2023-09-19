@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "Logging.h"
-#include "model/Point.h"
 #include "model/Polygon.h"
 #include "model/Vector.h"
 
@@ -34,43 +33,43 @@ class Building : public Printable
 {
 public:
   /// Universally unique identifier of building
-  std::vector<std::string> AttachedUUIDs{};
+  std::vector<std::string> attached_uuids{};
 
   /// Universally unique identifier of building
-  std::string UUID{};
+  std::string uuid{};
 
   /// ID (index) of building when parsed from shapefile
-  int SHPFileID{};
+  int shpfile_id{};
 
   /// FNR of property containing building
-  size_t PropertyFNR{};
+  size_t property_fnr{};
 
-  /// UUID of property containing building
-  std::string PropertyUUID;
+  /// uuid of property containing building
+  std::string property_uuid;
 
-  /// Footprint of building (a 2D polygon)
-  Polygon Footprint{};
+  /// footprint of building (a 2D polygon)
+  Polygon footprint{};
 
-  /// UUID of property containing building
-  std::string BaseAreaID{};
+  /// uuid of property containing building
+  std::string base_area_id{};
 
-  /// Height of building relative to ground height
-  double Height{};
+  /// height of building relative to ground height
+  double height{};
 
   /// Error code for error found during while generating building
   size_t error = 0;
 
-  /// Height of ground at site of building
-  double GroundHeight{};
+  /// height of ground at site of building
+  double ground_height{};
 
   /// Array of ground points (from point cloud) close to building footprint
-  std::vector<Point3D> GroundPoints{};
+  std::vector<Vector3D> ground_points{};
 
   /// Array of roof points (from point cloud) inside building footprint
-  std::vector<Point3D> RoofPoints{};
+  std::vector<Vector3D> roof_points{};
 
   /// Arrary of array of
-  std::vector<std::vector<size_t>> RoofSegments{};
+  std::vector<std::vector<size_t>> roof_segments{};
 
   /// Create empty building
   Building() = default;
@@ -80,36 +79,36 @@ public:
   // int debugID;
 
   /// Set new origin (subtract offset)
-  void SetOrigin(const Point2D &origin) { Footprint.SetOrigin(origin); }
+  void set_origin(const Vector2D &origin) { footprint.set_origin(origin); }
 
   /// Return minimum absolute height of building (equal to ground height).
   ///
   /// @return Minimum absolute height of building
-  double MinHeight() const { return GroundHeight; }
+  double min_height() const { return ground_height; }
 
   /// Return maximum absolute height of building
   ///
   /// @return Maximum absolute height of building
-  double MaxHeight() const { return GroundHeight + Height; }
+  double max_height() const { return ground_height + height; }
 
   /// Check if building is empty
-  bool Empty() const { return Footprint.Vertices.empty(); }
+  bool empty() const { return footprint.vertices.empty(); }
 
   /// Check if building is valid (at least 3 vertices)
-  bool Valid() const { return Footprint.Vertices.size() >= 3; }
+  bool valid() const { return footprint.vertices.size() >= 3; }
 
-  /// Clear all data
-  void Clear()
+  /// clear all data
+  void clear()
   {
-    UUID = "";
-    SHPFileID = 0;
-    Footprint.Vertices.clear();
-    Height = 0.0;
-    GroundHeight = 0.0;
+    uuid = "";
+    shpfile_id = 0;
+    footprint.vertices.clear();
+    height = 0.0;
+    ground_height = 0.0;
     error = 0;
-    GroundPoints.clear();
-    RoofPoints.clear();
-    RoofSegments.clear();
+    ground_points.clear();
+    roof_points.clear();
+    roof_segments.clear();
   }
 
   /// Pretty-print Building.
@@ -117,13 +116,13 @@ public:
   std::string __str__() const override
   {
     return "Building\n"
-           "UUID: " +
-           UUID + "\nProperty FNR: " + str(PropertyFNR) +
-           "\nProperty UUID: " + PropertyUUID +
-           "\nBase area ID: " + BaseAreaID +
-           "\nMin height: " + std::to_string(MinHeight()) +
-           "\nMax height: " + std::to_string(MaxHeight()) +
-           "\nFootprint: " + Footprint.__str__();
+           "uuid: " +
+           uuid + "\nProperty FNR: " + str(property_fnr) +
+           "\nProperty uuid: " + property_uuid +
+           "\nBase area ID: " + base_area_id +
+           "\nMin height: " + std::to_string(min_height()) +
+           "\nMax height: " + std::to_string(max_height()) +
+           "\nFootprint: " + footprint.__str__();
   }
 };
 

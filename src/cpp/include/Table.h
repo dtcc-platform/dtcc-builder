@@ -17,14 +17,14 @@ namespace DTCC_BUILDER
 class Table : public Printable
 {
 public:
-  /// Title
-  std::string Title{};
+  /// title
+  std::string title{};
 
-  /// Rows of data (number of columns may vary)
-  std::vector<std::vector<std::string>> Rows{};
+  /// rows of data (number of columns may vary)
+  std::vector<std::vector<std::string>> rows{};
 
   /// Create table with given title
-  Table(const std::string &title) : Title(title) {}
+  Table(const std::string &title) : title(title) {}
 
   /// Pretty-print
   std::string __str__() const override
@@ -33,47 +33,47 @@ public:
     const size_t h = 2;
 
     // Compute number of columns
-    size_t numCols{0};
-    for (const auto &row : Rows)
-      numCols = std::max(numCols, row.size());
+    size_t num_cols{0};
+    for (const auto &row : rows)
+      num_cols = std::max(num_cols, row.size());
 
     // Return if no data
-    if (numCols == 0)
+    if (num_cols == 0)
       return "";
 
     // Compute column sizes
-    std::vector<size_t> colSizes(numCols);
-    std::fill(colSizes.begin(), colSizes.end(), 0);
-    for (size_t i = 0; i < Rows.size(); i++)
-      for (size_t j = 0; j < Rows[i].size(); j++)
-        colSizes[j] = std::max(colSizes[j], Rows[i][j].size() + h);
+    std::vector<size_t> col_sizes(num_cols);
+    std::fill(col_sizes.begin(), col_sizes.end(), 0);
+    for (size_t i = 0; i < rows.size(); i++)
+      for (size_t j = 0; j < rows[i].size(); j++)
+        col_sizes[j] = std::max(col_sizes[j], rows[i][j].size() + h);
 
     // Compute table width
     size_t width{0};
-    for (size_t j = 0; j < numCols; j++)
-      width += colSizes[j];
+    for (size_t j = 0; j < num_cols; j++)
+      width += col_sizes[j];
     width -= h;
 
-    // Print title
+    // print title
     std::string s{};
     s += "\n";
     for (size_t j = 0; j < width; j++)
       s += "=";
     s += "\n";
-    s += Title + "\n";
+    s += title + "\n";
     for (size_t j = 0; j < width; j++)
       s += "=";
     s += "\n";
 
-    // Print rows
-    for (size_t i = 0; i < Rows.size(); i++)
+    // print rows
+    for (size_t i = 0; i < rows.size(); i++)
     {
-      for (size_t j = 0; j < Rows[i].size(); j++)
+      for (size_t j = 0; j < rows[i].size(); j++)
       {
-        s += Rows[i][j];
-        if (j + 1 < Rows[i].size())
+        s += rows[i][j];
+        if (j + 1 < rows[i].size())
         {
-          const size_t padding = colSizes[j] - Rows[i][j].size();
+          const size_t padding = col_sizes[j] - rows[i][j].size();
           for (size_t k = 0; k < padding; k++)
             s += " ";
         }

@@ -18,33 +18,33 @@ namespace DTCC_BUILDER
 // Represents flattened 4x4 matrix
 void compute_element_matrix(double *A, const double *vertices)
 {
-  const double J_c4 = vertices[7] - vertices[1];
-  const double J_c8 = vertices[11] - vertices[2];
-  const double J_c5 = vertices[10] - vertices[1];
-  const double J_c7 = vertices[8] - vertices[2];
-  const double J_c0 = vertices[3] - vertices[0];
-  const double J_c1 = vertices[6] - vertices[0];
-  const double J_c6 = vertices[5] - vertices[2];
-  const double J_c3 = vertices[4] - vertices[1];
-  const double J_c2 = vertices[9] - vertices[0];
+  const double j_c4 = vertices[7] - vertices[1];
+  const double j_c8 = vertices[11] - vertices[2];
+  const double j_c5 = vertices[10] - vertices[1];
+  const double j_c7 = vertices[8] - vertices[2];
+  const double j_c0 = vertices[3] - vertices[0];
+  const double j_c1 = vertices[6] - vertices[0];
+  const double j_c6 = vertices[5] - vertices[2];
+  const double j_c3 = vertices[4] - vertices[1];
+  const double j_c2 = vertices[9] - vertices[0];
 
   alignas(32) double sp[80];
-  sp[0] = J_c4 * J_c8;
-  sp[1] = J_c5 * J_c7;
+  sp[0] = j_c4 * j_c8;
+  sp[1] = j_c5 * j_c7;
   sp[2] = sp[0] + -1 * sp[1];
-  sp[3] = J_c0 * sp[2];
-  sp[4] = J_c5 * J_c6;
-  sp[5] = J_c3 * J_c8;
+  sp[3] = j_c0 * sp[2];
+  sp[4] = j_c5 * j_c6;
+  sp[5] = j_c3 * j_c8;
   sp[6] = sp[4] + -1 * sp[5];
-  sp[7] = J_c1 * sp[6];
+  sp[7] = j_c1 * sp[6];
   sp[8] = sp[3] + sp[7];
-  sp[9] = J_c3 * J_c7;
-  sp[10] = J_c4 * J_c6;
+  sp[9] = j_c3 * j_c7;
+  sp[10] = j_c4 * j_c6;
   sp[11] = sp[9] + -1 * sp[10];
-  sp[12] = J_c2 * sp[11];
+  sp[12] = j_c2 * sp[11];
   sp[13] = sp[8] + sp[12];
   sp[14] = sp[2] / sp[13];
-  sp[15] = J_c3 * (-1 * J_c8);
+  sp[15] = j_c3 * (-1 * j_c8);
   sp[16] = sp[4] + sp[15];
   sp[17] = sp[16] / sp[13];
   sp[18] = sp[11] / sp[13];
@@ -54,16 +54,16 @@ void compute_element_matrix(double *A, const double *vertices)
   sp[22] = sp[17] * sp[17];
   sp[23] = sp[18] * sp[17];
   sp[24] = sp[18] * sp[18];
-  sp[25] = J_c2 * J_c7;
-  sp[26] = J_c8 * (-1 * J_c1);
+  sp[25] = j_c2 * j_c7;
+  sp[26] = j_c8 * (-1 * j_c1);
   sp[27] = sp[25] + sp[26];
   sp[28] = sp[27] / sp[13];
-  sp[29] = J_c0 * J_c8;
-  sp[30] = J_c6 * (-1 * J_c2);
+  sp[29] = j_c0 * j_c8;
+  sp[30] = j_c6 * (-1 * j_c2);
   sp[31] = sp[29] + sp[30];
   sp[32] = sp[31] / sp[13];
-  sp[33] = J_c1 * J_c6;
-  sp[34] = J_c0 * J_c7;
+  sp[33] = j_c1 * j_c6;
+  sp[34] = j_c0 * j_c7;
   sp[35] = sp[33] + -1 * sp[34];
   sp[36] = sp[35] / sp[13];
   sp[37] = sp[28] * sp[28];
@@ -78,16 +78,16 @@ void compute_element_matrix(double *A, const double *vertices)
   sp[46] = sp[40] + sp[22];
   sp[47] = sp[41] + sp[23];
   sp[48] = sp[24] + sp[42];
-  sp[49] = J_c1 * J_c5;
-  sp[50] = J_c2 * J_c4;
+  sp[49] = j_c1 * j_c5;
+  sp[50] = j_c2 * j_c4;
   sp[51] = sp[49] + -1 * sp[50];
   sp[52] = sp[51] / sp[13];
-  sp[53] = J_c2 * J_c3;
-  sp[54] = J_c0 * J_c5;
+  sp[53] = j_c2 * j_c3;
+  sp[54] = j_c0 * j_c5;
   sp[55] = sp[53] + -1 * sp[54];
   sp[56] = sp[55] / sp[13];
-  sp[57] = J_c0 * J_c4;
-  sp[58] = J_c1 * J_c3;
+  sp[57] = j_c0 * j_c4;
+  sp[58] = j_c1 * j_c3;
   sp[59] = sp[57] + -1 * sp[58];
   sp[60] = sp[59] / sp[13];
   sp[61] = sp[52] * sp[52];
@@ -153,10 +153,10 @@ public:
 
   // Constructor
   StiffnessMatrix(const VolumeMesh &volume_mesh)
-      : _data(0), diagonal(volume_mesh.Vertices.size(), 0)
+      : _data(0), diagonal(volume_mesh.vertices.size(), 0)
   {
     // Set shape
-    shape[0] = volume_mesh.Cells.size();
+    shape[0] = volume_mesh.cells.size();
     shape[1] = 4;
     shape[2] = 4;
 
@@ -165,12 +165,12 @@ public:
     compute_stiffness_matrix(volume_mesh);
 
     // Fill diagonal vector with appropriate values
-    for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
+    for (size_t c = 0; c < volume_mesh.cells.size(); c++)
     {
-      diagonal[volume_mesh.Cells[c].v0] += _data[c * 16 + 0 * 4 + 0];
-      diagonal[volume_mesh.Cells[c].v1] += _data[c * 16 + 1 * 4 + 1];
-      diagonal[volume_mesh.Cells[c].v2] += _data[c * 16 + 2 * 4 + 2];
-      diagonal[volume_mesh.Cells[c].v3] += _data[c * 16 + 3 * 4 + 3];
+      diagonal[volume_mesh.cells[c].v0] += _data[c * 16 + 0 * 4 + 0];
+      diagonal[volume_mesh.cells[c].v1] += _data[c * 16 + 1 * 4 + 1];
+      diagonal[volume_mesh.cells[c].v2] += _data[c * 16 + 2 * 4 + 2];
+      diagonal[volume_mesh.cells[c].v3] += _data[c * 16 + 3 * 4 + 3];
     }
   }
 
@@ -191,21 +191,21 @@ private:
     double vertices[12];
 
     // Iterate over cells
-    for (size_t c = 0; c < volume_mesh.Cells.size(); c++)
+    for (size_t c = 0; c < volume_mesh.cells.size(); c++)
     {
       // Set vertex coordinates
-      vertices[0] = volume_mesh.Vertices[volume_mesh.Cells[c].v0].x;
-      vertices[1] = volume_mesh.Vertices[volume_mesh.Cells[c].v0].y;
-      vertices[2] = volume_mesh.Vertices[volume_mesh.Cells[c].v0].z;
-      vertices[3] = volume_mesh.Vertices[volume_mesh.Cells[c].v1].x;
-      vertices[4] = volume_mesh.Vertices[volume_mesh.Cells[c].v1].y;
-      vertices[5] = volume_mesh.Vertices[volume_mesh.Cells[c].v1].z;
-      vertices[6] = volume_mesh.Vertices[volume_mesh.Cells[c].v2].x;
-      vertices[7] = volume_mesh.Vertices[volume_mesh.Cells[c].v2].y;
-      vertices[8] = volume_mesh.Vertices[volume_mesh.Cells[c].v2].z;
-      vertices[9] = volume_mesh.Vertices[volume_mesh.Cells[c].v3].x;
-      vertices[10] = volume_mesh.Vertices[volume_mesh.Cells[c].v3].y;
-      vertices[11] = volume_mesh.Vertices[volume_mesh.Cells[c].v3].z;
+      vertices[0] = volume_mesh.vertices[volume_mesh.cells[c].v0].x;
+      vertices[1] = volume_mesh.vertices[volume_mesh.cells[c].v0].y;
+      vertices[2] = volume_mesh.vertices[volume_mesh.cells[c].v0].z;
+      vertices[3] = volume_mesh.vertices[volume_mesh.cells[c].v1].x;
+      vertices[4] = volume_mesh.vertices[volume_mesh.cells[c].v1].y;
+      vertices[5] = volume_mesh.vertices[volume_mesh.cells[c].v1].z;
+      vertices[6] = volume_mesh.vertices[volume_mesh.cells[c].v2].x;
+      vertices[7] = volume_mesh.vertices[volume_mesh.cells[c].v2].y;
+      vertices[8] = volume_mesh.vertices[volume_mesh.cells[c].v2].z;
+      vertices[9] = volume_mesh.vertices[volume_mesh.cells[c].v3].x;
+      vertices[10] = volume_mesh.vertices[volume_mesh.cells[c].v3].y;
+      vertices[11] = volume_mesh.vertices[volume_mesh.cells[c].v3].z;
 
       // Compute element matrix
       compute_element_matrix(_data + c * 16, vertices);

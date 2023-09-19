@@ -12,10 +12,10 @@ class TestGridField(unittest.TestCase):
     def test_gridfield_size(self):
         raster = io.load_raster(data_dir / "test_dem.tif")
         gridfield = raster_to_builder_gridfield(raster)
-        self.assertEqual(gridfield.Grid.xsize, 20)
-        self.assertEqual(gridfield.Grid.ysize, 40)
-        self.assertEqual(gridfield.Grid.xstep, 2.0)
-        self.assertEqual(gridfield.Grid.ystep, 2.0)
+        self.assertEqual(gridfield.grid.xsize, 20)
+        self.assertEqual(gridfield.grid.ysize, 40)
+        self.assertEqual(gridfield.grid.xstep, 2.0)
+        self.assertEqual(gridfield.grid.ystep, 2.0)
 
     def test_gridfield_values(self):
         raster = io.load_raster(data_dir / "test_dem.tif")

@@ -33,24 +33,24 @@ public:
     int second{};
 
     // Check if node is leaf
-    bool IsLeaf() const { return first == -1; }
+    bool is_leaf() const { return first == -1; }
 
     // Bounding box of node
     BoundingBox2D bbox;
   };
 
-  // Nodes of the bounding box tree. The tree is built bottom-up, meaning
+  // nodes of the bounding box tree. The tree is built bottom-up, meaning
   // that the leaf nodes will be added first and the top node last.
-  std::vector<Node> Nodes;
+  std::vector<Node> nodes;
 
-  // Build bounding box tree for objects (defined by their bounding boxes)
-  void Build(const std::vector<BoundingBox2D> &bboxes)
+  // build bounding box tree for objects (defined by their bounding boxes)
+  void build(const std::vector<BoundingBox2D> &bboxes)
   {
     // info("Building 2D bounding box tree for " +
     //     str(bboxes.size()) + " objects...");
 
-    // Clear tree if built before
-    Nodes.clear();
+    // clear tree if built before
+    nodes.clear();
 
     // Skip if there is no data
     if (bboxes.empty())
@@ -62,52 +62,52 @@ public:
       indices[i] = i;
 
     // Recursively build bounding box tree
-    BuildRecursive(bboxes, indices.begin(), indices.end());
+    build_recursive(bboxes, indices.begin(), indices.end());
   }
 
-  /// Find indices of bounding boxes containing given point.
+  /// find indices of bounding boxes containing given point.
   ///
   /// @param point The point
   /// @return Array of bounding box indices
-  std::vector<size_t> Find(const Point2D &point) const
+  std::vector<size_t> find(const Vector2D &point) const
   {
     // Create empty list of bounding box indices
     std::vector<size_t> indices;
 
     // Recursively search bounding box tree for collisions
-    FindRecursive(indices, *this, point, Nodes.size() - 1);
+    find_recursive(indices, *this, point, nodes.size() - 1);
 
     return indices;
   }
 
-  /// Find indices of bounding box collisions between this
+  /// find indices of bounding box collisions between this
   /// tree and given tree.
   ///
   /// @param tree The other tree
   /// @return Array of pairwise collisions
   std::vector<std::pair<size_t, size_t>>
-  Find(const BoundingBoxTree2D &tree) const
+  find(const BoundingBoxTree2D &tree) const
   {
     // Create empty list of bounding box indices
     std::vector<std::pair<size_t, size_t>> indices;
 
     // Recursively search bounding box tree for collisions
-    FindRecursive(indices, *this, tree, Nodes.size() - 1,
-                  tree.Nodes.size() - 1);
+    find_recursive(indices, *this, tree, nodes.size() - 1,
+                   tree.nodes.size() - 1);
 
     return indices;
   }
 
   /// Check if bounding box is empty
-  bool Empty() const { return Nodes.empty(); }
+  bool empty() const { return nodes.empty(); }
 
-  /// Clear all data
-  void Clear() { Nodes.clear(); }
+  /// clear all data
+  void clear() { nodes.clear(); }
 
   /// Pretty-print
   std::string __str__() const override
   {
-    return "2D bounding box tree with " + str(Nodes.size()) + " nodes";
+    return "2D bounding box tree with " + str(nodes.size()) + " nodes";
   }
 
 private:
@@ -139,13 +139,13 @@ private:
     }
   };
 
-  // Build bounding box tree (recursive call). The input arguments are
+  // build bounding box tree (recursive call). The input arguments are
   // the original full vector of bounding boxes and two iterators marking
   // the beginning and end of an array of indices (into the original vector
   // of bounding boxes) to be partitioned.
-  int BuildRecursive(const std::vector<BoundingBox2D> &bboxes,
-                     const std::vector<size_t>::iterator &begin,
-                     const std::vector<size_t>::iterator &end)
+  int build_recursive(const std::vector<BoundingBox2D> &bboxes,
+                      const std::vector<size_t>::iterator &begin,
+                      const std::vector<size_t>::iterator &end)
   {
     // Create empty node
     Node node;
@@ -160,44 +160,44 @@ private:
     else
     {
       // Compute bounding box of bounding boxes
-      node.bbox = ComputeBoundingBox(bboxes, begin, end);
+      node.bbox = compute_bounding_box(bboxes, begin, end);
 
       // Compute main axis of bounding box
-      size_t mainAxis = ComputeMainAxis(node.bbox);
+      size_t main_axis = compute_main_axis(node.bbox);
 
       // Split boxes into two groups based on a partial sort along main axis
       auto middle = begin + (end - begin) / 2;
-      if (mainAxis == 0)
+      if (main_axis == 0)
         std::nth_element(begin, middle, end, LessThanX(bboxes));
       else
         std::nth_element(begin, middle, end, LessThanY(bboxes));
 
       // Call recursively for both groups
-      node.first = BuildRecursive(bboxes, begin, middle);
-      node.second = BuildRecursive(bboxes, middle, end);
+      node.first = build_recursive(bboxes, begin, middle);
+      node.second = build_recursive(bboxes, middle, end);
     }
 
     // Add node to tree
-    Nodes.push_back(node);
+    nodes.push_back(node);
 
     // Return index of current node
-    return Nodes.size() - 1;
+    return nodes.size() - 1;
   }
 
-  // Find collisions between tree and point (recursive call)
-  static void FindRecursive(std::vector<size_t> &indices,
-                            const BoundingBoxTree2D &tree,
-                            const Point2D &point,
-                            size_t nodeIndex)
+  // find collisions between tree and point (recursive call)
+  static void find_recursive(std::vector<size_t> &indices,
+                             const BoundingBoxTree2D &tree,
+                             const Vector2D &point,
+                             size_t node_index)
   {
     // Get current node
-    const Node &node = tree.Nodes[nodeIndex];
+    const Node &node = tree.nodes[node_index];
 
     // Check if node and point collide (if not, do nothing)
-    if (Geometry::BoundingBoxContains2D(node.bbox, point))
+    if (Geometry::bounding_box_contains_2d(node.bbox, point))
     {
       // Check if leaf
-      if (node.IsLeaf())
+      if (node.is_leaf())
       {
         // Add node index (we know that node collides with point)
         indices.push_back(node.second);
@@ -205,87 +205,87 @@ private:
       else
       {
         // Not a leaf node so check child nodes
-        FindRecursive(indices, tree, point, node.first);
-        FindRecursive(indices, tree, point, node.second);
+        find_recursive(indices, tree, point, node.first);
+        find_recursive(indices, tree, point, node.second);
       }
     }
   }
 
-  // Find collisions between tree A and tree B (recursive call)
-  static void FindRecursive(std::vector<std::pair<size_t, size_t>> &indices,
-                            const BoundingBoxTree2D &treeA,
-                            const BoundingBoxTree2D &treeB,
-                            size_t nodeIndexA,
-                            size_t nodeIndexB)
+  // find collisions between tree A and tree B (recursive call)
+  static void find_recursive(std::vector<std::pair<size_t, size_t>> &indices,
+                             const BoundingBoxTree2D &tree_a,
+                             const BoundingBoxTree2D &tree_b,
+                             size_t node_index_a,
+                             size_t node_index_b)
   {
     // Get current nodes
-    const Node &nodeA = treeA.Nodes[nodeIndexA];
-    const Node &nodeB = treeB.Nodes[nodeIndexB];
+    const Node &node_a = tree_a.nodes[node_index_a];
+    const Node &node_b = tree_b.nodes[node_index_b];
 
     // Check if nodes collide (if not, do nothing)
-    if (Geometry::Intersect2D(nodeA.bbox, nodeB.bbox))
+    if (Geometry::intersect_2d(node_a.bbox, node_b.bbox))
     {
       // Check if both nodes are leaves
-      if (nodeA.IsLeaf() && nodeB.IsLeaf())
+      if (node_a.is_leaf() && node_b.is_leaf())
       {
         // Add node indices (we know that the nodes collide)
-        indices.push_back(std::make_pair(nodeA.second, nodeB.second));
+        indices.push_back(std::make_pair(node_a.second, node_b.second));
       }
-      else if (nodeA.IsLeaf())
+      else if (node_a.is_leaf())
       {
         // If A is leaf, then descend B
-        FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.first);
-        FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.second);
+        find_recursive(indices, tree_a, tree_b, node_index_a, node_b.first);
+        find_recursive(indices, tree_a, tree_b, node_index_a, node_b.second);
       }
-      else if (nodeB.IsLeaf())
+      else if (node_b.is_leaf())
       {
         // If B is leaf, then descend A
-        FindRecursive(indices, treeA, treeB, nodeA.first, nodeIndexB);
-        FindRecursive(indices, treeA, treeB, nodeA.second, nodeIndexB);
+        find_recursive(indices, tree_a, tree_b, node_a.first, node_index_b);
+        find_recursive(indices, tree_a, tree_b, node_a.second, node_index_b);
       }
       else
       {
         // If neither node is a leaf, traverse largest subtree
-        if (nodeIndexA > nodeIndexB)
+        if (node_index_a > node_index_b)
         {
-          FindRecursive(indices, treeA, treeB, nodeA.first, nodeIndexB);
-          FindRecursive(indices, treeA, treeB, nodeA.second, nodeIndexB);
+          find_recursive(indices, tree_a, tree_b, node_a.first, node_index_b);
+          find_recursive(indices, tree_a, tree_b, node_a.second, node_index_b);
         }
         else
         {
-          FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.first);
-          FindRecursive(indices, treeA, treeB, nodeIndexA, nodeB.second);
+          find_recursive(indices, tree_a, tree_b, node_index_a, node_b.first);
+          find_recursive(indices, tree_a, tree_b, node_index_a, node_b.second);
         }
       }
     }
   }
 
   // Compute bounding box of bounding boxes
-  BoundingBox2D ComputeBoundingBox(const std::vector<BoundingBox2D> &bboxes,
-                                   const std::vector<size_t>::iterator &begin,
-                                   const std::vector<size_t>::iterator &end)
+  BoundingBox2D compute_bounding_box(const std::vector<BoundingBox2D> &bboxes,
+                                     const std::vector<size_t>::iterator &begin,
+                                     const std::vector<size_t>::iterator &end)
   {
     // Initialize bounding box
     constexpr double max = std::numeric_limits<double>::max();
-    BoundingBox2D boundingBox;
-    boundingBox.P = Point2D(max, max);
-    boundingBox.Q = Point2D(-max, -max);
+    BoundingBox2D bounding_box;
+    bounding_box.P = Vector2D(max, max);
+    bounding_box.Q = Vector2D(-max, -max);
 
     // Iterate over bounding boxes to compute bounds
     for (auto it = begin; it != end; it++)
     {
       const BoundingBox2D &bbox = bboxes[*it];
-      boundingBox.P.x = std::min(boundingBox.P.x, bbox.P.x);
-      boundingBox.P.y = std::min(boundingBox.P.y, bbox.P.y);
-      boundingBox.Q.x = std::max(boundingBox.Q.x, bbox.Q.x);
-      boundingBox.Q.y = std::max(boundingBox.Q.y, bbox.Q.y);
+      bounding_box.P.x = std::min(bounding_box.P.x, bbox.P.x);
+      bounding_box.P.y = std::min(bounding_box.P.y, bbox.P.y);
+      bounding_box.Q.x = std::max(bounding_box.Q.x, bbox.Q.x);
+      bounding_box.Q.y = std::max(bounding_box.Q.y, bbox.Q.y);
     }
 
-    return boundingBox;
+    return bounding_box;
   }
 
   // Compute main axis of bounding box
-  size_t ComputeMainAxis(const BoundingBox2D &bbox)
+  size_t compute_main_axis(const BoundingBox2D &bbox)
   {
     const double dx = bbox.Q.x - bbox.P.x;
     const double dy = bbox.Q.y - bbox.P.y;

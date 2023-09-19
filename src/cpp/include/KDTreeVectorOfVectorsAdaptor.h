@@ -70,9 +70,9 @@ struct KDTreeVectorOfVectorsAdaptor
   index_t *index; //! The kd-tree index for the user to call its methods as
                   //! usual with any other FLANN index.
 
-  nanoflann::SearchParams searchParams =
+  nanoflann::SearchParams search_params =
       nanoflann::SearchParams(32, 0.001, false);
-  // nanoflann::SearchParams searchParams = nanoflann::SearchParams(32,0,true);
+  // nanoflann::SearchParams search_params = nanoflann::SearchParams(32,0,true);
 
   /// Constructor: takes a const ref to the vector of vectors object with the
   /// data points
@@ -91,7 +91,7 @@ struct KDTreeVectorOfVectorsAdaptor
                     nanoflann::KDTreeSingleIndexAdaptorParams(leaf_max_size));
     auto t1 = DTCC_BUILDER::Timer("KDTreeVofV: Building Index");
     index->buildIndex();
-    t1.Stop();
+    t1.stop();
   }
 
   ~KDTreeVectorOfVectorsAdaptor() { delete index; }
@@ -101,35 +101,35 @@ struct KDTreeVectorOfVectorsAdaptor
   /** Query for the \a num_closest closest points to a given point (entered as
    * query_point[0:dim-1]). Note that this is a short-cut method for
    * index->findNeighbors(). The user can also call index->... methods as
-   * desired. \note nChecks_IGNORED is ignored but kept for compatibility with
+   * desired. \note n_checks_ignored is ignored but kept for compatibility with
    * the original FLANN interface.
    */
   inline void query(const num_t *query_point,
                     const size_t num_closest,
                     IndexType *out_indices,
                     num_t *out_distances_sq,
-                    const int nChecks_IGNORED = 10) const
+                    const int n_checks_ignored = 10) const
   {
     nanoflann::KNNResultSet<num_t, IndexType> resultSet(num_closest);
     resultSet.init(out_indices, out_distances_sq);
-    index->findNeighbors(resultSet, query_point, searchParams);
+    index->findNeighbors(resultSet, query_point, search_params);
   }
 
   /** Query for all points within  \a radius of the given point (entered as
    * query_point[0:dim-1]). Note that this is a short-cut method for
    * index->findNeighbors(). The user can also call index->... methods as
-   * desired. \note nChecks_IGNORED is ignored but kept for compatibility with
+   * desired. \note n_checks_ignored is ignored but kept for compatibility with
    * the original FLANN interface.
    */
   inline std::vector<std::pair<size_t, num_t>>
-  radiusQuery(const num_t *query_point, const num_t radius) const
+  radius_query(const num_t *query_point, const num_t radius) const
   {
-    DTCC_BUILDER::Timer radiuQueryTimer("KDTreeVofV: radiusQuery");
+    DTCC_BUILDER::Timer radius_query_timer("KDTreeVofV: radius_query");
     std::vector<std::pair<size_t, num_t>> indices_dists;
     // nanoflann::RadiusResultSet<num_t, IndexType> resultSet(radius,
     //                                                       indices_dists);
     // index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
-    index->radiusSearch(query_point, radius, indices_dists, searchParams);
+    index->radiusSearch(query_point, radius, indices_dists, search_params);
 
     return indices_dists;
   }
