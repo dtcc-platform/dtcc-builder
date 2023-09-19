@@ -19,13 +19,15 @@ class TestGridField(unittest.TestCase):
 
     def test_gridfield_values(self):
         raster = io.load_raster(data_dir / "test_dem.tif")
-        print(raster.data)
         gridfield = raster_to_builder_gridfield(raster)
         values = gridfield.values
 
         self.assertEqual(len(values), 20 * 40)
 
-        self.assertAlmostEqual(values[0], 0, places=5)
-        self.assertAlmostEqual(values[1], 0.2, places=5)
-        self.assertAlmostEqual(values[(20 * 40) - 20], 76, places=5)
-        self.assertAlmostEqual(values[-1], 79.8, places=5)
+        # start in bottom left corner
+        self.assertAlmostEqual(values[0], 76, places=5)
+        self.assertAlmostEqual(values[1], 76.2, places=5)
+        # top left corner
+        self.assertAlmostEqual(values[(20 * 40) - 20], 0, places=5)
+        # end in top right corner
+        self.assertAlmostEqual(values[-1], 3.8, places=5)
