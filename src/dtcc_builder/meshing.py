@@ -1,6 +1,27 @@
 from . import _dtcc_builder
-from dtcc_builder.model import create_builder_polygon, builder_mesh_to_mesh
+from dtcc_builder.model import (
+    create_builder_polygon,
+    builder_mesh_to_mesh,
+    create_builder_city,
+    raster_to_builder_gridfield,
+)
 from dtcc_model import Building, City, PointCloud
+
+
+def terrain_mesh(city: City, mesh_resolution=2.0):
+    if city.terrain is None or city.terrain.data.shape[0] == 0:
+        raise ValueError("City has no terrain data. Please compute terrain first.")
+    builder_city = create_builder_city(city)
+    builder_dem = raster_to_builder_gridfield(city.terrain)
+
+    ground_mesh = _dtcc_builder.build_mesh(
+        builder_city, builder_dem, mesh_resolution, True
+    )
+    ground_mesh = ground_mesh[0]
+
+    ground_mesh = builder_mesh_to_mesh(ground_mesh)
+
+    return ground_mesh
 
 
 def extrude_building(
