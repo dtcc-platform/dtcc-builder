@@ -35,8 +35,10 @@ public:
   // the extruded building footprints. Note that meshes are non-conforming; the
   // ground and building meshes are non-matching and the building meshes may
   // contain hanging nodes.
-  static std::vector<Mesh>
-  build_mesh(const City &city, const GridField &dtm, double resolution)
+  static std::vector<Mesh> build_mesh(const City &city,
+                                      const GridField &dtm,
+                                      double resolution,
+                                      bool ground_only = false)
   {
     info("Building city mesh...");
     Timer timer("build_mesh");
@@ -107,17 +109,26 @@ public:
     // Get ground height (minimum)
     const double ground_height = dtm.min();
 
-    // Iterate over buildings to build surfaces
-    for (auto const &building : city.buildings)
+    if (!ground_only)
     {
-      auto building_mesh = extrude_footprint(
-          building.footprint, resolution, ground_height, building.max_height());
-      // Add surface
-      meshes.push_back(building_mesh);
+      // Iterate over buildings to build surfaces
+      for (auto const &building : city.buildings)
+      {
+        auto building_mesh =
+            extrude_footprint(building.footprint, resolution, ground_height,
+                              building.max_height());
+        // Add surface
+        meshes.push_back(building_mesh);
+      }
     }
-
     return meshes;
   }
+
+  // static Mesh
+  // build_ground_mesh(const City &city, const GridField &dtm, double
+  // resolution)
+  // {
+  // }
 
   // Extrude Polygon to create a Mesh
   //
