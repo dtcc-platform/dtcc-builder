@@ -25,10 +25,7 @@ class TestGridField(unittest.TestCase):
 
         self.assertEqual(len(values), 20 * 40)
 
-        # start in bottom left corner
-        self.assertAlmostEqual(values[0], 76, places=5)
-        self.assertAlmostEqual(values[1], 76.2, places=5)
-        # top left corner
-        self.assertAlmostEqual(values[(20 * 40) - 20], 0, places=5)
-        # end in top right corner
-        self.assertAlmostEqual(values[-1], 3.8, places=5)
+        self.assertAlmostEqual(values[0], 0, places=5)
+        self.assertAlmostEqual(values[1], 0.2, places=5)
+        self.assertAlmostEqual(values[(20 * 40) - 20], 76, places=5)
+        self.assertAlmostEqual(values[-1], 79.8, places=5)

@@ -74,7 +74,7 @@ def raster_to_builder_gridfield(raster: Raster):
     """
     # rasters start in top left corner, gridfields in bottom left
     # flip the data to match
-    data = np.flipud(raster.data).flatten()
+    data = raster.data.flatten()
     return _dtcc_builder.create_gridfield(
         data,
         raster.bounds.tuple,
