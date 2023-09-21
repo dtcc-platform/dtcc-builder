@@ -72,8 +72,11 @@ def raster_to_builder_gridfield(raster: Raster):
         A `DTCC_BUILDER` GridField object.
 
     """
+    # rasters start in top left corner, gridfields in bottom left
+    # flip the data to match
+    data = np.flipud(raster.data).flatten()
     return _dtcc_builder.create_gridfield(
-        raster.data.flatten(),
+        data,
         raster.bounds.tuple,
         raster.width,
         raster.height,
@@ -85,6 +88,7 @@ def raster_to_builder_gridfield(raster: Raster):
 def create_builder_city(city: City):
     """
     Create a DTCC builder City object through the pybind exposed C++
+
     `DTCC_BUILDER::create_city()` function.
 
     Parameters
@@ -132,9 +136,9 @@ def builder_mesh_to_mesh(_mesh: _dtcc_builder.Mesh):
 
     """
     mesh = model.Mesh()
-    mesh.vertices = np.array([[v.x, v.y, v.z] for v in _mesh.Vertices])
-    mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in _mesh.Faces])
-    mesh.normals = np.array([[n.x, n.y, n.z] for n in _mesh.Normals])
+    mesh.vertices = np.array([[v.x, v.y, v.z] for v in _mesh.vertices])
+    mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in _mesh.faces])
+    mesh.normals = np.array([[n.x, n.y, n.z] for n in _mesh.normals])
     return mesh
 
 
@@ -154,7 +158,7 @@ def builder_volume_mesh_to_volume_mesh(_volume_mesh: _dtcc_builder.Mesh):
 
     """
     volume_mesh = model.VolumeMesh()
-    volume_mesh.vertices = np.array([[v.x, v.y, v.z] for v in _volume_mesh.Vertices])
-    volume_mesh.cells = np.array([[c.v0, c.v1, c.v2, c.v3] for c in _volume_mesh.Cells])
-    volume_mesh.markers = np.array(_volume_mesh.Markers)
+    volume_mesh.vertices = np.array([[v.x, v.y, v.z] for v in _volume_mesh.vertices])
+    volume_mesh.cells = np.array([[c.v0, c.v1, c.v2, c.v3] for c in _volume_mesh.cells])
+    volume_mesh.markers = np.array(_volume_mesh.markers)
     return volume_mesh

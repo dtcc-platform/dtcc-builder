@@ -22,14 +22,14 @@ class BoundaryConditions
   typedef unsigned int uint;
 
 public:
-  // Vertex Boundary Markers:
-  // -4 : Neumann Vertices
-  // -3 : Top Boundary Vertices
-  // -2 : Ground Boundary Vertices
-  // -1 : Building Halos Boundary Vertices
+  // Vertex Boundary markers:
+  // -4 : Neumann vertices
+  // -3 : Top Boundary vertices
+  // -2 : Ground Boundary vertices
+  // -1 : Building Halos Boundary vertices
   std::vector<int> vertex_markers;
 
-  // Boundary Values
+  // Boundary values
   std::vector<double> values;
 
   // Building Polygon Centroids
@@ -45,9 +45,9 @@ public:
                      const double top_height,
                      const bool fix_buildings)
       : _volume_mesh(volume_mesh), _city(city), _dtm(dtm),
-        top_height(top_height), vertex_markers(volume_mesh.Vertices.size(), -4),
-        values(volume_mesh.Vertices.size(), 0.0), fix_buildings(fix_buildings),
-        halo_elevations(volume_mesh.Vertices.size(),
+        top_height(top_height), vertex_markers(volume_mesh.vertices.size(), -4),
+        values(volume_mesh.vertices.size(), 0.0), fix_buildings(fix_buildings),
+        halo_elevations(volume_mesh.vertices.size(),
                         std::numeric_limits<double>::max())
   {
     // Compute vertex markers
@@ -60,7 +60,7 @@ public:
   // Destructor
   ~BoundaryConditions() {}
 
-  // Compute Vertex Boundary Markers based on Cell Boundary Markers
+  // Compute Vertex Boundary markers based on Cell Boundary markers
   void compute_vertex_markers()
   {
     info("Computing vertex markers from cell markers");
@@ -72,25 +72,25 @@ public:
     // size_t k2 = 0;
     // size_t k3 = 0;
 
-    for (size_t c = 0; c < _volume_mesh.Cells.size(); c++)
+    for (size_t c = 0; c < _volume_mesh.cells.size(); c++)
     {
       // Initializing Global Index for each cell
-      I[0] = _volume_mesh.Cells[c].v0;
-      I[1] = _volume_mesh.Cells[c].v1;
-      I[2] = _volume_mesh.Cells[c].v2;
-      I[3] = _volume_mesh.Cells[c].v3;
+      I[0] = _volume_mesh.cells[c].v0;
+      I[1] = _volume_mesh.cells[c].v1;
+      I[2] = _volume_mesh.cells[c].v2;
+      I[3] = _volume_mesh.cells[c].v3;
 
       const double z_mean =
-          (_volume_mesh.Vertices[I[0]].z + _volume_mesh.Vertices[I[1]].z +
-           _volume_mesh.Vertices[I[2]].z + _volume_mesh.Vertices[I[3]].z) /
+          (_volume_mesh.vertices[I[0]].z + _volume_mesh.vertices[I[1]].z +
+           _volume_mesh.vertices[I[2]].z + _volume_mesh.vertices[I[3]].z) /
           4;
 
-      const int cell_marker = _volume_mesh.Markers[c];
+      const int cell_marker = _volume_mesh.markers[c];
       if (cell_marker >= 0 && fix_buildings) // Building
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_volume_mesh.Vertices[I[i]].z > z_mean)
+          if (_volume_mesh.vertices[I[i]].z > z_mean)
           {
             continue;
           }
@@ -101,7 +101,7 @@ public:
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_volume_mesh.Vertices[I[i]].z > z_mean)
+          if (_volume_mesh.vertices[I[i]].z > z_mean)
           {
             continue;
           }
@@ -112,7 +112,7 @@ public:
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_volume_mesh.Vertices[I[i]].z > z_mean)
+          if (_volume_mesh.vertices[I[i]].z > z_mean)
           {
             continue;
           }
@@ -123,7 +123,7 @@ public:
       {
         for (size_t i = 0; i < 4; i++)
         {
-          if (_volume_mesh.Vertices[I[i]].z < z_mean)
+          if (_volume_mesh.vertices[I[i]].z < z_mean)
           {
             continue;
           }
@@ -132,7 +132,7 @@ public:
       }
     }
 
-    // for (size_t v = 0; v < _volume_mesh.Vertices.size(); v++)
+    // for (size_t v = 0; v < _volume_mesh.vertices.size(); v++)
     // {
     //   if (vertex_markers[v] >= 0)
     //     k0++;
@@ -153,7 +153,7 @@ public:
     info("Computing boundary values");
 
     // TODO: Check if Search tree has already been built
-    //_city.BuildSearchTree(true,0.0);
+    //_city.build_search_tree(true,0.0);
 
     // Compute building centroids
     compute_building_centroids();
@@ -161,27 +161,27 @@ public:
     // Compute halo elevations
     compute_halo_elevations();
 
-    for (size_t i = 0; i < _volume_mesh.Vertices.size(); i++)
+    for (size_t i = 0; i < _volume_mesh.vertices.size(); i++)
     {
       const int vertex_marker = vertex_markers[i];
       if (vertex_marker >= 0) //  && fix_buildings Building
       {
-        values[i] = _city.Buildings[vertex_marker].MaxHeight() -
-                    _volume_mesh.Vertices[i].z;
+        values[i] = _city.buildings[vertex_marker].max_height() -
+                    _volume_mesh.vertices[i].z;
       }
       else if (vertex_marker == -1) // Building Halo
       {
-        values[i] = halo_elevations[i] - _volume_mesh.Vertices[i].z;
+        values[i] = halo_elevations[i] - _volume_mesh.vertices[i].z;
       }
       else if (vertex_marker == -2) // Ground
       {
-        const Vector2D p(_volume_mesh.Vertices[i].x,
-                         _volume_mesh.Vertices[i].y);
-        values[i] = _dtm(p) - _volume_mesh.Vertices[i].z;
+        const Vector2D p(_volume_mesh.vertices[i].x,
+                         _volume_mesh.vertices[i].y);
+        values[i] = _dtm(p) - _volume_mesh.vertices[i].z;
       }
       else if (vertex_marker == -3) // Top
       {
-        values[i] = top_height - _volume_mesh.Vertices[i].z;
+        values[i] = top_height - _volume_mesh.vertices[i].z;
       }
       else
       {
@@ -190,7 +190,7 @@ public:
     }
   }
 
-  // Apply boundary conditions to stiffness matrix
+  // Apply boundary conditions on stiffness matrix
   void apply(StiffnessMatrix &A)
   {
     info("Applying boundary conditions to stiffness matrix");
@@ -200,10 +200,10 @@ public:
     for (size_t c = 0; c < A.shape[0]; c++)
     {
       // Global Index for each cell
-      I[0] = _volume_mesh.Cells[c].v0;
-      I[1] = _volume_mesh.Cells[c].v1;
-      I[2] = _volume_mesh.Cells[c].v2;
-      I[3] = _volume_mesh.Cells[c].v3;
+      I[0] = _volume_mesh.cells[c].v0;
+      I[1] = _volume_mesh.cells[c].v1;
+      I[2] = _volume_mesh.cells[c].v2;
+      I[3] = _volume_mesh.cells[c].v3;
 
       for (size_t i = 0; i < A.shape[1]; i++)
       {
@@ -219,7 +219,7 @@ public:
     }
   }
 
-  // Apply boundary conditions to load vector
+  // Apply boundary conditions on load vector
   void apply(std::vector<double> &b)
   {
     info("Applying boundary conditions to load vector");
@@ -240,18 +240,18 @@ private:
   // Compute building centroids
   void compute_building_centroids()
   {
-    building_centroids.resize(_city.Buildings.size());
+    building_centroids.resize(_city.buildings.size());
 
-    for (size_t i = 0; i < _city.Buildings.size(); i++)
+    for (size_t i = 0; i < _city.buildings.size(); i++)
     {
       Vector2D p(0, 0);
-      Polygon fp = _city.Buildings[i].Footprint;
+      Polygon fp = _city.buildings[i].footprint;
 
-      for (auto vertex : fp.Vertices)
+      for (auto vertex : fp.vertices)
       {
         p += Vector2D(vertex);
       }
-      p = p / static_cast<double>(fp.Vertices.size());
+      p = p / static_cast<double>(fp.vertices.size());
       building_centroids[i] = p;
     }
   }
@@ -261,19 +261,19 @@ private:
   {
     std::array<uint, 4> I = {0};
 
-    for (size_t c = 0; c < _volume_mesh.Cells.size(); c++)
+    for (size_t c = 0; c < _volume_mesh.cells.size(); c++)
     {
-      I[0] = _volume_mesh.Cells[c].v0;
-      I[1] = _volume_mesh.Cells[c].v1;
-      I[2] = _volume_mesh.Cells[c].v2;
-      I[3] = _volume_mesh.Cells[c].v3;
+      I[0] = _volume_mesh.cells[c].v0;
+      I[1] = _volume_mesh.cells[c].v1;
+      I[2] = _volume_mesh.cells[c].v2;
+      I[3] = _volume_mesh.cells[c].v3;
 
       double z_min = std::numeric_limits<double>::max();
 
       for (size_t i = 0; i < 4; i++)
       {
-        const Vector2D p(_volume_mesh.Vertices[I[i]].x,
-                         _volume_mesh.Vertices[I[i]].y);
+        const Vector2D p(_volume_mesh.vertices[I[i]].x,
+                         _volume_mesh.vertices[I[i]].y);
         const double z = _dtm(p);
 
         z_min = std::min(z_min, z);

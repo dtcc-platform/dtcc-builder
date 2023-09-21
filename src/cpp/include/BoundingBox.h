@@ -8,8 +8,8 @@
 #include <limits>
 
 #include "Logging.h"
-#include "model/Point.h"
 #include "model/Polygon.h"
+#include "model/Vector.h"
 
 namespace DTCC_BUILDER
 {
@@ -19,10 +19,10 @@ class BoundingBox2D : public Printable
 {
 public:
   /// First ("lower left") corner
-  Point2D P;
+  Vector2D P;
 
   /// Second ("upper right") corner
-  Point2D Q;
+  Vector2D Q;
 
   /// Create empty bounding box
   BoundingBox2D() = default;
@@ -32,7 +32,7 @@ public:
   ///
   /// @param p First ("lower left") corner
   /// @param q Second ("upper right") corner
-  BoundingBox2D(const Point2D &p, const Point2D &q) : P(p), Q(q)
+  BoundingBox2D(const Vector2D &p, const Vector2D &q) : P(p), Q(q)
   {
     assert(p.x <= q.x);
     assert(p.y <= q.y);
@@ -42,7 +42,7 @@ public:
   ///
   /// @param points Vector if points
   /// @param margin Margin to use for bounding box
-  explicit BoundingBox2D(const std::vector<Point2D> &points,
+  explicit BoundingBox2D(const std::vector<Vector2D> &points,
                          double margin = 0.0)
   {
     constexpr double max = std::numeric_limits<double>::max();
@@ -65,7 +65,7 @@ public:
   ///
   /// @param points Vector if points
   /// @param margin Margin to use for bounding box
-  explicit BoundingBox2D(const std::vector<Point3D> &points,
+  explicit BoundingBox2D(const std::vector<Vector3D> &points,
                          double margin = 0.0)
   {
     constexpr double max = std::numeric_limits<double>::max();
@@ -91,12 +91,12 @@ public:
   explicit BoundingBox2D(const std::vector<Polygon> &polygons,
                          double margin = 0.0)
   {
-    auto initBB = BoundingBox2D(polygons.front());
-    P = initBB.P;
-    Q = initBB.Q;
+    auto init_bb = BoundingBox2D(polygons.front());
+    P = init_bb.P;
+    Q = init_bb.Q;
     for (auto p : polygons)
     {
-      this->Union(BoundingBox2D(p));
+      this->union_with(BoundingBox2D(p));
     }
     P.x -= margin;
     P.y -= margin;
@@ -106,7 +106,7 @@ public:
 
   /// expand a bounding box to the union of it
   /// and a second bounding box
-  void Union(BoundingBox2D const &other)
+  void union_with(BoundingBox2D const &other)
   {
     P.x = std::min(P.x, other.P.x);
     P.y = std::min(P.y, other.P.y);
@@ -115,14 +115,14 @@ public:
   }
 
   /// intersect bounding box with a second bounding box
-  void Intersect(BoundingBox2D const &other)
+  void intersect(BoundingBox2D const &other)
   {
     if (P.x >= other.Q.x || Q.x <= other.P.x || P.y >= other.Q.y ||
         Q.y <= other.P.y)
     {
       // empty BB
-      P = Point2D();
-      Q = Point2D();
+      P = Vector2D();
+      Q = Vector2D();
     }
     else
     {
@@ -134,13 +134,13 @@ public:
   }
 
   /// Return area of bounding box
-  double Area() const { return (Q.x - P.x) * (Q.y - P.y); }
+  double area() const { return (Q.x - P.x) * (Q.y - P.y); }
 
   /// Create bounding box of polygon.
   ///
   /// @param polygon Polygon
   explicit BoundingBox2D(const Polygon &polygon)
-      : BoundingBox2D(polygon.Vertices)
+      : BoundingBox2D(polygon.vertices)
   {
   }
 
@@ -157,10 +157,10 @@ class BoundingBox3D : public Printable
 {
 public:
   /// First ("lower left") corner
-  Point3D P{};
+  Vector3D P{};
 
   /// Second ("upper right") corner
-  Point3D Q{};
+  Vector3D Q{};
 
   /// Create empty bounding box
   BoundingBox3D() = default;
@@ -170,7 +170,7 @@ public:
   ///
   /// @param p First ("lower left") corner
   /// @param q Second ("upper right") corner
-  BoundingBox3D(const Point3D &p, const Point3D &q) : P(p), Q(q)
+  BoundingBox3D(const Vector3D &p, const Vector3D &q) : P(p), Q(q)
   {
     assert(p.x <= q.x);
     assert(p.y <= q.y);
@@ -181,7 +181,7 @@ public:
   ///
   /// @param points Vector if points
   /// @param margin Margin to use for bounding box
-  explicit BoundingBox3D(const std::vector<Point3D> &points,
+  explicit BoundingBox3D(const std::vector<Vector3D> &points,
                          double margin = 0.0)
   {
     constexpr double max = std::numeric_limits<double>::max();
@@ -206,7 +206,7 @@ public:
 
   /// expand a bounding box to the union of it
   /// and a second bounding box
-  void Union(BoundingBox3D other)
+  void union_with(BoundingBox3D other)
   {
     P.x = std::min(P.x, other.P.x);
     P.y = std::min(P.y, other.P.y);
@@ -217,7 +217,7 @@ public:
   }
 
   /// Return volume of bounding box
-  double Volume() const { return (Q.x - P.x) * (Q.y - P.y) * (Q.z - P.z); }
+  double volume() const { return (Q.x - P.x) * (Q.y - P.y) * (Q.z - P.z); }
 
   /// Pretty-print
   std::string __str__() const override

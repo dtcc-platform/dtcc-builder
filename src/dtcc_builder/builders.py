@@ -200,7 +200,7 @@ def build_mesh(
 
     # Build meshes
     meshes = _dtcc_builder.build_mesh(
-        simple_builder_city, builder_dem, p["mesh_resolution"]
+        simple_builder_city, builder_dem, p["mesh_resolution"], False
     )
     print(f"Number of meshes: {len(meshes)}")
     # Extract meshes and merge building meshes

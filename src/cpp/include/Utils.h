@@ -34,24 +34,24 @@ public:
   /// Convert string encoded with ISO 8859-1 to UTF-8.
   /// \param str The ISO 8859-1 string to convert
   /// \return The string converted to UTF-8
-  static std::string Iso88591ToUtf8(std::basic_string<char> str)
+  static std::string iso88591_to_utf8(std::basic_string<char> str)
   {
-    std::string strOut;
+    std::string str_out;
     for (uint8_t ch : str)
     {
       if (ch < 0x80)
-        strOut.push_back(ch);
+        str_out.push_back(ch);
       else
       {
-        strOut.push_back(0xc0 | ch >> 6);
-        strOut.push_back(0x80 | (ch & 0x3f));
+        str_out.push_back(0xc0 | ch >> 6);
+        str_out.push_back(0x80 | (ch & 0x3f));
       }
     }
-    return strOut;
+    return str_out;
   }
 
   // Check if a string ends with another string
-  static bool EndsWith(const std::string &string, const std::string &ending)
+  static bool ends_with(const std::string &string, const std::string &ending)
   {
     if (ending.size() > string.size())
       return false;
@@ -59,37 +59,37 @@ public:
   }
 
   /// Return random number between 0 and 1
-  static double Random() { return std::rand() / double(RAND_MAX); }
+  static double random() { return std::rand() / double(RAND_MAX); }
 
   /// Returns the file name part of a path. If path end with a '/'
   /// return the directory name instead.
   /// \param str a string representing a path to a file.
-  static std::string GetFilename(std::string fullPath,
-                                 bool removeExtension = false)
+  static std::string get_filename(std::string full_path,
+                                  bool remove_extension = false)
   {
-    if (fullPath.back() == '/')
-      fullPath.pop_back();
+    if (full_path.back() == '/')
+      full_path.pop_back();
 
-    std::string fileName;
-    size_t lastPathSep = fullPath.find_last_of('/');
+    std::string file_name;
+    size_t last_path_sep = full_path.find_last_of('/');
 
-    if (lastPathSep != std::string::npos)
+    if (last_path_sep != std::string::npos)
     {
-      fileName = fullPath.substr(lastPathSep + 1);
+      file_name = full_path.substr(last_path_sep + 1);
     }
     else // no directory
     {
-      fileName = fullPath;
+      file_name = full_path;
     }
-    if (removeExtension)
+    if (remove_extension)
     {
-      size_t fileExtSep = fileName.find_last_of('.');
-      if (fileExtSep != std::string::npos)
+      size_t file_ext_sep = file_name.find_last_of('.');
+      if (file_ext_sep != std::string::npos)
       {
-        fileName = fileName.substr(0, fileExtSep);
+        file_name = file_name.substr(0, file_ext_sep);
       }
     }
-    return fileName;
+    return file_name;
   }
 };
 } // namespace DTCC_BUILDER

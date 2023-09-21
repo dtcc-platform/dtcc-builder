@@ -11,7 +11,7 @@
 namespace DTCC_BUILDER
 {
 
-/// Colors are stored as doubles in the range 0-1
+/// colors are stored as doubles in the range 0-1
 class Color : public Printable
 {
 public:
@@ -27,7 +27,7 @@ public:
   /// Alpha (A)
   double A{};
 
-  /// Empty constructor
+  /// empty constructor
   Color() = default;
   virtual ~Color() {} // make the destructor virtual
 

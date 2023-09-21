@@ -57,10 +57,10 @@ private:
   //    |- Height (double)
   //    |- error (size_t)
   //    |- GroundHeight (double)
-  //    |- GroundPoints (std::vector<Point3D>)
-  //    |- RoofPoints (std::vector<Point3D>)
+  //    |- GroundPoints (std::vector<Vector3D>)
+  //    |- RoofPoints (std::vector<Vector3D>)
   //    |- RoofSegments (std::vector<std::vector<size_t>>)
-  //  - Origin (Point2D)
+  //  - Origin (Vector2D)
   static void Deserialize(City &city, const nlohmann::json &json)
   {
     // CheckType("City", json);
@@ -109,7 +109,7 @@ private:
     double py = bounds["ymin"];
     double qx = bounds["xmax"];
     double qy = bounds["ymax"];
-    auto bbox = BoundingBox2D(Point2D(px, py), Point2D(qx, qy));
+    auto bbox = BoundingBox2D(Vector2D(px, py), Vector2D(qx, qy));
     std::cout << "BBOX P x: " << bbox.P.x << " y: " << bbox.P.y << std::endl;
     std::cout << "BBOX Q x: " << bbox.Q.x << " y: " << bbox.Q.y << std::endl;
 
@@ -139,7 +139,7 @@ private:
     volume_mesh.Vertices.reserve(vertices.size());
     for (size_t i = 0; i < vertices.size(); i = i + 3)
     {
-      Point3D pt(vertices[i], vertices[i + 1], vertices[i + 2]);
+      Vector3D pt(vertices[i], vertices[i + 1], vertices[i + 2]);
       volume_mesh.Vertices.push_back(pt);
     }
 

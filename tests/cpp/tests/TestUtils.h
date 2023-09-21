@@ -5,34 +5,34 @@ using namespace DTCC_BUILDER;
 
 TEST_CASE("Hashing")
 {
-  SECTION("Hash Point2D")
+  SECTION("hash Point2D")
   {
-    Point2D p(1, 2);
-    info(Hashing::Hex(Hashing::Hash(p)));
+    Vector2D p(1, 2);
+    info(Hashing::hex(Hashing::hash(p)));
   }
 
-  SECTION("Hash Point3D")
+  SECTION("hash Point3D")
   {
-    Point3D p(1, 2, 3);
-    info(Hashing::Hex(Hashing::Hash(p)));
+    Vector3D p(1, 2, 3);
+    info(Hashing::hex(Hashing::hash(p)));
   }
 }
 
 TEST_CASE("ISO 8559-1 to UTF-8")
 {
   std::string testStr("G\345ngv\344g");
-  REQUIRE(Utils::Iso88591ToUtf8(testStr) == "Gångväg");
+  REQUIRE(Utils::iso88591_to_utf8(testStr) == "Gångväg");
 }
 
 TEST_CASE("Get Filename from path")
 {
-  std::string path = "/path/to/fileName.json";
-  std::string pathFileOnly = "fileName.json";
+  std::string path = "/path/to/file_name.json";
+  std::string pathFileOnly = "file_name.json";
   std::string pathNoFile = "/path/to/dir/";
 
-  REQUIRE(Utils::GetFilename(path) == "fileName.json");
-  REQUIRE(Utils::GetFilename(path, true) == "fileName");
-  REQUIRE(Utils::GetFilename(pathFileOnly) == "fileName.json");
-  REQUIRE(Utils::GetFilename(pathFileOnly, true) == "fileName");
-  REQUIRE(Utils::GetFilename(pathNoFile) == "dir");
+  REQUIRE(Utils::get_filename(path) == "file_name.json");
+  REQUIRE(Utils::get_filename(path, true) == "file_name");
+  REQUIRE(Utils::get_filename(pathFileOnly) == "file_name.json");
+  REQUIRE(Utils::get_filename(pathFileOnly, true) == "file_name");
+  REQUIRE(Utils::get_filename(pathNoFile) == "dir");
 }
