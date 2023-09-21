@@ -3,7 +3,7 @@ requires = ["scikit-build-core", "pybind11==2.10.*", "wheel"]
 build-backend = "scikit_build_core.build"
 
 [project]
-version = "0.7.16"
+version = "0.7.20"
 name = "dtcc-builder"
 description = "DTCC Builder"
 readme = "README.md"
@@ -11,6 +11,8 @@ authors = [
   { name = "Anders Logg", email = "logg@chalmers.se" },
   { name = "Vasilis Naserentin", email = "vasilis.naserentin@chalmers.se" },
   { name = "Dag Wästberg", email = "dwastberg@gmail.com" },
+  { name = "George Spaias" , email= "gspaiasa@ece.auth.gr" },
+  { name = "Jens Olsson" , email= "jens.olsson@chalmersindustriteknik.se" },
 ]
 requires-python = ">=3.10"
 classifiers = [
