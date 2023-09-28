@@ -125,7 +125,7 @@ private:
       {
         if (--stop_condition_counter == 0)
         {
-          info("Stopping due to GS stop conditions to avert divergance at " +
+          info("Divergence detected for " + str(residual_counter) " consecutive iterations. Exiting GS at " +
                str(iterations) + " iterations");
           break;
         }
