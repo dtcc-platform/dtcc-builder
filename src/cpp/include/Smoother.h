@@ -24,7 +24,8 @@ public:
                                        double top_height,
                                        bool fix_buildings,
                                        size_t max_iterations,
-                                       double relative_tolerance)
+                                       double relative_tolerance,
+                                       size_t residual_counter)
 
   {
     info("Smoothing volume mesh...");
@@ -50,7 +51,7 @@ public:
 
     // Solve linear system
     solve_unassembled_gauss_seidel(volume_mesh, AK, b, u, max_iterations,
-                                   relative_tolerance);
+                                   relative_tolerance, residual_counter);
 
     // Update mesh coordinates
     VolumeMesh _volume_mesh{volume_mesh};
@@ -67,7 +68,8 @@ private:
                                              std::vector<double> &b,
                                              std::vector<double> &u,
                                              const size_t max_iterations,
-                                             const double relative_tolerance)
+                                             const double relative_tolerance,
+                                             const size_t residual_counter)
   {
     info("Solving linear system using unassembled Gauss-Seidel");
 
@@ -83,11 +85,16 @@ private:
     compute_vertex_degrees(vertex_degrees, volume_mesh);
 
     size_t iterations;
-    double residual;
+    double residual = std::numeric_limits<double>::max();
+    double prev_residual = std::numeric_limits<double>::max();
+
+    size_t stop_condition_counter = residual_counter;
+
     for (iterations = 0; iterations < max_iterations; iterations++)
     {
       C = b;
       _vertex_degrees = vertex_degrees;
+      prev_residual = residual;
       residual = 0;
       for (size_t c = 0; c < volume_mesh.cells.size(); c++)
       {
@@ -111,6 +118,21 @@ private:
             residual = std::max(residual, res);
           }
         }
+      }
+
+      // Check stop Condition
+      if (residual >= prev_residual)
+      {
+        if (--stop_condition_counter == 0)
+        {
+          info("Stopping due to GS stop conditions to avert divergance at " +
+               str(iterations) + " iterations");
+          break;
+        }
+      }
+      else
+      {
+        stop_condition_counter = residual_counter;
       }
 
       // Check convergance

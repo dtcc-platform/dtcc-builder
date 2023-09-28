@@ -49,6 +49,7 @@ _parameters["ransac_iterations"] = 250
 
 _parameters["smoothing_max_iterations"] = 1000
 _parameters["smoothing_relative_tolerance"] = 0.001
+_parameters["smoothing_residual_counter"] = 10
 
 _parameters["naive_vegitation_filter"] = True
 _parameters["data_directory"] = ""

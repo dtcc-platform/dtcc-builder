@@ -277,7 +277,7 @@ def build_volume_mesh(
         ground_mesh, p["domain_height"], p["mesh_resolution"]
     )
     _debug(volume_mesh, "3.2", p)
-
+    print(p["smoothing_residual_counter"])
     # Step 3.3: Smooth volume mesh (set ground height)
     top_height = p["domain_height"] + city.terrain.data.mean()
     volume_mesh = _dtcc_builder.smooth_volume_mesh(
@@ -288,6 +288,7 @@ def build_volume_mesh(
         False,
         p["smoothing_max_iterations"],
         p["smoothing_relative_tolerance"],
+        p["smoothing_residual_counter"]
     )
     _debug(volume_mesh, "3.3", p)
 
@@ -306,6 +307,7 @@ def build_volume_mesh(
         True,
         p["smoothing_max_iterations"],
         p["smoothing_relative_tolerance"],
+        p["smoothing_residual_counter"]
     )
     _debug(volume_mesh, "3.5", p)
 
