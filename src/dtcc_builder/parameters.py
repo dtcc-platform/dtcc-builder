@@ -14,7 +14,6 @@ _parameters["save_vtk"] = False
 _parameters["save_stl"] = False
 _parameters["save_obj"] = False
 
-# FIXME: Is this used?
 _parameters["ground_smoothing"] = 5
 
 _parameters["domain_margin"] = 10.0

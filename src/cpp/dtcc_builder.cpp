@@ -275,7 +275,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def(py::init<>())
       .def_readonly("vertices", &DTCC_BUILDER::Mesh::vertices)
       .def_readonly("faces", &DTCC_BUILDER::Mesh::faces)
-      .def_readonly("normals", &DTCC_BUILDER::Mesh::normals);
+      .def_readonly("normals", &DTCC_BUILDER::Mesh::normals)
+      .def_readonly("markers", &DTCC_BUILDER::Mesh::markers);
 
   py::class_<DTCC_BUILDER::VolumeMesh>(m, "VolumeMesh")
       .def(py::init<>())
@@ -323,6 +324,10 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("build_ground_mesh", &DTCC_BUILDER::MeshBuilder::build_ground_mesh,
         "build ground mesh");
+
+  m.def("build_city_surface_mesh",
+        &DTCC_BUILDER::MeshBuilder::build_city_surface_mesh,
+        "build city surface mesh");
 
   m.def("layer_ground_mesh", &DTCC_BUILDER::MeshBuilder::layer_ground_mesh,
         "Layer ground mesh");

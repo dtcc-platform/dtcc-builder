@@ -8,14 +8,14 @@ from dtcc_builder.model import (
 from dtcc_model import Building, City, PointCloud
 
 
-def terrain_mesh(city: City, mesh_resolution=2.0):
+def terrain_mesh(city: City, mesh_resolution=2.0, smoothing=0):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
     builder_city = create_builder_city(city)
     builder_dem = raster_to_builder_gridfield(city.terrain)
 
     ground_mesh = _dtcc_builder.build_mesh(
-        builder_city, builder_dem, mesh_resolution, True
+        builder_city, builder_dem, mesh_resolution, True, smoothing
     )
     ground_mesh = ground_mesh[0]
 

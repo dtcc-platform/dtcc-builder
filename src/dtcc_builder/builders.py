@@ -18,6 +18,7 @@ from . import _dtcc_builder
 from . import city_methods
 from . import model as builder_model
 from . import parameters as builder_parameters
+from . import meshing
 
 
 def calculate_bounds(
@@ -317,6 +318,40 @@ def build_volume_mesh(
     dtcc_volume_mesh_boundary = builder_model.builder_mesh_to_mesh(volume_mesh_boundary)
 
     return dtcc_volume_mesh, dtcc_volume_mesh_boundary
+
+
+def build_city_surface_mesh(
+    city: model.City, parameters: dict = None, merge_meshes=True
+):
+    """
+    Build surface mesh for city.
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city model for which to generate the volume mesh.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+    Returns
+    -------
+    `surface_mesh` : dtcc_model.Mesh
+        The city's surface mesh
+    """
+    p = parameters or builder_parameters.default()
+    builder_city = builder_model.create_builder_city(city)
+    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
+    meshes = _dtcc_builder.build_city_surface_mesh(
+        builder_city,
+        builder_dem,
+        p["mesh_resolution"],
+        p["ground_smoothing"],
+        merge_meshes,
+    )
+    if merge_meshes:
+        # meshes contain only one merged mesh
+        surface_mesh = builder_model.builder_mesh_to_mesh(meshes[0])
+    else:
+        surface_mesh = [builder_model.builder_mesh_to_mesh(mesh) for mesh in meshes]
+    return surface_mesh
 
 
 def build(parameters: dict = None) -> None:

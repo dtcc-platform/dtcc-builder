@@ -11,6 +11,8 @@
 #include "Hashing.h"
 #include "Logging.h"
 #include "model/Mesh.h"
+#include "model/Simplices.h"
+#include "model/Vector.h"
 #include "model/VolumeMesh.h"
 
 namespace DTCC_BUILDER
@@ -146,9 +148,9 @@ public:
   }
 
   /// Merge meshes into a single mesh
-  static Mesh merge_meshes(const std::vector<Mesh> &meshes)
+  static Mesh merge_meshes(const std::vector<Mesh> &meshes, bool weld = false)
   {
-    info("Merging " + str(meshes.size()) + " meshes into a single mesh...");
+    // info("Merging " + str(meshes.size()) + " meshes into a single mesh...");
     Timer timer("merge_meshes");
 
     // Create empty mesh
@@ -185,8 +187,83 @@ public:
       for (size_t j = 0; j < meshes[i].vertices.size(); j++)
         mesh.vertices[k++] = meshes[i].vertices[j];
     }
-
+    if (weld)
+      mesh = weld_mesh(mesh);
     return mesh;
+  }
+
+  static std::vector<Simplex1D>
+  find_naked_edges(const std::vector<Simplex2D> &faces)
+  {
+    std::unordered_map<Simplex1D, int, Simplex1DHash> edge_counts;
+
+    // Count the number of times each edge appears in the faces
+    for (const auto &face : faces)
+    {
+      info("face: " + str(face.v0) + " " + str(face.v1) + " " + str(face.v2));
+      for (int i = 0; i < 3; ++i)
+      {
+        // info("edge: " + str(face[i]) + " " + str(face[(i + 1) % 3]));
+        Simplex1D edge(face[i], face[(i + 1) % 3], true);
+        if (edge_counts.find(edge) == edge_counts.end())
+        {
+          edge_counts.insert({edge, 1});
+          // info("inserted " + str(edge.v0) + " " + str(edge.v1) + "");
+        }
+        else
+        {
+          edge_counts[edge] += 1;
+          info("incremented to " + str(edge_counts[edge]) + "");
+        }
+      }
+    }
+
+    // Find the edges that appear only once
+    std::vector<Simplex1D> naked_edges;
+    for (auto it = edge_counts.begin(); it != edge_counts.end(); ++it)
+    {
+      if (it->second == 1)
+      {
+        naked_edges.push_back(it->first);
+      }
+    }
+
+    return naked_edges;
+  }
+
+  static Mesh weld_mesh(const Mesh &mesh)
+  {
+    size_t num_vertices = mesh.vertices.size();
+    Timer timer("weld_mesh");
+
+    // Create empty mesh
+    Mesh welded_mesh;
+    std::unordered_map<Vector3D, size_t, Vector3DHash> vertex_map;
+    std::unordered_map<size_t, size_t> vertex_idx_map;
+    for (size_t i = 0; i < mesh.vertices.size(); ++i)
+    {
+      const Vector3D &vertex = mesh.vertices[i];
+      if (vertex_map.find(vertex) == vertex_map.end())
+      {
+        vertex_map.insert({vertex, i});
+        vertex_idx_map.insert({i, vertex_idx_map.size()});
+        welded_mesh.vertices.push_back(vertex);
+      }
+      else
+      {
+        vertex_idx_map.insert({i, vertex_map[vertex]});
+      }
+    }
+    for (size_t i = 0; i < mesh.faces.size(); ++i)
+    {
+      const Simplex2D &face = mesh.faces[i];
+      welded_mesh.faces.push_back(Simplex2D(vertex_idx_map[face.v0],
+                                            vertex_idx_map[face.v1],
+                                            vertex_idx_map[face.v2]));
+    }
+    info("welded " + str(num_vertices) + " vertices to " +
+         str(welded_mesh.vertices.size()) + " vertices");
+    return welded_mesh;
   }
 
 private:

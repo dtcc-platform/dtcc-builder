@@ -5,9 +5,10 @@
 #define DTCC_VECTOR_H
 
 #include <cmath>
+#include <functional>
 
 #include "Logging.h"
-//#include "Point.h"
+// #include "Point.h"
 
 namespace DTCC_BUILDER
 {
@@ -234,6 +235,11 @@ public:
     return *this;
   }
 
+  bool operator==(const Vector3D &p) const
+  {
+    return (x == p.x && y == p.y && z == p.z);
+  }
+
   double dot(const Vector3D &p) const { return x * p.x + y * p.y + z * p.z; }
 
   Vector3D cross(const Vector3D &p) const
@@ -253,10 +259,52 @@ public:
 
   double squared_magnitude() const { return x * x + y * y + z * z; }
 
+  Vector3D rotate(const Vector3D &axis, double angle) const
+  {
+    double c = cos(angle);
+    double s = sin(angle);
+    double t = 1 - c;
+    double x = this->x;
+    double y = this->y;
+    double z = this->z;
+    double ax = axis.x;
+    double ay = axis.y;
+    double az = axis.z;
+
+    // Compute the rotation matrix
+    double m11 = c + ax * ax * t;
+    double m12 = ax * ay * t - az * s;
+    double m13 = ax * az * t + ay * s;
+    double m21 = ay * ax * t + az * s;
+    double m22 = c + ay * ay * t;
+    double m23 = ay * az * t - ax * s;
+    double m31 = az * ax * t - ay * s;
+    double m32 = az * ay * t + ax * s;
+    double m33 = c + az * az * t;
+
+    // Apply the rotation matrix to the vector
+    double n_x = m11 * x + m12 * y + m13 * z;
+    double n_y = m21 * x + m22 * y + m23 * z;
+    double n_z = m31 * x + m32 * y + m33 * z;
+
+    return Vector3D(n_x, n_y, n_z);
+  }
   /// Pretty-print
   std::string __str__() const override
   {
     return "(" + str(x) + ", " + str(y) + ", " + str(z) + ")";
+  }
+};
+
+struct Vector3DHash
+{
+  std::size_t operator()(const Vector3D &v) const
+  {
+    std::hash<double> hasher;
+    std::size_t x_hash = hasher(v.x);
+    std::size_t y_hash = hasher(v.y);
+    std::size_t z_hash = hasher(v.z);
+    return x_hash ^ (y_hash << 1) ^ (z_hash << 2);
   }
 };
 

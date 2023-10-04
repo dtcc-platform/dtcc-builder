@@ -6,13 +6,16 @@
 
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <stack>
 #include <tuple>
 #include <vector>
 
 #include "Geometry.h"
 #include "Logging.h"
+#include "MeshProcessor.h"
 #include "Timer.h"
+#include "VertexSmoother.h"
 #include "model/City.h"
 #include "model/GridField.h"
 #include "model/Mesh.h"
@@ -38,7 +41,8 @@ public:
   static std::vector<Mesh> build_mesh(const City &city,
                                       const GridField &dtm,
                                       double resolution,
-                                      bool ground_only = false)
+                                      bool ground_only = false,
+                                      size_t smooth_ground = 0)
   {
     info("Building city mesh...");
     Timer timer("build_mesh");
@@ -56,8 +60,13 @@ public:
     boundary.push_back(bbox.Q);
     boundary.push_back(Vector2D(bbox.P.x, bbox.Q.y));
 
+    // add building sub-domains
+    for (auto const &building : city.buildings)
+      sub_domains.push_back(building.footprint.vertices);
+
     // build ground mesh
     Mesh ground_mesh;
+    info("triangulating ground...");
     call_triangle(ground_mesh, boundary, sub_domains, resolution, false);
 
     // Compute domain markers
@@ -101,6 +110,9 @@ public:
         set_min(ground_mesh.vertices[T.v2].z, dtm(ground_mesh.vertices[T.v2]));
       }
     }
+    info("smooth ground...");
+    if (smooth_ground > 0)
+      VertexSmoother::smooth_mesh(ground_mesh, smooth_ground);
 
     // Add ground mesh
     std::vector<Mesh> meshes;
@@ -621,6 +633,136 @@ public:
     return _volume_mesh;
   }
 
+  static std::vector<Mesh> build_city_surface_mesh(const City &city,
+                                                   const GridField &dtm,
+                                                   double resolution,
+                                                   size_t smooth_ground = 0,
+                                                   bool merge_meshes = true)
+  {
+    Mesh terrain_mesh =
+        build_mesh(city, dtm, resolution, true, smooth_ground)[0];
+
+    std::vector<Mesh> city_mesh;
+    std::vector<Mesh> building_meshes;
+
+    std::map<size_t, std::vector<Simplex2D>> building_faces;
+    std::vector<size_t> building_indices;
+    info("finding markes");
+    for (size_t i = 0; i < terrain_mesh.markers.size(); i++)
+    {
+      auto marker = terrain_mesh.markers[i];
+
+      if (marker >= 0)
+      {
+        // info("marker: " + str(marker) + " i: " + str(i));
+        building_faces[marker].push_back(terrain_mesh.faces[i]);
+        building_indices.push_back(i);
+      }
+    }
+
+    // remove triangles inside houses
+    info("removing triangles");
+    std::sort(building_indices.rbegin(), building_indices.rend());
+    for (auto idx : building_indices)
+    {
+      terrain_mesh.faces.erase(terrain_mesh.faces.begin() + idx);
+    }
+
+    info("building meshes");
+    size_t bidx = 0;
+    for (auto it = building_faces.begin(); it != building_faces.end(); ++it)
+    {
+      info("building " + str(bidx++) + " of " + str(building_faces.size()));
+      auto marker = it->first;
+      auto faces = it->second;
+      auto building = city.buildings[marker];
+      auto roof_height = building.ground_height + building.height;
+
+      Mesh building_mesh;
+
+      // add roofs
+      for (const auto &face : faces)
+      {
+        auto v0 = terrain_mesh.vertices[face.v0];
+        auto v1 = terrain_mesh.vertices[face.v1];
+        auto v2 = terrain_mesh.vertices[face.v2];
+        auto v3 = Vector3D(v0.x, v0.y, roof_height);
+        auto v4 = Vector3D(v1.x, v1.y, roof_height);
+        auto v5 = Vector3D(v2.x, v2.y, roof_height);
+
+        auto num_vertices = building_mesh.vertices.size();
+        building_mesh.vertices.push_back(v3);
+        building_mesh.vertices.push_back(v4);
+        building_mesh.vertices.push_back(v5);
+        // info("vertices: " + str(v3) + " " + str(v4) + " " + str(v5));
+        // info("faces: " + str(face.v0) + " " + str(face.v1) + " " +
+        //     str(face.v2));
+        building_mesh.faces.push_back(
+            Simplex2D(num_vertices, num_vertices + 1, num_vertices + 2));
+      }
+      // add walls
+
+      // building_mesh = MeshProcessor::weld_mesh(building_mesh);
+
+      auto naked_edges = MeshProcessor::find_naked_edges(faces);
+      for (const auto &edge : naked_edges)
+      {
+        auto ground_v0 = terrain_mesh.vertices[edge.v0];
+        auto ground_v1 = terrain_mesh.vertices[edge.v1];
+        auto roof_v0 = Vector3D(ground_v0.x, ground_v0.y, roof_height);
+        auto roof_v1 = Vector3D(ground_v1.x, ground_v1.y, roof_height);
+        Mesh wall_mesh;
+        wall_mesh.vertices = {ground_v0, ground_v1, roof_v0, roof_v1};
+        wall_mesh.faces = {Simplex2D(0, 1, 2), Simplex2D(1, 3, 2)};
+        building_mesh = MeshProcessor::merge_meshes({building_mesh, wall_mesh});
+      }
+
+      building_meshes.push_back(building_mesh);
+    }
+    city_mesh.push_back(terrain_mesh);
+    city_mesh.insert(city_mesh.end(), building_meshes.begin(),
+                     building_meshes.end());
+    if (merge_meshes)
+    {
+      auto merged_mesh = MeshProcessor::merge_meshes(city_mesh);
+      city_mesh = {merged_mesh};
+    }
+
+    return city_mesh;
+  }
+
+  // Triangulate a 3D surface, defined by a list of vertices.
+  // The surface is assumed to be planar. Passing a non-planar
+  // surface will result in undefined behavior.
+  static Mesh triangulate_3D_surface(const std::vector<Vector3D> surface,
+                                     double triangle_size = 2.0)
+  {
+    Vector3D v1 = surface[1] - surface[0];
+    Vector3D v2 = surface[2] - surface[0];
+    Vector3D normal = v1.cross(v2);
+    const Vector3D up = Vector3D(0, 0, 1);
+    // Compute the angle between the normal vector and the z-axis
+    double angle = normal.angle_between(up);
+    Vector3D axis = normal.cross(up);
+    // Rotate the surface so that the normal vector is aligned with the z-axis
+    std::vector<Vector2D> flat_surface;
+    double rotated_z = 0;
+    for (const auto &v : surface)
+    {
+      Vector3D rotated_v = v.rotate(axis, angle);
+      rotated_z = rotated_v.z;
+      flat_surface.push_back(Vector2D(rotated_v.x, rotated_v.y));
+    }
+    Mesh flat_mesh;
+    call_triangle(flat_mesh, flat_surface, {}, triangle_size, false);
+    for (auto &v : flat_mesh.vertices)
+    {
+      v.z = rotated_z;
+      v = v.rotate(axis, -angle);
+    }
+    return flat_mesh;
+  }
+
 private:
   // Map from 2D cell index to 3D cell indices
   static size_t
@@ -673,6 +815,7 @@ private:
       {
         in.pointlist[k++] = p.x;
         in.pointlist[k++] = p.y;
+        info("boundary point: " + str(p.x) + " " + str(p.y));
       }
       for (auto const &innerPolygon : sub_domains)
       {
@@ -747,6 +890,7 @@ private:
     struct triangulateio vorout = create_triangle_io();
 
     // Call Triangle
+    info("Calling Triangle...");
     triangulate(triswitches, &in, &out, &vorout);
 
     // Uncomment for debugging

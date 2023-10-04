@@ -39,8 +39,22 @@ public:
       this->v1 = v1;
     }
   }
+  bool operator==(const Simplex1D &s) const
+  {
+    return (v0 == s.v0 && v1 == s.v1);
+  }
 };
-
+struct Simplex1DHash
+{
+  std::size_t operator()(const Simplex1D &s) const
+  {
+    std::hash<int> hasher;
+    size_t seed = 0;
+    seed ^= hasher(s.v0) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hasher(s.v1) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
+  }
+};
 class Simplex2D
 {
 public:
@@ -53,8 +67,7 @@ public:
   Simplex2D() = default;
 
   // Create simplex and optionally sort vertices
-  Simplex2D(std::size_t v0, std::size_t v1, std::size_t v2,
-            bool sort=false)
+  Simplex2D(std::size_t v0, std::size_t v1, std::size_t v2, bool sort = false)
   {
     // Sort vertices if requested
     if (sort)
@@ -72,8 +85,37 @@ public:
       this->v2 = v2;
     }
   }
+
+  bool operator==(const Simplex2D &s) const
+  {
+    return (v0 == s.v0 && v1 == s.v1 && v2 == s.v2);
+  }
+
+  size_t operator[](int idx) const
+  {
+    if (idx == 0)
+      return v0;
+    if (idx == 1)
+      return v1;
+    if (idx == 2)
+      return v2;
+    throw std::out_of_range("Out of bounds");
+  }
 };
 
+struct Simplex2DHash
+{
+  std::size_t operator()(const Simplex2D &s) const
+  {
+    std::hash<int> hasher;
+    std::size_t seed = 0;
+    seed ^= hasher(s.v0) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hasher(s.v1) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hasher(s.v2) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+    return seed;
+  }
+};
 class Simplex3D
 {
 public:
@@ -87,8 +129,11 @@ public:
   Simplex3D() = default;
 
   // Create simplex and optionally sort vertices
-  Simplex3D(std::size_t v0, std::size_t v1, std::size_t v2, std::size_t v3,
-            bool sort=false)
+  Simplex3D(std::size_t v0,
+            std::size_t v1,
+            std::size_t v2,
+            std::size_t v3,
+            bool sort = false)
   {
     // Sort vertices if requested
     if (sort)
