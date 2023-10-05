@@ -200,7 +200,6 @@ public:
     // Count the number of times each edge appears in the faces
     for (const auto &face : faces)
     {
-      info("face: " + str(face.v0) + " " + str(face.v1) + " " + str(face.v2));
       for (int i = 0; i < 3; ++i)
       {
         // info("edge: " + str(face[i]) + " " + str(face[(i + 1) % 3]));
@@ -208,12 +207,10 @@ public:
         if (edge_counts.find(edge) == edge_counts.end())
         {
           edge_counts.insert({edge, 1});
-          // info("inserted " + str(edge.v0) + " " + str(edge.v1) + "");
         }
         else
         {
           edge_counts[edge] += 1;
-          info("incremented to " + str(edge_counts[edge]) + "");
         }
       }
     }
@@ -245,8 +242,8 @@ public:
       const Vector3D &vertex = mesh.vertices[i];
       if (vertex_map.find(vertex) == vertex_map.end())
       {
-        vertex_map.insert({vertex, i});
-        vertex_idx_map.insert({i, vertex_idx_map.size()});
+        vertex_map.insert({vertex, welded_mesh.vertices.size()});
+        vertex_idx_map.insert({i, vertex_map.size() - 1});
         welded_mesh.vertices.push_back(vertex);
       }
       else
@@ -260,6 +257,14 @@ public:
       welded_mesh.faces.push_back(Simplex2D(vertex_idx_map[face.v0],
                                             vertex_idx_map[face.v1],
                                             vertex_idx_map[face.v2]));
+    }
+    for (size_t i = 0; i < mesh.normals.size(); ++i)
+    {
+      welded_mesh.normals.push_back(mesh.normals[i]);
+    }
+    for (size_t i = 0; i < mesh.markers.size(); ++i)
+    {
+      welded_mesh.markers.push_back(mesh.markers[i]);
     }
     info("welded " + str(num_vertices) + " vertices to " +
          str(welded_mesh.vertices.size()) + " vertices");

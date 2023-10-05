@@ -713,18 +713,18 @@ public:
         auto roof_v1 = Vector3D(ground_v1.x, ground_v1.y, roof_height);
         Mesh wall_mesh;
         wall_mesh.vertices = {ground_v0, ground_v1, roof_v0, roof_v1};
-        wall_mesh.faces = {Simplex2D(0, 1, 2), Simplex2D(1, 3, 2)};
+        wall_mesh.faces = {Simplex2D(0, 1, 3), Simplex2D(3, 2, 0)};
         building_mesh = MeshProcessor::merge_meshes({building_mesh, wall_mesh});
       }
 
-      building_meshes.push_back(building_mesh);
+      building_meshes.push_back(MeshProcessor::weld_mesh(building_mesh));
     }
     city_mesh.push_back(terrain_mesh);
     city_mesh.insert(city_mesh.end(), building_meshes.begin(),
                      building_meshes.end());
     if (merge_meshes)
     {
-      auto merged_mesh = MeshProcessor::merge_meshes(city_mesh);
+      auto merged_mesh = MeshProcessor::merge_meshes(city_mesh, true);
       city_mesh = {merged_mesh};
     }
 
