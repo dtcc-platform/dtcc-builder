@@ -327,7 +327,7 @@ def build_volume_mesh(
 
 def build_city_surface_mesh(
     city: model.City, parameters: dict = None, merge_meshes=True
-):
+) -> model.Mesh:
     """
     Build surface mesh for city.
     Parameters

@@ -220,8 +220,6 @@ public:
       }
     }
 
-    extrude_mesh = MeshProcessor::weld_mesh(extrude_mesh);
-
     return extrude_mesh;
   }
 
@@ -789,7 +787,6 @@ private:
       {
         in.pointlist[k++] = p.x;
         in.pointlist[k++] = p.y;
-        info("boundary point: " + str(p.x) + " " + str(p.y));
       }
       for (auto const &innerPolygon : sub_domains)
       {
@@ -864,7 +861,6 @@ private:
     struct triangulateio vorout = create_triangle_io();
 
     // Call Triangle
-    info("Calling Triangle...");
     triangulate(triswitches, &in, &out, &vorout);
 
     // Uncomment for debugging
