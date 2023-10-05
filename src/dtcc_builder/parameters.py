@@ -14,7 +14,7 @@ _parameters["save_vtk"] = False
 _parameters["save_stl"] = False
 _parameters["save_obj"] = False
 
-_parameters["ground_smoothing"] = 5
+_parameters["ground_smoothing"] = 3
 
 _parameters["domain_margin"] = 10.0
 _parameters["x0"] = 0.0

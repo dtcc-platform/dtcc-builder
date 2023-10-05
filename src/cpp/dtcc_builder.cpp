@@ -20,6 +20,7 @@
 #include "model/Mesh.h"
 #include "model/PointCloud.h"
 #include "model/Polygon.h"
+#include "model/Simplices.h"
 #include "model/Vector.h"
 
 namespace py = pybind11;
@@ -106,6 +107,38 @@ City create_city(py::list footprints,
   // CityBuilder::clean_city(city, 1.0);
 
   return city;
+}
+
+Mesh create_mesh(py::array_t<double> vertices,
+                 py::array_t<size_t> faces,
+                 py::array_t<int> markers)
+{
+  Mesh mesh;
+  auto verts_r = vertices.unchecked<2>();
+  auto faces_r = faces.unchecked<2>();
+  auto markers_r = markers.unchecked<1>();
+  size_t num_vertices = verts_r.shape(0);
+  size_t num_faces = faces_r.shape(0);
+  size_t num_markers = markers_r.size();
+
+  for (size_t i = 0; i < num_vertices; i++)
+  {
+    mesh.vertices.push_back(
+        Vector3D(verts_r(i, 0), verts_r(i, 1), verts_r(i, 2)));
+  }
+
+  for (size_t i = 0; i < num_faces; i++)
+  {
+    mesh.faces.push_back(
+        Simplex2D(faces_r(i, 0), faces_r(i, 1), faces_r(i, 2)));
+  }
+
+  for (size_t i = 0; i < num_markers; i++)
+  {
+    mesh.markers.push_back(markers_r(i));
+  }
+
+  return mesh;
 }
 
 PointCloud create_pointcloud(py::array_t<double> pts,
@@ -292,6 +325,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("create_pointcloud", &DTCC_BUILDER::create_pointcloud,
         "Create C++ point cloud");
 
+  m.def("create_mesh", &DTCC_BUILDER::create_mesh, "Create C++ mesh");
+
   m.def("create_gridfield", &DTCC_BUILDER::create_gridfield,
         "Create C++ grid field");
 
@@ -324,6 +359,9 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("build_ground_mesh", &DTCC_BUILDER::MeshBuilder::build_ground_mesh,
         "build ground mesh");
+
+  m.def("build_terrain_mesh", &DTCC_BUILDER::MeshBuilder::build_terrain_mesh,
+        "build terrain mesh");
 
   m.def("build_city_surface_mesh",
         &DTCC_BUILDER::MeshBuilder::build_city_surface_mesh,

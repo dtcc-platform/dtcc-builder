@@ -6,7 +6,6 @@
 # This module provides the main methods of DTCC Builder.
 
 import numpy as np
-import rasterio
 import dtcc_wrangler
 from pathlib import Path
 from typing import Tuple, List
@@ -162,14 +161,11 @@ def build_city(
     return city
 
 
-def build_mesh(
-    city: model.City, parameters: dict = None
-) -> Tuple[model.Mesh, List[model.Mesh]]:
+def build_terrain_mesh(city: model.City, parameters: dict = None):
     """
-    Build mesh for city.
+    Build terrain mesh for city.
 
-    This function builds a mesh for the city, returning two different
-    meshes: one for the ground and one for the buildings.
+    This function builds a terrain mesh for the city
 
     Parameters
     ----------
@@ -182,48 +178,57 @@ def build_mesh(
     -------
     `dtcc_ground_mesh` : dtcc_model.Mesh
         The ground mesh
-    `dtcc_building_mesh` : dtcc_model.Mesh
-        Mesh of all the buildings
-
     """
-    info("Building meshes for city...")
+    info("Building terrain mesh...")
 
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    simple_city = city.merge_buildings(
-        p["min_building_distance"]
-    ).remove_small_buildings(p["min_building_size"])
+    simple_city = city.remove_small_buildings(
+        p["min_building_size"]
+    ).simplify_buildings(p["min_building_distance"] / 2)
 
-    # Convert to builder model
-    simple_builder_city = builder_model.create_builder_city(simple_city)
-    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
-
-    # Build meshes
-    meshes = _dtcc_builder.build_mesh(
-        simple_builder_city, builder_dem, p["mesh_resolution"], False
+    return meshing.terrain_mesh(
+        simple_city, p["mesh_resolution"], p["ground_smoothing"]
     )
-    print(f"Number of meshes: {len(meshes)}")
-    # Extract meshes and merge building meshes
-    ground_mesh = meshes[0]
-    building_meshes = _dtcc_builder.merge_meshes(meshes[1:])
-
-    # Convert back to DTCC model
-    dtcc_ground_mesh = builder_model.builder_mesh_to_mesh(ground_mesh)
-    dtcc_building_mesh = builder_model.builder_mesh_to_mesh(building_meshes)
-
-    return dtcc_ground_mesh, dtcc_building_mesh
 
 
-def _debug(mesh, step, p):
-    "Debug volume meshing"
-    if not p["debug"]:
-        return
-    if isinstance(mesh, _dtcc_builder.Mesh):
-        mesh = builder_model.builder_mesh_to_mesh(mesh)
-    else:
-        mesh = builder_model.builder_volume_mesh_to_volume_mesh(mesh)
-    mesh.save(p["output_directory"] / f"mesh_step{step}.vtu")
+def build_building_meshes(
+    city: model.City, parameters: dict = None
+) -> List[model.Mesh]:
+    """
+    Build meshes for each building in the city.
+
+    Returns a list of Meshes, one for each building in the city.
+
+    Parameters
+    ----------
+    `city` : dtcc_model.City
+        The city model for which to generate meshes.
+    `parameters` : dict, optional
+        A dictionary of parameters for the computation, by default None.
+
+    Returns
+    -------
+
+    `dtcc_building_meshes` : [dtcc_model.Mesh]
+        Meshes of all the buildings
+
+    """
+    info("meshing buildings...")
+
+    # Get parameters
+    p = parameters or builder_parameters.default()
+
+    simple_city = city.remove_small_buildings(
+        p["min_building_size"]
+    ).simplify_buildings(p["min_building_distance"] / 2)
+
+    building_meshes = meshing.building_meshes(
+        city, p["mesh_resolution"], cap_base=True, per_floor=True
+    )
+
+    return building_meshes
 
 
 def build_volume_mesh(
@@ -337,20 +342,11 @@ def build_city_surface_mesh(
         The city's surface mesh
     """
     p = parameters or builder_parameters.default()
-    builder_city = builder_model.create_builder_city(city)
-    builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
-    meshes = _dtcc_builder.build_city_surface_mesh(
-        builder_city,
-        builder_dem,
-        p["mesh_resolution"],
-        p["ground_smoothing"],
-        merge_meshes,
+    mesh_resolutiom = p["mesh_resolution"]
+    ground_smoothing = p["ground_smoothing"]
+    surface_mesh = meshing.city_surface_mesh(
+        city, mesh_resolutiom, ground_smoothing, merge_meshes
     )
-    if merge_meshes:
-        # meshes contain only one merged mesh
-        surface_mesh = builder_model.builder_mesh_to_mesh(meshes[0])
-    else:
-        surface_mesh = [builder_model.builder_mesh_to_mesh(mesh) for mesh in meshes]
     return surface_mesh
 
 
@@ -421,24 +417,31 @@ def build(parameters: dict = None) -> None:
 
     # Build mesh
     if p["build_mesh"]:
-        ground_mesh, building_mesh = build_mesh(city, p)
+        ground_mesh = build_terrain_mesh(city, p)
+        building_meshes = build_building_meshes(city, p)
+        building_mesh = meshing.merge_meshes(building_meshes)
+        surface_mesh = build_city_surface_mesh(city, p)
 
         # Save meshes to file
         ground_mesh_name = output_directory / "ground_mesh"
         building_mesh_name = output_directory / "building_mesh"
+        surface_mesh_name = output_directory / "surface_mesh"
         if p["save_protobuf"]:
             ground_mesh.save(ground_mesh_name.with_suffix(".pb"))
             building_mesh.save(building_mesh_name.with_suffix(".pb"))
+            surface_mesh.save(surface_mesh_name.with_suffix(".pb"))
         if p["save_vtk"]:
             ground_mesh.save(ground_mesh_name.with_suffix(".vtu"))
             building_mesh.save(building_mesh_name.with_suffix(".vtu"))
+            surface_mesh.save(surface_mesh_name.with_suffix(".vtu"))
         if p["save_stl"]:
             ground_mesh.save(ground_mesh_name.with_suffix(".stl"))
             building_mesh.save(building_mesh_name.with_suffix(".stl"))
+            surface_mesh.save(surface_mesh_name.with_suffix(".stl"))
         if p["save_obj"]:
             ground_mesh.save(ground_mesh_name.with_suffix(".obj"))
             building_mesh.save(building_mesh_name.with_suffix(".obj"))
-
+            surface_mesh.save(surface_mesh_name.with_suffix(".obj"))
     # Build volume mesh
     if p["build_volume_mesh"]:
         volume_mesh, volume_mesh_boundary = build_volume_mesh(city, p)
@@ -456,3 +459,14 @@ def build(parameters: dict = None) -> None:
             volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".stl"))
         if p["save_obj"]:
             volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".obj"))
+
+
+def _debug(mesh, step, p):
+    "Debug volume meshing"
+    if not p["debug"]:
+        return
+    if isinstance(mesh, _dtcc_builder.Mesh):
+        mesh = builder_model.builder_mesh_to_mesh(mesh)
+    else:
+        mesh = builder_model.builder_volume_mesh_to_volume_mesh(mesh)
+    mesh.save(p["output_directory"] / f"mesh_step{step}.vtu")

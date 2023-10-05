@@ -32,46 +32,18 @@ namespace DTCC_BUILDER
 class MeshBuilder
 {
 public:
-  // build mesh for city, returning a list of meshes.
-  //
-  // The first mesh is the ground (height map) and the remaining surfaces are
-  // the extruded building footprints. Note that meshes are non-conforming; the
-  // ground and building meshes are non-matching and the building meshes may
-  // contain hanging nodes.
-  static std::vector<Mesh> build_mesh(const City &city,
-                                      const GridField &dtm,
-                                      double resolution,
-                                      bool ground_only = false,
-                                      size_t smooth_ground = 0)
+  static Mesh build_terrain_mesh(const City &city,
+                                 const GridField &dtm,
+                                 double resolution,
+                                 size_t smooth_ground = 0)
   {
-    info("Building city mesh...");
-    Timer timer("build_mesh");
-
-    // Create empty subdomains for Triangle mesh building
-    std::vector<std::vector<Vector2D>> sub_domains;
+    info("Building terrain mesh...");
 
     // Get bounding box
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
-
     // build boundary
-    std::vector<Vector2D> boundary;
-    boundary.push_back(bbox.P);
-    boundary.push_back(Vector2D(bbox.Q.x, bbox.P.y));
-    boundary.push_back(bbox.Q);
-    boundary.push_back(Vector2D(bbox.P.x, bbox.Q.y));
-
-    // add building sub-domains
-    for (auto const &building : city.buildings)
-      sub_domains.push_back(building.footprint.vertices);
-
-    // build ground mesh
-    Mesh ground_mesh;
-    info("triangulating ground...");
-    call_triangle(ground_mesh, boundary, sub_domains, resolution, false);
-
-    // Compute domain markers
-    compute_domain_markers(ground_mesh, city);
-
+    Mesh ground_mesh = build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x,
+                                         bbox.Q.y, resolution);
     // Displace ground surface. Fill all points with maximum height. This is
     // used to always choose the smallest height for each point since each point
     // may be visited multiple times.
@@ -113,34 +85,34 @@ public:
     info("smooth ground...");
     if (smooth_ground > 0)
       VertexSmoother::smooth_mesh(ground_mesh, smooth_ground);
-
-    // Add ground mesh
+    info("ground mesh done");
+    return ground_mesh;
+  }
+  // build mesh for city, returning a list of meshes.
+  //
+  // The first mesh is the ground (height map) and the remaining surfaces
+  // are the extruded building footprints. Note that meshes are
+  // non-conforming; the ground and building meshes are non-matching and the
+  // building meshes may contain hanging nodes.
+  static std::vector<Mesh> build_mesh(const City &city,
+                                      const GridField &dtm,
+                                      double resolution,
+                                      bool ground_only = false,
+                                      size_t smooth_ground = 0)
+  {
     std::vector<Mesh> meshes;
-    meshes.push_back(ground_mesh);
-
-    // Get ground height (minimum)
-    const double ground_height = dtm.min();
-
-    if (!ground_only)
+    // Iterate over buildings to build surfaces
+    double ground_height = dtm.min();
+    for (auto const &building : city.buildings)
     {
-      // Iterate over buildings to build surfaces
-      for (auto const &building : city.buildings)
-      {
-        auto building_mesh =
-            extrude_footprint(building.footprint, resolution, ground_height,
-                              building.max_height());
-        // Add surface
-        meshes.push_back(building_mesh);
-      }
+      auto building_mesh = extrude_footprint(
+          building.footprint, resolution, ground_height, building.max_height());
+      // Add surface
+      meshes.push_back(building_mesh);
     }
+
     return meshes;
   }
-
-  // static Mesh
-  // build_ground_mesh(const City &city, const GridField &dtm, double
-  // resolution)
-  // {
-  // }
 
   // Extrude Polygon to create a Mesh
   //
@@ -247,6 +219,8 @@ public:
         extrude_mesh.faces[face_offset + i] = face;
       }
     }
+
+    extrude_mesh = MeshProcessor::weld_mesh(extrude_mesh);
 
     return extrude_mesh;
   }

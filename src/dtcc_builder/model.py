@@ -120,6 +120,25 @@ def create_builder_city(city: City):
     )
 
 
+def mesh_to_builder_mesh(mesh: model.Mesh):
+    """
+    Convert a dtcc_model Mesh to a DTCC builder Mesh through the pybind exposed C++
+    `DTCC_BUILDER::create_mesh()` function.
+
+    Parameters
+    ----------
+    mesh : model.Mesh
+        The input dtcc_model Mesh object.
+
+    Returns
+    -------
+    _dtcc_builder.Mesh
+        A DTCC builder Mesh object.
+
+    """
+    return _dtcc_builder.create_mesh(mesh.vertices, mesh.faces, mesh.markers)
+
+
 def builder_mesh_to_mesh(_mesh: _dtcc_builder.Mesh):
     """
     Convert a DTCC builder Mesh to a dtcc_model Mesh.

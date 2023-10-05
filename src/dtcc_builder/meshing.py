@@ -2,10 +2,11 @@ from . import _dtcc_builder
 from dtcc_builder.model import (
     create_builder_polygon,
     builder_mesh_to_mesh,
+    mesh_to_builder_mesh,
     create_builder_city,
     raster_to_builder_gridfield,
 )
-from dtcc_model import Building, City, PointCloud
+from dtcc_model import Building, City, PointCloud, Mesh
 
 
 def terrain_mesh(city: City, mesh_resolution=2.0, smoothing=0):
@@ -54,7 +55,7 @@ def extrude_building(
     else:
         ground = building.ground_level
         height = ground + building.height
-    if not per_floor:
+    if (not per_floor) or building.floors <= 1:
         builder_mesh = _dtcc_builder.extrude_footprint(
             builder_polygon, resolution, ground, height, cap_base
         )
@@ -76,7 +77,49 @@ def extrude_building(
                 cap_base,
             )
             floor_meshes.append(floor_mesh)
-        merged_mesh = _dtcc_builder.merge_meshes(floor_meshes)
+        merged_mesh = _dtcc_builder.merge_meshes(floor_meshes, True)
         mesh = builder_mesh_to_mesh(merged_mesh)
 
+    return mesh
+
+
+def building_meshes(
+    city: City,
+    resolution=5,
+    ground_to_zero: bool = False,
+    cap_base: bool = False,
+    per_floor=False,
+):
+    meshes = []
+    for building in city.buildings:
+        meshes.append(
+            extrude_building(building, resolution, ground_to_zero, cap_base, per_floor)
+        )
+    return meshes
+
+
+def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes=True):
+    builder_city = create_builder_city(city)
+    if city.terrain is None or city.terrain.data.shape[0] == 0:
+        raise ValueError("City has no terrain data. Please compute terrain first.")
+    builder_dem = raster_to_builder_gridfield(city.terrain)
+    meshes = _dtcc_builder.build_city_surface_mesh(
+        builder_city,
+        builder_dem,
+        mesh_resolution,
+        smoothing,
+        merge_meshes,
+    )
+    if merge_meshes:
+        # meshes contain only one merged mesh
+        surface_mesh = builder_mesh_to_mesh(meshes[0])
+    else:
+        surface_mesh = [builder_mesh_to_mesh(mesh) for mesh in meshes]
+    return surface_mesh
+
+
+def merge_meshes(meshes: [Mesh], weld=False) -> Mesh:
+    builder_meshes = [mesh_to_builder_mesh(mesh) for mesh in meshes]
+    merged_mesh = _dtcc_builder.merge_meshes(builder_meshes, weld)
+    mesh = builder_mesh_to_mesh(merged_mesh)
     return mesh

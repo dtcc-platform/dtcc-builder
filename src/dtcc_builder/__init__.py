@@ -4,7 +4,15 @@ from . import parameters
 from . import city_methods
 from . import meshing
 
-from .builders import build, build_city, build_mesh, build_volume_mesh, calculate_bounds
+from .builders import (
+    build,
+    build_city,
+    calculate_bounds,
+    build_terrain_mesh,
+    build_building_meshes,
+    build_city_surface_mesh,
+    build_volume_mesh,
+)
 
 # Add model extensions
 from dtcc_model import City, PointCloud
