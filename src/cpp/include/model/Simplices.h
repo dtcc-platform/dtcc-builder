@@ -39,6 +39,9 @@ public:
       this->v1 = v1;
     }
   }
+
+  void flip() { std::swap(v0, v1); }
+
   bool operator==(const Simplex1D &s) const
   {
     return (v0 == s.v0 && v1 == s.v1);
@@ -85,6 +88,8 @@ public:
       this->v2 = v2;
     }
   }
+
+  void flip() { std::swap(v1, v2); }
 
   bool operator==(const Simplex2D &s) const
   {

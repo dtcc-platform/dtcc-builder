@@ -192,11 +192,12 @@ public:
     return mesh;
   }
 
-  static std::vector<Simplex1D>
+  // return a list of naked edges and the faces that contain them
+  static std::vector<std::pair<Simplex1D, Simplex2D>>
   find_naked_edges(const std::vector<Simplex2D> &faces)
   {
     std::unordered_map<Simplex1D, int, Simplex1DHash> edge_counts;
-
+    std::unordered_map<Simplex1D, size_t, Simplex1DHash> edge_face;
     // Count the number of times each edge appears in the faces
     for (const auto &face : faces)
     {
@@ -207,6 +208,7 @@ public:
         if (edge_counts.find(edge) == edge_counts.end())
         {
           edge_counts.insert({edge, 1});
+          edge_face.insert({edge, face[(i + 2) % 3]});
         }
         else
         {
@@ -216,12 +218,15 @@ public:
     }
 
     // Find the edges that appear only once
-    std::vector<Simplex1D> naked_edges;
+    std::vector<std::pair<Simplex1D, Simplex2D>> naked_edges;
     for (auto it = edge_counts.begin(); it != edge_counts.end(); ++it)
     {
       if (it->second == 1)
       {
-        naked_edges.push_back(it->first);
+        auto e = it->first;
+
+        auto edge_pair = std::make_pair(e, Simplex2D(e.v0, e.v1, edge_face[e]));
+        naked_edges.push_back(edge_pair);
       }
     }
 

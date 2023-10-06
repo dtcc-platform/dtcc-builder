@@ -43,7 +43,7 @@ public:
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
     // build boundary
     Mesh ground_mesh = build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x,
-                                         bbox.Q.y, resolution);
+                                         bbox.Q.y, resolution, false);
     // Displace ground surface. Fill all points with maximum height. This is
     // used to always choose the smallest height for each point since each point
     // may be visited multiple times.
@@ -85,6 +85,14 @@ public:
     info("smooth ground...");
     if (smooth_ground > 0)
       VertexSmoother::smooth_mesh(ground_mesh, smooth_ground);
+
+    // for (size_t i = 0; i < ground_mesh.faces.size(); i++)
+    // {
+    //   auto normal = Geometry::face_normal(ground_mesh.faces[i], ground_mesh);
+    //   if (normal.z < 0)
+    //     ground_mesh.faces[i].flip();
+    // }
+
     info("ground mesh done");
     return ground_mesh;
   }
@@ -241,7 +249,8 @@ public:
                                 double ymin,
                                 double xmax,
                                 double ymax,
-                                double resolution)
+                                double resolution,
+                                bool sort_triangles = true)
   {
     info("Building ground mesh for city...");
     Timer timer("build_ground_mesh");
@@ -271,7 +280,7 @@ public:
 
     // build 2D mesh
     Mesh mesh;
-    call_triangle(mesh, boundary, sub_domains, resolution, true);
+    call_triangle(mesh, boundary, sub_domains, resolution, sort_triangles);
 
     // Mark subdomains
     compute_domain_markers(mesh, city);
@@ -612,7 +621,7 @@ public:
                                                    bool merge_meshes = true)
   {
     Mesh terrain_mesh =
-        build_mesh(city, dtm, resolution, true, smooth_ground)[0];
+        build_terrain_mesh(city, dtm, resolution, smooth_ground);
 
     std::vector<Mesh> city_mesh;
     std::vector<Mesh> building_meshes;
@@ -630,14 +639,6 @@ public:
         building_faces[marker].push_back(terrain_mesh.faces[i]);
         building_indices.push_back(i);
       }
-    }
-
-    // remove triangles inside houses
-    info("removing triangles");
-    std::sort(building_indices.rbegin(), building_indices.rend());
-    for (auto idx : building_indices)
-    {
-      terrain_mesh.faces.erase(terrain_mesh.faces.begin() + idx);
     }
 
     info("building meshes");
@@ -672,25 +673,47 @@ public:
         building_mesh.faces.push_back(
             Simplex2D(num_vertices, num_vertices + 1, num_vertices + 2));
       }
+
       // add walls
-
-      // building_mesh = MeshProcessor::weld_mesh(building_mesh);
-
       auto naked_edges = MeshProcessor::find_naked_edges(faces);
-      for (const auto &edge : naked_edges)
+      for (const auto &edge_faces : naked_edges)
       {
+        Simplex1D edge = edge_faces.first;
+        Simplex2D edge_face = edge_faces.second;
+        auto face_center = Geometry::face_center(edge_face, terrain_mesh);
+
         auto ground_v0 = terrain_mesh.vertices[edge.v0];
         auto ground_v1 = terrain_mesh.vertices[edge.v1];
         auto roof_v0 = Vector3D(ground_v0.x, ground_v0.y, roof_height);
         auto roof_v1 = Vector3D(ground_v1.x, ground_v1.y, roof_height);
+
         Mesh wall_mesh;
         wall_mesh.vertices = {ground_v0, ground_v1, roof_v0, roof_v1};
-        wall_mesh.faces = {Simplex2D(0, 1, 3), Simplex2D(3, 2, 0)};
+        auto wall_normal =
+            Geometry::triangle_normal(ground_v0, ground_v1, roof_v1);
+        if (Geometry::dot_3d(wall_normal, face_center - ground_v0) > 0)
+        {
+          wall_mesh.faces = {Simplex2D(0, 1, 3), Simplex2D(0, 3, 2)};
+        }
+        else
+        {
+          wall_mesh.faces = {Simplex2D(0, 3, 1), Simplex2D(0, 2, 3)};
+        }
+
         building_mesh = MeshProcessor::merge_meshes({building_mesh, wall_mesh});
       }
 
       building_meshes.push_back(MeshProcessor::weld_mesh(building_mesh));
     }
+
+    // remove triangles inside houses
+    info("removing triangles");
+    std::sort(building_indices.rbegin(), building_indices.rend());
+    for (auto idx : building_indices)
+    {
+      terrain_mesh.faces.erase(terrain_mesh.faces.begin() + idx);
+    }
+
     city_mesh.push_back(terrain_mesh);
     city_mesh.insert(city_mesh.end(), building_meshes.begin(),
                      building_meshes.end());

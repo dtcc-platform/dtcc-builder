@@ -20,4 +20,12 @@ from dtcc_model import City, PointCloud
 City.add_methods(city_methods.compute_building_points, "compute_building_points")
 City.add_methods(city_methods.compute_building_heights, "compute_building_heights")
 
-__all__ = ["build", "build_city", "build_mesh", "build_volume_mesh", "calculate_bounds"]
+__all__ = [
+    "build",
+    "build_city",
+    "build_terrain_mesh",
+    "build_building_meshes",
+    "build_volume_mesh",
+    "build_city_surface_mesh",
+    "calculate_bounds",
+]

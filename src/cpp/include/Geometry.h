@@ -6,11 +6,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iso646.h>
 #include <limits>
 #include <stack>
 #include <tuple>
 #include <vector>
-#include <iso646.h>
 
 #include "BoundingBox.h"
 #include "Constants.h"
@@ -278,6 +278,16 @@ public:
     return ((p.x > q.x) ? ((p.y > q.y) ? 0 : 3) : ((p.y > q.y) ? 1 : 2));
   }
 
+  static Vector3D
+  triangle_normal(const Vector3D &p0, const Vector3D &p1, const Vector3D &p2)
+  {
+    const Vector3D u = p1 - p0;
+    const Vector3D v = p2 - p0;
+    Vector3D n = cross_3d(u, v);
+    n /= Geometry::norm_3d(n);
+    return n;
+  }
+
   // Compute face normal
   static Vector3D face_normal_3d(const Simplex2D &face,
                                  const VolumeMesh &mesh_3d)
@@ -285,11 +295,25 @@ public:
     const Vector3D p0{mesh_3d.vertices[face.v0]};
     const Vector3D p1{mesh_3d.vertices[face.v1]};
     const Vector3D p2{mesh_3d.vertices[face.v2]};
-    const Vector3D u = p1 - p0;
-    const Vector3D v = p2 - p0;
-    Vector3D n = cross_3d(u, v);
-    n /= Geometry::norm_3d(n);
-    return n;
+    return triangle_normal(p0, p1, p2);
+  }
+
+  static Vector3D face_normal(const Simplex2D &face, const Mesh &mesh)
+  {
+    const Vector3D p0{mesh.vertices[face.v0]};
+    const Vector3D p1{mesh.vertices[face.v1]};
+    const Vector3D p2{mesh.vertices[face.v2]};
+    return triangle_normal(p0, p1, p2);
+  }
+
+  // Compute face center
+  static Vector3D face_center(const Simplex2D &face, const Mesh &mesh)
+  {
+    Vector3D c = mesh.vertices[face.v0];
+    c += mesh.vertices[face.v1];
+    c += mesh.vertices[face.v2];
+    c /= 3.0;
+    return c;
   }
 
   // Compute cell center
@@ -622,9 +646,6 @@ public:
 
     return polygon;
   }
-
-
-
 };
 
 } // namespace DTCC_BUILDER
