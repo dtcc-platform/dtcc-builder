@@ -275,6 +275,7 @@ def build_volume_mesh(
         city.bounds.xmax,
         city.bounds.ymax,
         p["mesh_resolution"],
+        True,
     )
     _debug(ground_mesh, "3.1", p)
 

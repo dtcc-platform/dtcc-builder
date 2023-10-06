@@ -37,7 +37,6 @@ public:
                                  double resolution,
                                  size_t smooth_ground = 0)
   {
-    info("Building terrain mesh...");
 
     // Get bounding box
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
