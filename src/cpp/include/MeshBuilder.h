@@ -725,38 +725,6 @@ public:
     return city_mesh;
   }
 
-  // Triangulate a 3D surface, defined by a list of vertices.
-  // The surface is assumed to be planar. Passing a non-planar
-  // surface will result in undefined behavior.
-  static Mesh triangulate_3D_surface(const std::vector<Vector3D> surface,
-                                     double triangle_size = 2.0)
-  {
-    Vector3D v1 = surface[1] - surface[0];
-    Vector3D v2 = surface[2] - surface[0];
-    Vector3D normal = v1.cross(v2);
-    const Vector3D up = Vector3D(0, 0, 1);
-    // Compute the angle between the normal vector and the z-axis
-    double angle = normal.angle_between(up);
-    Vector3D axis = normal.cross(up);
-    // Rotate the surface so that the normal vector is aligned with the z-axis
-    std::vector<Vector2D> flat_surface;
-    double rotated_z = 0;
-    for (const auto &v : surface)
-    {
-      Vector3D rotated_v = v.rotate(axis, angle);
-      rotated_z = rotated_v.z;
-      flat_surface.push_back(Vector2D(rotated_v.x, rotated_v.y));
-    }
-    Mesh flat_mesh;
-    call_triangle(flat_mesh, flat_surface, {}, triangle_size, false);
-    for (auto &v : flat_mesh.vertices)
-    {
-      v.z = rotated_z;
-      v = v.rotate(axis, -angle);
-    }
-    return flat_mesh;
-  }
-
 private:
   // Map from 2D cell index to 3D cell indices
   static size_t
