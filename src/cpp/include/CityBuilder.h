@@ -4,14 +4,17 @@
 #ifndef DTCC_CITY_BUILDER_H
 #define DTCC_CITY_BUILDER_H
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <queue>
 #include <set>
+#include <thread>
 #include <unordered_set>
 #include <vector>
 
 #include "BuildingProcessor.h"
+#include "CityProcessor.h"
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "Logging.h"
 #include "PointCloudProcessor.h"
@@ -193,6 +196,10 @@ public:
     if (classified_points)
       classifed_buildings = point_cloud.has_classification(6);
 
+    // auto tile_city_timer = Timer("Tile City");
+    // auto tiles_city = CityProcessor::tile_citymodel(
+    //     city, point_cloud, point_cloud.bounding_box, 4, 4);
+    // tile_city_timer.stop();
     auto kdt_timer = Timer("ExtractBuildingPoints: BuildKDTree");
     // build a kd-tree for radius search
     typedef KDTreeVectorOfVectorsAdaptor<std::vector<Vector3D>, double,
@@ -336,8 +343,41 @@ public:
     info("min/mean/max number of roof points per building "
          "is " +
          str(min_r) + "/" + str(mean_r) + "/" + str(maxR));
-
     return _city;
+  }
+
+  static City compute_building_points_parallel(const City &city,
+                                               const PointCloud &point_cloud,
+                                               double ground_margin,
+                                               double ground_outlier_margin,
+                                               size_t x_tiles,
+                                               size_t y_tiles)
+  {
+    info("Computing building points...");
+    Timer timer("compute_building_points in parallel");
+    Timer tile_timer("Tile City");
+    auto tiles = CityProcessor::tile_citymodel(
+        city, point_cloud, point_cloud.bounding_box, x_tiles, y_tiles);
+    tile_timer.stop();
+    City out_city;
+    std::mutex out_city_mutex;
+    std::vector<std::thread> threads;
+    for (auto &tile : tiles)
+    {
+      threads.emplace_back(
+          [&]
+          {
+            auto tile_city = compute_building_points(
+                tile.first, tile.second, ground_margin, ground_outlier_margin);
+            std::lock_guard<std::mutex> lock(out_city_mutex);
+            out_city.merge(tile_city);
+          });
+    }
+    std::for_each(threads.begin(), threads.end(),
+                  [](std::thread &t) { t.join(); });
+    timer.stop();
+    Timer::report("compute_building_points in parallel");
+    return out_city;
   }
 
   /// Compute heights of buildings from ground and roof points. This

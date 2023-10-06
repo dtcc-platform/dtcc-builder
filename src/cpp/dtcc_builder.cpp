@@ -310,6 +310,10 @@ PYBIND11_MODULE(_dtcc_builder, m)
         &DTCC_BUILDER::CityBuilder::compute_building_points,
         "Compute building points from point cloud");
 
+  m.def("compute_building_points_parallel",
+        &DTCC_BUILDER::CityBuilder::compute_building_points_parallel,
+        "Compute building points from point cloud (parallel)");
+
   m.def("build_elevation", &DTCC_BUILDER::ElevationBuilder::build_elevation,
         "build height field from point cloud");
 

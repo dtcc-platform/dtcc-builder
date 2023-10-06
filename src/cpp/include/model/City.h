@@ -42,6 +42,14 @@ public:
     this->origin = origin;
   }
 
+  void merge(const City &other)
+  {
+    info("City: Merging with " + other.name);
+    bbtree.clear();
+    buildings.insert(buildings.end(), other.buildings.begin(),
+                     other.buildings.end());
+  }
+
   /// build search tree (bounding box tree), required for search queries.
   ///
   /// @param rebuild Force rebuild of existing tree if set
@@ -141,6 +149,7 @@ public:
 
 private:
   friend class CityBuilder;
+  friend class CityProcessor;
 
   // Bounding box tree used for search queries
   mutable BoundingBoxTree2D bbtree;

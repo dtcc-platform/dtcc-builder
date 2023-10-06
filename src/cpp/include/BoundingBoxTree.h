@@ -4,8 +4,8 @@
 #ifndef DTCC_BOUNDING_BOX_TREE_H
 #define DTCC_BOUNDING_BOX_TREE_H
 
-#include <vector>
 #include <limits>
+#include <vector>
 
 #include "BoundingBox.h"
 #include "Geometry.h"
@@ -14,9 +14,9 @@
 namespace DTCC_BUILDER
 {
 
-  // Note: This is a new implementation of the corresponding algorithm
-  // in FEniCS/DOLFIN (by the same author) using simpler data structures
-  // and simpler design (separate 2D and 3D implementations).
+// Note: This is a new implementation of the corresponding algorithm
+// in FEniCS/DOLFIN (by the same author) using simpler data structures
+// and simpler design (separate 2D and 3D implementations).
 
 /// BoundingBoxTree2D is a 2D axis-aligned bounding box tree (AABB tree).
 class BoundingBoxTree2D : public Printable
@@ -78,6 +78,16 @@ public:
     find_recursive(indices, *this, point, nodes.size() - 1);
 
     return indices;
+  }
+
+  /// find indices of bounding boxes containing the 2d projection of a given
+  /// point.
+  ///
+  /// @param point The point
+  /// @return Array of bounding box indices
+  std::vector<size_t> find(const Vector3D &point) const
+  {
+    return find(Vector2D(point.x, point.y));
   }
 
   /// find indices of bounding box collisions between this
@@ -298,8 +308,8 @@ class BoundingBoxTree3D
 {
   // FIXME: Not yet implemented since not needed/used but can be easily
   // FIXME: implemented by extending the 2D version.
-  };
+};
 
-}
+} // namespace DTCC_BUILDER
 
 #endif
