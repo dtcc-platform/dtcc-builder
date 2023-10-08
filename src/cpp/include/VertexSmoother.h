@@ -17,7 +17,8 @@ class VertexSmoother
 {
 public:
   // Smooth mesh
-  static void smooth_mesh(Mesh &mesh, size_t num_smoothings)
+  static void
+  smooth_mesh(Mesh &mesh, size_t num_smoothings, bool z_only = false)
   {
     info("Smoothing mesh...");
     Timer timer("smooth_mesh");
@@ -46,7 +47,10 @@ public:
         for (const auto &j : vertex_neighbors[i])
           p += Vector3D(mesh.vertices[j]);
         p /= static_cast<float>(vertex_neighbors[i].size());
-        mesh.vertices[i] = p;
+        if (z_only)
+          mesh.vertices[i].z = p.z;
+        else
+          mesh.vertices[i] = p;
       }
     }
   }

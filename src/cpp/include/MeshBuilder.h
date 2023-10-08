@@ -83,7 +83,7 @@ public:
     }
     info("smooth ground...");
     if (smooth_ground > 0)
-      VertexSmoother::smooth_mesh(ground_mesh, smooth_ground);
+      VertexSmoother::smooth_mesh(ground_mesh, smooth_ground, true);
 
     // for (size_t i = 0; i < ground_mesh.faces.size(); i++)
     // {
@@ -268,8 +268,13 @@ public:
     // Extract subdomains (building footprints)
     std::vector<std::vector<Vector2D>> sub_domains;
     for (auto const &building : city.buildings)
+    {
       sub_domains.push_back(building.footprint.vertices);
-
+      for (auto const &hole : building.footprint.holes)
+        sub_domains.push_back(hole);
+    }
+    info("Number of subdomains (buildings + holes) is " +
+         str(sub_domains.size()));
     // build boundary
     std::vector<Vector2D> boundary{};
     boundary.push_back(bounding_box.P);
@@ -766,7 +771,9 @@ private:
     // Set number of points
     size_t num_points = boundary.size();
     for (auto const &innerPolygon : sub_domains)
+    {
       num_points += innerPolygon.size();
+    }
     in.numberofpoints = num_points;
 
     // Set points
