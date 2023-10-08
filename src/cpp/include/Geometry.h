@@ -415,7 +415,19 @@ public:
   {
     // Compute total quadrant relative to polygon. If the point
     // is inside the polygon, the angle should be 4 (or -4).
-    return Geometry::quadrant_angle_2d(p, polygon.vertices) != 0;
+    bool inside = Geometry::quadrant_angle_2d(p, polygon.vertices) != 0;
+
+    if (inside && polygon.holes.size() > 0) // inside shell, check holes
+    {
+      for (auto const &hole : polygon.holes)
+      {
+        bool inside_hole = Geometry::quadrant_angle_2d(p, hole) != 0;
+        if (inside_hole)
+          return false;
+      }
+    }
+
+    return inside;
   }
 
   // Check whether bounding box contains point (2D)
