@@ -1,46 +1,37 @@
-# Copyright (C) 2023 Anders Logg
-# Licensed under the MIT License
-#
-# This demo illustrates how to build a city model from raw data,
-# essentially equivalent to running the dtcc-build command-line
-# utility, but with more control over the process.
+import dtcc_io as io
+import dtcc_builder
+#import dtcc_viewer
 
-from dtcc import *
-from pathlib import Path
+# footprints = "tests/data/MinimalCase/PropertyMap.shp"
+footprints = "../data/helsingborg-residential-2022/footprints.shp"
 
-# Set data paths
-data_directory = Path("data/miljovis2023")
-buildings_path = data_directory / "by_04.shp"
-pointcloud_path = data_directory
+# las_file = "tests/data/MinimalCase/pointcloud.las"
+las_file = "../data/helsingborg-residential-2022/pointcloud.las"
 
-# Set parameters
-p = parameters.default()
-p["auto_domain"] = True
+city = io.load_city(footprints)
+pc = io.load_pointcloud(las_file)
 
-# Calculate bounds
-origin, bounds = calculate_bounds(buildings_path, pointcloud_path, p)
+_, bounds = dtcc_builder.builders.calculate_bounds(footprints, las_file)
 
-# Load data from file
-city = load_city(buildings_path, bounds=bounds)
-pointcloud = load_pointcloud(pointcloud_path, bounds=bounds)
 
-# Build city model
-city = build_city(city, pointcloud, bounds, p)
+p = dtcc_builder.parameters.default()
+p["min_building_distance"] = 1.0
+p["mesh_resolution"] = 1.0
+p["ground_smoothing"] = 0
+p["auto_domain"] = False;
 
-# Build ground mesh and building mesh (surface meshes)
-ground_mesh, building_mesh = build_mesh(city, p)
 
-# Build city mesh and volume mesh (tetrahedral mesh)
-volume_mesh, volume_mesh_boundary = build_volume_mesh(city, p)
+p["x_min"] = 0;
+p["y_min"] = 0;
+#p["x_max"] = x_max;
+#p["y_max"] = y_max;
 
-# Save data to file
-city.save(data_directory / "city.pb")
-ground_mesh.save(data_directory / "ground_mesh.pb")
-building_mesh.save(data_directory / "building_mesh.pb")
-volume_mesh.save(data_directory / "volume_mesh.pb")
-volume_mesh_boundary.save(data_directory / "volume_mesh_boundary.pb")
 
-# View data
-city.view()
-pointcloud.view()
-volume_mesh_boundary.view()
+city = dtcc_builder.builders.build_city(city, pc, bounds, p)
+exit();
+terrain_mesh = dtcc_builder.meshing.terrain_mesh(city, 1.0)
+
+surface_mesh = dtcc_builder.builders.build_city_surface_mesh(city, p, True)
+io.save_mesh(surface_mesh, "surface_mesh.obj")
+# terrain_mesh.view(pc=pc)
+#surface_mesh.view()
