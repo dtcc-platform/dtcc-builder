@@ -646,10 +646,8 @@ public:
     }
 
     info("building meshes");
-    size_t bidx = 0;
     for (auto it = building_faces.begin(); it != building_faces.end(); ++it)
     {
-      info("building " + str(bidx++) + " of " + str(building_faces.size()));
       auto marker = it->first;
       auto faces = it->second;
       auto building = city.buildings[marker];
@@ -711,7 +709,6 @@ public:
     }
 
     // remove triangles inside houses
-    info("removing triangles");
     std::sort(building_indices.rbegin(), building_indices.rend());
     for (auto idx : building_indices)
     {
@@ -721,12 +718,14 @@ public:
     city_mesh.push_back(terrain_mesh);
     city_mesh.insert(city_mesh.end(), building_meshes.begin(),
                      building_meshes.end());
+    auto final_merger_t = Timer("final merge");
     if (merge_meshes)
     {
       auto merged_mesh = MeshProcessor::merge_meshes(city_mesh, true);
       city_mesh = {merged_mesh};
     }
-
+    final_merger_t.stop();
+    Timer::report("city surface");
     return city_mesh;
   }
 
