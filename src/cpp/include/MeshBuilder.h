@@ -716,14 +716,24 @@ public:
     }
     building_meshes_t.stop();
 
-    // remove triangles inside houses
+    // remove triangles inside houses from terrain
     auto remove_inside_t =
         Timer("build_city_surface_mesh: step 4 remove inside");
-    std::sort(building_indices.rbegin(), building_indices.rend());
-    for (auto idx : building_indices)
-    {
-      terrain_mesh.faces.erase(terrain_mesh.faces.begin() + idx);
-    }
+    std::sort(building_indices.begin(), building_indices.end());
+
+    // if index is in list of building indices, move to the end of the list
+    auto new_end = std::remove_if(
+        terrain_mesh.faces.begin(), terrain_mesh.faces.end(),
+        [&](const auto &face)
+        {
+          return std::binary_search(
+              building_indices.begin(), building_indices.end(),
+              &face -
+                  &terrain_mesh.faces[0]); // calculate the index of the face in
+                                           // the terrain_mesh.faces vector.
+        });
+    // remove all elements that have been moved
+    terrain_mesh.faces.erase(new_end, terrain_mesh.faces.end());
     remove_inside_t.stop();
 
     auto final_merger_t = Timer("build_city_surface_mesh: step 5 final merge");
