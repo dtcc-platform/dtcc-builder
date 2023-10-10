@@ -27,6 +27,7 @@ public:
     info("Building vertex connectivity");
     const size_t num_vertices = mesh.vertices.size();
     std::vector<std::unordered_set<size_t>> vertex_neighbors(num_vertices);
+    auto vert_con_t = Timer("vertex connectivity");
     for (const auto &T : mesh.faces)
     {
       vertex_neighbors[T.v0].insert(T.v1);
@@ -36,6 +37,7 @@ public:
       vertex_neighbors[T.v2].insert(T.v0);
       vertex_neighbors[T.v2].insert(T.v1);
     }
+    vert_con_t.stop();
 
     // Smooth by setting each vertex coordinate to average of neighbors
     for (size_t n = 0; n < num_smoothings; n++)

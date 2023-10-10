@@ -143,9 +143,9 @@ def compute_building_heights(
     for building in city.buildings:
         # Set building height to minimum height if points missing
         if len(building.roofpoints) == 0:
-            info(
-                f"Building {building.uuid} has no roof points; setting height to minimum height f{min_building_height:.3f}m"
-            )
+            # info(
+            #     f"Building {building.uuid} has no roof points; setting height to minimum height f{min_building_height:.3f}m"
+            # )
             building.height = min_building_height
             continue
 
@@ -164,9 +164,9 @@ def compute_building_heights(
 
         # Modify height if too small
         if height < min_building_height:
-            info(
-                f"Building {building.uuid} to low ({height:.3f}m); setting height to minimum height f{min_building_height:.3f}m"
-            )
+            # info(
+            #     f"Building {building.uuid} to low ({height:.3f}m); setting height to minimum height f{min_building_height:.3f}m"
+            # )
             height = min_building_height
 
         # Set building height

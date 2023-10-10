@@ -235,7 +235,7 @@ public:
 
   static Mesh weld_mesh(const Mesh &mesh)
   {
-    size_t num_vertices = mesh.vertices.size();
+    // size_t num_vertices = mesh.vertices.size();
     Timer timer("weld_mesh");
 
     // Create empty mesh
@@ -271,8 +271,8 @@ public:
     {
       welded_mesh.markers.push_back(mesh.markers[i]);
     }
-    info("welded " + str(num_vertices) + " vertices to " +
-         str(welded_mesh.vertices.size()) + " vertices");
+    // info("welded " + str(num_vertices) + " vertices to " +
+    //     str(welded_mesh.vertices.size()) + " vertices");
     return welded_mesh;
   }
 

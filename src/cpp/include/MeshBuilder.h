@@ -624,8 +624,11 @@ public:
                                                    size_t smooth_ground = 0,
                                                    bool merge_meshes = true)
   {
+    auto build_city_surface_t = Timer("build_city_surface_mesh");
+    auto terrain_time = Timer("build_city_surface_mesh: step 1 terrain");
     Mesh terrain_mesh =
         build_terrain_mesh(city, dtm, resolution, smooth_ground);
+    terrain_time.stop();
 
     std::vector<Mesh> city_mesh;
     std::vector<Mesh> building_meshes;
@@ -633,6 +636,7 @@ public:
     std::map<size_t, std::vector<Simplex2D>> building_faces;
     std::vector<size_t> building_indices;
     info("finding markes");
+    auto find_markers_t = Timer("build_city_surface_mesh: step 2 find markers");
     for (size_t i = 0; i < terrain_mesh.markers.size(); i++)
     {
       auto marker = terrain_mesh.markers[i];
@@ -644,8 +648,11 @@ public:
         building_indices.push_back(i);
       }
     }
+    find_markers_t.stop();
 
     info("building meshes");
+    auto building_meshes_t =
+        Timer("build_city_surface_mesh: step 3 building meshes");
     for (auto it = building_faces.begin(); it != building_faces.end(); ++it)
     {
       auto marker = it->first;
@@ -707,24 +714,39 @@ public:
 
       building_meshes.push_back(MeshProcessor::weld_mesh(building_mesh));
     }
+    building_meshes_t.stop();
 
-    // remove triangles inside houses
-    std::sort(building_indices.rbegin(), building_indices.rend());
-    for (auto idx : building_indices)
-    {
-      terrain_mesh.faces.erase(terrain_mesh.faces.begin() + idx);
-    }
+    // remove triangles inside houses from terrain
+    auto remove_inside_t =
+        Timer("build_city_surface_mesh: step 4 remove inside");
+    std::sort(building_indices.begin(), building_indices.end());
 
+    // if index is in list of building indices, move to the end of the list
+    auto new_end = std::remove_if(
+        terrain_mesh.faces.begin(), terrain_mesh.faces.end(),
+        [&](const auto &face)
+        {
+          return std::binary_search(
+              building_indices.begin(), building_indices.end(),
+              &face -
+                  &terrain_mesh.faces[0]); // calculate the index of the face in
+                                           // the terrain_mesh.faces vector.
+        });
+    // remove all elements that have been moved
+    terrain_mesh.faces.erase(new_end, terrain_mesh.faces.end());
+    remove_inside_t.stop();
+
+    auto final_merger_t = Timer("build_city_surface_mesh: step 5 final merge");
     city_mesh.push_back(terrain_mesh);
     city_mesh.insert(city_mesh.end(), building_meshes.begin(),
                      building_meshes.end());
-    auto final_merger_t = Timer("final merge");
     if (merge_meshes)
     {
       auto merged_mesh = MeshProcessor::merge_meshes(city_mesh, true);
       city_mesh = {merged_mesh};
     }
     final_merger_t.stop();
+    build_city_surface_t.stop();
     Timer::report("city surface");
     return city_mesh;
   }
