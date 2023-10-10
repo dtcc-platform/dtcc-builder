@@ -69,8 +69,13 @@ def compute_building_points(
     builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
 
     # Compute building points
-    builder_city = _dtcc_builder.compute_building_points(
-        builder_city, builder_pointcloud, ground_margin, outlier_margin
+    # builder_city = _dtcc_builder.compute_building_points(
+    #     builder_city, builder_pointcloud, ground_margin, outlier_margin
+    # )
+
+    # Compute building points
+    builder_city = _dtcc_builder.compute_building_points_parallel(
+        builder_city, builder_pointcloud, ground_margin, outlier_margin, 8, 8
     )
 
     # Remove outliers
@@ -140,6 +145,7 @@ def compute_building_heights(
     # FIXME: Don't modify incoming data (city)
 
     # Iterate over buildings
+    num_too_low = 0
     for building in city.buildings:
         # Set building height to minimum height if points missing
         if len(building.roofpoints) == 0:
@@ -164,13 +170,13 @@ def compute_building_heights(
 
         # Modify height if too small
         if height < min_building_height:
-            # info(
-            #     f"Building {building.uuid} to low ({height:.3f}m); setting height to minimum height f{min_building_height:.3f}m"
-            # )
             height = min_building_height
+            num_too_low += 1
 
         # Set building height
         building.height = height
+    if num_too_low > 0:
+        info(f"{num_too_low} buildings have height less than minimum height")
 
     return city
 
