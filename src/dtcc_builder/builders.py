@@ -9,6 +9,8 @@ import numpy as np
 import dtcc_wrangler
 from pathlib import Path
 from typing import Tuple, List
+from time import time
+
 
 import dtcc_model as model
 import dtcc_io as io
@@ -123,13 +125,16 @@ def build_city(
     # Get parameters
     p = parameters or builder_parameters.default()
 
+    start_time = time()
     # Remove outliers from point cloud
     point_cloud = point_cloud.remove_global_outliers(p["outlier_margin"])
     # FIXME: Don't modify incoming data (city)
+    print(f"BBB: Removing outliers took {time() - start_time} seconds")
 
     # FIXME: Why are we not calling clean_city?
     # Should be callled with min_vertex_distance/2.
 
+    start_time = time()
     # Build elevation model
     city = city.terrain_from_pointcloud(
         point_cloud,
@@ -137,9 +142,14 @@ def build_city(
         p["elevation_model_window_size"],
         ground_only=True,
     )
+    print(f"BBB: Building elevation model took {time() - start_time} seconds")
+
+    start_time = time()
     city = city.simplify_buildings(p["min_building_distance"] / 2)
+    print(f"BBB: Simplifying buildings took {time() - start_time} seconds")
 
     # Compute building points
+    start_time = time()
     city = city_methods.compute_building_points(
         city,
         point_cloud,
@@ -152,11 +162,14 @@ def build_city(
         p["ransac_outlier_margin"],
         p["ransac_iterations"],
     )
+    print(f"BBB: Computing building points took {time() - start_time} seconds")
 
     # Compute building heights
+    start_time = time()
     city = city_methods.compute_building_heights(
         city, p["min_building_height"], p["roof_percentile"]
     )
+    print(f"BBB: Computing building heights took {time() - start_time} seconds")
 
     return city
 
