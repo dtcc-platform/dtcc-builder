@@ -8,6 +8,7 @@
 import numpy as np
 from psutil import cpu_count
 from math import ceil, log2
+from time import time
 
 import dtcc_model as model
 from dtcc_model import City, PointCloud
@@ -65,10 +66,14 @@ def compute_building_points(
     info("Compute building points...")
 
     # Convert to builder model
+    start_time = time()
     builder_city = builder_model.create_builder_city(city)
     builder_pointcloud = builder_model.create_builder_pointcloud(pointcloud)
+    print(f"BBBB: Creating builder models took {time() - start_time} seconds")
 
+    start_time = time()
     builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
+    print(f"BBBB: Removing vegetation took {time() - start_time} seconds")
 
     # Compute building points
     # builder_city = _dtcc_builder.compute_building_points(
@@ -82,6 +87,7 @@ def compute_building_points(
     num_tiles = max(2, num_tiles)
     num_tiles = min(8, num_tiles)
     # Compute building points
+    start_time = time()
     builder_city = _dtcc_builder.compute_building_points_parallel(
         builder_city,
         builder_pointcloud,
@@ -90,24 +96,29 @@ def compute_building_points(
         num_tiles,
         num_tiles,
     )
+    print(f"BBBB: Computing building points took {time() - start_time} seconds")
 
     # Remove outliers
+    start_time = time()
     if statistical_outlier_remover:
         builder_city = _dtcc_builder.remove_building_point_outliers_statistical(
             builder_city,
             roof_outlier_neighbors,
             roof_outlier_margin,
         )
+    print(f"BBBB: Removing outliers took {time() - start_time} seconds")
+    start_time = time()
     if ransac_outlier_remover:
         builder_city = _dtcc_builder.remove_building_point_outliers_ransac(
             builder_city,
             ransac_outlier_margin,
             ransac_iterations,
         )
-
+    print(f"BBBB: Removing RANSAC outliers took {time() - start_time} seconds")
     # FIXME: Don't modify incoming data (city)
 
     # Convert back to city model
+    start_time = time()
     for city_building, builder_buildings in zip(city.buildings, builder_city.buildings):
         city_building.roofpoints.points = np.array(
             [[p.x, p.y, p.z] for p in builder_buildings.roof_points]
@@ -118,7 +129,7 @@ def compute_building_points(
         if len(ground_points) > 0:
             ground_z = ground_points[:, 2]
             city_building.ground_level = np.percentile(ground_z, 50)
-
+    print(f"BBBB: Converting back to city model took {time() - start_time} seconds")
     return city
 
 

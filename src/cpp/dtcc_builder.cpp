@@ -141,6 +141,30 @@ Mesh create_mesh(py::array_t<double> vertices,
   return mesh;
 }
 
+py::tuple mesh_as_arrays(const Mesh &mesh)
+{
+  py::array_t<double> py_vertices(mesh.vertices.size() * 3);
+  py::array_t<size_t> py_faces(mesh.faces.size() * 3);
+  py::array_t<int> py_markers(mesh.markers.size());
+  for (size_t i = 0; i < mesh.vertices.size(); i++)
+  {
+    py_vertices.mutable_at(i * 3) = mesh.vertices[i].x;
+    py_vertices.mutable_at(i * 3 + 1) = mesh.vertices[i].y;
+    py_vertices.mutable_at(i * 3 + 2) = mesh.vertices[i].z;
+  }
+  for (size_t i = 0; i < mesh.faces.size(); i++)
+  {
+    py_faces.mutable_at(i * 3) = mesh.faces[i].v0;
+    py_faces.mutable_at(i * 3 + 1) = mesh.faces[i].v1;
+    py_faces.mutable_at(i * 3 + 2) = mesh.faces[i].v2;
+  }
+  for (size_t i = 0; i < mesh.markers.size(); i++)
+  {
+    py_markers.mutable_at(i) = mesh.markers[i];
+  }
+  return py::make_tuple(py_vertices, py_faces, py_markers);
+}
+
 PointCloud create_pointcloud(py::array_t<double> pts,
                              py::array_t<uint8_t> cls,
                              py::array_t<uint8_t> ret_number,
@@ -326,6 +350,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
         "Create C++ point cloud");
 
   m.def("create_mesh", &DTCC_BUILDER::create_mesh, "Create C++ mesh");
+
+  m.def("mesh_as_arrays", &DTCC_BUILDER::mesh_as_arrays, "Create C++ mesh");
 
   m.def("create_gridfield", &DTCC_BUILDER::create_gridfield,
         "Create C++ grid field");

@@ -155,10 +155,10 @@ def builder_mesh_to_mesh(_mesh: _dtcc_builder.Mesh):
 
     """
     mesh = model.Mesh()
-    mesh.vertices = np.array([[v.x, v.y, v.z] for v in _mesh.vertices])
-    mesh.faces = np.array([[f.v0, f.v1, f.v2] for f in _mesh.faces])
-    mesh.normals = np.array([[n.x, n.y, n.z] for n in _mesh.normals])
-    mesh.markers = np.array(_mesh.markers)
+    vertices, faces, markers = _dtcc_builder.mesh_as_arrays(_mesh)
+    mesh.vertices = vertices.reshape((-1, 3))
+    mesh.faces = faces.reshape((-1, 3))
+    mesh.markers = markers
     return mesh
 
 
