@@ -6,6 +6,8 @@
 # This module provides functionality for city processing.
 
 import numpy as np
+from psutil import cpu_count
+from math import ceil, log2
 
 import dtcc_model as model
 from dtcc_model import City, PointCloud
@@ -73,9 +75,20 @@ def compute_building_points(
     #     builder_city, builder_pointcloud, ground_margin, outlier_margin
     # )
 
+    num_cores = cpu_count(logical=True)
+    if num_cores is None or num_cores == 0:
+        num_cores = 1
+    num_tiles = ceil(log2(num_cores))
+    num_tiles = max(2, num_tiles)
+    num_tiles = min(8, num_tiles)
     # Compute building points
     builder_city = _dtcc_builder.compute_building_points_parallel(
-        builder_city, builder_pointcloud, ground_margin, outlier_margin, 8, 8
+        builder_city,
+        builder_pointcloud,
+        ground_margin,
+        outlier_margin,
+        num_tiles,
+        num_tiles,
     )
 
     # Remove outliers
