@@ -625,7 +625,7 @@ public:
                                                    bool merge_meshes = true)
   {
     auto build_city_surface_t = Timer("build_city_surface_mesh");
-    auto terrain_time = Timer("build_city_surface_mesh: step1 terrain");
+    auto terrain_time = Timer("build_city_surface_mesh: step 1 terrain");
     Mesh terrain_mesh =
         build_terrain_mesh(city, dtm, resolution, smooth_ground);
     terrain_time.stop();
@@ -636,7 +636,7 @@ public:
     std::map<size_t, std::vector<Simplex2D>> building_faces;
     std::vector<size_t> building_indices;
     info("finding markes");
-    auto find_markers_t = Timer("build_city_surface_mesh: step2 find markers");
+    auto find_markers_t = Timer("build_city_surface_mesh: step 2 find markers");
     for (size_t i = 0; i < terrain_mesh.markers.size(); i++)
     {
       auto marker = terrain_mesh.markers[i];

@@ -105,7 +105,7 @@ def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes
     start_time = time()
     merged_city = city.merge_buildings()  # needed for triangulation
     builder_city = create_builder_city(merged_city)
-    print(f"TTTTTT: prepare city took {time() - start_time} seconds")
+    print(f"MMMMMM: prepare city took {time() - start_time} seconds")
 
     builder_dem = raster_to_builder_gridfield(city.terrain)
 
@@ -117,14 +117,14 @@ def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes
         smoothing,
         merge_meshes,
     )
-    print(f"TTTTTT: builder city surface mesh took {time() - start_time} seconds")
+    print(f"MMMMMM: builder city surface mesh took {time() - start_time} seconds")
     start_time = time()
     if merge_meshes:
         # meshes contain only one merged mesh
         surface_mesh = builder_mesh_to_mesh(meshes[0])
     else:
         surface_mesh = [builder_mesh_to_mesh(mesh) for mesh in meshes]
-    print(f"TTTTTT: convert builder mesh to mesh took {time() - start_time} seconds")
+    print(f"MMMMMM: convert builder mesh to mesh took {time() - start_time} seconds")
     return surface_mesh
 
 
