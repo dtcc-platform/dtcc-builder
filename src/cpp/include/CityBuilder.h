@@ -617,13 +617,7 @@ public:
     City _city{city};
 
     // size_t totalRemoved = 0;
-#pragma omp parallel
-    {
-      int thread_id = omp_get_thread_num();
-      int num_threads = omp_get_num_threads();
-      std::cout << "Hello from OMP thread" << thread_id << " of " << num_threads
-                << std::endl;
-    }
+
 #pragma omp parallel for
     for (int i = 0; i < _city.buildings.size(); i++)
     {
@@ -644,7 +638,8 @@ public:
     // Create copy of city
     City _city{city};
 
-    // size_t totalRemoved = 0;
+// size_t totalRemoved = 0;
+#pragma omp parallel for
     for (auto &building : _city.buildings)
     {
       // size_t beforeFilter = building.roof_points.size();
