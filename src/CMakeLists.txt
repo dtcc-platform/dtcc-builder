@@ -11,10 +11,10 @@ if(OpenMP_CXX_FOUND)
     message(STATUS "OpenMP found")
     include_directories(SYSTEM ${OpenMP_CXX_INCLUDE_DIRS})
     include_directories(SYSTEM ${OpenMP_omp_INCLUDE_DIR})
-    target_compile_definitions(${BINDINGS} PUBLIC _OPENMP)
-    target_compile_options(${BINDINGS} PUBLIC ${OpenMP_CXX_FLAGS})
+
     target_link_libraries(${BINDINGS} PUBLIC OpenMP::OpenMP_CXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 else()
     # OpenMP is not available
     message(WARNING "OpenMP not found, disabling OpenMP support")
