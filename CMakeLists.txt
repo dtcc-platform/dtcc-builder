@@ -3,6 +3,26 @@ cmake_minimum_required(VERSION 3.12)
 project(dtcc-builder)
 
 # Note: To building in Debug mode, use cmake .. -DCMAKE_BUILD_TYPE=Debug
+if(APPLE)
+  find_program(HOMEBREW_CLANG /opt/homebrew/opt/llvm/bin/clang)
+  find_program(HOMEBREW_CLANGXX /opt/homebrew/opt/llvm/bin/clang++)
+
+  # Set Homebrew compiler paths, if found, and set OpenMP flags
+  if(HOMEBREW_CLANG AND HOMEBREW_CLANGXX)
+    # set(CMAKE_PREFIX_PATH $(brew --prefix libomp))
+    # Get Homebrew prefix path for libomp
+    execute_process(COMMAND brew --prefix libomp OUTPUT_VARIABLE HOMEBREW_LIBOMP_PREFIX)
+    string(STRIP ${HOMEBREW_LIBOMP_PREFIX} HOMEBREW_LIBOMP_PREFIX)
+    list(APPEND CMAKE_PREFIX_PATH ${HOMEBREW_LIBOMP_PREFIX})
+    message(STATUS "Using Homebrew Clang (${HOMEBREW_CLANG}) and Clang++ (${HOMEBREW_CLANGXX}) compilers")
+    message(STATUS "CMake prefix ${CMAKE_PREFIX_PATH}")
+    set(CMAKE_C_COMPILER ${HOMEBREW_CLANG})
+    set(CMAKE_CXX_COMPILER ${HOMEBREW_CLANGXX})
+  else()
+    message(WARNING "Homebrew Clang and Clang++ compilers not found. Using default compilers. 
+                      OpenMP will be disabled.")
+  endif()
+endif()
 
 # Set default build type to Release
 if(NOT CMAKE_BUILD_TYPE)

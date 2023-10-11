@@ -7,9 +7,13 @@ pybind11_add_module(${BINDINGS} ${SRC_DIR}/dtcc_builder.cpp)
 # Find OpenMP
 find_package(OpenMP)
 
-if(OpenMP_FOUND)
+if(OpenMP_CXX_FOUND)
     message(STATUS "OpenMP found")
+    include_directories(SYSTEM ${OpenMP_CXX_INCLUDE_DIRS})
+    include_directories(SYSTEM ${OpenMP_omp_INCLUDE_DIR})
     target_compile_definitions(${BINDINGS} PUBLIC _OPENMP)
+    target_compile_options(${BINDINGS} PUBLIC ${OpenMP_CXX_FLAGS})
+    target_link_libraries(${BINDINGS} PUBLIC OpenMP::OpenMP_CXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 else()
     # OpenMP is not available
