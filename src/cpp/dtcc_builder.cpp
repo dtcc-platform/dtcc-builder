@@ -165,6 +165,44 @@ py::tuple mesh_as_arrays(const Mesh &mesh)
   return py::make_tuple(py_vertices, py_faces, py_markers);
 }
 
+py::list building_roofpoints(const City &city)
+{
+  py::list roof_points;
+  for (auto const &building : city.buildings)
+  {
+    py::array_t<double> pts(building.roof_points.size() * 3);
+    for (size_t i = 0; i < building.roof_points.size(); i++)
+    {
+      pts.mutable_at(i * 3) = building.roof_points[i].x;
+      pts.mutable_at(i * 3 + 1) = building.roof_points[i].y;
+      pts.mutable_at(i * 3 + 2) = building.roof_points[i].z;
+    }
+    pts = pts.reshape(
+        std::vector<long>{static_cast<long>(building.roof_points.size()), 3});
+    roof_points.append(pts);
+  }
+  return roof_points;
+}
+
+py::list building_groundpoints(const City &city)
+{
+  py::list ground_points;
+  for (auto const &building : city.buildings)
+  {
+    py::array_t<double> pts(building.ground_points.size() * 3);
+    for (size_t i = 0; i < building.ground_points.size(); i++)
+    {
+      pts.mutable_at(i * 3) = building.ground_points[i].x;
+      pts.mutable_at(i * 3 + 1) = building.ground_points[i].y;
+      pts.mutable_at(i * 3 + 2) = building.ground_points[i].z;
+    }
+    pts = pts.reshape(
+        std::vector<long>{static_cast<long>(building.ground_points.size()), 3});
+    ground_points.append(pts);
+  }
+  return ground_points;
+}
+
 PointCloud create_pointcloud(py::array_t<double> pts,
                              py::array_t<uint8_t> cls,
                              py::array_t<uint8_t> ret_number,
@@ -352,6 +390,12 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("create_mesh", &DTCC_BUILDER::create_mesh, "Create C++ mesh");
 
   m.def("mesh_as_arrays", &DTCC_BUILDER::mesh_as_arrays, "Create C++ mesh");
+
+  m.def("building_roofpoints", &DTCC_BUILDER::building_roofpoints,
+        "Create C++ roof points");
+
+  m.def("building_groundpoints", &DTCC_BUILDER::building_groundpoints,
+        "Create C++ ground points");
 
   m.def("create_gridfield", &DTCC_BUILDER::create_gridfield,
         "Create C++ grid field");
