@@ -104,8 +104,10 @@ def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes
         raise ValueError("City has no terrain data. Please compute terrain first.")
     start_time = time()
     merged_city = city.merge_buildings()  # needed for triangulation
+    print(f"MMMMMM: merge buildings took {time() - start_time} seconds")
+    start_time = time()
     builder_city = create_builder_city(merged_city)
-    print(f"MMMMMM: prepare city took {time() - start_time} seconds")
+    print(f"MMMMMM: create builder city took {time() - start_time} seconds")
 
     builder_dem = raster_to_builder_gridfield(city.terrain)
 

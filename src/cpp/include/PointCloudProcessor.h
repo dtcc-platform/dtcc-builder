@@ -172,10 +172,11 @@ public:
     std /= points.size() - 1;
     std = std::sqrt(std);
     std::vector<size_t> outliers;
+    outlier_margin *= std;
 
     for (size_t i = 0; i < points.size(); i++)
     {
-      if (std::abs(points[i].z - mean) > outlier_margin * std)
+      if (std::abs(points[i].z - mean) > outlier_margin)
       {
         outliers.push_back(i);
       }
