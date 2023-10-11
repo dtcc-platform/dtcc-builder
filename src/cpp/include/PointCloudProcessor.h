@@ -10,6 +10,10 @@
 #include <math.h>
 #include <random>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "nanoflann.hpp"
 

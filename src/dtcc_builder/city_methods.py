@@ -86,7 +86,7 @@ def compute_building_points(
     num_tiles = ceil(log2(num_cores))
     num_tiles = max(2, num_tiles)
     num_tiles = min(8, num_tiles)
-    # Compute building points
+    info(f"Compute building points in parallel with {num_tiles}x{num_tiles} tiles")
     start_time = time()
     builder_city = _dtcc_builder.compute_building_points_parallel(
         builder_city,

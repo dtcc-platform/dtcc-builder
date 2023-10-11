@@ -13,6 +13,10 @@
 #include <unordered_set>
 #include <vector>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "BuildingProcessor.h"
 #include "CityProcessor.h"
 #include "KDTreeVectorOfVectorsAdaptor.h"
@@ -613,8 +617,17 @@ public:
     City _city{city};
 
     // size_t totalRemoved = 0;
-    for (auto &building : _city.buildings)
+#pragma omp parallel
     {
+      int thread_id = omp_get_thread_num();
+      int num_threads = omp_get_num_threads();
+      std::cout << "Hello from OMP thread" << thread_id << " of " << num_threads
+                << std::endl;
+    }
+#pragma omp parallel for
+    for (int i = 0; i < _city.buildings.size(); i++)
+    {
+      auto &building = _city.buildings[i];
       // size_t beforeFilter = building.roof_points.size();
       PointCloudProcessor::statistical_outlier_remover(
           building.roof_points, neighbours, outlier_margin);

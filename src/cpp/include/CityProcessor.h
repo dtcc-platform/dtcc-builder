@@ -45,11 +45,7 @@ public:
     }
     // info("Found " + str(building_tile_indices.size()) + " buildings in
     // tiles");
-    for (size_t i = 0; i < 50; i++)
-    {
-      info("Building index: " + str(building_tile_indices[i].first) +
-           " tile index: " + str(building_tile_indices[i].second));
-    }
+
     for (size_t i = 0; i < city.buildings.size(); i++)
     {
       auto building = city.buildings[i];
