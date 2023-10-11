@@ -119,13 +119,14 @@ def compute_building_points(
 
     # Convert back to city model
     start_time = time()
-    for city_building, builder_buildings in zip(city.buildings, builder_city.buildings):
-        city_building.roofpoints.points = np.array(
-            [[p.x, p.y, p.z] for p in builder_buildings.roof_points]
-        )
-        ground_points = np.array(
-            [[p.x, p.y, p.z] for p in builder_buildings.ground_points]
-        )
+    roof_points = _dtcc_builder.building_roofpoints(builder_city)
+    ground_points = _dtcc_builder.building_groundpoints(builder_city)
+    print(f"BBBB: roof_points {len(roof_points)}")
+    print(f"BBBB: roofpoint shapr {roof_points[0].shape}")
+    for city_building, pts in zip(city.buildings, roof_points):
+        city_building.roofpoints.points = pts
+    for city_building, pts in zip(city.buildings, ground_points):
+        ground_points = pts
         if len(ground_points) > 0:
             ground_z = ground_points[:, 2]
             city_building.ground_level = np.percentile(ground_z, 50)
