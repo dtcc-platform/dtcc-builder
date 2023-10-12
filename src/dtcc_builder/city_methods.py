@@ -7,7 +7,7 @@
 
 import numpy as np
 from psutil import cpu_count
-from math import ceil, log2
+from math import ceil, sqrt
 from time import time
 
 import dtcc_model as model
@@ -83,9 +83,13 @@ def compute_building_points(
     num_cores = cpu_count(logical=True)
     if num_cores is None or num_cores == 0:
         num_cores = 1
-    num_tiles = ceil(log2(num_cores))
+    num_tiles = ceil(sqrt(num_cores))
     num_tiles = max(2, num_tiles)
     num_tiles = min(8, num_tiles)
+
+    avg_side = sqrt(city.bounds.area)
+    num_tiles = min(num_tiles, ceil(avg_side / 100))
+
     info(f"Compute building points in parallel with {num_tiles}x{num_tiles} tiles")
     start_time = time()
     builder_city = _dtcc_builder.compute_building_points_parallel(
