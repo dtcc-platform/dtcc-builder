@@ -344,9 +344,10 @@ def build_city_surface_mesh(
     """
     p = parameters or builder_parameters.default()
     mesh_resolutiom = p["mesh_resolution"]
+    mesh_building_resolution = p["mesh_building_resolution"]
     ground_smoothing = p["ground_smoothing"]
     surface_mesh = meshing.city_surface_mesh(
-        city, mesh_resolutiom, ground_smoothing, merge_meshes
+        city, mesh_resolutiom, mesh_building_resolution, ground_smoothing, merge_meshes
     )
     return surface_mesh
 

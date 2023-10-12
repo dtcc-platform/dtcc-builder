@@ -27,6 +27,8 @@ public:
   Polygon() = default;
   virtual ~Polygon() {} // make the destructor virtual
 
+  Polygon(const LineString &vertices) : vertices(vertices) {}
+
   /// Set new origin (subtract offset)
   void set_origin(const Vector2D &origin)
   {

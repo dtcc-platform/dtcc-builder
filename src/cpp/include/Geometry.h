@@ -429,6 +429,31 @@ public:
 
     return inside;
   }
+  static Vector2D point_inside_polygon_2d(const Polygon &polygon)
+  {
+    bool found = false;
+    Vector2D pc;
+    for (size_t idx = 0; idx < polygon.vertices.size() - 1; idx++)
+    {
+      auto v0 = polygon.vertices[idx];
+      auto v1 = polygon.vertices[idx + 1];
+      auto v2 = polygon.vertices[(idx + 2) % polygon.vertices.size()];
+      auto u = v0 - v1;
+      auto v = v2 - v1;
+      auto c = u.x * v.y - u.y * v.x;
+      if (abs(c) < 1e-6)
+        continue; // colinear
+      pc = (v0 + v1 + v2) / 3;
+      if (polygon_contains_2d(polygon, pc))
+      {
+        found = true;
+        break;
+      }
+    }
+    if (!found)
+      error("failed to find point inside polygon");
+    return pc;
+  }
 
   // Check whether bounding box contains point (2D)
   static bool bounding_box_contains_2d(const BoundingBox2D &bbox,

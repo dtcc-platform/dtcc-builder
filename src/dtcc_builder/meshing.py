@@ -99,7 +99,13 @@ def building_meshes(
     return meshes
 
 
-def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes=True):
+def city_surface_mesh(
+    city: City,
+    mesh_resolution=5.0,
+    mesh_building_resolution=2.0,
+    smoothing=0,
+    merge_meshes=True,
+):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
     start_time = time()
@@ -114,8 +120,12 @@ def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes
         builder_city,
         builder_dem,
         mesh_resolution,
+        mesh_building_resolution,
         smoothing,
         merge_meshes,
+    )
+    print(
+        f"MMMMMM: meshing with terrian resolution {mesh_resolution} and building resolution {mesh_building_resolution} took {time() - start_time} seconds"
     )
     print(f"MMMMMM: builder city surface mesh took {time() - start_time} seconds")
     start_time = time()

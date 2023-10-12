@@ -30,6 +30,7 @@ _parameters["min_building_height"] = 2.5
 _parameters["min_vertex_distance"] = 1.0
 _parameters["ground_margin"] = 1.0
 _parameters["mesh_resolution"] = 10.0
+_parameters["mesh_building_resolution"] = 10.0
 _parameters["domain_height"] = 100.0
 _parameters["ground_percentile"] = 0.5
 _parameters["roof_percentile"] = 0.9

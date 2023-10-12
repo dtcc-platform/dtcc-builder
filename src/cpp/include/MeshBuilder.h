@@ -19,6 +19,8 @@
 #include "model/City.h"
 #include "model/GridField.h"
 #include "model/Mesh.h"
+
+#include "model/Polygon.h"
 #include "model/Vector.h"
 
 extern "C"
@@ -35,14 +37,16 @@ public:
   static Mesh build_terrain_mesh(const City &city,
                                  const GridField &dtm,
                                  double resolution,
+                                 double building_resolution,
                                  size_t smooth_ground = 0)
   {
 
     // Get bounding box
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
     // build boundary
-    Mesh ground_mesh = build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x,
-                                         bbox.Q.y, resolution, false);
+    Mesh ground_mesh =
+        build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x, bbox.Q.y,
+                          resolution, building_resolution, false);
     // Displace ground surface. Fill all points with maximum height. This is
     // used to always choose the smallest height for each point since each point
     // may be visited multiple times.
@@ -138,7 +142,8 @@ public:
     // TODO: handle polygon with holes
     std::vector<std::vector<Vector2D>> sub_domains;
 
-    call_triangle(_mesh, footprint.vertices, sub_domains, resolution, false);
+    call_triangle(_mesh, footprint.vertices, sub_domains, resolution,
+                  resolution, false);
     // set ground height
     for (auto &v : _mesh.vertices)
       v.z = ground_height;
@@ -249,6 +254,7 @@ public:
                                 double xmax,
                                 double ymax,
                                 double resolution,
+                                double building_resolution,
                                 bool sort_triangles = true)
   {
     info("Building ground mesh for city...");
@@ -284,7 +290,8 @@ public:
 
     // build 2D mesh
     Mesh mesh;
-    call_triangle(mesh, boundary, sub_domains, resolution, sort_triangles);
+    call_triangle(mesh, boundary, sub_domains, resolution, building_resolution,
+                  sort_triangles);
 
     // Mark subdomains
     compute_domain_markers(mesh, city);
@@ -621,13 +628,14 @@ public:
   static std::vector<Mesh> build_city_surface_mesh(const City &city,
                                                    const GridField &dtm,
                                                    double resolution,
+                                                   double building_resolution,
                                                    size_t smooth_ground = 0,
                                                    bool merge_meshes = true)
   {
     auto build_city_surface_t = Timer("build_city_surface_mesh");
     auto terrain_time = Timer("build_city_surface_mesh: step 1 terrain");
-    Mesh terrain_mesh =
-        build_terrain_mesh(city, dtm, resolution, smooth_ground);
+    Mesh terrain_mesh = build_terrain_mesh(city, dtm, resolution,
+                                           building_resolution, smooth_ground);
     terrain_time.stop();
 
     std::vector<Mesh> city_mesh;
@@ -764,18 +772,21 @@ private:
   call_triangle(Mesh &mesh,
                 const std::vector<Vector2D> &boundary,
                 const std::vector<std::vector<Vector2D>> &sub_domains,
-                double h,
+                double terrain_resolution,
+                double building_resolution,
                 bool sort_triangles)
   {
     Timer timer("call_triangle");
 
     // Set area constraint to control mesh size
-    const double max_area = 0.5 * h * h;
+    const double max_area = 0.5 * terrain_resolution * terrain_resolution;
+    const double max_inner_area =
+        0.5 * building_resolution * building_resolution;
 
     // Set input switches for Triangle
     char triswitches[64];
-    // sprintf(triswitches, "zQpq25a%.16f", max_area);
-    snprintf(triswitches, sizeof(triswitches), "zQpq25a%.16f", max_area);
+    // snprintf(triswitches, sizeof(triswitches), "zQpq25a%.16f", max_area);
+    snprintf(triswitches, sizeof(triswitches), "zQpq25a");
 
     // z = use zero-based numbering
     // p = use polygon input (segments)
@@ -845,6 +856,33 @@ private:
         n += sub_domains[i].size();
       }
     }
+
+    in.regionlist = new double[4 * (1 + sub_domains.size())];
+    size_t k = 0;
+    auto boundary_center = Geometry::point_inside_polygon_2d(Polygon(boundary));
+    auto corner_to_center = boundary_center - boundary[0];
+    corner_to_center.normalize();
+    auto inside_boundary = boundary[0] + corner_to_center;
+
+    in.regionlist[k++] = inside_boundary.x;
+    in.regionlist[k++] = inside_boundary.y;
+    in.regionlist[k++] = 1;
+    in.regionlist[k++] = max_area;
+
+    // info("inside boundary: " + str(inside_boundary.x) + " " +
+    //      str(inside_boundary.y) + " " + str(max_area));
+
+    for (const auto &inner_polygon : sub_domains)
+    {
+      auto c = Geometry::point_inside_polygon_2d(Polygon(inner_polygon));
+      in.regionlist[k++] = c.x;
+      in.regionlist[k++] = c.y;
+      in.regionlist[k++] = 1;
+      in.regionlist[k++] = max_inner_area;
+      // info("inner polygon center: " + str(c.x) + " " + str(c.y) + " " +
+      //      str(max_inner_area));
+    }
+    in.numberofregions = 1 + sub_domains.size();
 
     // Note: This is how set holes but it's not used here since we
     // need the triangles for the interior *above* the buildings.
