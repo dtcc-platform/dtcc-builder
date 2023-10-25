@@ -3,6 +3,16 @@ cmake_minimum_required(VERSION 3.12)
 project(dtcc-builder)
 
 # Note: To building in Debug mode, use cmake .. -DCMAKE_BUILD_TYPE=Debug
+# Set default build type to Release
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release")
+  message(STATUS "Build type not specified, using Release by default")
+endif()
+
+# MacOS doesn't ship with OpenMP, so we need to use Homebrew's Clang
+# if we want OpenMP support. To get OpenMP support on Mac run:
+# brew install llvm
+# brew install libomp
 if(APPLE)
   find_program(HOMEBREW_CLANG /opt/homebrew/opt/llvm/bin/clang)
   find_program(HOMEBREW_CLANGXX /opt/homebrew/opt/llvm/bin/clang++)
@@ -22,12 +32,6 @@ if(APPLE)
     message(WARNING "Homebrew Clang and Clang++ compilers not found. Using default compilers. 
                       OpenMP will be disabled.")
   endif()
-endif()
-
-# Set default build type to Release
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
-  message(STATUS "Build type not specified, using Release by default")
 endif()
 
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
