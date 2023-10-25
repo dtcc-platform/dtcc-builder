@@ -78,7 +78,7 @@ def extrude_building(
                 cap_base,
             )
             floor_meshes.append(floor_mesh)
-        merged_mesh = _dtcc_builder.merge_meshes(floor_meshes)
+        merged_mesh = _dtcc_builder.merge_meshes(floor_meshes, False)
         mesh = builder_mesh_to_mesh(merged_mesh)
 
     return mesh
