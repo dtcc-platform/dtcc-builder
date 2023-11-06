@@ -1,6 +1,7 @@
 import dtcc_io as io
 import dtcc_builder
-#import dtcc_viewer
+
+# import dtcc_viewer
 
 # footprints = "tests/data/MinimalCase/PropertyMap.shp"
 footprints = "../data/helsingborg-residential-2022/footprints.shp"
@@ -18,20 +19,20 @@ p = dtcc_builder.parameters.default()
 p["min_building_distance"] = 1.0
 p["mesh_resolution"] = 1.0
 p["ground_smoothing"] = 0
-p["auto_domain"] = False;
+p["auto_domain"] = False
 
 
-p["x_min"] = 0;
-p["y_min"] = 0;
-#p["x_max"] = x_max;
-#p["y_max"] = y_max;
+p["x_min"] = 0
+p["y_min"] = 0
+# p["x_max"] = x_max;
+# p["y_max"] = y_max;
 
 
 city = dtcc_builder.builders.build_city(city, pc, bounds, p)
-exit();
+exit()
 terrain_mesh = dtcc_builder.meshing.terrain_mesh(city, 1.0)
 
 surface_mesh = dtcc_builder.builders.build_city_surface_mesh(city, p, True)
 io.save_mesh(surface_mesh, "surface_mesh.obj")
 # terrain_mesh.view(pc=pc)
-#surface_mesh.view()
+# surface_mesh.view()

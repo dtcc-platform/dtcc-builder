@@ -402,6 +402,18 @@ def build(parameters: dict = None) -> None:
     if not pointcloud_path.exists():
         error(f"Unable to read pointcloud directory {pointcloud_path}")
 
+    # Check for input data
+    print("HEJ")
+    if not buildings_path.exists():
+        error(f"Unable to build city; missing file: {buildings_path}")
+    if not pointcloud_path.exists():
+        error(f"Unable to build city; missing directory: {pointcloud_path}")
+    pointcloud_files = list(pointcloud_path.glob("*.las")) + list(
+        pointcloud_path.glob("*.laz")
+    )
+    if not pointcloud_files:
+        error(f"Unable to build city; no point cloud files found in {pointcloud_path}")
+
     # Compute domain bounds
     origin, bounds = calculate_bounds(buildings_path, pointcloud_path, p)
     info(bounds)
