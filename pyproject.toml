@@ -11,8 +11,8 @@ authors = [
   { name = "Anders Logg", email = "logg@chalmers.se" },
   { name = "Vasilis Naserentin", email = "vasilis.naserentin@chalmers.se" },
   { name = "Dag Wästberg", email = "dwastberg@gmail.com" },
-  { name = "George Spaias" , email= "gspaiasa@ece.auth.gr" },
-  { name = "Jens Olsson" , email= "jens.olsson@chalmersindustriteknik.se" },
+  { name = "George Spaias", email = "gspaiasa@ece.auth.gr" },
+  { name = "Jens Olsson", email = "jens.olsson@chalmersindustriteknik.se" },
 ]
 requires-python = ">=3.10"
 classifiers = [
@@ -24,6 +24,7 @@ classifiers = [
 dependencies = [
   "pybind11 >= 2.10.0, < 2.11.0",
   "numpy",
+  "psutil",
   "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
   "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
   "dtcc-wrangler@git+https://github.com/dtcc-platform/dtcc-wrangler.git@develop",
