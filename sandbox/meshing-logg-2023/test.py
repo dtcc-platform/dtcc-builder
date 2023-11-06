@@ -1,7 +1,8 @@
 from dtcc import *
 from pathlib import Path
-from volume_mesh_quality import check_volume_mesh
-from surface_mesh_quality import check_surface_mesh
+from tetraMeshQuality import check_volume_mesh
+from triMeshQuality import check_surface_mesh
+
 
 # Set data paths
 data_directory = Path("data/helsingborg-residential-2022")
