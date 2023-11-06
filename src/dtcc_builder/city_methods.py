@@ -12,7 +12,7 @@ from time import time
 
 import dtcc_model as model
 from dtcc_model import City, PointCloud
-from .logging import info, warning, error
+from .logging import info, warning, error, debug
 from . import _dtcc_builder
 from . import meshing
 from . import model as builder_model
@@ -69,11 +69,11 @@ def compute_building_points(
     start_time = time()
     builder_city = builder_model.create_builder_city(city)
     builder_pointcloud = builder_model.create_builder_pointcloud(pointcloud)
-    print(f"BBBB: Creating builder models took {time() - start_time} seconds")
+    debug(f"Creating builder models took {time() - start_time} seconds")
 
     start_time = time()
     builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
-    print(f"BBBB: Removing vegetation took {time() - start_time} seconds")
+    debug(f"Removing vegetation took {time() - start_time} seconds")
 
     # Compute building points
     # builder_city = _dtcc_builder.compute_building_points(
@@ -100,7 +100,7 @@ def compute_building_points(
         num_tiles,
         num_tiles,
     )
-    print(f"BBBB: Computing building points took {time() - start_time} seconds")
+    debug(f"Computing building points took {time() - start_time} seconds")
 
     # Remove outliers
     start_time = time()
@@ -110,7 +110,7 @@ def compute_building_points(
             roof_outlier_neighbors,
             roof_outlier_margin,
         )
-    print(f"BBBB: Removing outliers took {time() - start_time} seconds")
+    debug(f"Removing outliers took {time() - start_time} seconds")
     start_time = time()
     if ransac_outlier_remover:
         builder_city = _dtcc_builder.remove_building_point_outliers_ransac(
@@ -118,15 +118,13 @@ def compute_building_points(
             ransac_outlier_margin,
             ransac_iterations,
         )
-    print(f"BBBB: Removing RANSAC outliers took {time() - start_time} seconds")
+    debug(f"Removing RANSAC outliers took {time() - start_time} seconds")
     # FIXME: Don't modify incoming data (city)
 
     # Convert back to city model
     start_time = time()
     roof_points = _dtcc_builder.building_roofpoints(builder_city)
     ground_points = _dtcc_builder.building_groundpoints(builder_city)
-    print(f"BBBB: roof_points {len(roof_points)}")
-    print(f"BBBB: roofpoint shapr {roof_points[0].shape}")
     for city_building, pts in zip(city.buildings, roof_points):
         city_building.roofpoints.points = pts
     for city_building, pts in zip(city.buildings, ground_points):
@@ -134,7 +132,6 @@ def compute_building_points(
         if len(ground_points) > 0:
             ground_z = ground_points[:, 2]
             city_building.ground_level = np.percentile(ground_z, 50)
-    print(f"BBBB: Converting back to city model took {time() - start_time} seconds")
     return city
 
 

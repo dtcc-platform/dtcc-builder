@@ -8,6 +8,7 @@ from dtcc_builder.model import (
 )
 from time import time
 from dtcc_model import Building, City, PointCloud, Mesh
+from .logging import info, warning, error, debug
 
 
 def terrain_mesh(city: City, mesh_resolution=2.0, smoothing=0):
@@ -104,10 +105,10 @@ def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes
         raise ValueError("City has no terrain data. Please compute terrain first.")
     start_time = time()
     merged_city = city.merge_buildings()  # needed for triangulation
-    print(f"MMMMMM: merge buildings took {time() - start_time} seconds")
+    debug(f"merge buildings took {time() - start_time} seconds")
     start_time = time()
     builder_city = create_builder_city(merged_city)
-    print(f"MMMMMM: create builder city took {time() - start_time} seconds")
+    debug(f"create builder city took {time() - start_time} seconds")
 
     builder_dem = raster_to_builder_gridfield(city.terrain)
 
@@ -119,14 +120,14 @@ def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes
         smoothing,
         merge_meshes,
     )
-    print(f"MMMMMM: builder city surface mesh took {time() - start_time} seconds")
+    debug(f"builder city surface mesh took {time() - start_time} seconds")
     start_time = time()
     if merge_meshes:
         # meshes contain only one merged mesh
         surface_mesh = builder_mesh_to_mesh(meshes[0])
     else:
         surface_mesh = [builder_mesh_to_mesh(mesh) for mesh in meshes]
-    print(f"MMMMMM: convert builder mesh to mesh took {time() - start_time} seconds")
+    debug(f"convert builder mesh to mesh took {time() - start_time} seconds")
     return surface_mesh
 
 
