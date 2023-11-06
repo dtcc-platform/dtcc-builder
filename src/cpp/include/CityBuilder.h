@@ -620,7 +620,7 @@ public:
     // size_t totalRemoved = 0;
 
 #pragma omp parallel for
-    for (int i = 0; i < _city.buildings.size(); i++)
+    for (size_t i = 0; i < _city.buildings.size(); i++)
     {
       auto &building = _city.buildings[i];
       // size_t beforeFilter = building.roof_points.size();
