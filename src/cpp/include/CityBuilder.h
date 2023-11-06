@@ -380,7 +380,7 @@ public:
     std::for_each(threads.begin(), threads.end(),
                   [](std::thread &t) { t.join(); });
     timer.stop();
-    Timer::report("compute_building_points in parallel");
+    // Timer::report("compute_building_points in parallel");
     return out_city;
   }
 

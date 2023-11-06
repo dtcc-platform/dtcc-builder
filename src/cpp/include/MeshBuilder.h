@@ -747,7 +747,7 @@ public:
     }
     final_merger_t.stop();
     build_city_surface_t.stop();
-    Timer::report("city surface");
+    // Timer::report("city surface");
     return city_mesh;
   }
 
