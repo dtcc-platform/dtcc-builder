@@ -11,7 +11,7 @@ from dtcc_model import Building, City, PointCloud, Mesh
 from .logging import info, warning, error, debug
 
 
-def terrain_mesh(city: City, mesh_resolution=2.0, smoothing=0):
+def terrain_mesh(city: City, max_mesh_size, min_mesh_angle, smoothing):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
     merged_city = city.merge_buildings()
@@ -19,7 +19,7 @@ def terrain_mesh(city: City, mesh_resolution=2.0, smoothing=0):
     builder_dem = raster_to_builder_gridfield(city.terrain)
 
     ground_mesh = _dtcc_builder.build_terrain_mesh(
-        builder_city, builder_dem, mesh_resolution, smoothing
+        builder_city, builder_dem, max_mesh_size, min_mesh_angle, smoothing
     )
 
     ground_mesh = builder_mesh_to_mesh(ground_mesh)
@@ -29,7 +29,8 @@ def terrain_mesh(city: City, mesh_resolution=2.0, smoothing=0):
 
 def extrude_building(
     building: Building,
-    resolution=5,
+    max_mesh_size,
+    min_mesh_angle,
     ground_to_zero: bool = False,
     cap_base: bool = False,
     per_floor=False,
@@ -59,7 +60,7 @@ def extrude_building(
         height = ground + building.height
     if (not per_floor) or building.floors <= 1:
         builder_mesh = _dtcc_builder.extrude_footprint(
-            builder_polygon, resolution, ground, height, cap_base
+            builder_polygon, max_mesh_size, min_mesh_angle, ground, height, cap_base
         )
         mesh = builder_mesh_to_mesh(builder_mesh)
     else:
@@ -73,7 +74,8 @@ def extrude_building(
             floor_base = ground + (i * floor_height)
             floor_mesh = _dtcc_builder.extrude_footprint(
                 builder_polygon,
-                resolution,
+                max_mesh_size,
+                min_mesh_angle,
                 floor_base,
                 floor_base + floor_height,
                 cap_base,
@@ -87,7 +89,8 @@ def extrude_building(
 
 def building_meshes(
     city: City,
-    resolution=5,
+    max_mesh_size,
+    min_mesh_angle,
     ground_to_zero: bool = False,
     cap_base: bool = False,
     per_floor=False,
@@ -95,12 +98,12 @@ def building_meshes(
     meshes = []
     for building in city.buildings:
         meshes.append(
-            extrude_building(building, resolution, ground_to_zero, cap_base, per_floor)
+            extrude_building(building, max_mesh_size, min_mesh_angle, ground_to_zero, cap_base, per_floor)
         )
     return meshes
 
 
-def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes=True):
+def city_surface_mesh(city: City, max_mesh_size, min_mesh_angle, smoothing=0, merge_meshes=True):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
     start_time = time()
@@ -116,7 +119,8 @@ def city_surface_mesh(city: City, mesh_resolution=2.0, smoothing=0, merge_meshes
     meshes = _dtcc_builder.build_city_surface_mesh(
         builder_city,
         builder_dem,
-        mesh_resolution,
+        max_mesh_size,
+        min_mesh_angle,
         smoothing,
         merge_meshes,
     )
