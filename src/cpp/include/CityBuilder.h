@@ -369,6 +369,8 @@ public:
     std::vector<std::thread> threads;
     for (auto &tile : tiles)
     {
+      if (tile.first.buildings.empty())
+        continue;
       threads.emplace_back(
           [&]
           {
