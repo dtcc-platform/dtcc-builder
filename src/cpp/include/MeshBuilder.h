@@ -34,7 +34,8 @@ class MeshBuilder
 public:
   static Mesh build_terrain_mesh(const City &city,
                                  const GridField &dtm,
-                                 double resolution,
+                                 double max_mesh_size,
+                                 double min_mesh_angle,
                                  size_t smooth_ground = 0)
   {
 
@@ -42,7 +43,7 @@ public:
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
     // build boundary
     Mesh ground_mesh = build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x,
-                                         bbox.Q.y, resolution, false);
+                                         bbox.Q.y, max_mesh_size, false);
     // Displace ground surface. Fill all points with maximum height. This is
     // used to always choose the smallest height for each point since each point
     // may be visited multiple times.
@@ -103,7 +104,8 @@ public:
   // building meshes may contain hanging nodes.
   static std::vector<Mesh> build_mesh(const City &city,
                                       const GridField &dtm,
-                                      double resolution,
+                                      double max_mesh_size,
+                                      double min_mesh_angle,
                                       bool ground_only = false,
                                       size_t smooth_ground = 0)
   {
@@ -113,7 +115,7 @@ public:
     for (auto const &building : city.buildings)
     {
       auto building_mesh = extrude_footprint(
-          building.footprint, resolution, ground_height, building.max_height());
+          building.footprint, max_mesh_size, min_mesh_angle, ground_height, building.max_height());
       // Add surface
       meshes.push_back(building_mesh);
     }
@@ -124,7 +126,8 @@ public:
   // Extrude Polygon to create a Mesh
   //
   static Mesh extrude_footprint(const Polygon &footprint,
-                                double resolution,
+                                double max_mesh_size,
+                                double min_mesh_angle,
                                 double ground_height,
                                 double height,
                                 bool cap_base = false)
@@ -138,7 +141,7 @@ public:
     // TODO: handle polygon with holes
     std::vector<std::vector<Vector2D>> sub_domains;
 
-    call_triangle(_mesh, footprint.vertices, sub_domains, resolution, false);
+    call_triangle(_mesh, footprint.vertices, sub_domains, max_mesh_size, min_mesh_angle, false);
     // set ground height
     for (auto &v : _mesh.vertices)
       v.z = ground_height;
@@ -248,7 +251,8 @@ public:
                                 double ymin,
                                 double xmax,
                                 double ymax,
-                                double resolution,
+                                double max_mesh_size,
+                                double min_mesh_angle,
                                 bool sort_triangles = true)
   {
     info("Building ground mesh for city...");
@@ -257,11 +261,11 @@ public:
     // print some stats
     const BoundingBox2D bounding_box(Vector2D(xmin, ymin),
                                      Vector2D(xmax, ymax));
-    const size_t nx = (bounding_box.Q.x - bounding_box.P.x) / resolution;
-    const size_t ny = (bounding_box.Q.y - bounding_box.P.y) / resolution;
+    const size_t nx = (bounding_box.Q.x - bounding_box.P.x) / max_mesh_size;
+    const size_t ny = (bounding_box.Q.y - bounding_box.P.y) / max_mesh_size;
     const size_t n = nx * ny;
     info("Domain bounding box is " + str(bounding_box));
-    info("Mesh resolution is " + str(resolution));
+    info("Maximum mesh size is " + str(max_mesh_size));
     info("Estimated number of triangles is " + str(n));
     info("Number of subdomains (buildings) is " + str(city.buildings.size()));
 
@@ -284,7 +288,7 @@ public:
 
     // build 2D mesh
     Mesh mesh;
-    call_triangle(mesh, boundary, sub_domains, resolution, sort_triangles);
+    call_triangle(mesh, boundary, sub_domains, max_mesh_size, min_mesh_angle, sort_triangles);
 
     // Mark subdomains
     compute_domain_markers(mesh, city);
@@ -313,12 +317,12 @@ public:
   // mesh has been built by calling build_mesh().
   static VolumeMesh layer_ground_mesh(const Mesh &ground_mesh,
                                       double domain_height,
-                                      double mesh_resolution)
+                                      double max_mesh_size)
   {
     Timer timer("build_volume_mesh");
 
     // Compute number of layers
-    const size_t num_layers = int(std::ceil(domain_height / mesh_resolution));
+    const size_t num_layers = int(std::ceil(domain_height / max_mesh_size));
     const double dz = domain_height / double(num_layers);
     const size_t layer_size = ground_mesh.vertices.size();
 
@@ -620,14 +624,15 @@ public:
 
   static std::vector<Mesh> build_city_surface_mesh(const City &city,
                                                    const GridField &dtm,
-                                                   double resolution,
+                                                   double max_mesh_size,
+                                                   double min_mesh_angle,
                                                    size_t smooth_ground = 0,
                                                    bool merge_meshes = true)
   {
     auto build_city_surface_t = Timer("build_city_surface_mesh");
     auto terrain_time = Timer("build_city_surface_mesh: step 1 terrain");
     Mesh terrain_mesh =
-        build_terrain_mesh(city, dtm, resolution, smooth_ground);
+        build_terrain_mesh(city, dtm, max_mesh_size, min_mesh_angle, smooth_ground);
     terrain_time.stop();
 
     std::vector<Mesh> city_mesh;
@@ -764,18 +769,19 @@ private:
   call_triangle(Mesh &mesh,
                 const std::vector<Vector2D> &boundary,
                 const std::vector<std::vector<Vector2D>> &sub_domains,
-                double h,
+                double max_mesh_size,
+                double min_mesh_angle,
                 bool sort_triangles)
   {
     Timer timer("call_triangle");
 
     // Set area constraint to control mesh size
-    const double max_area = 0.5 * h * h;
+    const double max_area = 0.5 * max_mesh_size * max_mesh_size;
 
     // Set input switches for Triangle
     char triswitches[64];
-    // sprintf(triswitches, "zQpq25a%.16f", max_area);
-    snprintf(triswitches, sizeof(triswitches), "zQpq25a%.16f", max_area);
+    snprintf(triswitches, sizeof(triswitches), "zQpq%.3fa%.3f", min_mesh_angle, max_area);
+    info("Triangle switches: " + std::string(triswitches));
 
     // z = use zero-based numbering
     // p = use polygon input (segments)

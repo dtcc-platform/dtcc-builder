@@ -12,7 +12,7 @@ pointcloud_path = data_directory
 
 # Set parameters
 p = parameters.default()
-p["auto_domain"] = False
+p["auto_domain"] = True
 x0 = 102000.0
 y0 = 6213000.0
 p["x0"] = x0
@@ -21,8 +21,10 @@ p["x_min"] = 0.0
 p["y_min"] = 0.0
 p["x_max"] = 50.0
 p["y_max"] = 50.0
-p["min_vertex_distance"] = 5.0
-p["mesh_resolution"] = 5.0
+p["min_building_detail"] = 5.0
+p["max_mesh_size"] = 10.0
+p["min_mesh_angle"] = 30.0
+
 
 # Calculate bounds
 origin, bounds = calculate_bounds(buildings_path, pointcloud_path, p)
@@ -45,6 +47,8 @@ vmesh.save("output/vmesh.pb")
 bmesh.save("output/bmesh.pb")
 vmesh.save("output/vmesh.vtu")
 bmesh.save("output/bmesh.vtu")
+
+exit()
 
 # Compute mesh quality
 check_volume_mesh(vmesh)

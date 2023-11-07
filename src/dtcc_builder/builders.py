@@ -125,16 +125,9 @@ def build_city(
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    start_time = time()
     # Remove outliers from point cloud
     point_cloud = point_cloud.remove_global_outliers(p["outlier_margin"])
-    # FIXME: Don't modify incoming data (city)
-    print(f"BBB: Removing outliers took {time() - start_time} seconds")
 
-    # FIXME: Why are we not calling clean_city?
-    # Should be called with min_vertex_distance/2.
-
-    start_time = time()
     # Build elevation model
     city = city.terrain_from_pointcloud(
         point_cloud,
@@ -142,14 +135,11 @@ def build_city(
         p["elevation_model_window_size"],
         ground_only=True,
     )
-    print(f"BBB: Building elevation model took {time() - start_time} seconds")
 
-    start_time = time()
-    city = city.simplify_buildings(p["min_building_distance"] / 2)
-    print(f"BBB: Simplifying buildings took {time() - start_time} seconds")
+    # Simplify
+    city = city.simplify_buildings(p["min_building_detail"])
 
     # Compute building points
-    start_time = time()
     city = city_methods.compute_building_points(
         city,
         point_cloud,
@@ -162,14 +152,11 @@ def build_city(
         p["ransac_outlier_margin"],
         p["ransac_iterations"],
     )
-    print(f"BBB: Computing building points took {time() - start_time} seconds")
 
     # Compute building heights
-    start_time = time()
     city = city_methods.compute_building_heights(
         city, p["min_building_height"], p["roof_percentile"]
     )
-    print(f"BBB: Computing building heights took {time() - start_time} seconds")
 
     return city
 
@@ -197,13 +184,14 @@ def build_terrain_mesh(city: model.City, parameters: dict = None):
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    simple_city = city.remove_small_buildings(
-        p["min_building_size"]
-    ).simplify_buildings(p["min_building_distance"] / 2)
+    # Simplify
+    city = city.simplify_buildings(p["min_building_detail"])
+    city = city.remove_small_buildings(p["min_building_area"])
 
-    return meshing.terrain_mesh(
-        simple_city, p["mesh_resolution"], p["ground_smoothing"]
-    )
+    # Build mesh
+    mesh = meshing.terrain_mesh(city, p["max_mesh_size"], p["min_mesh_angle"], p["ground_smoothing"])
+
+    return mesh
 
 
 def build_building_meshes(
@@ -233,15 +221,16 @@ def build_building_meshes(
     # Get parameters
     p = parameters or builder_parameters.default()
 
-    simple_city = city.remove_small_buildings(
-        p["min_building_size"]
-    ).simplify_buildings(p["min_building_distance"] / 2)
+    # Simplify
+    city = city.simplify_buildings(p["min_building_detail"])
+    city = city.remove_small_buildings(p["min_building_area"])
 
-    building_meshes = meshing.building_meshes(
-        city, p["mesh_resolution"], cap_base=True, per_floor=True
+    # Build meshes
+    meshes = meshing.building_meshes(
+        city, p["max_mesh_size"], p["min_mesh_angle"], cap_base=True, per_floor=True
     )
 
-    return building_meshes
+    return meshes
 
 
 def build_volume_mesh(
@@ -272,29 +261,32 @@ def build_volume_mesh(
 
     # Get parameters
     p = parameters or builder_parameters.default()
-    simple_city = city.merge_buildings(
-        p["min_building_distance"]
-    ).remove_small_buildings(p["min_building_size"])
+
+    # Merge and simplify
+    city = city.merge_buildings(p["min_building_detail"])
+    city = city.simplify_buildings(p["min_building_detail"])
+    city = city.remove_small_buildings(p["min_building_area"])
 
     # Convert to builder model
-    simple_builder_city = builder_model.create_builder_city(simple_city)
+    builder_city = builder_model.create_builder_city(city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
 
     # Step 3.1: Build ground mesh
     ground_mesh = _dtcc_builder.build_ground_mesh(
-        simple_builder_city,
+        builder_city,
         city.bounds.xmin,
         city.bounds.ymin,
         city.bounds.xmax,
         city.bounds.ymax,
-        p["mesh_resolution"],
+        p["max_mesh_size"],
+        p["min_mesh_angle"],
         True,
     )
     _debug(ground_mesh, "3.1", p)
 
     # Step 3.2: Layer ground mesh
     volume_mesh = _dtcc_builder.layer_ground_mesh(
-        ground_mesh, p["domain_height"], p["mesh_resolution"]
+        ground_mesh, p["domain_height"], p["max_mesh_size"]
     )
     _debug(volume_mesh, "3.2", p)
 
@@ -302,7 +294,7 @@ def build_volume_mesh(
     top_height = p["domain_height"] + city.terrain.data.mean()
     volume_mesh = _dtcc_builder.smooth_volume_mesh(
         volume_mesh,
-        simple_builder_city,
+        builder_city,
         builder_dem,
         top_height,
         False,
@@ -313,14 +305,14 @@ def build_volume_mesh(
 
     # Step 3.4: Trim volume mesh (remove building interiors)
     volume_mesh = _dtcc_builder.trim_volume_mesh(
-        volume_mesh, ground_mesh, simple_builder_city
+        volume_mesh, ground_mesh, builder_city
     )
     _debug(volume_mesh, "3.4", p)
 
     # Step 3.5: Smooth volume mesh (set ground and building heights)
     volume_mesh = _dtcc_builder.smooth_volume_mesh(
         volume_mesh,
-        simple_builder_city,
+        builder_city,
         builder_dem,
         top_height,
         True,
@@ -356,10 +348,8 @@ def build_city_surface_mesh(
         The city's surface mesh
     """
     p = parameters or builder_parameters.default()
-    mesh_resolutiom = p["mesh_resolution"]
-    ground_smoothing = p["ground_smoothing"]
     surface_mesh = meshing.city_surface_mesh(
-        city, mesh_resolutiom, ground_smoothing, merge_meshes
+        city, p["max_mesh_size"], p["min_mesh_angle"], p["ground_smoothing"], merge_meshes
     )
     return surface_mesh
 
@@ -403,7 +393,6 @@ def build(parameters: dict = None) -> None:
         error(f"Unable to read pointcloud directory {pointcloud_path}")
 
     # Check for input data
-    print("HEJ")
     if not buildings_path.exists():
         error(f"Unable to build city; missing file: {buildings_path}")
     if not pointcloud_path.exists():
