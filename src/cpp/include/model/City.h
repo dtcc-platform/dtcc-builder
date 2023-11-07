@@ -45,9 +45,9 @@ public:
   void merge(const City &other)
   {
     info("City: Merging with " + other.name);
-    bbtree.clear();
     buildings.insert(buildings.end(), other.buildings.begin(),
                      other.buildings.end());
+    bbtree.clear();
   }
 
   /// build search tree (bounding box tree), required for search queries.

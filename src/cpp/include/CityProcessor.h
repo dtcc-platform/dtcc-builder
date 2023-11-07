@@ -30,7 +30,9 @@ public:
     auto tiles = tile_bounding_box(bounds, x_tiles, y_tiles);
     for (size_t idx = 0; idx < tiles.size(); idx++)
     {
-      tiled_citymodels.push_back(std::make_pair(City(), PointCloud()));
+      auto city = City();
+      city.name = "tile_" + std::to_string(idx);
+      tiled_citymodels.push_back(std::make_pair(city, PointCloud()));
     }
     BoundingBoxTree2D tile_tree;
     tile_tree.build(tiles);

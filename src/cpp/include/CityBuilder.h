@@ -369,6 +369,8 @@ public:
     std::vector<std::thread> threads;
     for (auto &tile : tiles)
     {
+      if (tile.first.buildings.empty())
+        continue;
       threads.emplace_back(
           [&]
           {
@@ -385,112 +387,7 @@ public:
     return out_city;
   }
 
-  /// Compute heights of buildings from ground and roof points. This
-  /// requires that ExtractBuildingPoints() has been called to extract
-  /// the points from point cloud data.
-  ///
-  /// @param city The city
-  /// @param dtm Digital Terrain Map, used for ground height if points are
-  /// missing
-  /// @param ground_percentile Percentile used for setting ground height
-  /// @param roof_percentile Percentile used for setting roof height
-  static void compute_building_heights(City &city,
-                                       const GridField &dtm,
-                                       double ground_percentile,
-                                       double roof_percentile)
-  {
-    info("Computing building heights...");
-    Timer timer("compute_building_heights");
-
-    // FIXME: Make this a parameter?
-    // FIXME: How do we treat this in relation to layer height?
-    // FIXME: Also a problem inside MeshGenerator (warning in TrimMesh3D)
-    // FIXME: Make this a parameter
-    const double min_building_height{2.5};
-
-    // Uncomment for debugging
-    // Plotting::Init();
-
-    // Count missing or bad data
-    size_t num_missing_ground_points = 0;
-    size_t num_missing_roof_points = 0;
-    size_t num_small_heights = 0;
-
-    // Iterate over buildings
-    for (auto &building : city.buildings)
-    {
-      // Compute ground height h0
-      double h0{0};
-      if (building.ground_points.empty())
-      {
-        // warning("Missing ground points for building " + building.uuid);
-        // info("Setting ground height from DTM");
-        h0 = dtm(Geometry::polygon_center_2d(building.footprint));
-        num_missing_ground_points++;
-        building.error |= BuildingError::BUILDING_NO_GROUND_POINTS;
-      }
-      else
-      {
-        // Pick percentile from ground points
-        sort(building.ground_points.begin(), building.ground_points.end(),
-             [](const Vector3D &lhs, const Vector3D &rhs)
-             { return lhs.z < rhs.z; });
-        h0 = get_percentile(building.ground_points, ground_percentile).z;
-      }
-
-      // Compute roof height h1
-      double h1{0};
-      if (building.roof_points.empty())
-      {
-        // warning("Missing roof points for building " + building.uuid);
-        // info("Setting building height to " +
-        //     str(min_building_height) + "m");
-        h1 = h0 + min_building_height;
-        num_missing_roof_points++;
-        building.error |= BuildingError::BUILDING_NO_ROOF_POINTS;
-      }
-      else
-      {
-        sort(building.roof_points.begin(), building.roof_points.end(),
-             [](const Vector3D &lhs, const Vector3D &rhs)
-             { return lhs.z < rhs.z; });
-        h1 = get_percentile(building.roof_points, roof_percentile).z;
-      }
-
-      // Check that h0 < h1
-      if (h1 < h0 + min_building_height)
-      {
-        // warning("height too small for building " + building.uuid);
-        // info("Setting building height to " +
-        //     str(min_building_height));
-        h1 = h0 + min_building_height;
-        num_small_heights++;
-        building.error |= BuildingError::BUILDING_HEIGHT_TOO_LOW;
-      }
-
-      // Set building height(s)
-      building.height = h1 - h0;
-      building.ground_height = h0;
-
-      if (building.height / sqrt(Geometry::polygon_area(building.footprint)) >
-          25)
-      {
-        building.error |= BuildingError::BUILDING_BAD_ASPECT_RATIO;
-      }
-
-      // Uncomment for debugging
-      // Plotting::Plot(building);
-    }
-
-    // print some statistics
-    const size_t n = city.buildings.size();
-    info("Missing ground points for " + str(num_missing_ground_points) + "/" +
-         str(n) + " building(s)");
-    info("Missing roof points for " + str(num_missing_roof_points) + "/" +
-         str(n) + " building(s)");
-    info("height too small (adjusted) for " + str(num_small_heights) + "/" +
-         str(n) + " building(s)");
-  }
+  //
 
   /// Generate a random city. Used for benchmarking.
   ///
