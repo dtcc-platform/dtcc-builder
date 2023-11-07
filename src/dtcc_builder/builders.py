@@ -132,7 +132,7 @@ def build_city(
     print(f"BBB: Removing outliers took {time() - start_time} seconds")
 
     # FIXME: Why are we not calling clean_city?
-    # Should be callled with min_vertex_distance/2.
+    # Should be called with min_vertex_distance/2.
 
     start_time = time()
     # Build elevation model

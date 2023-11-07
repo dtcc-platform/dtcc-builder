@@ -4,6 +4,7 @@ from tetraMeshQuality import check_volume_mesh
 from triMeshQuality import check_surface_mesh
 import os
 
+
 # Set data paths
 data_directory = Path("data/helsingborg-residential-2022")
 buildings_path = data_directory / "footprints.shp"
@@ -20,6 +21,8 @@ p["x_min"] = 0.0
 p["y_min"] = 0.0
 p["x_max"] = 50.0
 p["y_max"] = 50.0
+p["min_vertex_distance"] = 5.0
+p["mesh_resolution"] = 5.0
 
 # Calculate bounds
 origin, bounds = calculate_bounds(buildings_path, pointcloud_path, p)

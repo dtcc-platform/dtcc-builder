@@ -3,6 +3,8 @@ import numpy as np
 from math import sqrt
 from time import time
 
+def title(string):
+    print(f"\n{string}\n{'-'*len(string)}")
 
 
 def timer(func):
@@ -72,7 +74,7 @@ def get_vertex_adj_cells(volume_mesh: VolumeMesh):
 
 @timer
 def get_face_adj_faces(mesh: Mesh):
- 
+
     # Create a dictionary to store neighbor cells for each cell
     neighbor_faces = {i: [] for i in range(mesh.num_faces)}
 
@@ -89,7 +91,7 @@ def get_face_adj_faces(mesh: Mesh):
     # Iterate through each pair of cells to find neighbors
     for i in range(mesh.num_faces):
         for j in range(i + 1, mesh.num_faces):
-            if len(neighbor_faces[i]) == 3: 
+            if len(neighbor_faces[i]) == 3:
                 break
             # Check if the two cells share exactly three vertices
             shared_vertices = np.intersect1d(mesh.faces[i], mesh.faces[j])
@@ -102,15 +104,15 @@ def get_face_adj_faces(mesh: Mesh):
                 #     neighbor_cells[j].append(i)
                 neighbor_faces[i].append(j)
                 shared_edges[i].append(shared_vertices)
-                
+
                 neighbor_faces[j].append(i)
                 shared_edges[j].append(shared_vertices)
-            
+
     return neighbor_faces,shared_edges
 
 @timer
 def get_cell_adj_cells(volume_mesh):
- 
+
     # Create a dictionary to store neighbor cells for each cell
     neighbor_cells = {i: [] for i in range(volume_mesh.num_cells)}
 
@@ -127,7 +129,7 @@ def get_cell_adj_cells(volume_mesh):
     # Iterate through each pair of cells to find neighbors
     for i in range(volume_mesh.num_cells):
         for j in range(i + 1, volume_mesh.num_cells):
-            if len(neighbor_cells[i]) == 4: 
+            if len(neighbor_cells[i]) == 4:
                 break
             # Check if the two cells share exactly three vertices
             shared_vertices = np.intersect1d(volume_mesh.cells[i], volume_mesh.cells[j])
@@ -140,7 +142,7 @@ def get_cell_adj_cells(volume_mesh):
                 #     neighbor_cells[j].append(i)
                 neighbor_cells[i].append(j)
                 shared_faces[i].append(shared_vertices)
-                
+
                 neighbor_cells[j].append(i)
                 shared_faces[j].append(shared_vertices)
     return neighbor_cells,shared_faces
