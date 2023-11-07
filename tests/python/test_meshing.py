@@ -15,7 +15,7 @@ class TestExtrudeBuilding(unittest.TestCase):
         building = city.buildings[0]
         building.ground_level = 1
         building.height = 5
-        mesh = extrude_building(building, resolution=10)
+        mesh = extrude_building(building, max_mesh_size=10, min_mesh_angle=25)
         self.assertIsInstance(mesh, Mesh)
         self.assertEqual(len(mesh.vertices), 8)
         self.assertEqual(len(mesh.faces), 10)
@@ -27,7 +27,9 @@ class TestExtrudeBuilding(unittest.TestCase):
         building = city.buildings[0]
         building.ground_level = 1
         building.height = 5
-        mesh = extrude_building(building, ground_to_zero=True)
+        mesh = extrude_building(
+            building, max_mesh_size=10, min_mesh_angle=25, ground_to_zero=True
+        )
         self.assertIsInstance(mesh, Mesh)
         self.assertEqual(len(mesh.vertices), 8)
         self.assertEqual(len(mesh.faces), 10)
@@ -39,7 +41,9 @@ class TestExtrudeBuilding(unittest.TestCase):
         building = city.buildings[0]
         building.ground_level = 1
         building.height = 5
-        mesh = extrude_building(building, cap_base=True)
+        mesh = extrude_building(
+            building, max_mesh_size=10, min_mesh_angle=25, cap_base=True
+        )
         self.assertIsInstance(mesh, Mesh)
         self.assertEqual(len(mesh.vertices), 12)
         self.assertEqual(len(mesh.faces), 12)
