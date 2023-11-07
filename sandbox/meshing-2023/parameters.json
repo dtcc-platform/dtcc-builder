@@ -43,5 +43,5 @@
   "naive_vegitation_filter": true,
   "data_directory": "../../data/HelsingborgResidential2022",
   "buildings_filename": "PropertyMap.shp",
-  "output_directory": "/Output/"
+  "output_directory": "./output/mesh_1_0"
 }

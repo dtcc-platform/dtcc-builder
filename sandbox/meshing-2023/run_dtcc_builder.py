@@ -15,7 +15,7 @@ if not os.path.isfile(parameter_file):
     print(f'Invalid parameters file: {parameter_file}')
     exit()
 
-output_directory = "./Output"
+output_directory = "./output"
 
 
 if not os.path.isdir(output_directory):
@@ -31,16 +31,15 @@ for resolution in parameter_value:
     print(f'\033[1;32m Running dtcc_builder with {parameter_name}: {resolution}\033[0;37m')
 
     #Update parameters
-    parameters[parameter_name] = resolution 
+    parameters[parameter_name] = resolution
     parameters["output_directory"] = os.path.join(output_directory, "mesh_" + str(resolution).replace(".","_"))
     with open(parameter_file,'w') as f:
         json.dump(parameters, f , indent= 2)
 
     if not os.path.exists(parameters['output_directory']):
         os.mkdir(parameters['output_directory'])
-    
+
     process = subprocess.Popen([binary_dtcc_builder, parameter_file])
     process.wait()
-  
-    
-     
+
+
