@@ -12,15 +12,15 @@ pointcloud_path = data_directory
 
 # Set parameters
 p = parameters.default()
-p["auto_domain"] = True
+p["auto_domain"] = False
 x0 = 102000.0
 y0 = 6213000.0
 p["x0"] = x0
 p["y0"] = y0
-p["x_min"] = 0.0
-p["y_min"] = 0.0
-p["x_max"] = 50.0
-p["y_max"] = 50.0
+p["x_min"] = 200.0
+p["y_min"] = 300.0
+p["x_max"] = 300.0
+p["y_max"] = 350.0
 p["min_building_detail"] = 5.0
 p["max_mesh_size"] = 10.0
 p["min_mesh_angle"] = 30.0

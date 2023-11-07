@@ -284,6 +284,10 @@ def build_volume_mesh(
     )
     _debug(ground_mesh, "3.1", p)
 
+    # For debugging 2D mesh
+    builder_model.builder_mesh_to_mesh(ground_mesh).save("ground_mesh.vtu")
+    #exit()
+
     # Step 3.2: Layer ground mesh
     volume_mesh = _dtcc_builder.layer_ground_mesh(
         ground_mesh, p["domain_height"], p["max_mesh_size"]
