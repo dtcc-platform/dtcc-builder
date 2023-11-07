@@ -14,9 +14,9 @@
 #include <unordered_set>
 #include <vector>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
+// #ifdef _OPENMP
+// #include <omp.h>
+// #endif
 
 #include "BuildingProcessor.h"
 #include "CityProcessor.h"
@@ -516,7 +516,7 @@ public:
 
     // size_t totalRemoved = 0;
 
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (size_t i = 0; i < _city.buildings.size(); i++)
     {
       auto &building = _city.buildings[i];
@@ -536,8 +536,8 @@ public:
     // Create copy of city
     City _city{city};
 
-// size_t totalRemoved = 0;
-#pragma omp parallel for
+    // size_t totalRemoved = 0;
+    // #pragma omp parallel for
     for (auto &building : _city.buildings)
     {
       // size_t beforeFilter = building.roof_points.size();
