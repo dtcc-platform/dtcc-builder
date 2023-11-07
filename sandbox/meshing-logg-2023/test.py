@@ -2,7 +2,7 @@ from dtcc import *
 from pathlib import Path
 from tetraMeshQuality import check_volume_mesh
 from triMeshQuality import check_surface_mesh
-
+import os
 
 # Set data paths
 data_directory = Path("data/helsingborg-residential-2022")
@@ -36,10 +36,12 @@ city = build_city(city, pointcloud, bounds, p)
 vmesh, bmesh = build_volume_mesh(city, p)
 
 # Save to file
-vmesh.save("vmesh.pb")
-bmesh.save("bmesh.pb")
-vmesh.save("vmesh.vtu")
-bmesh.save("bmesh.vtu")
+if not os.path.exists("output"):
+    os.makedirs("output")
+vmesh.save("output/vmesh.pb")
+bmesh.save("output/bmesh.pb")
+vmesh.save("output/vmesh.vtu")
+bmesh.save("output/bmesh.vtu")
 
 # Compute mesh quality
 check_volume_mesh(vmesh)
