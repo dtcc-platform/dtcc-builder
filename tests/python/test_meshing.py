@@ -51,7 +51,9 @@ class TestExtrudeBuilding(unittest.TestCase):
             floors=4,
             ground_level=5,
         )
-        mesh = extrude_building(building, resolution=10, per_floor=True, cap_base=True)
+        mesh = extrude_building(
+            building, max_mesh_size=10, min_mesh_angle=25, per_floor=True, cap_base=True
+        )
         self.assertEqual(
             len(mesh.faces), 8 * 4 + 5 * 2
         )  # 8 wall faces per floor, 2 roof faces per floor + 2 for the base
