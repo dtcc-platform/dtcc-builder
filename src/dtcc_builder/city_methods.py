@@ -75,31 +75,34 @@ def compute_building_points(
     builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
     debug(f"Removing vegetation took {time() - start_time} seconds")
 
-    # Compute building points
-    # builder_city = _dtcc_builder.compute_building_points(
-    #     builder_city, builder_pointcloud, ground_margin, outlier_margin
-    # )
+    parellel = True
 
-    num_cores = cpu_count(logical=True)
-    if num_cores is None or num_cores == 0:
-        num_cores = 1
-    num_tiles = ceil(sqrt(num_cores))
-    num_tiles = max(2, num_tiles)
-    num_tiles = min(8, num_tiles)
-
-    avg_side = sqrt(city.bounds.area)
-    num_tiles = min(num_tiles, ceil(avg_side / 100))
-
-    info(f"Compute building points in parallel with {num_tiles}x{num_tiles} tiles")
     start_time = time()
-    builder_city = _dtcc_builder.compute_building_points_parallel(
-        builder_city,
-        builder_pointcloud,
-        ground_margin,
-        outlier_margin,
-        num_tiles,
-        num_tiles,
-    )
+    if not parellel:
+        # Compute building points
+        builder_city = _dtcc_builder.compute_building_points(
+            builder_city, builder_pointcloud, ground_margin, outlier_margin
+        )
+    else:
+        num_cores = cpu_count(logical=True)
+        if num_cores is None or num_cores == 0:
+            num_cores = 1
+        num_tiles = ceil(sqrt(num_cores))
+        num_tiles = max(2, num_tiles)
+        num_tiles = min(8, num_tiles)
+
+        avg_side = sqrt(city.bounds.area)
+        num_tiles = min(num_tiles, ceil(avg_side / 100))
+
+        info(f"Compute building points in parallel with {num_tiles}x{num_tiles} tiles")
+        builder_city = _dtcc_builder.compute_building_points_parallel(
+            builder_city,
+            builder_pointcloud,
+            ground_margin,
+            outlier_margin,
+            num_tiles,
+            num_tiles,
+        )
     debug(f"Computing building points took {time() - start_time} seconds")
 
     # Remove outliers
