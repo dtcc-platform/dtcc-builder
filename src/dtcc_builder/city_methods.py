@@ -176,14 +176,6 @@ def compute_building_heights(
     # Iterate over buildings
     num_too_low = 0
     for building in city.buildings:
-        # Set building height to minimum height if points missing
-        if len(building.roofpoints) == 0:
-            # info(
-            #     f"Building {building.uuid} has no roof points; setting height to minimum height f{min_building_height:.3f}m"
-            # )
-            building.height = min_building_height
-            continue
-
         # Set ground level if missing
         if building.ground_level == 0 and len(city.terrain.shape) == 2:
             footprint_center = building.footprint.centroid
@@ -191,6 +183,13 @@ def compute_building_heights(
                 footprint_center.x, footprint_center.y
             )
             building.ground_level = ground_height
+        # Set building height to minimum height if points missing
+        if len(building.roofpoints) == 0:
+            # info(
+            #     f"Building {building.uuid} has no roof points; setting height to minimum height f{min_building_height:.3f}m"
+            # )
+            building.height = min_building_height
+            continue
 
         # Calculate height
         z_values = building.roofpoints.points[:, 2]
