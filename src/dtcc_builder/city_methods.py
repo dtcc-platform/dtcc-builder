@@ -75,7 +75,7 @@ def compute_building_points(
     builder_pointcloud = _dtcc_builder.remove_vegetation(builder_pointcloud)
     debug(f"Removing vegetation took {time() - start_time} seconds")
 
-    parellel = True
+    parellel = False
 
     start_time = time()
     if not parellel:
@@ -177,7 +177,7 @@ def compute_building_heights(
     num_too_low = 0
     for building in city.buildings:
         # Set ground level if missing
-        if building.ground_level == 0 and len(city.terrain.shape) == 2:
+        if True:  # building.ground_level == 0 and len(city.terrain.shape) == 2:
             footprint_center = building.footprint.centroid
             ground_height = city.terrain.get_value(
                 footprint_center.x, footprint_center.y

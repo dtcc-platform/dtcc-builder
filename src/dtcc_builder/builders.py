@@ -136,8 +136,7 @@ def build_city(
         ground_only=True,
     )
 
-    # Simplify
-    city = city.simplify_buildings(p["min_building_detail"])
+    # city = city.simplify_buildings(p["min_building_detail"])
 
     # Compute building points
     city = city_methods.compute_building_points(
@@ -185,11 +184,13 @@ def build_terrain_mesh(city: model.City, parameters: dict = None):
     p = parameters or builder_parameters.default()
 
     # Simplify
-    city = city.simplify_buildings(p["min_building_detail"])
     city = city.remove_small_buildings(p["min_building_area"])
+    city = city.simplify_buildings(p["min_building_detail"])
 
     # Build mesh
-    mesh = meshing.terrain_mesh(city, p["max_mesh_size"], p["min_mesh_angle"], p["ground_smoothing"])
+    mesh = meshing.terrain_mesh(
+        city, p["max_mesh_size"], p["min_mesh_angle"], p["ground_smoothing"]
+    )
 
     return mesh
 
@@ -266,7 +267,7 @@ def build_volume_mesh(
     city = city.merge_buildings(p["min_building_detail"])
     city = city.simplify_buildings(p["min_building_detail"])
     city = city.remove_small_buildings(p["min_building_area"])
-
+    city = city.fix_building_clearance(p["min_building_detail"], 10)
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
@@ -286,7 +287,7 @@ def build_volume_mesh(
 
     # For debugging 2D mesh
     builder_model.builder_mesh_to_mesh(ground_mesh).save("ground_mesh.vtu")
-    #exit()
+    # exit()
 
     # Step 3.2: Layer ground mesh
     volume_mesh = _dtcc_builder.layer_ground_mesh(
@@ -308,9 +309,7 @@ def build_volume_mesh(
     _debug(volume_mesh, "3.3", p)
 
     # Step 3.4: Trim volume mesh (remove building interiors)
-    volume_mesh = _dtcc_builder.trim_volume_mesh(
-        volume_mesh, ground_mesh, builder_city
-    )
+    volume_mesh = _dtcc_builder.trim_volume_mesh(volume_mesh, ground_mesh, builder_city)
     _debug(volume_mesh, "3.4", p)
 
     # Step 3.5: Smooth volume mesh (set ground and building heights)
@@ -353,7 +352,11 @@ def build_city_surface_mesh(
     """
     p = parameters or builder_parameters.default()
     surface_mesh = meshing.city_surface_mesh(
-        city, p["max_mesh_size"], p["min_mesh_angle"], p["ground_smoothing"], merge_meshes
+        city,
+        p["max_mesh_size"],
+        p["min_mesh_angle"],
+        p["ground_smoothing"],
+        merge_meshes,
     )
     return surface_mesh
 
