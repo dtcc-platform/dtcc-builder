@@ -163,11 +163,8 @@ public:
     return _city;
   }
 
-  /// Compute ground and roof points from point cloud.
+  /// Extract roof points from point cloud.
   ///
-  /// The ground points of a building are defined as all points
-  /// of class 2 (Ground) or 9 (Water) that fall within a given
-  /// distance from the building footprint.
   ///
   /// The roof points of a building are defined as all points
   /// of class 6 (Building) that fall within the building
@@ -177,12 +174,8 @@ public:
   ///
   /// @param city The city
   /// @param point_cloud Point cloud (unfiltered)
-  /// @param ground_margin Margin around building for detecting ground points
   static City compute_building_points(const City &city,
-                                      const PointCloud &point_cloud,
-                                      double ground_margin,
-                                      double ground_outlier_margin)
-
+                                      const PointCloud &point_cloud)
   {
     info("Computing building points...");
     Timer timer("compute_building_points");
@@ -225,7 +218,6 @@ public:
       double radius =
           Geometry::polygon_radius_2d(building.footprint, centerPoint);
       radius *= radius;
-      radius += ground_margin;
 
       std::vector<double> query_pt{centerPoint.x, centerPoint.y};
       auto radius_t = Timer("RadiusQuery");
@@ -312,8 +304,6 @@ public:
 
   static City compute_building_points_parallel(const City &city,
                                                const PointCloud &point_cloud,
-                                               double ground_margin,
-                                               double ground_outlier_margin,
                                                size_t x_tiles,
                                                size_t y_tiles)
   {
@@ -333,8 +323,7 @@ public:
       threads.emplace_back(
           [&]
           {
-            auto tile_city = compute_building_points(
-                tile.first, tile.second, ground_margin, ground_outlier_margin);
+            auto tile_city = compute_building_points(tile.first, tile.second);
             std::lock_guard<std::mutex> lock(out_city_mutex);
             out_city.merge(tile_city);
           });

@@ -142,8 +142,6 @@ def build_city(
     city = city_methods.compute_building_points(
         city,
         point_cloud,
-        p["ground_margin"],
-        p["outlier_margin"],
         p["statistical_outlier_remover"],
         p["roof_outlier_neighbors"],
         p["roof_outlier_margin"],

@@ -374,9 +374,6 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("building_roofpoints", &DTCC_BUILDER::building_roofpoints,
         "Create C++ roof points");
 
-  m.def("building_groundpoints", &DTCC_BUILDER::building_groundpoints,
-        "Create C++ ground points");
-
   m.def("create_gridfield", &DTCC_BUILDER::create_gridfield,
         "Create C++ grid field");
 

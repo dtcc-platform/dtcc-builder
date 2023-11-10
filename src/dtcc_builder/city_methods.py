@@ -22,8 +22,6 @@ from . import parameters as builder_parameters
 def compute_building_points(
     city: City,
     pointcloud: PointCloud,
-    ground_margin=1.0,
-    outlier_margin=2.0,
     statistical_outlier_remover=True,
     roof_outlier_neighbors=5,
     roof_outlier_margin=1.5,
@@ -81,7 +79,7 @@ def compute_building_points(
     if not parellel:
         # Compute building points
         builder_city = _dtcc_builder.compute_building_points(
-            builder_city, builder_pointcloud, ground_margin, outlier_margin
+            builder_city, builder_pointcloud
         )
     else:
         num_cores = cpu_count(logical=True)
@@ -98,8 +96,6 @@ def compute_building_points(
         builder_city = _dtcc_builder.compute_building_points_parallel(
             builder_city,
             builder_pointcloud,
-            ground_margin,
-            outlier_margin,
             num_tiles,
             num_tiles,
         )
