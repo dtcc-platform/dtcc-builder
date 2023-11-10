@@ -266,6 +266,7 @@ def build_volume_mesh(
     city = city.simplify_buildings(p["min_building_detail"] / 2)
     city = city.remove_small_buildings(p["min_building_area"])
     # city = city.fix_building_clearance(p["min_building_detail"], 10)
+
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
@@ -281,6 +282,9 @@ def build_volume_mesh(
         p["min_mesh_angle"],
     )
     _debug(ground_mesh, "3.1", p)
+
+    # FIXME: Debugging
+    # exit()
 
     # Step 3.2: Layer ground mesh
     volume_mesh = _dtcc_builder.layer_ground_mesh(
