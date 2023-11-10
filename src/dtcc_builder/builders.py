@@ -266,6 +266,8 @@ def build_volume_mesh(
     city = city.simplify_buildings(p["min_building_detail"] / 2)
     city = city.remove_small_buildings(p["min_building_area"])
     # city = city.fix_building_clearance(p["min_building_detail"], 10)
+    _debug(city, "3.1", p)
+    # FIXM
 
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
@@ -480,15 +482,24 @@ def build(parameters: dict = None) -> None:
             volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".obj"))
 
 
-def _debug(mesh, step, p):
+def _debug(object, step, p):
     "Debug volume meshing"
+
+    # Skip if not debugging
     if not p["debug"]:
         return
-    if isinstance(mesh, _dtcc_builder.Mesh):
-        mesh = builder_model.builder_mesh_to_mesh(mesh)
-    else:
-        mesh = builder_model.builder_volume_mesh_to_volume_mesh(mesh)
+
+    # Get output directory
     output_directory = Path(p["output_directory"])
     if not output_directory.exists():
         output_directory.mkdir()
-    mesh.save(output_directory / f"mesh_step{step}.vtu")
+
+    # Save object
+    if isinstance(object, model.City):
+        object.save(output_directory / f"city_step{step}.pb")
+    elif isinstance(object, _dtcc_builder.Mesh):
+        mesh = builder_model.builder_mesh_to_mesh(object)
+        mesh.save(output_directory / f"mesh_step{step}.pb")
+    elif isinstance(object, _dtcc_builder.VolumeMesh):
+        volume_mesh = builder_model.builder_volume_mesh_to_volume_mesh(object)
+        volume_mesh.save(output_directory / f"volume_mesh_step{step}.vtu")
