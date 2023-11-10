@@ -114,8 +114,9 @@ public:
     double ground_height = dtm.min();
     for (auto const &building : city.buildings)
     {
-      auto building_mesh = extrude_footprint(
-          building.footprint, max_mesh_size, min_mesh_angle, ground_height, building.max_height());
+      auto building_mesh =
+          extrude_footprint(building.footprint, max_mesh_size, min_mesh_angle,
+                            ground_height, building.max_height());
       // Add surface
       meshes.push_back(building_mesh);
     }
@@ -141,7 +142,8 @@ public:
     // TODO: handle polygon with holes
     std::vector<std::vector<Vector2D>> sub_domains;
 
-    call_triangle(_mesh, footprint.vertices, sub_domains, max_mesh_size, min_mesh_angle, false);
+    call_triangle(_mesh, footprint.vertices, sub_domains, max_mesh_size,
+                  min_mesh_angle, false);
     // set ground height
     for (auto &v : _mesh.vertices)
       v.z = ground_height;
@@ -288,7 +290,8 @@ public:
 
     // build 2D mesh
     Mesh mesh;
-    call_triangle(mesh, boundary, sub_domains, max_mesh_size, min_mesh_angle, sort_triangles);
+    call_triangle(mesh, boundary, sub_domains, max_mesh_size, min_mesh_angle,
+                  sort_triangles);
 
     // Mark subdomains
     compute_domain_markers(mesh, city);
@@ -631,8 +634,8 @@ public:
   {
     auto build_city_surface_t = Timer("build_city_surface_mesh");
     auto terrain_time = Timer("build_city_surface_mesh: step 1 terrain");
-    Mesh terrain_mesh =
-        build_terrain_mesh(city, dtm, max_mesh_size, min_mesh_angle, smooth_ground);
+    Mesh terrain_mesh = build_terrain_mesh(city, dtm, max_mesh_size,
+                                           min_mesh_angle, smooth_ground);
     terrain_time.stop();
 
     std::vector<Mesh> city_mesh;
@@ -780,7 +783,8 @@ private:
 
     // Set input switches for Triangle
     char triswitches[64];
-    snprintf(triswitches, sizeof(triswitches), "zQpq%.3fa%.3f", min_mesh_angle, max_area);
+    snprintf(triswitches, sizeof(triswitches), "zQpq%.3fa%.3f", min_mesh_angle,
+             max_area);
     info("Triangle switches: " + std::string(triswitches));
 
     // z = use zero-based numbering
@@ -1023,37 +1027,40 @@ private:
     std::fill(is_building_vertex.begin(), is_building_vertex.end(), false);
 
     // Iterate over cells to mark buildings
-    for (size_t i = 0; i < mesh.faces.size(); i++)
+    if (city.buildings.size() > 0)
     {
-      // find building containg midpoint of cell (if any)
-      const Vector3D c_3d = mesh.mid_point(i);
-      const Vector2D c_2d(c_3d.x, c_3d.y);
-      const int marker = city.find_building(Vector2D(c_2d));
-
-      // Get triangle
-      const Simplex2D &T = mesh.faces[i];
-
-      // Check if we are inside a building
-      if (marker >= 0)
+      for (size_t i = 0; i < mesh.faces.size(); i++)
       {
-        // Set domain marker to building number
-        mesh.markers[i] = marker;
+        // find building containg midpoint of cell (if any)
+        const Vector3D c_3d = mesh.mid_point(i);
+        const Vector2D c_2d(c_3d.x, c_3d.y);
+        const int marker = city.find_building(Vector2D(c_2d));
 
-        // Mark all cell vertices as belonging to a building
-        is_building_vertex[T.v0] = true;
-        is_building_vertex[T.v1] = true;
-        is_building_vertex[T.v2] = true;
+        // Get triangle
+        const Simplex2D &T = mesh.faces[i];
+
+        // Check if we are inside a building
+        if (marker >= 0)
+        {
+          // Set domain marker to building number
+          mesh.markers[i] = marker;
+
+          // Mark all cell vertices as belonging to a building
+          is_building_vertex[T.v0] = true;
+          is_building_vertex[T.v1] = true;
+          is_building_vertex[T.v2] = true;
+        }
+
+        // Check if individual vertices are inside a building
+        // (not only midpoint). Necessary for when building
+        // visualization meshes that are not boundary-fitted.
+        if (city.find_building(Vector3D(mesh.vertices[T.v0])) >= 0)
+          is_building_vertex[T.v0] = true;
+        if (city.find_building(Vector3D(mesh.vertices[T.v1])) >= 0)
+          is_building_vertex[T.v1] = true;
+        if (city.find_building(Vector3D(mesh.vertices[T.v2])) >= 0)
+          is_building_vertex[T.v2] = true;
       }
-
-      // Check if individual vertices are inside a building
-      // (not only midpoint). Necessary for when building
-      // visualization meshes that are not boundary-fitted.
-      if (city.find_building(Vector3D(mesh.vertices[T.v0])) >= 0)
-        is_building_vertex[T.v0] = true;
-      if (city.find_building(Vector3D(mesh.vertices[T.v1])) >= 0)
-        is_building_vertex[T.v1] = true;
-      if (city.find_building(Vector3D(mesh.vertices[T.v2])) >= 0)
-        is_building_vertex[T.v2] = true;
     }
 
     // Iterate over cells to mark building halos

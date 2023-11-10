@@ -80,6 +80,10 @@ public:
   // if the point is not inside any building.
   int find_building(const Vector2D &p) const
   {
+    if (buildings.empty())
+    {
+      return -1;
+    }
     // Check that search tree has been created
     if (bbtree.empty())
     {

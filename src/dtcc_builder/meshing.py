@@ -11,11 +11,16 @@ from dtcc_model import Building, City, PointCloud, Mesh
 from .logging import info, warning, error, debug
 
 
-def terrain_mesh(city: City, max_mesh_size, min_mesh_angle, smoothing):
+def terrain_mesh(
+    city: City, max_mesh_size, min_mesh_angle, smoothing, include_footprints=True
+):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
-    merged_city = city.merge_buildings()
-    builder_city = create_builder_city(merged_city)
+    if include_footprints:
+        merged_city = city.merge_buildings()
+        builder_city = create_builder_city(merged_city)
+    else:
+        builder_city = _dtcc_builder.City()
     builder_dem = raster_to_builder_gridfield(city.terrain)
 
     ground_mesh = _dtcc_builder.build_terrain_mesh(
@@ -98,12 +103,21 @@ def building_meshes(
     meshes = []
     for building in city.buildings:
         meshes.append(
-            extrude_building(building, max_mesh_size, min_mesh_angle, ground_to_zero, cap_base, per_floor)
+            extrude_building(
+                building,
+                max_mesh_size,
+                min_mesh_angle,
+                ground_to_zero,
+                cap_base,
+                per_floor,
+            )
         )
     return meshes
 
 
-def city_surface_mesh(city: City, max_mesh_size, min_mesh_angle, smoothing=0, merge_meshes=True):
+def city_surface_mesh(
+    city: City, max_mesh_size, min_mesh_angle, smoothing=0, merge_meshes=True
+):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
     start_time = time()
