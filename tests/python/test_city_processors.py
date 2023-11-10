@@ -19,6 +19,8 @@ class TestComputePoints(unittest.TestCase):
         pc = io.load_pointcloud(project_dir / "pointcloud.las")
         city = io.load_city(project_dir / "PropertyMap.shp")
 
-        city = city.compute_building_points(pc).compute_building_heights()
+        city = city.compute_building_points(pc)
+        city = city.terrain_from_pointcloud(pc, 1)
+        city = city.compute_building_heights()
         self.assertEqual(city.buildings[0].height, 5.0)
         self.assertEqual(city.buildings[3].height, 10.0)

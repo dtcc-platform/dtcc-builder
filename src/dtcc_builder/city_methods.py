@@ -177,12 +177,14 @@ def compute_building_heights(
     num_too_low = 0
     for building in city.buildings:
         # Set ground level if missing
-        if True:  # building.ground_level == 0 and len(city.terrain.shape) == 2:
+        if len(city.terrain.shape) > 1:
             footprint_center = building.footprint.centroid
             ground_height = city.terrain.get_value(
                 footprint_center.x, footprint_center.y
             )
             building.ground_level = ground_height
+        else:
+            ground_height = 0.0
         # Set building height to minimum height if points missing
         if len(building.roofpoints) == 0:
             # info(
