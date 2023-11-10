@@ -4,7 +4,6 @@ from tetraMeshQuality import check_volume_mesh
 from triMeshQuality import check_surface_mesh
 import os
 
-
 # Set data paths
 data_directory = Path("data/helsingborg-residential-2022")
 buildings_path = data_directory / "footprints.shp"
@@ -12,6 +11,9 @@ pointcloud_path = data_directory
 
 # Set parameters
 p = parameters.default()
+p["output_directory"] = "output"
+p["verbose"] = True
+p["debug"] = True
 p["auto_domain"] = False
 x0 = 102000.0
 y0 = 6213000.0
