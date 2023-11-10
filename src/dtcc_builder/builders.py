@@ -484,4 +484,7 @@ def _debug(mesh, step, p):
         mesh = builder_model.builder_mesh_to_mesh(mesh)
     else:
         mesh = builder_model.builder_volume_mesh_to_volume_mesh(mesh)
-    mesh.save(p["output_directory"] / f"mesh_step{step}.vtu")
+    output_directory = Path(p["output_directory"])
+    if not output_directory.exists():
+        output_directory.mkdir()
+    mesh.save(output_directory / f"mesh_step{step}.vtu")
