@@ -42,8 +42,9 @@ public:
     // Get bounding box
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
     // build boundary
-    Mesh ground_mesh = build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x,
-                                         bbox.Q.y, max_mesh_size, false);
+    Mesh ground_mesh =
+        build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x, bbox.Q.y,
+                          max_mesh_size, min_mesh_angle);
     // Displace ground surface. Fill all points with maximum height. This is
     // used to always choose the smallest height for each point since each point
     // may be visited multiple times.
@@ -254,8 +255,7 @@ public:
                                 double xmax,
                                 double ymax,
                                 double max_mesh_size,
-                                double min_mesh_angle,
-                                bool sort_triangles = true)
+                                double min_mesh_angle)
   {
     info("Building ground mesh for city...");
     Timer timer("build_ground_mesh");
@@ -291,7 +291,7 @@ public:
     // build 2D mesh
     Mesh mesh;
     call_triangle(mesh, boundary, sub_domains, max_mesh_size, min_mesh_angle,
-                  sort_triangles);
+                  false);
 
     // Mark subdomains
     compute_domain_markers(mesh, city);

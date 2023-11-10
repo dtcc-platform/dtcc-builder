@@ -281,7 +281,6 @@ def build_volume_mesh(
         city.bounds.ymax,
         p["max_mesh_size"],
         p["min_mesh_angle"],
-        True,
     )
     _debug(ground_mesh, "3.1", p)
 
