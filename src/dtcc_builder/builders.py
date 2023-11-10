@@ -500,7 +500,9 @@ def _debug(object, step, p):
         object.save(output_directory / f"city_step{step}.pb")
     elif isinstance(object, _dtcc_builder.Mesh):
         mesh = builder_model.builder_mesh_to_mesh(object)
-        mesh.save(output_directory / f"mesh_step{step}.pb")
+        mesh.save(output_directory / f"mesh_step{step}.vtu")
     elif isinstance(object, _dtcc_builder.VolumeMesh):
         volume_mesh = builder_model.builder_volume_mesh_to_volume_mesh(object)
         volume_mesh.save(output_directory / f"volume_mesh_step{step}.vtu")
+    else:
+        error(f"Unable to debug object: {object}")
