@@ -219,7 +219,6 @@ public:
     // Iterate over buildings
     for (auto &building : _city.buildings)
     {
-      building.ground_points.clear();
       building.roof_points.clear();
 
       auto centerPoint = Geometry::polygon_center_2d(building.footprint);
@@ -241,11 +240,7 @@ public:
 
         if (classified_points)
         {
-          if (clf == 2 || clf == 9)
-          {
-            building.ground_points.push_back(p_3d);
-          }
-          else if (clf == 6 || (!classifed_buildings && clf < 2))
+          if (clf == 6 || (!classifed_buildings && clf < 2))
           {
             // auto pc_timer = Timer("PolygoCOntains2D");
             if (Geometry::polygon_contains_2d(building.footprint, p_2d))
@@ -261,32 +256,9 @@ public:
           {
             building.roof_points.push_back(p_3d);
           }
-          else
-          {
-            // all points not in the roof polygon are considered ground
-            building.ground_points.push_back(p_3d);
-          }
         }
       }
     }
-
-    // Remove ground outliers
-    size_t num_ground_points = 0;
-    size_t num_ground_outliers = 0;
-    for (auto &building : _city.buildings)
-    {
-      // Count total number of points
-      num_ground_points += building.ground_points.size();
-
-      // Remove outliers and count total number of outliers
-      num_ground_outliers += PointCloudProcessor::remove_outliers(
-                                 building.ground_points, ground_outlier_margin)
-                                 .size();
-    }
-    const double outlier_ground_percentage =
-        (100.0 * num_ground_outliers) / num_ground_points;
-    info("Removed ground point outliers (" + str(outlier_ground_percentage) +
-         "%)");
 
     double pts_pr_sqm;
     double point_coverage;
@@ -312,26 +284,17 @@ public:
     // Sort points by height
     for (auto &building : _city.buildings)
     {
-      std::sort(building.ground_points.begin(), building.ground_points.end(),
-                [](const Vector3D &p, const Vector3D &q) -> bool
-                { return p.z < q.z; });
       std::sort(building.roof_points.begin(), building.roof_points.end(),
                 [](const Vector3D &p, const Vector3D &q) -> bool
                 { return p.z < q.z; });
     }
 
     // Compute some statistics
-    size_t min_g{std::numeric_limits<size_t>::max()};
     size_t min_r{std::numeric_limits<size_t>::max()};
-    size_t max_g{0}, maxR{0};
-    size_t sum_g{0}, sumR{0};
+    size_t maxR{0};
+    size_t sumR{0};
     for (const auto &building : _city.buildings)
     {
-      // Ground points
-      const size_t nG = building.ground_points.size();
-      min_g = std::min(min_g, nG);
-      max_g = std::max(max_g, nG);
-      sum_g += nG;
 
       // Roof points
       const size_t nR = building.roof_points.size();
@@ -339,12 +302,8 @@ public:
       maxR = std::max(maxR, nR);
       sumR += nR;
     }
-    const double mean_g = static_cast<double>(sum_g) / _city.buildings.size();
     const double mean_r = static_cast<double>(sumR) / _city.buildings.size();
 
-    info("min/mean/max number of ground points per "
-         "building is " +
-         str(min_g) + "/" + str(mean_g) + "/" + str(max_g));
     info("min/mean/max number of roof points per building "
          "is " +
          str(min_r) + "/" + str(mean_r) + "/" + str(maxR));
@@ -499,7 +458,6 @@ public:
     const size_t num_points = 5;
     for (size_t i = 0; i < num_points; i++)
     {
-      building.ground_points.push_back(Vector3D(c.x, c.y, ground_height));
       building.roof_points.push_back(
           Vector3D(c.x, c.y, ground_height + height));
     }

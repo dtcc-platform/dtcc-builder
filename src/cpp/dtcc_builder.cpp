@@ -184,25 +184,6 @@ py::list building_roofpoints(const City &city)
   return roof_points;
 }
 
-py::list building_groundpoints(const City &city)
-{
-  py::list ground_points;
-  for (auto const &building : city.buildings)
-  {
-    py::array_t<double> pts(building.ground_points.size() * 3);
-    for (size_t i = 0; i < building.ground_points.size(); i++)
-    {
-      pts.mutable_at(i * 3) = building.ground_points[i].x;
-      pts.mutable_at(i * 3 + 1) = building.ground_points[i].y;
-      pts.mutable_at(i * 3 + 2) = building.ground_points[i].z;
-    }
-    pts = pts.reshape(
-        std::vector<long>{static_cast<long>(building.ground_points.size()), 3});
-    ground_points.append(pts);
-  }
-  return ground_points;
-}
-
 PointCloud create_pointcloud(py::array_t<double> pts,
                              py::array_t<uint8_t> cls,
                              py::array_t<uint8_t> ret_number,
@@ -288,7 +269,6 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readwrite("height", &DTCC_BUILDER::Building::height)
       .def_readwrite("ground_height", &DTCC_BUILDER::Building::ground_height)
       .def_readonly("footprint", &DTCC_BUILDER::Building::footprint)
-      .def_readonly("ground_points", &DTCC_BUILDER::Building::ground_points)
       .def_readonly("roof_points", &DTCC_BUILDER::Building::roof_points);
 
   py::class_<DTCC_BUILDER::Vector2D>(m, "Vector2D")

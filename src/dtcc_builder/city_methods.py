@@ -127,14 +127,8 @@ def compute_building_points(
     # Convert back to city model
     start_time = time()
     roof_points = _dtcc_builder.building_roofpoints(builder_city)
-    ground_points = _dtcc_builder.building_groundpoints(builder_city)
     for city_building, pts in zip(city.buildings, roof_points):
         city_building.roofpoints.points = pts
-    for city_building, pts in zip(city.buildings, ground_points):
-        ground_points = pts
-        if len(ground_points) > 0:
-            ground_z = ground_points[:, 2]
-            city_building.ground_level = np.percentile(ground_z, 50)
     return city
 
 
@@ -177,14 +171,14 @@ def compute_building_heights(
     num_too_low = 0
     for building in city.buildings:
         # Set ground level if missing
-        if len(city.terrain.shape) > 1:
+        if building.ground_level == 0 and len(city.terrain.shape) > 1:
             footprint_center = building.footprint.centroid
             ground_height = city.terrain.get_value(
                 footprint_center.x, footprint_center.y
             )
             building.ground_level = ground_height
         else:
-            ground_height = 0.0
+            ground_height = 0
         # Set building height to minimum height if points missing
         if len(building.roofpoints) == 0:
             # info(

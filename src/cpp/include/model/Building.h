@@ -62,9 +62,6 @@ public:
   /// height of ground at site of building
   double ground_height{};
 
-  /// Array of ground points (from point cloud) close to building footprint
-  std::vector<Vector3D> ground_points{};
-
   /// Array of roof points (from point cloud) inside building footprint
   std::vector<Vector3D> roof_points{};
 
@@ -106,7 +103,6 @@ public:
     height = 0.0;
     ground_height = 0.0;
     error = 0;
-    ground_points.clear();
     roof_points.clear();
     roof_segments.clear();
   }
