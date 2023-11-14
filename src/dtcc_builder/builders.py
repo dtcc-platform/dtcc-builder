@@ -265,7 +265,11 @@ def build_volume_mesh(
     city = city.merge_buildings(p["min_building_detail"])
     city = city.simplify_buildings(p["min_building_detail"] / 2)
     city = city.remove_small_buildings(p["min_building_area"])
-    city = city.fix_building_clearance(p["min_building_detail"], 10)
+    city = city.fix_building_clearance(
+        p["min_building_detail"], p["min_building_angle"]
+    )
+    _debug(city, "3.1", p)
+
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
@@ -282,8 +286,7 @@ def build_volume_mesh(
     )
     _debug(ground_mesh, "3.1", p)
 
-    # For debugging 2D mesh
-    builder_model.builder_mesh_to_mesh(ground_mesh).save("ground_mesh.vtu")
+    # FIXME: Debugging
     # exit()
 
     # Step 3.2: Layer ground mesh
@@ -480,12 +483,26 @@ def build(parameters: dict = None) -> None:
             volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".obj"))
 
 
-def _debug(mesh, step, p):
+def _debug(object, step, p):
     "Debug volume meshing"
+
+    # Skip if not debugging
     if not p["debug"]:
         return
-    if isinstance(mesh, _dtcc_builder.Mesh):
-        mesh = builder_model.builder_mesh_to_mesh(mesh)
+
+    # Get output directory
+    output_directory = Path(p["output_directory"])
+    if not output_directory.exists():
+        output_directory.mkdir()
+
+    # Save object
+    if isinstance(object, model.City):
+        object.save(output_directory / f"city_step{step}.pb")
+    elif isinstance(object, _dtcc_builder.Mesh):
+        mesh = builder_model.builder_mesh_to_mesh(object)
+        mesh.save(output_directory / f"mesh_step{step}.vtu")
+    elif isinstance(object, _dtcc_builder.VolumeMesh):
+        volume_mesh = builder_model.builder_volume_mesh_to_volume_mesh(object)
+        volume_mesh.save(output_directory / f"volume_mesh_step{step}.vtu")
     else:
-        mesh = builder_model.builder_volume_mesh_to_volume_mesh(mesh)
-    mesh.save(p["output_directory"] / f"mesh_step{step}.vtu")
+        error(f"Unable to debug object: {object}")

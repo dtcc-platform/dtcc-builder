@@ -26,6 +26,7 @@ _parameters["y_max"] = 0.0
 _parameters["elevation_model_resolution"] = 1.0
 _parameters["elevation_model_window_size"] = 3
 _parameters["min_building_detail"] = 1.0
+_parameters["min_building_angle"] = 10.0
 _parameters["min_building_height"] = 2.5  # sets if too small (rethink?)
 _parameters["min_building_area"] = 15.0  # removes if too small (rethink?)
 _parameters["min_mesh_angle"] = 30.0  # not guaranteed to converge
