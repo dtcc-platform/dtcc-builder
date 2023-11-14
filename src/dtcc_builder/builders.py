@@ -265,7 +265,7 @@ def build_volume_mesh(
     city = city.merge_buildings(p["min_building_detail"])
     city = city.simplify_buildings(p["min_building_detail"] / 2)
     city = city.remove_small_buildings(p["min_building_area"])
-    # city = city.fix_building_clearance(p["min_building_detail"], 10)
+    city = city.fix_building_clearance(p["min_building_detail"], 10)
     # Convert to builder model
     builder_city = builder_model.create_builder_city(city)
     builder_dem = builder_model.raster_to_builder_gridfield(city.terrain)
