@@ -263,11 +263,13 @@ def build_volume_mesh(
 
     # Merge and simplify
     city = city.merge_buildings(p["min_building_detail"])
-    city = city.simplify_buildings(p["min_building_detail"] / 2)
     city = city.remove_small_buildings(p["min_building_area"])
-    city = city.fix_building_clearance(
-        p["min_building_detail"], p["min_building_angle"]
-    )
+    city = city.simplify_buildings(p["min_building_detail"] / 4)
+
+    # FIXME: fix building clearance
+    # city = city.fix_building_clearance(
+    #     p["min_building_detail"], p["min_building_angle"]
+    # )
     _debug(city, "3.1", p)
 
     # Convert to builder model
