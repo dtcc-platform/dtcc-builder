@@ -99,6 +99,7 @@ def building_meshes(
     ground_to_zero: bool = False,
     cap_base: bool = False,
     per_floor=False,
+    single_mesh=False,
 ):
     meshes = []
     for building in city.buildings:
@@ -112,17 +113,27 @@ def building_meshes(
                 per_floor,
             )
         )
+    if single_mesh:
+        meshes = merge_meshes(meshes, False)
     return meshes
 
 
 def city_surface_mesh(
-    city: City, max_mesh_size, min_mesh_angle, smoothing=0, merge_meshes=True
+    city: City,
+    max_mesh_size,
+    min_mesh_angle,
+    smoothing=0,
+    merge_meshes=True,
+    merge_buildings=True,
 ):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
     start_time = time()
-    merged_city = city.merge_buildings()  # needed for triangulation
-    debug(f"merge buildings took {time() - start_time} seconds")
+    if merge_buildings:
+        merged_city = city.merge_buildings()  # needed for triangulation
+        debug(f"merge buildings took {time() - start_time} seconds")
+    else:  # we've already merged the buildings
+        merged_city = city
     start_time = time()
     builder_city = create_builder_city(merged_city)
     debug(f"create builder city took {time() - start_time} seconds")
