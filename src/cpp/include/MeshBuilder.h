@@ -785,7 +785,7 @@ private:
     char triswitches[64];
     snprintf(triswitches, sizeof(triswitches), "zQpq%.3fa%.3f", min_mesh_angle,
              max_area);
-    info("Triangle switches: " + std::string(triswitches));
+    debug("Triangle switches: " + std::string(triswitches));
 
     // z = use zero-based numbering
     // p = use polygon input (segments)
