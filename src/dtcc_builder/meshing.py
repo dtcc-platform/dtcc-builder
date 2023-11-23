@@ -138,7 +138,7 @@ def city_surface_mesh(
             min_building_area,
             height_merge_strategy=height_merge_strategy,
         )  # needed for triangulation
-        merged_city = merged_city.fix_building_clearance(min_building_detail)
+        merged_city = merged_city.fix_building_clearance(min_building_detail, 30)
         debug(f"merge buildings took {time() - start_time} seconds")
     else:  # we've already merged the buildings (hopefully...or we crash)
         merged_city = city
