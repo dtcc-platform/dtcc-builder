@@ -3,6 +3,7 @@ from pathlib import Path
 from tetraMeshQuality import check_volume_mesh
 from triMeshQuality import check_surface_mesh
 import os
+import shapely
 
 # Set data paths
 data_directory = Path("data/helsingborg-residential-2022")
@@ -19,11 +20,11 @@ x0 = 102000.0
 y0 = 6213000.0
 p["x0"] = x0
 p["y0"] = y0
-p["x_min"] = 120.0
-p["y_min"] = 170.0
-p["x_max"] = 170.0
-p["y_max"] = 230.0
-p["min_building_detail"] = 5.0
+p["x_min"] = 200.0
+p["y_min"] = 350.0
+p["x_max"] = 400.0
+p["y_max"] = 500.0
+p["min_building_detail"] = 1.5
 p["max_mesh_size"] = 10.0
 p["min_mesh_angle"] = 30.0
 
@@ -38,7 +39,18 @@ pointcloud = load_pointcloud(pointcloud_path, bounds=bounds)
 
 # Build city model
 city = build_city(city, pointcloud, bounds, p)
+city.view()
+city = city.merge_buildings(p["min_building_detail"], p["min_building_area"])
 
+city = city.simplify_buildings(p["min_building_detail"] / 4)
+# city.view()
+city = city.remove_small_buildings(p["min_building_area"])
+city.view()
+city = city.fix_building_clearance(p["min_building_detail"], p["min_building_angle"])
+city.view()
+
+
+exit()
 # Build city mesh and volume mesh (tetrahedral mesh)
 vmesh, bmesh = build_volume_mesh(city, p)
 
