@@ -11,27 +11,44 @@ import matplotlib.tri as tri
 mesh = load_mesh("../ansys-test-case-2023/output/surface_mesh_tc_1.pb")
 num_vertices = len(mesh.vertices)
 num_faces = len(mesh.faces)
+_mesh = tri.Triangulation(mesh.vertices[:, 0], mesh.vertices[:, 1], mesh.faces)
 #mesh.view()
 
 def ideal_layer_height(area):
-    # Compute ideal layer height for regular tetrahedron
+    "Compute ideal layer height for regular tetrahedron"
     c = 2.0**1.5*3**(-0.75)
     h = c*np.sqrt(area)
     return h
 
 def check_neighbors(colors, ff):
-    # Check coloring of neighboring faces
+    "Check coloring of neighboring faces"
+    big_diff_colors = []
     max_diff = 0
     num_big_diffs = 0
     for i, faces in enumerate(ff):
-        diffs = [abs(colors[i] - colors[j]) for j in faces]
+        # Note: No absolute value, only worried neighbors with smaller color
+        diffs = [colors[i] - colors[j] for j in faces]
         big_diffs = [d for d in diffs if d > 1]
         max_diff = max(max_diff, max(diffs))
         if len(big_diffs) > 0:
             #print(i, diffs)
             num_big_diffs += 1
-    print("Max diff:", max_diff)
-    print(f"Num big diffs: {num_big_diffs} / {num_faces} ({100*num_big_diffs/num_faces:.2f}%)")
+            big_diff_colors.append(1)
+        else:
+            big_diff_colors.append(0)
+    #print("Max diff:", max_diff)
+    big_diff_percentage = 100*num_big_diffs/num_faces
+    print(f"Num big diffs: {num_big_diffs} / {num_faces} ({big_diff_percentage:.2f}%)")
+    return big_diff_percentage, big_diff_colors
+
+def reassign_colors(colors, ff):
+    "Reassign colors to avoid big jumps"
+    for i, faces in enumerate(ff):
+        for j in faces:
+            diff = colors[i] - colors[j]
+            if diff > 1:
+                colors[i] -= diff - 1
+
 
 # Compute mesh sizes
 areas = np.zeros(num_faces)
@@ -79,10 +96,23 @@ for i, f in enumerate(mesh.faces):
     for j in f:
         ff[i] |= vf[j]
 
-# Check coloring of neighboring faces
-check_neighbors(colors, ff)
+# Iteratively reassign colors to avoid big jumps
+for i in range(3):
 
-# Plot mesh colors
-_mesh = tri.Triangulation(mesh.vertices[:, 0], mesh.vertices[:, 1], mesh.faces)
-plt.tripcolor(_mesh, facecolors=colors, edgecolors="k")
-#plt.show()
+    # Reassign colors to avoid big jumps
+    if i > 0:
+        print(f"Reassigning colors, iteration {i}")
+        reassign_colors(colors, ff)
+
+    # Check coloring of neighboring faces
+    big_diff_percentage, big_diff_colors = check_neighbors(colors, ff)
+
+    # Plotting
+    plt.figure()
+    plt.tripcolor(_mesh, facecolors=colors, edgecolors="k")
+    plt.title(f"Iteration {i}: Colors")
+    plt.figure()
+    plt.tripcolor(_mesh, facecolors=big_diff_colors)
+    plt.title(f"Iteration {i}: Big diffs ({big_diff_percentage:.2f}%)")
+
+plt.show()
