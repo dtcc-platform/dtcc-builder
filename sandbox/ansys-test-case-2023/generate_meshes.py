@@ -6,6 +6,7 @@ import numpy as np
 
 from triMeshQuality import TriMeshQuality
 
+max_mesh_size = 25.0
 
 in_dir = Path(__file__).parent / ".." / ".." / "data" / "helsingborg-residential-2022"
 out_dir = Path(__file__).parent / "output"
@@ -40,7 +41,7 @@ for tc in [0.1, 0.5, 1, 2, 3, 5]:
     # surface_mesh = dtcc_builder.meshing.city_surface_mesh(
     #     fixed_city, 5, 30, 3, merge_meshes=True, merge_buildings=False
     # )
-    surface_mesh = dtcc_builder.meshing.terrain_mesh(fixed_city, 3, 30, 3, True)
+    surface_mesh = dtcc_builder.meshing.terrain_mesh(fixed_city, max_mesh_size, 30, 3, True)
     surface_mesh = surface_mesh.translate(*offset)
     aspect_ratio = TriMeshQuality.aspect_ratio(surface_mesh)
     skew = TriMeshQuality.skewness(surface_mesh)
@@ -52,7 +53,10 @@ for tc in [0.1, 0.5, 1, 2, 3, 5]:
         "area": area,
         "num_faces": surface_mesh.faces.shape[0],
     }
-    surface_mesh.save(out_dir / f"terrain_mesh_tc_{tc}.stl")
+    surface_mesh.save(out_dir / f"surface_mesh_tc_{tc}.stl")
+    surface_mesh.save(out_dir / f"surface_mesh_tc_{tc}.pb")
+
+
 
 for k, v in results.items():
     print(f"tc: {k}")
