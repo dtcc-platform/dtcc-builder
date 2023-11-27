@@ -9,6 +9,7 @@
 /sandbox/profiling/data/*
 /sandbox/test
 !/sandbox/profiling/data/data.tar.gz
+/sandbox/ansys-test-case/output
 .env/
 *.so
 *.o

@@ -125,14 +125,22 @@ def city_surface_mesh(
     smoothing=0,
     merge_meshes=True,
     merge_buildings=True,
+    min_building_detail=1,
+    min_building_area=15,
+    height_merge_strategy="area_weighted",
 ):
     if city.terrain is None or city.terrain.data.shape[0] == 0:
         raise ValueError("City has no terrain data. Please compute terrain first.")
     start_time = time()
     if merge_buildings:
-        merged_city = city.merge_buildings()  # needed for triangulation
+        merged_city = city.merge_buildings(
+            min_building_detail,
+            min_building_area,
+            height_merge_strategy=height_merge_strategy,
+        )  # needed for triangulation
+        merged_city = merged_city.fix_building_clearance(min_building_detail, 30)
         debug(f"merge buildings took {time() - start_time} seconds")
-    else:  # we've already merged the buildings
+    else:  # we've already merged the buildings (hopefully...or we crash)
         merged_city = city
     start_time = time()
     builder_city = create_builder_city(merged_city)

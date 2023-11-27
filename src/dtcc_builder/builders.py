@@ -263,14 +263,18 @@ def build_volume_mesh(
     p = parameters or builder_parameters.default()
 
     # Merge and simplify
-    city = city.merge_buildings(p["min_building_detail"])
+    city = city.merge_buildings(
+        p["min_building_detail"],
+        p["min_building_area"],
+        height_merge_strategy="area_weighted",
+    )
     city = city.remove_small_buildings(p["min_building_area"])
     city = city.simplify_buildings(p["min_building_detail"] / 4)
 
-    # FIXME: fix building clearance
-    # city = city.fix_building_clearance(
-    #     p["min_building_detail"], p["min_building_angle"]
-    # )
+    # note: min_building_angle does nothing at the moment
+    city = city.fix_building_clearance(
+        p["min_building_detail"], p["min_building_angle"]
+    )
     _debug(city, "3.1", p)
 
     # Convert to builder model
@@ -361,6 +365,9 @@ def build_city_surface_mesh(
         p["min_mesh_angle"],
         p["ground_smoothing"],
         merge_meshes,
+        merge_buildings=True,
+        min_building_detail=p["min_building_detail"],
+        min_building_area=p["min_building_area"],
     )
     return surface_mesh
 
