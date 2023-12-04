@@ -189,7 +189,7 @@ def build_terrain_mesh(city: model.City, parameters: dict = None):
     mesh = meshing.terrain_mesh(
         city, p["max_mesh_size"], p["min_mesh_angle"], p["ground_smoothing"]
     )
-    check_mesh(mesh, p)
+
     
     return mesh
 
@@ -330,7 +330,7 @@ def build_volume_mesh(
         p["smoothing_relative_tolerance"],
     )
     _debug(volume_mesh, "3.5", p)
-    _dtcc_builder.check_volume_mesh(volume_mesh,927)
+
     
     # Compute boundary mesh
     volume_mesh_boundary = _dtcc_builder.compute_boundary_mesh(volume_mesh)
@@ -493,12 +493,7 @@ def build(parameters: dict = None) -> None:
         if p["save_obj"]:
             volume_mesh_boundary.save(volume_mesh_boundary_name.with_suffix(".obj"))
 
-def check_mesh(mesh, p):
-    m = mesh
-    if type(m) is model.Mesh:
-        m = builder_model.mesh_to_builder_mesh(m)
-   
-    _dtcc_builder.check_mesh(m,p["metrics_report_level"])
+
 
 def _debug(object, step, p):
     "Debug volume meshing"
