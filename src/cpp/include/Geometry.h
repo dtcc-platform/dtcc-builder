@@ -17,6 +17,7 @@
 #include "model/Mesh.h"
 #include "model/Polygon.h"
 #include "model/Simplices.h"
+#include "model/Surface.h"
 #include "model/Vector.h"
 #include "model/VolumeMesh.h"
 
@@ -278,6 +279,16 @@ public:
     return ((p.x > q.x) ? ((p.y > q.y) ? 0 : 3) : ((p.y > q.y) ? 1 : 2));
   }
 
+  // Compute face normal
+  static Vector3D face_normal_3d(const Simplex2D &face,
+                                 const VolumeMesh &mesh_3d)
+  {
+    const Vector3D p0{mesh_3d.vertices[face.v0]};
+    const Vector3D p1{mesh_3d.vertices[face.v1]};
+    const Vector3D p2{mesh_3d.vertices[face.v2]};
+    return triangle_normal(p0, p1, p2);
+  }
+
   static Vector3D
   triangle_normal(const Vector3D &p0, const Vector3D &p1, const Vector3D &p2)
   {
@@ -288,14 +299,21 @@ public:
     return n;
   }
 
-  // Compute face normal
-  static Vector3D face_normal_3d(const Simplex2D &face,
-                                 const VolumeMesh &mesh_3d)
+  static Vector3D surface_noraml(const Surface &surface)
   {
-    const Vector3D p0{mesh_3d.vertices[face.v0]};
-    const Vector3D p1{mesh_3d.vertices[face.v1]};
-    const Vector3D p2{mesh_3d.vertices[face.v2]};
+    const Vector3D p0{surface.vertices[0]};
+    const Vector3D p1{surface.vertices[1]};
+    const Vector3D p2{surface.vertices[2]};
     return triangle_normal(p0, p1, p2);
+  }
+
+  static Vector3D surface_centroid(const Surface &surface)
+  {
+    Vector3D c{};
+    for (auto const &p : surface.vertices)
+      c += p;
+    c /= static_cast<double>(surface.vertices.size());
+    return c;
   }
 
   static Vector3D face_normal(const Simplex2D &face, const Mesh &mesh)
