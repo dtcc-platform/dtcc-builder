@@ -1,13 +1,16 @@
 from . import _dtcc_builder
 from dtcc_builder.model import (
     create_builder_polygon,
+    create_builder_surface,
+    create_builder_multisurface,
     builder_mesh_to_mesh,
     mesh_to_builder_mesh,
     create_builder_city,
     raster_to_builder_gridfield,
 )
+
 from time import time
-from dtcc_model import Building, City, PointCloud, Mesh
+from dtcc_model import Building, City, PointCloud, Mesh, Surface, MultiSurface
 from .logging import info, warning, error, debug
 
 
@@ -166,6 +169,37 @@ def city_surface_mesh(
         surface_mesh = [builder_mesh_to_mesh(mesh) for mesh in meshes]
     debug(f"convert builder mesh to mesh took {time() - start_time} seconds")
     return surface_mesh
+
+
+def mesh_surface(surface: Surface, max_mesh_edge_size=-1, min_mesh_angle=25):
+    builder_surface = create_builder_surface(surface)
+    builder_mesh = _dtcc_builder.mesh_surface(
+        builder_surface, max_mesh_edge_size, min_mesh_angle
+    )
+    mesh = builder_mesh_to_mesh(builder_mesh)
+    return mesh
+
+
+def mesh_multisurface(
+    multisurface: MultiSurface, max_mesh_edge_size=-1, min_mesh_angle=25, weld=False
+) -> Mesh:
+    builder_multisurface = create_builder_multisurface(multisurface)
+    builder_mesh = _dtcc_builder.mesh_multisurface(
+        builder_multisurface, max_mesh_edge_size, min_mesh_angle, weld
+    )
+    mesh = builder_mesh_to_mesh(builder_mesh)
+    return mesh
+
+
+def mesh_multisurfaces(
+    multisurfaces: [MultiSurface], max_mesh_edge_size=-1, min_mesh_angle=25, weld=False
+) -> [Mesh]:
+    builder_multisurfaces = [create_builder_multisurface(ms) for ms in multisurfaces]
+    meshes = _dtcc_builder.mesh_multisurfaces(
+        builder_multisurfaces, max_mesh_edge_size, min_mesh_angle, weld
+    )
+    meshes = [builder_mesh_to_mesh(mesh) for mesh in meshes]
+    return meshes
 
 
 def merge_meshes(meshes: [Mesh], weld=False) -> Mesh:

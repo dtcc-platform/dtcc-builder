@@ -184,6 +184,43 @@ py::list building_roofpoints(const City &city)
   return roof_points;
 }
 
+Surface create_surface(py::array_t<double> vertices, py::list holes)
+{
+  Surface surface;
+  auto verts_r = vertices.unchecked<2>();
+  size_t num_vertices = verts_r.shape(0);
+  for (size_t i = 0; i < num_vertices; i++)
+  {
+    surface.vertices.push_back(
+        Vector3D(verts_r(i, 0), verts_r(i, 1), verts_r(i, 2)));
+  }
+  for (size_t i = 0; i < holes.size(); i++)
+  {
+    auto hole = holes[i].cast<py::array_t<double>>();
+    auto hole_r = hole.unchecked<2>();
+    std::vector<Vector3D> hole_vertices;
+    size_t num_hole_vertices = hole_r.shape(0);
+    for (size_t j = 0; j < num_hole_vertices; j++)
+    {
+      hole_vertices.push_back(
+          Vector3D(hole_r(j, 0), hole_r(j, 1), hole_r(j, 2)));
+    }
+    surface.holes.push_back(hole_vertices);
+  }
+  return surface;
+}
+
+MultiSurface create_multisurface(py::list surfaces)
+{
+  MultiSurface multi_surface;
+  for (size_t i = 0; i < surfaces.size(); i++)
+  {
+    auto surface = surfaces[i].cast<Surface>();
+    multi_surface.surfaces.push_back(surface);
+  }
+  return multi_surface;
+}
+
 PointCloud create_pointcloud(py::array_t<double> pts,
                              py::array_t<uint8_t> cls,
                              py::array_t<uint8_t> ret_number,
@@ -360,6 +397,15 @@ PYBIND11_MODULE(_dtcc_builder, m)
       .def_readonly("cells", &DTCC_BUILDER::VolumeMesh::cells)
       .def_readonly("markers", &DTCC_BUILDER::VolumeMesh::markers);
 
+  py::class_<DTCC_BUILDER::Surface>(m, "Surface")
+      .def(py::init<>())
+      .def_readonly("vertices", &DTCC_BUILDER::Surface::vertices)
+      .def_readonly("holes", &DTCC_BUILDER::Surface::holes);
+
+  py::class_<DTCC_BUILDER::MultiSurface>(m, "MultiSurface")
+      .def(py::init<>())
+      .def_readonly("surfaces", &DTCC_BUILDER::MultiSurface::surfaces);
+
   m.def("create_polygon", &DTCC_BUILDER::create_polygon, "Create C++ polygon");
 
   m.def("create_city", &DTCC_BUILDER::create_city, "Create C++ city");
@@ -439,4 +485,17 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("merge_meshes", &DTCC_BUILDER::MeshProcessor::merge_meshes,
         "Merge meshes into a single mesh");
+
+  m.def("create_surface", &DTCC_BUILDER::create_surface, "Create C++ surface");
+
+  m.def("create_multisurface", &DTCC_BUILDER::create_multisurface,
+        "Create C++ multisurface");
+
+  m.def("mesh_surface", &DTCC_BUILDER::MeshBuilder::mesh_surface,
+        "Create triangulated mesh from surface");
+
+  m.def("mesh_multisurface", &DTCC_BUILDER::MeshBuilder::mesh_multisurface,
+        "Create triangulated mesh from multisurface");
+  m.def("mesh_multisurfaces", &DTCC_BUILDER::MeshBuilder::mesh_multisurfaces,
+        "Create a lits of triangulated meshes from a list of multisurfaces");
 }

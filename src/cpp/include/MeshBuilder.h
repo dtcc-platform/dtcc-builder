@@ -11,6 +11,9 @@
 #include <tuple>
 #include <vector>
 
+#include "Eigen/Eigen"
+#include "Eigen/Geometry"
+
 #include "Geometry.h"
 #include "Logging.h"
 #include "MeshProcessor.h"
@@ -19,6 +22,7 @@
 #include "model/City.h"
 #include "model/GridField.h"
 #include "model/Mesh.h"
+#include "model/Surface.h"
 #include "model/Vector.h"
 
 extern "C"
@@ -759,12 +763,130 @@ public:
     return city_mesh;
   }
 
+  static Mesh mesh_surface(const Surface &surface,
+
+                           double max_triangle_area_size = -1,
+                           double min_mesh_angle = 25)
+  // convert 3D Surface to triangle Mesh. If max_triangle_area_size is
+  // greater than 0, triangle will be used for triangulations, otherwise
+  // it will be naively triangulated by connecting the vertices in order.
+  {
+    Mesh mesh;
+    if (surface.vertices.size() < 3)
+      return mesh;
+    if (max_triangle_area_size <= 0)
+    {
+      mesh.vertices = surface.vertices;
+      for (size_t i = 1; i < surface.vertices.size() - 1; i++)
+      {
+        mesh.faces.push_back(Simplex2D(0, i, i + 1));
+      }
+    }
+    else
+    {
+      if (surface.vertices.size() == 3)
+      {
+        double a = Geometry::triangle_area(
+            surface.vertices[0], surface.vertices[1], surface.vertices[2]);
+        if (a < max_triangle_area_size)
+        {
+          mesh.vertices = surface.vertices;
+          mesh.faces.push_back(Simplex2D(0, 1, 2));
+          return mesh;
+        }
+      }
+      call_triangle(mesh, surface, max_triangle_area_size, min_mesh_angle);
+    }
+    return mesh;
+  }
+
+  static Mesh mesh_multisurface(const MultiSurface &multi_surface,
+                                double max_triangle_area_size = -1,
+                                double min_mesh_angle = 25,
+                                bool weld = false)
+  {
+    std::vector<Mesh> multimesh;
+    for (const auto &surface : multi_surface.surfaces)
+    {
+      auto surface_mesh =
+          mesh_surface(surface, max_triangle_area_size, min_mesh_angle);
+      multimesh.push_back(surface_mesh);
+    }
+    auto mesh = MeshProcessor::merge_meshes(multimesh, weld);
+    return mesh;
+  }
+
+  static std::vector<Mesh>
+  mesh_multisurfaces(const std::vector<MultiSurface> &multi_surfaces,
+                     double max_triangle_area_size = -1,
+                     double min_mesh_angle = 25,
+                     bool weld = false)
+  {
+    size_t n = multi_surfaces.size();
+    std::vector<Mesh> meshes(n);
+    for (size_t i = 0; i < n; i++)
+    {
+      auto mesh = mesh_multisurface(multi_surfaces[i], max_triangle_area_size,
+                                    min_mesh_angle, weld);
+      meshes[i] = mesh;
+    }
+
+    return meshes;
+  }
+
 private:
   // Map from 2D cell index to 3D cell indices
   static size_t
   index_3d(size_t layer, size_t layer_size, size_t cell_index_2d, size_t j)
   {
     return layer * layer_size + 3 * cell_index_2d + j;
+  }
+
+  static void call_triangle(Mesh &mesh,
+                            const Surface &surface,
+                            double max_mesh_size,
+                            double min_mesh_angle)
+  {
+    std::vector<std::vector<Vector2D>> sd;
+
+    const auto z_normal = Eigen::Vector3d(0, 0, 1);
+    auto normal = Geometry::surface_noraml(surface);
+    auto e_norm = Eigen::Vector3d(normal.x, normal.y, normal.z);
+    auto centroid = Geometry::surface_centroid(surface);
+    auto e_centroid = Eigen::Vector3d(centroid.x, centroid.y, centroid.z);
+
+    // auto rot_matrix =
+    //     Eigen::Matrix3d(Eigen::Quaterniond::FromTwoVectors(e_norm,
+    //     z_normal));
+    // std::cout << "rot_matrix: " << rot_matrix << std::endl;
+    auto transform = Eigen::Transform<double, 3, Eigen::Isometry>();
+    auto translation = Eigen::Translation3d(-e_centroid);
+    auto rotation = Eigen::Quaterniond::FromTwoVectors(e_norm, z_normal);
+
+    transform = rotation * translation;
+    auto transform_inv = transform.inverse();
+    // std::cout << "trans_matrix " << trans_matrix << std::endl;
+
+    // std::cout << "transform " << transform << std::endl;
+    // auto transform_inv = transform.inverse();
+    // std::cout << "transform inv" << transform_inv << std::endl;
+    std::vector<Vector2D> projected_surface;
+    for (const auto &v : surface.vertices)
+    {
+      auto e_v = Eigen::Vector3d(v.x, v.y, v.z);
+      auto e_v_prime = transform * e_v;
+      projected_surface.push_back(Vector2D(e_v_prime.x(), e_v_prime.y()));
+    }
+    call_triangle(mesh, projected_surface, sd, max_mesh_size, min_mesh_angle,
+                  false);
+    for (auto &v : mesh.vertices)
+    {
+      auto e_v = Eigen::Vector3d(v.x, v.y, 0);
+      auto e_v_prime = transform_inv * e_v;
+      v.x = e_v_prime.x();
+      v.y = e_v_prime.y();
+      v.z = e_v_prime.z();
+    }
   }
 
   // Call Triangle to compute 2D mesh

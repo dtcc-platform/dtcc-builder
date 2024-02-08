@@ -56,6 +56,48 @@ def create_builder_pointcloud(
         )
 
 
+def create_builder_surface(surface: model.Surface):
+    """
+    Create a DTCC builder Surface object through the pybind exposed C++
+    `DTCC_BUILDER::create_surface()` function.
+
+    Parameters
+    ----------
+    surface : model.Surface
+        The input Surface object.
+
+    Returns
+    -------
+    _dtcc_builder.Surface
+        A `DTCC_BUILDER` Surface object.
+
+    """
+    return _dtcc_builder.create_surface(surface.vertices, surface.holes)
+
+
+def create_builder_multisurface(multisurface: model.MultiSurface):
+    """
+    Create a DTCC builder MultiSurface object through the pybind exposed C++
+    `DTCC_BUILDER::create_multisurface()` function.
+
+    Parameters
+    ----------
+    multisurface : model.MultiSurface
+        The input MultiSurface object.
+
+    Returns
+    -------
+    _dtcc_builder.MultiSurface
+        A `DTCC_BUILDER` MultiSurface object.
+
+    """
+    surfaces = [
+        _dtcc_builder.create_surface(surface.vertices, surface.holes)
+        for surface in multisurface.surfaces
+    ]
+    return _dtcc_builder.create_multisurface(surfaces)
+
+
 def raster_to_builder_gridfield(raster: Raster):
     """
     Convert Raster to a DTCC builder GridField object through the pybind exposed C++

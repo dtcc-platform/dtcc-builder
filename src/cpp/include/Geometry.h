@@ -372,6 +372,18 @@ public:
     return 0.5 * std::abs(polygon_determinant_2d(polygon));
   }
 
+  // Compute area of a triangle (3D)
+  static double
+  triangle_area(const Vector3D &p0, const Vector3D &p1, const Vector3D &p2)
+  {
+    double side_a = (p0 - p1).magnitude();
+    double side_b = (p1 - p2).magnitude();
+    double side_c = (p2 - p0).magnitude();
+
+    double s = 0.5 * (side_a + side_b + side_c);
+    return std::sqrt(s * (s - side_a) * (s - side_b) * (s - side_c));
+  }
+
   // Computer Perimeter of polygon (2D)
   static double polygon_perimeter_2d(const Polygon &polygon)
   {
