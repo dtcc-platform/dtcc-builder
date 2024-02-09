@@ -25,6 +25,10 @@
 #include "model/Surface.h"
 #include "model/Vector.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 extern "C"
 {
 #include <triangle.h>
@@ -805,13 +809,19 @@ public:
                                 double min_mesh_angle = 25,
                                 bool weld = false)
   {
-    std::vector<Mesh> multimesh;
-    for (const auto &surface : multi_surface.surfaces)
+    std::vector<Mesh> multimesh(multi_surface.surfaces.size());
+#pragma omp parallel for
+    for (size_t i = 0; i < multi_surface.surfaces.size(); i++)
     {
-      auto surface_mesh =
-          mesh_surface(surface, max_triangle_area_size, min_mesh_angle);
-      multimesh.push_back(surface_mesh);
+      multimesh[i] = mesh_surface(multi_surface.surfaces[i],
+                                  max_triangle_area_size, min_mesh_angle);
     }
+    // for (const auto &surface : multi_surface.surfaces)
+    // {
+    //   auto surface_mesh =
+    //       mesh_surface(surface, max_triangle_area_size, min_mesh_angle);
+    //   multimesh.push_back(surface_mesh);
+    // }
     auto mesh = MeshProcessor::merge_meshes(multimesh, weld);
     return mesh;
   }
@@ -824,6 +834,7 @@ public:
   {
     size_t n = multi_surfaces.size();
     std::vector<Mesh> meshes(n);
+#pragma omp parallel for
     for (size_t i = 0; i < n; i++)
     {
       auto mesh = mesh_multisurface(multi_surfaces[i], max_triangle_area_size,
