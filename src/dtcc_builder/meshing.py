@@ -194,11 +194,17 @@ def mesh_multisurface(
 def mesh_multisurfaces(
     multisurfaces: [MultiSurface], max_mesh_edge_size=-1, min_mesh_angle=25, weld=False
 ) -> [Mesh]:
+    start_time = time()
     builder_multisurfaces = [create_builder_multisurface(ms) for ms in multisurfaces]
+    print(f"create builder multisurfaces took {time() - start_time} seconds")
+    start_time = time()
     meshes = _dtcc_builder.mesh_multisurfaces(
         builder_multisurfaces, max_mesh_edge_size, min_mesh_angle, weld
     )
+    print(f"mesh multisurfaces took {time() - start_time} seconds")
+    start_time = time()
     meshes = [builder_mesh_to_mesh(mesh) for mesh in meshes]
+    print(f"convert builder mesh to mesh took {time() - start_time} seconds")
     return meshes
 
 
