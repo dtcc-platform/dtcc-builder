@@ -7,6 +7,7 @@
 #include "MeshProcessor.h"
 #include "MeshQualityMetrics.h"
 #include "Smoother.h"
+#include "Timer.h"
 #include "VertexSmoother.h"
 #include "model/Building.h"
 #include "model/City.h"
@@ -16,7 +17,6 @@
 #include "model/Polygon.h"
 #include "model/Simplices.h"
 #include "model/Vector.h"
-#include "Timer.h"
 
 #include "include/FaceColoring.h"
 #include "include/MeshLayering.h"
@@ -27,8 +27,8 @@ namespace DTCC_BUILDER
 {
 
 VolumeMesh create_volume_mesh(py::array_t<double> vertices,
-                 py::array_t<size_t> faces,
-                 py::array_t<int> markers)
+                              py::array_t<size_t> faces,
+                              py::array_t<int> markers)
 {
   Mesh mesh;
   auto verts_r = vertices.unchecked<2>();
@@ -54,26 +54,29 @@ VolumeMesh create_volume_mesh(py::array_t<double> vertices,
   {
     mesh.markers.push_back(markers_r(i));
   }
-  info(mesh.__str__()) ;
+  info(mesh.__str__());
 
   std::vector<double> layer_heights;
-  std::vector<int> face_colors(num_faces) ; 
+  std::vector<int> face_colors(num_faces);
 
   Timer t1("Layer height computation");
-  compute_layer_heights(mesh,layer_heights, face_colors);  
+  compute_layer_heights(mesh, layer_heights, face_colors);
   t1.stop();
   t1.print();
-  const double domain_height = 50; 
+  const double domain_height = 50;
 
   Timer t2("Mesh layering");
-  VolumeMesh vm = mesh_layering(mesh, layer_heights,face_colors, domain_height); 
+  VolumeMesh vm =
+      mesh_layering(mesh, layer_heights, face_colors, domain_height);
   t2.stop();
   t2.print();
-  return vm; 
+  return vm;
 }
 
 } // namespace DTCC_BUILDER
 
-PYBIND11_MODULE(_mesh_layering, m) {
-    m.def("create_volume_mesh", &DTCC_BUILDER::create_volume_mesh, "Create C++ mesh");
+PYBIND11_MODULE(_mesh_layering, m)
+{
+  m.def("create_volume_mesh", &DTCC_BUILDER::create_volume_mesh,
+        "Create C++ mesh");
 }
