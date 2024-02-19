@@ -3,6 +3,16 @@ requires = ["scikit-build-core", "pybind11==2.10.*", "wheel"]
 build-backend = "scikit_build_core.build"
 
 [project]
+dependencies = [
+  "numpy",
+  "psutil",
+  "pypoints2grid >= 0.1.9",
+  "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
+  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
+  "dtcc-wrangler@git+https://github.com/dtcc-platform/dtcc-wrangler.git@develop",
+  "dtcc-common@git+https://github.com/dtcc-platform/dtcc-common.git@develop",
+]
+
 version = "0.7.20"
 name = "dtcc-builder"
 description = "DTCC Builder"
@@ -20,15 +30,6 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: C++",
   "License :: OSI Approved :: MIT License",
-]
-dependencies = [
-  "pybind11 >= 2.10.0, < 2.11.0",
-  "numpy",
-  "psutil",
-  "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
-  "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
-  "dtcc-wrangler@git+https://github.com/dtcc-platform/dtcc-wrangler.git@develop",
-  "dtcc-common@git+https://github.com/dtcc-platform/dtcc-common.git@develop",
 ]
 
 [project.optional-dependencies]
