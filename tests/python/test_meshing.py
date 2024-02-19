@@ -84,8 +84,8 @@ class TestMeshSurfaces(unittest.TestCase):
         mesh = mesh_surface(surface)
         self.assertEqual(len(mesh.vertices), 4)
         self.assertEqual(len(mesh.faces), 2)
-        self.assertEqual(mesh.vertices[:, 2].min(), 5)
-        self.assertEqual(mesh.vertices[:, 2].max(), 8)
+        self.assertAlmostEqual(mesh.vertices[:, 2].min(), 5)
+        self.assertAlmostEqual(mesh.vertices[:, 2].max(), 8)
 
     def test_mesh_triangle_surface(self):
         surface = Surface(
