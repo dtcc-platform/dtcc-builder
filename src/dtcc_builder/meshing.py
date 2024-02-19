@@ -13,6 +13,8 @@ from time import time
 from dtcc_model import Building, City, PointCloud, Mesh, Surface, MultiSurface
 from .logging import info, warning, error, debug
 
+import numpy as np
+
 
 def terrain_mesh(
     city: City, max_mesh_size, min_mesh_angle, smoothing, include_footprints=True
@@ -191,9 +193,26 @@ def mesh_multisurface(
     return mesh
 
 
+def _flatten_multi_surfaces(multi_surfaces: [MultiSurface]):
+    offset_ms = [0]
+    offset_surfaces = []
+    vertices = np.ndarray(dtype=np.float64, shape=(0,))
+    array_size = 0
+    for ms in multi_surfaces:
+        for surface in ms.surfaces:
+            flat_vertices = surface.vertices.flatten()
+            array_size += len(flat_vertices)
+    print(f"array_size: {array_size}")
+    vertices = np.zeros(array_size, dtype=np.float64)
+    return None, None, None
+
+
 def mesh_multisurfaces(
     multisurfaces: [MultiSurface], max_mesh_edge_size=-1, min_mesh_angle=25, weld=False
 ) -> [Mesh]:
+    start_time = time()
+    vertices, offset_ms, offset_surfaces = _flatten_multi_surfaces(multisurfaces)
+    print(f"flatten multisurfaces took {time() - start_time} seconds")
     start_time = time()
     builder_multisurfaces = [create_builder_multisurface(ms) for ms in multisurfaces]
     print(f"create builder multisurfaces took {time() - start_time} seconds")

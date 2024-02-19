@@ -780,25 +780,10 @@ public:
       return mesh;
     if (max_triangle_area_size <= 0)
     {
-      mesh.vertices = surface.vertices;
-      for (size_t i = 1; i < surface.vertices.size() - 1; i++)
-      {
-        mesh.faces.push_back(Simplex2D(0, i, i + 1));
-      }
+      fast_mesh(mesh, surface);
     }
     else
     {
-      if (surface.vertices.size() == 3)
-      {
-        double a = Geometry::triangle_area(
-            surface.vertices[0], surface.vertices[1], surface.vertices[2]);
-        if (a < max_triangle_area_size)
-        {
-          mesh.vertices = surface.vertices;
-          mesh.faces.push_back(Simplex2D(0, 1, 2));
-          return mesh;
-        }
-      }
       call_triangle(mesh, surface, max_triangle_area_size, min_mesh_angle);
     }
     return mesh;
@@ -900,6 +885,31 @@ private:
     }
   }
 
+  static void fast_mesh(Mesh &mesh, const Surface &surface)
+  {
+    if (surface.vertices.size() < 3)
+      return;
+    if (surface.vertices.size() == 3)
+    {
+      mesh.vertices = surface.vertices;
+      mesh.faces.push_back(Simplex2D(0, 1, 2));
+      return;
+    }
+
+    if (Geometry::is_convex(surface))
+    {
+      mesh.vertices = surface.vertices;
+      for (size_t i = 1; i < surface.vertices.size() - 1; i++)
+      {
+        mesh.faces.push_back(Simplex2D(0, i, i + 1));
+      }
+    }
+    else
+    {
+      call_triangle(mesh, surface, -1, -1);
+    }
+  }
+
   // Call Triangle to compute 2D mesh
   static void
   call_triangle(Mesh &mesh,
@@ -915,10 +925,16 @@ private:
     const double max_area = 0.5 * max_mesh_size * max_mesh_size;
 
     // Set input switches for Triangle
-    char triswitches[64];
-    snprintf(triswitches, sizeof(triswitches), "zQpq%.3fa%.3f", min_mesh_angle,
-             max_area);
-    debug("Triangle switches: " + std::string(triswitches));
+    std::string triswitches = "zQp";
+    if (min_mesh_angle > 0)
+      triswitches += "q" + str(min_mesh_angle, 3);
+    if (max_mesh_size > 0)
+      triswitches += "a" + str(max_area, 3);
+    debug("Triangle switches: " + triswitches);
+
+    // Convert to C-style string
+    char *triswitches_c = new char[triswitches.length() + 1];
+    std::strcpy(triswitches_c, triswitches.c_str());
 
     // z = use zero-based numbering
     // p = use polygon input (segments)
@@ -1022,7 +1038,8 @@ private:
     struct triangulateio vorout = create_triangle_io();
 
     // Call Triangle
-    triangulate(triswitches, &in, &out, &vorout);
+    triangulate(triswitches_c, &in, &out, &vorout);
+    delete[] triswitches_c;
 
     // Uncomment for debugging
     // print_triangle_io(out);

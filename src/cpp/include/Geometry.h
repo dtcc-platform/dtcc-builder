@@ -12,6 +12,9 @@
 #include <tuple>
 #include <vector>
 
+#include "Eigen/Eigen"
+#include "Eigen/Geometry"
+
 #include "BoundingBox.h"
 #include "Constants.h"
 #include "model/Mesh.h"
@@ -314,6 +317,49 @@ public:
       c += p;
     c /= static_cast<double>(surface.vertices.size());
     return c;
+  }
+
+  static bool is_convex(const Polygon &polygon)
+  {
+    int orientation = polygon_orientation_2d(polygon);
+    if (orientation == 0)
+      orientation = -1;
+    size_t num_vertices = polygon.vertices.size();
+    for (size_t i = 0; i < num_vertices; i++)
+    {
+      Vector2D p0 = polygon.vertices[i];
+      Vector2D p1 = polygon.vertices[(i + 1) % num_vertices];
+      Vector2D p2 = polygon.vertices[(i + 2) % num_vertices];
+      Vector2D v0(p0, p1);
+      Vector2D v1(p1, p2);
+      double cross = v0.x * v1.y - v0.y * v1.x;
+      if (cross * orientation < 0)
+        return false;
+    }
+    return true;
+  }
+
+  static Polygon project_surface(const Surface &surface)
+  {
+    const auto z_normal = Eigen::Vector3d(0, 0, 1);
+    auto normal = Geometry::surface_noraml(surface);
+    auto e_norm = Eigen::Vector3d(normal.x, normal.y, normal.z);
+    auto transform = Eigen::Transform<double, 3, Eigen::Isometry>();
+    transform = Eigen::Quaterniond::FromTwoVectors(e_norm, z_normal);
+    Polygon projected_polygon;
+    for (const auto &v : surface.vertices)
+    {
+      auto e_v = Eigen::Vector3d(v.x, v.y, v.z);
+      auto e_v_prime = transform * e_v;
+      projected_polygon.vertices.push_back(
+          Vector2D(e_v_prime.x(), e_v_prime.y()));
+    }
+    return projected_polygon;
+  }
+  static bool is_convex(const Surface &surface)
+  {
+    auto poly = project_surface(surface);
+    return is_convex(poly);
   }
 
   static Vector3D face_normal(const Simplex2D &face, const Mesh &mesh)
