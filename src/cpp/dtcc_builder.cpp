@@ -451,8 +451,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
 
   m.def("clean_city", &DTCC_BUILDER::CityBuilder::clean_city, "Clean city");
 
-  m.def("build_mesh", &DTCC_BUILDER::MeshBuilder::build_mesh,
-        "build mesh for city, returning a list of meshes");
+  // m.def("build_mesh", &DTCC_BUILDER::MeshBuilder::build_mesh,
+  //       "build mesh for city, returning a list of meshes");
 
   m.def("build_ground_mesh", &DTCC_BUILDER::MeshBuilder::build_ground_mesh,
         "build ground mesh");
@@ -473,8 +473,8 @@ PYBIND11_MODULE(_dtcc_builder, m)
   m.def("trim_volume_mesh", &DTCC_BUILDER::MeshBuilder::trim_volume_mesh,
         "Trim volume mesh by removing cells inside buildings");
 
-  m.def("extrude_footprint", &DTCC_BUILDER::MeshBuilder::extrude_footprint,
-        "Extrude footprint to a mesh");
+  // m.def("extrude_footprint", &DTCC_BUILDER::MeshBuilder::extrude_footprint,
+  //       "Extrude footprint to a mesh");
 
   m.def("compute_boundary_mesh",
         &DTCC_BUILDER::MeshProcessor::compute_boundary_mesh,

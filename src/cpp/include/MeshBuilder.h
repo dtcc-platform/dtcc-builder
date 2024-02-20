@@ -14,12 +14,13 @@
 #include "Eigen/Eigen"
 #include "Eigen/Geometry"
 
+#include "BoundingBox.h"
+#include "BoundingBoxTree.h"
 #include "Geometry.h"
 #include "Logging.h"
 #include "MeshProcessor.h"
 #include "Timer.h"
 #include "VertexSmoother.h"
-#include "model/City.h"
 #include "model/GridField.h"
 #include "model/Mesh.h"
 #include "model/Surface.h"
@@ -40,7 +41,7 @@ namespace DTCC_BUILDER
 class MeshBuilder
 {
 public:
-  static Mesh build_terrain_mesh(const City &city,
+  static Mesh build_terrain_mesh(const std::vector<Polygon> &subdomains,
                                  const GridField &dtm,
                                  double max_mesh_size,
                                  double min_mesh_angle,
@@ -51,7 +52,7 @@ public:
     const BoundingBox2D &bbox = dtm.grid.bounding_box;
     // build boundary
     Mesh ground_mesh =
-        build_ground_mesh(city, bbox.P.x, bbox.P.y, bbox.Q.x, bbox.Q.y,
+        build_ground_mesh(subdomains, bbox.P.x, bbox.P.y, bbox.Q.x, bbox.Q.y,
                           max_mesh_size, min_mesh_angle);
     // Displace ground surface. Fill all points with maximum height. This is
     // used to always choose the smallest height for each point since each point
@@ -105,144 +106,6 @@ public:
     info("ground mesh done");
     return ground_mesh;
   }
-  // build mesh for city, returning a list of meshes.
-  //
-  // The first mesh is the ground (height map) and the remaining surfaces
-  // are the extruded building footprints. Note that meshes are
-  // non-conforming; the ground and building meshes are non-matching and the
-  // building meshes may contain hanging nodes.
-  static std::vector<Mesh> build_mesh(const City &city,
-                                      const GridField &dtm,
-                                      double max_mesh_size,
-                                      double min_mesh_angle,
-                                      bool ground_only = false,
-                                      size_t smooth_ground = 0)
-  {
-    std::vector<Mesh> meshes;
-    // Iterate over buildings to build surfaces
-    double ground_height = dtm.min();
-    for (auto const &building : city.buildings)
-    {
-      auto building_mesh =
-          extrude_footprint(building.footprint, max_mesh_size, min_mesh_angle,
-                            ground_height, building.max_height());
-      // Add surface
-      meshes.push_back(building_mesh);
-    }
-
-    return meshes;
-  }
-
-  // Extrude Polygon to create a Mesh
-  //
-  static Mesh extrude_footprint(const Polygon &footprint,
-                                double max_mesh_size,
-                                double min_mesh_angle,
-                                double ground_height,
-                                double height,
-                                bool cap_base = false)
-  {
-    // FIXME: Consider making flipping triangles upside-down here
-    // so that the normal points downwards rather than upwards.
-
-    // build 2D mesh of building footprint
-    Mesh _mesh;
-    // Create empty subdomains for Triangle mesh building
-    // TODO: handle polygon with holes
-    std::vector<std::vector<Vector2D>> sub_domains;
-
-    call_triangle(_mesh, footprint.vertices, sub_domains, max_mesh_size,
-                  min_mesh_angle, false);
-    // set ground height
-    for (auto &v : _mesh.vertices)
-      v.z = ground_height;
-
-    // Create empty building surface
-    Mesh extrude_mesh;
-
-    // Note: The 2D mesh contains all the input boundary points with
-    // the same numbers as in the footprint polygon, but may also
-    // contain new points (Steiner points) added during mesh
-    // generation. We add the top points (including any Steiner
-    // points) first, then the points at the bottom (the footprint).
-
-    // Get absolute height of building
-    // const double buildingHeight = height;
-
-    // Set total number of points
-    const size_t num_mesh_points = _mesh.vertices.size();
-    const size_t num_boundary_points = footprint.vertices.size();
-    size_t total_points = num_mesh_points + num_boundary_points;
-    if (cap_base)
-      total_points += num_mesh_points; // add points for base cap
-    extrude_mesh.vertices.resize(total_points);
-
-    // Set total number of triangles
-    const size_t num_mesh_triangles = _mesh.faces.size();
-    const size_t num_boundary_triangles = 2 * num_boundary_points;
-    size_t total_faces = num_mesh_triangles + num_boundary_triangles;
-    if (cap_base)
-      total_faces += num_mesh_triangles; // add triangles for base cap
-    extrude_mesh.faces.resize(total_faces);
-
-    // Add points at top
-    for (size_t i = 0; i < num_mesh_points; i++)
-    {
-      const Vector3D &p_2d = _mesh.vertices[i];
-      const Vector3D p_3d(p_2d.x, p_2d.y, height);
-      extrude_mesh.vertices[i] = p_3d;
-    }
-
-    // Add points at bottom
-    for (size_t i = 0; i < num_boundary_points; i++)
-    {
-      const Vector3D &p_2d = _mesh.vertices[i];
-      const Vector3D p_3d(p_2d.x, p_2d.y, ground_height);
-      extrude_mesh.vertices[num_mesh_points + i] = p_3d;
-    }
-
-    // Add triangles on top
-    for (size_t i = 0; i < num_mesh_triangles; i++)
-      extrude_mesh.faces[i] = _mesh.faces[i];
-
-    // Add triangles on boundary
-    for (size_t i = 0; i < num_boundary_points; i++)
-    {
-      const size_t v0 = i;
-      const size_t v1 = (i + 1) % num_boundary_points;
-      const size_t v2 = v0 + num_mesh_points;
-      const size_t v3 = v1 + num_mesh_points;
-      Simplex2D t0(v0, v2, v1); // Outward-pointing normal
-      Simplex2D t1(v1, v2, v3); // Outward-pointing normal
-      extrude_mesh.faces[num_mesh_triangles + 2 * i] = t0;
-      extrude_mesh.faces[num_mesh_triangles + 2 * i + 1] = t1;
-    }
-
-    if (cap_base)
-    {
-      // Add points for base
-      const size_t vertex_offset = num_mesh_points + num_boundary_points;
-      for (size_t i = 0; i < num_mesh_points; i++)
-      {
-        const Vector3D &p2D = _mesh.vertices[i];
-        const Vector3D p3D(p2D.x, p2D.y, ground_height);
-        extrude_mesh.vertices[vertex_offset + i] = p3D;
-      }
-      // Add triangles on top
-      const size_t face_offset = num_mesh_triangles + num_boundary_triangles;
-      for (size_t i = 0; i < num_mesh_triangles; i++)
-      {
-        auto face = _mesh.faces[i];
-        face.v0 += vertex_offset;
-        face.v1 += vertex_offset;
-        face.v2 += vertex_offset;
-        std::swap(face.v1, face.v2); // flip triangle
-        extrude_mesh.faces[face_offset + i] = face;
-      }
-    }
-
-    return extrude_mesh;
-  }
 
   // build ground mesh for city.
   //
@@ -257,7 +120,7 @@ public:
   //  0: building 0 (cells inside building 0)
   //  1: building 1 (cells inside building 1)
   //  etc (non-negative integers mark cells inside buildings)
-  static Mesh build_ground_mesh(const City &city,
+  static Mesh build_ground_mesh(const std::vector<Polygon> &subdomains,
                                 double xmin,
                                 double ymin,
                                 double xmax,
@@ -277,18 +140,18 @@ public:
     info("Domain bounding box is " + str(bounding_box));
     info("Maximum mesh size is " + str(max_mesh_size));
     info("Estimated number of triangles is " + str(n));
-    info("Number of subdomains (buildings) is " + str(city.buildings.size()));
+    info("Number of subdomains (buildings) is " + str(subdomains.size()));
 
     // Extract subdomains (building footprints)
-    std::vector<std::vector<Vector2D>> sub_domains;
-    for (auto const &building : city.buildings)
+    std::vector<std::vector<Vector2D>> triangle_sub_domains;
+    for (auto const &sd : subdomains)
     {
-      sub_domains.push_back(building.footprint.vertices);
-      for (auto const &hole : building.footprint.holes)
-        sub_domains.push_back(hole);
+      triangle_sub_domains.push_back(sd.vertices);
+      for (auto const &hole : sd.holes)
+        triangle_sub_domains.push_back(hole);
     }
     info("Number of subdomains (buildings + holes) is " +
-         str(sub_domains.size()));
+         str(triangle_sub_domains.size()));
     // build boundary
     std::vector<Vector2D> boundary{};
     boundary.push_back(bounding_box.P);
@@ -298,11 +161,11 @@ public:
 
     // build 2D mesh
     Mesh mesh;
-    call_triangle(mesh, boundary, sub_domains, max_mesh_size, min_mesh_angle,
-                  false);
+    call_triangle(mesh, boundary, triangle_sub_domains, max_mesh_size,
+                  min_mesh_angle, false);
 
     // Mark subdomains
-    compute_domain_markers(mesh, city);
+    compute_domain_markers(mesh, subdomains);
 
     return mesh;
   }
@@ -452,13 +315,13 @@ public:
   // - All other cells (in between) marked as other (-4)
   static VolumeMesh trim_volume_mesh(const VolumeMesh &volume_mesh,
                                      const Mesh &mesh,
-                                     const City &city)
+                                     const std::vector<Surface> &buildings)
   {
     info("Trimming volume mesh...");
     Timer timer("trim_volume_mesh");
 
     // Get sizes
-    const size_t num_buildings = city.buildings.size();
+    const size_t num_buildings = buildings.size();
     const size_t num_cells_2d = mesh.faces.size();
     const size_t num_cells_3d = volume_mesh.cells.size();
     const size_t layer_size = 3 * mesh.faces.size();
@@ -504,7 +367,7 @@ public:
         for (const auto &cell_index_3d : cells_3d)
         {
           const double z = volume_mesh.mid_point(cell_index_3d).z;
-          const double h = city.buildings[building_index].max_height();
+          const double h = buildings[building_index].max_height();
           if (z < h)
           {
             trim_layer = true;
@@ -633,16 +496,22 @@ public:
     return _volume_mesh;
   }
 
-  static std::vector<Mesh> build_city_surface_mesh(const City &city,
-                                                   const GridField &dtm,
-                                                   double max_mesh_size,
-                                                   double min_mesh_angle,
-                                                   size_t smooth_ground = 0,
-                                                   bool merge_meshes = true)
+  static std::vector<Mesh>
+  build_city_surface_mesh(const std::vector<Surface> &buildings,
+                          const GridField &dtm,
+                          double max_mesh_size,
+                          double min_mesh_angle,
+                          size_t smooth_ground = 0,
+                          bool merge_meshes = true)
   {
     auto build_city_surface_t = Timer("build_city_surface_mesh");
     auto terrain_time = Timer("build_city_surface_mesh: step 1 terrain");
-    Mesh terrain_mesh = build_terrain_mesh(city, dtm, max_mesh_size,
+    std::vector<Polygon> subdomains;
+    for (const auto &b : buildings)
+    {
+      subdomains.push_back(b.to_polygon());
+    }
+    Mesh terrain_mesh = build_terrain_mesh(subdomains, dtm, max_mesh_size,
                                            min_mesh_angle, smooth_ground);
     terrain_time.stop();
 
@@ -673,8 +542,8 @@ public:
     {
       auto marker = it->first;
       auto faces = it->second;
-      auto building = city.buildings[marker];
-      auto roof_height = building.ground_height + building.height;
+      auto building = buildings[marker];
+      auto roof_height = building.max_height();
 
       Mesh building_mesh;
 
@@ -1160,13 +1029,21 @@ private:
   }
 
   // Compute domain markers for subdomains
-  static void compute_domain_markers(Mesh &mesh, const City &city)
+  static void compute_domain_markers(Mesh &mesh,
+                                     const std::vector<Polygon> &subdomains)
   {
     info("Computing domain markers");
     Timer timer("compute_domain_markers");
 
-    // build search tree for city
-    city.build_search_tree();
+    // build search tree for subdomains
+
+    auto search_tree = BoundingBoxTree2D();
+    std::vector<BoundingBox2D> bounding_boxes;
+    for (const auto &subdomain : subdomains)
+    {
+      bounding_boxes.push_back(BoundingBox2D(subdomain));
+    }
+    search_tree.build(bounding_boxes);
 
     // Initialize domain markers and set all markers to -2 (ground)
     mesh.markers.resize(mesh.faces.size());
@@ -1177,55 +1054,58 @@ private:
     std::fill(is_building_vertex.begin(), is_building_vertex.end(), false);
 
     // Iterate over cells to mark buildings
-    if (city.buildings.size() > 0)
+    if (subdomains.size() > 0)
     {
       for (size_t i = 0; i < mesh.faces.size(); i++)
       {
         // find building containg midpoint of cell (if any)
         const Vector3D c_3d = mesh.mid_point(i);
         const Vector2D c_2d(c_3d.x, c_3d.y);
-        const int marker = city.find_building(Vector2D(c_2d));
+        std::vector<size_t> indices = search_tree.find(Vector2D(c_2d));
 
-        // Get triangle
-        const Simplex2D &T = mesh.faces[i];
-
-        // Check if we are inside a building
-        if (marker >= 0)
+        if (indices.size() > 0)
         {
-          // Set domain marker to building number
-          mesh.markers[i] = marker;
+          for (const auto &index : indices)
+          {
+            if (Geometry::polygon_contains_2d(subdomains[index], c_2d))
+            {
+              mesh.markers[i] = index;
+              const Simplex2D &T = mesh.faces[i];
+              // Mark all cell vertices as belonging to a building
+              is_building_vertex[T.v0] = true;
+              is_building_vertex[T.v1] = true;
+              is_building_vertex[T.v2] = true;
 
-          // Mark all cell vertices as belonging to a building
-          is_building_vertex[T.v0] = true;
-          is_building_vertex[T.v1] = true;
-          is_building_vertex[T.v2] = true;
+              // // Check if individual vertices are inside a building
+              // // (not only midpoint). Necessary for when building
+              // // visualization meshes that are not boundary-fitted.
+              // if (search_tree.find(mesh.vertices[T.v0]).size() == 0)
+              //   is_building_vertex[T.v0] = false;
+              // if (search_tree.find(mesh.vertices[T.v1]).size() == 0)
+              //   is_building_vertex[T.v1] = false;
+              // if (search_tree.find(mesh.vertices[T.v2]).size() == 0)
+              //   is_building_vertex[T.v2] = false;
+
+              break;
+            }
+          }
         }
-
-        // Check if individual vertices are inside a building
-        // (not only midpoint). Necessary for when building
-        // visualization meshes that are not boundary-fitted.
-        if (city.find_building(Vector3D(mesh.vertices[T.v0])) >= 0)
-          is_building_vertex[T.v0] = true;
-        if (city.find_building(Vector3D(mesh.vertices[T.v1])) >= 0)
-          is_building_vertex[T.v1] = true;
-        if (city.find_building(Vector3D(mesh.vertices[T.v2])) >= 0)
-          is_building_vertex[T.v2] = true;
       }
-    }
 
-    // Iterate over cells to mark building halos
-    for (size_t i = 0; i < mesh.faces.size(); i++)
-    {
-      // Check if any of the cell vertices belongs to a building
-      const Simplex2D &T = mesh.faces[i];
-      const bool touches_building =
-          (is_building_vertex[T.v0] || is_building_vertex[T.v1] ||
-           is_building_vertex[T.v2]);
+      // Iterate over cells to mark building halos
+      for (size_t i = 0; i < mesh.faces.size(); i++)
+      {
+        // Check if any of the cell vertices belongs to a building
+        const Simplex2D &T = mesh.faces[i];
+        const bool touches_building =
+            (is_building_vertex[T.v0] || is_building_vertex[T.v1] ||
+             is_building_vertex[T.v2]);
 
-      // Mark as halo (-1) if the cell touches a building but is not
-      // itself inside footprint (not marked in the previous step)
-      if (touches_building && mesh.markers[i] == -2)
-        mesh.markers[i] = -1;
+        // Mark as halo (-1) if the cell touches a building but is not
+        // itself inside footprint (not marked in the previous step)
+        if (touches_building && mesh.markers[i] == -2)
+          mesh.markers[i] = -1;
+      }
     }
   }
 

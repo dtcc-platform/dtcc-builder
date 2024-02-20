@@ -204,7 +204,7 @@ def _flatten_multi_surfaces(multi_surfaces: [MultiSurface]):
             array_size += len(flat_vertices)
     print(f"array_size: {array_size}")
     vertices = np.zeros(array_size, dtype=np.float64)
-    return None, None, None
+    return vertices, offset_ms, offset_surfaces
 
 
 def mesh_multisurfaces(

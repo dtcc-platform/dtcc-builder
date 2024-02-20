@@ -7,6 +7,7 @@
 #include <cmath>
 #include <vector>
 
+#include "BoundingBox.h"
 #include "Logging.h"
 #include "Vector.h"
 
