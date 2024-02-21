@@ -12,7 +12,7 @@ from .surface import extrude_surface
 
 
 def extrude_building(
-    building: Building, default_ground_height=0, height_property=""
+    building: Building, default_ground_height=0, always_use_default=False
 ) -> MultiSurface:
     """
     Extrudes the LOD0 representation of a building from its height to the ground leve.
@@ -24,13 +24,18 @@ def extrude_building(
     `default_ground_height` : float, optional
         If building does not have a ground_height property, the default ground
         level to use, by default 0.
+    `always_use_default_ground` : bool, optional
+        Whether to always use the default ground height or use groun_height attribute, by default False.
 
     Returns
     -------
     `MultiSurface`
         The extruded building.
     """
-    ground_height = building.attributes.get("ground_height", default_ground_height)
+    if always_use_default:
+        ground_height = default_ground_height
+    else:
+        ground_height = building.attributes.get("ground_height", default_ground_height)
 
     geometry = building.lod0
     if geometry is None:
@@ -65,7 +70,6 @@ def compute_building_heights(
         centroid = footprint.centroid
         ground_height = terrain.get_value(centroid[0], centroid[1])
         building.attributes["ground_height"] = ground_height
-        print(footprint.zmax)
         if overwrite or footprint.zmax == 0:
             roof_points = building.point_cloud
             if roof_points is None or len(roof_points) == 0:
@@ -82,7 +86,10 @@ def compute_building_heights(
 
 
 def build_lod1_buildings(
-    buildings: [Building], default_ground_height=0, height_property="", rebuild=True
+    buildings: [Building],
+    default_ground_height=0,
+    always_use_default_ground=False,
+    rebuild=True,
 ) -> [Building]:
     """
     Build the LOD1 representation of the given buildings.
@@ -94,8 +101,8 @@ def build_lod1_buildings(
     `default_ground_height` : float, optional
         If building does not have a ground_height property, the default ground
         level to use, by default 0.
-    `height_property` : str, optional
-        The property to use as the height of the building, by default "".
+    `always_use_default_ground` : bool, optional
+        Whether to always use the default ground height or use groun_height attribute, by default False.
     `rebuild` : bool, optional
         Whether to rebuild the LOD1 representation if it already exists, by default True.
     Returns
@@ -110,7 +117,9 @@ def build_lod1_buildings(
         if building.lod0 is None:
             warning(f"Building {building.id} has no LOD0 geometry.")
             continue
-        geometry = extrude_building(building, default_ground_height, height_property)
+        geometry = extrude_building(
+            building, default_ground_height, always_use_default_ground
+        )
         if geometry is not None:
             building.add_geometry(geometry, GeometryType.LOD1)
         else:
@@ -153,8 +162,8 @@ def extract_roof_points(
     # some buildings may not have a footprint, and thus not have roof points
     for fp in footprint_polygons:
         if fp is not None:
-            buildings[idx].add_geometry(
-                PointCloud(roof_points[idx]), GeometryType.POINT_CLOUD
-            )
+            pc = PointCloud(points=roof_points[idx])
+            pc.calculate_bounds()
+            buildings[idx].add_geometry(pc, GeometryType.POINT_CLOUD)
             idx += 1
     return buildings
