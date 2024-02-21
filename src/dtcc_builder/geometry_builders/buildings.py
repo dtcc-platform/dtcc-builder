@@ -1,7 +1,12 @@
 from dtcc_model import Building, GeometryType
-from dtcc_model.geometry import Surface, MultiSurface
-from logging import debug, info, warning, error
+from dtcc_model import Surface, MultiSurface, PointCloud, Raster
+from dtcc_builder.model import create_builder_polygon, create_builder_pointcloud
+from dtcc_builder import _dtcc_builder
+from dtcc_builder.logging import debug, info, warning, error
+from shapely.geometry import Polygon
 import numpy as np
+
+from dtcc_wrangler.building.modify import get_building_footprint
 
 from .surface import extrude_surface
 
@@ -31,15 +36,47 @@ def extrude_building(
         error(f"Building {building.id} has no LOD0 geometry.")
         return None
     if isinstance(geometry, Surface):
-        geometry = MultiSurface(surface[geometry])
+        geometry = MultiSurface(surfaces=[geometry])
     if not isinstance(geometry, MultiSurface):
-        error(f"Building {building.id} LOD0 geometry is not a MultiSurface.")
+        error(f"Building {building.id} LOD0 geometry is not a (Multi)Surface.")
         return None
 
     extrusion = MultiSurface()
+
     for surface in geometry.surfaces:
         extrusion = extrusion.merge(extrude_surface(surface, ground_height))
     return extrusion
+
+
+def compute_building_heights(
+    buildings: [Building],
+    terrain: Raster,
+    min_building_height=2.5,
+    roof_percentile=0.9,
+    overwrite=False,
+) -> [Building]:
+    info("Computing building heights...")
+    for building in buildings:
+        footprint = building.lod0
+        if footprint is None:
+            warning(f"Building {building.id} has no LOD0 geometry.")
+            continue
+        centroid = footprint.centroid
+        ground_height = terrain.get_value(centroid[0], centroid[1])
+        building.attributes["ground_height"] = ground_height
+        if overwrite or footprint.zmax == 0:
+            roof_points = building.point_cloud
+            if roof_points is None or len(roof_points) == 0:
+                warning(f"Building {building.id} has no roof points. using min height")
+                footprint.set_z(ground_height + min_building_height)
+            else:
+                z_values = roof_points.points[:, 2]
+                roof_top = np.percentile(z_values, roof_percentile * 100)
+                height = roof_top - ground_height
+                if height < min_building_height:
+                    height = min_building_height
+                footprint.set_z(ground_height + height)
+    return buildings
 
 
 def build_lod1_buildings(
@@ -64,15 +101,56 @@ def build_lod1_buildings(
     [dtcc_model.Building]
         The buildings with the LOD1 representation built.
     """
+    info(f"Building LOD1 representations of {len(buildings )} buildings...")
     for building in buildings:
         if building.lod1 is not None and not rebuild:
             continue
         if building.lod0 is None:
             warning(f"Building {building.id} has no LOD0 geometry.")
             continue
-        geometry = extrude_building(building)
+        geometry = extrude_building(building, default_ground_height, height_property)
         if geometry is not None:
             building.add_geometry(geometry, GeometryType.LOD1)
         else:
             warning(f"Building {building.id} LOD1 geometry could not be built.")
+    return buildings
+
+
+def extract_roof_points(
+    buildings: [Building],
+    pointcloud: PointCloud,
+    statistical_outlier_remover=True,
+    roof_outlier_neighbors=5,
+    roof_outlier_margin=1.5,
+    ransac_outlier_remover=False,
+    ransac_outlier_margin=3.0,
+    ransac_iterations=250,
+) -> [Building]:
+    footprint_polygons = [get_building_footprint(b) for b in buildings]
+
+    builder_polygon = [
+        create_builder_polygon(p) for p in footprint_polygons if p is not None
+    ]
+    ground_mask = np.logical_or(
+        pointcloud.classification == 2, pointcloud.classification == 9
+    )
+    not_ground_mask = ~ground_mask
+    points = pointcloud.points
+
+    roof_points = _dtcc_builder.extract_building_points(
+        builder_polygon,
+        points[not_ground_mask],
+        statistical_outlier_remover,
+        roof_outlier_neighbors,
+        roof_outlier_margin,
+    )
+
+    idx = 0
+    # some buildings may not have a footprint, and thus not have roof points
+    for fp in footprint_polygons:
+        if fp is not None:
+            buildings[idx].add_geometry(
+                PointCloud(roof_points[idx]), GeometryType.POINT_CLOUD
+            )
+            idx += 1
     return buildings

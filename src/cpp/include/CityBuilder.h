@@ -174,25 +174,16 @@ public:
   ///
   /// @param city The city
   /// @param point_cloud Point cloud (unfiltered)
-  static City compute_building_points(const City &city,
-                                      const PointCloud &point_cloud)
+  static std::vector<std::vector<Vector3D>>
+  extract_building_points(const std::vector<Polygon> &footprints,
+                          const std::vector<Vector3D> &points)
   {
     info("Computing building points...");
     Timer timer("compute_building_points");
 
     // Check that point cloud is not empty
-    if (point_cloud.points.empty())
+    if (points.empty())
       error("empty point cloud");
-
-    // Check that point cloud has classifications
-    if (point_cloud.points.size() != point_cloud.classifications.size())
-      error("Missing classifications for point cloud");
-
-    bool classified_points =
-        (point_cloud.points.size() == point_cloud.classifications.size());
-    bool classifed_buildings = false;
-    if (classified_points)
-      classifed_buildings = point_cloud.has_classification(6);
 
     // auto tile_city_timer = Timer("Tile City");
     // auto tiles_city = CityProcessor::tile_citymodel(
@@ -203,20 +194,16 @@ public:
     typedef KDTreeVectorOfVectorsAdaptor<std::vector<Vector3D>, double,
                                          2 /* dims */>
         my_kd_tree_t;
-    my_kd_tree_t pc_index(2, point_cloud.points, 20 /* max leaf */);
+    my_kd_tree_t pc_index(2, points, 20 /* max leaf */);
     kdt_timer.stop();
 
-    // Create copy of city
-    City _city{city};
-
     // Iterate over buildings
-    for (auto &building : _city.buildings)
+    std::vector<std::vector<Vector3D>> building_points;
+    for (auto &footprint : footprints)
     {
-      building.roof_points.clear();
-
-      auto centerPoint = Geometry::polygon_center_2d(building.footprint);
-      double radius =
-          Geometry::polygon_radius_2d(building.footprint, centerPoint);
+      std::vector<Vector3D> roof_points;
+      auto centerPoint = Geometry::polygon_center_2d(footprint);
+      double radius = Geometry::polygon_radius_2d(footprint, centerPoint);
       radius *= radius;
 
       std::vector<double> query_pt{centerPoint.x, centerPoint.y};
@@ -226,114 +213,48 @@ public:
       for (auto const &ind_pt : indices_dists)
       {
         size_t idx = ind_pt.first;
-        const uint8_t clf = point_cloud.classifications[idx];
-        const Vector3D &p_3d = point_cloud.points[idx];
+        const Vector3D &p_3d = points[idx];
         const Vector2D p_2d{p_3d.x, p_3d.y};
 
-        if (classified_points)
-        {
-          if (clf == 6 || (!classifed_buildings && clf < 2))
-          {
-            // auto pc_timer = Timer("PolygoCOntains2D");
-            if (Geometry::polygon_contains_2d(building.footprint, p_2d))
-            {
-              building.roof_points.push_back(p_3d);
-            }
-            // pc_timer.stop();
-          }
-        }
-        else // unclassified data
-        {
-          if (Geometry::polygon_contains_2d(building.footprint, p_2d))
-          {
-            building.roof_points.push_back(p_3d);
-          }
-        }
+        roof_points.push_back(p_3d);
       }
+      building_points.push_back(roof_points);
     }
-
-    double pts_pr_sqm;
-    double point_coverage;
-    size_t too_few = 0;
-    for (auto &building : _city.buildings)
-    {
-      pts_pr_sqm = static_cast<double>(building.roof_points.size()) /
-                   Geometry::polygon_area(building.footprint);
-      if (pts_pr_sqm < 0.25)
-      {
-        building.error |= BuildingError::BUILDING_TOO_FEW_POINTS;
-        too_few++;
-      }
-      point_coverage = BuildingProcessor::point_coverage(building, 2.0);
-      // info("point_coverage: " + str(point_coverage));
-      if (point_coverage < 0.5)
-      {
-        building.error |= BuildingError::BUILDING_INSUFFICIENT_POINT_COVERAGE;
-      }
-    }
-    info("Number of buildings with too few roof points: " + str(too_few));
-
-    // Sort points by height
-    for (auto &building : _city.buildings)
-    {
-      std::sort(building.roof_points.begin(), building.roof_points.end(),
-                [](const Vector3D &p, const Vector3D &q) -> bool
-                { return p.z < q.z; });
-    }
-
-    // Compute some statistics
-    size_t min_r{std::numeric_limits<size_t>::max()};
-    size_t maxR{0};
-    size_t sumR{0};
-    for (const auto &building : _city.buildings)
-    {
-
-      // Roof points
-      const size_t nR = building.roof_points.size();
-      min_r = std::min(min_r, nR);
-      maxR = std::max(maxR, nR);
-      sumR += nR;
-    }
-    const double mean_r = static_cast<double>(sumR) / _city.buildings.size();
-
-    info("min/mean/max number of roof points per building "
-         "is " +
-         str(min_r) + "/" + str(mean_r) + "/" + str(maxR));
-    return _city;
+    return building_points;
   }
 
-  static City compute_building_points_parallel(const City &city,
-                                               const PointCloud &point_cloud,
-                                               size_t x_tiles,
-                                               size_t y_tiles)
-  {
-    info("Computing building points...");
-    Timer timer("compute_building_points in parallel");
-    Timer tile_timer("Tile City");
-    auto tiles = CityProcessor::tile_citymodel(
-        city, point_cloud, point_cloud.bounding_box, x_tiles, y_tiles);
-    tile_timer.stop();
-    City out_city;
-    std::mutex out_city_mutex;
-    std::vector<std::thread> threads;
-    for (auto &tile : tiles)
-    {
-      if (tile.first.buildings.empty())
-        continue;
-      threads.emplace_back(
-          [&]
-          {
-            auto tile_city = compute_building_points(tile.first, tile.second);
-            std::lock_guard<std::mutex> lock(out_city_mutex);
-            out_city.merge(tile_city);
-          });
-    }
-    std::for_each(threads.begin(), threads.end(),
-                  [](std::thread &t) { t.join(); });
-    timer.stop();
-    // Timer::report("compute_building_points in parallel");
-    return out_city;
-  }
+  // static City compute_building_points_parallel(const City &city,
+  //                                              const PointCloud &point_cloud,
+  //                                              size_t x_tiles,
+  //                                              size_t y_tiles)
+  // {
+  //   info("Computing building points...");
+  //   Timer timer("compute_building_points in parallel");
+  //   Timer tile_timer("Tile City");
+  //   auto tiles = CityProcessor::tile_citymodel(
+  //       city, point_cloud, point_cloud.bounding_box, x_tiles, y_tiles);
+  //   tile_timer.stop();
+  //   City out_city;
+  //   std::mutex out_city_mutex;
+  //   std::vector<std::thread> threads;
+  //   for (auto &tile : tiles)
+  //   {
+  //     if (tile.first.buildings.empty())
+  //       continue;
+  //     threads.emplace_back(
+  //         [&]
+  //         {
+  //           auto tile_city = compute_building_points(tile.first,
+  //           tile.second); std::lock_guard<std::mutex> lock(out_city_mutex);
+  //           out_city.merge(tile_city);
+  //         });
+  //   }
+  //   std::for_each(threads.begin(), threads.end(),
+  //                 [](std::thread &t) { t.join(); });
+  //   timer.stop();
+  //   // Timer::report("compute_building_points in parallel");
+  //   return out_city;
+  // }
 
   //
 

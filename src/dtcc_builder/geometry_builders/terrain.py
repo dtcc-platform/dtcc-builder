@@ -68,7 +68,7 @@ def build_terrain_raster(
     dem_raster = Raster()
     dem_raster.data = dem
     dem_raster.nodata = 0
-    dem_raster.georef = Affine.translation(bounds.minx, bounds.maxy) * Affine.scale(
+    dem_raster.georef = Affine.translation(bounds.xmin, bounds.ymax) * Affine.scale(
         cell_size, -cell_size
     )
     dem_raster = dem_raster.fill_holes()

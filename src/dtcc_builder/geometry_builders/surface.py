@@ -53,39 +53,3 @@ def extrude_surface(surface: Surface, height: float) -> MultiSurface:
             )
             extrusion.surfaces.append(wall)
     return extrusion
-
-
-def extrude_building(
-    building: Building, default_ground_height=0, height_property=""
-) -> MultiSurface:
-    """
-    Extrudes the LOD0 representation of a building from its height to the ground leve.
-
-    Parameters
-    ----------
-    `building` : dtcc_model.Building
-        The building to extrude.
-    `default_ground_height` : float, optional
-        If building does not have a ground_height property, the default ground
-        level to use, by default 0.
-
-    Returns
-    -------
-    `MultiSurface`
-        The extruded building.
-    """
-    ground_height = building.attributes.get("ground_height", default_ground_height)
-    geometry = building.lod0
-    if geometry is None:
-        error(f"Building {building.id} has no LOD0 geometry.")
-        return None
-    if isinstance(geometry, Surface):
-        geometry = MultiSurface(surface[geometry])
-    if not isinstance(geometry, MultiSurface):
-        error(f"Building {building.id} LOD0 geometry is not a MultiSurface.")
-        return None
-
-    extrusion = MultiSurface()
-    for surface in geometry.surfaces:
-        extrusion = extrusion.merge(extrude_surface(surface, ground_height))
-    return extrusion

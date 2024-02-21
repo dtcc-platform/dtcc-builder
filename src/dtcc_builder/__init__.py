@@ -14,6 +14,13 @@ from .builders import (
     build_volume_mesh,
 )
 
+from .geometry_builders.terrain import build_terrain_mesh, build_terrain_raster
+from .geometry_builders.buildings import (
+    extract_roof_points,
+    compute_building_heights,
+    build_lod1_buildings,
+)
+
 # Add model extensions
 from dtcc_model import City, PointCloud
 
@@ -28,4 +35,7 @@ __all__ = [
     "build_volume_mesh",
     "build_city_surface_mesh",
     "calculate_bounds",
+    "extract_roof_points",
+    "compute_building_heights",
+    "build_lod1_buildings",
 ]

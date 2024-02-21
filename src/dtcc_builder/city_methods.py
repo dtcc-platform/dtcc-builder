@@ -157,10 +157,6 @@ def compute_building_heights(
 
     info("Computing building heights...")
 
-    # Get parameters
-    min_building_height = min_building_height
-    roof_percentile = roof_percentile
-
     # FIXME: Don't modify incoming data (city)
 
     # Iterate over buildings

@@ -210,6 +210,45 @@ Surface create_surface(py::array_t<double> vertices, py::list holes)
   return surface;
 }
 
+py::list extract_building_points(std::vector<Polygon> &buildings,
+                                 const py::array_t<double> &pts,
+                                 bool statistical_outlier_remover,
+                                 size_t neighbors,
+                                 double outlier_margin)
+{
+  py::list roof_points;
+  auto pts_r = pts.unchecked<2>();
+  auto pt_count = pts_r.shape(0);
+  std::vector<Vector3D> pc;
+  for (size_t i = 0; i < pt_count; i++)
+  {
+    pc.push_back(Vector3D(pts_r(i, 0), pts_r(i, 1), pts_r(i, 2)));
+  }
+
+  auto _roof_points = CityBuilder::extract_building_points(buildings, pc);
+  if (statistical_outlier_remover)
+  {
+    for (auto &rp : _roof_points)
+    {
+      PointCloudProcessor::statistical_outlier_remover(rp, neighbors,
+                                                       outlier_margin);
+    }
+  }
+  for (auto const &rp : _roof_points)
+  {
+    py::array_t<double> pts(rp.size() * 3);
+    for (size_t i = 0; i < rp.size(); i++)
+    {
+      pts.mutable_at(i * 3) = rp[i].x;
+      pts.mutable_at(i * 3 + 1) = rp[i].y;
+      pts.mutable_at(i * 3 + 2) = rp[i].z;
+    }
+    pts = pts.reshape(std::vector<long>{static_cast<long>(rp.size()), 3});
+    roof_points.append(pts);
+  }
+  return roof_points;
+}
+
 MultiSurface create_multisurface(py::list surfaces)
 {
   MultiSurface multi_surface;
@@ -435,13 +474,12 @@ PYBIND11_MODULE(_dtcc_builder, m)
         &DTCC_BUILDER::CityBuilder::remove_building_point_outliers_ransac,
         "Remove building point outliers (RANSAC)");
 
-  m.def("compute_building_points",
-        &DTCC_BUILDER::CityBuilder::compute_building_points,
+  m.def("extract_building_points", &DTCC_BUILDER::extract_building_points,
         "Compute building points from point cloud");
 
-  m.def("compute_building_points_parallel",
-        &DTCC_BUILDER::CityBuilder::compute_building_points_parallel,
-        "Compute building points from point cloud (parallel)");
+  // m.def("compute_building_points_parallel",
+  //       &DTCC_BUILDER::CityBuilder::compute_building_points_parallel,
+  //       "Compute building points from point cloud (parallel)");
 
   m.def("build_elevation", &DTCC_BUILDER::ElevationBuilder::build_elevation,
         "build height field from point cloud");

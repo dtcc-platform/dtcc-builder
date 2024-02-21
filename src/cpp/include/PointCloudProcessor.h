@@ -456,6 +456,8 @@ public:
     Timer("StatisticalOurtierRemover");
     std::vector<size_t> outliers =
         statistical_outlier_finder(points, neighbours, outlier_margin, verbose);
+    if (outliers.size() == 0)
+      return;
     std::vector<Vector3D> new_points;
     size_t k = 0;
     for (size_t i = 0; i < points.size(); i++)
