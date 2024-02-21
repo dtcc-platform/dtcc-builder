@@ -449,7 +449,7 @@ public:
     Vector2D o{};
     Vector2D c{};
     for (auto const &p : polygon.vertices)
-      c += Vector2D(o, p);
+      c += p;
     c /= static_cast<double>(polygon.vertices.size());
     return c;
   }

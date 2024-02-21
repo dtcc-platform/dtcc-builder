@@ -215,8 +215,10 @@ public:
         size_t idx = ind_pt.first;
         const Vector3D &p_3d = points[idx];
         const Vector2D p_2d{p_3d.x, p_3d.y};
-
-        roof_points.push_back(p_3d);
+        if (Geometry::polygon_contains_2d(footprint, p_2d))
+        {
+          roof_points.push_back(p_3d);
+        }
       }
       building_points.push_back(roof_points);
     }
