@@ -1,4 +1,4 @@
-from dtcc_model import PointCloud, Terrain, Raster, Mesh, Surface
+from dtcc_model import PointCloud, Terrain, Raster, Mesh, Surface, GeometryType
 
 from dtcc_builder.model import (
     raster_to_builder_gridfield,
@@ -9,6 +9,7 @@ from dtcc_builder.model import (
 import numpy as np
 from pypoints2grid import points2grid
 from affine import Affine
+from dtcc_builder import _dtcc_builder
 
 
 def build_terrain_mesh(
@@ -29,8 +30,16 @@ def build_terrain_mesh(
     else:
         subdomains = [create_builder_polygon(sub.to_polygon) for sub in subdomains]
     terrain_mesh = _dtcc_builder.build_terrain_mesh(
-        _builder_gridfield, max_mesh_size, min_mesh_angle, smoothing, subdomains
+        subdomains,
+        _builder_gridfield,
+        max_mesh_size,
+        min_mesh_angle,
+        smoothing,
     )
+    terrain_mesh = builder_mesh_to_mesh(terrain_mesh)
+    terrain = Terrain()
+    terrain.add_geometry(terrain_mesh, GeometryType.MESH)
+    return terrain
 
 
 def build_terrain_raster(

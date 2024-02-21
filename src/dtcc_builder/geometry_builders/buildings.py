@@ -31,6 +31,7 @@ def extrude_building(
         The extruded building.
     """
     ground_height = building.attributes.get("ground_height", default_ground_height)
+
     geometry = building.lod0
     if geometry is None:
         error(f"Building {building.id} has no LOD0 geometry.")
@@ -64,6 +65,7 @@ def compute_building_heights(
         centroid = footprint.centroid
         ground_height = terrain.get_value(centroid[0], centroid[1])
         building.attributes["ground_height"] = ground_height
+        print(footprint.zmax)
         if overwrite or footprint.zmax == 0:
             roof_points = building.point_cloud
             if roof_points is None or len(roof_points) == 0:
@@ -131,15 +133,17 @@ def extract_roof_points(
     builder_polygon = [
         create_builder_polygon(p) for p in footprint_polygons if p is not None
     ]
-    ground_mask = np.logical_or(
-        pointcloud.classification == 2, pointcloud.classification == 9
-    )
-    not_ground_mask = ~ground_mask
-    points = pointcloud.points
-
+    if len(pointcloud.points) == len(pointcloud.classification):
+        ground_mask = np.logical_or(
+            pointcloud.classification == 2, pointcloud.classification == 9
+        )
+        not_ground_mask = ~ground_mask
+        points = pointcloud.points[not_ground_mask]
+    else:
+        points = pointcloud.points
     roof_points = _dtcc_builder.extract_building_points(
         builder_polygon,
-        points[not_ground_mask],
+        points,
         statistical_outlier_remover,
         roof_outlier_neighbors,
         roof_outlier_margin,

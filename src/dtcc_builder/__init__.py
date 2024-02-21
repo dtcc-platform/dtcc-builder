@@ -8,7 +8,6 @@ from .builders import (
     build,
     build_city,
     calculate_bounds,
-    build_terrain_mesh,
     build_building_meshes,
     build_city_surface_mesh,
     build_volume_mesh,
