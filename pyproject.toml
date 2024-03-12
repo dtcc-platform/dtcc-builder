@@ -7,9 +7,12 @@ dependencies = [
   "numpy",
   "psutil",
   "pypoints2grid >= 0.1.9",
+  "scipy >= 1.6.0, < 2.0.0",
+  "shapely >= 2.0.0, < 3.0.0",
+  "rasterio >= 1.2.0, < 2.0.0",
+  "rasterstats >= 0.19.0, < 1.0.0",
   "dtcc-model@git+https://github.com/dtcc-platform/dtcc-model.git@develop",
   "dtcc-io@git+https://github.com/dtcc-platform/dtcc-io.git@develop",
-  "dtcc-wrangler@git+https://github.com/dtcc-platform/dtcc-wrangler.git@develop",
   "dtcc-common@git+https://github.com/dtcc-platform/dtcc-common.git@develop",
 ]
 

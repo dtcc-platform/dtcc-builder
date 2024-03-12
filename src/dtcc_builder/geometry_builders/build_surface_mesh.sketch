@@ -1,0 +1,21 @@
+build_surface_mesh(city, lod, surface_height = 0, merge = True):
+    buildings = city.buildings
+    if merge:
+        merged_buildings = merge_building_footprints(buildings, lod)
+        building_footprints = [get_footprint(b,lod0) for b in merged_buildings]
+    else:
+        building_footprints = [get_footprint(b) for b in buildings]
+    building_heights = [b.bounds.zmax for b in building_footprints]
+
+    terrain = city.terrain
+    terrain_raster = terrain.raster
+    if terrain_raster is None:
+        throw need terrain_raster
+    
+    builder_dem = raster_to_builder_gridfield(terrain_raster)
+
+    builder_polygon = [
+        create_builder_surface(p for p in building_footprints if p is not None
+    ]
+
+

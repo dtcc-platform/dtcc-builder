@@ -21,15 +21,14 @@ from dtcc_builder.model import (
 
 from dtcc_builder import _dtcc_builder
 
-import dtcc_wrangler
-from dtcc_wrangler.geometry.polygons import (
+from dtcc_builder.polygons.polygons import (
     polygon_merger,
     simplify_polygon,
     remove_slivers,
     fix_clearance,
 )
 
-from dtcc_wrangler.building.modify import merge_building_footprints
+from dtcc_builder.building.modify import merge_building_footprints
 
 
 def build_surface_mesh(

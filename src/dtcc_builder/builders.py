@@ -6,7 +6,6 @@
 # This module provides the main methods of DTCC Builder.
 
 import numpy as np
-import dtcc_wrangler
 from pathlib import Path
 from typing import Tuple, List
 from time import time

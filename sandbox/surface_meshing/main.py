@@ -2,7 +2,6 @@ import dtcc_builder
 from dtcc_model import Mesh, Building, Surface, MultiSurface, GeometryType
 from dtcc_builder.meshing import mesh_multisurface, mesh_surface
 import dtcc_viewer
-import dtcc_wrangler
 import dtcc_io
 from time import time
 
