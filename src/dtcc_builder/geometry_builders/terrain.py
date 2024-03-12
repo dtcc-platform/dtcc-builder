@@ -1,4 +1,4 @@
-from dtcc_model import PointCloud, Terrain, Raster, Mesh, Surface, GeometryType
+from dtcc_model import PointCloud, Terrain, Raster, Mesh, Surface, GeometryType, Bounds
 
 from dtcc_builder.model import (
     raster_to_builder_gridfield,
@@ -82,3 +82,25 @@ def build_terrain_raster(
     )
     dem_raster = dem_raster.fill_holes()
     return dem_raster
+
+
+def flat_terrain(height, bounds: Bounds) -> Terrain:
+    """
+    Create a flat terrain.
+
+    Args:
+        height (float): The height of the terrain.
+        bounds (Bounds): The bounds of the terrain.
+
+    Returns:
+        Terrain: A `Terrain` object representing the flat terrain.
+    """
+    terrain = Terrain()
+    raster = Raster()
+    raster.data = np.ones((1, 1)) * height
+    raster.nodata = -9999
+    raster.georef = Affine.translation(bounds.xmin, bounds.ymax) * Affine.scale(
+        bounds.width, -bounds.height
+    )
+    terrain.add_geometry(raster, GeometryType.RASTER)
+    return terrain

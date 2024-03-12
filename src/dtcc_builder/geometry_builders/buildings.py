@@ -6,8 +6,6 @@ from dtcc_builder.logging import debug, info, warning, error
 from shapely.geometry import Polygon
 import numpy as np
 
-from dtcc_wrangler.building.modify import get_building_footprint
-
 from .surface import extrude_surface
 
 
