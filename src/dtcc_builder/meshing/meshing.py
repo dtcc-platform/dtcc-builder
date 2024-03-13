@@ -1,10 +1,11 @@
-from dtcc_model import Mesh, Surface, MultiSurface, Mesh
+from dtcc_model import Mesh, Surface, MultiSurface
 from register import register_model_method
 import _dtcc_builder
 from dtcc_builder.model import (
     create_builder_multisurface,
     create_builder_surface,
     builder_mesh_to_mesh,
+    mesh_to_builder_mesh,
 )
 
 
@@ -45,4 +46,40 @@ def mesh_surface(s: Surface, triangle_size=None, weld=False) -> Mesh:
         triangle_size = -1
     builder_mesh = _dtcc_builder.mesh_surface(builder_surface, triangle_size, weld=weld)
     mesh = builder_mesh_to_mesh(builder_mesh)
+    return mesh
+
+
+def mesh_multisurfaces(
+    multisurfaces: [MultiSurface], max_mesh_edge_size=-1, min_mesh_angle=25, weld=False
+) -> [Mesh]:
+    start_time = time()
+    vertices, offset_ms, offset_surfaces = _flatten_multi_surfaces(multisurfaces)
+    print(f"flatten multisurfaces took {time() - start_time} seconds")
+    start_time = time()
+    builder_multisurfaces = [create_builder_multisurface(ms) for ms in multisurfaces]
+    print(f"create builder multisurfaces took {time() - start_time} seconds")
+    start_time = time()
+    meshes = _dtcc_builder.mesh_multisurfaces(
+        builder_multisurfaces, max_mesh_edge_size, min_mesh_angle, weld
+    )
+    print(f"mesh multisurfaces took {time() - start_time} seconds")
+    start_time = time()
+    meshes = [builder_mesh_to_mesh(mesh) for mesh in meshes]
+    print(f"convert builder mesh to mesh took {time() - start_time} seconds")
+    return meshes
+
+
+def merge_meshes(meshes: [Mesh], weld=False) -> Mesh:
+    builder_meshes = [mesh_to_builder_mesh(mesh) for mesh in meshes]
+    merged_mesh = _dtcc_builder.merge_meshes(builder_meshes, weld)
+    mesh = builder_mesh_to_mesh(merged_mesh)
+    return mesh
+
+
+@register_model_method
+def merge(mesh: Mesh, other: Mesh, weld=False) -> Mesh:
+    builder_mesh = mesh_to_builder_mesh(mesh)
+    builder_other = mesh_to_builder_mesh(other)
+    merged_mesh = _dtcc_builder.merge_meshes([builder_mesh, builder_other], weld)
+    mesh = builder_mesh_to_mesh(merged_mesh)
     return mesh

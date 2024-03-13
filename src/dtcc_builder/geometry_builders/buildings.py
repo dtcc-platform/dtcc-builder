@@ -23,7 +23,7 @@ def extrude_building(
         If building does not have a ground_height property, the default ground
         level to use, by default 0.
     `always_use_default_ground` : bool, optional
-        Whether to always use the default ground height or use groun_height attribute, by default False.
+        Whether to always use the default ground height or use ground_height attribute, by default False.
 
     Returns
     -------
