@@ -6,6 +6,8 @@ from dtcc_builder.logging import debug, info, warning, error
 from shapely.geometry import Polygon
 import numpy as np
 
+from typing import List, Tuple
+
 from .surface import extrude_surface
 
 
@@ -53,12 +55,12 @@ def extrude_building(
 
 
 def compute_building_heights(
-    buildings: [Building],
+    buildings: List[Building],
     terrain: Raster,
     min_building_height=2.5,
     roof_percentile=0.9,
     overwrite=False,
-) -> [Building]:
+) -> List[Building]:
     info("Computing building heights...")
     for building in buildings:
         footprint = building.lod0
@@ -88,7 +90,7 @@ def build_lod1_buildings(
     default_ground_height=0,
     always_use_default_ground=False,
     rebuild=True,
-) -> [Building]:
+) -> List[Building]:
     """
     Build the LOD1 representation of the given buildings.
 
@@ -134,7 +136,7 @@ def extract_roof_points(
     ransac_outlier_remover=False,
     ransac_outlier_margin=3.0,
     ransac_iterations=250,
-) -> [Building]:
+) -> List[Building]:
     footprint_polygons = [b.get_footprint() for b in buildings]
 
     builder_polygon = [

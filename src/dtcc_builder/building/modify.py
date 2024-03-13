@@ -36,7 +36,7 @@ def get_footprint(building: Building, geom_type: GeometryType = None) -> Surface
         return None
     height = geom.bounds.zmax
     footprint = geom.to_polygon()
-    print(f"get footprint has {len(footprint.exterior.coords)} vertices")
+    # print(f"get footprint has {len(footprint.exterior.coords)} vertices")
     s = Surface()
     s.from_polygon(footprint, height)
     return s
