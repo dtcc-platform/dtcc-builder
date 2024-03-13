@@ -3,7 +3,7 @@ from typing import List
 
 from dtcc_model import PointCloud
 from dtcc_builder.logging import info, warning, error
-from register import register_model_method
+from dtcc_builder.register import register_model_method
 
 
 @register_model_method

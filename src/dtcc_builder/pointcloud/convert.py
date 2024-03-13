@@ -3,7 +3,7 @@ import numpy as np
 import dtcc_model as model
 import rasterio.transform
 from dtcc_model import PointCloud, Bounds
-from register import register_model_method
+from dtcc_builder.register import register_model_method
 
 
 @register_model_method
