@@ -135,10 +135,12 @@ def extract_roof_points(
     ransac_outlier_margin=3.0,
     ransac_iterations=250,
 ) -> [Building]:
-    footprint_polygons = [get_building_footprint(b) for b in buildings]
+    footprint_polygons = [b.get_footprint() for b in buildings]
 
     builder_polygon = [
-        create_builder_polygon(p) for p in footprint_polygons if p is not None
+        create_builder_polygon(p.to_polygon())
+        for p in footprint_polygons
+        if p is not None
     ]
     if len(pointcloud.points) == len(pointcloud.classification):
         ground_mask = np.logical_or(
