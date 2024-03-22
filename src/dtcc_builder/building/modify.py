@@ -73,7 +73,6 @@ def merge_building_footprints(
 
         building_surface = Surface()
         building_surface.from_polygon(footprint, height)
-        print(f"merge footprint has {len(footprint.exterior.coords)} vertices")
 
         building = Building()
         building.add_geometry(building_surface, GeometryType.LOD0)

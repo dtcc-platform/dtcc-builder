@@ -82,8 +82,9 @@ def build_surface_mesh(
     terrain = city.terrain
     terrain_raster = terrain.raster
     if terrain_raster is None:
-        ValueError("City has no terrain raster data. Please compute terrain first.")
-
+        raise ValueError(
+            "City has no terrain raster data. Please compute terrain first."
+        )
     builder_dem = raster_to_builder_gridfield(terrain_raster)
 
     builder_surfaces = [
