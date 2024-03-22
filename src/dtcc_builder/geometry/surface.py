@@ -1,7 +1,7 @@
-from dtcc_model import Surface
+from dtcc_model import Surface, Mesh
+from dtcc_builder.register import register_model_method
 
-from register import register_model_method
-from meshing.meshing import mesh_surface
+from dtcc_builder.meshing.meshing import mesh_surface
 
 
 @register_model_method

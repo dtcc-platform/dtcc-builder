@@ -1,6 +1,6 @@
 from dtcc_model import MultiSurface, Mesh
-from register import register_model_method
-from meshing.meshing import mesh_multisurface
+from dtcc_builder.register import register_model_method
+from dtcc_builder.meshing.meshing import mesh_multisurface
 from dtcc_builder.polygons.polygons import merge_list_of_polygons
 
 from shapely.geometry import Polygon

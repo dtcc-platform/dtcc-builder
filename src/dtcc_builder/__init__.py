@@ -5,6 +5,7 @@ from . import city_methods
 from . import meshing
 from . import pointcloud
 from . import raster
+from . import geometry
 
 # from .builders import (
 #     build,
@@ -26,13 +27,14 @@ from .geometry_builders.buildings import (
     build_lod1_buildings,
 )
 
+
 from .geometry_builders.meshes import build_surface_mesh
 
-# Add model extensions
-from dtcc_model import City, PointCloud
+# # Add model extensions
+# from dtcc_model import City, PointCloud
 
-City.add_methods(city_methods.compute_building_points, "compute_building_points")
-City.add_methods(city_methods.compute_building_heights, "compute_building_heights")
+# City.add_methods(city_methods.compute_building_points, "compute_building_points")
+# City.add_methods(city_methods.compute_building_heights, "compute_building_heights")
 
 __all__ = [
     "extract_roof_points",
