@@ -1,4 +1,4 @@
-from dtcc_builder.geometry_builders.surface import extrude_building, extrude_surface
+from dtcc_builder.geometry_builders.surface import extrude_surface
 import unittest
 import numpy as np
 
