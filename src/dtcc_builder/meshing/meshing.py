@@ -31,7 +31,7 @@ def mesh_multisurface(ms: MultiSurface, triangle_size=None, weld=False) -> Mesh:
     return mesh
 
 
-def mesh_surface(s: Surface, triangle_size=None, weld=False) -> Mesh:
+def mesh_surface(s: Surface, triangle_size=None) -> Mesh:
     """
     Mesh a `Surface` object into a `Mesh` object.
 
@@ -46,7 +46,9 @@ def mesh_surface(s: Surface, triangle_size=None, weld=False) -> Mesh:
     builder_surface = create_builder_surface(s)
     if triangle_size is None or triangle_size <= 0:
         triangle_size = -1
-    builder_mesh = _dtcc_builder.mesh_surface(builder_surface, triangle_size, weld=weld)
+    builder_mesh = _dtcc_builder.mesh_surface(
+        builder_surface, triangle_size, min_triangel_size=25
+    )
     mesh = builder_mesh_to_mesh(builder_mesh)
     return mesh
 
