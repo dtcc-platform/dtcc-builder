@@ -28,7 +28,7 @@ def mesh_multisurface(ms: MultiSurface, triangle_size=None, weld=False) -> Mesh:
     if triangle_size is None or triangle_size <= 0:
         triangle_size = -1
     builder_mesh = _dtcc_builder.mesh_multisurface(
-        builder_ms, triangle_size, min_mesh_angle, weld=weld
+        builder_ms, triangle_size, min_mesh_angle, weld
     )
     mesh = builder_mesh_to_mesh(builder_mesh)
     return mesh
