@@ -218,7 +218,7 @@ py::list extract_building_points(std::vector<Polygon> &buildings,
 {
   py::list roof_points;
   auto pts_r = pts.unchecked<2>();
-  auto pt_count = pts_r.shape(0);
+  size_t pt_count = pts_r.shape(0);
   std::vector<Vector3D> pc;
   for (size_t i = 0; i < pt_count; i++)
   {
