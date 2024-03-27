@@ -41,17 +41,3 @@ def to_polygon(ms: MultiSurface, simplify=1e-2) -> Polygon:
         merged = make_valid(merged)
         merged = merged.simplify(simplify, preserve_topology=True)
     return merged
-
-
-def _flatten_multi_surfaces(multi_surfaces: [MultiSurface]):
-    offset_ms = [0]
-    offset_surfaces = []
-    vertices = np.ndarray(dtype=np.float64, shape=(0,))
-    array_size = 0
-    for ms in multi_surfaces:
-        for surface in ms.surfaces:
-            flat_vertices = surface.vertices.flatten()
-            array_size += len(flat_vertices)
-    print(f"array_size: {array_size}")
-    vertices = np.zeros(array_size, dtype=np.float64)
-    return vertices, offset_ms, offset_surfaces
